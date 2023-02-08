@@ -27,16 +27,28 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 			return false
 		}
 	}
+	for _, creep := range world.creeps {
+		if creep.stats.shadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+32) {
+			return false
+		}
+	}
 	return true
 }
 
-func createExplosion(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
+func createMuteExplosion(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
 	explosion := newEffectNode(camera, pos, assets.ImageSmallExplosion1)
 	scene.AddObject(explosion)
+}
 
+func playExplosionSound(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
 	explosionSoundIndex := scene.Rand().IntRange(0, 4)
 	explosionSound := resource.AudioID(int(assets.AudioExplosion1) + explosionSoundIndex)
 	playSound(scene, camera, explosionSound, pos)
+}
+
+func createExplosion(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
+	createMuteExplosion(scene, camera, pos)
+	playExplosionSound(scene, camera, pos)
 }
 
 func roundedPos(pos gmath.Vec) gmath.Vec {

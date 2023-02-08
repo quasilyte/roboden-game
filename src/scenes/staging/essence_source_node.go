@@ -65,20 +65,29 @@ var wasteSource = &essenceSourceStats{
 
 var smallScrapSource = &essenceSourceStats{
 	image:      assets.ImageEssenceSmallScrapSource,
-	capacity:   gmath.MakeRange(3, 5),
+	capacity:   gmath.MakeRange(4, 5),
 	regenDelay: 0, // none
 	value:      0.25,
-	canRotate:  true,
+	canRotate:  true, // 1-1.25
 	size:       14,
 }
 
 var scrapSource = &essenceSourceStats{
 	image:      assets.ImageEssenceScrapSource,
-	capacity:   gmath.MakeRange(7, 10),
-	regenDelay: 0, // none
-	value:      0.25,
+	capacity:   gmath.MakeRange(8, 12),
+	regenDelay: 0,    // none
+	value:      0.25, // 2-3
 	canRotate:  true,
 	size:       16,
+}
+
+var bigScrapSource = &essenceSourceStats{
+	image:      assets.ImageEssenceBigScrapSource,
+	capacity:   gmath.MakeRange(8, 16),
+	regenDelay: 0,   // none
+	value:      0.5, // 4-8
+	canRotate:  true,
+	size:       20,
 }
 
 type essenceSourceNode struct {

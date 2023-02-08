@@ -239,7 +239,7 @@ var fighterAgentStats = &agentStats{
 	upkeep:           7,
 	canPatrol:        true,
 	speed:            90,
-	maxHealth:        20,
+	maxHealth:        21,
 	attackRange:      180,
 	attackSound:      assets.AudioFighterBeam,
 	projectileImage:  assets.ImageFighterProjectile,

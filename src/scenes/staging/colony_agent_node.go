@@ -187,7 +187,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModePatrol:
 		a.mode = mode
 		a.dist = a.colonyCore.PatrolRadius()
-		a.waypoint = a.pos.DirectionTo(a.colonyCore.body.Pos).Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.body.Pos)
+		a.waypoint = a.orbitingWaypoint()
 		a.waypointsLeft = a.scene.Rand().IntRange(40, 70)
 		return true
 
@@ -232,7 +232,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			maxDist *= 0.65
 		}
 		a.dist = a.scene.Rand().FloatRange(40, maxDist)
-		a.waypoint = a.pos.DirectionTo(a.colonyCore.body.Pos).Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.body.Pos)
+		a.waypoint = a.orbitingWaypoint()
 		a.waypointsLeft = a.scene.Rand().IntRange(30, 60)
 		return true
 
@@ -297,6 +297,16 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	}
 
 	return false
+}
+
+func (a *colonyAgentNode) orbitingWaypoint() gmath.Vec {
+	var direction gmath.Vec
+	if a.pos == a.colonyCore.body.Pos {
+		direction = gmath.RadToVec(a.scene.Rand().Rad())
+	} else {
+		direction = a.pos.DirectionTo(a.colonyCore.body.Pos)
+	}
+	return direction.Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.body.Pos)
 }
 
 func (a *colonyAgentNode) Update(delta float64) {
@@ -541,7 +551,7 @@ func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {
 func (a *colonyAgentNode) updatePatrol(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
 		a.dist = a.colonyCore.PatrolRadius()
-		a.waypoint = a.pos.DirectionTo(a.colonyCore.body.Pos).Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.body.Pos)
+		a.waypoint = a.orbitingWaypoint()
 		a.waypointsLeft--
 		if a.waypointsLeft == 0 {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
@@ -737,7 +747,7 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 			return
 		}
 		a.waypointsLeft--
-		a.waypoint = a.pos.DirectionTo(a.colonyCore.body.Pos).Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.body.Pos)
+		a.waypoint = a.orbitingWaypoint()
 		if !a.hasTrait(traitNeverStop) && a.energy < 40 && a.scene.Rand().Chance(0.2) {
 			a.AssignMode(agentModeCharging, gmath.Vec{}, nil)
 			return

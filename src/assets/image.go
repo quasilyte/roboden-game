@@ -46,11 +46,13 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceWasteSource:        {Path: "image/waste_source.png"},
 		ImageEssenceScrapSource:        {Path: "image/scrap_source.png"},
 		ImageEssenceSmallScrapSource:   {Path: "image/small_scrap_source.png"},
+		ImageEssenceBigScrapSource:     {Path: "image/big_scrap_source.png"},
 		ImageEssenceSource:             {Path: "image/essence_source.png"},
 		ImageEssenceSourceDissolveMask: {Path: "image/essence_source_dissolve_mask.png"},
 
 		ImagePrimitiveCreep:  {Path: "image/primitive_creep.png"},
 		ImagePrimitiveCreep2: {Path: "image/primitive_creep2.png"},
+		ImageTurretCreep:     {Path: "image/turret_creep.png"},
 
 		ImageBackgroundTiles: {Path: "image/tiles.png"},
 
@@ -59,6 +61,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageFighterProjectile:         {Path: "image/fighter_projectile.png"},
 		ImageWandererProjectile:        {Path: "image/wanderer_projectile.png"},
 		ImageWandererStunnerProjectile: {Path: "image/wanderer_stunner_projectile.png"},
+		ImageMissile:                   {Path: "image/missile.png"},
 	}
 
 	for id, res := range imageResources {
@@ -106,10 +109,12 @@ const (
 	ImageEssenceWasteSource
 	ImageEssenceScrapSource
 	ImageEssenceSmallScrapSource
+	ImageEssenceBigScrapSource
 	ImageEssenceSource
 	ImageEssenceSourceDissolveMask
 	ImagePrimitiveCreep
 	ImagePrimitiveCreep2
+	ImageTurretCreep
 
 	ImageBackgroundTiles
 
@@ -118,4 +123,5 @@ const (
 	ImageFighterProjectile
 	ImageWandererProjectile
 	ImageWandererStunnerProjectile
+	ImageMissile
 )

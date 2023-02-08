@@ -12,6 +12,7 @@ type creepKind int
 const (
 	creepPrimitiveWanderer creepKind = iota
 	creepPrimitiveWandererStunner
+	creepTurret
 	creepUberBoss
 )
 
@@ -60,16 +61,20 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	c.height = agentFlightHeight
 
-	c.shadow = scene.NewSprite(c.stats.shadowImage)
-	c.shadow.Pos.Base = &c.pos
-	c.world.camera.AddGraphics(c.shadow)
-	c.shadow.Pos.Offset.Y = c.height
-	c.shadow.SetAlpha(0.5)
+	if c.stats.shadowImage != assets.ImageNone {
+		c.shadow = scene.NewSprite(c.stats.shadowImage)
+		c.shadow.Pos.Base = &c.pos
+		c.world.camera.AddGraphics(c.shadow)
+		c.shadow.Pos.Offset.Y = c.height
+		c.shadow.SetAlpha(0.5)
+	}
 }
 
 func (c *creepNode) Dispose() {
 	c.sprite.Dispose()
-	c.shadow.Dispose()
+	if c.shadow != nil {
+		c.shadow.Dispose()
+	}
 }
 
 func (c *creepNode) Destroy() {
@@ -97,6 +102,8 @@ func (c *creepNode) Update(delta float64) {
 		c.updatePrimitiveWanderer(delta)
 	case creepUberBoss:
 		c.updateUberBoss(delta)
+	case creepTurret:
+		// Do nothing.
 	default:
 		panic("unexpected creep kind in update()")
 	}
@@ -111,10 +118,27 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 	return c.pos.VecTowards(c.waypoint, c.stats.speed)
 }
 
-func (c *creepNode) OnDamage(damage damageValue, source gmath.Vec) {
-	c.health -= damage.health
-	if c.health < 0 {
-		c.Destroy()
+func (c *creepNode) IsFlying() bool {
+	return c.stats.shadowImage != assets.ImageNone
+}
+
+func (c *creepNode) explode() {
+	switch c.stats.kind {
+	case creepUberBoss:
+		// TODO: big explosion
+	case creepTurret:
+		numExplosions := c.scene.Rand().IntRange(4, 5)
+		for i := 0; i < numExplosions; i++ {
+			offset := gmath.Vec{
+				X: c.scene.Rand().FloatRange(-6, 6),
+				Y: c.scene.Rand().FloatRange(-10, 10),
+			}
+			createMuteExplosion(c.scene, c.world.camera, c.pos.Add(offset))
+		}
+		playExplosionSound(c.scene, c.world.camera, c.pos)
+		scraps := c.world.NewEssenceSourceNode(bigScrapSource, c.pos.Add(gmath.Vec{Y: 7}))
+		c.scene.AddObject(scraps)
+	default:
 		roll := c.scene.Rand().Float()
 		if roll < 0.3 {
 			createExplosion(c.scene, c.world.camera, c.pos)
@@ -126,6 +150,14 @@ func (c *creepNode) OnDamage(damage damageValue, source gmath.Vec) {
 			fall := newDroneFallNode(c.world, scraps, c.stats.image, c.shadow.ImageID(), c.pos, agentFlightHeight)
 			c.scene.AddObject(fall)
 		}
+	}
+}
+
+func (c *creepNode) OnDamage(damage damageValue, source gmath.Vec) {
+	c.health -= damage.health
+	if c.health < 0 {
+		c.explode()
+		c.Destroy()
 		return
 	}
 
@@ -147,13 +179,14 @@ func (c *creepNode) doAttack(target *colonyAgentNode) {
 		p := newProjectileNode(projectileConfig{
 			Camera:      c.world.camera,
 			Image:       c.stats.projectileImage,
-			FromPos:     c.pos,
+			FromPos:     c.pos.Add(c.stats.fireOffset),
 			ToPos:       toPos,
 			Target:      target,
 			Area:        c.stats.projectileArea,
 			Speed:       c.stats.projectileSpeed,
 			RotateSpeed: c.stats.projectileRotateSpeed,
 			Damage:      c.stats.projectileDamage,
+			Explosion:   c.stats.projectileExplosion,
 		})
 		c.scene.AddObject(p)
 		return

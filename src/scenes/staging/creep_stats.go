@@ -3,6 +3,7 @@ package staging
 import (
 	"github.com/quasilyte/colony-game/assets"
 	resource "github.com/quasilyte/ebitengine-resource"
+	"github.com/quasilyte/gmath"
 )
 
 type creepStats struct {
@@ -21,8 +22,27 @@ type creepStats struct {
 	projectileSpeed       float64
 	projectileDamage      damageValue
 	projectileImage       resource.ImageID
+	projectileExplosion   projectileExplosionKind
+	fireOffset            gmath.Vec
 	weaponReload          float64
 	attackSound           resource.AudioID
+}
+
+var turretCreepStats = &creepStats{
+	kind:                creepTurret,
+	image:               assets.ImageTurretCreep,
+	speed:               0,
+	maxHealth:           42,
+	maxTargets:          1,
+	attackSound:         assets.AudioMissile,
+	attackRange:         180,
+	projectileArea:      18,
+	projectileSpeed:     360,
+	projectileDamage:    damageValue{health: 10},
+	projectileImage:     assets.ImageMissile,
+	projectileExplosion: projectileExplosionNormal,
+	fireOffset:          gmath.Vec{Y: -8},
+	weaponReload:        3.5,
 }
 
 var wandererCreepStats = &creepStats{

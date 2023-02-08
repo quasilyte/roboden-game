@@ -1,3 +1,7 @@
+progression & challenges:
+- from the beginning, a dangerous boss is roaming the map
+- 
+
 faction bonuses
 * yellow: +1 payload when collecting resources
 * red: +20% max hp, gradual hp regen
@@ -22,6 +26,7 @@ todo game loop:
 - mouse map scroll
 - make bases vulnerable
 - artifacts victory condition
+- make rockets fly as a rocket
 
 final things:
 - music

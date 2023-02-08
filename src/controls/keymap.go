@@ -25,10 +25,10 @@ const (
 
 func BindKeymap(ctx *ge.Context, state *session.State) {
 	keymap := input.Keymap{
-		ActionPanRight: {input.KeyRight},
-		ActionPanDown:  {input.KeyDown},
-		ActionPanLeft:  {input.KeyLeft},
-		ActionPanUp:    {input.KeyUp},
+		ActionPanRight: {input.KeyRight, input.KeyGamepadLStickRight, input.KeyGamepadRight},
+		ActionPanDown:  {input.KeyDown, input.KeyGamepadLStickDown, input.KeyGamepadDown},
+		ActionPanLeft:  {input.KeyLeft, input.KeyGamepadLStickLeft, input.KeyGamepadLeft},
+		ActionPanUp:    {input.KeyUp, input.KeyGamepadLStickUp, input.KeyGamepadUp},
 
 		ActionToggleColony: {input.KeyTab, input.KeyGamepadL1},
 

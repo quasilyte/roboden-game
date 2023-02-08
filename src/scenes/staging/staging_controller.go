@@ -37,8 +37,8 @@ func NewController(state *session.State) *Controller {
 
 func (c *Controller) Init(scene *ge.Scene) {
 	viewportWorld := &viewport.World{
-		Width:  1920,
-		Height: 1920,
+		Width:  2880,
+		Height: 2880,
 	}
 	c.scene = scene
 	c.camera = viewport.NewCamera(viewportWorld, 1920/2, 1080/2)
@@ -59,51 +59,18 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.world = world
 
 	bg := ge.NewTiledBackground()
-	bg.LoadTileset(scene.Context(), 1920, 1920, assets.ImageBackgroundTiles, assets.RawTilesJSON)
+	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
 	c.camera.AddGraphicsBelow(bg)
 
 	g := newLevelGenerator(scene, c.world)
 	g.Generate()
 
-	core := world.NewColonyCoreNode(colonyConfig{
-		World:  world,
-		Radius: 128,
-		Pos:    gmath.Vec{X: 450, Y: 370},
-	})
-	core.actionPriorities.SetWeight(priorityResources, 0.6)
-	core.actionPriorities.SetWeight(priorityGrowth, 0.3)
-	core.actionPriorities.SetWeight(prioritySecurity, 0.1)
-	scene.AddObject(core)
-	c.selectedColony = core
+	c.selectedColony = world.colonies[0]
+	c.camera.CenterOn(c.selectedColony.body.Pos)
 
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
 	c.colonySelector.Pos.Base = &c.selectedColony.body.Pos
 	c.camera.AddGraphicsBelow(c.colonySelector)
-
-	for i := 0; i < 5; i++ {
-		a := core.NewColonyAgentNode(workerAgentStats, core.body.Pos.Add(scene.Rand().Offset(-20, 20)))
-		// a.faction = blueFactionTag
-		scene.AddObject(a)
-		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-	}
-	// for i := 0; i < 1; i++ {
-	// 	pos := gmath.Vec{X: 800, Y: 700}
-	// 	c := world.NewCreepNode(pos.Add(scene.Rand().Offset(-80, 80)), uberBossCreepStats)
-	// 	scene.AddObject(c)
-	// }
-	// for i := 0; i < 5; i++ {
-	// 	a := core.NewColonyAgentNode(militiaAgentStats, core.body.Pos.Add(scene.Rand().Offset(-200, 200)))
-	// 	a.faction = yellowFactionTag
-	// 	scene.AddObject(a)
-	// 	a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-	// }
-
-	{
-		pos := gmath.Vec{X: 1620, Y: 900}
-		// pos := core.body.Pos.Sub(gmath.Vec{X: 370, Y: 300})
-		boss := world.NewCreepNode(pos, uberBossCreepStats)
-		scene.AddObject(boss)
-	}
 
 	scene.AddGraphics(c.camera)
 

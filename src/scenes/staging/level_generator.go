@@ -2,6 +2,7 @@ package staging
 
 import (
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 )
 
@@ -18,13 +19,34 @@ func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
 }
 
 func (g *levelGenerator) Generate() {
+	g.placePlayers()
 	g.placeResources()
+	g.placeBoss()
 }
 
 func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
 	return gmath.Vec{
 		X: g.scene.Rand().FloatRange(sector.Min.X, sector.Max.X),
 		Y: g.scene.Rand().FloatRange(sector.Min.Y, sector.Max.Y),
+	}
+}
+
+func (g *levelGenerator) placePlayers() {
+	core := g.world.NewColonyCoreNode(colonyConfig{
+		World:  g.world,
+		Radius: 128,
+		Pos:    g.world.rect.Center(),
+	})
+	core.actionPriorities.SetWeight(priorityResources, 0.6)
+	core.actionPriorities.SetWeight(priorityGrowth, 0.3)
+	core.actionPriorities.SetWeight(prioritySecurity, 0.1)
+	g.scene.AddObject(core)
+
+	for i := 0; i < 5; i++ {
+		a := core.NewColonyAgentNode(workerAgentStats, core.body.Pos.Add(g.scene.Rand().Offset(-20, 20)))
+		// a.faction = blueFactionTag
+		g.scene.AddObject(a)
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }
 
@@ -101,34 +123,28 @@ func (g *levelGenerator) placeResources() {
 		numCrystals -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numCrystals), crystalSource)
 	}
 
-	// type resourceSpawn struct {
-	// 	pos   gmath.Vec
-	// 	stats *essenceSourceStats
-	// }
-	// resourceLocations := []resourceSpawn{
-	// 	{stats: scrapSource, pos: gmath.Vec{X: 1020, Y: 640}},
-	// 	{stats: scrapSource, pos: gmath.Vec{X: 150, Y: 300}},
-	// 	{stats: ironSource, pos: gmath.Vec{X: 580, Y: 400}},
-	// 	{stats: goldSource, pos: gmath.Vec{X: 290, Y: 470}},
-	// 	{stats: oilSource, pos: gmath.Vec{X: 160, Y: 210}},
-	// 	{stats: crystalSource, pos: gmath.Vec{X: 90, Y: 270}},
-	// 	{stats: goldSource, pos: gmath.Vec{X: 890, Y: 500}},
-	// 	{stats: oilSource, pos: gmath.Vec{X: 1050, Y: 350}},
-	// 	{stats: ironSource, pos: gmath.Vec{X: 670, Y: 800}},
-	// 	{stats: oilSource, pos: gmath.Vec{X: 460, Y: 760}},
-	// 	{stats: crystalSource, pos: gmath.Vec{X: 300, Y: 800}},
-	// 	{stats: goldSource, pos: gmath.Vec{X: 1600, Y: 900}},
-	// 	{stats: goldSource, pos: gmath.Vec{X: 1550, Y: 860}},
-	// 	{stats: goldSource, pos: gmath.Vec{X: 1300, Y: 920}},
-	// 	{stats: crystalSource, pos: gmath.Vec{X: 1300, Y: 160}},
-	// 	{stats: crystalSource, pos: gmath.Vec{X: 1360, Y: 196}},
-	// 	{stats: crystalSource, pos: gmath.Vec{X: 1296, Y: 180}},
-	// 	{stats: ironSource, pos: gmath.Vec{X: 1190, Y: 400}},
-	// 	{stats: ironSource, pos: gmath.Vec{X: 1160, Y: 460}},
-	// 	{stats: crystalSource, pos: gmath.Vec{X: 100, Y: 890}},
-	// }
-	// for _, spawn := range resourceLocations {
-	// 	e := g.world.NewEssenceSourceNode(spawn.stats, spawn.pos)
-	// 	g.scene.AddObject(e)
-	// }
+	// If there are no resources near the colony spawn pos,
+	// place something in there.
+	for _, core := range g.world.colonies {
+		hasResources := xslices.ContainsWhere(g.world.essenceSources, func(source *essenceSourceNode) bool {
+			return source.pos.DistanceTo(core.body.Pos) <= core.radius
+		})
+		if !hasResources {
+			pos := gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.body.Pos)
+			essence := g.world.NewEssenceSourceNode(ironSource, pos)
+			g.scene.AddObject(essence)
+		}
+	}
+}
+
+func (g *levelGenerator) placeBoss() {
+	spawnLocations := []gmath.Vec{
+		{X: 196, Y: 196},
+		{X: g.world.width - 196, Y: 196},
+		{X: 196, Y: g.world.height - 196},
+		{X: g.world.width - 196, Y: g.world.height - 196},
+	}
+	pos := gmath.RandElem(g.world.rand, spawnLocations)
+	boss := g.world.NewCreepNode(pos, uberBossCreepStats)
+	g.scene.AddObject(boss)
 }

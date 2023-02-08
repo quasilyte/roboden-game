@@ -17,11 +17,16 @@ todo game loop:
 + smooth movement choices (every 2nd is movement)
 + figure something out with resources
 + flying base should be above construction base
-- random level generation
++ random level generation
 - good loot from big creeps
 - mouse map scroll
 - make bases vulnerable
 - artifacts victory condition
+
+final things:
+- music
+- menu
+- tutorial
 
 oleg todo:
 - monster base (stationary)

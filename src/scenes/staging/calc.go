@@ -29,7 +29,7 @@ func agentCloningCost(core *colonyCoreNode, cloner, a *colonyAgentNode) float64 
 }
 
 func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
-	dist := core.body.Pos.DistanceTo(source.pos)
+	dist := core.pos.DistanceTo(source.pos)
 	if dist > core.realRadius*1.8 || source.resource == 0 {
 		return 0
 	}

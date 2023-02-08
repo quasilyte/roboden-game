@@ -61,10 +61,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 	g.Generate()
 
 	c.selectedColony = world.colonies[0]
-	c.camera.CenterOn(c.selectedColony.body.Pos)
+	c.camera.CenterOn(c.selectedColony.pos)
 
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
-	c.colonySelector.Pos.Base = &c.selectedColony.body.Pos
+	c.colonySelector.Pos.Base = &c.selectedColony.spritePos
 	c.camera.AddGraphicsBelow(c.colonySelector)
 
 	scene.AddGraphics(c.camera)
@@ -97,18 +97,18 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	switch choice.Option.special {
 	case specialChoiceMoveNorth:
 		relocationVec = gmath.Vec{Y: c.world.rand.FloatRange(-120, -240)}
-		relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.selectedColony.body.Pos.Y}
+		relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.selectedColony.pos.Y}
 	case specialChoiceMoveEast:
 		relocationVec = gmath.Vec{X: c.world.rand.FloatRange(150, 300)}
-		relocationRect.Min = gmath.Vec{X: c.selectedColony.body.Pos.X}
+		relocationRect.Min = gmath.Vec{X: c.selectedColony.pos.X}
 		relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.world.height}
 	case specialChoiceMoveSouth:
 		relocationVec = gmath.Vec{Y: c.world.rand.FloatRange(120, 240)}
-		relocationRect.Min = gmath.Vec{Y: c.selectedColony.body.Pos.Y}
+		relocationRect.Min = gmath.Vec{Y: c.selectedColony.pos.Y}
 		relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.world.height}
 	case specialChoiceMoveWest:
 		relocationVec = gmath.Vec{X: c.world.rand.FloatRange(-150, -300)}
-		relocationRect.Max = gmath.Vec{X: c.selectedColony.body.Pos.X, Y: c.world.height}
+		relocationRect.Max = gmath.Vec{X: c.selectedColony.pos.X, Y: c.world.height}
 	case specialIncreaseRadius:
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 	case specialDecreaseRadius:
@@ -116,7 +116,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	case specialBuildColony:
 		dist := 52.0
 		for i := 0; i < 5; i++ {
-			constructionPos := c.pickColonyPos(nil, c.selectedColony.body.Pos.Add(c.world.rand.Offset(-dist, dist)), 40, 7)
+			constructionPos := c.pickColonyPos(nil, c.selectedColony.pos.Add(c.world.rand.Offset(-dist, dist)), 40, 7)
 			if !constructionPos.IsZero() {
 				construction := c.world.NewColonyCoreConstructionNode(constructionPos)
 				c.scene.AddObject(construction)
@@ -150,7 +150,7 @@ func (c *Controller) pickColonyPos(core *colonyCoreNode, pos gmath.Vec, r float6
 func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec, rect gmath.Rect) {
 	r := 48.0
 	for i := 0; i < 4; i++ {
-		probe := core.body.Pos.Add(vec)
+		probe := core.pos.Add(vec)
 		relocationPoint := c.pickColonyPos(core, probe, r, 5)
 		if !relocationPoint.IsZero() && rect.Contains(relocationPoint) {
 			core.doRelocation(relocationPoint)
@@ -159,7 +159,7 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec, rect 
 		r -= 2
 		vec = vec.Mulf(0.85)
 	}
-	core.doRelocation(core.body.Pos)
+	core.doRelocation(core.pos)
 }
 
 func (c *Controller) Update(delta float64) {
@@ -192,7 +192,7 @@ func (c *Controller) Update(delta float64) {
 	// 	len(colony.agents),
 	// 	len(colony.combatAgents),
 	// 	colony.calcUnitLimit(),
-	// 	int(colony.radius),
+	// 	int(colony.realRadius),
 	// 	colony.calcUpkeed(),
 	// 	int(colony.GetResourcePriority()*100),
 	// 	int(colony.GetGrowthPriority()*100),
@@ -208,8 +208,8 @@ func (c *Controller) Update(delta float64) {
 
 func (c *Controller) selectNextColony() {
 	c.selectedColony = c.findNextColony()
-	c.colonySelector.Pos.Base = &c.selectedColony.body.Pos
-	c.camera.CenterOn(c.selectedColony.body.Pos)
+	c.colonySelector.Pos.Base = &c.selectedColony.spritePos
+	c.camera.CenterOn(c.selectedColony.pos)
 }
 
 func (c *Controller) findNextColony() *colonyCoreNode {

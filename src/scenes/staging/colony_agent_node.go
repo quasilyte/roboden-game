@@ -302,12 +302,12 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 func (a *colonyAgentNode) orbitingWaypoint() gmath.Vec {
 	var direction gmath.Vec
-	if a.pos == a.colonyCore.body.Pos {
+	if a.pos == a.colonyCore.pos {
 		direction = gmath.RadToVec(a.scene.Rand().Rad())
 	} else {
-		direction = a.pos.DirectionTo(a.colonyCore.body.Pos)
+		direction = a.pos.DirectionTo(a.colonyCore.pos)
 	}
-	return direction.Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.body.Pos)
+	return direction.Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.pos)
 }
 
 func (a *colonyAgentNode) Update(delta float64) {

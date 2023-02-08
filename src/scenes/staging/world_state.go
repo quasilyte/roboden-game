@@ -79,7 +79,7 @@ func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r
 
 func (w *worldState) FindColonyAgent(pos gmath.Vec, r float64, f func(a *colonyAgentNode) bool) *colonyAgentNode {
 	for _, c := range w.colonies {
-		skipIdling := c.body.Pos.DistanceTo(pos)*0.75 > r
+		skipIdling := c.pos.DistanceTo(pos)*0.75 > r
 		if a := w.findColonyAgent(c.combatAgents, pos, r, skipIdling, f); a != nil {
 			return a
 		}

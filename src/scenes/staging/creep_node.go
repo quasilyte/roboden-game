@@ -235,7 +235,7 @@ func (c *creepNode) updatePrimitiveWanderer(delta float64) {
 		} else if c.scene.Rand().Chance(0.4) {
 			// Go somewhere near a random colony.
 			colony := gmath.RandElem(c.scene.Rand(), c.world.colonies)
-			c.setWaypoint(colony.body.Pos.Add(c.scene.Rand().Offset(-200, 200)))
+			c.setWaypoint(colony.pos.Add(c.scene.Rand().Offset(-200, 200)))
 			c.wasAttacking = true
 		} else if c.scene.Rand().Chance(0.3) {
 			// Go to a random screen location.

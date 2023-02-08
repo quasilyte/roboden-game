@@ -2,10 +2,10 @@ package staging
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/quasilyte/colony-game/assets"
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/physics"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 )
@@ -23,6 +23,18 @@ const (
 	colonyModeLanding
 )
 
+var colonyResourceRectOffsets = []float64{
+	18,
+	9,
+	-1,
+}
+
+var pixelsPerResourceRect = []float64{
+	4,
+	5,
+	6,
+}
+
 type colonyCoreNode struct {
 	sprite       *ge.Sprite
 	hatch        *ge.Sprite
@@ -31,8 +43,9 @@ type colonyCoreNode struct {
 
 	scene *ge.Scene
 
-	body   physics.Body
-	height float64
+	pos       gmath.Vec
+	spritePos gmath.Vec
+	height    float64
 
 	mode colonyCoreMode
 
@@ -61,6 +74,8 @@ type colonyCoreNode struct {
 	actionDelay      float64
 	actionPriorities *weightContainer[colonyPriority]
 
+	resourceRects []*ge.Rect
+
 	factionTagPicker *gmath.RandPicker[factionTag]
 
 	factionWeights *weightContainer[factionTag]
@@ -87,7 +102,7 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	c.actionPriorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
 	c.factionWeights = newWeightContainer(neutralFactionTag, yellowFactionTag, redFactionTag, greenFactionTag, blueFactionTag)
 	c.factionWeights.SetWeight(neutralFactionTag, 1.0)
-	c.body.Pos = config.Pos
+	c.pos = config.Pos
 	return c
 }
 
@@ -99,23 +114,36 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.planner = newColonyActionPlanner(c, scene.Rand())
 
 	c.sprite = scene.NewSprite(assets.ImageColonyCore)
-	c.sprite.Pos.Base = &c.body.Pos
+	c.sprite.Pos.Base = &c.spritePos
 	c.world.camera.AddGraphics(c.sprite)
 
 	c.flyingSprite = scene.NewSprite(assets.ImageColonyCoreFlying)
-	c.flyingSprite.Pos.Base = &c.body.Pos
+	c.flyingSprite.Pos.Base = &c.spritePos
 	c.flyingSprite.Visible = false
 	c.world.camera.AddGraphics(c.flyingSprite)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
-	c.hatch.Pos.Base = &c.body.Pos
+	c.hatch.Pos.Base = &c.spritePos
 	c.hatch.Pos.Offset.Y = -20
 	c.world.camera.AddGraphics(c.hatch)
 
 	c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
-	c.shadow.Pos.Base = &c.body.Pos
+	c.shadow.Pos.Base = &c.spritePos
 	c.shadow.Visible = false
 	c.world.camera.AddGraphicsBelow(c.shadow)
+
+	c.resourceRects = make([]*ge.Rect, 3)
+	for i := range c.resourceRects {
+		rect := ge.NewRect(scene.Context(), 6, pixelsPerResourceRect[i])
+		rect.Centered = false
+		cscale := 0.6 + (0.2 * float64(i))
+		rect.FillColorScale.SetRGBA(uint8(float64(0xd6)*cscale), uint8(float64(0x85)*cscale), uint8(float64(0x43)*cscale), 200)
+		rect.Pos.Base = &c.spritePos
+		rect.Pos.Offset.X -= 3
+		rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
+		c.resourceRects[i] = rect
+		c.world.camera.AddGraphics(rect)
+	}
 }
 
 func (c *colonyCoreNode) PatrolRadius() float64 {
@@ -123,11 +151,11 @@ func (c *colonyCoreNode) PatrolRadius() float64 {
 }
 
 func (c *colonyCoreNode) GetEntrancePos() gmath.Vec {
-	return c.body.Pos.Add(gmath.Vec{X: -1, Y: -20})
+	return c.pos.Add(gmath.Vec{X: -1, Y: -20})
 }
 
 func (c *colonyCoreNode) GetStoragePos() gmath.Vec {
-	return c.body.Pos.Add(gmath.Vec{X: 1, Y: 0})
+	return c.pos.Add(gmath.Vec{X: 1, Y: 0})
 }
 
 func (c *colonyCoreNode) GetResourcePriority() float64 {
@@ -191,7 +219,23 @@ func (c *colonyCoreNode) NumAgents() int {
 
 func (c *colonyCoreNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 
+func (c *colonyCoreNode) Dispose() {
+	c.sprite.Dispose()
+	c.hatch.Dispose()
+	c.flyingSprite.Dispose()
+	c.shadow.Dispose()
+	for _, rect := range c.resourceRects {
+		rect.Dispose()
+	}
+}
+
 func (c *colonyCoreNode) Update(delta float64) {
+	// FIXME: this should be fixed in the ge package.
+	c.spritePos.X = math.Round(c.pos.X)
+	c.spritePos.Y = math.Round(c.pos.Y)
+
+	c.updateResourceRects()
+
 	if c.shadow.Visible {
 		c.shadow.Pos.Offset.Y = c.height + 4
 		newShadowAlpha := float32(1.0 - ((c.height / coreFlightHeight) * 0.5))
@@ -209,6 +253,26 @@ func (c *colonyCoreNode) Update(delta float64) {
 		c.updateLanding(delta)
 	case colonyModeNormal:
 		c.updateNormal(delta)
+	}
+}
+
+func (c *colonyCoreNode) updateResourceRects() {
+	const resourcesPerBlock float64 = 80.0
+	unallocated := c.resources.Essence
+	for i, rect := range c.resourceRects {
+		var percentage float64
+		if unallocated >= resourcesPerBlock {
+			percentage = 1.0
+		} else if unallocated <= 0 {
+			percentage = 0
+		} else {
+			percentage = unallocated / resourcesPerBlock
+		}
+		unallocated -= resourcesPerBlock
+		pixels := pixelsPerResourceRect[i]
+		rect.Height = percentage * pixels
+		rect.Pos.Offset.Y = colonyResourceRectOffsets[i] + (pixels - rect.Height)
+		rect.Visible = rect.Height >= 1
 	}
 }
 
@@ -292,7 +356,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.flyingSprite.Visible = true
 	c.sprite.Visible = false
 	c.hatch.Visible = false
-	c.waypoint = c.body.Pos.Sub(gmath.Vec{Y: coreFlightHeight})
+	c.waypoint = c.pos.Sub(gmath.Vec{Y: coreFlightHeight})
 }
 
 func (c *colonyCoreNode) updateTakeoff(delta float64) {
@@ -320,7 +384,7 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.shadow.Visible = false
 		c.sprite.Visible = true
 		c.hatch.Visible = true
-		playSound(c.scene, c.world.camera, assets.AudioColonyLanded, c.body.Pos)
+		playSound(c.scene, c.world.camera, assets.AudioColonyLanded, c.pos)
 	}
 }
 
@@ -392,7 +456,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		c.scene.AddObject(a)
 		c.resources.Essence -= a.stats.cost
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)
-		playSound(c.scene, c.world.camera, assets.AudioAgentProduced, c.body.Pos)
+		playSound(c.scene, c.world.camera, assets.AudioAgentProduced, c.pos)
 		c.openHatchTime = 1.5
 		return true
 
@@ -551,10 +615,10 @@ func (c *colonyCoreNode) FindAgent(f func(a *colonyAgentNode) bool) *colonyAgent
 
 func (c *colonyCoreNode) moveTowards(delta, speed float64, pos gmath.Vec) bool {
 	travelled := speed * delta
-	if c.body.Pos.DistanceTo(pos) <= travelled {
-		c.body.Pos = pos
+	if c.pos.DistanceTo(pos) <= travelled {
+		c.pos = pos
 		return true
 	}
-	c.body.Pos = c.body.Pos.MoveTowards(pos, travelled)
+	c.pos = c.pos.MoveTowards(pos, travelled)
 	return false
 }

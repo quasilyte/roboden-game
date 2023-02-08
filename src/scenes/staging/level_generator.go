@@ -59,7 +59,7 @@ func (g *levelGenerator) placePlayers() {
 	g.scene.AddObject(core)
 
 	for i := 0; i < 5; i++ {
-		a := core.NewColonyAgentNode(workerAgentStats, core.body.Pos.Add(g.scene.Rand().Offset(-20, 20)))
+		a := core.NewColonyAgentNode(workerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
 		// a.faction = blueFactionTag
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
@@ -188,12 +188,12 @@ func (g *levelGenerator) placeResources() {
 	for _, core := range g.world.colonies {
 		hasResources := xslices.ContainsWhere(g.world.essenceSources, func(source *essenceSourceNode) bool {
 			// We don't count scraps as some viable starting resource.
-			return source.pos.DistanceTo(core.body.Pos) <= core.realRadius &&
+			return source.pos.DistanceTo(core.pos) <= core.realRadius &&
 				source.stats != scrapSource &&
 				source.stats != smallScrapSource
 		})
 		if !hasResources {
-			pos := gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.body.Pos)
+			pos := gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.pos)
 			essence := g.world.NewEssenceSourceNode(ironSource, pos)
 			g.scene.AddObject(essence)
 		}

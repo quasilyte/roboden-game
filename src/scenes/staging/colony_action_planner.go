@@ -172,7 +172,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 			if c.attention > 2 {
 				continue
 			}
-			dist := c.pos.DistanceTo(p.colony.body.Pos)
+			dist := c.pos.DistanceTo(p.colony.pos)
 			if dist > p.colony.realRadius*1.75 {
 				continue
 			}
@@ -230,7 +230,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 			if c.NumAgents() < 10 || len(c.availableAgents) < 6 || len(c.availableCombatAgents) < 3 {
 				continue
 			}
-			dist := c.body.Pos.DistanceTo(p.colony.body.Pos)
+			dist := c.pos.DistanceTo(p.colony.pos)
 			if dist > c.realRadius*3 {
 				continue
 			}
@@ -248,7 +248,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 	var closestAttacker *creepNode
 	closestAttackerDist := float64(math.MaxFloat64)
 	for _, creep := range p.world.creeps {
-		dist := creep.pos.DistanceTo(p.colony.body.Pos)
+		dist := creep.pos.DistanceTo(p.colony.pos)
 		if dist >= intrusionDist {
 			continue
 		}

@@ -23,7 +23,7 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 		if colony == skipColony {
 			continue
 		}
-		if colony.body.Pos.DistanceTo(pos) < (radius + 40) {
+		if colony.pos.DistanceTo(pos) < (radius + 40) {
 			return false
 		}
 	}

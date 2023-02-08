@@ -30,7 +30,7 @@ func agentCloningCost(core *colonyCoreNode, cloner, a *colonyAgentNode) float64 
 
 func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 	dist := core.body.Pos.DistanceTo(source.pos)
-	if dist > core.radius*1.8 || source.resource == 0 {
+	if dist > core.realRadius*1.8 || source.resource == 0 {
 		return 0
 	}
 	distScore := 4.0 - gmath.ClampMax(dist/200, 4.0)
@@ -38,7 +38,7 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 	if source.percengage < 0.1 {
 		percentagePenalty += 0.55
 	}
-	if dist > core.radius*1.2 {
+	if dist > core.realRadius*1.2 {
 		percentagePenalty += 0.6
 	}
 	multiplier := 1.0 + (source.stats.value * 0.4)

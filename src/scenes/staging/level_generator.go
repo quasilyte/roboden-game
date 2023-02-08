@@ -127,7 +127,7 @@ func (g *levelGenerator) placeResources() {
 	// place something in there.
 	for _, core := range g.world.colonies {
 		hasResources := xslices.ContainsWhere(g.world.essenceSources, func(source *essenceSourceNode) bool {
-			return source.pos.DistanceTo(core.body.Pos) <= core.radius
+			return source.pos.DistanceTo(core.body.Pos) <= core.realRadius
 		})
 		if !hasResources {
 			pos := gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.body.Pos)

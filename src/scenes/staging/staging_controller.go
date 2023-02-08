@@ -117,9 +117,9 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		relocationVec = gmath.Vec{X: c.world.rand.FloatRange(-150, -300)}
 		relocationRect.Max = gmath.Vec{X: c.selectedColony.body.Pos.X, Y: c.world.height}
 	case specialIncreaseRadius:
-		c.selectedColony.radius += c.world.rand.FloatRange(16, 32)
+		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 	case specialDecreaseRadius:
-		c.selectedColony.radius -= c.world.rand.FloatRange(16, 32)
+		c.selectedColony.realRadius -= c.world.rand.FloatRange(16, 32)
 	case specialBuildColony:
 		dist := 52.0
 		for i := 0; i < 5; i++ {

@@ -174,7 +174,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 				continue
 			}
 			dist := c.pos.DistanceTo(p.colony.body.Pos)
-			if dist > p.colony.radius*1.75 {
+			if dist > p.colony.realRadius*1.75 {
 				continue
 			}
 			if construction == nil || closest > dist {
@@ -232,7 +232,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 				continue
 			}
 			dist := c.body.Pos.DistanceTo(p.colony.body.Pos)
-			if dist > c.radius*3 {
+			if dist > c.realRadius*3 {
 				continue
 			}
 			return colonyAction{
@@ -244,7 +244,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 	}
 
 	// Are there any intruders?
-	intrusionDist := p.colony.radius * 0.8
+	intrusionDist := p.colony.PatrolRadius() * 0.85
 	numAttackers := 0
 	var closestAttacker *creepNode
 	closestAttackerDist := float64(math.MaxFloat64)
@@ -263,7 +263,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 		}
 	}
 	if numAttackers == 0 {
-		numPatrolWanted := int(p.colony.radius / 40)
+		numPatrolWanted := int(p.colony.PatrolRadius() / 40)
 		if p.numGarrisonAgents != 0 && p.numPatrolAgents < numPatrolWanted {
 			return colonyAction{Kind: actionSetPatrol, TimeCost: 0.25}
 		}

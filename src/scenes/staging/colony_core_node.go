@@ -54,7 +54,7 @@ type colonyCoreNode struct {
 
 	openHatchTime float64
 
-	radius float64
+	realRadius float64
 
 	upkeepDelay float64
 
@@ -77,7 +77,7 @@ type colonyConfig struct {
 func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	c := &colonyCoreNode{
 		world:                    config.World,
-		radius:                   config.Radius,
+		realRadius:               config.Radius,
 		agents:                   make([]*colonyAgentNode, 0, 32),
 		availableAgents:          make([]*colonyAgentNode, 0, 32),
 		combatAgents:             make([]*colonyAgentNode, 0, 20),
@@ -116,6 +116,10 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.shadow.Pos.Base = &c.body.Pos
 	c.shadow.Visible = false
 	c.world.camera.AddGraphicsBelow(c.shadow)
+}
+
+func (c *colonyCoreNode) PatrolRadius() float64 {
+	return c.realRadius * (1.0 + c.GetSecurityPriority()*0.25)
 }
 
 func (c *colonyCoreNode) GetEntrancePos() gmath.Vec {
@@ -209,7 +213,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 }
 
 func (c *colonyCoreNode) calcUnitLimit() int {
-	calculated := ((c.radius - 80) * 0.3) + 10
+	calculated := ((c.realRadius - 80) * 0.3) + 10
 	return gmath.Clamp(int(calculated), 10, 128)
 }
 

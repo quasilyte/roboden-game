@@ -186,7 +186,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	switch mode {
 	case agentModePatrol:
 		a.mode = mode
-		a.dist = a.colonyCore.radius
+		a.dist = a.colonyCore.PatrolRadius()
 		a.waypoint = a.pos.DirectionTo(a.colonyCore.body.Pos).Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.body.Pos)
 		a.waypointsLeft = a.scene.Rand().IntRange(40, 70)
 		return true
@@ -227,7 +227,10 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			a.cloningBeam = nil
 		}
 		a.mode = mode
-		maxDist := a.colonyCore.radius * 0.7
+		maxDist := a.colonyCore.realRadius
+		if !a.stats.canPatrol {
+			maxDist *= 0.65
+		}
 		a.dist = a.scene.Rand().FloatRange(40, maxDist)
 		a.waypoint = a.pos.DirectionTo(a.colonyCore.body.Pos).Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.body.Pos)
 		a.waypointsLeft = a.scene.Rand().IntRange(30, 60)
@@ -537,7 +540,7 @@ func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {
 
 func (a *colonyAgentNode) updatePatrol(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
-		a.dist = a.colonyCore.radius
+		a.dist = a.colonyCore.PatrolRadius()
 		a.waypoint = a.pos.DirectionTo(a.colonyCore.body.Pos).Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.body.Pos)
 		a.waypointsLeft--
 		if a.waypointsLeft == 0 {

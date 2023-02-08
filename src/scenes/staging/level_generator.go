@@ -126,11 +126,11 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 func (g *levelGenerator) placeResources() {
 	rand := g.scene.Rand()
 
-	numIron := rand.IntRange(18, 26)
+	numIron := rand.IntRange(26, 38)
 	numScrap := rand.IntRange(8, 10)
-	numGold := rand.IntRange(10, 16)
-	numCrystals := rand.IntRange(8, 14)
-	numOil := rand.IntRange(6, 9)
+	numGold := rand.IntRange(18, 28)
+	numCrystals := rand.IntRange(12, 18)
+	numOil := rand.IntRange(7, 11)
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 

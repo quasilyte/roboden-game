@@ -305,7 +305,7 @@ func (c *colonyCoreNode) updateTakeoff(delta float64) {
 }
 
 func (c *colonyCoreNode) updateRelocating(delta float64) {
-	if c.moveTowards(delta, 15, c.waypoint) {
+	if c.moveTowards(delta, 16, c.waypoint) {
 		c.waypoint = c.relocationPoint
 		c.mode = colonyModeLanding
 	}

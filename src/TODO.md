@@ -25,8 +25,8 @@ todo game loop:
 - good loot from big creeps
 - mouse map scroll
 - make bases vulnerable
+- add spawning colony (always somewhere on the edge of the map)
 - artifacts victory condition
-- make rockets fly as a rocket
 
 final things:
 - music

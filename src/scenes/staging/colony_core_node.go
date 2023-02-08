@@ -59,6 +59,7 @@ type colonyCoreNode struct {
 	agents       []*colonyAgentNode
 	combatAgents []*colonyAgentNode
 
+	hasRedMiner              bool
 	availableAgents          []*colonyAgentNode
 	availableCombatAgents    []*colonyAgentNode
 	availableUniversalAgents []*colonyAgentNode

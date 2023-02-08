@@ -29,10 +29,10 @@ var oilSource = &essenceSourceStats{
 
 var redOilSource = &essenceSourceStats{
 	image:      assets.ImageRedEssenceSource,
-	capacity:   gmath.MakeRange(60, 100),
+	capacity:   gmath.MakeRange(40, 80),
 	regenDelay: 8,
-	value:      1.5, // 90-150 total
-	canRotate:  true,
+	value:      1.5, // 60-120 total
+	canRotate:  false,
 	size:       32,
 }
 

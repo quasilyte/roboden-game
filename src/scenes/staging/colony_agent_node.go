@@ -254,13 +254,17 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		if !a.stats.canGather {
 			return false
 		}
-		energyCost := target.(*essenceSourceNode).pos.DistanceTo(a.pos) / 2
+		source := target.(*essenceSourceNode)
+		if source.stats == redOilSource && a.stats.kind != agentRedminer {
+			return false
+		}
+		energyCost := source.pos.DistanceTo(a.pos) / 2
 		if energyCost > a.energy {
 			return false
 		}
 		a.energyBill += energyCost
 		a.mode = mode
-		a.waypoint = target.(*essenceSourceNode).pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8))
+		a.waypoint = roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8)))
 		a.target = target
 		return true
 
@@ -314,7 +318,7 @@ func (a *colonyAgentNode) orbitingWaypoint() gmath.Vec {
 func (a *colonyAgentNode) Update(delta float64) {
 	a.anim.Tick(delta)
 
-	a.shadow.Pos.Offset.Y = a.height + 4
+	a.shadow.Pos.Offset.Y = math.Round(a.height + 4)
 	newShadowAlpha := float32(1.0 - ((a.height / agentFlightHeight) * 0.5))
 	a.shadow.SetAlpha(newShadowAlpha)
 

@@ -32,14 +32,19 @@ func newColonyActionPlanner(colony *colonyCoreNode, rand *gmath.Rand) *colonyAct
 func (p *colonyActionPlanner) PickAction() colonyAction {
 	p.leadingFaction = p.colony.factionWeights.MaxKey()
 	p.numPatrolAgents = 0
+	p.colony.hasRedMiner = false
 	p.colony.availableAgents = p.colony.availableAgents[:0]
 	p.colony.availableCombatAgents = p.colony.availableCombatAgents[:0]
 	p.colony.availableUniversalAgents = p.colony.availableUniversalAgents[:0]
 	leadingFactionAgents := 0
 	leadingFactionCombatAgents := 0
+
 	for _, a := range p.colony.agents {
 		if a.mode == agentModeStandby {
 			p.colony.availableAgents = append(p.colony.availableAgents, a)
+			if a.stats.kind == agentRedminer {
+				p.colony.hasRedMiner = true
+			}
 		}
 		if a.faction == p.leadingFaction {
 			leadingFactionAgents++

@@ -29,7 +29,7 @@ todo game loop:
 - artifacts victory condition
 
 - fix movement mechanics
-- add red-oil harvester (other units can't collect it)
++ add red-oil harvester (other units can't collect it)
 + display resource level
 
 ui:

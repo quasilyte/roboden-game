@@ -34,7 +34,6 @@ func NewCamera(w *World, width, height float64) *Camera {
 			Min: gmath.Vec{},
 			Max: gmath.Vec{X: width, Y: height},
 		},
-		// screen: ebiten.NewImage(int(width), int(height)),
 		screen: ebiten.NewImage(int(w.Width), int(w.Height)),
 	}
 }

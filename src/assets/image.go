@@ -26,6 +26,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
 		ImageUberBoss:           {Path: "image/uber_boss.png"},
 		ImageUberBossShadow:     {Path: "image/uber_boss_shadow.png"},
+		ImageCreepBase:          {Path: "image/creep_base.png", FrameWidth: 32},
 		ImageColonyCoreSelector: {Path: "image/colony_core_selector.png"},
 		ImageColonyCore:         {Path: "image/colony_core.png"},
 		ImageColonyCoreFlying:   {Path: "image/colony_core_flying.png"},
@@ -90,6 +91,7 @@ const (
 	ImageFactionDiode
 	ImageUberBoss
 	ImageUberBossShadow
+	ImageCreepBase
 	ImageColonyCoreSelector
 	ImageColonyCore
 	ImageColonyCoreFlying

@@ -13,6 +13,7 @@ const (
 	creepPrimitiveWanderer creepKind = iota
 	creepPrimitiveWandererStunner
 	creepTurret
+	creepBase
 	creepUberBoss
 )
 
@@ -25,10 +26,11 @@ type creepNode struct {
 	world *worldState
 	stats *creepStats
 
-	pos           gmath.Vec
-	waypoint      gmath.Vec
-	wasAttacking  bool
-	wasRetreating bool
+	pos             gmath.Vec
+	waypoint        gmath.Vec
+	wasAttacking    bool
+	wasRetreating   bool
+	spawnedFromBase bool
 
 	specialDelay    float64
 	specialModifier float64
@@ -67,6 +69,9 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.world.camera.AddGraphics(c.shadow)
 		c.shadow.Pos.Offset.Y = c.height
 		c.shadow.SetAlpha(0.5)
+		if c.spawnedFromBase {
+			c.shadow.Visible = false
+		}
 	}
 }
 
@@ -102,6 +107,8 @@ func (c *creepNode) Update(delta float64) {
 		c.updatePrimitiveWanderer(delta)
 	case creepUberBoss:
 		c.updateUberBoss(delta)
+	case creepBase:
+		c.updateCreepBase(delta)
 	case creepTurret:
 		// Do nothing.
 	default:
@@ -122,20 +129,20 @@ func (c *creepNode) IsFlying() bool {
 	return c.stats.shadowImage != assets.ImageNone
 }
 
+func (c *creepNode) spriteRect() gmath.Rect {
+	offset := gmath.Vec{X: c.sprite.FrameWidth * 0.5, Y: c.sprite.FrameHeight * 0.5}
+	return gmath.Rect{
+		Min: c.pos.Sub(offset),
+		Max: c.pos.Add(offset),
+	}
+}
+
 func (c *creepNode) explode() {
 	switch c.stats.kind {
 	case creepUberBoss:
 		// TODO: big explosion
-	case creepTurret:
-		numExplosions := c.scene.Rand().IntRange(4, 5)
-		for i := 0; i < numExplosions; i++ {
-			offset := gmath.Vec{
-				X: c.scene.Rand().FloatRange(-6, 6),
-				Y: c.scene.Rand().FloatRange(-10, 10),
-			}
-			createMuteExplosion(c.scene, c.world.camera, c.pos.Add(offset))
-		}
-		playExplosionSound(c.scene, c.world.camera, c.pos)
+	case creepTurret, creepBase:
+		createAreaExplosion(c.scene, c.world.camera, c.spriteRect())
 		scraps := c.world.NewEssenceSourceNode(bigScrapSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.scene.AddObject(scraps)
 	default:
@@ -246,6 +253,8 @@ func (c *creepNode) updatePrimitiveWanderer(delta float64) {
 
 	if c.moveTowards(delta, c.waypoint) {
 		c.waypoint = gmath.Vec{}
+		c.shadow.Visible = true
+		c.health = agentFlightHeight
 	}
 }
 
@@ -262,6 +271,59 @@ func (c *creepNode) maybeSpawnWaste() bool {
 	c.specialTarget = wastePool
 	c.specialModifier = c.scene.Rand().FloatRange(0.45, 0.95)
 	return true
+}
+
+func (c *creepNode) updateCreepBase(delta float64) {
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+	if c.specialDelay == 0 && c.specialModifier < 15 {
+		c.specialDelay = c.scene.Rand().FloatRange(55, 90)
+		c.specialModifier += 1 // base level up
+	}
+
+	level := int(c.specialModifier)
+	numSpawned := 0
+	switch level {
+	case 0:
+		// The base is inactive.
+		c.sprite.FrameOffset.X = 0
+		return
+	case 1, 2, 3:
+		c.sprite.FrameOffset.X = 32 * 1
+		numSpawned = 1
+	case 4, 5, 6:
+		c.sprite.FrameOffset.X = 32 * 2
+		numSpawned = 2
+	default:
+		c.sprite.FrameOffset.X = 32 * 3
+		numSpawned = 3
+	}
+
+	if c.attackDelay != 0 {
+		return
+	}
+
+	c.attackDelay = c.scene.Rand().FloatRange(65, 80)
+
+	spawnPoints := [...]gmath.Vec{
+		c.pos.Add(gmath.Vec{X: -5, Y: -5}),
+		c.pos.Add(gmath.Vec{X: 8, Y: -2}),
+		c.pos.Add(gmath.Vec{X: -5, Y: 6}),
+	}
+	waypointOffsets := [...]gmath.Vec{
+		{X: -9, Y: -36},
+		{X: 8, Y: -30},
+		{X: -1, Y: -28},
+	}
+	for i := 0; i < numSpawned; i++ {
+		spawnPos := spawnPoints[i]
+		waypoint := c.pos.Add(waypointOffsets[i])
+
+		creep := c.world.NewCreepNode(spawnPos, wandererCreepStats)
+		creep.waypoint = waypoint
+		creep.spawnedFromBase = true
+		c.scene.AddObject(creep)
+		creep.height = 0
+	}
 }
 
 func (c *creepNode) updateUberBoss(delta float64) {
@@ -322,8 +384,15 @@ func (c *creepNode) setWaypoint(pos gmath.Vec) {
 	c.waypoint = correctedPos(c.world.rect, pos, 8)
 }
 
+func (c *creepNode) movementSpeed() float64 {
+	if c.spawnedFromBase && c.height == 0 {
+		return c.stats.speed * 0.5
+	}
+	return c.stats.speed
+}
+
 func (c *creepNode) moveTowards(delta float64, pos gmath.Vec) bool {
-	travelled := c.stats.speed * delta
+	travelled := c.movementSpeed() * delta
 	if c.pos.DistanceTo(pos) <= travelled {
 		c.pos = pos
 		return true

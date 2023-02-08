@@ -1,8 +1,6 @@
 package staging
 
 import (
-	"fmt"
-
 	"github.com/quasilyte/colony-game/assets"
 	"github.com/quasilyte/colony-game/controls"
 	"github.com/quasilyte/colony-game/session"
@@ -26,9 +24,6 @@ type Controller struct {
 	camera *viewport.Camera
 
 	debugInfo *ge.Label
-
-	creepSpawnDelay float64
-	creepSpawnRate  float64
 }
 
 func NewController(state *session.State) *Controller {
@@ -78,8 +73,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
 	c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
 	scene.AddGraphics(c.debugInfo)
-	c.creepSpawnDelay = 10
-	c.creepSpawnRate = 50
 
 	choicesPos := gmath.Vec{
 		X: 960 - 224 - 16,
@@ -170,32 +163,6 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec, rect 
 }
 
 func (c *Controller) Update(delta float64) {
-	c.creepSpawnDelay = gmath.ClampMin(c.creepSpawnDelay-delta, 0)
-	if c.creepSpawnDelay == 0 {
-		c.creepSpawnRate = gmath.ClampMin(c.creepSpawnRate-1.25, 10)
-		c.creepSpawnDelay = c.creepSpawnRate
-
-		var spawnPos gmath.Vec
-		roll := c.scene.Rand().Float()
-		if roll < 0.25 {
-			spawnPos.X = c.world.width - 4
-			spawnPos.Y = c.scene.Rand().FloatRange(0, c.world.height)
-		} else if roll < 0.5 {
-			spawnPos.X = c.scene.Rand().FloatRange(0, c.world.width)
-			spawnPos.Y = c.world.height - 4
-		} else if roll < 0.75 {
-			spawnPos.X = 4
-			spawnPos.Y = c.scene.Rand().FloatRange(0, c.world.height)
-		} else {
-			spawnPos.X = c.scene.Rand().FloatRange(0, c.world.width)
-			spawnPos.Y = 4
-		}
-		spawnPos = roundedPos(spawnPos)
-		creep := c.world.NewCreepNode(spawnPos, wandererCreepStats)
-		c.scene.AddObject(creep)
-		fmt.Println("spawn at", spawnPos, "next after", c.creepSpawnRate, "seconds")
-	}
-
 	c.choices.Enabled = c.selectedColony != nil &&
 		c.selectedColony.mode == colonyModeNormal
 

@@ -45,6 +45,13 @@ var turretCreepStats = &creepStats{
 	weaponReload:        3.5,
 }
 
+var baseCreepStats = &creepStats{
+	kind:      creepBase,
+	image:     assets.ImageCreepBase,
+	speed:     0,
+	maxHealth: 70,
+}
+
 var wandererCreepStats = &creepStats{
 	kind:             creepPrimitiveWanderer,
 	image:            assets.ImagePrimitiveCreep,
@@ -53,7 +60,7 @@ var wandererCreepStats = &creepStats{
 	maxHealth:        15,
 	maxTargets:       1,
 	attackSound:      assets.AudioWandererBeam,
-	attackRange:      200,
+	attackRange:      190,
 	projectileArea:   10,
 	projectileSpeed:  400,
 	projectileDamage: damageValue{health: 5},

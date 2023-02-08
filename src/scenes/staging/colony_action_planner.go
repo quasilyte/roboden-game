@@ -1,7 +1,6 @@
 package staging
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/quasilyte/gmath"
@@ -292,7 +291,6 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 	if secondAgent == nil {
 		return colonyAction{}
 	}
-	fmt.Println("merge", firstAgent.stats.kind, secondAgent.stats.kind)
 	return colonyAction{
 		Kind:     actionMergeAgents,
 		Value:    firstAgent,

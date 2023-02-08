@@ -1,6 +1,8 @@
 package staging
 
 import (
+	"fmt"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
@@ -31,9 +33,10 @@ func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
 
 func (g *levelGenerator) Generate() {
 	g.placePlayers()
+	g.placeCreepBases()
+	g.placeCreeps()
 	g.placeResources()
 	g.placeBoss()
-	g.placeCreeps()
 }
 
 func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
@@ -67,14 +70,11 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind
 	rand := g.scene.Rand()
 	placed := 0
 	pos := correctedPos(sector, g.randomPos(sector), 128)
-	if pos.DistanceTo(g.playerSpawn) < 256 {
-		return 0
-	}
 	initialPos := pos
 	unitPos := pos
 	for i := 0; i < maxSize; i++ {
-		if !posIsFree(g.world, nil, pos, 28) {
-			continue
+		if !posIsFree(g.world, nil, pos, 28) || pos.DistanceTo(g.playerSpawn) < 320 {
+			break
 		}
 		creep := g.world.NewCreepNode(pos, kind)
 		g.scene.AddObject(creep)
@@ -108,7 +108,7 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 	initialPos := pos
 	for i := 0; i < maxSize; i++ {
 		if !posIsFree(g.world, nil, pos, 8) {
-			continue
+			break
 		}
 		source := g.world.NewEssenceSourceNode(kind, pos)
 		g.scene.AddObject(source)
@@ -216,5 +216,54 @@ func (g *levelGenerator) placeCreeps() {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
 		numTurrets -= g.placeCreepsCluster(sector, 1, turretCreepStats)
+	}
+}
+
+func (g *levelGenerator) placeCreepBases() {
+	// Right now there are always 2 creep bases.
+	// One of them will activate later than another.
+	// The bases are always located somewhere on the map boundary.
+	// Both bases can't be on the same border.
+	pad := 128.0
+	borderWidth := 440.0
+	borders := []gmath.Rect{
+		// top border
+		{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: borderWidth + pad}},
+		// right border
+		{Min: gmath.Vec{X: g.world.width - borderWidth - pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
+		// left border
+		{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: borderWidth + pad, Y: g.world.height - pad}},
+		// bottom border
+		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
+	}
+	gmath.Shuffle(g.scene.Rand(), borders)
+	numBases := 2
+	for i := 0; i < numBases; i++ {
+		border := borders[i]
+		var basePos gmath.Vec
+		for round := 0; round < 32; round++ {
+			posProbe := g.randomPos(border)
+			if posIsFree(g.world, nil, posProbe, 48) {
+				basePos = posProbe
+				break
+			}
+		}
+		if basePos.IsZero() {
+			fmt.Println("couldn't deploy creep base", i+1)
+			continue
+		}
+		fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
+		// Base 1: starts right away with level 2.
+		// Base 2: has 9 minutes delay before level 1.
+		// The first creep
+		base := g.world.NewCreepNode(basePos, baseCreepStats)
+		if i == 0 {
+			base.specialModifier = 1.0
+			base.specialDelay = g.scene.Rand().FloatRange(60, 120)
+			base.attackDelay = g.scene.Rand().FloatRange(40, 50)
+		} else {
+			base.specialDelay = (9 * 60.0) * g.scene.Rand().FloatRange(0.9, 1.1)
+		}
+		g.scene.AddObject(base)
 	}
 }

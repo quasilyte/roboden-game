@@ -28,11 +28,30 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 		}
 	}
 	for _, creep := range world.creeps {
-		if creep.stats.shadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+32) {
+		if creep.stats.shadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+40) {
 			return false
 		}
 	}
 	return true
+}
+
+func createAreaExplosion(scene *ge.Scene, camera *viewport.Camera, rect gmath.Rect) {
+	// FIXME: Rect.Center() does not work properly in gmath.
+	center := gmath.Vec{
+		X: rect.Max.X - rect.Width()*0.5,
+		Y: rect.Max.Y - rect.Height()*0.5,
+	}
+	size := rect.Width() * rect.Height()
+	minExplosions := gmath.ClampMin(size/100.0, 1)
+	numExplosions := scene.Rand().IntRange(int(minExplosions), int(minExplosions*1.3))
+	for i := 0; i < numExplosions; i++ {
+		offset := gmath.Vec{
+			X: scene.Rand().FloatRange(-rect.Width()*0.4, rect.Width()*0.4),
+			Y: scene.Rand().FloatRange(-rect.Height()*0.4, rect.Height()*0.4),
+		}
+		createMuteExplosion(scene, camera, center.Add(offset))
+	}
+	playExplosionSound(scene, camera, center)
 }
 
 func createMuteExplosion(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {

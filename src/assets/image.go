@@ -34,6 +34,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageColonyCoreShadow:   {Path: "image/colony_core_shadow.png"},
 		ImageWorkerAgent:        {Path: "image/worker_agent.png", FrameWidth: 9},
 		ImageMilitiaAgent:       {Path: "image/militia_agent.png", FrameWidth: 11},
+		ImageFlamerAgent:        {Path: "image/flamer_agent.png", FrameWidth: 21},
 		ImageRepairAgent:        {Path: "image/repair_agent.png", FrameWidth: 17},
 		ImageRechargerAgent:     {Path: "image/recharger_agent.png", FrameWidth: 17},
 		ImageFighterAgent:       {Path: "image/fighter_agent.png", FrameWidth: 17},
@@ -49,6 +50,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceSmallScrapSource:   {Path: "image/small_scrap_source.png"},
 		ImageEssenceBigScrapSource:     {Path: "image/big_scrap_source.png"},
 		ImageEssenceSource:             {Path: "image/essence_source.png"},
+		ImageRedEssenceSource:          {Path: "image/red_essence_source.png"},
 		ImageEssenceSourceDissolveMask: {Path: "image/essence_source_dissolve_mask.png"},
 
 		ImagePrimitiveCreep:  {Path: "image/primitive_creep.png"},
@@ -62,6 +64,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageFighterProjectile:         {Path: "image/fighter_projectile.png"},
 		ImageWandererProjectile:        {Path: "image/wanderer_projectile.png"},
 		ImageWandererStunnerProjectile: {Path: "image/wanderer_stunner_projectile.png"},
+		ImageFlamerProjectile:          {Path: "image/flamer_projectile.png"},
 		ImageMissile:                   {Path: "image/missile.png"},
 	}
 
@@ -100,6 +103,7 @@ const (
 	ImageWorkerAgent
 	ImageGeneratorAgent
 	ImageMilitiaAgent
+	ImageFlamerAgent
 	ImageRepairAgent
 	ImageRechargerAgent
 	ImageFighterAgent
@@ -113,6 +117,7 @@ const (
 	ImageEssenceSmallScrapSource
 	ImageEssenceBigScrapSource
 	ImageEssenceSource
+	ImageRedEssenceSource
 	ImageEssenceSourceDissolveMask
 	ImagePrimitiveCreep
 	ImagePrimitiveCreep2
@@ -125,5 +130,6 @@ const (
 	ImageFighterProjectile
 	ImageWandererProjectile
 	ImageWandererStunnerProjectile
+	ImageFlamerProjectile
 	ImageMissile
 )

@@ -23,6 +23,7 @@ const (
 	agentFreighter
 	agentMilitia
 	agentFighter
+	agentFlamer
 	agentRepeller
 	agentRepair
 	agentRecharger
@@ -491,7 +492,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		return
 	}
 
-	a.attackDelay = a.scene.Rand().FloatRange(1, 4.5)
+	a.attackDelay = a.stats.attackDelay * a.scene.Rand().FloatRange(0.8, 1.2)
 
 	var target *creepNode
 	for _, c := range a.colonyCore.world.creeps {
@@ -506,7 +507,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	}
 
 	switch a.stats.kind {
-	case agentMilitia, agentFighter, agentRepeller:
+	case agentMilitia, agentFighter, agentRepeller, agentFlamer:
 		toPos := snipePos(a.stats.projectileSpeed, a.pos, target.pos, target.GetVelocity())
 		p := newProjectileNode(projectileConfig{
 			Camera:      a.colonyCore.world.camera,
@@ -673,7 +674,7 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		if newStats.tier == 2 {
 			newFaction = a.colonyCore.pickAgentFaction()
 		} else {
-			newFaction := a.faction
+			newFaction = a.faction
 			if newFaction == neutralFactionTag || (target.faction != neutralFactionTag && a.faction != target.faction && a.scene.Rand().Bool()) {
 				newFaction = target.faction
 			}

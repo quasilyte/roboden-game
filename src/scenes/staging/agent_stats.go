@@ -52,6 +52,19 @@ func (r *agentMergeRecipe) match(kind colonyAgentKind, faction factionTag, a *co
 	return a.faction == faction
 }
 
+// Merge usage:
+//
+// * militia
+//   * red ++
+//   * blue +
+//   * yellow +
+// * worker
+//   * blue ++++
+//   * yellow ++
+//   * green ++
+//
+// * repeller +
+// * freighter +
 var agentMergeRecipeList = []agentMergeRecipe{
 	{
 		agent1kind:    agentMilitia,
@@ -89,9 +102,18 @@ var agentMergeRecipeList = []agentMergeRecipe{
 		result:        rechargeAgentStats,
 	},
 	{
+		agent1kind:    agentRepeller,
+		agent1faction: neutralFactionTag,
+		agent2kind:    agentFreighter,
+		agent2faction: neutralFactionTag,
+		result:        flamerAgentStats,
+	},
+
+	// Tier 3.
+	{
 		agent1kind:    agentWorker,
-		agent1faction: greenFactionTag,
-		agent2kind:    agentWorker,
+		agent1faction: redFactionTag,
+		agent2kind:    agentMilitia,
 		agent2faction: greenFactionTag,
 		result:        repairAgentStats,
 	},
@@ -128,6 +150,7 @@ type agentStats struct {
 	supportRange  float64
 
 	attackRange           float64
+	attackDelay           float64
 	projectileArea        float64
 	projectileSpeed       float64
 	projectileRotateSpeed float64
@@ -221,12 +244,33 @@ var militiaAgentStats = &agentStats{
 	canPatrol:        true,
 	speed:            75,
 	maxHealth:        12,
-	attackRange:      120,
+	attackRange:      130,
+	attackDelay:      2.5,
 	attackSound:      assets.AudioMilitiaShot,
 	projectileImage:  assets.ImageMilitiaProjectile,
 	projectileArea:   10,
 	projectileSpeed:  180,
 	projectileDamage: damageValue{health: 2, morale: 2},
+}
+
+var flamerAgentStats = &agentStats{
+	kind:             agentFlamer,
+	image:            assets.ImageFlamerAgent,
+	size:             sizeLarge,
+	diodeOffset:      7,
+	tier:             3,
+	cost:             22,
+	upkeep:           8,
+	canPatrol:        true,
+	speed:            130,
+	maxHealth:        35,
+	attackRange:      100,
+	attackDelay:      1.2,
+	attackSound:      assets.AudioFlamerShot,
+	projectileImage:  assets.ImageFlamerProjectile,
+	projectileArea:   18,
+	projectileSpeed:  160,
+	projectileDamage: damageValue{health: 5},
 }
 
 var fighterAgentStats = &agentStats{
@@ -241,6 +285,7 @@ var fighterAgentStats = &agentStats{
 	speed:            90,
 	maxHealth:        21,
 	attackRange:      180,
+	attackDelay:      2,
 	attackSound:      assets.AudioFighterBeam,
 	projectileImage:  assets.ImageFighterProjectile,
 	projectileArea:   8,
@@ -261,10 +306,11 @@ var repellerAgentStats = &agentStats{
 	canPatrol:        true,
 	speed:            115,
 	maxHealth:        22,
-	attackRange:      140,
+	attackRange:      160,
+	attackDelay:      2.4,
 	attackSound:      assets.AudioRepellerBeam,
 	projectileImage:  assets.ImageRepellerProjectile,
 	projectileArea:   10,
 	projectileSpeed:  200,
-	projectileDamage: damageValue{morale: 4},
+	projectileDamage: damageValue{health: 1, morale: 4},
 }

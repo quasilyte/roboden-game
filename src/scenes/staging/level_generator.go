@@ -60,7 +60,7 @@ func (g *levelGenerator) placePlayers() {
 
 	for i := 0; i < 5; i++ {
 		a := core.NewColonyAgentNode(workerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
-		// a.faction = blueFactionTag
+		// a.faction = redFactionTag
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}

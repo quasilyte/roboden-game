@@ -62,6 +62,7 @@ func (r *agentMergeRecipe) match(kind colonyAgentKind, faction factionTag, a *co
 //   * blue ++++
 //   * yellow ++
 //   * green ++
+//   * red ++
 //
 // * repeller +
 // * freighter +
@@ -79,6 +80,13 @@ var agentMergeRecipeList = []agentMergeRecipe{
 		agent2kind:    agentWorker,
 		agent2faction: yellowFactionTag,
 		result:        freighterAgentStats,
+	},
+	{
+		agent1kind:    agentWorker,
+		agent1faction: redFactionTag,
+		agent2kind:    agentWorker,
+		agent2faction: redFactionTag,
+		result:        redminerAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,
@@ -171,6 +179,20 @@ var workerAgentStats = &agentStats{
 	maxPayload:  1,
 	speed:       80,
 	maxHealth:   12,
+}
+
+var redminerAgentStats = &agentStats{
+	kind:        agentRedminer,
+	image:       assets.ImageRedminerAgent,
+	size:        sizeMedium,
+	diodeOffset: 6,
+	tier:        2,
+	cost:        11,
+	upkeep:      3,
+	canGather:   true,
+	maxPayload:  1,
+	speed:       75,
+	maxHealth:   18,
 }
 
 var generatorAgentStats = &agentStats{

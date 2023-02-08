@@ -21,6 +21,7 @@ type colonyAgentKind uint8
 const (
 	agentWorker colonyAgentKind = iota
 	agentFreighter
+	agentRedminer
 	agentMilitia
 	agentFighter
 	agentFlamer

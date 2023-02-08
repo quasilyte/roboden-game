@@ -32,6 +32,10 @@ todo game loop:
 - add red-oil harvester (other units can't collect it)
 + display resource level
 
+ui:
+- show colony movement vector
+- show boss direction
+
 final things:
 - music
 - menu

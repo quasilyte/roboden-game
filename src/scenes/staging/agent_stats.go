@@ -17,7 +17,6 @@ import (
 // * + freighter => a worker with much higher capacity; ?
 // * tetherbot => a worker that connects to another bot and improves it; ?
 // * sciencebot => a worker that generates x2 evolution points; ?
-// * essencebot => a worker that generates resources passively; ?
 // * generatorbot => a worker that decreases the effective upkeep by 15 (~3 militia equiv)
 //
 // tier 3
@@ -25,6 +24,7 @@ import (
 // * artillery => long-range combat unit; fighter + freighter
 // * engineer => a worker that can repair buildings (including the base); repairbot + repairbot
 // * leech => a worker that drains energy from enemies and transfers it to allies; repeller + rechargebot
+// * essencebot => a worker that generates resources passively; ?
 
 type agentMergeRecipe struct {
 	agent1kind    colonyAgentKind

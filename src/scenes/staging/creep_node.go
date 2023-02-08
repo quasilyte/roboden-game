@@ -122,7 +122,7 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 	if c.waypoint.IsZero() {
 		return gmath.Vec{}
 	}
-	return c.pos.VecTowards(c.waypoint, c.stats.speed)
+	return c.pos.VecTowards(c.waypoint, c.movementSpeed())
 }
 
 func (c *creepNode) IsFlying() bool {
@@ -254,7 +254,7 @@ func (c *creepNode) updatePrimitiveWanderer(delta float64) {
 	if c.moveTowards(delta, c.waypoint) {
 		c.waypoint = gmath.Vec{}
 		c.shadow.Visible = true
-		c.health = agentFlightHeight
+		c.height = agentFlightHeight
 	}
 }
 

@@ -316,7 +316,7 @@ var flamerAgentStats = &agentStats{
 	upkeep:           8,
 	canPatrol:        true,
 	speed:            130,
-	maxHealth:        35,
+	maxHealth:        40,
 	attackRange:      100,
 	attackDelay:      1.2,
 	attackSound:      assets.AudioFlamerShot,

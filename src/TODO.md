@@ -3,19 +3,12 @@ todo engine:
 - camera
 - tiled backgrounds with reversed individual tiles
 
-progression & challenges:
-- from the beginning, a dangerous boss is roaming the map
-- 
-
 faction bonuses
 * yellow: +1 payload when collecting resources
 * red: +40% max hp
 * green: makes clones cheaper (x2), creates buildings faster (x1.5)
 * blue: +80% max energy, +15% speed
 
-- spawning new enemies
-
-- evolution can gain evo points if tier2 units are available
 - panic defense mode
 
 todo game loop:
@@ -29,7 +22,7 @@ todo game loop:
 + random level generation
 - good loot from big creeps
 - mouse map scroll
-- add spawning colony (always somewhere on the edge of the map)
++ add spawning colony (always somewhere on the edge of the map)
 - artifacts victory condition
 - add ysort for background objects
 

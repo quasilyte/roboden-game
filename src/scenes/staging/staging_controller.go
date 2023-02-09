@@ -75,15 +75,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.selectNextColony(true)
 	c.camera.CenterOn(c.selectedColony.pos)
 
-	{
-		colony := c.world.NewColonyCoreNode(colonyConfig{
-			Pos:    c.selectedColony.pos.Add(gmath.Vec{X: 200}),
-			Radius: 100,
-			World:  c.world,
-		})
-		scene.AddObject(colony)
-	}
-
 	scene.AddGraphics(c.camera)
 
 	c.debugInfo = scene.NewLabel(assets.FontSmall)

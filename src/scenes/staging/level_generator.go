@@ -76,7 +76,7 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind
 	initialPos := pos
 	unitPos := pos
 	for i := 0; i < maxSize; i++ {
-		if !posIsFree(g.world, nil, pos, 28) || pos.DistanceTo(g.playerSpawn) < 320 {
+		if !posIsFree(g.world, nil, pos, 28) || pos.DistanceTo(g.playerSpawn) < 480 {
 			break
 		}
 		creep := g.world.NewCreepNode(pos, kind)

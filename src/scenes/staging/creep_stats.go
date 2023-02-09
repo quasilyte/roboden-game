@@ -1,6 +1,8 @@
 package staging
 
 import (
+	"image/color"
+
 	"github.com/quasilyte/colony-game/assets"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/gmath"
@@ -23,6 +25,8 @@ type creepStats struct {
 	projectileDamage      damageValue
 	projectileImage       resource.ImageID
 	projectileExplosion   projectileExplosionKind
+	beamColor             color.RGBA
+	beamWidth             float64
 	fireOffset            gmath.Vec
 	weaponReload          float64
 	attackSound           resource.AudioID
@@ -68,6 +72,22 @@ var wandererCreepStats = &creepStats{
 	weaponReload:     1.8,
 }
 
+var assaultCreepStats = &creepStats{
+	kind:             creepAssault,
+	image:            assets.ImageCreepTier3,
+	shadowImage:      assets.ImageBigShadow,
+	speed:            30,
+	maxHealth:        50,
+	maxTargets:       1,
+	attackSound:      assets.AudioAssaultShot,
+	attackRange:      160,
+	projectileArea:   10,
+	projectileSpeed:  460,
+	projectileDamage: damageValue{health: 3},
+	projectileImage:  assets.ImageAssaultProjectile,
+	weaponReload:     0.55,
+}
+
 var uberBossCreepStats = &creepStats{
 	kind:             creepUberBoss,
 	image:            assets.ImageUberBoss,
@@ -78,20 +98,22 @@ var uberBossCreepStats = &creepStats{
 	attackSound:      assets.AudioRailgun,
 	attackRange:      250,
 	projectileDamage: damageValue{health: 8},
+	beamColor:        railgunBeamColor,
+	beamWidth:        3,
 	weaponReload:     2.8,
 }
 
-// var wandererStunnerCreepStats = &creepStats{
-// 	kind:                  creepPrimitiveWandererStunner,
-// 	image:                 assets.ImagePrimitiveCreep2,
-// 	speed:                 45,
-// 	maxHealth:             25,
-// 	maxTargets:            2,
-// 	attackSound:           assets.AudioStunBeam,
-// 	attackRange:           230,
-// 	projectileArea:        15,
-// 	projectileSpeed:       340,
-// 	projectileDamage:      damageValue{energy: 50},
-// 	projectileImage:       assets.ImageWandererStunnerProjectile,
-// 	projectileRotateSpeed: 20,
-// }
+var stunnerCreepStats = &creepStats{
+	kind:             creepStunner,
+	image:            assets.ImageCreepTier2,
+	shadowImage:      assets.ImageMediumShadow,
+	speed:            55,
+	maxHealth:        30,
+	maxTargets:       2,
+	attackSound:      assets.AudioStunBeam,
+	attackRange:      230,
+	projectileDamage: damageValue{health: 2, energy: 50},
+	beamColor:        stunnerBeamColor,
+	beamWidth:        2,
+	weaponReload:     2.6,
+}

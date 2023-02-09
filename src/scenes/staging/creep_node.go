@@ -11,7 +11,8 @@ type creepKind int
 
 const (
 	creepPrimitiveWanderer creepKind = iota
-	creepPrimitiveWandererStunner
+	creepStunner
+	creepAssault
 	creepTurret
 	creepBase
 	creepUberBoss
@@ -105,7 +106,7 @@ func (c *creepNode) Update(delta float64) {
 	}
 
 	switch c.stats.kind {
-	case creepPrimitiveWanderer, creepPrimitiveWandererStunner:
+	case creepPrimitiveWanderer, creepStunner, creepAssault:
 		c.updatePrimitiveWanderer(delta)
 	case creepUberBoss:
 		c.updateUberBoss(delta)
@@ -195,9 +196,8 @@ func (c *creepNode) doAttack(target projectileTarget) {
 		return
 	}
 
-	// Only boss attacks with beam so far.
-	beam := newBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, railgunBeamColor)
-	beam.width = 3
+	beam := newBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamColor)
+	beam.width = c.stats.beamWidth
 	c.scene.AddObject(beam)
 	target.OnDamage(c.stats.projectileDamage, c.pos)
 }
@@ -212,10 +212,7 @@ func (c *creepNode) retreatFrom(pos gmath.Vec) {
 func (c *creepNode) findTargets() []projectileTarget {
 	targets := c.world.tmpTargetSlice[:0]
 	c.world.FindColonyAgent(c.pos, c.stats.attackRange, func(a *colonyAgentNode) bool {
-		ok := c.stats.kind != creepPrimitiveWandererStunner || a.energy > 20
-		if ok {
-			targets = append(targets, a)
-		}
+		targets = append(targets, a)
 		return len(targets) >= c.stats.maxTargets
 	})
 	if c.stats.projectileDamage.health == 0 {
@@ -331,7 +328,13 @@ func (c *creepNode) updateCreepBase(delta float64) {
 		return
 	}
 
-	c.attackDelay = c.scene.Rand().FloatRange(65, 80)
+	spawnDelay := c.scene.Rand().FloatRange(65, 80)
+	if level > 11 {
+		spawnDelay *= 0.9
+	} else if level >= 14 {
+		spawnDelay *= 0.75
+	}
+	c.attackDelay = spawnDelay
 
 	spawnPoints := [...]gmath.Vec{
 		c.pos.Add(gmath.Vec{X: -5, Y: -5}),
@@ -343,11 +346,25 @@ func (c *creepNode) updateCreepBase(delta float64) {
 		{X: 8, Y: -30},
 		{X: -1, Y: -28},
 	}
+	tier2chance := 0.0
+	if level >= 4 {
+		tier2chance = 0.3
+	} else if level >= 7 {
+		tier2chance = 0.45
+	} else if level >= 10 {
+		tier2chance = 0.6
+	}
 	for i := 0; i < numSpawned; i++ {
 		spawnPos := spawnPoints[i]
 		waypoint := c.pos.Add(waypointOffsets[i])
 
-		creep := c.world.NewCreepNode(spawnPos, wandererCreepStats)
+		stats := wandererCreepStats
+
+		if tier2chance != 0 && c.scene.Rand().Chance(tier2chance) {
+			stats = stunnerCreepStats
+		}
+
+		creep := c.world.NewCreepNode(spawnPos, stats)
 		creep.waypoint = waypoint
 		creep.spawnedFromBase = true
 		c.scene.AddObject(creep)

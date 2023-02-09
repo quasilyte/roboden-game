@@ -11,6 +11,7 @@ func registerImageResources(ctx *ge.Context) {
 	imageResources := map[resource.ImageID]resource.ImageInfo{
 		ImageSmallShadow:  {Path: "image/small_shadow.png"},
 		ImageMediumShadow: {Path: "image/medium_shadow.png"},
+		ImageBigShadow:    {Path: "image/big_shadow.png"},
 
 		ImageChoiceWindow:         {Path: "image/choice_window.png"},
 		ImageChoiceRechargeWindow: {Path: "image/choice_recharge_window.png"},
@@ -57,20 +58,21 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceSource:           {Path: "image/essence_source.png"},
 		ImageRedEssenceSource:        {Path: "image/red_essence_source.png"},
 
-		ImagePrimitiveCreep:  {Path: "image/primitive_creep.png"},
-		ImagePrimitiveCreep2: {Path: "image/primitive_creep2.png"},
-		ImageTurretCreep:     {Path: "image/turret_creep.png"},
+		ImagePrimitiveCreep: {Path: "image/primitive_creep.png"},
+		ImageCreepTier2:     {Path: "image/tier2_creep.png"},
+		ImageCreepTier3:     {Path: "image/tier3_creep.png", FrameWidth: 25},
+		ImageTurretCreep:    {Path: "image/turret_creep.png"},
 
 		ImageBackgroundTiles: {Path: "image/tiles.png"},
 
-		ImageCripplerProjectile:        {Path: "image/crippler_projectile.png"},
-		ImageMilitiaProjectile:         {Path: "image/militia_projectile.png"},
-		ImageRepellerProjectile:        {Path: "image/repeller_projectile.png"},
-		ImageFighterProjectile:         {Path: "image/fighter_projectile.png"},
-		ImageWandererProjectile:        {Path: "image/wanderer_projectile.png"},
-		ImageWandererStunnerProjectile: {Path: "image/wanderer_stunner_projectile.png"},
-		ImageFlamerProjectile:          {Path: "image/flamer_projectile.png"},
-		ImageMissile:                   {Path: "image/missile.png"},
+		ImageAssaultProjectile:  {Path: "image/assault_projectile.png"},
+		ImageCripplerProjectile: {Path: "image/crippler_projectile.png"},
+		ImageMilitiaProjectile:  {Path: "image/militia_projectile.png"},
+		ImageRepellerProjectile: {Path: "image/repeller_projectile.png"},
+		ImageFighterProjectile:  {Path: "image/fighter_projectile.png"},
+		ImageWandererProjectile: {Path: "image/wanderer_projectile.png"},
+		ImageFlamerProjectile:   {Path: "image/flamer_projectile.png"},
+		ImageMissile:            {Path: "image/missile.png"},
 	}
 
 	for id, res := range imageResources {
@@ -84,6 +86,7 @@ const (
 
 	ImageSmallShadow
 	ImageMediumShadow
+	ImageBigShadow
 
 	ImageChoiceWindow
 	ImageChoiceRechargeWindow
@@ -129,17 +132,18 @@ const (
 	ImageEssenceSource
 	ImageRedEssenceSource
 	ImagePrimitiveCreep
-	ImagePrimitiveCreep2
+	ImageCreepTier2
+	ImageCreepTier3
 	ImageTurretCreep
 
 	ImageBackgroundTiles
 
+	ImageAssaultProjectile
 	ImageCripplerProjectile
 	ImageMilitiaProjectile
 	ImageRepellerProjectile
 	ImageFighterProjectile
 	ImageWandererProjectile
-	ImageWandererStunnerProjectile
 	ImageFlamerProjectile
 	ImageMissile
 )

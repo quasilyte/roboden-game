@@ -23,6 +23,9 @@ type Controller struct {
 
 	choices *choiceWindowNode
 
+	tier3spawnDelay float64
+	tier3spawnRate  float64
+
 	camera *viewport.Camera
 
 	debugInfo *ge.Label
@@ -39,6 +42,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 	c.scene = scene
 	c.camera = viewport.NewCamera(viewportWorld, 1920/2, 1080/2)
+
+	// Start launching tier3 creeps after ~15 minutes.
+	c.tier3spawnDelay = scene.Rand().FloatRange(14*60.0, 16*60.0)
+	c.tier3spawnRate = 1.0
 
 	world := &worldState{
 		camera:         c.camera,
@@ -157,9 +164,38 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec) {
 	core.doRelocation(core.pos)
 }
 
+func (c *Controller) spawnTier3Creep() {
+	c.tier3spawnRate = gmath.ClampMin(c.tier3spawnRate-0.05, 0.4)
+	c.tier3spawnDelay = c.scene.Rand().FloatRange(25, 40) * c.tier3spawnRate
+
+	var spawnPos gmath.Vec
+	roll := c.scene.Rand().Float()
+	if roll < 0.25 {
+		spawnPos.X = c.world.width - 4
+		spawnPos.Y = c.scene.Rand().FloatRange(0, c.world.height)
+	} else if roll < 0.5 {
+		spawnPos.X = c.scene.Rand().FloatRange(0, c.world.width)
+		spawnPos.Y = c.world.height - 4
+	} else if roll < 0.75 {
+		spawnPos.X = 4
+		spawnPos.Y = c.scene.Rand().FloatRange(0, c.world.height)
+	} else {
+		spawnPos.X = c.scene.Rand().FloatRange(0, c.world.width)
+		spawnPos.Y = 4
+	}
+	spawnPos = roundedPos(spawnPos)
+	creep := c.world.NewCreepNode(spawnPos, assaultCreepStats)
+	c.scene.AddObject(creep)
+}
+
 func (c *Controller) Update(delta float64) {
 	c.choices.Enabled = c.selectedColony != nil &&
 		c.selectedColony.mode == colonyModeNormal
+
+	c.tier3spawnDelay = gmath.ClampMin(c.tier3spawnDelay-delta, 0)
+	if c.tier3spawnDelay == 0 {
+		c.spawnTier3Creep()
+	}
 
 	mainInput := c.state.MainInput
 	var cameraPan gmath.Vec

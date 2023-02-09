@@ -78,7 +78,7 @@ var uberBossCreepStats = &creepStats{
 	attackSound:      assets.AudioRailgun,
 	attackRange:      250,
 	projectileDamage: damageValue{health: 8},
-	weaponReload:     2.2,
+	weaponReload:     2.8,
 }
 
 // var wandererStunnerCreepStats = &creepStats{

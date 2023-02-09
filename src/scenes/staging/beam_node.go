@@ -22,6 +22,7 @@ var (
 	rechargerBeamColor = ge.RGB(0x66ced6)
 	railgunBeamColor   = ge.RGB(0xbd1844)
 	stunnerBeamColor   = ge.RGB(0x7d21cd)
+	destroyerBeamColor = ge.RGB(0xf58f54)
 )
 
 func newBeamNode(camera *viewport.Camera, from, to ge.Pos, c color.RGBA) *beamNode {

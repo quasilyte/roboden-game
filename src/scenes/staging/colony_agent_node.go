@@ -25,6 +25,7 @@ const (
 	agentMilitia
 	agentCrippler
 	agentFighter
+	agentDestroyer
 	agentFlamer
 	agentRepeller
 	agentRepair
@@ -529,6 +530,20 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	}
 
 	switch a.stats.kind {
+	case agentDestroyer:
+		target := targets[0]
+		offset := gmath.Vec{X: -4}
+		offsetStep := gmath.Vec{X: 8}
+		for i := 0; i < 2; i++ {
+			pos1 := ge.Pos{Base: &a.pos, Offset: offset}
+			pos2 := ge.Pos{Base: target.GetPos(), Offset: offset}
+			beam := newBeamNode(a.camera(), pos1, pos2, destroyerBeamColor)
+			beam.width = 2
+			a.scene.AddObject(beam)
+			offset = offset.Add(offsetStep)
+		}
+		target.OnDamage(a.stats.projectileDamage, a.pos)
+
 	case agentMilitia, agentFighter, agentRepeller, agentFlamer, agentCrippler:
 		for _, target := range targets {
 			toPos := snipePos(a.stats.projectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())

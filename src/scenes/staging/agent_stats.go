@@ -118,20 +118,24 @@ var agentMergeRecipeList = []agentMergeRecipe{
 		result:        rechargeAgentStats,
 	},
 	{
-		agent1kind:    agentRepeller,
-		agent1faction: neutralFactionTag,
-		agent2kind:    agentFreighter,
-		agent2faction: neutralFactionTag,
-		result:        flamerAgentStats,
-	},
-
-	// Tier 3.
-	{
 		agent1kind:    agentWorker,
 		agent1faction: redFactionTag,
 		agent2kind:    agentMilitia,
 		agent2faction: greenFactionTag,
 		result:        repairAgentStats,
+	},
+
+	// Tier 3.
+	{
+		agent1kind: agentRepeller,
+		agent2kind: agentFreighter,
+		result:     flamerAgentStats,
+	},
+
+	{
+		agent1kind: agentFighter,
+		agent2kind: agentFighter,
+		result:     destroyerAgentStats,
 	},
 }
 
@@ -345,6 +349,24 @@ var fighterAgentStats = &agentStats{
 	projectileArea:   8,
 	projectileSpeed:  220,
 	projectileDamage: damageValue{health: 4},
+	attackTargets:    1,
+}
+
+var destroyerAgentStats = &agentStats{
+	kind:             agentDestroyer,
+	image:            assets.ImageDestroyerAgent,
+	size:             sizeLarge,
+	diodeOffset:      8,
+	tier:             3,
+	cost:             25,
+	upkeep:           15,
+	canPatrol:        true,
+	speed:            85,
+	maxHealth:        35,
+	attackRange:      210,
+	attackDelay:      1.9,
+	attackSound:      assets.AudioDestroyerBeam,
+	projectileDamage: damageValue{health: 6},
 	attackTargets:    1,
 }
 

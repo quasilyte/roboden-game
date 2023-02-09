@@ -9,6 +9,7 @@ todo engine:
 - invisible construction bases?
 + animate tier3 creep
 - if base is destroyed before drones?
++ add tier3 warrior
 
 faction bonuses
 * yellow: +1 payload when collecting resources

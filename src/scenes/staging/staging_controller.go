@@ -77,10 +77,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	scene.AddGraphics(c.camera)
 
-	{
-		creep := c.world.NewCreepNode(c.selectedColony.pos.Add(gmath.Vec{X: 100}), assaultCreepStats)
-		scene.AddObject(creep)
-	}
+	// {
+	// 	creep := c.world.NewCreepNode(c.selectedColony.pos.Add(gmath.Vec{X: 100}), assaultCreepStats)
+	// 	scene.AddObject(creep)
+	// }
 
 	c.debugInfo = scene.NewLabel(assets.FontSmall)
 	c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))

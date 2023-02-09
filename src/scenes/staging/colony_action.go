@@ -29,6 +29,7 @@ const (
 	actionDefencePatrol
 	actionDefencePanic
 	actionMergeAgents
+	actionRepairBase
 	actionBuildBase
 	actionGetReinforcements
 )

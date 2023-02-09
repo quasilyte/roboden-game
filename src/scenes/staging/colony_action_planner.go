@@ -167,6 +167,16 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 }
 
 func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
+	canRepair := len(p.colony.availableAgents) != 0 &&
+		p.colony.health < p.colony.maxHealth &&
+		p.colony.resources.Essence > 30
+	if canRepair && p.world.rand.Chance(0.25) {
+		return colonyAction{
+			Kind:     actionRepairBase,
+			TimeCost: 0.4,
+		}
+	}
+
 	canBuild := len(p.colony.availableAgents) != 0 &&
 		len(p.world.coreConstructions) != 0 &&
 		p.colony.resources.Essence > 20

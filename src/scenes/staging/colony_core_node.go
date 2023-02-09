@@ -174,6 +174,14 @@ func (c *colonyCoreNode) GetVelocity() gmath.Vec {
 	}
 }
 
+func (c *colonyCoreNode) OnHeal(amount float64) {
+	if c.health == c.maxHealth {
+		return
+	}
+	c.health = gmath.ClampMax(c.health+amount, c.maxHealth)
+	c.updateHealthShader()
+}
+
 func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
 	c.health -= damage.health
 	if c.health < 0 {
@@ -488,6 +496,20 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			a.AssignMode(agentModeMineEssence, gmath.Vec{}, action.Value.(*essenceSourceNode))
 		})
 		return true
+
+	case actionRepairBase:
+		repairCost := 10.0
+		ok := false
+		c.pickWorkerUnits(1, func(a *colonyAgentNode) {
+			if c.resources.Essence < repairCost {
+				return
+			}
+			if a.AssignMode(agentModeRepairBase, gmath.Vec{}, nil) {
+				c.resources.Essence -= repairCost
+				ok = true
+			}
+		})
+		return ok
 
 	case actionBuildBase:
 		sendCost := 3.0

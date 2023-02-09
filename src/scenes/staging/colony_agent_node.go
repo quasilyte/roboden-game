@@ -39,6 +39,7 @@ const (
 	agentModeAlignStandby
 	agentModeCharging
 	agentModeMineEssence
+	agentModeRepairBase
 	agentModeReturn
 	agentModePatrol
 	agentModeFollow
@@ -289,6 +290,17 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.waypoint = a.colonyCore.GetEntrancePos()
 		return true
 
+	case agentModeRepairBase:
+		energyCost := 40.0
+		if energyCost > a.energy {
+			return false
+		}
+		a.mode = mode
+		a.energyBill += energyCost
+		a.dist = a.scene.Rand().FloatRange(3, 4) // repair time
+		a.waypoint = gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(a.colonyCore.pos)
+		return true
+
 	case agentModeBuildBase:
 		construction := target.(*colonyCoreConstructionNode)
 		energyCost := construction.pos.DistanceTo(a.pos) * 0.6
@@ -379,6 +391,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRecycleLanding(delta)
 	case agentModeBuildBase:
 		a.updateBuildBase(delta)
+	case agentModeRepairBase:
+		a.updateRepairBase(delta)
 	}
 }
 
@@ -591,6 +605,29 @@ func (a *colonyAgentNode) updateRecycleReturn(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
 		a.colonyCore.openHatchTime = 1.5
 		a.AssignMode(agentModeRecycleLanding, gmath.Vec{}, nil)
+	}
+}
+
+func (a *colonyAgentNode) updateRepairBase(delta float64) {
+	if !a.waypoint.IsZero() {
+		if a.moveTowards(delta, a.waypoint) {
+			a.waypoint = gmath.Vec{}
+			buildPos := ge.Pos{
+				Base:   &a.colonyCore.pos,
+				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-18, 18)},
+			}
+			beam := newCloningBeamNode(a.colonyCore.world.camera, false, &a.pos, buildPos)
+			a.cloningBeam = beam
+			a.scene.AddObject(beam)
+			return
+		}
+		return
+	}
+	a.dist -= delta
+	if a.dist <= 0 {
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		a.colonyCore.OnHeal(a.scene.Rand().FloatRange(3, 5))
+		return
 	}
 }
 

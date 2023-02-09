@@ -48,12 +48,13 @@ var goldSource = &essenceSourceStats{
 }
 
 var crystalSource = &essenceSourceStats{
-	image:      assets.ImageEssenceCrystalSource,
-	capacity:   gmath.MakeRange(10, 20),
-	regenDelay: 0, // none
-	value:      5, // 50-100 total
-	canRotate:  false,
-	size:       16,
+	image:       assets.ImageEssenceCrystalSource,
+	capacity:    gmath.MakeRange(10, 20),
+	regenDelay:  0, // none
+	value:       5, // 50-100 total
+	canRotate:   false,
+	spritesheet: true,
+	size:        16,
 }
 
 var ironSource = &essenceSourceStats{

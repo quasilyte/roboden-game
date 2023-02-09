@@ -36,7 +36,7 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 		ActionChoice2: {input.Key2, input.KeyW, input.KeyGamepadB},
 		ActionChoice3: {input.Key3, input.KeyE, input.KeyGamepadA},
 		ActionChoice4: {input.Key4, input.KeyR, input.KeyGamepadX},
-		ActionChoice5: {input.Key5, input.KeyT, input.KeyA, input.KeyGamepadR1},
+		ActionChoice5: {input.KeyMouseRight, input.KeyGamepadR1},
 	}
 
 	state.MainInput = ctx.Input.NewHandler(0, keymap)

@@ -15,18 +15,16 @@ type specialChoiceKind int
 
 const (
 	specialChoiceNone specialChoiceKind = iota
-	specialChoiceMoveNorth
-	specialChoiceMoveEast
-	specialChoiceMoveSouth
-	specialChoiceMoveWest
+	specialChoiceMoveColony
 	specialDecreaseRadius
 	specialIncreaseRadius
 	specialBuildColony
 )
 
 type selectedChoice struct {
-	Faction factionTag
-	Option  choiceOption
+	Faction   factionTag
+	Option    choiceOption
+	UseCursor bool
 }
 
 type choiceOptionSlot struct {
@@ -50,29 +48,14 @@ type choiceOptionEffect struct {
 
 var specialChoicesList = []choiceOption{
 	{
-		text:    "move north [up]",
-		special: specialChoiceMoveNorth,
-		cost:    15,
-	},
-	{
-		text:    "move east [right]",
-		special: specialChoiceMoveEast,
-		cost:    15,
-	},
-	{
-		text:    "move south [down]",
-		special: specialChoiceMoveSouth,
-		cost:    15,
-	},
-	{
-		text:    "move west [left]",
-		special: specialChoiceMoveWest,
-		cost:    15,
+		text:    "move colony",
+		special: specialChoiceMoveColony,
+		cost:    20,
 	},
 	{
 		text:    "build new colony",
 		special: specialBuildColony,
-		cost:    30,
+		cost:    35,
 	},
 	{
 		text:    "increase radius",
@@ -82,7 +65,7 @@ var specialChoicesList = []choiceOption{
 	{
 		text:    "decrease radius",
 		special: specialDecreaseRadius,
-		cost:    10,
+		cost:    5,
 	},
 }
 
@@ -340,32 +323,38 @@ func (w *choiceWindowNode) Update(delta float64) {
 			controls.ActionChoice5,
 		}
 		for i, a := range actions {
-			if w.input.ActionIsJustPressed(a) {
-				w.activateChoice(i)
-				break
+			info, ok := w.input.JustPressedActionInfo(a)
+			if !ok {
+				continue
 			}
+			w.activateChoice(i, info)
+			break
 		}
 	}
 }
 
-func (w *choiceWindowNode) activateChoice(i int) {
+func (w *choiceWindowNode) activateChoice(i int, info input.EventInfo) {
 	if !w.Enabled {
 		w.scene.Audio().PlaySound(assets.AudioError)
 		return
 	}
 
 	selectedFaction := factionTag(i + 1)
+	choice := selectedChoice{
+		Faction:   selectedFaction,
+		Option:    w.choices[i].option,
+		UseCursor: info.IsMouseEvent(),
+	}
 
+	delayRoll := w.scene.Rand().FloatRange(0.8, 1.2)
 	if i == 4 {
-		w.startCharging(w.choices[i].option.cost * w.scene.Rand().FloatRange(0.8, 1.2))
+		// Special action selected.
+		w.startCharging(w.choices[i].option.cost * delayRoll)
 	} else {
-		w.startCharging(w.scene.Rand().FloatRange(4, 8))
+		w.startCharging(10.0 * delayRoll)
 	}
 
 	w.scene.Audio().PlaySound(assets.AudioChoiceMade)
 
-	w.EventChoiceSelected.Emit(selectedChoice{
-		Faction: selectedFaction,
-		Option:  w.choices[i].option,
-	})
+	w.EventChoiceSelected.Emit(choice)
 }

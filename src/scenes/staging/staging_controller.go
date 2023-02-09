@@ -93,22 +93,30 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	}
 
 	var relocationVec gmath.Vec
-	var relocationRect gmath.Rect
 	switch choice.Option.special {
-	case specialChoiceMoveNorth:
-		relocationVec = gmath.Vec{Y: c.world.rand.FloatRange(-120, -240)}
-		relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.selectedColony.pos.Y}
-	case specialChoiceMoveEast:
-		relocationVec = gmath.Vec{X: c.world.rand.FloatRange(150, 300)}
-		relocationRect.Min = gmath.Vec{X: c.selectedColony.pos.X}
-		relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.world.height}
-	case specialChoiceMoveSouth:
-		relocationVec = gmath.Vec{Y: c.world.rand.FloatRange(120, 240)}
-		relocationRect.Min = gmath.Vec{Y: c.selectedColony.pos.Y}
-		relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.world.height}
-	case specialChoiceMoveWest:
-		relocationVec = gmath.Vec{X: c.world.rand.FloatRange(-150, -300)}
-		relocationRect.Max = gmath.Vec{X: c.selectedColony.pos.X, Y: c.world.height}
+	case specialChoiceMoveColony:
+		if choice.UseCursor {
+			dist := c.world.rand.FloatRange(160, 200)
+			clickPos := c.state.MainInput.CursorPos().Add(c.camera.Offset)
+			relocationVec = c.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
+		} else {
+			panic("TODO")
+		}
+
+	// case specialChoiceMoveNorth:
+	// 	relocationVec = gmath.Vec{Y: c.world.rand.FloatRange(-120, -240)}
+	// 	relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.selectedColony.pos.Y}
+	// case specialChoiceMoveEast:
+	// 	relocationVec = gmath.Vec{X: c.world.rand.FloatRange(150, 300)}
+	// 	relocationRect.Min = gmath.Vec{X: c.selectedColony.pos.X}
+	// 	relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.world.height}
+	// case specialChoiceMoveSouth:
+	// 	relocationVec = gmath.Vec{Y: c.world.rand.FloatRange(120, 240)}
+	// 	relocationRect.Min = gmath.Vec{Y: c.selectedColony.pos.Y}
+	// 	relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.world.height}
+	// case specialChoiceMoveWest:
+	// 	relocationVec = gmath.Vec{X: c.world.rand.FloatRange(-150, -300)}
+	// 	relocationRect.Max = gmath.Vec{X: c.selectedColony.pos.X, Y: c.world.height}
 	case specialIncreaseRadius:
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 	case specialDecreaseRadius:
@@ -126,7 +134,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		}
 	}
 	if !relocationVec.IsZero() {
-		c.launchRelocation(c.selectedColony, relocationVec, relocationRect)
+		c.launchRelocation(c.selectedColony, relocationVec)
 	}
 }
 
@@ -147,12 +155,12 @@ func (c *Controller) pickColonyPos(core *colonyCoreNode, pos gmath.Vec, r float6
 	return gmath.Vec{}
 }
 
-func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec, rect gmath.Rect) {
+func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec) {
 	r := 48.0
 	for i := 0; i < 4; i++ {
 		probe := core.pos.Add(vec)
 		relocationPoint := c.pickColonyPos(core, probe, r, 5)
-		if !relocationPoint.IsZero() && rect.Contains(relocationPoint) {
+		if !relocationPoint.IsZero() {
 			core.doRelocation(relocationPoint)
 			return
 		}

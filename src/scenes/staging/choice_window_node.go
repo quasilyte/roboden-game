@@ -31,6 +31,7 @@ type choiceOptionSlot struct {
 	icon    *ge.Sprite
 	label   *ge.Label
 	labelBg *ge.Rect
+	rect    gmath.Rect
 	option  choiceOption
 }
 
@@ -236,6 +237,10 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 			icon:    icon,
 			label:   l,
 			labelBg: bg,
+			rect: gmath.Rect{
+				Min: bg.AnchorPos().Resolve(),
+				Max: bg.AnchorPos().Resolve().Add(gmath.Vec{X: l.Width, Y: l.Height}),
+			},
 		}
 		offsetY += l.Height + 4
 	}
@@ -315,6 +320,14 @@ func (w *choiceWindowNode) Update(delta float64) {
 		w.chargeBar.SetValue(w.value / w.targetValue)
 
 	case choiceReady:
+		if info, ok := w.input.JustPressedActionInfo(controls.ActionClick); ok {
+			for i, choice := range w.choices[:4] {
+				if choice.rect.Contains(info.Pos) {
+					w.activateChoice(i, info)
+					return
+				}
+			}
+		}
 		actions := [...]input.Action{
 			controls.ActionChoice1,
 			controls.ActionChoice2,
@@ -328,7 +341,7 @@ func (w *choiceWindowNode) Update(delta float64) {
 				continue
 			}
 			w.activateChoice(i, info)
-			break
+			return
 		}
 	}
 }

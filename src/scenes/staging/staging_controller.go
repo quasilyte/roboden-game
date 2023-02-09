@@ -75,6 +75,15 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.selectNextColony(true)
 	c.camera.CenterOn(c.selectedColony.pos)
 
+	{
+		colony := c.world.NewColonyCoreNode(colonyConfig{
+			Pos:    c.selectedColony.pos.Add(gmath.Vec{X: 200}),
+			Radius: 100,
+			World:  c.world,
+		})
+		scene.AddObject(colony)
+	}
+
 	scene.AddGraphics(c.camera)
 
 	c.debugInfo = scene.NewLabel(assets.FontSmall)
@@ -233,6 +242,21 @@ func (c *Controller) Update(delta float64) {
 	if mainInput.ActionIsJustPressed(controls.ActionToggleColony) {
 		c.selectNextColony(true)
 	}
+	if len(c.world.colonies) > 1 {
+		if info, ok := mainInput.JustPressedActionInfo(controls.ActionClick); ok {
+			clickPos := info.Pos.Add(c.camera.Offset)
+			for _, colony := range c.world.colonies {
+				if colony == c.selectedColony {
+					continue
+				}
+				if colony.pos.DistanceTo(clickPos) > 30 {
+					continue
+				}
+				c.selectColony(colony)
+				break
+			}
+		}
+	}
 
 	// colony := c.selectedColony
 	// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d upkeep: %.2f\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",
@@ -256,11 +280,11 @@ func (c *Controller) Update(delta float64) {
 
 func (c *Controller) IsDisposed() bool { return false }
 
-func (c *Controller) selectNextColony(center bool) {
+func (c *Controller) selectColony(colony *colonyCoreNode) {
 	if c.selectedColony != nil {
 		c.selectedColony.EventDestroyed.Disconnect(c)
 	}
-	c.selectedColony = c.findNextColony()
+	c.selectedColony = colony
 	if c.selectedColony == nil {
 		// TODO: game over.
 		fmt.Println("game over")
@@ -271,6 +295,11 @@ func (c *Controller) selectNextColony(center bool) {
 		c.selectNextColony(false)
 	})
 	c.colonySelector.Pos.Base = &c.selectedColony.spritePos
+}
+
+func (c *Controller) selectNextColony(center bool) {
+	colony := c.findNextColony()
+	c.selectColony(colony)
 	if center {
 		c.camera.CenterOn(c.selectedColony.pos)
 	}

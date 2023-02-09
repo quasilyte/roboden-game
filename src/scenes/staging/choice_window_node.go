@@ -56,7 +56,7 @@ var specialChoicesList = []choiceOption{
 	{
 		text:    "build new colony",
 		special: specialBuildColony,
-		cost:    35,
+		cost:    40,
 	},
 	{
 		text:    "increase radius",

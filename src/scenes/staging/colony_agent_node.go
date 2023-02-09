@@ -613,7 +613,11 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 		}
 		return
 	}
-	newColony := target.Construct(delta)
+	amountConstructed := delta
+	if a.faction == greenFactionTag {
+		amountConstructed *= 1.5
+	}
+	newColony := target.Construct(amountConstructed)
 	if newColony != nil {
 		a.colonyCore.DetachAgent(a)
 		newColony.AcceptAgent(a)

@@ -242,11 +242,16 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModeFollow:
+		isPatrol := a.mode == agentModePatrol
 		a.mode = mode
 		a.target = target
 		targetPos := target.(*creepNode).pos
 		a.waypoint = a.pos.DirectionTo(targetPos).Mulf(100).Add(targetPos).Add(a.scene.Rand().Offset(-40, 40))
-		a.waypointsLeft = a.scene.Rand().IntRange(4, 10)
+		if isPatrol {
+			a.waypointsLeft = a.scene.Rand().IntRange(7, 12)
+		} else {
+			a.waypointsLeft = a.scene.Rand().IntRange(10, 15)
+		}
 		return true
 
 	case agentModeCharging:
@@ -788,13 +793,14 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 
 func (a *colonyAgentNode) updateFollow(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
-		if a.waypointsLeft == 0 {
+		target := a.target.(*creepNode)
+		if a.waypointsLeft == 0 || target.IsDisposed() {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
 		a.waypointsLeft--
-		targetPos := a.target.(*creepNode).pos
-		a.waypoint = a.pos.DirectionTo(targetPos).Mulf(100).Add(targetPos).Add(a.scene.Rand().Offset(-40, 40))
+		targetPos := target.pos
+		a.waypoint = a.pos.DirectionTo(targetPos).Mulf(100).Add(targetPos).Add(a.scene.Rand().Offset(-52, 52))
 	}
 }
 

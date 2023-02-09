@@ -15,10 +15,11 @@ type specialChoiceKind int
 
 const (
 	specialChoiceNone specialChoiceKind = iota
-	specialChoiceMoveColony
 	specialDecreaseRadius
 	specialIncreaseRadius
 	specialBuildColony
+	specialAttack
+	specialChoiceMoveColony
 )
 
 type selectedChoice struct {
@@ -48,17 +49,22 @@ type choiceOptionEffect struct {
 
 var specialChoicesList = []choiceOption{
 	{
-		text:    "build new colony",
+		text:    "Attack",
+		special: specialAttack,
+		cost:    5,
+	},
+	{
+		text:    "Build new colony",
 		special: specialBuildColony,
 		cost:    40,
 	},
 	{
-		text:    "increase radius",
+		text:    "Increase radius",
 		special: specialIncreaseRadius,
 		cost:    15,
 	},
 	{
-		text:    "decrease radius",
+		text:    "Decrease radius",
 		special: specialDecreaseRadius,
 		cost:    5,
 	},
@@ -66,67 +72,67 @@ var specialChoicesList = []choiceOption{
 
 var choiceOptionList = []choiceOption{
 	{
-		text: "resources",
+		text: "Resources",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.2},
 		},
 	},
 	{
-		text: "growth",
+		text: "Growth",
 		effects: []choiceOptionEffect{
 			{priority: priorityGrowth, value: 0.2},
 		},
 	},
 	{
-		text: "security",
+		text: "Security",
 		effects: []choiceOptionEffect{
 			{priority: prioritySecurity, value: 0.2},
 		},
 	},
 	{
-		text: "evolution",
+		text: "Evolution",
 		effects: []choiceOptionEffect{
 			{priority: priorityEvolution, value: 0.2},
 		},
 	},
 
 	{
-		text: "resources+growth",
+		text: "Resources+Growth",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.15},
 			{priority: priorityGrowth, value: 0.15},
 		},
 	},
 	{
-		text: "resources+security",
+		text: "Resources+Security",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.15},
 			{priority: prioritySecurity, value: 0.15},
 		},
 	},
 	{
-		text: "resources+evolution",
+		text: "Resources+Evolution",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.15},
 			{priority: priorityEvolution, value: 0.15},
 		},
 	},
 	{
-		text: "growth+security",
+		text: "Growth+Security",
 		effects: []choiceOptionEffect{
 			{priority: priorityGrowth, value: 0.15},
 			{priority: prioritySecurity, value: 0.15},
 		},
 	},
 	{
-		text: "growth+evolution",
+		text: "Growth+Evolution",
 		effects: []choiceOptionEffect{
 			{priority: priorityGrowth, value: 0.15},
 			{priority: priorityEvolution, value: 0.15},
 		},
 	},
 	{
-		text: "security+evolution",
+		text: "Security+Evolution",
 		effects: []choiceOptionEffect{
 			{priority: prioritySecurity, value: 0.15},
 			{priority: priorityEvolution, value: 0.15},

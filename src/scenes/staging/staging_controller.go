@@ -77,11 +77,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	scene.AddGraphics(c.camera)
 
-	// {
-	// 	creep := c.world.NewCreepNode(c.selectedColony.pos.Add(gmath.Vec{X: 100}), assaultCreepStats)
-	// 	scene.AddObject(creep)
-	// }
-
 	c.debugInfo = scene.NewLabel(assets.FontSmall)
 	c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
 	c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
@@ -107,11 +102,12 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 
 	var relocationVec gmath.Vec
 	switch choice.Option.special {
+	case specialAttack:
+		c.launchAttack()
 	case specialChoiceMoveColony:
 		dist := c.world.rand.FloatRange(160, 200)
 		clickPos := c.state.MainInput.CursorPos().Add(c.camera.Offset)
 		relocationVec = c.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
-
 	case specialIncreaseRadius:
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 	case specialDecreaseRadius:
@@ -148,6 +144,38 @@ func (c *Controller) pickColonyPos(core *colonyCoreNode, pos gmath.Vec, r float6
 		maxOffset += 10
 	}
 	return gmath.Vec{}
+}
+
+func (c *Controller) launchAttack() {
+	if len(c.selectedColony.combatAgents) == 0 {
+		return
+	}
+	closeTargets := c.world.tmpTargetSlice[:0]
+	maxDist := gmath.ClampMin(c.selectedColony.PatrolRadius()*1.5, 320)
+	for _, creep := range c.world.creeps {
+		if len(closeTargets) >= 5 {
+			break
+		}
+		if creep.pos.DistanceTo(c.selectedColony.pos) > maxDist {
+			continue
+		}
+		closeTargets = append(closeTargets, creep)
+	}
+	if len(closeTargets) == 0 {
+		return
+	}
+	maxDispatched := gmath.Clamp(int(float64(len(c.selectedColony.combatAgents))*0.6), 1, 15)
+	for _, agent := range c.selectedColony.combatAgents {
+		if agent.mode != agentModeStandby && agent.mode != agentModePatrol {
+			continue
+		}
+		if maxDispatched == 0 {
+			break
+		}
+		maxDispatched--
+		target := gmath.RandElem(c.world.rand, closeTargets)
+		agent.AssignMode(agentModeFollow, gmath.Vec{}, target)
+	}
 }
 
 func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec) {

@@ -15,6 +15,7 @@ const (
 	creepAssault
 	creepTurret
 	creepBase
+	creepTank
 	creepUberBoss
 )
 
@@ -27,6 +28,7 @@ type creepNode struct {
 	world *worldState
 	stats *creepStats
 
+	spawnPos        gmath.Vec
 	pos             gmath.Vec
 	waypoint        gmath.Vec
 	wasAttacking    bool
@@ -48,9 +50,10 @@ type creepNode struct {
 
 func newCreepNode(world *worldState, stats *creepStats, pos gmath.Vec) *creepNode {
 	return &creepNode{
-		world: world,
-		stats: stats,
-		pos:   pos,
+		world:    world,
+		stats:    stats,
+		pos:      pos,
+		spawnPos: pos,
 	}
 }
 
@@ -61,7 +64,14 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	c.sprite = scene.NewSprite(c.stats.image)
 	c.sprite.Pos.Base = &c.pos
-	c.world.camera.AddGraphicsAbove(c.sprite)
+	if c.stats.shadowImage != assets.ImageNone {
+		c.world.camera.AddGraphicsAbove(c.sprite)
+	} else {
+		c.world.camera.AddGraphics(c.sprite)
+	}
+	if c.stats.kind == creepTank {
+		c.sprite.FlipHorizontal = scene.Rand().Bool()
+	}
 
 	c.height = agentFlightHeight
 
@@ -112,6 +122,8 @@ func (c *creepNode) Update(delta float64) {
 		c.updateUberBoss(delta)
 	case creepBase:
 		c.updateCreepBase(delta)
+	case creepTank:
+		c.updateTank(delta)
 	case creepTurret:
 		// Do nothing.
 	default:
@@ -139,6 +151,10 @@ func (c *creepNode) explode() {
 	case creepTurret, creepBase:
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite))
 		scraps := c.world.NewEssenceSourceNode(bigScrapSource, c.pos.Add(gmath.Vec{Y: 7}))
+		c.scene.AddObject(scraps)
+	case creepTank:
+		createExplosion(c.scene, c.world.camera, c.pos)
+		scraps := c.world.NewEssenceSourceNode(smallScrapSource, c.pos.Add(gmath.Vec{Y: 2}))
 		c.scene.AddObject(scraps)
 	default:
 		roll := c.scene.Rand().Float()
@@ -183,7 +199,7 @@ func (c *creepNode) doAttack(target projectileTarget) {
 		p := newProjectileNode(projectileConfig{
 			Camera:      c.world.camera,
 			Image:       c.stats.projectileImage,
-			FromPos:     c.pos.Add(c.stats.fireOffset),
+			FromPos:     c.pos.Add(c.stats.fireOffset).MoveTowards(toPos, 4),
 			ToPos:       toPos,
 			Target:      target,
 			Area:        c.stats.projectileArea,
@@ -297,6 +313,27 @@ func (c *creepNode) maybeSpawnWaste() bool {
 	c.specialTarget = wastePool
 	c.specialModifier = c.scene.Rand().FloatRange(0.45, 0.95)
 	return true
+}
+
+func (c *creepNode) updateTank(delta float64) {
+	if c.waypoint.IsZero() {
+		if c.pos != c.spawnPos {
+			c.waypoint = c.spawnPos
+			c.specialDelay = c.scene.Rand().FloatRange(1, 4)
+		} else {
+			offset := gmath.Vec{
+				X: c.scene.Rand().FloatRange(-40, 40),
+				Y: c.scene.Rand().FloatRange(-4, 4),
+			}
+			c.waypoint = c.spawnPos.Add(offset)
+		}
+	}
+
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
+	if c.moveTowards(delta, c.waypoint) {
+		c.waypoint = gmath.Vec{}
+	}
 }
 
 func (c *creepNode) updateCreepBase(delta float64) {
@@ -431,6 +468,9 @@ func (c *creepNode) setWaypoint(pos gmath.Vec) {
 }
 
 func (c *creepNode) movementSpeed() float64 {
+	if c.stats.kind == creepTank && c.specialDelay != 0 {
+		return 0
+	}
 	if c.spawnedFromBase && c.height == 0 {
 		return c.stats.speed * 0.5
 	}

@@ -62,9 +62,11 @@ func registerImageResources(ctx *ge.Context) {
 		ImageCreepTier2:     {Path: "image/tier2_creep.png"},
 		ImageCreepTier3:     {Path: "image/tier3_creep.png", FrameWidth: 25},
 		ImageTurretCreep:    {Path: "image/turret_creep.png"},
+		ImageLandCreep:      {Path: "image/land_creep.png"},
 
 		ImageBackgroundTiles: {Path: "image/tiles.png"},
 
+		ImageTankProjectile:     {Path: "image/tank_projectile.png"},
 		ImageAssaultProjectile:  {Path: "image/assault_projectile.png"},
 		ImageCripplerProjectile: {Path: "image/crippler_projectile.png"},
 		ImageMilitiaProjectile:  {Path: "image/militia_projectile.png"},
@@ -135,9 +137,11 @@ const (
 	ImageCreepTier2
 	ImageCreepTier3
 	ImageTurretCreep
+	ImageLandCreep
 
 	ImageBackgroundTiles
 
+	ImageTankProjectile
 	ImageAssaultProjectile
 	ImageCripplerProjectile
 	ImageMilitiaProjectile

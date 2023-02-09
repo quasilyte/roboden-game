@@ -28,7 +28,7 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 		}
 	}
 	for _, creep := range world.creeps {
-		if creep.stats.shadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+40) {
+		if creep.stats.shadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+creep.stats.size) {
 			return false
 		}
 	}

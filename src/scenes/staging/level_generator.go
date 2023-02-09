@@ -76,7 +76,7 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind
 	initialPos := pos
 	unitPos := pos
 	for i := 0; i < maxSize; i++ {
-		if !posIsFree(g.world, nil, pos, 28) || pos.DistanceTo(g.playerSpawn) < 520 {
+		if !posIsFree(g.world, nil, pos, 24) || pos.DistanceTo(g.playerSpawn) < 520 {
 			break
 		}
 		creep := g.world.NewCreepNode(pos, kind)
@@ -234,6 +234,13 @@ func (g *levelGenerator) placeCreeps() {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
 		numTurrets -= g.placeCreepsCluster(sector, 1, turretCreepStats)
+	}
+
+	numTanks := rand.IntRange(7, 9)
+	for numTanks > 0 {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numTanks -= g.placeCreepsCluster(sector, 1, tankCreepStats)
 	}
 }
 

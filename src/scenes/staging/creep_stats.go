@@ -14,6 +14,7 @@ type creepStats struct {
 	shadowImage resource.ImageID
 
 	speed float64
+	size  float64
 
 	maxHealth float64
 
@@ -46,6 +47,7 @@ var turretCreepStats = &creepStats{
 	projectileImage:     assets.ImageMissile,
 	projectileExplosion: projectileExplosionNormal,
 	fireOffset:          gmath.Vec{Y: -8},
+	size:                38,
 	weaponReload:        3.5,
 }
 
@@ -54,6 +56,7 @@ var baseCreepStats = &creepStats{
 	image:     assets.ImageCreepBase,
 	speed:     0,
 	maxHealth: 70,
+	size:      60,
 }
 
 var wandererCreepStats = &creepStats{
@@ -70,6 +73,23 @@ var wandererCreepStats = &creepStats{
 	projectileDamage: damageValue{health: 5},
 	projectileImage:  assets.ImageWandererProjectile,
 	weaponReload:     1.8,
+}
+
+var tankCreepStats = &creepStats{
+	kind:             creepTank,
+	image:            assets.ImageLandCreep,
+	speed:            6,
+	maxHealth:        10,
+	maxTargets:       1,
+	attackSound:      assets.AudioTankShot,
+	attackRange:      110,
+	projectileArea:   10,
+	projectileSpeed:  350,
+	projectileDamage: damageValue{health: 3},
+	projectileImage:  assets.ImageTankProjectile,
+	fireOffset:       gmath.Vec{Y: -2},
+	weaponReload:     2.2,
+	size:             24,
 }
 
 var assaultCreepStats = &creepStats{

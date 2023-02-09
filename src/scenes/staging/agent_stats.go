@@ -324,7 +324,7 @@ var flamerAgentStats = &agentStats{
 	projectileArea:   18,
 	projectileSpeed:  160,
 	projectileDamage: damageValue{health: 5},
-	attackTargets:    1,
+	attackTargets:    2,
 }
 
 var fighterAgentStats = &agentStats{

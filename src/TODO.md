@@ -3,6 +3,13 @@ todo engine:
 - camera
 - tiled backgrounds with reversed individual tiles
 
+- make movement always available
+- add "attack" action
+- build bases on click spot
+- invisible construction bases?
+- animate tier3 creep
+- if base is destroyed before drones?
+
 faction bonuses
 * yellow: +1 payload when collecting resources
 * red: +40% max hp

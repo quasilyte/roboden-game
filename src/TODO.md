@@ -12,23 +12,9 @@ faction bonuses
 - panic defense mode
 
 todo game loop:
-+ height regroup bug
-+ more than one base
-+ radius controls ~unit count
-+ change repeller audio effect
-+ smooth movement choices (every 2nd is movement)
-+ figure something out with resources
-+ flying base should be above construction base
-+ random level generation
 - good loot from big creeps
 - mouse map scroll
-+ add spawning colony (always somewhere on the edge of the map)
 - artifacts victory condition
-- add ysort for background objects
-
-+ fix movement mechanics
-+ add red-oil harvester (other units can't collect it)
-+ display resource level
 
 ui:
 - show boss direction
@@ -37,9 +23,3 @@ final things:
 - music
 - menu
 - tutorial
-
-oleg todo:
-- monster base (stationary)
-- monster base (moving)
-- tier 3 creep
-- tier 3 units for the player

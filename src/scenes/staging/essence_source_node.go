@@ -59,9 +59,9 @@ var crystalSource = &essenceSourceStats{
 
 var ironSource = &essenceSourceStats{
 	image:       assets.ImageEssenceIronSource,
-	capacity:    gmath.MakeRange(80, 100),
+	capacity:    gmath.MakeRange(60, 70),
 	regenDelay:  0,   // none
-	value:       0.5, // 40-50 total
+	value:       0.5, // 30-35 total
 	canRotate:   false,
 	spritesheet: true,
 	size:        18,
@@ -70,8 +70,8 @@ var ironSource = &essenceSourceStats{
 var wasteSource = &essenceSourceStats{
 	image:      assets.ImageEssenceWasteSource,
 	capacity:   gmath.MakeRange(30, 30),
-	regenDelay: 0,   // none
-	value:      0.5, // approx 10-15 total
+	regenDelay: 0, // none
+	value:      1, // approx 20-30 total
 	canRotate:  true,
 	size:       30,
 }

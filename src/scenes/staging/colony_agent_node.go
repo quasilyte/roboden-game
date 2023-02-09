@@ -480,15 +480,16 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 
 	switch a.stats.kind {
 	case agentRecharger:
+		const energyRecorery float64 = 25.0
 		target := a.colonyCore.FindRandomAgent(func(x *colonyAgentNode) bool {
 			return x != a &&
-				(x.energy+20) < x.maxEnergy &&
+				(x.energy+energyRecorery) < x.maxEnergy &&
 				x.pos.DistanceTo(a.pos) < a.stats.supportRange
 		})
 		if target != nil {
 			beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, rechargerBeamColor)
 			beam.width = 2
-			target.energy = gmath.ClampMax(target.energy+10, target.maxEnergy)
+			target.energy = gmath.ClampMax(target.energy+energyRecorery, target.maxEnergy)
 			a.scene.AddObject(beam)
 			playSound(a.scene, a.camera(), assets.AudioRechargerBeam, a.pos)
 		}

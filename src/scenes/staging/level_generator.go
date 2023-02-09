@@ -242,7 +242,7 @@ func (g *levelGenerator) placeCreeps() {
 		numTurrets -= g.placeCreepsCluster(sector, 1, turretCreepStats)
 	}
 
-	numTanks := rand.IntRange(7, 9)
+	numTanks := rand.IntRange(10, 15)
 	for numTanks > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()

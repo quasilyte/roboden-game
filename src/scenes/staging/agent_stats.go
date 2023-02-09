@@ -234,7 +234,7 @@ var repairAgentStats = &agentStats{
 	maxPayload:    1,
 	speed:         110,
 	maxHealth:     18,
-	supportReload: 7.5,
+	supportReload: 8.0,
 	supportRange:  300,
 }
 

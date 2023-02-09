@@ -438,6 +438,11 @@ func (c *creepNode) updateUberBoss(delta float64) {
 		}
 	}
 
+	// It regenerated 1 health over 4 seconds (*0.25).
+	// Meaning it's 15 health per minute.
+	// In other words, 10 minutes recover 150 health for this guy.
+	c.health = gmath.ClampMax(c.health+(delta*0.25), c.stats.maxHealth)
+
 	const wasteSpillHeight float64 = 20
 	if c.specialTarget != nil && c.height != wasteSpillHeight {
 		c.height -= delta * 5

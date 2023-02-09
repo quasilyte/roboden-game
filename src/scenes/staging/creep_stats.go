@@ -57,7 +57,7 @@ var baseCreepStats = &creepStats{
 	kind:      creepBase,
 	image:     assets.ImageCreepBase,
 	speed:     0,
-	maxHealth: 70,
+	maxHealth: 110,
 	size:      60,
 }
 
@@ -132,7 +132,7 @@ var stunnerCreepStats = &creepStats{
 	shadowImage:      assets.ImageMediumShadow,
 	speed:            55,
 	maxHealth:        30,
-	maxTargets:       2,
+	maxTargets:       3,
 	attackSound:      assets.AudioStunBeam,
 	attackRange:      230,
 	projectileDamage: damageValue{health: 2, energy: 50},

@@ -104,20 +104,6 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 			panic("TODO")
 		}
 
-	// case specialChoiceMoveNorth:
-	// 	relocationVec = gmath.Vec{Y: c.world.rand.FloatRange(-120, -240)}
-	// 	relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.selectedColony.pos.Y}
-	// case specialChoiceMoveEast:
-	// 	relocationVec = gmath.Vec{X: c.world.rand.FloatRange(150, 300)}
-	// 	relocationRect.Min = gmath.Vec{X: c.selectedColony.pos.X}
-	// 	relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.world.height}
-	// case specialChoiceMoveSouth:
-	// 	relocationVec = gmath.Vec{Y: c.world.rand.FloatRange(120, 240)}
-	// 	relocationRect.Min = gmath.Vec{Y: c.selectedColony.pos.Y}
-	// 	relocationRect.Max = gmath.Vec{X: c.world.width, Y: c.world.height}
-	// case specialChoiceMoveWest:
-	// 	relocationVec = gmath.Vec{X: c.world.rand.FloatRange(-150, -300)}
-	// 	relocationRect.Max = gmath.Vec{X: c.selectedColony.pos.X, Y: c.world.height}
 	case specialIncreaseRadius:
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 	case specialDecreaseRadius:

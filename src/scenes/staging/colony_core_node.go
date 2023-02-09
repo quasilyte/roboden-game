@@ -197,6 +197,10 @@ func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
 }
 
 func (c *colonyCoreNode) Destroy() {
+	for _, agent := range c.agents {
+		agent.OnDamage(damageValue{health: 1000}, gmath.Vec{})
+	}
+
 	c.EventDestroyed.Emit(c)
 	c.Dispose()
 }
@@ -287,6 +291,8 @@ func (c *colonyCoreNode) updateHealthShader() {
 }
 
 func (c *colonyCoreNode) Update(delta float64) {
+	c.OnDamage(damageValue{health: 0.5}, gmath.Vec{})
+
 	// FIXME: this should be fixed in the ge package.
 	c.spritePos.X = math.Round(c.pos.X)
 	c.spritePos.Y = math.Round(c.pos.Y)

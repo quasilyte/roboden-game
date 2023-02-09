@@ -4,11 +4,11 @@ todo engine:
 - tiled backgrounds with reversed individual tiles
 
 + make movement always available
-- add "attack" action
++ add "attack" action
 - "build base" action should fail less often
 - invisible construction bases?
 + animate tier3 creep
-- if base is destroyed before drones?
++ if base is destroyed before drones?
 + add tier3 warrior
 
 faction bonuses

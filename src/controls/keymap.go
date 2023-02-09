@@ -23,6 +23,7 @@ const (
 	ActionChoice3
 	ActionChoice4
 	ActionChoice5
+	ActionMoveChoice
 )
 
 func BindKeymap(ctx *ge.Context, state *session.State) {
@@ -34,11 +35,12 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 
 		ActionToggleColony: {input.KeyTab, input.KeyGamepadL1},
 
-		ActionChoice1: {input.Key1, input.KeyQ, input.KeyGamepadY},
-		ActionChoice2: {input.Key2, input.KeyW, input.KeyGamepadB},
-		ActionChoice3: {input.Key3, input.KeyE, input.KeyGamepadA},
-		ActionChoice4: {input.Key4, input.KeyR, input.KeyGamepadX},
-		ActionChoice5: {input.KeyMouseRight, input.KeyGamepadR1},
+		ActionChoice1:    {input.Key1, input.KeyQ, input.KeyGamepadY},
+		ActionChoice2:    {input.Key2, input.KeyW, input.KeyGamepadB},
+		ActionChoice3:    {input.Key3, input.KeyE, input.KeyGamepadA},
+		ActionChoice4:    {input.Key4, input.KeyR, input.KeyGamepadX},
+		ActionChoice5:    {input.Key5, input.KeyT, input.KeyGamepadR1},
+		ActionMoveChoice: {input.KeyMouseRight},
 
 		ActionClick: {input.KeyMouseLeft},
 	}

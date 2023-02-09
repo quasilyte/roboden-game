@@ -108,13 +108,9 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	var relocationVec gmath.Vec
 	switch choice.Option.special {
 	case specialChoiceMoveColony:
-		if choice.UseCursor {
-			dist := c.world.rand.FloatRange(160, 200)
-			clickPos := c.state.MainInput.CursorPos().Add(c.camera.Offset)
-			relocationVec = c.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
-		} else {
-			panic("TODO")
-		}
+		dist := c.world.rand.FloatRange(160, 200)
+		clickPos := c.state.MainInput.CursorPos().Add(c.camera.Offset)
+		relocationVec = c.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
 
 	case specialIncreaseRadius:
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)

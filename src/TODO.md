@@ -3,7 +3,7 @@ todo engine:
 - camera
 - tiled backgrounds with reversed individual tiles
 
-- make movement always available
++ make movement always available
 - add "attack" action
 - "build base" action should fail less often
 - invisible construction bases?

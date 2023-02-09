@@ -22,9 +22,8 @@ const (
 )
 
 type selectedChoice struct {
-	Faction   factionTag
-	Option    choiceOption
-	UseCursor bool
+	Faction factionTag
+	Option  choiceOption
 }
 
 type choiceOptionSlot struct {
@@ -48,11 +47,6 @@ type choiceOptionEffect struct {
 }
 
 var specialChoicesList = []choiceOption{
-	{
-		text:    "move colony",
-		special: specialChoiceMoveColony,
-		cost:    20,
-	},
 	{
 		text:    "build new colony",
 		special: specialBuildColony,
@@ -320,10 +314,14 @@ func (w *choiceWindowNode) Update(delta float64) {
 		w.chargeBar.SetValue(w.value / w.targetValue)
 
 	case choiceReady:
+		if w.input.ActionIsJustPressed(controls.ActionMoveChoice) {
+			w.activateMoveChoice()
+			return
+		}
 		if info, ok := w.input.JustPressedActionInfo(controls.ActionClick); ok {
-			for i, choice := range w.choices[:4] {
+			for i, choice := range w.choices {
 				if choice.rect.Contains(info.Pos) {
-					w.activateChoice(i, info)
+					w.activateChoice(i)
 					return
 				}
 			}
@@ -336,17 +334,29 @@ func (w *choiceWindowNode) Update(delta float64) {
 			controls.ActionChoice5,
 		}
 		for i, a := range actions {
-			info, ok := w.input.JustPressedActionInfo(a)
-			if !ok {
-				continue
+			if w.input.ActionIsJustPressed(a) {
+				w.activateChoice(i)
 			}
-			w.activateChoice(i, info)
 			return
 		}
 	}
 }
 
-func (w *choiceWindowNode) activateChoice(i int, info input.EventInfo) {
+func (w *choiceWindowNode) activateMoveChoice() {
+	if !w.Enabled {
+		w.scene.Audio().PlaySound(assets.AudioError)
+		return
+	}
+	choice := selectedChoice{
+		Option: choiceOption{special: specialChoiceMoveColony},
+	}
+	delayRoll := w.scene.Rand().FloatRange(0.8, 1.2)
+	w.startCharging(20.0 * delayRoll)
+	w.scene.Audio().PlaySound(assets.AudioChoiceMade)
+	w.EventChoiceSelected.Emit(choice)
+}
+
+func (w *choiceWindowNode) activateChoice(i int) {
 	if !w.Enabled {
 		w.scene.Audio().PlaySound(assets.AudioError)
 		return
@@ -354,9 +364,8 @@ func (w *choiceWindowNode) activateChoice(i int, info input.EventInfo) {
 
 	selectedFaction := factionTag(i + 1)
 	choice := selectedChoice{
-		Faction:   selectedFaction,
-		Option:    w.choices[i].option,
-		UseCursor: info.IsMouseEvent(),
+		Faction: selectedFaction,
+		Option:  w.choices[i].option,
 	}
 
 	delayRoll := w.scene.Rand().FloatRange(0.8, 1.2)

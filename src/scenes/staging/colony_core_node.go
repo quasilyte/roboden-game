@@ -317,7 +317,7 @@ func (c *colonyCoreNode) movementSpeed() float64 {
 }
 
 func (c *colonyCoreNode) updateResourceRects() {
-	const resourcesPerBlock float64 = 80.0
+	const resourcesPerBlock float64 = 100.0
 	unallocated := c.resources.Essence
 	for i, rect := range c.resourceRects {
 		var percentage float64

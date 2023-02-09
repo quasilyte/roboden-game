@@ -199,7 +199,7 @@ func (c *Controller) Update(delta float64) {
 
 	mainInput := c.state.MainInput
 	var cameraPan gmath.Vec
-	const cameraPanSpeed float64 = 6.0
+	const cameraPanSpeed float64 = 8.0
 	if mainInput.ActionIsPressed(controls.ActionPanRight) {
 		cameraPan.X += cameraPanSpeed
 	}

@@ -196,10 +196,14 @@ func (c *creepNode) doAttack(target projectileTarget) {
 	if c.stats.projectileImage != assets.ImageNone {
 		toPos := snipePos(c.stats.projectileSpeed, c.pos, *target.GetPos(), target.GetVelocity())
 		toPos = toPos.Add(c.scene.Rand().Offset(-3, 3))
+		fromPos := c.pos.Add(c.stats.fireOffset)
+		if c.stats.kind == creepTank {
+			fromPos = fromPos.MoveTowards(toPos, 6)
+		}
 		p := newProjectileNode(projectileConfig{
 			Camera:      c.world.camera,
 			Image:       c.stats.projectileImage,
-			FromPos:     c.pos.Add(c.stats.fireOffset).MoveTowards(toPos, 4),
+			FromPos:     fromPos,
 			ToPos:       toPos,
 			Target:      target,
 			Area:        c.stats.projectileArea,

@@ -196,9 +196,15 @@ func (g *levelGenerator) placeResources() {
 				source.stats != smallScrapSource
 		})
 		if !hasResources {
-			pos := gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.pos)
-			essence := g.world.NewEssenceSourceNode(ironSource, pos)
-			g.pendingResources = append(g.pendingResources, essence)
+			for i := 0; i < 5; i++ {
+				pos := gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.pos)
+				if !posIsFree(g.world, nil, pos, 14) {
+					continue
+				}
+				essence := g.world.NewEssenceSourceNode(ironSource, pos)
+				g.pendingResources = append(g.pendingResources, essence)
+				break
+			}
 		}
 	}
 

@@ -490,7 +490,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionBuildBase:
-		sendCost := 2.0
+		sendCost := 3.0
 		maxNumAgents := gmath.Clamp(len(c.availableAgents)/10, 1, 5)
 		minNumAgents := gmath.Clamp(len(c.availableAgents)/15, 1, 3)
 		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)

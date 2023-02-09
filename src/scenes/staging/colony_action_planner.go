@@ -169,7 +169,7 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	canBuild := len(p.colony.availableAgents) != 0 &&
 		len(p.world.coreConstructions) != 0 &&
-		p.colony.resources.Essence > 15
+		p.colony.resources.Essence > 20
 	if canBuild && p.world.rand.Chance(0.55) {
 		var construction *colonyCoreConstructionNode
 		closest := 0.0

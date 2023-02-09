@@ -20,11 +20,14 @@ type worldState struct {
 	height float64
 	rect   gmath.Rect
 
-	tmpAgentSlice []*colonyAgentNode
+	tmpTargetSlice []projectileTarget
 }
 
 func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	n := newColonyCoreNode(config)
+	n.EventDestroyed.Connect(nil, func(x *colonyCoreNode) {
+		w.colonies = xslices.Remove(w.colonies, x)
+	})
 	w.colonies = append(w.colonies, n)
 	return n
 }

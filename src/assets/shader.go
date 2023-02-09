@@ -8,8 +8,9 @@ import (
 func registerShaderResources(ctx *ge.Context) {
 	// Associate shader resources.
 	shaderResources := map[resource.ShaderID]resource.ShaderInfo{
-		ShaderDissolve:    {Path: "shader/dissolve.go"},
-		ShaderColonyBuild: {Path: "shader/colony_build.go"},
+		ShaderDissolve:     {Path: "shader/dissolve.go"},
+		ShaderColonyBuild:  {Path: "shader/colony_build.go"},
+		ShaderColonyDamage: {Path: "shader/colony_damage.go"},
 	}
 	for id, res := range shaderResources {
 		ctx.Loader.ShaderRegistry.Set(id, res)
@@ -20,4 +21,5 @@ func registerShaderResources(ctx *ge.Context) {
 const (
 	ShaderDissolve resource.ShaderID = iota
 	ShaderColonyBuild
+	ShaderColonyDamage
 )

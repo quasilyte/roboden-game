@@ -433,7 +433,7 @@ func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 	}
 }
 
-func (a *colonyAgentNode) GetPos() gmath.Vec { return a.pos }
+func (a *colonyAgentNode) GetPos() *gmath.Vec { return &a.pos }
 
 func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 	if a.waypoint.IsZero() {

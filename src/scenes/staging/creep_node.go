@@ -116,7 +116,7 @@ func (c *creepNode) Update(delta float64) {
 	}
 }
 
-func (c *creepNode) GetPos() gmath.Vec { return c.pos }
+func (c *creepNode) GetPos() *gmath.Vec { return &c.pos }
 
 func (c *creepNode) GetVelocity() gmath.Vec {
 	if c.waypoint.IsZero() {
@@ -129,20 +129,12 @@ func (c *creepNode) IsFlying() bool {
 	return c.stats.shadowImage != assets.ImageNone
 }
 
-func (c *creepNode) spriteRect() gmath.Rect {
-	offset := gmath.Vec{X: c.sprite.FrameWidth * 0.5, Y: c.sprite.FrameHeight * 0.5}
-	return gmath.Rect{
-		Min: c.pos.Sub(offset),
-		Max: c.pos.Add(offset),
-	}
-}
-
 func (c *creepNode) explode() {
 	switch c.stats.kind {
 	case creepUberBoss:
 		// TODO: big explosion
 	case creepTurret, creepBase:
-		createAreaExplosion(c.scene, c.world.camera, c.spriteRect())
+		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite))
 		scraps := c.world.NewEssenceSourceNode(bigScrapSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.scene.AddObject(scraps)
 	default:
@@ -179,9 +171,9 @@ func (c *creepNode) OnDamage(damage damageValue, source gmath.Vec) {
 	}
 }
 
-func (c *creepNode) doAttack(target *colonyAgentNode) {
+func (c *creepNode) doAttack(target projectileTarget) {
 	if c.stats.projectileImage != assets.ImageNone {
-		toPos := snipePos(c.stats.projectileSpeed, c.pos, target.pos, target.GetVelocity())
+		toPos := snipePos(c.stats.projectileSpeed, c.pos, *target.GetPos(), target.GetVelocity())
 		toPos = toPos.Add(c.scene.Rand().Offset(-3, 3))
 		p := newProjectileNode(projectileConfig{
 			Camera:      c.world.camera,
@@ -200,7 +192,7 @@ func (c *creepNode) doAttack(target *colonyAgentNode) {
 	}
 
 	// Only boss attacks with beam so far.
-	beam := newBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: &target.pos}, railgunBeamColor)
+	beam := newBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, railgunBeamColor)
 	beam.width = 3
 	c.scene.AddObject(beam)
 	target.OnDamage(c.stats.projectileDamage, c.pos)
@@ -213,8 +205,8 @@ func (c *creepNode) retreatFrom(pos gmath.Vec) {
 	c.wasAttacking = false
 }
 
-func (c *creepNode) findTargets() []*colonyAgentNode {
-	targets := c.world.tmpAgentSlice[:0]
+func (c *creepNode) findTargets() []projectileTarget {
+	targets := c.world.tmpTargetSlice[:0]
 	c.world.FindColonyAgent(c.pos, c.stats.attackRange, func(a *colonyAgentNode) bool {
 		ok := c.stats.kind != creepPrimitiveWandererStunner || a.energy > 20
 		if ok {
@@ -222,6 +214,18 @@ func (c *creepNode) findTargets() []*colonyAgentNode {
 		}
 		return len(targets) >= c.stats.maxTargets
 	})
+	if len(targets) >= c.stats.maxTargets || c.stats.projectileDamage.health == 0 {
+		return targets
+	}
+	for _, colony := range c.world.colonies {
+		if len(targets) >= c.stats.maxTargets {
+			return targets
+		}
+		if colony.pos.DistanceTo(c.pos) > c.stats.attackRange {
+			continue
+		}
+		targets = append(targets, colony)
+	}
 	return targets
 }
 
@@ -234,6 +238,9 @@ func (c *creepNode) updatePrimitiveWanderer(delta float64) {
 			c.retreatFrom(c.pos)
 		} else if c.scene.Rand().Chance(0.4) {
 			// Go somewhere near a random colony.
+			if len(c.world.colonies) == 0 {
+				return // Waiting for a game over?
+			}
 			colony := gmath.RandElem(c.scene.Rand(), c.world.colonies)
 			c.setWaypoint(colony.pos.Add(c.scene.Rand().Offset(-200, 200)))
 			c.wasAttacking = true

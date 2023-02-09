@@ -35,7 +35,8 @@ type projectileNode struct {
 }
 
 type projectileTarget interface {
-	GetPos() gmath.Vec
+	GetPos() *gmath.Vec
+	GetVelocity() gmath.Vec
 	OnDamage(damage damageValue, source gmath.Vec)
 	IsDisposed() bool
 }
@@ -102,7 +103,7 @@ func (p *projectileNode) detonate() {
 	if p.target.IsDisposed() {
 		return
 	}
-	if p.toPos.DistanceTo(p.target.GetPos()) > p.area {
+	if p.toPos.DistanceTo(*p.target.GetPos()) > p.area {
 		return
 	}
 	p.target.OnDamage(p.damage, p.fromPos)

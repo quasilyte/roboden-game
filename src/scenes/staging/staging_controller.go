@@ -1,6 +1,8 @@
 package staging
 
 import (
+	"fmt"
+
 	"github.com/quasilyte/colony-game/assets"
 	"github.com/quasilyte/colony-game/controls"
 	"github.com/quasilyte/colony-game/session"
@@ -39,11 +41,11 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.camera = viewport.NewCamera(viewportWorld, 1920/2, 1080/2)
 
 	world := &worldState{
-		camera:        c.camera,
-		rand:          scene.Rand(),
-		tmpAgentSlice: make([]*colonyAgentNode, 0, 8),
-		width:         viewportWorld.Width,
-		height:        viewportWorld.Height,
+		camera:         c.camera,
+		rand:           scene.Rand(),
+		tmpTargetSlice: make([]projectileTarget, 0, 20),
+		width:          viewportWorld.Width,
+		height:         viewportWorld.Height,
 		rect: gmath.Rect{
 			Max: gmath.Vec{
 				X: viewportWorld.Width,
@@ -60,12 +62,11 @@ func (c *Controller) Init(scene *ge.Scene) {
 	g := newLevelGenerator(scene, c.world)
 	g.Generate()
 
-	c.selectedColony = world.colonies[0]
-	c.camera.CenterOn(c.selectedColony.pos)
-
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
-	c.colonySelector.Pos.Base = &c.selectedColony.spritePos
 	c.camera.AddGraphicsBelow(c.colonySelector)
+
+	c.selectNextColony(true)
+	c.camera.CenterOn(c.selectedColony.pos)
 
 	scene.AddGraphics(c.camera)
 
@@ -191,7 +192,7 @@ func (c *Controller) Update(delta float64) {
 	c.camera.Pan(cameraPan)
 
 	if mainInput.ActionIsJustPressed(controls.ActionToggleColony) {
-		c.selectNextColony()
+		c.selectNextColony(true)
 	}
 
 	// colony := c.selectedColony
@@ -214,13 +215,32 @@ func (c *Controller) Update(delta float64) {
 	// 	ebiten.CurrentFPS())
 }
 
-func (c *Controller) selectNextColony() {
+func (c *Controller) IsDisposed() bool { return false }
+
+func (c *Controller) selectNextColony(center bool) {
+	if c.selectedColony != nil {
+		c.selectedColony.EventDestroyed.Disconnect(c)
+	}
 	c.selectedColony = c.findNextColony()
+	if c.selectedColony == nil {
+		// TODO: game over.
+		fmt.Println("game over")
+		c.colonySelector.Visible = false
+		return
+	}
+	c.selectedColony.EventDestroyed.Connect(c, func(_ *colonyCoreNode) {
+		c.selectNextColony(false)
+	})
 	c.colonySelector.Pos.Base = &c.selectedColony.spritePos
-	c.camera.CenterOn(c.selectedColony.pos)
+	if center {
+		c.camera.CenterOn(c.selectedColony.pos)
+	}
 }
 
 func (c *Controller) findNextColony() *colonyCoreNode {
+	if len(c.world.colonies) == 0 {
+		return nil
+	}
 	if len(c.world.colonies) == 1 {
 		return c.world.colonies[0]
 	}

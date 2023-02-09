@@ -24,7 +24,6 @@ todo game loop:
 + random level generation
 - good loot from big creeps
 - mouse map scroll
-- make bases vulnerable
 - add spawning colony (always somewhere on the edge of the map)
 - artifacts victory condition
 

@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 )
 
 const (
@@ -46,6 +47,8 @@ type colonyCoreNode struct {
 	pos       gmath.Vec
 	spritePos gmath.Vec
 	height    float64
+	maxHealth float64
+	health    float64
 
 	mode colonyCoreMode
 
@@ -80,6 +83,8 @@ type colonyCoreNode struct {
 	factionTagPicker *gmath.RandPicker[factionTag]
 
 	factionWeights *weightContainer[factionTag]
+
+	EventDestroyed gsignal.Event[*colonyCoreNode]
 }
 
 type colonyConfig struct {
@@ -99,6 +104,7 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 		combatAgents:             make([]*colonyAgentNode, 0, 20),
 		availableCombatAgents:    make([]*colonyAgentNode, 0, 20),
 		availableUniversalAgents: make([]*colonyAgentNode, 0, 20),
+		maxHealth:                100,
 	}
 	c.actionPriorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
 	c.factionWeights = newWeightContainer(neutralFactionTag, yellowFactionTag, redFactionTag, greenFactionTag, blueFactionTag)
@@ -114,13 +120,19 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 
 	c.planner = newColonyActionPlanner(c, scene.Rand())
 
+	c.health = c.maxHealth
+
 	c.sprite = scene.NewSprite(assets.ImageColonyCore)
 	c.sprite.Pos.Base = &c.spritePos
+	c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
+	c.sprite.Shader.SetFloatValue("HP", 1.0)
+	c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
 	c.world.camera.AddGraphics(c.sprite)
 
 	c.flyingSprite = scene.NewSprite(assets.ImageColonyCoreFlying)
 	c.flyingSprite.Pos.Base = &c.spritePos
 	c.flyingSprite.Visible = false
+	c.flyingSprite.Shader = c.sprite.Shader
 	c.world.camera.AddGraphics(c.flyingSprite)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
@@ -149,6 +161,35 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 
 func (c *colonyCoreNode) PatrolRadius() float64 {
 	return c.realRadius * (1.0 + c.GetSecurityPriority()*0.25)
+}
+
+func (c *colonyCoreNode) GetPos() *gmath.Vec { return &c.pos }
+
+func (c *colonyCoreNode) GetVelocity() gmath.Vec {
+	switch c.mode {
+	case colonyModeTakeoff, colonyModeRelocating, colonyModeLanding:
+		return c.pos.VecTowards(c.waypoint, c.movementSpeed())
+	default:
+		return gmath.Vec{}
+	}
+}
+
+func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
+	c.health -= damage.health
+	if c.health < 0 {
+		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite))
+		c.Destroy()
+	}
+
+	c.updateHealthShader()
+	if c.scene.Rand().Chance(0.7) {
+		c.actionPriorities.AddWeight(prioritySecurity, 0.02)
+	}
+}
+
+func (c *colonyCoreNode) Destroy() {
+	c.EventDestroyed.Emit(c)
+	c.Dispose()
 }
 
 func (c *colonyCoreNode) GetEntrancePos() gmath.Vec {
@@ -230,6 +271,12 @@ func (c *colonyCoreNode) Dispose() {
 	}
 }
 
+func (c *colonyCoreNode) updateHealthShader() {
+	percentage := c.health / c.maxHealth
+	c.sprite.Shader.SetFloatValue("HP", percentage)
+	c.sprite.Shader.Enabled = percentage < 0.95
+}
+
 func (c *colonyCoreNode) Update(delta float64) {
 	// FIXME: this should be fixed in the ge package.
 	c.spritePos.X = math.Round(c.pos.X)
@@ -254,6 +301,17 @@ func (c *colonyCoreNode) Update(delta float64) {
 		c.updateLanding(delta)
 	case colonyModeNormal:
 		c.updateNormal(delta)
+	}
+}
+
+func (c *colonyCoreNode) movementSpeed() float64 {
+	switch c.mode {
+	case colonyModeTakeoff, colonyModeLanding:
+		return 8.0
+	case colonyModeRelocating:
+		return 16.0
+	default:
+		return 0
 	}
 }
 
@@ -361,8 +419,8 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 }
 
 func (c *colonyCoreNode) updateTakeoff(delta float64) {
-	c.height += delta * 8
-	if c.moveTowards(delta, 8, c.waypoint) {
+	c.height += delta * c.movementSpeed()
+	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
 		c.height = coreFlightHeight
 		c.waypoint = c.relocationPoint.Sub(gmath.Vec{Y: coreFlightHeight})
 		c.mode = colonyModeRelocating
@@ -370,15 +428,15 @@ func (c *colonyCoreNode) updateTakeoff(delta float64) {
 }
 
 func (c *colonyCoreNode) updateRelocating(delta float64) {
-	if c.moveTowards(delta, 16, c.waypoint) {
+	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
 		c.waypoint = c.relocationPoint
 		c.mode = colonyModeLanding
 	}
 }
 
 func (c *colonyCoreNode) updateLanding(delta float64) {
-	c.height -= delta * 8
-	if c.moveTowards(delta, 8, c.waypoint) {
+	c.height -= delta * c.movementSpeed()
+	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
 		c.height = 0
 		c.mode = colonyModeNormal
 		c.flyingSprite.Visible = false

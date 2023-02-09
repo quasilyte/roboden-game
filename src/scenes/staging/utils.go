@@ -42,7 +42,7 @@ func createAreaExplosion(scene *ge.Scene, camera *viewport.Camera, rect gmath.Re
 		Y: rect.Max.Y - rect.Height()*0.5,
 	}
 	size := rect.Width() * rect.Height()
-	minExplosions := gmath.ClampMin(size/100.0, 1)
+	minExplosions := gmath.ClampMin(size/120.0, 1)
 	numExplosions := scene.Rand().IntRange(int(minExplosions), int(minExplosions*1.3))
 	for i := 0; i < numExplosions; i++ {
 		offset := gmath.Vec{
@@ -68,6 +68,14 @@ func playExplosionSound(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec)
 func createExplosion(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
 	createMuteExplosion(scene, camera, pos)
 	playExplosionSound(scene, camera, pos)
+}
+
+func spriteRect(pos gmath.Vec, sprite *ge.Sprite) gmath.Rect {
+	offset := gmath.Vec{X: sprite.FrameWidth * 0.5, Y: sprite.FrameHeight * 0.5}
+	return gmath.Rect{
+		Min: pos.Sub(offset),
+		Max: pos.Add(offset),
+	}
 }
 
 func roundedPos(pos gmath.Vec) gmath.Vec {

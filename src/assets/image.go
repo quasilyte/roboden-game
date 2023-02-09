@@ -43,16 +43,18 @@ func registerImageResources(ctx *ge.Context) {
 		ImageRedminerAgent:      {Path: "image/redminer_agent.png", FrameWidth: 13},
 		ImageGeneratorAgent:     {Path: "image/generator_agent.png", FrameWidth: 15},
 
-		ImageEssenceCrystalSource:      {Path: "image/crystal_source.png"},
-		ImageEssenceGoldSource:         {Path: "image/gold_source.png"},
-		ImageEssenceIronSource:         {Path: "image/iron_source.png"},
-		ImageEssenceWasteSource:        {Path: "image/waste_source.png"},
-		ImageEssenceScrapSource:        {Path: "image/scrap_source.png"},
-		ImageEssenceSmallScrapSource:   {Path: "image/small_scrap_source.png"},
-		ImageEssenceBigScrapSource:     {Path: "image/big_scrap_source.png"},
-		ImageEssenceSource:             {Path: "image/essence_source.png"},
-		ImageRedEssenceSource:          {Path: "image/red_essence_source.png"},
 		ImageEssenceSourceDissolveMask: {Path: "image/essence_source_dissolve_mask.png"},
+		ImageColonyDamageMask:          {Path: "image/colony_damage_mask.png"},
+
+		ImageEssenceCrystalSource:    {Path: "image/crystal_source.png"},
+		ImageEssenceGoldSource:       {Path: "image/gold_source.png"},
+		ImageEssenceIronSource:       {Path: "image/iron_source.png"},
+		ImageEssenceWasteSource:      {Path: "image/waste_source.png"},
+		ImageEssenceScrapSource:      {Path: "image/scrap_source.png"},
+		ImageEssenceSmallScrapSource: {Path: "image/small_scrap_source.png"},
+		ImageEssenceBigScrapSource:   {Path: "image/big_scrap_source.png"},
+		ImageEssenceSource:           {Path: "image/essence_source.png"},
+		ImageRedEssenceSource:        {Path: "image/red_essence_source.png"},
 
 		ImagePrimitiveCreep:  {Path: "image/primitive_creep.png"},
 		ImagePrimitiveCreep2: {Path: "image/primitive_creep2.png"},
@@ -85,6 +87,9 @@ const (
 	ImageChoiceRechargeWindow
 
 	ImageSmallExplosion1
+
+	ImageColonyDamageMask
+	ImageEssenceSourceDissolveMask
 
 	ImageButtonX
 	ImageButtonY
@@ -120,7 +125,6 @@ const (
 	ImageEssenceBigScrapSource
 	ImageEssenceSource
 	ImageRedEssenceSource
-	ImageEssenceSourceDissolveMask
 	ImagePrimitiveCreep
 	ImagePrimitiveCreep2
 	ImageTurretCreep

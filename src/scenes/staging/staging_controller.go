@@ -177,17 +177,34 @@ func (c *Controller) Update(delta float64) {
 
 	mainInput := c.state.MainInput
 	var cameraPan gmath.Vec
+	const cameraPanSpeed float64 = 6.0
 	if mainInput.ActionIsPressed(controls.ActionPanRight) {
-		cameraPan.X += 4
+		cameraPan.X += cameraPanSpeed
 	}
 	if mainInput.ActionIsPressed(controls.ActionPanDown) {
-		cameraPan.Y += 4
+		cameraPan.Y += cameraPanSpeed
 	}
 	if mainInput.ActionIsPressed(controls.ActionPanLeft) {
-		cameraPan.X -= 4
+		cameraPan.X -= cameraPanSpeed
 	}
 	if mainInput.ActionIsPressed(controls.ActionPanUp) {
-		cameraPan.Y -= 4
+		cameraPan.Y -= cameraPanSpeed
+	}
+	if cameraPan.IsZero() {
+		// Mouse cursor can pan the camera too.
+		cursor := mainInput.CursorPos()
+		if cursor.X > c.camera.Rect.Width()-2 {
+			cameraPan.X += cameraPanSpeed
+		}
+		if cursor.Y > c.camera.Rect.Height()-2 {
+			cameraPan.Y += cameraPanSpeed
+		}
+		if cursor.X < 2 {
+			cameraPan.X -= cameraPanSpeed
+		}
+		if cursor.Y < 2 {
+			cameraPan.Y -= cameraPanSpeed
+		}
 	}
 	c.camera.Pan(cameraPan)
 

@@ -13,7 +13,6 @@ faction bonuses
 
 todo game loop:
 - good loot from big creeps
-- mouse map scroll
 - artifacts victory condition
 
 ui:

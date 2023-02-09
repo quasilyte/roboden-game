@@ -2,6 +2,7 @@ package staging
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/quasilyte/colony-game/assets"
 	"github.com/quasilyte/colony-game/controls"
@@ -113,15 +114,17 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	case specialDecreaseRadius:
 		c.selectedColony.realRadius -= c.world.rand.FloatRange(16, 32)
 	case specialBuildColony:
-		dist := 52.0
-		for i := 0; i < 5; i++ {
-			constructionPos := c.pickColonyPos(nil, c.selectedColony.pos.Add(c.world.rand.Offset(-dist, dist)), 40, 7)
+		dist := 60.0
+		direction := c.world.rand.Rad()
+		for i := 0; i < 8; i++ {
+			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.selectedColony.pos)
+			direction += (2 * math.Pi) / 9
+			constructionPos := c.pickColonyPos(nil, locationProbe, 40, 7)
 			if !constructionPos.IsZero() {
 				construction := c.world.NewColonyCoreConstructionNode(constructionPos)
 				c.scene.AddObject(construction)
 				break
 			}
-			dist += 14.0
 		}
 	}
 	if !relocationVec.IsZero() {

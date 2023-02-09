@@ -5,7 +5,7 @@ todo engine:
 
 + make movement always available
 + add "attack" action
-- "build base" action should fail less often
++ "build base" action should fail less often
 - invisible construction bases?
 + animate tier3 creep
 + if base is destroyed before drones?

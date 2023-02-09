@@ -10,12 +10,13 @@ import (
 )
 
 type essenceSourceStats struct {
-	image      resource.ImageID
-	capacity   gmath.Range[int]
-	regenDelay float64 // 0 for "no regen"
-	value      float64 // Resource score per unit
-	canRotate  bool
-	size       float64
+	image       resource.ImageID
+	capacity    gmath.Range[int]
+	regenDelay  float64 // 0 for "no regen"
+	value       float64 // Resource score per unit
+	spritesheet bool
+	canRotate   bool
+	size        float64
 }
 
 var oilSource = &essenceSourceStats{
@@ -55,12 +56,13 @@ var crystalSource = &essenceSourceStats{
 }
 
 var ironSource = &essenceSourceStats{
-	image:      assets.ImageEssenceIronSource,
-	capacity:   gmath.MakeRange(80, 160),
-	regenDelay: 0,   // none
-	value:      0.5, // 40-80 total
-	canRotate:  false,
-	size:       18,
+	image:       assets.ImageEssenceIronSource,
+	capacity:    gmath.MakeRange(80, 160),
+	regenDelay:  0,   // none
+	value:       0.5, // 40-80 total
+	canRotate:   false,
+	spritesheet: true,
+	size:        18,
 }
 
 var wasteSource = &essenceSourceStats{
@@ -134,9 +136,11 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	e.sprite = scene.NewSprite(e.stats.image)
 	e.sprite.Pos.Base = &e.pos
 	e.sprite.Rotation = &e.rotation
-	e.sprite.Shader = scene.NewShader(assets.ShaderDissolve)
-	e.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageEssenceSourceDissolveMask)
-	e.sprite.Shader.Enabled = false
+	if !e.stats.spritesheet {
+		e.sprite.Shader = scene.NewShader(assets.ShaderDissolve)
+		e.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageEssenceSourceDissolveMask)
+		e.sprite.Shader.Enabled = false
+	}
 	e.camera.AddGraphicsBelow(e.sprite)
 
 	if e.stats.canRotate {
@@ -201,10 +205,16 @@ func (e *essenceSourceNode) Destroy() {
 }
 
 func (e *essenceSourceNode) updateShader() {
-	if e.percengage >= 0.85 {
-		e.sprite.Shader.Enabled = false
+	if !e.stats.spritesheet {
+		if e.percengage >= 0.85 {
+			e.sprite.Shader.Enabled = false
+			return
+		}
+		e.sprite.Shader.Enabled = true
+		e.sprite.Shader.SetFloatValue("Time", e.percengage+0.15)
 		return
 	}
-	e.sprite.Shader.Enabled = true
-	e.sprite.Shader.SetFloatValue("Time", e.percengage+0.15)
+	frameWidth := int(e.sprite.FrameWidth)
+	frameIndex := int(e.sprite.ImageWidth()*(1.0-e.percengage)) / frameWidth
+	e.sprite.FrameOffset.X = float64(frameIndex * frameWidth)
 }

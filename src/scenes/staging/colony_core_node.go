@@ -291,8 +291,6 @@ func (c *colonyCoreNode) updateHealthShader() {
 }
 
 func (c *colonyCoreNode) Update(delta float64) {
-	c.OnDamage(damageValue{health: 0.5}, gmath.Vec{})
-
 	// FIXME: this should be fixed in the ge package.
 	c.spritePos.X = math.Round(c.pos.X)
 	c.spritePos.Y = math.Round(c.pos.Y)

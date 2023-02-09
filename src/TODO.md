@@ -28,7 +28,7 @@ todo game loop:
 - add spawning colony (always somewhere on the edge of the map)
 - artifacts victory condition
 
-- fix movement mechanics
++ fix movement mechanics
 + add red-oil harvester (other units can't collect it)
 + display resource level
 

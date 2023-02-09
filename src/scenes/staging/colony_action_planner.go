@@ -33,6 +33,7 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 	p.leadingFaction = p.colony.factionWeights.MaxKey()
 	p.numPatrolAgents = 0
 	p.colony.hasRedMiner = false
+	p.colony.numServoAgents = 0
 	p.colony.availableAgents = p.colony.availableAgents[:0]
 	p.colony.availableCombatAgents = p.colony.availableCombatAgents[:0]
 	p.colony.availableUniversalAgents = p.colony.availableUniversalAgents[:0]
@@ -42,13 +43,19 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 	for _, a := range p.colony.agents {
 		if a.mode == agentModeStandby {
 			p.colony.availableAgents = append(p.colony.availableAgents, a)
-			if a.stats.kind == agentRedminer {
+			switch a.stats.kind {
+			case agentRedminer:
 				p.colony.hasRedMiner = true
+			case agentServo:
+				p.colony.numServoAgents++
 			}
 		}
 		if a.faction == p.leadingFaction {
 			leadingFactionAgents++
 		}
+	}
+	if p.colony.numServoAgents > 10 {
+		p.colony.numServoAgents = 10
 	}
 	for _, a := range p.colony.combatAgents {
 		if a.mode == agentModePatrol {

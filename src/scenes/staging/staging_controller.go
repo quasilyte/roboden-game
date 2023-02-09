@@ -107,7 +107,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	case specialAttack:
 		c.launchAttack()
 	case specialChoiceMoveColony:
-		dist := c.world.rand.FloatRange(160, 200)
+		dist := c.selectedColony.MaxFlyDistance() * c.world.rand.FloatRange(0.9, 1.1)
 		clickPos := c.state.MainInput.CursorPos().Add(c.camera.Offset)
 		relocationVec = c.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
 	case specialIncreaseRadius:

@@ -65,6 +65,7 @@ type colonyCoreNode struct {
 	combatAgents []*colonyAgentNode
 
 	hasRedMiner              bool
+	numServoAgents           int
 	availableAgents          []*colonyAgentNode
 	availableCombatAgents    []*colonyAgentNode
 	availableUniversalAgents []*colonyAgentNode
@@ -167,6 +168,10 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.resourceRects[i] = rect
 		c.world.camera.AddGraphics(rect)
 	}
+}
+
+func (c *colonyCoreNode) MaxFlyDistance() float64 {
+	return 180.0 + (float64(c.numServoAgents) * 30.0)
 }
 
 func (c *colonyCoreNode) PatrolRadius() float64 {
@@ -333,7 +338,7 @@ func (c *colonyCoreNode) movementSpeed() float64 {
 	case colonyModeTakeoff, colonyModeLanding:
 		return 8.0
 	case colonyModeRelocating:
-		return 16.0
+		return 16.0 + (float64(c.numServoAgents) * 3)
 	default:
 		return 0
 	}

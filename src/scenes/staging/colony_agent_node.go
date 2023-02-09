@@ -25,6 +25,7 @@ const (
 	agentMilitia
 	agentCrippler
 	agentFighter
+	agentServo
 	agentDestroyer
 	agentFlamer
 	agentRepeller

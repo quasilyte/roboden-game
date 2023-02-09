@@ -165,8 +165,8 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec) {
 }
 
 func (c *Controller) spawnTier3Creep() {
-	c.tier3spawnRate = gmath.ClampMin(c.tier3spawnRate-0.05, 0.4)
-	c.tier3spawnDelay = c.scene.Rand().FloatRange(25, 40) * c.tier3spawnRate
+	c.tier3spawnRate = gmath.ClampMin(c.tier3spawnRate-0.03, 0.5)
+	c.tier3spawnDelay = c.scene.Rand().FloatRange(35, 50) * c.tier3spawnRate
 
 	var spawnPos gmath.Vec
 	roll := c.scene.Rand().Float()

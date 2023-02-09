@@ -35,7 +35,7 @@ var turretCreepStats = &creepStats{
 	maxHealth:           42,
 	maxTargets:          1,
 	attackSound:         assets.AudioMissile,
-	attackRange:         180,
+	attackRange:         260,
 	projectileArea:      18,
 	projectileSpeed:     360,
 	projectileDamage:    damageValue{health: 10},
@@ -76,7 +76,7 @@ var uberBossCreepStats = &creepStats{
 	maxHealth:        300,
 	maxTargets:       5,
 	attackSound:      assets.AudioRailgun,
-	attackRange:      240,
+	attackRange:      250,
 	projectileDamage: damageValue{health: 8},
 	weaponReload:     2.2,
 }

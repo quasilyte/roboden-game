@@ -23,6 +23,7 @@ const (
 	agentFreighter
 	agentRedminer
 	agentMilitia
+	agentCrippler
 	agentFighter
 	agentFlamer
 	agentRepeller
@@ -499,33 +500,37 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 
 	a.attackDelay = a.stats.attackDelay * a.scene.Rand().FloatRange(0.8, 1.2)
 
-	var target *creepNode
+	targets := a.colonyCore.world.tmpTargetSlice[:0]
 	for _, c := range a.colonyCore.world.creeps {
+		if len(targets) >= a.stats.attackTargets {
+			break
+		}
 		if c.pos.DistanceTo(a.pos) >= a.stats.attackRange {
 			continue
 		}
-		target = c
-		break
+		targets = append(targets, c)
 	}
-	if target == nil {
+	if len(targets) == 0 {
 		return
 	}
 
 	switch a.stats.kind {
-	case agentMilitia, agentFighter, agentRepeller, agentFlamer:
-		toPos := snipePos(a.stats.projectileSpeed, a.pos, target.pos, target.GetVelocity())
-		p := newProjectileNode(projectileConfig{
-			Camera:      a.colonyCore.world.camera,
-			Image:       a.stats.projectileImage,
-			FromPos:     a.pos,
-			ToPos:       toPos,
-			Target:      target,
-			Speed:       a.stats.projectileSpeed,
-			Area:        a.stats.projectileArea,
-			RotateSpeed: a.stats.projectileRotateSpeed,
-			Damage:      a.stats.projectileDamage,
-		})
-		a.scene.AddObject(p)
+	case agentMilitia, agentFighter, agentRepeller, agentFlamer, agentCrippler:
+		for _, target := range targets {
+			toPos := snipePos(a.stats.projectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
+			p := newProjectileNode(projectileConfig{
+				Camera:      a.colonyCore.world.camera,
+				Image:       a.stats.projectileImage,
+				FromPos:     a.pos,
+				ToPos:       toPos,
+				Target:      target,
+				Speed:       a.stats.projectileSpeed,
+				Area:        a.stats.projectileArea,
+				RotateSpeed: a.stats.projectileRotateSpeed,
+				Damage:      a.stats.projectileDamage,
+			})
+			a.scene.AddObject(p)
+		}
 	}
 
 	playSound(a.scene, a.camera(), a.stats.attackSound, a.pos)

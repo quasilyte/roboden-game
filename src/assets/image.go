@@ -34,6 +34,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageColonyCoreShadow:   {Path: "image/colony_core_shadow.png"},
 		ImageWorkerAgent:        {Path: "image/worker_agent.png", FrameWidth: 9},
 		ImageMilitiaAgent:       {Path: "image/militia_agent.png", FrameWidth: 11},
+		ImageCripplerAgent:      {Path: "image/crippler_agent.png", FrameWidth: 19},
 		ImageFlamerAgent:        {Path: "image/flamer_agent.png", FrameWidth: 21},
 		ImageRepairAgent:        {Path: "image/repair_agent.png", FrameWidth: 17},
 		ImageRechargerAgent:     {Path: "image/recharger_agent.png", FrameWidth: 17},
@@ -62,6 +63,7 @@ func registerImageResources(ctx *ge.Context) {
 
 		ImageBackgroundTiles: {Path: "image/tiles.png"},
 
+		ImageCripplerProjectile:        {Path: "image/crippler_projectile.png"},
 		ImageMilitiaProjectile:         {Path: "image/militia_projectile.png"},
 		ImageRepellerProjectile:        {Path: "image/repeller_projectile.png"},
 		ImageFighterProjectile:         {Path: "image/fighter_projectile.png"},
@@ -113,6 +115,7 @@ const (
 	ImageRepairAgent
 	ImageRechargerAgent
 	ImageFighterAgent
+	ImageCripplerAgent
 	ImageRedminerAgent
 	ImageRepellerAgent
 	ImageFreighterAgent
@@ -131,6 +134,7 @@ const (
 
 	ImageBackgroundTiles
 
+	ImageCripplerProjectile
 	ImageMilitiaProjectile
 	ImageRepellerProjectile
 	ImageFighterProjectile

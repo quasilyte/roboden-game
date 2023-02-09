@@ -1,12 +1,17 @@
+todo engine:
+- gamepad d-pad like sticks should allow 2 directions at the same time (diagonals)
+- camera
+- tiled backgrounds with reversed individual tiles
+
 progression & challenges:
 - from the beginning, a dangerous boss is roaming the map
 - 
 
 faction bonuses
 * yellow: +1 payload when collecting resources
-* red: +20% max hp, gradual hp regen
-* green: makes clones cheaper (x2), creates buildings faster (x2)
-* blue: +75% max energy, +10% speed
+* red: +40% max hp
+* green: makes clones cheaper (x2), creates buildings faster (x1.5)
+* blue: +80% max energy, +15% speed
 
 - spawning new enemies
 
@@ -26,13 +31,13 @@ todo game loop:
 - mouse map scroll
 - add spawning colony (always somewhere on the edge of the map)
 - artifacts victory condition
+- add ysort for background objects
 
 + fix movement mechanics
 + add red-oil harvester (other units can't collect it)
 + display resource level
 
 ui:
-- show colony movement vector
 - show boss direction
 
 final things:

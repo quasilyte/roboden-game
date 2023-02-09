@@ -36,6 +36,7 @@ type creepNode struct {
 	specialModifier float64
 	specialTarget   any
 
+	slow   float64
 	health float64
 	height float64
 
@@ -90,6 +91,7 @@ func (c *creepNode) Destroy() {
 func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 
 func (c *creepNode) Update(delta float64) {
+	c.slow = gmath.ClampMin(c.slow-delta, 0)
 	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
 	if c.attackDelay == 0 && c.stats.weaponReload != 0 {
 		c.attackDelay = c.stats.weaponReload * c.scene.Rand().FloatRange(0.8, 1.2)
@@ -159,6 +161,8 @@ func (c *creepNode) OnDamage(damage damageValue, source gmath.Vec) {
 		c.Destroy()
 		return
 	}
+
+	c.slow = gmath.ClampMax(c.slow+damage.slow, 5)
 
 	if damage.morale != 0 {
 		if c.wasRetreating {
@@ -413,7 +417,11 @@ func (c *creepNode) movementSpeed() float64 {
 	if c.spawnedFromBase && c.height == 0 {
 		return c.stats.speed * 0.5
 	}
-	return c.stats.speed
+	multiplier := 1.0
+	if c.slow > 0 {
+		multiplier = 0.6
+	}
+	return c.stats.speed * multiplier
 }
 
 func (c *creepNode) moveTowards(delta float64, pos gmath.Vec) bool {

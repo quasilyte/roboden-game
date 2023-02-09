@@ -58,6 +58,7 @@ func (r *agentMergeRecipe) match(kind colonyAgentKind, faction factionTag, a *co
 //   * red ++
 //   * blue +
 //   * yellow +
+//   * green ++
 // * worker
 //   * blue ++++
 //   * yellow ++
@@ -73,6 +74,13 @@ var agentMergeRecipeList = []agentMergeRecipe{
 		agent2kind:    agentMilitia,
 		agent2faction: redFactionTag,
 		result:        fighterAgentStats,
+	},
+	{
+		agent1kind:    agentMilitia,
+		agent1faction: greenFactionTag,
+		agent2kind:    agentMilitia,
+		agent2faction: greenFactionTag,
+		result:        cripplerAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,
@@ -157,6 +165,7 @@ type agentStats struct {
 	supportReload float64
 	supportRange  float64
 
+	attackTargets         int
 	attackRange           float64
 	attackDelay           float64
 	projectileArea        float64
@@ -273,6 +282,28 @@ var militiaAgentStats = &agentStats{
 	projectileArea:   10,
 	projectileSpeed:  180,
 	projectileDamage: damageValue{health: 2, morale: 2},
+	attackTargets:    1,
+}
+
+var cripplerAgentStats = &agentStats{
+	kind:             agentCrippler,
+	image:            assets.ImageCripplerAgent,
+	size:             sizeMedium,
+	diodeOffset:      5,
+	tier:             1,
+	cost:             10,
+	upkeep:           4,
+	canPatrol:        true,
+	speed:            55,
+	maxHealth:        15,
+	attackRange:      240,
+	attackDelay:      3.2,
+	attackSound:      assets.AudioCripplerShot,
+	projectileImage:  assets.ImageCripplerProjectile,
+	projectileArea:   10,
+	projectileSpeed:  250,
+	projectileDamage: damageValue{health: 1, slow: 2},
+	attackTargets:    2,
 }
 
 var flamerAgentStats = &agentStats{
@@ -293,6 +324,7 @@ var flamerAgentStats = &agentStats{
 	projectileArea:   18,
 	projectileSpeed:  160,
 	projectileDamage: damageValue{health: 5},
+	attackTargets:    1,
 }
 
 var fighterAgentStats = &agentStats{
@@ -313,6 +345,7 @@ var fighterAgentStats = &agentStats{
 	projectileArea:   8,
 	projectileSpeed:  220,
 	projectileDamage: damageValue{health: 4},
+	attackTargets:    1,
 }
 
 var repellerAgentStats = &agentStats{
@@ -335,4 +368,5 @@ var repellerAgentStats = &agentStats{
 	projectileArea:   10,
 	projectileSpeed:  200,
 	projectileDamage: damageValue{health: 1, morale: 4},
+	attackTargets:    2,
 }

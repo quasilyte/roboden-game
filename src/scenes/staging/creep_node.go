@@ -214,7 +214,24 @@ func (c *creepNode) findTargets() []projectileTarget {
 		}
 		return len(targets) >= c.stats.maxTargets
 	})
-	if len(targets) >= c.stats.maxTargets || c.stats.projectileDamage.health == 0 {
+	if c.stats.projectileDamage.health == 0 {
+		return targets
+	}
+
+	if len(targets) >= c.stats.maxTargets {
+		return targets
+	}
+	for _, colony := range c.world.coreConstructions {
+		if len(targets) >= c.stats.maxTargets {
+			return targets
+		}
+		if colony.pos.DistanceTo(c.pos) > c.stats.attackRange {
+			continue
+		}
+		targets = append(targets, colony)
+	}
+
+	if len(targets) >= c.stats.maxTargets {
 		return targets
 	}
 	for _, colony := range c.world.colonies {
@@ -226,6 +243,7 @@ func (c *creepNode) findTargets() []projectileTarget {
 		}
 		targets = append(targets, colony)
 	}
+
 	return targets
 }
 

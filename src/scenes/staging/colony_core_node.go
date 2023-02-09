@@ -179,6 +179,7 @@ func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
 	if c.health < 0 {
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite))
 		c.Destroy()
+		return
 	}
 
 	c.updateHealthShader()

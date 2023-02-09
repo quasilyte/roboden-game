@@ -34,6 +34,9 @@ func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
 
 func (w *worldState) NewColonyCoreConstructionNode(pos gmath.Vec) *colonyCoreConstructionNode {
 	n := newColonyCoreConstructionNode(w, pos)
+	n.EventDestroyed.Connect(nil, func(x *colonyCoreConstructionNode) {
+		w.coreConstructions = xslices.Remove(w.coreConstructions, x)
+	})
 	w.coreConstructions = append(w.coreConstructions, n)
 	return n
 }

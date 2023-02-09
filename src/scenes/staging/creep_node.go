@@ -157,7 +157,8 @@ func (c *creepNode) IsFlying() bool {
 func (c *creepNode) explode() {
 	switch c.stats.kind {
 	case creepUberBoss:
-		// TODO: big explosion
+		fall := newDroneFallNode(c.world, nil, c.stats.image, c.shadow.ImageID(), c.pos, c.height)
+		c.scene.AddObject(fall)
 	case creepTurret, creepBase:
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite))
 		scraps := c.world.NewEssenceSourceNode(bigScrapSource, c.pos.Add(gmath.Vec{Y: 7}))

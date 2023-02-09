@@ -359,7 +359,7 @@ var destroyerAgentStats = &agentStats{
 	diodeOffset:      8,
 	tier:             3,
 	cost:             25,
-	upkeep:           15,
+	upkeep:           20,
 	canPatrol:        true,
 	speed:            85,
 	maxHealth:        35,

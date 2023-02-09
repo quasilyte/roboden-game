@@ -127,7 +127,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 	c.sprite.Shader.SetFloatValue("HP", 1.0)
 	c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
-	c.world.camera.AddGraphics(c.sprite)
+	c.world.camera.AddGraphicsBelow(c.sprite)
 
 	c.flyingSprite = scene.NewSprite(assets.ImageColonyCoreFlying)
 	c.flyingSprite.Pos.Base = &c.spritePos
@@ -388,8 +388,10 @@ func (c *colonyCoreNode) calcUpkeed() float64 {
 	case upkeepTotal <= 215:
 		// ~107 workers or ~53 militia
 		resourcePrice = 6.0
-	default:
+	case upkeepTotal <= 270:
 		resourcePrice = 8.0
+	default:
+		resourcePrice = 11.0
 	}
 	return resourcePrice
 }

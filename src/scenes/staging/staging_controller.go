@@ -116,9 +116,9 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	case specialBuildColony:
 		dist := 60.0
 		direction := c.world.rand.Rad()
-		for i := 0; i < 8; i++ {
+		for i := 0; i < 12; i++ {
 			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.selectedColony.pos)
-			direction += (2 * math.Pi) / 9
+			direction += (2 * math.Pi) / 13
 			constructionPos := c.pickColonyPos(nil, locationProbe, 40, 7)
 			if !constructionPos.IsZero() {
 				construction := c.world.NewColonyCoreConstructionNode(constructionPos)
@@ -154,7 +154,8 @@ func (c *Controller) launchAttack() {
 		return
 	}
 	closeTargets := c.world.tmpTargetSlice[:0]
-	maxDist := gmath.ClampMin(c.selectedColony.PatrolRadius()*1.5, 320)
+	maxDist := gmath.ClampMin(c.selectedColony.PatrolRadius()*1.75, 320)
+	maxDist *= c.world.rand.FloatRange(0.95, 1.2)
 	for _, creep := range c.world.creeps {
 		if len(closeTargets) >= 5 {
 			break
@@ -197,7 +198,7 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec) {
 }
 
 func (c *Controller) spawnTier3Creep() {
-	c.tier3spawnRate = gmath.ClampMin(c.tier3spawnRate-0.02, 0.5)
+	c.tier3spawnRate = gmath.ClampMin(c.tier3spawnRate-0.025, 0.4)
 	c.tier3spawnDelay = c.scene.Rand().FloatRange(55, 80) * c.tier3spawnRate
 
 	var spawnPos gmath.Vec
@@ -304,7 +305,11 @@ func (c *Controller) Update(delta float64) {
 func (c *Controller) IsDisposed() bool { return false }
 
 func (c *Controller) selectColony(colony *colonyCoreNode) {
+	if c.selectedColony == colony {
+		return
+	}
 	if c.selectedColony != nil {
+		c.scene.Audio().PlaySound(assets.AudioBaseSelect)
 		c.selectedColony.EventDestroyed.Disconnect(c)
 	}
 	c.selectedColony = colony

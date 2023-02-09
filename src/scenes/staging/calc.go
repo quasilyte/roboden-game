@@ -33,7 +33,8 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 		return 0
 	}
 	dist := core.pos.DistanceTo(source.pos)
-	if dist > core.realRadius*1.8 || source.resource == 0 {
+	maxDist := 1.5 + (core.GetResourcePriority() * 0.5)
+	if dist > core.realRadius*maxDist || source.resource == 0 {
 		return 0
 	}
 	distScore := 4.0 - gmath.ClampMax(dist/200, 4.0)

@@ -56,8 +56,8 @@ func (g *levelGenerator) placePlayers() {
 		Radius: 128,
 		Pos:    g.playerSpawn,
 	})
-	core.actionPriorities.SetWeight(priorityResources, 0.6)
-	core.actionPriorities.SetWeight(priorityGrowth, 0.3)
+	core.actionPriorities.SetWeight(priorityResources, 0.5)
+	core.actionPriorities.SetWeight(priorityGrowth, 0.4)
 	core.actionPriorities.SetWeight(prioritySecurity, 0.1)
 	g.scene.AddObject(core)
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/colony-game/assets"
 	"github.com/quasilyte/colony-game/controls"
 	"github.com/quasilyte/colony-game/session"
@@ -282,14 +283,14 @@ func (c *Controller) Update(delta float64) {
 		}
 	}
 
+	c.debugInfo.Text = fmt.Sprintf("FPS: %f", ebiten.CurrentFPS())
 	// colony := c.selectedColony
-	// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d upkeep: %.2f\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",
+	// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",
 	// 	colony.resources.Essence,
 	// 	len(colony.agents),
 	// 	len(colony.combatAgents),
 	// 	colony.calcUnitLimit(),
 	// 	int(colony.realRadius),
-	// 	colony.calcUpkeed(),
 	// 	int(colony.GetResourcePriority()*100),
 	// 	int(colony.GetGrowthPriority()*100),
 	// 	int(colony.GetEvolutionPriority()*100),

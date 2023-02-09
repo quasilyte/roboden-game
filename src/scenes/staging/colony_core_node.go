@@ -13,6 +13,7 @@ import (
 
 const (
 	coreFlightHeight float64 = 50
+	maxUpkeepValue   int     = 270
 )
 
 type colonyCoreMode int
@@ -41,6 +42,7 @@ type colonyCoreNode struct {
 	hatch        *ge.Sprite
 	flyingSprite *ge.Sprite
 	shadow       *ge.Sprite
+	upkeepBar    *ge.Sprite
 
 	scene *ge.Scene
 
@@ -139,6 +141,14 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.hatch.Pos.Base = &c.spritePos
 	c.hatch.Pos.Offset.Y = -20
 	c.world.camera.AddGraphics(c.hatch)
+
+	c.upkeepBar = scene.NewSprite(assets.ImageUpkeepBar)
+	c.upkeepBar.Pos.Base = &c.spritePos
+	c.upkeepBar.Pos.Offset.Y = -5
+	c.upkeepBar.Pos.Offset.X = -c.upkeepBar.ImageWidth() * 0.5
+	c.upkeepBar.Centered = false
+	c.world.camera.AddGraphicsBelow(c.upkeepBar)
+	c.updateUpkeepBar(0)
 
 	c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
 	c.shadow.Pos.Base = &c.spritePos
@@ -279,6 +289,7 @@ func (c *colonyCoreNode) Dispose() {
 	c.hatch.Dispose()
 	c.flyingSprite.Dispose()
 	c.shadow.Dispose()
+	c.upkeepBar.Dispose()
 	for _, rect := range c.resourceRects {
 		rect.Dispose()
 	}
@@ -328,6 +339,11 @@ func (c *colonyCoreNode) movementSpeed() float64 {
 	}
 }
 
+func (c *colonyCoreNode) updateUpkeepBar(upkeepValue int) {
+	percentage := float64(upkeepValue) / float64(maxUpkeepValue)
+	c.upkeepBar.FrameWidth = c.upkeepBar.ImageWidth() * percentage
+}
+
 func (c *colonyCoreNode) updateResourceRects() {
 	const resourcesPerBlock float64 = 100.0
 	unallocated := c.resources.Essence
@@ -353,7 +369,7 @@ func (c *colonyCoreNode) calcUnitLimit() int {
 	return gmath.Clamp(int(calculated), 10, 128)
 }
 
-func (c *colonyCoreNode) calcUpkeed() float64 {
+func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 	upkeepTotal := 0
 	upkeepDecrease := 0
 	c.FindAgent(func(a *colonyAgentNode) bool {
@@ -388,12 +404,12 @@ func (c *colonyCoreNode) calcUpkeed() float64 {
 	case upkeepTotal <= 215:
 		// ~107 workers or ~53 militia
 		resourcePrice = 6.0
-	case upkeepTotal <= 270:
+	case upkeepTotal < maxUpkeepValue:
 		resourcePrice = 8.0
 	default:
-		resourcePrice = 11.0
+		resourcePrice = 12.0
 	}
-	return resourcePrice
+	return resourcePrice, upkeepTotal
 }
 
 func (c *colonyCoreNode) processUpkeep(delta float64) {
@@ -402,12 +418,13 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 		return
 	}
 	c.upkeepDelay = c.scene.Rand().FloatRange(6.5, 8.5)
-	upkeep := c.calcUpkeed()
-	if c.resources.Essence < upkeep {
+	upkeepPrice, upkeepValue := c.calcUpkeed()
+	c.updateUpkeepBar(upkeepValue)
+	if c.resources.Essence < upkeepPrice {
 		c.actionPriorities.AddWeight(priorityResources, 0.04)
 		c.resources.Essence = 0
 	} else {
-		c.resources.Essence -= upkeep
+		c.resources.Essence -= upkeepPrice
 	}
 }
 
@@ -430,6 +447,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.flyingSprite.Visible = true
 	c.sprite.Visible = false
 	c.hatch.Visible = false
+	c.upkeepBar.Visible = false
 	c.waypoint = c.pos.Sub(gmath.Vec{Y: coreFlightHeight})
 }
 
@@ -458,6 +476,7 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.shadow.Visible = false
 		c.sprite.Visible = true
 		c.hatch.Visible = true
+		c.upkeepBar.Visible = true
 		playSound(c.scene, c.world.camera, assets.AudioColonyLanded, c.pos)
 	}
 }

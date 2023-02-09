@@ -13,6 +13,8 @@ func registerImageResources(ctx *ge.Context) {
 		ImageMediumShadow: {Path: "image/medium_shadow.png"},
 		ImageBigShadow:    {Path: "image/big_shadow.png"},
 
+		ImageUpkeepBar: {Path: "image/upkeep_bar.png"},
+
 		ImageChoiceWindow:         {Path: "image/choice_window.png"},
 		ImageChoiceRechargeWindow: {Path: "image/choice_recharge_window.png"},
 
@@ -95,6 +97,8 @@ const (
 	ImageChoiceRechargeWindow
 
 	ImageSmallExplosion1
+
+	ImageUpkeepBar
 
 	ImageColonyDamageMask
 	ImageEssenceSourceDissolveMask

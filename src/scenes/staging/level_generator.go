@@ -2,6 +2,7 @@ package staging
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
@@ -14,6 +15,8 @@ type levelGenerator struct {
 	playerSpawn  gmath.Vec
 	sectors      []gmath.Rect
 	sectorSlider gmath.Slider
+
+	pendingResources []*essenceSourceNode
 }
 
 func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
@@ -111,7 +114,7 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 			break
 		}
 		source := g.world.NewEssenceSourceNode(kind, pos)
-		g.scene.AddObject(source)
+		g.pendingResources = append(g.pendingResources, source)
 		direction := gmath.RadToVec(rand.Rad()).Mulf(32)
 		if rand.Bool() {
 			pos = initialPos.Add(direction)
@@ -195,8 +198,17 @@ func (g *levelGenerator) placeResources() {
 		if !hasResources {
 			pos := gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.pos)
 			essence := g.world.NewEssenceSourceNode(ironSource, pos)
-			g.scene.AddObject(essence)
+			g.pendingResources = append(g.pendingResources, essence)
 		}
+	}
+
+	// Now sort all resources by their Y coordinate and only
+	// then add them to the scene.
+	sort.Slice(g.pendingResources, func(i, j int) bool {
+		return g.pendingResources[i].pos.Y < g.pendingResources[j].pos.Y
+	})
+	for _, source := range g.pendingResources {
+		g.scene.AddObject(source)
 	}
 }
 

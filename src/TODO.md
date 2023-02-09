@@ -5,9 +5,9 @@ todo engine:
 
 - make movement always available
 - add "attack" action
-- build bases on click spot
+- "build base" action should fail less often
 - invisible construction bases?
-- animate tier3 creep
++ animate tier3 creep
 - if base is destroyed before drones?
 
 faction bonuses

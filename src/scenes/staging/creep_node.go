@@ -20,6 +20,7 @@ const (
 )
 
 type creepNode struct {
+	anim   *ge.Animation
 	sprite *ge.Sprite
 	shadow *ge.Sprite
 
@@ -72,6 +73,11 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	if c.stats.kind == creepTank {
 		c.sprite.FlipHorizontal = scene.Rand().Bool()
 	}
+	if c.stats.animSpeed != 0 {
+		c.anim = ge.NewRepeatedAnimation(c.sprite, -1)
+		c.anim.Tick(scene.Rand().FloatRange(0, 0.7))
+		c.anim.SetSecondsPerFrame(c.stats.animSpeed)
+	}
 
 	c.height = agentFlightHeight
 
@@ -102,6 +108,10 @@ func (c *creepNode) Destroy() {
 func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 
 func (c *creepNode) Update(delta float64) {
+	if c.anim != nil {
+		c.anim.Tick(delta)
+	}
+
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
 	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
 	if c.attackDelay == 0 && c.stats.weaponReload != 0 {

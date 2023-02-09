@@ -16,6 +16,8 @@ type creepStats struct {
 	speed float64
 	size  float64
 
+	animSpeed float64
+
 	maxHealth float64
 
 	maxTargets            int
@@ -95,6 +97,7 @@ var tankCreepStats = &creepStats{
 var assaultCreepStats = &creepStats{
 	kind:             creepAssault,
 	image:            assets.ImageCreepTier3,
+	animSpeed:        0.2,
 	shadowImage:      assets.ImageBigShadow,
 	speed:            30,
 	maxHealth:        50,

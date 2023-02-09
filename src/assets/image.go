@@ -49,7 +49,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageColonyDamageMask:          {Path: "image/colony_damage_mask.png"},
 
 		ImageEssenceCrystalSource:    {Path: "image/crystal_source.png"},
-		ImageEssenceGoldSource:       {Path: "image/gold_source.png"},
+		ImageEssenceGoldSource:       {Path: "image/gold_source.png", FrameWidth: 28},
 		ImageEssenceIronSource:       {Path: "image/iron_source.png", FrameWidth: 32},
 		ImageEssenceWasteSource:      {Path: "image/waste_source.png"},
 		ImageEssenceScrapSource:      {Path: "image/scrap_source.png"},

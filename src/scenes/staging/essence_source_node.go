@@ -38,12 +38,13 @@ var redOilSource = &essenceSourceStats{
 }
 
 var goldSource = &essenceSourceStats{
-	image:      assets.ImageEssenceGoldSource,
-	capacity:   gmath.MakeRange(15, 30),
-	regenDelay: 0, // none
-	value:      2, // 30-60 total
-	canRotate:  false,
-	size:       20,
+	image:       assets.ImageEssenceGoldSource,
+	capacity:    gmath.MakeRange(15, 30),
+	regenDelay:  0, // none
+	value:       2, // 30-60 total
+	canRotate:   false,
+	spritesheet: true,
+	size:        20,
 }
 
 var crystalSource = &essenceSourceStats{

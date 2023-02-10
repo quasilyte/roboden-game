@@ -43,6 +43,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageRepairAgent:        {Path: "image/repair_agent.png", FrameWidth: 17},
 		ImageServoAgent:         {Path: "image/servo_agent.png", FrameWidth: 15},
 		ImageRechargerAgent:     {Path: "image/recharger_agent.png", FrameWidth: 17},
+		ImageRefresherAgent:     {Path: "image/refresher_agent.png", FrameWidth: 17},
 		ImageFighterAgent:       {Path: "image/fighter_agent.png", FrameWidth: 15},
 		ImageDestroyerAgent:     {Path: "image/destroyer_agent.png", FrameWidth: 33},
 		ImageRepellerAgent:      {Path: "image/repeller_agent.png", FrameWidth: 15},
@@ -127,6 +128,7 @@ const (
 	ImageFlamerAgent
 	ImageRepairAgent
 	ImageRechargerAgent
+	ImageRefresherAgent
 	ImageFighterAgent
 	ImageDestroyerAgent
 	ImageCripplerAgent

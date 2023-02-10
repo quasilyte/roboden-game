@@ -32,6 +32,7 @@ const (
 	agentRepair
 	agentRecharger
 	agentGenerator
+	agentRefresher
 )
 
 type colonyAgentMode uint8
@@ -469,47 +470,64 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 
 func (a *colonyAgentNode) processSupport(delta float64) {
 	switch a.stats.kind {
-	case agentRepair, agentRecharger:
+	case agentRepair, agentRecharger, agentRefresher:
 		// OK
 	default:
 		return
 	}
 
 	a.supportDelay = gmath.ClampMin(a.supportDelay-delta, 0)
+
 	if a.supportDelay != 0 {
+		if a.stats.kind == agentRefresher {
+			a.attackDelay = gmath.ClampMin(a.attackDelay-delta, 0)
+			if a.attackDelay != 0 {
+				return
+			}
+			a.attackDelay = repairAgentStats.supportReload * a.scene.Rand().FloatRange(0.7, 1.4)
+			a.doRepair()
+		}
 		return
 	}
 
 	a.supportDelay = a.stats.supportReload * a.scene.Rand().FloatRange(0.7, 1.4)
 
 	switch a.stats.kind {
-	case agentRecharger:
-		const energyRecorery float64 = 25.0
-		target := a.colonyCore.FindRandomAgent(func(x *colonyAgentNode) bool {
-			return x != a &&
-				(x.energy+energyRecorery) < x.maxEnergy &&
-				x.pos.DistanceTo(a.pos) < a.stats.supportRange
-		})
-		if target != nil {
-			beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, rechargerBeamColor)
-			beam.width = 2
-			target.energy = gmath.ClampMax(target.energy+energyRecorery, target.maxEnergy)
-			a.scene.AddObject(beam)
-			playSound(a.scene, a.camera(), assets.AudioRechargerBeam, a.pos)
-		}
+	case agentRecharger, agentRefresher:
+		a.doRecharge()
 	case agentRepair:
-		target := a.colonyCore.FindRandomAgent(func(x *colonyAgentNode) bool {
-			return x != a &&
-				x.health < x.maxHealth &&
-				x.pos.DistanceTo(a.pos) < a.stats.supportRange
-		})
-		if target != nil {
-			beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, repairBeamColor)
-			beam.width = 2
-			target.health = gmath.ClampMax(target.health+3, target.maxHealth)
-			a.scene.AddObject(beam)
-			playSound(a.scene, a.camera(), assets.AudioRepairBeam, a.pos)
-		}
+		a.doRepair()
+	}
+}
+
+func (a *colonyAgentNode) doRecharge() {
+	const rechargerEnergyRecorery float64 = 25.0
+	target := a.colonyCore.FindRandomAgent(func(x *colonyAgentNode) bool {
+		return x != a &&
+			(x.energy+rechargerEnergyRecorery) < x.maxEnergy &&
+			x.pos.DistanceTo(a.pos) < rechargeAgentStats.supportRange
+	})
+	if target != nil {
+		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, rechargerBeamColor)
+		beam.width = 2
+		target.energy = gmath.ClampMax(target.energy+rechargerEnergyRecorery, target.maxEnergy)
+		a.scene.AddObject(beam)
+		playSound(a.scene, a.camera(), assets.AudioRechargerBeam, a.pos)
+	}
+}
+
+func (a *colonyAgentNode) doRepair() {
+	target := a.colonyCore.FindRandomAgent(func(x *colonyAgentNode) bool {
+		return x != a &&
+			x.health < x.maxHealth &&
+			x.pos.DistanceTo(a.pos) < repairAgentStats.supportRange
+	})
+	if target != nil {
+		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, repairBeamColor)
+		beam.width = 2
+		target.health = gmath.ClampMax(target.health+3, target.maxHealth)
+		a.scene.AddObject(beam)
+		playSound(a.scene, a.camera(), assets.AudioRepairBeam, a.pos)
 	}
 }
 

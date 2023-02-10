@@ -118,6 +118,10 @@ func (p *colonyActionPlanner) pickGatherAction() colonyAction {
 	if len(p.world.essenceSources) == 0 {
 		return colonyAction{}
 	}
+	baseNeedsResources := p.colony.resources.Essence <= maxVisualResources
+	if !baseNeedsResources {
+		return colonyAction{}
+	}
 
 	var bestSource *essenceSourceNode
 	bestScore := 0.0
@@ -201,7 +205,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 
 	canBuild := len(p.colony.availableAgents) != 0 &&
 		len(p.world.coreConstructions) != 0 &&
-		p.colony.resources.Essence > 20
+		p.colony.resources.Essence > 30
 	if canBuild && p.world.rand.Chance(0.55) {
 		var construction *colonyCoreConstructionNode
 		closest := 0.0
@@ -394,11 +398,11 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 	}
 
 	if p.numTier2Agents > 0 {
-		evoPointsChance := gmath.Clamp(p.colony.GetEvolutionPriority()-0.15, 0, 0.6)
+		evoPointsChance := gmath.Clamp(p.colony.GetEvolutionPriority()-0.1, 0, 0.6)
 		if p.world.rand.Chance(evoPointsChance) {
 			return colonyAction{
 				Kind:     actionGenerateEvo,
-				TimeCost: 0.6,
+				TimeCost: 0.3,
 			}
 		}
 	}

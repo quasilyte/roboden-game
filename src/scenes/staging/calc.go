@@ -25,11 +25,11 @@ func agentCloningEnergyCost() float64 {
 }
 
 func agentCloningCost(core *colonyCoreNode, cloner, a *colonyAgentNode) float64 {
-	multiplier := 1.0
+	multiplier := 0.85
 	if cloner.faction == greenFactionTag {
-		multiplier = 0.5
+		multiplier = 0.6
 	}
-	return (a.stats.cost * 0.6) * multiplier
+	return a.stats.cost * multiplier
 }
 
 func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {

@@ -45,6 +45,7 @@ const (
 	agentModeReturn
 	agentModePatrol
 	agentModeFollow
+	agentModeAttack
 	agentModeMakeClone
 	agentModeWaitCloning
 	agentModePickup
@@ -242,16 +243,18 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.waypointsLeft = a.scene.Rand().IntRange(30, 60)
 		return true
 
-	case agentModeFollow:
+	case agentModeFollow, agentModeAttack:
 		isPatrol := a.mode == agentModePatrol
-		a.mode = mode
+		a.mode = agentModeFollow // attack is a long-range follow
 		a.target = target
-		targetPos := target.(*creepNode).pos
-		a.waypoint = a.pos.DirectionTo(targetPos).Mulf(100).Add(targetPos).Add(a.scene.Rand().Offset(-40, 40))
+		a.waypoint = a.followWaypoint(target.(*creepNode).pos)
 		if isPatrol {
-			a.waypointsLeft = a.scene.Rand().IntRange(7, 12)
+			a.waypointsLeft = a.scene.Rand().IntRange(5, 7)
 		} else {
-			a.waypointsLeft = a.scene.Rand().IntRange(10, 15)
+			a.waypointsLeft = a.scene.Rand().IntRange(7, 9)
+		}
+		if mode == agentModeAttack {
+			a.waypointsLeft += 5
 		}
 		return true
 
@@ -702,7 +705,7 @@ func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
 		a.sprite.SetColorScaleRGBA(200, 200, 200, 255)
 	}
 	if a.moveTowards(delta, a.waypoint) {
-		a.colonyCore.resources.Essence += a.stats.cost
+		a.colonyCore.resources.Essence += a.stats.cost * 0.9
 		playSound(a.scene, a.camera(), assets.AudioAgentRecycled, a.pos)
 		a.Destroy()
 	}
@@ -797,6 +800,11 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) followWaypoint(targetPos gmath.Vec) gmath.Vec {
+	preferredDist := gmath.ClampMin(a.stats.attackRange*0.7, 96)
+	return a.pos.DirectionTo(targetPos).Mulf(preferredDist).Add(targetPos).Add(a.scene.Rand().Offset(-52, 52))
+}
+
 func (a *colonyAgentNode) updateFollow(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
 		target := a.target.(*creepNode)
@@ -805,8 +813,7 @@ func (a *colonyAgentNode) updateFollow(delta float64) {
 			return
 		}
 		a.waypointsLeft--
-		targetPos := target.pos
-		a.waypoint = a.pos.DirectionTo(targetPos).Mulf(100).Add(targetPos).Add(a.scene.Rand().Offset(-52, 52))
+		a.waypoint = a.followWaypoint(target.pos)
 	}
 }
 

@@ -12,10 +12,12 @@ import (
 )
 
 const (
-	coreFlightHeight float64 = 50
-	maxUpkeepValue   int     = 270
-	maxEvoPoints     float64 = 20
-	maxEvoGain       float64 = 1.0
+	coreFlightHeight   float64 = 50
+	maxUpkeepValue     int     = 270
+	maxEvoPoints       float64 = 20
+	maxEvoGain         float64 = 1.0
+	maxResources       float64 = 400.0
+	maxVisualResources float64 = maxResources - 100.0
 )
 
 type colonyCoreMode int
@@ -370,7 +372,7 @@ func (c *colonyCoreNode) updateUpkeepBar(upkeepValue int) {
 }
 
 func (c *colonyCoreNode) updateResourceRects() {
-	const resourcesPerBlock float64 = 100.0
+	const resourcesPerBlock float64 = maxVisualResources / 3
 	unallocated := c.resources.Essence
 	for i, rect := range c.resourceRects {
 		var percentage float64
@@ -413,24 +415,24 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 		resourcePrice = 0
 	case upkeepTotal <= 45:
 		// ~22 workers or ~11 militia
-		resourcePrice = 0.5
+		resourcePrice = 1
 	case upkeepTotal <= 70:
 		// 35 workers or ~17 militia
-		resourcePrice = 1.0
+		resourcePrice = 2.0
 	case upkeepTotal <= 95:
 		// ~47 workers or ~23 militia
-		resourcePrice = 2.0
+		resourcePrice = 4.0
 	case upkeepTotal <= 120:
 		// ~60 workers or 30 militia
-		resourcePrice = 3.0
+		resourcePrice = 6.0
 	case upkeepTotal <= 150:
 		// 75 workers or ~37 militia
-		resourcePrice = 4.5
+		resourcePrice = 9
 	case upkeepTotal <= 215:
 		// ~107 workers or ~53 militia
-		resourcePrice = 6.0
+		resourcePrice = 12
 	case upkeepTotal < maxUpkeepValue:
-		resourcePrice = 8.0
+		resourcePrice = 16
 	default:
 		resourcePrice = 12.0
 	}
@@ -601,7 +603,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return ok
 
 	case actionBuildBase:
-		sendCost := 3.0
+		sendCost := 4.0
 		maxNumAgents := gmath.Clamp(len(c.availableAgents)/10, 1, 5)
 		minNumAgents := gmath.Clamp(len(c.availableAgents)/15, 1, 3)
 		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)

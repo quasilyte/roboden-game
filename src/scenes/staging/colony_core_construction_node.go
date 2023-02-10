@@ -91,12 +91,13 @@ func (c *colonyCoreConstructionNode) Dispose() {
 
 func (c *colonyCoreConstructionNode) done() *colonyCoreNode {
 	c.Dispose()
+	c.EventDestroyed.Emit(c)
 	core := c.world.NewColonyCoreNode(colonyConfig{
 		World:  c.world,
 		Radius: 96,
 		Pos:    c.pos,
 	})
-	core.resources.Essence = 20
+	core.resources.Essence = 40
 	core.actionPriorities.SetWeight(priorityResources, 0.3)
 	core.actionPriorities.SetWeight(priorityGrowth, 0.50)
 	core.actionPriorities.SetWeight(priorityEvolution, 0.1)

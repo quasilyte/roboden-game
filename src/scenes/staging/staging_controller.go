@@ -179,7 +179,7 @@ func (c *Controller) launchAttack() {
 		}
 		maxDispatched--
 		target := gmath.RandElem(c.world.rand, closeTargets)
-		agent.AssignMode(agentModeFollow, gmath.Vec{}, target)
+		agent.AssignMode(agentModeAttack, gmath.Vec{}, target)
 	}
 }
 

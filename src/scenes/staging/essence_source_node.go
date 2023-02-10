@@ -20,18 +20,18 @@ type essenceSourceStats struct {
 }
 
 var oilSource = &essenceSourceStats{
-	image:      assets.ImageEssenceSource,
-	capacity:   gmath.MakeRange(50, 80),
-	regenDelay: 6,
-	value:      1, // 50-80 total
-	canRotate:  true,
-	size:       32,
+	image:       assets.ImageEssenceSource,
+	capacity:    gmath.MakeRange(50, 80),
+	regenDelay:  7,
+	value:       1, // 50-80 total
+	spritesheet: true,
+	size:        32,
 }
 
 var redOilSource = &essenceSourceStats{
 	image:      assets.ImageRedEssenceSource,
 	capacity:   gmath.MakeRange(40, 80),
-	regenDelay: 8,
+	regenDelay: 9,
 	value:      1.5, // 60-120 total
 	canRotate:  false,
 	size:       32,
@@ -214,6 +214,10 @@ func (e *essenceSourceNode) updateShader() {
 		}
 		e.sprite.Shader.Enabled = true
 		e.sprite.Shader.SetFloatValue("Time", e.percengage+0.15)
+		return
+	}
+	if e.percengage < 0.01 {
+		e.sprite.FrameOffset.X = e.sprite.ImageWidth() - e.sprite.FrameWidth
 		return
 	}
 	frameWidth := int(e.sprite.FrameWidth)

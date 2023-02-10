@@ -36,6 +36,9 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 	if source.stats == redOilSource && !core.hasRedMiner {
 		return 0
 	}
+	if source.stats.regenDelay != 0 && source.percengage < 0.15 {
+		return 0
+	}
 	dist := core.pos.DistanceTo(source.pos)
 	maxDist := 1.5 + (core.GetResourcePriority() * 0.5)
 	if dist > core.realRadius*maxDist || source.resource == 0 {

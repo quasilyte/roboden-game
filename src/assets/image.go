@@ -66,7 +66,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceScrapSource:      {Path: "image/scrap_source.png"},
 		ImageEssenceSmallScrapSource: {Path: "image/small_scrap_source.png"},
 		ImageEssenceBigScrapSource:   {Path: "image/big_scrap_source.png"},
-		ImageEssenceSource:           {Path: "image/essence_source.png"},
+		ImageEssenceSource:           {Path: "image/essence_source.png", FrameWidth: 32},
 		ImageRedEssenceSource:        {Path: "image/red_essence_source.png"},
 
 		ImagePrimitiveCreep: {Path: "image/primitive_creep.png"},

@@ -97,8 +97,8 @@ func (c *colonyCoreConstructionNode) done() *colonyCoreNode {
 		Pos:    c.pos,
 	})
 	core.resources.Essence = 20
-	core.actionPriorities.SetWeight(priorityResources, 0.25)
-	core.actionPriorities.SetWeight(priorityGrowth, 0.55)
+	core.actionPriorities.SetWeight(priorityResources, 0.3)
+	core.actionPriorities.SetWeight(priorityGrowth, 0.50)
 	core.actionPriorities.SetWeight(priorityEvolution, 0.1)
 	core.actionPriorities.SetWeight(prioritySecurity, 0.1)
 	c.scene.AddObject(core)

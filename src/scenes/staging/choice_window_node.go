@@ -244,17 +244,6 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		}
 		offsetY += l.Height + 4
 	}
-	// centerPos := ge.Pos{
-	// 	Base: &w.pos,
-	// 	// Offset: gmath.Vec{
-	// 	// 	X: w.openSprite.FrameWidth * 0.5,
-	// 	// 	Y: w.openSprite.FrameHeight * 0.5,
-	// 	// },
-	// }
-	// w.choices[0].label.Pos = centerPos.WithOffset(0, -32)
-	// w.choices[1].label.Pos = centerPos.WithOffset(48, 0)
-	// w.choices[2].label.Pos = centerPos.WithOffset(0, 32)
-	// w.choices[3].label.Pos = centerPos.WithOffset(-48, 0)
 
 	w.startCharging(10)
 }

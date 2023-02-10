@@ -696,7 +696,11 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 }
 
 func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
+	height := a.height
 	a.height -= delta * 30
+	if height >= 3 && a.height < 3 {
+		a.sprite.SetColorScaleRGBA(200, 200, 200, 255)
+	}
 	if a.moveTowards(delta, a.waypoint) {
 		a.colonyCore.resources.Essence += a.stats.cost
 		playSound(a.scene, a.camera(), assets.AudioAgentRecycled, a.pos)

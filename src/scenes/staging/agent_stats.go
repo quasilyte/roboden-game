@@ -1,9 +1,23 @@
 package staging
 
 import (
+	"math"
+
 	"github.com/quasilyte/colony-game/assets"
 	resource "github.com/quasilyte/ebitengine-resource"
 )
+
+var minEvoCost float64 = 0.0
+
+func init() {
+	minCost := math.MaxFloat64
+	for _, recipe := range tier3agentMergeRecipeList {
+		if recipe.evoCost < minCost {
+			minCost = recipe.evoCost
+		}
+	}
+	minEvoCost = minCost
+}
 
 // tier 1
 // * worker => basic unit, can be produced
@@ -31,6 +45,7 @@ type agentMergeRecipe struct {
 	agent1faction factionTag
 	agent2kind    colonyAgentKind
 	agent2faction factionTag
+	evoCost       float64
 	result        *agentStats
 }
 
@@ -64,7 +79,7 @@ func (r *agentMergeRecipe) match(kind colonyAgentKind, faction factionTag, a *co
 //   * blue ++++
 //   * yellow +++
 //   * green +++
-var agentMergeRecipeList = []agentMergeRecipe{
+var tier2agentMergeRecipeList = []agentMergeRecipe{
 	{
 		agent1kind:    agentMilitia,
 		agent1faction: redFactionTag,
@@ -128,17 +143,19 @@ var agentMergeRecipeList = []agentMergeRecipe{
 		agent2faction: greenFactionTag,
 		result:        repairAgentStats,
 	},
+}
 
-	// Tier 3.
+var tier3agentMergeRecipeList = []agentMergeRecipe{
 	{
 		agent1kind: agentRepeller,
 		agent2kind: agentFreighter,
+		evoCost:    5,
 		result:     flamerAgentStats,
 	},
-
 	{
 		agent1kind: agentFighter,
 		agent2kind: agentFighter,
+		evoCost:    11,
 		result:     destroyerAgentStats,
 	},
 }

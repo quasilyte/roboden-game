@@ -9,6 +9,8 @@ import (
 type colonyActionPlanner struct {
 	colony *colonyCoreNode
 
+	numTier1Agents    int
+	numTier2Agents    int
 	numPatrolAgents   int
 	numGarrisonAgents int
 
@@ -32,6 +34,7 @@ func newColonyActionPlanner(colony *colonyCoreNode, rand *gmath.Rand) *colonyAct
 func (p *colonyActionPlanner) PickAction() colonyAction {
 	p.leadingFaction = p.colony.factionWeights.MaxKey()
 	p.numPatrolAgents = 0
+	p.numTier2Agents = 0
 	p.colony.hasRedMiner = false
 	p.colony.numServoAgents = 0
 	p.colony.availableAgents = p.colony.availableAgents[:0]
@@ -41,6 +44,12 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 	leadingFactionCombatAgents := 0
 
 	for _, a := range p.colony.agents {
+		switch a.stats.tier {
+		case 1:
+			p.numTier1Agents++
+		case 2:
+			p.numTier2Agents++
+		}
 		if a.mode == agentModeStandby {
 			p.colony.availableAgents = append(p.colony.availableAgents, a)
 			switch a.stats.kind {
@@ -58,6 +67,12 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 		p.colony.numServoAgents = 10
 	}
 	for _, a := range p.colony.combatAgents {
+		switch a.stats.tier {
+		case 1:
+			p.numTier1Agents++
+		case 2:
+			p.numTier2Agents++
+		}
 		if a.mode == agentModePatrol {
 			p.numPatrolAgents++
 		}
@@ -300,7 +315,18 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 }
 
 func (p *colonyActionPlanner) tryMergingAction() colonyAction {
-	recipe := gmath.RandElem(p.world.rand, agentMergeRecipeList)
+	var list []agentMergeRecipe
+	if p.colony.evoPoints >= minEvoCost && p.numTier2Agents >= 2 && (p.numTier1Agents < 2 || p.world.rand.Bool()) {
+		list = tier3agentMergeRecipeList
+	} else {
+		list = tier2agentMergeRecipeList
+	}
+
+	recipe := gmath.RandElem(p.world.rand, list)
+	if recipe.evoCost > p.colony.evoPoints {
+		recipe = gmath.RandElem(p.world.rand, tier2agentMergeRecipeList)
+	}
+
 	firstAgent := p.colony.FindAgent(func(a *colonyAgentNode) bool {
 		return a.mode == agentModeStandby && recipe.Match1(a)
 	})
@@ -317,6 +343,7 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 		Kind:     actionMergeAgents,
 		Value:    firstAgent,
 		Value2:   secondAgent,
+		Value3:   recipe.evoCost,
 		TimeCost: 1.2,
 	}
 }
@@ -362,6 +389,16 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 				Kind:     actionRecycleAgent,
 				Value:    toRecycle,
 				TimeCost: 0.8,
+			}
+		}
+	}
+
+	if p.numTier2Agents > 0 {
+		evoPointsChance := gmath.Clamp(p.colony.GetEvolutionPriority()-0.15, 0, 0.6)
+		if p.world.rand.Chance(evoPointsChance) {
+			return colonyAction{
+				Kind:     actionGenerateEvo,
+				TimeCost: 0.6,
 			}
 		}
 	}

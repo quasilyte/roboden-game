@@ -34,6 +34,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageColonyCore:         {Path: "image/colony_core.png"},
 		ImageColonyCoreFlying:   {Path: "image/colony_core_flying.png"},
 		ImageColonyCoreHatch:    {Path: "image/colony_core_hatch.png"},
+		ImageColonyCoreDiode:    {Path: "image/colony_core_diode.png", FrameWidth: 4},
 		ImageColonyCoreShadow:   {Path: "image/colony_core_shadow.png"},
 		ImageWorkerAgent:        {Path: "image/worker_agent.png", FrameWidth: 9},
 		ImageMilitiaAgent:       {Path: "image/militia_agent.png", FrameWidth: 11},
@@ -118,6 +119,7 @@ const (
 	ImageColonyCore
 	ImageColonyCoreFlying
 	ImageColonyCoreHatch
+	ImageColonyCoreDiode
 	ImageColonyCoreShadow
 	ImageWorkerAgent
 	ImageGeneratorAgent

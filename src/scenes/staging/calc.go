@@ -5,7 +5,11 @@ import (
 )
 
 func mergeAgents(x, y *colonyAgentNode) *agentStats {
-	for _, recipe := range agentMergeRecipeList {
+	list := tier2agentMergeRecipeList
+	if x.stats.tier == 2 {
+		list = tier3agentMergeRecipeList
+	}
+	for _, recipe := range list {
 		if recipe.Match1(x) && recipe.Match2(y) {
 			return recipe.result
 		}

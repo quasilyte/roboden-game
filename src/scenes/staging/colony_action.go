@@ -15,12 +15,14 @@ type colonyAction struct {
 	Kind     colonyActionKind
 	Value    any
 	Value2   any
+	Value3   float64
 	TimeCost float64
 }
 
 const (
 	actionNone colonyActionKind = iota
 	actionRecycleAgent
+	actionGenerateEvo
 	actionMineEssence
 	actionCloneAgent
 	actionProduceAgent

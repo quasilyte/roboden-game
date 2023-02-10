@@ -14,6 +14,8 @@ import (
 const (
 	coreFlightHeight float64 = 50
 	maxUpkeepValue   int     = 270
+	maxEvoPoints     float64 = 20
+	maxEvoGain       float64 = 1.0
 )
 
 type colonyCoreMode int
@@ -43,11 +45,13 @@ type colonyCoreNode struct {
 	flyingSprite *ge.Sprite
 	shadow       *ge.Sprite
 	upkeepBar    *ge.Sprite
+	evoDiode     *ge.Sprite
 
 	scene *ge.Scene
 
 	pos       gmath.Vec
 	spritePos gmath.Vec
+	diodePos  gmath.Vec
 	height    float64
 	maxHealth float64
 	health    float64
@@ -59,6 +63,7 @@ type colonyCoreNode struct {
 
 	resourceShortage int
 	resources        resourceContainer
+	evoPoints        float64
 	world            *worldState
 
 	agents       []*colonyAgentNode
@@ -143,6 +148,11 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.hatch.Pos.Offset.Y = -20
 	c.world.camera.AddGraphics(c.hatch)
 
+	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
+	c.evoDiode.Pos.Base = &c.spritePos
+	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
+	c.world.camera.AddGraphics(c.evoDiode)
+
 	c.upkeepBar = scene.NewSprite(assets.ImageUpkeepBar)
 	c.upkeepBar.Pos.Base = &c.spritePos
 	c.upkeepBar.Pos.Offset.Y = -5
@@ -221,7 +231,7 @@ func (c *colonyCoreNode) Destroy() {
 }
 
 func (c *colonyCoreNode) GetEntrancePos() gmath.Vec {
-	return c.pos.Add(gmath.Vec{X: -1, Y: -20})
+	return c.pos.Add(gmath.Vec{X: -1, Y: -22})
 }
 
 func (c *colonyCoreNode) GetStoragePos() gmath.Vec {
@@ -342,6 +352,16 @@ func (c *colonyCoreNode) movementSpeed() float64 {
 	default:
 		return 0
 	}
+}
+
+func (c *colonyCoreNode) updateEvoDiode() {
+	offset := 0.0
+	if c.evoPoints >= 15 {
+		offset = c.evoDiode.FrameWidth * 2
+	} else if c.evoPoints >= 1 {
+		offset = c.evoDiode.FrameWidth * 1
+	}
+	c.evoDiode.FrameOffset.X = offset
 }
 
 func (c *colonyCoreNode) updateUpkeepBar(upkeepValue int) {
@@ -515,6 +535,43 @@ func (c *colonyCoreNode) doAction() {
 
 func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	switch action.Kind {
+	case actionGenerateEvo:
+		evoGain := 0.0
+		var connectedWorker *colonyAgentNode
+		var connectedFighter *colonyAgentNode
+		c.WalkAgents(func(a *colonyAgentNode) bool {
+			if evoGain >= maxEvoGain {
+				return false
+			}
+			if a.stats.tier != 2 {
+				return true
+			}
+			if a.stats.canPatrol {
+				if connectedFighter == nil {
+					connectedFighter = a
+				}
+			} else {
+				if connectedWorker == nil {
+					connectedWorker = a
+				}
+			}
+			evoGain += 0.1
+			return true
+		})
+		if connectedWorker != nil {
+			beam := newBeamNode(c.world.camera, c.evoDiode.Pos, ge.Pos{Base: &connectedWorker.pos}, evoBeamColor)
+			beam.width = 2
+			c.scene.AddObject(beam)
+		}
+		if connectedFighter != nil {
+			beam := newBeamNode(c.world.camera, c.evoDiode.Pos, ge.Pos{Base: &connectedFighter.pos}, evoBeamColor)
+			beam.width = 2
+			c.scene.AddObject(beam)
+		}
+		c.evoPoints = gmath.ClampMax(c.evoPoints+evoGain, maxEvoPoints)
+		c.updateEvoDiode()
+		return true
+
 	case actionMineEssence:
 		if len(c.availableAgents) == 0 && len(c.availableUniversalAgents) == 0 {
 			return false
@@ -605,6 +662,10 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		agent2 := action.Value2.(*colonyAgentNode)
 		agent1.AssignMode(agentModeMerging, gmath.Vec{}, agent2)
 		agent2.AssignMode(agentModeMerging, gmath.Vec{}, agent1)
+		if action.Value3 != 0 {
+			c.evoPoints = gmath.ClampMin(c.evoPoints-action.Value3, 0)
+			c.updateEvoDiode()
+		}
 		return true
 
 	case actionSetPatrol:

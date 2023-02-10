@@ -4,25 +4,7 @@ todo engine:
 - tiled backgrounds with reversed individual tiles
 - need to round the positions due to rendering issues (round them in Sprite?)
 
-+ make movement always available
-+ add "attack" action
-+ "build base" action should fail less often
-- invisible construction bases?
-+ animate tier3 creep
-+ if base is destroyed before drones?
-+ add tier3 warrior
-
-faction bonuses
-* yellow: +1 payload when collecting resources
-* red: +40% max hp
-* green: makes clones cheaper (x2), creates buildings faster (x1.5)
-* blue: +80% max energy, +15% speed
-
 - panic defense mode
-
-todo game loop:
-- good loot from big creeps
-- artifacts victory condition
 
 ui:
 - show boss direction

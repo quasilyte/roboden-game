@@ -16,6 +16,8 @@ type worldState struct {
 	colonies          []*colonyCoreNode
 	coreConstructions []*colonyCoreConstructionNode
 
+	boss *creepNode
+
 	width  float64
 	height float64
 	rect   gmath.Rect
@@ -45,6 +47,9 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 	n := newCreepNode(w, stats, pos)
 	n.EventDestroyed.Connect(nil, func(x *creepNode) {
 		w.creeps = xslices.Remove(w.creeps, x)
+		if x == w.boss {
+			w.boss = nil
+		}
 	})
 	w.creeps = append(w.creeps, n)
 	return n

@@ -217,6 +217,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 	w.choices = make([]*choiceOptionSlot, 5)
 	for i := range w.choices {
 		l := scene.NewLabel(assets.FontTiny)
+		l.ColorScale.SetColor(ge.RGB(0x9dd793))
 		l.Pos.Base = &w.pos
 		l.Pos.Offset.Y = offsetY
 		l.Pos.Offset.X = 44

@@ -19,6 +19,7 @@ type Controller struct {
 
 	selectedColony *colonyCoreNode
 	colonySelector *ge.Sprite
+	radar          *radarNode
 
 	scene *ge.Scene
 	world *worldState
@@ -67,12 +68,14 @@ func (c *Controller) Init(scene *ge.Scene) {
 	bg := ge.NewTiledBackground()
 	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
 	c.camera.AddGraphicsBelow(bg)
-
 	g := newLevelGenerator(scene, c.world)
 	g.Generate()
 
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
 	c.camera.AddGraphicsBelow(c.colonySelector)
+
+	c.radar = newRadarNode(c.world)
+	scene.AddObject(c.radar)
 
 	c.selectNextColony(true)
 	c.camera.CenterOn(c.selectedColony.pos)
@@ -314,6 +317,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 		c.selectedColony.EventDestroyed.Disconnect(c)
 	}
 	c.selectedColony = colony
+	c.radar.SetBase(c.selectedColony)
 	if c.selectedColony == nil {
 		// TODO: game over.
 		fmt.Println("game over")

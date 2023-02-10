@@ -342,8 +342,8 @@ func (w *choiceWindowNode) Update(delta float64) {
 		for i, a := range actions {
 			if w.input.ActionIsJustPressed(a) {
 				w.activateChoice(i)
+				return
 			}
-			return
 		}
 	}
 }

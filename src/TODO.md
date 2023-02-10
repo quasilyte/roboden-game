@@ -4,6 +4,8 @@ todo engine:
 - tiled backgrounds with reversed individual tiles
 - need to round the positions due to rendering issues (round them in Sprite?)
 
+- maybe make produced drone to always have the last choice faction?
+
 final things:
 - music
 - menu

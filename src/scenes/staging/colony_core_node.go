@@ -384,8 +384,8 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 		upkeepTotal += a.stats.upkeep
 		return false
 	})
-	upkeepDecrease = gmath.ClampMax(upkeepDecrease, 5)
-	upkeepTotal = gmath.ClampMin(upkeepTotal-(upkeepDecrease*10), 0)
+	upkeepDecrease = gmath.ClampMax(upkeepDecrease, 10)
+	upkeepTotal = gmath.ClampMin(upkeepTotal-(upkeepDecrease*15), 0)
 	var resourcePrice float64
 	switch {
 	case upkeepTotal <= 30:

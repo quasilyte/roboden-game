@@ -822,7 +822,7 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 }
 
 func (a *colonyAgentNode) followWaypoint(targetPos gmath.Vec) gmath.Vec {
-	preferredDist := gmath.ClampMin(a.stats.attackRange*0.7, 96)
+	preferredDist := gmath.ClampMin(a.stats.attackRange*0.6, 80)
 	return a.pos.DirectionTo(targetPos).Mulf(preferredDist).Add(targetPos).Add(a.scene.Rand().Offset(-52, 52))
 }
 

@@ -393,6 +393,11 @@ func (c *colonyCoreNode) updateResourceRects() {
 
 func (c *colonyCoreNode) calcUnitLimit() int {
 	calculated := ((c.realRadius - 80) * 0.3) + 10
+	growth := c.GetGrowthPriority()
+	if growth > 0.1 {
+		// 50% growth priority gives ~8 extra units to the limit.
+		calculated += (growth - 0.1) * 20
+	}
 	return gmath.Clamp(int(calculated), 10, 128)
 }
 

@@ -107,7 +107,7 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind
 func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, kind *essenceSourceStats) int {
 	rand := g.scene.Rand()
 	placed := 0
-	pos := correctedPos(sector, g.randomPos(sector), 64)
+	pos := correctedPos(sector, g.randomPos(sector), 128)
 	initialPos := pos
 	for i := 0; i < maxSize; i++ {
 		if !posIsFree(g.world, nil, pos, 8) {

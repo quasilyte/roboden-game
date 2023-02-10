@@ -4,11 +4,6 @@ todo engine:
 - tiled backgrounds with reversed individual tiles
 - need to round the positions due to rendering issues (round them in Sprite?)
 
-- panic defense mode
-
-ui:
-- show boss direction
-
 final things:
 - music
 - menu

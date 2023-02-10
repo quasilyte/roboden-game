@@ -40,6 +40,7 @@ func newRadarNode(world *worldState) *radarNode {
 func (r *radarNode) SetBase(colony *colonyCoreNode) {
 	r.colony = colony
 	r.bossSpot.Visible = false
+	r.bossPath.Visible = false
 }
 
 func (r *radarNode) IsDisposed() bool { return false }

@@ -263,7 +263,7 @@ var repairAgentStats = &agentStats{
 	speed:         110,
 	maxHealth:     18,
 	supportReload: 8.0,
-	supportRange:  300,
+	supportRange:  450,
 }
 
 var rechargeAgentStats = &agentStats{
@@ -279,7 +279,7 @@ var rechargeAgentStats = &agentStats{
 	speed:         90,
 	maxHealth:     16,
 	supportReload: 7,
-	supportRange:  340,
+	supportRange:  400,
 }
 
 var refresherAgentStats = &agentStats{
@@ -381,7 +381,7 @@ var flamerAgentStats = &agentStats{
 	canPatrol:        true,
 	speed:            130,
 	maxHealth:        40,
-	attackRange:      100,
+	attackRange:      110,
 	attackDelay:      1.2,
 	attackSound:      assets.AudioFlamerShot,
 	projectileImage:  assets.ImageFlamerProjectile,

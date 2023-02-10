@@ -131,8 +131,8 @@ func (g *levelGenerator) placeResources() {
 
 	numIron := rand.IntRange(26, 38)
 	numScrap := rand.IntRange(8, 10)
-	numGold := rand.IntRange(18, 28)
-	numCrystals := rand.IntRange(12, 18)
+	numGold := rand.IntRange(20, 28)
+	numCrystals := rand.IntRange(14, 20)
 	numOil := rand.IntRange(4, 6)
 	numRedOil := rand.IntRange(2, 3)
 
@@ -178,7 +178,7 @@ func (g *levelGenerator) placeResources() {
 	}
 	for numCrystals > 0 {
 		clusterSize := 1
-		if rand.Chance(0.3) {
+		if rand.Chance(0.4) {
 			clusterSize = 2
 		}
 		sector := g.sectors[g.sectorSlider.Value()]

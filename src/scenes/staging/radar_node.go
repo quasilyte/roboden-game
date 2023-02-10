@@ -16,9 +16,12 @@ type radarNode struct {
 
 	nearDist       float64
 	nearDistPixels float64
+	radius         float64
+	diameter       float64
 	scaleRatio     float64
 
 	bossSpot *ge.Sprite
+	bossPath *ge.Line
 
 	pos       gmath.Vec
 	direction gmath.Rad
@@ -48,7 +51,9 @@ func (r *radarNode) Init(scene *ge.Scene) {
 	r.sprite.Pos.Base = &r.pos
 	scene.AddGraphicsAbove(r.sprite, 1)
 
-	r.nearDistPixels = 54.0
+	r.radius = 55.0
+	r.diameter = r.radius * 2
+	r.nearDistPixels = r.radius - 1
 	r.scaleRatio = r.nearDistPixels / r.nearDist
 
 	r.pos = gmath.Vec{
@@ -60,6 +65,13 @@ func (r *radarNode) Init(scene *ge.Scene) {
 	r.wave.Pos.Base = &r.pos
 	r.wave.Rotation = &r.direction
 	scene.AddGraphicsAbove(r.wave, 1)
+
+	r.bossPath = ge.NewLine(ge.Pos{}, ge.Pos{})
+	var pathColor ge.ColorScale
+	pathColor.SetColor(ge.RGB(0x91234e))
+	r.bossPath.SetColorScale(pathColor)
+	r.bossPath.Visible = false
+	scene.AddGraphicsAbove(r.bossPath, 1)
 
 	r.bossSpot = ge.NewSprite(scene.Context())
 	r.bossSpot.Pos.Base = &r.pos
@@ -73,6 +85,7 @@ func (r *radarNode) Update(delta float64) {
 	r.wave.Visible = r.colony != nil
 	if r.bossSpot.Visible && r.colony == nil {
 		r.bossSpot.Visible = false
+		r.bossPath.Visible = false
 	}
 	if r.colony == nil {
 		return
@@ -87,6 +100,7 @@ func (r *radarNode) Update(delta float64) {
 	bossDirection := r.colony.pos.AngleToPoint(r.world.boss.pos).Normalized() + 2*math.Pi
 	if radarScanDirection.AngleDelta2(bossDirection) < 0.1 && !r.bossSpot.Visible {
 		r.bossSpot.Visible = true
+		r.bossPath.Visible = true
 		r.bossSpot.SetAlpha(1)
 		return
 	}
@@ -94,22 +108,34 @@ func (r *radarNode) Update(delta float64) {
 		return
 	}
 	r.bossSpot.SetAlpha(r.bossSpot.GetAlpha() - float32(delta*0.15))
+	r.bossPath.SetAlpha(r.bossSpot.GetAlpha())
 	if r.bossSpot.GetAlpha() < 0.2 {
 		r.bossSpot.Visible = false
+		r.bossPath.Visible = false
 		return
 	}
 	bossDist := r.world.boss.pos.DistanceTo(r.colony.pos)
+	extraOffset := gmath.Vec{X: 2, Y: 2}
 	if bossDist > r.nearDist {
 		// Boss is far away.
-		r.bossSpot.Pos.Offset = gmath.RadToVec(bossDirection).Mulf(r.nearDistPixels).Sub(gmath.Vec{X: 2, Y: 2})
+		r.bossSpot.Pos.Offset = gmath.RadToVec(bossDirection).Mulf(r.nearDistPixels).Sub(extraOffset)
 		if r.bossSpot.ImageID() != assets.ImageRadarBossFar {
 			r.bossSpot.SetImage(r.scene.LoadImage(assets.ImageRadarBossFar))
 		}
+		r.bossPath.Visible = false
 	} else {
 		// Boss is near.
-		r.bossSpot.Pos.Offset = gmath.RadToVec(bossDirection).Mulf(bossDist * r.scaleRatio).Sub(gmath.Vec{X: 2, Y: 2})
+		r.bossSpot.Pos.Offset = gmath.RadToVec(bossDirection).Mulf(bossDist * r.scaleRatio).Sub(extraOffset)
 		if r.bossSpot.ImageID() != assets.ImageRadarBossNear {
 			r.bossSpot.SetImage(r.scene.LoadImage(assets.ImageRadarBossNear))
 		}
+		r.bossSpot.Visible = true
+		startPos := r.bossSpot.Pos.Resolve().Add(extraOffset)
+		endPos := r.bossPath.BeginPos.Offset.Add(gmath.RadToVec(r.world.boss.GetVelocity().Angle()).Mulf(r.diameter))
+		fromCircleToObject := endPos.Sub(r.pos)
+		fromCircleToObject = fromCircleToObject.Mulf(r.radius / fromCircleToObject.Len())
+		endPos = r.pos.Add(fromCircleToObject)
+		r.bossPath.BeginPos.Offset = startPos
+		r.bossPath.EndPos.Offset = endPos
 	}
 }

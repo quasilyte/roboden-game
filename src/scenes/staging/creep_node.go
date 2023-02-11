@@ -425,6 +425,10 @@ func (c *creepNode) updateCreepBase(delta float64) {
 }
 
 func (c *creepNode) updateUberBoss(delta float64) {
+	if c.world.IsTutorial() {
+		return
+	}
+
 	c.shadow.Pos.Offset.Y = c.height + 4
 	newShadowAlpha := float32(1.0 - ((c.height / agentFlightHeight) * 0.5))
 	c.shadow.SetAlpha(newShadowAlpha)

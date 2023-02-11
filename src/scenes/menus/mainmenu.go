@@ -7,6 +7,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/colony-game/assets"
 	"github.com/quasilyte/colony-game/gameui/eui"
+	"github.com/quasilyte/colony-game/scenes/staging"
 	"github.com/quasilyte/colony-game/session"
 	"github.com/quasilyte/ge"
 )
@@ -55,7 +56,8 @@ func (c *MainMenuController) initUI() {
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Tutorial", func() {
-		c.scene.Audio().PlaySound(assets.AudioClick)
+		c.state.LevelOptions.Tutorial = true
+		c.scene.Context().ChangeScene(staging.NewController(c.state, 0, NewMainMenuController(c.state)))
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Settings", func() {

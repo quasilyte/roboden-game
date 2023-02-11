@@ -29,12 +29,12 @@ var oilSource = &essenceSourceStats{
 }
 
 var redOilSource = &essenceSourceStats{
-	image:      assets.ImageRedEssenceSource,
-	capacity:   gmath.MakeRange(40, 80),
-	regenDelay: 9,
-	value:      1.5, // 60-120 total
-	canRotate:  false,
-	size:       32,
+	image:       assets.ImageRedEssenceSource,
+	capacity:    gmath.MakeRange(40, 80),
+	regenDelay:  9,
+	value:       1.5, // 60-120 total
+	spritesheet: true,
+	size:        32,
 }
 
 var goldSource = &essenceSourceStats{

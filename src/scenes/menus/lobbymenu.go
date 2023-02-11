@@ -76,8 +76,22 @@ func (c *LobbyMenuController) initUI() {
 		rowContainer.AddChild(button)
 	}
 
+	{
+		var slider gmath.Slider
+		slider.SetBounds(0, 2)
+		slider.TrySetValue(options.WorldSize)
+		button := eui.NewButtonSelected(uiResources, "Map Size: "+strconv.Itoa(slider.Value()+1))
+		button.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			options.WorldSize = slider.Value()
+			button.Text().Label = "Map Size: " + strconv.Itoa(slider.Value()+1)
+		})
+		rowContainer.AddChild(button)
+	}
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Start", func() {
-		c.scene.Context().ChangeScene(staging.NewController(c.state, NewLobbyMenuController(c.state)))
+		c.state.LevelOptions.Tutorial = false
+		c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
 	}))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

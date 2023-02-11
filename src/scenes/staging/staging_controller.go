@@ -27,8 +27,9 @@ type Controller struct {
 	colonySelector *ge.Sprite
 	radar          *radarNode
 
-	scene *ge.Scene
-	world *worldState
+	scene     *ge.Scene
+	world     *worldState
+	worldSize int
 
 	choices *choiceWindowNode
 
@@ -40,16 +41,30 @@ type Controller struct {
 	debugInfo *ge.Label
 }
 
-func NewController(state *session.State, back ge.SceneController) *Controller {
-	return &Controller{state: state, backController: back}
+func NewController(state *session.State, worldSize int, back ge.SceneController) *Controller {
+	return &Controller{
+		state:          state,
+		backController: back,
+		worldSize:      worldSize,
+	}
 }
 
 func (c *Controller) Init(scene *ge.Scene) {
 	c.startTime = time.Now()
 
+	var worldSize float64
+	switch c.worldSize {
+	case 0:
+		worldSize = 1856
+	case 1:
+		worldSize = 2368
+	case 2:
+		worldSize = 2880
+	}
+
 	viewportWorld := &viewport.World{
-		Width:  2880,
-		Height: 2880,
+		Width:  worldSize,
+		Height: worldSize,
 	}
 	c.scene = scene
 	c.camera = viewport.NewCamera(viewportWorld, 1920/2, 1080/2)
@@ -72,6 +87,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	world := &worldState{
+		worldSize:      c.worldSize,
 		options:        &c.state.LevelOptions,
 		camera:         c.camera,
 		rand:           scene.Rand(),

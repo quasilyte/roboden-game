@@ -19,6 +19,10 @@ type PersistentData struct {
 type LevelOptions struct {
 	Resources  int
 	Difficulty int
+
+	WorldSize int
+
+	Tutorial bool
 }
 
 type GameSettings struct {

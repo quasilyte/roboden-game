@@ -10,7 +10,8 @@ import (
 type worldState struct {
 	rand *gmath.Rand
 
-	camera *viewport.Camera
+	worldSize int
+	camera    *viewport.Camera
 
 	essenceSources    []*essenceSourceNode
 	creeps            []*creepNode
@@ -28,6 +29,10 @@ type worldState struct {
 	options *session.LevelOptions
 
 	tmpTargetSlice []projectileTarget
+}
+
+func (w *worldState) IsTutorial() bool {
+	return w.options.Tutorial
 }
 
 func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {

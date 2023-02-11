@@ -35,11 +35,25 @@ func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
 }
 
 func (g *levelGenerator) Generate() {
-	g.placePlayers()
-	g.placeCreepBases()
-	g.placeCreeps()
-	g.placeResources()
-	g.placeBoss()
+
+	if g.world.IsTutorial() {
+		g.placePlayers()
+		g.placeResources(0.5)
+		g.placeTutorialBoss()
+	} else {
+		resourceMultipliers := []float64{
+			0.4,
+			0.75,
+			1, // Default
+			1.25,
+			1.6,
+		}
+		g.placePlayers()
+		g.placeCreepBases()
+		g.placeCreeps()
+		g.placeResources(resourceMultipliers[g.world.options.Resources])
+		g.placeBoss()
+	}
 }
 
 func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
@@ -126,17 +140,15 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 	return placed
 }
 
-func (g *levelGenerator) placeResources() {
+func (g *levelGenerator) placeResources(resMultiplier float64) {
 	rand := g.scene.Rand()
 
-	resourceMultipliers := []float64{
-		0.4,
-		0.75,
-		1, // Default
-		1.25,
-		1.6,
+	worldSizeMultipliers := []float64{
+		0.8,
+		0.9,
+		1.0,
 	}
-	multiplier := resourceMultipliers[g.world.options.Resources]
+	multiplier := resMultiplier * worldSizeMultipliers[g.world.worldSize]
 	numIron := int(float64(rand.IntRange(26, 38)) * multiplier)
 	numScrap := int(float64(rand.IntRange(8, 10)) * multiplier)
 	numGold := int(float64(rand.IntRange(20, 28)) * multiplier)
@@ -226,6 +238,15 @@ func (g *levelGenerator) placeResources() {
 	for _, source := range g.pendingResources {
 		g.scene.AddObject(source)
 	}
+}
+
+func (g *levelGenerator) placeTutorialBoss() {
+	boss := g.world.NewCreepNode(gmath.Vec{X: 256, Y: 256}, uberBossCreepStats)
+	g.scene.AddObject(boss)
+
+	boss.OnDamage(damageValue{health: uberBossCreepStats.maxHealth * 0.33}, gmath.Vec{})
+
+	g.world.boss = boss
 }
 
 func (g *levelGenerator) placeBoss() {

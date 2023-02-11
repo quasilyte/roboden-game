@@ -23,6 +23,7 @@ func main() {
 		LevelOptions: session.LevelOptions{
 			Resources:  2,
 			Difficulty: 2,
+			WorldSize:  2,
 		},
 		Persistent: session.PersistentData{
 			// The default settings.

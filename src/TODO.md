@@ -20,7 +20,6 @@ itchio page:
 iskander:
 - maybe add servant drone somehow (hard mode only)
 - make base prefer using green cloners
-- new agent traits? (counter-clocwise movement)
 - implement pause?
 oleg:
 - flamer projectile

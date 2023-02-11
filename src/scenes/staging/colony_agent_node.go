@@ -63,6 +63,7 @@ type agentTraitBits uint64
 
 const (
 	traitNeverStop agentTraitBits = 1 << iota
+	traitCounterClocwiseOrbiting
 )
 
 type colonyAgentNode struct {
@@ -147,6 +148,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 		if scene.Rand().Chance(0.4) {
 			a.traits |= traitNeverStop
+		}
+		if scene.Rand().Chance(0.1) {
+			a.traits |= traitCounterClocwiseOrbiting
 		}
 
 		switch a.faction {
@@ -342,7 +346,11 @@ func (a *colonyAgentNode) orbitingWaypoint() gmath.Vec {
 	} else {
 		direction = a.pos.DirectionTo(a.colonyCore.pos)
 	}
-	return direction.Rotated(0.4).Mulf(a.dist).Add(a.colonyCore.pos)
+	dir := gmath.Rad(0.4)
+	if a.hasTrait(traitCounterClocwiseOrbiting) {
+		dir = -0.4
+	}
+	return direction.Rotated(dir).Mulf(a.dist).Add(a.colonyCore.pos)
 }
 
 func (a *colonyAgentNode) Update(delta float64) {

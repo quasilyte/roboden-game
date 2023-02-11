@@ -65,6 +65,10 @@ func (c *MainMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewOptionsController(c.state))
 	}))
 
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Controls", func() {
+		c.scene.Context().ChangeScene(NewControlsMenuController(c.state))
+	}))
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Credits", func() {
 		c.scene.Context().ChangeScene(NewCreditsMenuController(c.state))
 	}))

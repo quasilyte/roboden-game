@@ -167,12 +167,19 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 	if combat {
 		agents = p.colony.availableCombatAgents
 	}
+	minTier := 1
+	if p.numTier2Agents != 0 && p.world.rand.Chance(0.7) {
+		minTier = 2
+	}
 	return randFind(p.world.rand, agents, func(a *colonyAgentNode) bool {
-		return a != cloner && agentCloningCost(p.colony, cloner, a)*1.5 < p.colony.resources
+		return a != cloner &&
+			agentCloningCost(p.colony, cloner, a)*1.5 < p.colony.resources &&
+			a.stats.tier >= minTier
 	})
 }
 
 func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
+	// TODO: prefer a green cloner.
 	cloner := p.pickCloner()
 	if cloner == nil {
 		return colonyAction{}

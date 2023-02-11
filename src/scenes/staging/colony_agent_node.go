@@ -154,7 +154,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 			a.maxHealth *= 1.4
 		case blueFactionTag:
 			a.maxEnergy *= 1.8
-			a.speed *= 1.15
+			a.speed *= 1.2
 		}
 	}
 

@@ -19,10 +19,9 @@ itchio page:
 
 iskander:
 - maybe add servant drone somehow (hard mode only)
-- less chance to recycle a unit that can be used in a recipe?
-- make cloning prefer non-tier1 units
 - make base prefer using green cloners
-- if need combat units, ignore soft limit
+- new agent traits? (counter-clocwise movement)
+- implement pause?
 oleg:
 - flamer projectile
 - replace gamepad icons in game

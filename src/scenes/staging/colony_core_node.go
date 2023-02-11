@@ -1,7 +1,6 @@
 package staging
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/quasilyte/ge"
@@ -656,7 +655,6 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		srcColony.pickCombatUnits(wantWarriors, func(a *colonyAgentNode) {
 			transferUnit(c, srcColony, a)
 		})
-		fmt.Println("transfered", wantWarriors, wantWorkers)
 		return true
 
 	case actionCloneAgent:

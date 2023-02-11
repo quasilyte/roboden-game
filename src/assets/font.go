@@ -9,6 +9,7 @@ func registerFontResources(ctx *ge.Context) {
 	fontResources := map[resource.FontID]resource.FontInfo{
 		FontTiny:  {Path: "font/DejavuSansMono.ttf", Size: 10},
 		FontSmall: {Path: "font/DejavuSansMono.ttf", Size: 14},
+		FontBig:   {Path: "font/DejavuSansMono.ttf", Size: 22},
 	}
 
 	for id, res := range fontResources {
@@ -20,4 +21,5 @@ func registerFontResources(ctx *ge.Context) {
 const (
 	FontSmall resource.FontID = iota
 	FontTiny
+	FontBig
 )

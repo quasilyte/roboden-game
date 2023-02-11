@@ -5,7 +5,7 @@ import (
 
 	"github.com/quasilyte/colony-game/assets"
 	"github.com/quasilyte/colony-game/controls"
-	"github.com/quasilyte/colony-game/scenes/staging"
+	"github.com/quasilyte/colony-game/scenes/menus"
 	"github.com/quasilyte/colony-game/session"
 	"github.com/quasilyte/ge"
 )
@@ -13,18 +13,34 @@ import (
 func main() {
 	ctx := ge.NewContext()
 	ctx.Rand.SetSeed(time.Now().Unix())
-	ctx.GameName = "colony_game"
-	ctx.WindowTitle = "Colony"
+	ctx.GameName = "roboden"
+	ctx.WindowTitle = "RoboDen"
 	ctx.WindowWidth = 1920 / 2
 	ctx.WindowHeight = 1080 / 2
 	ctx.FullScreen = true
 
-	state := &session.State{}
+	state := &session.State{
+		LevelOptions: session.LevelOptions{
+			Resources:  2,
+			Difficulty: 2,
+		},
+		Persistent: session.PersistentData{
+			// The default settings.
+			Settings: session.GameSettings{
+				EffectsVolumeLevel: 2,
+				MusicVolumeLevel:   2,
+				ScrollingSpeed:     2,
+				Debug:              false,
+			},
+		},
+	}
 
 	assets.Register(ctx)
 	controls.BindKeymap(ctx, state)
 
-	if err := ge.RunGame(ctx, staging.NewController(state)); err != nil {
+	ctx.LoadGameData("save", &state.Persistent)
+
+	if err := ge.RunGame(ctx, menus.NewMainMenuController(state)); err != nil {
 		panic(err)
 	}
 }

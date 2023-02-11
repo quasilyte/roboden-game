@@ -1,6 +1,7 @@
 package staging
 
 import (
+	"github.com/quasilyte/colony-game/session"
 	"github.com/quasilyte/colony-game/viewport"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
@@ -21,6 +22,10 @@ type worldState struct {
 	width  float64
 	height float64
 	rect   gmath.Rect
+
+	result battleResults
+
+	options *session.LevelOptions
 
 	tmpTargetSlice []projectileTarget
 }
@@ -49,6 +54,8 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 		w.creeps = xslices.Remove(w.creeps, x)
 		if x == w.boss {
 			w.boss = nil
+		} else {
+			w.result.CreepsDefeated++
 		}
 	})
 	w.creeps = append(w.creeps, n)

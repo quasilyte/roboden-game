@@ -726,7 +726,7 @@ func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
 		a.sprite.SetColorScaleRGBA(200, 200, 200, 255)
 	}
 	if a.moveTowards(delta, a.waypoint) {
-		a.colonyCore.resources.Essence += a.stats.cost * 0.9
+		a.colonyCore.resources += a.stats.cost * 0.9
 		playSound(a.scene, a.camera(), assets.AudioAgentRecycled, a.pos)
 		a.Destroy()
 	}
@@ -901,7 +901,8 @@ func (a *colonyAgentNode) updateResourceTakeoff(delta float64) {
 func (a *colonyAgentNode) updateReturn(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
 		if a.payload != 0 {
-			a.colonyCore.resources.Essence += a.cargoValue
+			a.colonyCore.resources += a.cargoValue
+			a.colonyCore.world.result.ResourcesGathered += a.cargoValue
 			a.payload = 0
 			playSound(a.scene, a.camera(), assets.AudioEssenceCollected, a.pos)
 		}

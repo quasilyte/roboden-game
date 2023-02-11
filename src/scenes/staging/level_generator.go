@@ -129,12 +129,20 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 func (g *levelGenerator) placeResources() {
 	rand := g.scene.Rand()
 
-	numIron := rand.IntRange(26, 38)
-	numScrap := rand.IntRange(8, 10)
-	numGold := rand.IntRange(20, 28)
-	numCrystals := rand.IntRange(14, 20)
-	numOil := rand.IntRange(4, 6)
-	numRedOil := rand.IntRange(2, 3)
+	resourceMultipliers := []float64{
+		0.4,
+		0.75,
+		1, // Default
+		1.25,
+		1.6,
+	}
+	multiplier := resourceMultipliers[g.world.options.Resources]
+	numIron := int(float64(rand.IntRange(26, 38)) * multiplier)
+	numScrap := int(float64(rand.IntRange(8, 10)) * multiplier)
+	numGold := int(float64(rand.IntRange(20, 28)) * multiplier)
+	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
+	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
+	numRedOil := int(float64(rand.IntRange(2, 3)) * multiplier)
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 
@@ -255,10 +263,11 @@ func (g *levelGenerator) placeCreeps() {
 }
 
 func (g *levelGenerator) placeCreepBases() {
-	// Right now there are always 2 creep bases.
-	// One of them will activate later than another.
+	if g.world.options.Difficulty == 0 {
+		return // Zero bases
+	}
 	// The bases are always located somewhere on the map boundary.
-	// Both bases can't be on the same border.
+	// Bases can't be on the same border.
 	pad := 128.0
 	borderWidth := 440.0
 	borders := []gmath.Rect{
@@ -272,7 +281,7 @@ func (g *levelGenerator) placeCreepBases() {
 		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
 	}
 	gmath.Shuffle(g.scene.Rand(), borders)
-	numBases := 2
+	numBases := g.world.options.Difficulty
 	for i := 0; i < numBases; i++ {
 		border := borders[i]
 		var basePos gmath.Vec
@@ -288,16 +297,13 @@ func (g *levelGenerator) placeCreepBases() {
 			continue
 		}
 		fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
-		// Base 1: starts right away with level 2.
-		// Base 2: has 9 minutes delay before level 1.
-		// The first creep
 		base := g.world.NewCreepNode(basePos, baseCreepStats)
 		if i == 0 {
-			base.specialModifier = 1.0
+			base.specialDelay = (9 * 60.0) * g.scene.Rand().FloatRange(0.9, 1.1)
+		} else {
+			base.specialModifier = 1.0 // Initial level base
 			base.specialDelay = g.scene.Rand().FloatRange(60, 120)
 			base.attackDelay = g.scene.Rand().FloatRange(40, 50)
-		} else {
-			base.specialDelay = (9 * 60.0) * g.scene.Rand().FloatRange(0.9, 1.1)
 		}
 		g.scene.AddObject(base)
 	}

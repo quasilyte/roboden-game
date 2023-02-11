@@ -118,7 +118,7 @@ func (p *colonyActionPlanner) pickGatherAction() colonyAction {
 	if len(p.world.essenceSources) == 0 {
 		return colonyAction{}
 	}
-	baseNeedsResources := p.colony.resources.Essence <= maxVisualResources
+	baseNeedsResources := p.colony.resources <= maxVisualResources
 	if !baseNeedsResources {
 		return colonyAction{}
 	}
@@ -168,7 +168,7 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 		agents = p.colony.availableCombatAgents
 	}
 	return randFind(p.world.rand, agents, func(a *colonyAgentNode) bool {
-		return a != cloner && agentCloningCost(p.colony, cloner, a)*1.5 < p.colony.resources.Essence
+		return a != cloner && agentCloningCost(p.colony, cloner, a)*1.5 < p.colony.resources
 	})
 }
 
@@ -195,7 +195,7 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	canRepair := len(p.colony.availableAgents) != 0 &&
 		p.colony.health < p.colony.maxHealth &&
-		p.colony.resources.Essence > 30
+		p.colony.resources > 30
 	if canRepair && p.world.rand.Chance(0.25) {
 		return colonyAction{
 			Kind:     actionRepairBase,
@@ -205,7 +205,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 
 	canBuild := len(p.colony.availableAgents) != 0 &&
 		len(p.world.coreConstructions) != 0 &&
-		p.colony.resources.Essence > 30
+		p.colony.resources > 30
 	if canBuild && p.world.rand.Chance(0.55) {
 		var construction *colonyCoreConstructionNode
 		closest := 0.0
@@ -251,7 +251,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	if combatUnit {
 		stats = militiaAgentStats
 	}
-	if p.colony.resources.Essence >= stats.cost {
+	if p.colony.resources >= stats.cost {
 		return colonyAction{
 			Kind:     actionProduceAgent,
 			Value:    stats,

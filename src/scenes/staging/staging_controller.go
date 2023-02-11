@@ -3,6 +3,7 @@ package staging
 import (
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/colony-game/assets"
@@ -16,6 +17,11 @@ import (
 
 type Controller struct {
 	state *session.State
+
+	backController ge.SceneController
+	cameraPanSpeed float64
+
+	startTime time.Time
 
 	selectedColony *colonyCoreNode
 	colonySelector *ge.Sprite
@@ -34,11 +40,13 @@ type Controller struct {
 	debugInfo *ge.Label
 }
 
-func NewController(state *session.State) *Controller {
-	return &Controller{state: state}
+func NewController(state *session.State, back ge.SceneController) *Controller {
+	return &Controller{state: state, backController: back}
 }
 
 func (c *Controller) Init(scene *ge.Scene) {
+	c.startTime = time.Now()
+
 	viewportWorld := &viewport.World{
 		Width:  2880,
 		Height: 2880,
@@ -50,7 +58,21 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.tier3spawnDelay = scene.Rand().FloatRange(14*60.0, 16*60.0)
 	c.tier3spawnRate = 1.0
 
+	switch c.state.Persistent.Settings.ScrollingSpeed {
+	case 0:
+		c.cameraPanSpeed = 3.0
+	case 1:
+		c.cameraPanSpeed = 6.0
+	case 2:
+		c.cameraPanSpeed = 8.0
+	case 3:
+		c.cameraPanSpeed = 10.0
+	case 4:
+		c.cameraPanSpeed = 13.0
+	}
+
 	world := &worldState{
+		options:        &c.state.LevelOptions,
 		camera:         c.camera,
 		rand:           scene.Rand(),
 		tmpTargetSlice: make([]projectileTarget, 0, 20),
@@ -82,10 +104,12 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	scene.AddGraphics(c.camera)
 
-	c.debugInfo = scene.NewLabel(assets.FontSmall)
-	c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
-	c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
-	scene.AddGraphics(c.debugInfo)
+	if c.state.Persistent.Settings.Debug {
+		c.debugInfo = scene.NewLabel(assets.FontSmall)
+		c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
+		c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
+		scene.AddGraphics(c.debugInfo)
+	}
 
 	choicesPos := gmath.Vec{
 		X: 960 - 224 - 16,
@@ -226,6 +250,17 @@ func (c *Controller) spawnTier3Creep() {
 }
 
 func (c *Controller) Update(delta float64) {
+	if c.world.boss == nil {
+		c.scene.DelayedCall(5.0, func() {
+			c.world.result.Victory = true
+			c.world.result.TimePlayed = time.Since(c.startTime)
+			for _, colony := range c.world.colonies {
+				c.world.result.SurvivingDrones += colony.NumAgents()
+			}
+			c.scene.Context().ChangeScene(newResultsController(c.state, c.backController, c.world.result))
+		})
+	}
+
 	c.choices.Enabled = c.selectedColony != nil &&
 		c.selectedColony.mode == colonyModeNormal
 
@@ -236,36 +271,39 @@ func (c *Controller) Update(delta float64) {
 
 	mainInput := c.state.MainInput
 	var cameraPan gmath.Vec
-	const cameraPanSpeed float64 = 8.0
 	if mainInput.ActionIsPressed(controls.ActionPanRight) {
-		cameraPan.X += cameraPanSpeed
+		cameraPan.X += c.cameraPanSpeed
 	}
 	if mainInput.ActionIsPressed(controls.ActionPanDown) {
-		cameraPan.Y += cameraPanSpeed
+		cameraPan.Y += c.cameraPanSpeed
 	}
 	if mainInput.ActionIsPressed(controls.ActionPanLeft) {
-		cameraPan.X -= cameraPanSpeed
+		cameraPan.X -= c.cameraPanSpeed
 	}
 	if mainInput.ActionIsPressed(controls.ActionPanUp) {
-		cameraPan.Y -= cameraPanSpeed
+		cameraPan.Y -= c.cameraPanSpeed
 	}
 	if cameraPan.IsZero() {
 		// Mouse cursor can pan the camera too.
 		cursor := mainInput.CursorPos()
 		if cursor.X > c.camera.Rect.Width()-2 {
-			cameraPan.X += cameraPanSpeed
+			cameraPan.X += c.cameraPanSpeed
 		}
 		if cursor.Y > c.camera.Rect.Height()-2 {
-			cameraPan.Y += cameraPanSpeed
+			cameraPan.Y += c.cameraPanSpeed
 		}
 		if cursor.X < 2 {
-			cameraPan.X -= cameraPanSpeed
+			cameraPan.X -= c.cameraPanSpeed
 		}
 		if cursor.Y < 2 {
-			cameraPan.Y -= cameraPanSpeed
+			cameraPan.Y -= c.cameraPanSpeed
 		}
 	}
 	c.camera.Pan(cameraPan)
+
+	if mainInput.ActionIsJustPressed(controls.ActionBack) {
+		c.scene.Context().ChangeScene(c.backController)
+	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionToggleColony) {
 		c.selectNextColony(true)
@@ -286,7 +324,9 @@ func (c *Controller) Update(delta float64) {
 		}
 	}
 
-	c.debugInfo.Text = fmt.Sprintf("FPS: %f", ebiten.CurrentFPS())
+	if c.debugInfo != nil {
+		c.debugInfo.Text = fmt.Sprintf("FPS: %f", ebiten.CurrentFPS())
+	}
 	// colony := c.selectedColony
 	// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",
 	// 	colony.resources.Essence,
@@ -319,9 +359,12 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	c.selectedColony = colony
 	c.radar.SetBase(c.selectedColony)
 	if c.selectedColony == nil {
-		// TODO: game over.
-		fmt.Println("game over")
 		c.colonySelector.Visible = false
+		c.scene.DelayedCall(2.0, func() {
+			c.world.result.Victory = false
+			c.world.result.TimePlayed = time.Since(c.startTime)
+			c.scene.Context().ChangeScene(newResultsController(c.state, c.backController, c.world.result))
+		})
 		return
 	}
 	c.selectedColony.EventDestroyed.Connect(c, func(_ *colonyCoreNode) {

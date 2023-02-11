@@ -86,6 +86,28 @@ func registerImageResources(ctx *ge.Context) {
 		ImageWandererProjectile: {Path: "image/wanderer_projectile.png"},
 		ImageFlamerProjectile:   {Path: "image/flamer_projectile.png"},
 		ImageMissile:            {Path: "image/missile.png"},
+
+		ImageUIButtonIdle:             {Path: "image/ui/button-idle.png"},
+		ImageUIButtonHover:            {Path: "image/ui/button-hover.png"},
+		ImageUIButtonPressed:          {Path: "image/ui/button-pressed.png"},
+		ImageUIButtonDisabled:         {Path: "image/ui/button-disabled.png"},
+		ImageUIButtonSelectedIdle:     {Path: "image/ui/button-selected-idle.png"},
+		ImageUIButtonSelectedHover:    {Path: "image/ui/button-selected-hover.png"},
+		ImageUIButtonSelectedPressed:  {Path: "image/ui/button-selected-pressed.png"},
+		ImageUIButtonSelectedDisabled: {Path: "image/ui/button-selected-disabled.png"},
+		ImageUIArrowDownIdle:          {Path: "image/ui/arrow-down-idle.png"},
+		ImageUIArrowDownDisabled:      {Path: "image/ui/arrow-down-disabled.png"},
+		ImageUIOptionButtonIdle:       {Path: "image/ui/combo-button-idle.png"},
+		ImageUIOptionButtonHover:      {Path: "image/ui/combo-button-hover.png"},
+		ImageUIOptionButtonPressed:    {Path: "image/ui/combo-button-pressed.png"},
+		ImageUIOptionButtonDisabled:   {Path: "image/ui/combo-button-disabled.png"},
+		ImageUIListIdle:               {Path: "image/ui/list-idle.png"},
+		ImageUIListDisabled:           {Path: "image/ui/list-disabled.png"},
+		ImageUIListMask:               {Path: "image/ui/list-mask.png"},
+		ImageUIListTrackIdle:          {Path: "image/ui/list-track-idle.png"},
+		ImageUIListTrackDisabled:      {Path: "image/ui/list-track-disabled.png"},
+		ImageUISliderHandleIdle:       {Path: "image/ui/slider-handle-idle.png"},
+		ImageUISliderHandleHover:      {Path: "image/ui/slider-handle-hover.png"},
 	}
 
 	for id, res := range imageResources {
@@ -172,4 +194,26 @@ const (
 	ImageWandererProjectile
 	ImageFlamerProjectile
 	ImageMissile
+
+	ImageUIButtonIdle
+	ImageUIButtonHover
+	ImageUIButtonPressed
+	ImageUIButtonDisabled
+	ImageUIButtonSelectedIdle
+	ImageUIButtonSelectedHover
+	ImageUIButtonSelectedPressed
+	ImageUIButtonSelectedDisabled
+	ImageUIArrowDownIdle
+	ImageUIArrowDownDisabled
+	ImageUIOptionButtonIdle
+	ImageUIOptionButtonHover
+	ImageUIOptionButtonPressed
+	ImageUIOptionButtonDisabled
+	ImageUIListIdle
+	ImageUIListDisabled
+	ImageUIListMask
+	ImageUIListTrackIdle
+	ImageUIListTrackDisabled
+	ImageUISliderHandleIdle
+	ImageUISliderHandleHover
 )

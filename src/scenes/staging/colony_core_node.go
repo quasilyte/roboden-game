@@ -64,7 +64,7 @@ type colonyCoreNode struct {
 	relocationPoint gmath.Vec
 
 	resourceShortage int
-	resources        resourceContainer
+	resources        float64
 	evoPoints        float64
 	world            *worldState
 
@@ -261,12 +261,14 @@ func (c *colonyCoreNode) CloneAgentNode(a *colonyAgentNode) *colonyAgentNode {
 	cloned := a.Clone()
 	cloned.pos = pos
 	c.AcceptAgent(cloned)
+	c.world.result.DronesProduced++
 	return cloned
 }
 
 func (c *colonyCoreNode) NewColonyAgentNode(stats *agentStats, pos gmath.Vec) *colonyAgentNode {
 	a := newColonyAgentNode(c, stats, pos)
 	c.AcceptAgent(a)
+	c.world.result.DronesProduced++
 	return a
 }
 
@@ -373,7 +375,7 @@ func (c *colonyCoreNode) updateUpkeepBar(upkeepValue int) {
 
 func (c *colonyCoreNode) updateResourceRects() {
 	const resourcesPerBlock float64 = maxVisualResources / 3
-	unallocated := c.resources.Essence
+	unallocated := c.resources
 	for i, rect := range c.resourceRects {
 		var percentage float64
 		if unallocated >= resourcesPerBlock {
@@ -452,11 +454,11 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 	c.upkeepDelay = c.scene.Rand().FloatRange(6.5, 8.5)
 	upkeepPrice, upkeepValue := c.calcUpkeed()
 	c.updateUpkeepBar(upkeepValue)
-	if c.resources.Essence < upkeepPrice {
+	if c.resources < upkeepPrice {
 		c.actionPriorities.AddWeight(priorityResources, 0.04)
-		c.resources.Essence = 0
+		c.resources = 0
 	} else {
-		c.resources.Essence -= upkeepPrice
+		c.resources -= upkeepPrice
 	}
 }
 
@@ -597,11 +599,11 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		repairCost := 10.0
 		ok := false
 		c.pickWorkerUnits(1, func(a *colonyAgentNode) {
-			if c.resources.Essence < repairCost {
+			if c.resources < repairCost {
 				return
 			}
 			if a.AssignMode(agentModeRepairBase, gmath.Vec{}, nil) {
-				c.resources.Essence -= repairCost
+				c.resources -= repairCost
 				ok = true
 			}
 		})
@@ -613,11 +615,11 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		minNumAgents := gmath.Clamp(len(c.availableAgents)/15, 1, 3)
 		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)
 		c.pickWorkerUnits(toAssign, func(a *colonyAgentNode) {
-			if c.resources.Essence < sendCost {
+			if c.resources < sendCost {
 				return
 			}
 			if a.AssignMode(agentModeBuildBase, gmath.Vec{}, action.Value) {
-				c.resources.Essence -= sendCost
+				c.resources -= sendCost
 			}
 		})
 		return true
@@ -632,7 +634,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		a.height = 0
 		a.faction = c.pickAgentFaction()
 		c.scene.AddObject(a)
-		c.resources.Essence -= a.stats.cost
+		c.resources -= a.stats.cost
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)
 		playSound(c.scene, c.world.camera, assets.AudioAgentProduced, c.pos)
 		c.openHatchTime = 1.5
@@ -659,7 +661,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	case actionCloneAgent:
 		cloneTarget := action.Value.(*colonyAgentNode)
 		cloner := action.Value2.(*colonyAgentNode)
-		c.resources.Essence -= agentCloningCost(c, cloner, cloneTarget)
+		c.resources -= agentCloningCost(c, cloner, cloneTarget)
 		cloner.AssignMode(agentModeMakeClone, gmath.Vec{}, cloneTarget)
 		cloneTarget.AssignMode(agentModeWaitCloning, gmath.Vec{}, cloner)
 		return true

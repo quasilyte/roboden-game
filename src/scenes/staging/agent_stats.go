@@ -247,6 +247,7 @@ type agentStats struct {
 	projectileRotateSpeed float64
 	projectileDamage      damageValue
 	projectileImage       resource.ImageID
+	projectileImpact      projectileExplosionKind
 	attackSound           resource.AudioID
 }
 
@@ -427,6 +428,7 @@ var flamerAgentStats = &agentStats{
 	attackDelay:      1.1,
 	attackSound:      assets.AudioFlamerShot,
 	projectileImage:  assets.ImageFlamerProjectile,
+	projectileImpact: projectileExplosionNormal,
 	projectileArea:   18,
 	projectileSpeed:  160,
 	projectileDamage: damageValue{health: 5},

@@ -595,6 +595,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			p := newProjectileNode(projectileConfig{
 				Camera:      a.colonyCore.world.camera,
 				Image:       a.stats.projectileImage,
+				Explosion:   a.stats.projectileImpact,
 				FromPos:     a.pos,
 				ToPos:       toPos,
 				Target:      target,

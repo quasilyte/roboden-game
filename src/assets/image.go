@@ -28,11 +28,10 @@ func registerImageResources(ctx *ge.Context) {
 		ImageVerticalExplosion: {Path: "image/vertical_explosion.png", FrameWidth: 50},
 		ImageBigExplosion:      {Path: "image/big_explosion.png", FrameWidth: 64},
 
-		ImageButtonX:  {Path: "image/button_x.png"},
-		ImageButtonY:  {Path: "image/button_y.png"},
-		ImageButtonA:  {Path: "image/button_a.png"},
-		ImageButtonB:  {Path: "image/button_b.png"},
-		ImageButtonRB: {Path: "image/button_rb.png"},
+		ImageButtonX: {Path: "image/button_x.png"},
+		ImageButtonY: {Path: "image/button_y.png"},
+		ImageButtonA: {Path: "image/button_a.png"},
+		ImageButtonB: {Path: "image/button_b.png"},
 
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
 		ImageUberBoss:           {Path: "image/uber_boss.png", FrameWidth: 40},
@@ -150,7 +149,6 @@ const (
 	ImageButtonY
 	ImageButtonA
 	ImageButtonB
-	ImageButtonRB
 
 	ImageFactionDiode
 	ImageUberBoss

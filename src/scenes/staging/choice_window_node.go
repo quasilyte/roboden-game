@@ -211,7 +211,6 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		assets.ImageButtonB,
 		assets.ImageButtonA,
 		assets.ImageButtonX,
-		assets.ImageButtonRB,
 	}
 	offsetY := 18.0
 	w.choices = make([]*choiceOptionSlot, 5)
@@ -230,12 +229,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		bg.FillColorScale.SetColor(bgColor)
 		scene.AddGraphics(bg)
 		scene.AddGraphics(l)
-		icon := scene.NewSprite(icons[i])
-		icon.Centered = false
-		icon.Pos = l.Pos.WithOffset(-34, 0)
-		scene.AddGraphics(icon)
-		w.choices[i] = &choiceOptionSlot{
-			icon:    icon,
+		choice := &choiceOptionSlot{
 			label:   l,
 			labelBg: bg,
 			rect: gmath.Rect{
@@ -243,6 +237,14 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 				Max: bg.AnchorPos().Resolve().Add(gmath.Vec{X: l.Width, Y: l.Height}),
 			},
 		}
+		if i < len(icons) {
+			icon := scene.NewSprite(icons[i])
+			icon.Centered = false
+			icon.Pos = l.Pos.WithOffset(-34, 0)
+			scene.AddGraphics(icon)
+			choice.icon = icon
+		}
+		w.choices[i] = choice
 		offsetY += l.Height + 4
 	}
 
@@ -266,7 +268,9 @@ func (w *choiceWindowNode) revealChoices() {
 	w.chargeBar.Visible = false
 	for _, o := range w.choices {
 		o.label.Visible = true
-		o.icon.Visible = true
+		if o.icon != nil {
+			o.icon.Visible = true
+		}
 		o.labelBg.Visible = true
 	}
 	w.state = choiceReady
@@ -300,8 +304,10 @@ func (w *choiceWindowNode) startCharging(targetValue float64) {
 	w.chargeBar.Visible = true
 	for _, o := range w.choices {
 		o.label.Visible = false
-		o.icon.Visible = false
 		o.labelBg.Visible = false
+		if o.icon != nil {
+			o.icon.Visible = false
+		}
 	}
 	w.state = choiceCharging
 }

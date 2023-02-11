@@ -13,6 +13,8 @@ type creepStats struct {
 	image       resource.ImageID
 	shadowImage resource.ImageID
 
+	tier int
+
 	speed float64
 	size  float64
 
@@ -65,6 +67,7 @@ var wandererCreepStats = &creepStats{
 	kind:             creepPrimitiveWanderer,
 	image:            assets.ImagePrimitiveCreep,
 	shadowImage:      assets.ImageSmallShadow,
+	tier:             1,
 	speed:            40,
 	maxHealth:        15,
 	maxTargets:       1,
@@ -99,6 +102,7 @@ var assaultCreepStats = &creepStats{
 	image:            assets.ImageCreepTier3,
 	animSpeed:        0.2,
 	shadowImage:      assets.ImageBigShadow,
+	tier:             3,
 	speed:            30,
 	maxHealth:        55,
 	maxTargets:       1,
@@ -130,6 +134,7 @@ var stunnerCreepStats = &creepStats{
 	kind:             creepStunner,
 	image:            assets.ImageCreepTier2,
 	shadowImage:      assets.ImageMediumShadow,
+	tier:             2,
 	speed:            55,
 	maxHealth:        30,
 	maxTargets:       3,

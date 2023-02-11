@@ -60,15 +60,17 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceSourceDissolveMask: {Path: "image/essence_source_dissolve_mask.png"},
 		ImageColonyDamageMask:          {Path: "image/colony_damage_mask.png"},
 
-		ImageEssenceCrystalSource:    {Path: "image/crystal_source.png", FrameWidth: 16},
-		ImageEssenceGoldSource:       {Path: "image/gold_source.png", FrameWidth: 28},
-		ImageEssenceIronSource:       {Path: "image/iron_source.png", FrameWidth: 32},
-		ImageEssenceWasteSource:      {Path: "image/waste_source.png"},
-		ImageEssenceScrapSource:      {Path: "image/scrap_source.png"},
-		ImageEssenceSmallScrapSource: {Path: "image/small_scrap_source.png"},
-		ImageEssenceBigScrapSource:   {Path: "image/big_scrap_source.png"},
-		ImageEssenceSource:           {Path: "image/essence_source.png", FrameWidth: 32},
-		ImageRedEssenceSource:        {Path: "image/red_essence_source.png", FrameWidth: 32},
+		ImageEssenceCrystalSource:         {Path: "image/crystal_source.png", FrameWidth: 16},
+		ImageEssenceGoldSource:            {Path: "image/gold_source.png", FrameWidth: 28},
+		ImageEssenceIronSource:            {Path: "image/iron_source.png", FrameWidth: 32},
+		ImageEssenceWasteSource:           {Path: "image/waste_source.png"},
+		ImageEssenceScrapSource:           {Path: "image/scrap_source.png"},
+		ImageEssenceSmallScrapSource:      {Path: "image/small_scrap_source.png"},
+		ImageEssenceScrapCreepSource:      {Path: "image/scrap_source_creep.png"},
+		ImageEssenceSmallScrapCreepSource: {Path: "image/small_scrap_source_creep.png"},
+		ImageEssenceBigScrapSource:        {Path: "image/big_scrap_source.png"},
+		ImageEssenceSource:                {Path: "image/essence_source.png", FrameWidth: 32},
+		ImageRedEssenceSource:             {Path: "image/red_essence_source.png", FrameWidth: 32},
 
 		ImagePrimitiveCreep: {Path: "image/primitive_creep.png"},
 		ImageCreepTier2:     {Path: "image/tier2_creep.png"},
@@ -176,6 +178,8 @@ const (
 	ImageEssenceWasteSource
 	ImageEssenceScrapSource
 	ImageEssenceSmallScrapSource
+	ImageEssenceScrapCreepSource
+	ImageEssenceSmallScrapCreepSource
 	ImageEssenceBigScrapSource
 	ImageEssenceSource
 	ImageRedEssenceSource

@@ -165,7 +165,7 @@ func (c *creepNode) explode() {
 		c.scene.AddObject(scraps)
 	case creepTank:
 		createExplosion(c.scene, c.world.camera, c.pos)
-		scraps := c.world.NewEssenceSourceNode(smallScrapSource, c.pos.Add(gmath.Vec{Y: 2}))
+		scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 		c.scene.AddObject(scraps)
 	default:
 		roll := c.scene.Rand().Float()
@@ -173,8 +173,13 @@ func (c *creepNode) explode() {
 			createExplosion(c.scene, c.world.camera, c.pos)
 		} else {
 			var scraps *essenceSourceStats
-			if roll > 0.6 {
-				scraps = smallScrapSource
+			if roll > 0.65 {
+				switch c.stats.tier {
+				case 1:
+					scraps = smallScrapCreepSource
+				case 2, 3:
+					scraps = scrapCreepSource
+				}
 			}
 			fall := newDroneFallNode(c.world, scraps, c.stats.image, c.shadow.ImageID(), c.pos, agentFlightHeight)
 			c.scene.AddObject(fall)

@@ -8,4 +8,9 @@ todo engine:
 
 final things:
 - music
-- tutorial
+
+todo:
+- tier3 scrap sprites
+- shadow for t3 could be too small
+- menu buttons focus?
+- update tutorial texts (wait for Oleg proof-reading)

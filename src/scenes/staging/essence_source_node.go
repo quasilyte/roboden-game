@@ -42,7 +42,6 @@ var goldSource = &essenceSourceStats{
 	capacity:    gmath.MakeRange(25, 40),
 	regenDelay:  0, // none
 	value:       2, // 50-80 total
-	canRotate:   false,
 	spritesheet: true,
 	size:        20,
 }
@@ -52,7 +51,6 @@ var crystalSource = &essenceSourceStats{
 	capacity:    gmath.MakeRange(10, 20),
 	regenDelay:  0, // none
 	value:       5, // 50-100 total
-	canRotate:   false,
 	spritesheet: true,
 	size:        16,
 }
@@ -62,7 +60,6 @@ var ironSource = &essenceSourceStats{
 	capacity:    gmath.MakeRange(60, 70),
 	regenDelay:  0,   // none
 	value:       0.5, // 30-35 total
-	canRotate:   false,
 	spritesheet: true,
 	size:        18,
 }
@@ -79,9 +76,16 @@ var wasteSource = &essenceSourceStats{
 var smallScrapSource = &essenceSourceStats{
 	image:      assets.ImageEssenceSmallScrapSource,
 	capacity:   gmath.MakeRange(4, 5),
+	regenDelay: 0,    // none
+	value:      0.25, // 1-1.25
+	size:       14,
+}
+
+var smallScrapCreepSource = &essenceSourceStats{
+	image:      assets.ImageEssenceSmallScrapCreepSource,
+	capacity:   gmath.MakeRange(5, 7),
 	regenDelay: 0, // none
-	value:      0.25,
-	canRotate:  true, // 1-1.25
+	value:      1, // 5-7
 	size:       14,
 }
 
@@ -90,7 +94,14 @@ var scrapSource = &essenceSourceStats{
 	capacity:   gmath.MakeRange(8, 12),
 	regenDelay: 0,    // none
 	value:      0.25, // 2-3
-	canRotate:  true,
+	size:       16,
+}
+
+var scrapCreepSource = &essenceSourceStats{
+	image:      assets.ImageEssenceScrapCreepSource,
+	capacity:   gmath.MakeRange(9, 16),
+	regenDelay: 0, // none
+	value:      1, // 9-16
 	size:       16,
 }
 
@@ -99,7 +110,6 @@ var bigScrapSource = &essenceSourceStats{
 	capacity:   gmath.MakeRange(8, 16),
 	regenDelay: 0,   // none
 	value:      0.5, // 4-8
-	canRotate:  true,
 	size:       20,
 }
 

@@ -1,6 +1,8 @@
 package menus
 
 import (
+	"runtime/pprof"
+
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -25,6 +27,19 @@ func (c *LobbyMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 
 	c.initUI()
+
+	if c.state.CPUProfileWriter != nil {
+		pprof.StopCPUProfile()
+		if err := c.state.CPUProfileWriter.Close(); err != nil {
+			panic(err)
+		}
+	}
+	if c.state.MemProfileWriter != nil {
+		pprof.WriteHeapProfile(c.state.MemProfileWriter)
+		if err := c.state.MemProfileWriter.Close(); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (c *LobbyMenuController) Update(delta float64) {

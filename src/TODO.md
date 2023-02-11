@@ -12,6 +12,12 @@ todo:
 - menu buttons focus?
 
 iskander:
+- make base diode disappear with destroy()
+- make boss lazer outline pulsate
+- make t1 enemies less powerful
+- make t1 enemy creep larger
+- make scraps a little bit smaller
+- test moving base when drone is about to land it (recycle)
 - maybe add servant drone somehow
 - profile & optimize game (desktop build)
 - test game in browsers (also profile and optimize)

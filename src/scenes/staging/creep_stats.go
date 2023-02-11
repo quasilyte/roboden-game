@@ -75,7 +75,7 @@ var wandererCreepStats = &creepStats{
 	attackRange:      190,
 	projectileArea:   10,
 	projectileSpeed:  400,
-	projectileDamage: damageValue{health: 5},
+	projectileDamage: damageValue{health: 4},
 	projectileImage:  assets.ImageWandererProjectile,
 	weaponReload:     1.8,
 }

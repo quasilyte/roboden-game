@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"time"
 
 	"github.com/quasilyte/ge"
@@ -11,14 +12,6 @@ import (
 )
 
 func main() {
-	ctx := ge.NewContext()
-	ctx.Rand.SetSeed(time.Now().Unix())
-	ctx.GameName = "roboden"
-	ctx.WindowTitle = "Roboden"
-	ctx.WindowWidth = 1920 / 2
-	ctx.WindowHeight = 1080 / 2
-	ctx.FullScreen = true
-
 	state := &session.State{
 		LevelOptions: session.LevelOptions{
 			Resources:  2,
@@ -35,6 +28,18 @@ func main() {
 			},
 		},
 	}
+
+	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
+	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
+	flag.Parse()
+
+	ctx := ge.NewContext()
+	ctx.Rand.SetSeed(time.Now().Unix())
+	ctx.GameName = "roboden"
+	ctx.WindowTitle = "Roboden"
+	ctx.WindowWidth = 1920 / 2
+	ctx.WindowHeight = 1080 / 2
+	ctx.FullScreen = true
 
 	assets.Register(ctx)
 	controls.BindKeymap(ctx, state)

@@ -3,6 +3,8 @@ package staging
 import (
 	"fmt"
 	"math"
+	"os"
+	"runtime/pprof"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -51,6 +53,22 @@ func NewController(state *session.State, worldSize int, back ge.SceneController)
 
 func (c *Controller) Init(scene *ge.Scene) {
 	c.startTime = time.Now()
+
+	if c.state.CPUProfile != "" {
+		f, err := os.Create(c.state.CPUProfile)
+		if err != nil {
+			panic(err)
+		}
+		c.state.CPUProfileWriter = f
+		pprof.StartCPUProfile(f)
+	}
+	if c.state.MemProfile != "" {
+		f, err := os.Create(c.state.MemProfile)
+		if err != nil {
+			panic(err)
+		}
+		c.state.MemProfileWriter = f
+	}
 
 	var worldSize float64
 	switch c.worldSize {
@@ -120,12 +138,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.camera.CenterOn(c.selectedColony.pos)
 
 	scene.AddGraphics(c.camera)
-
-	{
-		agent := c.selectedColony.NewColonyAgentNode(destroyerAgentStats, c.selectedColony.pos)
-		scene.AddObject(agent)
-		agent.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-	}
 
 	if c.state.Persistent.Settings.Debug {
 		c.debugInfo = scene.NewLabel(assets.FontSmall)

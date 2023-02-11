@@ -1,10 +1,17 @@
 package session
 
 import (
+	"io"
+
 	"github.com/quasilyte/ge/input"
 )
 
 type State struct {
+	CPUProfile       string
+	CPUProfileWriter io.WriteCloser
+	MemProfile       string
+	MemProfileWriter io.WriteCloser
+
 	MainInput *input.Handler
 
 	LevelOptions LevelOptions

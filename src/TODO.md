@@ -23,6 +23,5 @@ iskander:
 - implement pause?
 - make tab smooth
 - esc for menu, not exit right away
-- make player base fall if it flies
 oleg:
 - flamer projectile

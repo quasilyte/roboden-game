@@ -12,7 +12,15 @@ todo:
 - tier3 scrap sprites
 - menu buttons focus?
 
+itchio page:
+- screenshots
+- preview pic
+- description
+
 iskander:
+- edge scroll pad option
+- mid mouse button scroll
+- more explosion sprites and better effects in general
 - test moving base when drone is about to land it (recycle)
 - maybe add servant drone somehow
 - test game in browsers

@@ -153,6 +153,8 @@ type choiceWindowNode struct {
 
 	scene *ge.Scene
 
+	selectedColony *colonyCoreNode
+
 	input *input.Handler
 
 	state choiceState
@@ -322,6 +324,10 @@ func (w *choiceWindowNode) startCharging(targetValue float64) {
 }
 
 func (w *choiceWindowNode) Update(delta float64) {
+	if w.selectedColony == nil {
+		return
+	}
+
 	switch w.state {
 	case choiceCharging:
 		w.value += delta
@@ -332,9 +338,12 @@ func (w *choiceWindowNode) Update(delta float64) {
 		w.chargeBar.SetValue(w.value / w.targetValue)
 
 	case choiceReady:
-		if w.input.ActionIsJustPressed(controls.ActionMoveChoice) {
-			w.activateMoveChoice()
-			return
+		if info, ok := w.input.JustPressedActionInfo(controls.ActionMoveChoice); ok {
+			globalClickPos := info.Pos.Add(w.selectedColony.world.camera.Offset)
+			if globalClickPos.DistanceTo(w.selectedColony.pos) > 28 {
+				w.activateMoveChoice()
+				return
+			}
 		}
 		if info, ok := w.input.JustPressedActionInfo(controls.ActionClick); ok {
 			for i, choice := range w.choices {

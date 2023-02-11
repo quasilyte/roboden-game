@@ -139,6 +139,13 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.radar = newRadarNode(c.world)
 	scene.AddObject(c.radar)
 
+	choicesPos := gmath.Vec{
+		X: 960 - 232 - 16,
+		Y: 540 - 200 - 16,
+	}
+	c.choices = newChoiceWindowNode(choicesPos, c.state.MainInput)
+	c.choices.EventChoiceSelected.Connect(nil, c.onChoiceSelected)
+
 	c.selectNextColony(true)
 	c.camera.CenterOn(c.selectedColony.pos)
 
@@ -151,18 +158,12 @@ func (c *Controller) Init(scene *ge.Scene) {
 		scene.AddGraphics(c.debugInfo)
 	}
 
-	choicesPos := gmath.Vec{
-		X: 960 - 232 - 16,
-		Y: 540 - 200 - 16,
-	}
-	c.choices = newChoiceWindowNode(choicesPos, c.state.MainInput)
-	c.choices.EventChoiceSelected.Connect(nil, c.onChoiceSelected)
-	scene.AddObject(c.choices)
-
 	if c.state.LevelOptions.Tutorial {
 		tutorial := newTutorialManager(c.state.MainInput, c.choices)
 		scene.AddObject(tutorial)
 	}
+
+	scene.AddObject(c.choices)
 }
 
 func (c *Controller) onChoiceSelected(choice selectedChoice) {
@@ -185,14 +186,15 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	case specialIncreaseRadius:
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 	case specialDecreaseRadius:
-		c.selectedColony.realRadius -= c.world.rand.FloatRange(16, 32)
+		value := c.world.rand.FloatRange(16, 32)
+		c.selectedColony.realRadius = gmath.ClampMin(c.selectedColony.realRadius-value, 60)
 	case specialBuildColony:
 		dist := 60.0
 		direction := c.world.rand.Rad()
-		for i := 0; i < 12; i++ {
+		for i := 0; i < 11; i++ {
 			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.selectedColony.pos)
 			direction += (2 * math.Pi) / 13
-			constructionPos := c.pickColonyPos(nil, locationProbe, 40, 7)
+			constructionPos := c.pickColonyPos(nil, locationProbe, 40, 3)
 			if !constructionPos.IsZero() {
 				construction := c.world.NewColonyCoreConstructionNode(constructionPos)
 				c.scene.AddObject(construction)
@@ -415,6 +417,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 		c.selectedColony.EventDestroyed.Disconnect(c)
 	}
 	c.selectedColony = colony
+	c.choices.selectedColony = colony
 	c.radar.SetBase(c.selectedColony)
 	if c.selectedColony == nil {
 		c.colonySelector.Visible = false

@@ -22,6 +22,7 @@ iskander:
 - make base prefer using green cloners
 - implement pause?
 - make tab smooth
-- building base can take long (hangs)
+- esc for menu, not exit right away
+- make player base fall if it flies
 oleg:
 - flamer projectile

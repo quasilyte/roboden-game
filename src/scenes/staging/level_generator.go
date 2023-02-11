@@ -35,7 +35,6 @@ func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
 }
 
 func (g *levelGenerator) Generate() {
-
 	if g.world.IsTutorial() {
 		g.placePlayers()
 		g.placeResources(0.5)
@@ -77,7 +76,6 @@ func (g *levelGenerator) placePlayers() {
 
 	for i := 0; i < 5; i++ {
 		a := core.NewColonyAgentNode(workerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
-		// a.faction = redFactionTag
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}

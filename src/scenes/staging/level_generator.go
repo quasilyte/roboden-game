@@ -325,10 +325,14 @@ func (g *levelGenerator) placeCreepBases() {
 			}
 		}
 		if basePos.IsZero() {
-			fmt.Println("couldn't deploy creep base", i+1)
+			if g.world.debug {
+				fmt.Println("couldn't deploy creep base", i+1)
+			}
 			continue
 		}
-		fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
+		if g.world.debug {
+			fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
+		}
 		base := g.world.NewCreepNode(basePos, baseCreepStats)
 		if i == 0 {
 			base.specialDelay = (9 * 60.0) * g.scene.Rand().FloatRange(0.9, 1.1)

@@ -20,6 +20,8 @@ type worldState struct {
 
 	boss *creepNode
 
+	debug bool
+
 	width  float64
 	height float64
 	rect   gmath.Rect

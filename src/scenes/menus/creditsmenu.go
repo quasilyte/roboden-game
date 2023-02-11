@@ -1,6 +1,9 @@
 package menus
 
 import (
+	"sort"
+	"strings"
+
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/colony-game/assets"
 	"github.com/quasilyte/colony-game/controls"
@@ -45,12 +48,19 @@ func (c *CreditsMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
+	testers := []string{
+		"bontequero",
+		"kreker",
+		"NKMory",
+		"BaBuwkaPride",
+	}
+	sort.Strings(testers)
+
 	lines := []string{
 		"A game by Iskander & Oleg",
-		"This game is absolutely free and it's made for you",
-		"@quasilyte - coding, game design",
-		"@shooqrow - graphics",
-		"[ Made with Ebitengine ]",
+		"quasilyte - coding, game design, testing",
+		"shooQrow - graphics, testing",
+		strings.Join(testers, ", ") + " - testing",
 	}
 
 	for _, l := range lines {
@@ -59,6 +69,8 @@ func (c *CreditsMenuController) initUI() {
 	}
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+
+	rowContainer.AddChild(eui.NewLabel(uiResources, "Made with Ebitengine", smallFont))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
 		c.back()

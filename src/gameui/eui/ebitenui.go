@@ -187,9 +187,11 @@ func NewSeparator(ld interface{}) widget.PreferredSizeLocateableWidget {
 
 func NewLabel(res *Resources, text string, ff font.Face) *widget.Label {
 	return widget.NewLabel(
-		widget.LabelOpts.TextOpts(widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-			Position: widget.RowLayoutPositionCenter,
-		}))),
+		widget.LabelOpts.TextOpts(widget.TextOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Position: widget.RowLayoutPositionCenter,
+			}),
+		)),
 		widget.LabelOpts.Text(text, ff, &widget.LabelColor{
 			Idle:     res.Button.TextColors.Idle,
 			Disabled: res.Button.TextColors.Disabled,

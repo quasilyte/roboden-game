@@ -87,6 +87,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	world := &worldState{
+		debug:          c.state.Persistent.Settings.Debug,
 		worldSize:      c.worldSize,
 		options:        &c.state.LevelOptions,
 		camera:         c.camera,

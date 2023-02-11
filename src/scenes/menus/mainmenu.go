@@ -31,6 +31,10 @@ func (c *MainMenuController) Init(scene *ge.Scene) {
 	scene.Audio().SetGroupVolume(assets.SoundGroupEffect,
 		assets.VolumeMultiplier(c.state.Persistent.Settings.EffectsVolumeLevel))
 
+	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
+		scene.Audio().ContinueMusic(assets.AudioMusicTrack3)
+	}
+
 	c.initUI()
 }
 

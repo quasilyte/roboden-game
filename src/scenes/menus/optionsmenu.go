@@ -74,6 +74,13 @@ func (c *OptionsMenuController) initUI() {
 			musicSlider.Inc()
 			options.MusicVolumeLevel = musicSlider.Value()
 			musicButton.Text().Label = "Music Volume: " + strconv.Itoa(musicSlider.Value())
+			if options.MusicVolumeLevel != 0 {
+				c.scene.Audio().SetGroupVolume(assets.SoundGroupMusic, assets.VolumeMultiplier(options.MusicVolumeLevel))
+				c.scene.Audio().PauseCurrentMusic()
+				c.scene.Audio().PlayMusic(assets.AudioMusicTrack3)
+			} else {
+				c.scene.Audio().PauseCurrentMusic()
+			}
 		})
 		rowContainer.AddChild(musicButton)
 	}

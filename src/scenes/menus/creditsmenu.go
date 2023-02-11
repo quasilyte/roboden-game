@@ -58,19 +58,20 @@ func (c *CreditsMenuController) initUI() {
 	sort.Strings(testers)
 
 	lines := []string{
-		"A game by Iskander & Oleg",
-		"quasilyte - coding, game design, sfx, testing",
-		"shooQrow - graphics, testing",
-		strings.Join(testers, ", ") + " - testing",
-		"unTied Games - pixel art explosions free asset pack",
-		"TODO - in-game music",
-		// "(yukki cleared the game before everyone)",
+		"[crew]",
+		"    quasilyte (Iskander senpai) - coding, game design, sfx, testing",
+		"    shooQrow (Oleg) - graphics, co-game design, testing",
+		"    " + strings.Join(testers, ", ") + " - testing",
+		"[assets]",
+		"    JAM - Deadly Windmills music track",
+		"    DROZERiX - Crush and War Path music tracks",
+		"    unTied Games - pixel art explosions free asset pack",
 	}
 
-	for _, l := range lines {
-		label := eui.NewLabel(uiResources, l, smallFont)
-		rowContainer.AddChild(label)
-	}
+	normalContainer := eui.NewAnchorContainer()
+	label := eui.NewLabel(uiResources, strings.Join(lines, "\n"), smallFont)
+	normalContainer.AddChild(label)
+	rowContainer.AddChild(normalContainer)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

@@ -66,7 +66,7 @@ var specialChoicesList = []choiceOption{
 	{
 		text:    "Decrease radius",
 		special: specialDecreaseRadius,
-		cost:    5,
+		cost:    4,
 	},
 }
 

@@ -69,18 +69,8 @@ func (c *resultsController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	var timeString string
-	timePlayed := c.results.TimePlayed
-	if timePlayed.Minutes() < 1 {
-		timeString = fmt.Sprintf("%ds", int(timePlayed.Seconds()))
-	} else if timePlayed.Minutes() < 60 {
-		timeString = fmt.Sprintf("%dm %ds", int(timePlayed.Minutes()), int(timePlayed.Seconds()))
-	} else {
-		timeString = fmt.Sprintf("%dh %dm %ds", int(timePlayed.Hours()), int(timePlayed.Minutes()), int(timePlayed.Seconds()))
-	}
-
 	lines := []string{
-		fmt.Sprintf("Time Played: %v", timeString),
+		fmt.Sprintf("Time Played: %v", formatDuration(c.results.TimePlayed)),
 		fmt.Sprintf("Resources Gathered: %v", int(c.results.ResourcesGathered)),
 		fmt.Sprintf("Drone Survivors: %v", c.results.SurvivingDrones),
 		fmt.Sprintf("Drones Total: %v", c.results.DronesProduced),
@@ -105,4 +95,21 @@ func (c *resultsController) initUI() {
 
 func (c *resultsController) back() {
 	c.scene.Context().ChangeScene(c.backController)
+}
+
+func formatDuration(d time.Duration) string {
+	d = d.Round(time.Second)
+	hours := d / time.Hour
+	d -= hours * time.Hour
+	minutes := d / time.Minute
+	d -= minutes * time.Minute
+	seconds := d / time.Second
+	if hours >= 1 {
+		return fmt.Sprintf("%dh %dm %ds", hours, minutes, seconds)
+	}
+	if minutes >= 1 {
+		return fmt.Sprintf("%dm %ds", minutes, seconds)
+
+	}
+	return fmt.Sprintf("%ds", seconds)
 }

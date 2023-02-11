@@ -18,9 +18,11 @@ itchio page:
 - description
 
 iskander:
-- test moving base when drone is about to land it (recycle)
-- maybe add servant drone somehow
-- test game in browsers
+- maybe add servant drone somehow (hard mode only)
+- less chance to recycle a unit that can be used in a recipe?
+- make cloning prefer non-tier1 units
+- fix middle button scroll
 oleg:
+- flamer projectile
 - replace gamepad icons in game
 - redraw tier2 drone (recharger)

@@ -37,6 +37,8 @@ type Controller struct {
 
 	choices *choiceWindowNode
 
+	musicPlayer *musicPlayer
+
 	prevCursorPos gmath.Vec
 
 	tier3spawnDelay float64
@@ -57,6 +59,11 @@ func NewController(state *session.State, worldSize int, back ge.SceneController)
 
 func (c *Controller) Init(scene *ge.Scene) {
 	c.startTime = time.Now()
+
+	c.scene = scene
+
+	c.musicPlayer = newMusicPlayer(scene)
+	c.musicPlayer.Start()
 
 	if c.state.CPUProfile != "" {
 		f, err := os.Create(c.state.CPUProfile)
@@ -96,7 +103,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 		Width:  worldSize,
 		Height: worldSize,
 	}
-	c.scene = scene
 	c.camera = viewport.NewCamera(viewportWorld, 1920/2, 1080/2)
 
 	// Start launching tier3 creeps after ~15 minutes.
@@ -291,6 +297,8 @@ func (c *Controller) spawnTier3Creep() {
 }
 
 func (c *Controller) Update(delta float64) {
+	c.musicPlayer.Update(delta)
+
 	if c.world.boss == nil {
 		c.scene.DelayedCall(5.0, func() {
 			c.world.result.Victory = true
@@ -298,7 +306,7 @@ func (c *Controller) Update(delta float64) {
 			for _, colony := range c.world.colonies {
 				c.world.result.SurvivingDrones += colony.NumAgents()
 			}
-			c.scene.Context().ChangeScene(newResultsController(c.state, c.backController, c.world.result))
+			c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
 		})
 	}
 
@@ -349,7 +357,7 @@ func (c *Controller) Update(delta float64) {
 	c.camera.Pan(cameraPan)
 
 	if mainInput.ActionIsJustPressed(controls.ActionBack) {
-		c.scene.Context().ChangeScene(c.backController)
+		c.leaveScene(c.backController)
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionToggleColony) {
@@ -395,6 +403,11 @@ func (c *Controller) Update(delta float64) {
 
 func (c *Controller) IsDisposed() bool { return false }
 
+func (c *Controller) leaveScene(controller ge.SceneController) {
+	c.scene.Audio().PauseCurrentMusic()
+	c.scene.Context().ChangeScene(controller)
+}
+
 func (c *Controller) selectColony(colony *colonyCoreNode) {
 	if c.selectedColony == colony {
 		return
@@ -410,7 +423,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 		c.scene.DelayedCall(2.0, func() {
 			c.world.result.Victory = false
 			c.world.result.TimePlayed = time.Since(c.startTime)
-			c.scene.Context().ChangeScene(newResultsController(c.state, c.backController, c.world.result))
+			c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
 		})
 		return
 	}

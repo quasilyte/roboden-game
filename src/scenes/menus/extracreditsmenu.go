@@ -1,6 +1,8 @@
 package menus
 
 import (
+	"strings"
+
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
@@ -48,16 +50,16 @@ func (c *ExtraCreditsMenuController) initUI() {
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	lines := []string{
-		"* Hajime Hoshi - Ebitengine creator and maintainer *",
-		"* Supportive Ebitengine community *",
+		"* Hajime Hoshi - Ebitengine creator and maintainer",
+		"* Supportive Ebitengine community",
 	}
 
-	for _, l := range lines {
-		label := eui.NewLabel(uiResources, l, smallFont)
-		rowContainer.AddChild(label)
-	}
+	normalContainer := eui.NewAnchorContainer()
+	label := eui.NewLabel(uiResources, strings.Join(lines, "\n"), smallFont)
+	normalContainer.AddChild(label)
+	rowContainer.AddChild(normalContainer)
 
-	rowContainer.AddChild(eui.NewLabel(uiResources, "And thank you, player", bigFont))
+	rowContainer.AddChild(eui.NewLabel(uiResources, "And thank you, player <3", bigFont))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
@@ -66,8 +68,6 @@ func (c *ExtraCreditsMenuController) initUI() {
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
 		c.back()
 	}))
-
-	rowContainer.AddChild(eui.NewLabel(uiResources, "(By the way, yukki defeated the boss before me)", smallFont))
 
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)

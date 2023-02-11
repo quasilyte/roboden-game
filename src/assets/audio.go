@@ -43,6 +43,10 @@ func registerAudioResource(ctx *ge.Context) {
 		AudioExplosion3:       {Path: "audio/explosion3.wav", Volume: -0.4},
 		AudioExplosion4:       {Path: "audio/explosion4.wav", Volume: -0.4},
 		AudioExplosion5:       {Path: "audio/explosion5.wav", Volume: -0.4},
+
+		AudioMusicTrack1: {Path: "audio/music/deadly_windmills.ogg", Volume: -0.3, Group: SoundGroupMusic},
+		AudioMusicTrack2: {Path: "audio/music/war_path.ogg", Volume: -0.3, Group: SoundGroupMusic},
+		AudioMusicTrack3: {Path: "audio/music/crush.ogg", Volume: -0.3, Group: SoundGroupMusic},
 	}
 
 	for id, res := range audioResources {
@@ -88,4 +92,8 @@ const (
 	AudioExplosion3
 	AudioExplosion4
 	AudioExplosion5
+
+	AudioMusicTrack1
+	AudioMusicTrack2
+	AudioMusicTrack3
 )

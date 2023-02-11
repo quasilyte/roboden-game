@@ -26,6 +26,10 @@ func NewLobbyMenuController(state *session.State) *LobbyMenuController {
 func (c *LobbyMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 
+	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
+		scene.Audio().ContinueMusic(assets.AudioMusicTrack3)
+	}
+
 	c.initUI()
 
 	if c.state.CPUProfileWriter != nil {
@@ -120,12 +124,12 @@ func (c *LobbyMenuController) initUI() {
 		rowContainer.AddChild(button)
 	}
 
+	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Go", func() {
 		c.state.LevelOptions.Tutorial = false
 		c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
 	}))
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
 		c.back()

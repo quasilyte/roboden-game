@@ -1,9 +1,6 @@
 package menus
 
 import (
-	"sort"
-	"strings"
-
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
@@ -12,56 +9,46 @@ import (
 	"github.com/quasilyte/roboden-game/session"
 )
 
-type CreditsMenuController struct {
+type ExtraCreditsMenuController struct {
 	state *session.State
 
 	scene *ge.Scene
 }
 
-func NewCreditsMenuController(state *session.State) *CreditsMenuController {
-	return &CreditsMenuController{state: state}
+func NewExtraCreditsMenuController(state *session.State) *ExtraCreditsMenuController {
+	return &ExtraCreditsMenuController{state: state}
 }
 
-func (c *CreditsMenuController) Init(scene *ge.Scene) {
+func (c *ExtraCreditsMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 	c.initUI()
 }
 
-func (c *CreditsMenuController) Update(delta float64) {
+func (c *ExtraCreditsMenuController) Update(delta float64) {
 	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}
 }
 
-func (c *CreditsMenuController) initUI() {
+func (c *ExtraCreditsMenuController) initUI() {
 	uiResources := eui.LoadResources(c.scene.Context().Loader)
 
 	root := eui.NewAnchorContainer()
 	rowContainer := eui.NewRowLayoutContainer()
 	root.AddChild(rowContainer)
 
+	bigFont := c.scene.Context().Loader.LoadFont(assets.FontBig).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	titleLabel := eui.NewLabel(uiResources, "Credits", smallFont)
+	titleLabel := eui.NewLabel(uiResources, "Special Thanks", smallFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	testers := []string{
-		"bontequero",
-		"yukki",
-		"NKMory",
-		"BaBuwkaPride",
-	}
-	sort.Strings(testers)
-
 	lines := []string{
-		"A game by Iskander & Oleg",
-		"quasilyte - coding, game design, sfx, testing",
-		"shooQrow - graphics, testing",
-		strings.Join(testers, ", ") + " - testing",
-		"(yukki cleared the game before everyone)",
+		"* Hajime Hoshi - Ebitengine creator and maintainer *",
+		"* Supportive Ebitengine community *",
 	}
 
 	for _, l := range lines {
@@ -69,13 +56,9 @@ func (c *CreditsMenuController) initUI() {
 		rowContainer.AddChild(label)
 	}
 
+	rowContainer.AddChild(eui.NewLabel(uiResources, "And thank you, player", bigFont))
+
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
-
-	rowContainer.AddChild(eui.NewLabel(uiResources, "Made with Ebitengine", smallFont))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "More", func() {
-		c.scene.Context().ChangeScene(NewExtraCreditsMenuController(c.state))
-	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
 		c.back()
@@ -86,6 +69,6 @@ func (c *CreditsMenuController) initUI() {
 	c.scene.AddObject(uiObject)
 }
 
-func (c *CreditsMenuController) back() {
-	c.scene.Context().ChangeScene(NewMainMenuController(c.state))
+func (c *ExtraCreditsMenuController) back() {
+	c.scene.Context().ChangeScene(NewCreditsMenuController(c.state))
 }

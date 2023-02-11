@@ -121,6 +121,12 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	scene.AddGraphics(c.camera)
 
+	{
+		agent := c.selectedColony.NewColonyAgentNode(destroyerAgentStats, c.selectedColony.pos)
+		scene.AddObject(agent)
+		agent.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	}
+
 	if c.state.Persistent.Settings.Debug {
 		c.debugInfo = scene.NewLabel(assets.FontSmall)
 		c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))

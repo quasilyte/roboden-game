@@ -175,6 +175,8 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	switch a.stats.size {
 	case sizeMedium:
 		shadowImage = assets.ImageMediumShadow
+	case sizeLarge:
+		shadowImage = assets.ImageBigShadow
 	}
 	a.shadow = scene.NewSprite(shadowImage)
 	a.shadow.Pos.Base = &a.spritePos

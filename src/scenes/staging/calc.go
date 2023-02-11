@@ -10,10 +10,7 @@ func mergeAgents(x, y *colonyAgentNode) *agentStats {
 		list = tier3agentMergeRecipeList
 	}
 	for _, recipe := range list {
-		if recipe.Match1(x) && recipe.Match2(y) {
-			return recipe.result
-		}
-		if recipe.Match1(y) && recipe.Match2(x) {
+		if recipe.Match(x, y) {
 			return recipe.result
 		}
 	}

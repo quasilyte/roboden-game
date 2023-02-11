@@ -332,13 +332,13 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 	}
 
 	firstAgent := p.colony.FindAgent(func(a *colonyAgentNode) bool {
-		return a.mode == agentModeStandby && recipe.Match1(a)
+		return a.mode == agentModeStandby && recipe.Match1(a.AsRecipeSubject())
 	})
 	if firstAgent == nil {
 		return colonyAction{}
 	}
 	secondAgent := p.colony.FindAgent(func(a *colonyAgentNode) bool {
-		return a.mode == agentModeStandby && a != firstAgent && recipe.Match2(a)
+		return a.mode == agentModeStandby && a != firstAgent && recipe.Match2(a.AsRecipeSubject())
 	})
 	if secondAgent == nil {
 		return colonyAction{}
@@ -395,6 +395,10 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 			return false
 		})
 		if toRecycle != nil {
+			// Try not to recyle units that may be needed later for merging.
+			if toRecycle.faction != neutralFactionTag && p.canUseInRecipe(toRecycle) {
+				return colonyAction{}
+			}
 			return colonyAction{
 				Kind:     actionRecycleAgent,
 				Value:    toRecycle,
@@ -414,4 +418,20 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 	}
 
 	return colonyAction{}
+}
+
+func (p *colonyActionPlanner) canUseInRecipe(x *colonyAgentNode) bool {
+	recipes := recipesIndex[x.AsRecipeSubject()]
+	mergeCandidate := p.colony.FindAgent(func(y *colonyAgentNode) bool {
+		if x == y {
+			return false
+		}
+		for _, recipe := range recipes {
+			if recipe.Match(x, y) {
+				return true
+			}
+		}
+		return false
+	})
+	return mergeCandidate != nil
 }

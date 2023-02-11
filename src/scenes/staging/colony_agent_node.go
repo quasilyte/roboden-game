@@ -122,6 +122,10 @@ func newColonyAgentNode(core *colonyCoreNode, stats *agentStats, pos gmath.Vec) 
 	return a
 }
 
+func (a *colonyAgentNode) AsRecipeSubject() recipeSubject {
+	return recipeSubject{kind: a.stats.kind, faction: a.faction}
+}
+
 func (a *colonyAgentNode) Clone() *colonyAgentNode {
 	cloned := newColonyAgentNode(a.colonyCore, a.stats, a.pos)
 	cloned.speed = a.speed

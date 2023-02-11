@@ -49,22 +49,63 @@ type agentMergeRecipe struct {
 	result        *agentStats
 }
 
-func (r *agentMergeRecipe) Match1(a *colonyAgentNode) bool {
-	return r.match(r.agent1kind, r.agent1faction, a)
+func (r *agentMergeRecipe) Match(x, y *colonyAgentNode) bool {
+	if r.Match1(x.AsRecipeSubject()) && r.Match2(y.AsRecipeSubject()) {
+		return true
+	}
+	if r.Match1(y.AsRecipeSubject()) && r.Match2(x.AsRecipeSubject()) {
+		return true
+	}
+	return false
 }
 
-func (r *agentMergeRecipe) Match2(a *colonyAgentNode) bool {
-	return r.match(r.agent2kind, r.agent2faction, a)
+func (r *agentMergeRecipe) Match1(s recipeSubject) bool {
+	return r.match(r.agent1kind, r.agent1faction, s)
 }
 
-func (r *agentMergeRecipe) match(kind colonyAgentKind, faction factionTag, a *colonyAgentNode) bool {
-	if a.stats.kind != kind {
+func (r *agentMergeRecipe) Match2(s recipeSubject) bool {
+	return r.match(r.agent2kind, r.agent2faction, s)
+}
+
+func (r *agentMergeRecipe) match(kind colonyAgentKind, faction factionTag, s recipeSubject) bool {
+	if s.kind != kind {
 		return false
 	}
 	if faction == neutralFactionTag {
 		return true
 	}
-	return a.faction == faction
+	return s.faction == faction
+}
+
+type recipeSubject struct {
+	kind    colonyAgentKind
+	faction factionTag
+}
+
+var recipesIndex = map[recipeSubject][]agentMergeRecipe{}
+
+func init() {
+	factions := []factionTag{
+		yellowFactionTag,
+		redFactionTag,
+		blueFactionTag,
+		greenFactionTag,
+	}
+	kinds := []colonyAgentKind{
+		agentWorker,
+		agentMilitia,
+	}
+	for _, f := range factions {
+		for _, k := range kinds {
+			subject := recipeSubject{kind: k, faction: f}
+			for _, recipe := range tier2agentMergeRecipeList {
+				if !recipe.Match1(subject) && !recipe.Match2(subject) {
+					continue
+				}
+				recipesIndex[subject] = append(recipesIndex[subject], recipe)
+			}
+		}
+	}
 }
 
 // Merge usage:
@@ -80,6 +121,28 @@ func (r *agentMergeRecipe) match(kind colonyAgentKind, faction factionTag, a *co
 //   * yellow +++
 //   * green +++
 var tier2agentMergeRecipeList = []agentMergeRecipe{
+	{
+		agent1kind:    agentWorker,
+		agent1faction: blueFactionTag,
+		agent2kind:    agentWorker,
+		agent2faction: blueFactionTag,
+		result:        rechargeAgentStats,
+	},
+	{
+		agent1kind:    agentWorker,
+		agent1faction: yellowFactionTag,
+		agent2kind:    agentWorker,
+		agent2faction: yellowFactionTag,
+		result:        freighterAgentStats,
+	},
+	{
+		agent1kind:    agentWorker,
+		agent1faction: redFactionTag,
+		agent2kind:    agentWorker,
+		agent2faction: redFactionTag,
+		result:        redminerAgentStats,
+	},
+
 	{
 		agent1kind:    agentMilitia,
 		agent1faction: redFactionTag,
@@ -103,20 +166,6 @@ var tier2agentMergeRecipeList = []agentMergeRecipe{
 	},
 	{
 		agent1kind:    agentWorker,
-		agent1faction: yellowFactionTag,
-		agent2kind:    agentWorker,
-		agent2faction: yellowFactionTag,
-		result:        freighterAgentStats,
-	},
-	{
-		agent1kind:    agentWorker,
-		agent1faction: redFactionTag,
-		agent2kind:    agentWorker,
-		agent2faction: redFactionTag,
-		result:        redminerAgentStats,
-	},
-	{
-		agent1kind:    agentWorker,
 		agent1faction: blueFactionTag,
 		agent2kind:    agentMilitia,
 		agent2faction: blueFactionTag,
@@ -128,13 +177,6 @@ var tier2agentMergeRecipeList = []agentMergeRecipe{
 		agent2kind:    agentMilitia,
 		agent2faction: yellowFactionTag,
 		result:        generatorAgentStats,
-	},
-	{
-		agent1kind:    agentWorker,
-		agent1faction: blueFactionTag,
-		agent2kind:    agentWorker,
-		agent2faction: blueFactionTag,
-		result:        rechargeAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,

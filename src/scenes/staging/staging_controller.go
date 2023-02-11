@@ -423,7 +423,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 func (c *Controller) selectNextColony(center bool) {
 	colony := c.findNextColony()
 	c.selectColony(colony)
-	if center {
+	if center && c.selectedColony != nil {
 		c.camera.CenterOn(c.selectedColony.pos)
 	}
 }

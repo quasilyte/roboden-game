@@ -24,7 +24,9 @@ func registerImageResources(ctx *ge.Context) {
 		ImageRadarBossFar:  {Path: "image/radar_boss_far.png"},
 		ImageRadarBossNear: {Path: "image/radar_boss_near.png"},
 
-		ImageSmallExplosion1: {Path: "image/small_explosion1.png", FrameWidth: 32},
+		ImageSmallExplosion1:   {Path: "image/small_explosion1.png", FrameWidth: 32},
+		ImageVerticalExplosion: {Path: "image/vertical_explosion.png", FrameWidth: 50},
+		ImageBigExplosion:      {Path: "image/big_explosion.png", FrameWidth: 64},
 
 		ImageButtonX:  {Path: "image/button_x.png"},
 		ImageButtonY:  {Path: "image/button_y.png"},
@@ -136,6 +138,8 @@ const (
 	ImageRadarBossNear
 
 	ImageSmallExplosion1
+	ImageVerticalExplosion
+	ImageBigExplosion
 
 	ImageUpkeepBar
 

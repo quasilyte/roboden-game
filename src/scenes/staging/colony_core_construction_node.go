@@ -62,7 +62,7 @@ func (c *colonyCoreConstructionNode) OnDamage(damage damageValue, source gmath.V
 			Min: c.constructPos.Sub(gmath.Vec{X: 20, Y: 8}),
 			Max: c.constructPos.Add(gmath.Vec{X: 20, Y: 8}),
 		}
-		createAreaExplosion(c.scene, c.world.camera, rect)
+		createAreaExplosion(c.scene, c.world.camera, rect, true)
 		c.Destroy()
 		return
 	}

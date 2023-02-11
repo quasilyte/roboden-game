@@ -55,7 +55,7 @@ func (d *droneFallNode) Destroy() {
 	d.sprite.Dispose()
 	d.shadow.Dispose()
 
-	createAreaExplosion(d.scene, d.world.camera, spriteRect(d.pos, d.sprite))
+	createAreaExplosion(d.scene, d.world.camera, spriteRect(d.pos, d.sprite), true)
 
 	essenceSpawnPos := d.pos.Add(gmath.Vec{Y: 6})
 	if d.scraps != nil && posIsFree(d.world, nil, essenceSpawnPos, 48) {

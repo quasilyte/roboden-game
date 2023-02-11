@@ -160,7 +160,7 @@ func (c *creepNode) explode() {
 		fall := newDroneFallNode(c.world, nil, c.stats.image, c.shadow.ImageID(), c.pos, c.height)
 		c.scene.AddObject(fall)
 	case creepTurret, creepBase:
-		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite))
+		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.scene.AddObject(scraps)
 	case creepTank:

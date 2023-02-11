@@ -64,11 +64,6 @@ func (c *ControlsMenuController) initUI() {
 		"    Keyboard: escape",
 	}
 
-	// for _, l := range lines {
-	// 	label := eui.NewLabel(uiResources, l, smallFont)
-	// 	rowContainer.AddChild(label)
-	// }
-
 	normalContainer := eui.NewAnchorContainer()
 	label := eui.NewLabel(uiResources, strings.Join(lines, "\n"), smallFont)
 	normalContainer.AddChild(label)

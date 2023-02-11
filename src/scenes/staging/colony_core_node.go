@@ -212,7 +212,7 @@ func (c *colonyCoreNode) OnHeal(amount float64) {
 func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
 	c.health -= damage.health
 	if c.health < 0 {
-		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite))
+		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
 		c.Destroy()
 		return
 	}

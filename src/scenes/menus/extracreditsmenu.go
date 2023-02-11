@@ -60,9 +60,13 @@ func (c *ExtraCreditsMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
+	rowContainer.AddChild(eui.NewLabel(uiResources, "Made with Ebitengine", smallFont))
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
 		c.back()
 	}))
+
+	rowContainer.AddChild(eui.NewLabel(uiResources, "(By the way, yukki defeated the boss before me)", smallFont))
 
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)

@@ -61,7 +61,9 @@ func (c *CreditsMenuController) initUI() {
 		"quasilyte - coding, game design, sfx, testing",
 		"shooQrow - graphics, testing",
 		strings.Join(testers, ", ") + " - testing",
-		"(yukki cleared the game before everyone)",
+		"unTied Games - pixel art explosions free asset pack",
+		"TODO - in-game music",
+		// "(yukki cleared the game before everyone)",
 	}
 
 	for _, l := range lines {
@@ -70,8 +72,6 @@ func (c *CreditsMenuController) initUI() {
 	}
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
-
-	rowContainer.AddChild(eui.NewLabel(uiResources, "Made with Ebitengine", smallFont))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "More", func() {
 		c.scene.Context().ChangeScene(NewExtraCreditsMenuController(c.state))

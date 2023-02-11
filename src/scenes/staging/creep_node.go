@@ -1,10 +1,10 @@
 package staging
 
 import (
-	"github.com/quasilyte/colony-game/assets"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+	"github.com/quasilyte/roboden-game/assets"
 )
 
 type creepKind int

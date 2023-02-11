@@ -3,18 +3,18 @@ package main
 import (
 	"time"
 
-	"github.com/quasilyte/colony-game/assets"
-	"github.com/quasilyte/colony-game/controls"
-	"github.com/quasilyte/colony-game/scenes/menus"
-	"github.com/quasilyte/colony-game/session"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/scenes/menus"
+	"github.com/quasilyte/roboden-game/session"
 )
 
 func main() {
 	ctx := ge.NewContext()
 	ctx.Rand.SetSeed(time.Now().Unix())
 	ctx.GameName = "roboden"
-	ctx.WindowTitle = "RoboDen"
+	ctx.WindowTitle = "Roboden"
 	ctx.WindowWidth = 1920 / 2
 	ctx.WindowHeight = 1080 / 2
 	ctx.FullScreen = true

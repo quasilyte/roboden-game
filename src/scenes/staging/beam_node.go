@@ -3,8 +3,8 @@ package staging
 import (
 	"image/color"
 
-	"github.com/quasilyte/colony-game/viewport"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type beamNode struct {

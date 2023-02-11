@@ -1,11 +1,11 @@
 package staging
 
 import (
-	"github.com/quasilyte/colony-game/viewport"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type effectNode struct {

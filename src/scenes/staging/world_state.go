@@ -1,10 +1,10 @@
 package staging
 
 import (
-	"github.com/quasilyte/colony-game/session"
-	"github.com/quasilyte/colony-game/viewport"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type worldState struct {

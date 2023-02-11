@@ -3,9 +3,9 @@ package staging
 import (
 	"image/color"
 
-	"github.com/quasilyte/colony-game/assets"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/assets"
 )
 
 type creepStats struct {

@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/quasilyte/colony-game/assets"
-	"github.com/quasilyte/colony-game/controls"
-	"github.com/quasilyte/colony-game/session"
-	"github.com/quasilyte/colony-game/viewport"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type Controller struct {

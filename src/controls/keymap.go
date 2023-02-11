@@ -1,9 +1,9 @@
 package controls
 
 import (
-	"github.com/quasilyte/colony-game/session"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
+	"github.com/quasilyte/roboden-game/session"
 )
 
 const (

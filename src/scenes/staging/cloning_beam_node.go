@@ -1,10 +1,10 @@
 package staging
 
 import (
-	"github.com/quasilyte/colony-game/assets"
-	"github.com/quasilyte/colony-game/viewport"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type cloningBeamNode struct {

@@ -3,8 +3,8 @@ package staging
 import (
 	"math"
 
-	"github.com/quasilyte/colony-game/assets"
 	resource "github.com/quasilyte/ebitengine-resource"
+	"github.com/quasilyte/roboden-game/assets"
 )
 
 var minEvoCost float64 = 0.0

@@ -5,11 +5,11 @@ import (
 	"os"
 
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/quasilyte/colony-game/assets"
-	"github.com/quasilyte/colony-game/gameui/eui"
-	"github.com/quasilyte/colony-game/scenes/staging"
-	"github.com/quasilyte/colony-game/session"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/scenes/staging"
+	"github.com/quasilyte/roboden-game/session"
 )
 
 type MainMenuController struct {

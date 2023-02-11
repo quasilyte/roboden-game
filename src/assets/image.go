@@ -17,6 +17,7 @@ func registerImageResources(ctx *ge.Context) {
 
 		ImageChoiceWindow:         {Path: "image/choice_window.png"},
 		ImageChoiceRechargeWindow: {Path: "image/choice_recharge_window.png"},
+		ImageTutorialDialogue:     {Path: "image/window_tutorial.png"},
 
 		ImageRadar:         {Path: "image/radar.png"},
 		ImageRadarWave:     {Path: "image/radar_wave.png"},
@@ -125,6 +126,7 @@ const (
 
 	ImageChoiceWindow
 	ImageChoiceRechargeWindow
+	ImageTutorialDialogue
 
 	ImageRadar
 	ImageRadarWave

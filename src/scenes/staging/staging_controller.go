@@ -134,6 +134,11 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.choices = newChoiceWindowNode(choicesPos, c.state.MainInput)
 	c.choices.EventChoiceSelected.Connect(nil, c.onChoiceSelected)
 	scene.AddObject(c.choices)
+
+	if c.state.LevelOptions.Tutorial {
+		tutorial := newTutorialManager(c.state.MainInput, c.choices)
+		scene.AddObject(tutorial)
+	}
 }
 
 func (c *Controller) onChoiceSelected(choice selectedChoice) {

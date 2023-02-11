@@ -11,6 +11,10 @@ import (
 	"golang.org/x/image/font"
 )
 
+var (
+	normalTextColor = ge.RGB(0x9dd793)
+)
+
 type Resources struct {
 	OptionButton   *OptionButtonResource
 	Button         *ButtonResource
@@ -254,9 +258,9 @@ func LoadResources(loader *resource.Loader) *Resources {
 			HandleSize: 5,
 			FontFace:   loader.LoadFont(assets.FontSmall).Face,
 			Entry: &widget.ListEntryColor{
-				Unselected:                 ge.RGB(0xdff4ff),
+				Unselected:                 normalTextColor,
 				DisabledUnselected:         ge.RGB(0x5a7a91),
-				Selected:                   ge.RGB(0xdff4ff),
+				Selected:                   normalTextColor,
 				DisabledSelected:           ge.RGB(0x5a7a91),
 				SelectedBackground:         ge.RGB(0x4b687a),
 				DisabledSelectedBackground: ge.RGB(0x2a3944),
@@ -284,7 +288,7 @@ func LoadResources(loader *resource.Loader) *Resources {
 			Right: 30,
 		}
 		buttonColors := &widget.ButtonTextColor{
-			Idle:     ge.RGB(0xdff4ff),
+			Idle:     normalTextColor,
 			Disabled: ge.RGB(0x5a7a91),
 		}
 		ff := loader.LoadFont(assets.FontSmall).Face
@@ -332,7 +336,7 @@ func LoadResources(loader *resource.Loader) *Resources {
 			Right: 30,
 		}
 		buttonColors := &widget.ButtonTextColor{
-			Idle:     ge.RGB(0xdff4ff),
+			Idle:     normalTextColor,
 			Disabled: ge.RGB(0x5a7a91),
 		}
 		ff := loader.LoadFont(assets.FontSmall).Face

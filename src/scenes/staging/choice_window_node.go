@@ -253,6 +253,13 @@ func (w *choiceWindowNode) IsDisposed() bool {
 	return false
 }
 
+func (w *choiceWindowNode) ForceRefresh() {
+	if w.state == choiceReady {
+		return
+	}
+	w.value = w.targetValue
+}
+
 func (w *choiceWindowNode) revealChoices() {
 	w.openSprite.Visible = true
 	w.foldedSprite.Visible = false

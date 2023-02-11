@@ -37,8 +37,13 @@ func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
 func (g *levelGenerator) Generate() {
 	if g.world.IsTutorial() {
 		g.placePlayers()
-		g.placeResources(0.5)
+		g.placeSecondTutorialBase()
+		g.placeResources(0.65)
 		g.placeTutorialBoss()
+		for _, colony := range g.world.colonies {
+			colony.realRadius = 96
+			colony.resources = 120
+		}
 	} else {
 		resourceMultipliers := []float64{
 			0.4,
@@ -62,12 +67,20 @@ func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
 	}
 }
 
+func (g *levelGenerator) placeSecondTutorialBase() {
+	g.createBase(g.playerSpawn.Add(gmath.Vec{X: -256, Y: 400}))
+}
+
 func (g *levelGenerator) placePlayers() {
 	g.playerSpawn = g.world.rect.Center()
+	g.createBase(g.playerSpawn)
+}
+
+func (g *levelGenerator) createBase(pos gmath.Vec) {
 	core := g.world.NewColonyCoreNode(colonyConfig{
 		World:  g.world,
 		Radius: 128,
-		Pos:    g.playerSpawn,
+		Pos:    pos,
 	})
 	core.actionPriorities.SetWeight(priorityResources, 0.5)
 	core.actionPriorities.SetWeight(priorityGrowth, 0.4)

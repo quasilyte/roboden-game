@@ -33,7 +33,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageButtonRB: {Path: "image/button_rb.png"},
 
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
-		ImageUberBoss:           {Path: "image/uber_boss.png"},
+		ImageUberBoss:           {Path: "image/uber_boss.png", FrameWidth: 40},
 		ImageUberBossShadow:     {Path: "image/uber_boss_shadow.png"},
 		ImageCreepBase:          {Path: "image/creep_base.png", FrameWidth: 32},
 		ImageColonyCoreSelector: {Path: "image/colony_core_selector.png"},

@@ -3,6 +3,7 @@ todo engine:
 - camera
 - tiled backgrounds with reversed individual tiles
 - need to round the positions due to rendering issues (round them in Sprite?)
+- anim like 1-2-3 played as progression 1-2-3-2 in a loop
 
 final things:
 - music
@@ -12,7 +13,6 @@ todo:
 - menu buttons focus?
 
 iskander:
-- make boss lazer outline pulsate
 - test moving base when drone is about to land it (recycle)
 - maybe add servant drone somehow
 - profile & optimize game (desktop build)

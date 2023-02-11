@@ -28,10 +28,11 @@ func registerImageResources(ctx *ge.Context) {
 		ImageVerticalExplosion: {Path: "image/vertical_explosion.png", FrameWidth: 50},
 		ImageBigExplosion:      {Path: "image/big_explosion.png", FrameWidth: 64},
 
-		ImageButtonX: {Path: "image/button_x.png"},
-		ImageButtonY: {Path: "image/button_y.png"},
-		ImageButtonA: {Path: "image/button_a.png"},
-		ImageButtonB: {Path: "image/button_b.png"},
+		ImageLogoBg:     {Path: "image/logo_bg.png"},
+		ImageYellowLogo: {Path: "image/yellow_logo.png"},
+		ImageRedLogo:    {Path: "image/red_logo.png"},
+		ImageGreenLogo:  {Path: "image/green_logo.png"},
+		ImageBlueLogo:   {Path: "image/blue_logo.png"},
 
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
 		ImageUberBoss:           {Path: "image/uber_boss.png", FrameWidth: 40},
@@ -69,7 +70,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceSmallScrapSource:      {Path: "image/small_scrap_source.png"},
 		ImageEssenceScrapCreepSource:      {Path: "image/scrap_source_creep.png"},
 		ImageEssenceSmallScrapCreepSource: {Path: "image/small_scrap_source_creep.png"},
-		ImageEssenceBigScrapSource:        {Path: "image/big_scrap_source.png"},
+		ImageEssenceBigScrapCreepSource:   {Path: "image/big_scrap_source_creep.png"},
 		ImageEssenceSource:                {Path: "image/essence_source.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/red_essence_source.png", FrameWidth: 32},
 
@@ -145,10 +146,11 @@ const (
 	ImageColonyDamageMask
 	ImageEssenceSourceDissolveMask
 
-	ImageButtonX
-	ImageButtonY
-	ImageButtonA
-	ImageButtonB
+	ImageLogoBg
+	ImageYellowLogo
+	ImageRedLogo
+	ImageGreenLogo
+	ImageBlueLogo
 
 	ImageFactionDiode
 	ImageUberBoss
@@ -182,7 +184,7 @@ const (
 	ImageEssenceSmallScrapSource
 	ImageEssenceScrapCreepSource
 	ImageEssenceSmallScrapCreepSource
-	ImageEssenceBigScrapSource
+	ImageEssenceBigScrapCreepSource
 	ImageEssenceSource
 	ImageRedEssenceSource
 	ImagePrimitiveCreep

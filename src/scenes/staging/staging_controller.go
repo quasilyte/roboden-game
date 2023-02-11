@@ -152,8 +152,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	choicesPos := gmath.Vec{
-		X: 960 - 224 - 16,
-		Y: 540 - 192 - 16,
+		X: 960 - 232 - 16,
+		Y: 540 - 200 - 16,
 	}
 	c.choices = newChoiceWindowNode(choicesPos, c.state.MainInput)
 	c.choices.EventChoiceSelected.Connect(nil, c.onChoiceSelected)

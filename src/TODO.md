@@ -21,7 +21,7 @@ iskander:
 - maybe add servant drone somehow (hard mode only)
 - make base prefer using green cloners
 - implement pause?
+- make tab smooth
+- building base can take long (hangs)
 oleg:
 - flamer projectile
-- replace gamepad icons in game
-- redraw tier2 drone (recharger)

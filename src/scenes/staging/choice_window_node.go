@@ -29,6 +29,7 @@ type selectedChoice struct {
 
 type choiceOptionSlot struct {
 	icon    *ge.Sprite
+	iconBg  *ge.Sprite
 	label   *ge.Label
 	labelBg *ge.Rect
 	rect    gmath.Rect
@@ -207,10 +208,10 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 	scene.AddObject(w.chargeBar)
 
 	icons := [...]resource.ImageID{
-		assets.ImageButtonY,
-		assets.ImageButtonB,
-		assets.ImageButtonA,
-		assets.ImageButtonX,
+		assets.ImageYellowLogo,
+		assets.ImageRedLogo,
+		assets.ImageGreenLogo,
+		assets.ImageBlueLogo,
 	}
 	offsetY := 18.0
 	w.choices = make([]*choiceOptionSlot, 5)
@@ -219,7 +220,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		l.ColorScale.SetColor(ge.RGB(0x9dd793))
 		l.Pos.Base = &w.pos
 		l.Pos.Offset.Y = offsetY
-		l.Pos.Offset.X = 44
+		l.Pos.Offset.X = 50
 		l.AlignVertical = ge.AlignVerticalCenter
 		l.Width = 224 - 60
 		l.Height = 28
@@ -238,14 +239,20 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 			},
 		}
 		if i < len(icons) {
+			iconBg := scene.NewSprite(assets.ImageLogoBg)
+			iconBg.Centered = false
+			iconBg.Pos = l.Pos.WithOffset(-36, -2)
+			scene.AddGraphics(iconBg)
+			choice.iconBg = iconBg
+
 			icon := scene.NewSprite(icons[i])
 			icon.Centered = false
-			icon.Pos = l.Pos.WithOffset(-34, 0)
+			icon.Pos = iconBg.Pos
 			scene.AddGraphics(icon)
 			choice.icon = icon
 		}
 		w.choices[i] = choice
-		offsetY += l.Height + 4
+		offsetY += l.Height + 6
 	}
 
 	w.startCharging(10)
@@ -270,6 +277,7 @@ func (w *choiceWindowNode) revealChoices() {
 		o.label.Visible = true
 		if o.icon != nil {
 			o.icon.Visible = true
+			o.iconBg.Visible = true
 		}
 		o.labelBg.Visible = true
 	}
@@ -307,6 +315,7 @@ func (w *choiceWindowNode) startCharging(targetValue float64) {
 		o.labelBg.Visible = false
 		if o.icon != nil {
 			o.icon.Visible = false
+			o.iconBg.Visible = false
 		}
 	}
 	w.state = choiceCharging

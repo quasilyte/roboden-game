@@ -105,11 +105,11 @@ var scrapCreepSource = &essenceSourceStats{
 	size:       16,
 }
 
-var bigScrapSource = &essenceSourceStats{
-	image:      assets.ImageEssenceBigScrapSource,
-	capacity:   gmath.MakeRange(8, 16),
-	regenDelay: 0,   // none
-	value:      0.5, // 4-8
+var bigScrapCreepSource = &essenceSourceStats{
+	image:      assets.ImageEssenceBigScrapCreepSource,
+	capacity:   gmath.MakeRange(15, 30),
+	regenDelay: 0, // none
+	value:      1, // 15-30
 	size:       20,
 }
 

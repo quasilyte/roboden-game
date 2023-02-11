@@ -185,7 +185,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		kind := smallScrapSource
 		roll := rand.Float()
 		if roll > 0.8 {
-			kind = bigScrapSource
+			kind = bigScrapCreepSource
 		} else if roll > 0.4 {
 			kind = scrapSource
 		}

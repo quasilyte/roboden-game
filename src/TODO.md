@@ -11,6 +11,10 @@ todo:
 - tier3 scrap sprites
 - menu buttons focus?
 
-+ maybe make choices in menu more human readable
-- replace gamepad icons in game
+iskander:
 - maybe add servant drone somehow
+- profile & optimize game (desktop build)
+- test game in browsers (also profile and optimize)
+oleg:
+- replace gamepad icons in game
+- redraw tier2 drone (recharger)

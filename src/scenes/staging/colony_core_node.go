@@ -309,6 +309,7 @@ func (c *colonyCoreNode) Dispose() {
 	c.flyingSprite.Dispose()
 	c.shadow.Dispose()
 	c.upkeepBar.Dispose()
+	c.evoDiode.Dispose()
 	for _, rect := range c.resourceRects {
 		rect.Dispose()
 	}

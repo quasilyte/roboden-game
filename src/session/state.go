@@ -36,5 +36,6 @@ type GameSettings struct {
 	MusicVolumeLevel   int
 	EffectsVolumeLevel int
 	ScrollingSpeed     int
+	EdgeScrollRange    int
 	Debug              bool
 }

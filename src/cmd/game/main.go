@@ -24,6 +24,7 @@ func main() {
 				EffectsVolumeLevel: 2,
 				MusicVolumeLevel:   2,
 				ScrollingSpeed:     2,
+				EdgeScrollRange:    2,
 				Debug:              false,
 			},
 		},

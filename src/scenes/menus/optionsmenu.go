@@ -92,6 +92,19 @@ func (c *OptionsMenuController) initUI() {
 	}
 
 	{
+		var scrollSlider gmath.Slider
+		scrollSlider.SetBounds(0, 4)
+		scrollSlider.TrySetValue(options.EdgeScrollRange)
+		scrollButton := eui.NewButtonSelected(uiResources, "Edge Scroll Range: "+strconv.Itoa(scrollSlider.Value()))
+		scrollButton.ClickedEvent.AddHandler(func(args interface{}) {
+			scrollSlider.Inc()
+			options.EdgeScrollRange = scrollSlider.Value()
+			scrollButton.Text().Label = "Edge Scroll Range: " + strconv.Itoa(scrollSlider.Value())
+		})
+		rowContainer.AddChild(scrollButton)
+	}
+
+	{
 		debugButton := eui.NewButtonSelected(uiResources, "Debug: "+strconv.FormatBool(options.Debug))
 		debugButton.ClickedEvent.AddHandler(func(args interface{}) {
 			options.Debug = !options.Debug

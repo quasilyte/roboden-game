@@ -72,9 +72,12 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.state.MemProfileWriter = f
 	}
 
-	c.cameraPanBoundary = 2
-	if runtime.GOARCH == "wasm" {
-		c.cameraPanBoundary = 8
+	if c.state.Persistent.Settings.EdgeScrollRange != 0 {
+		c.cameraPanBoundary = 1
+		if runtime.GOARCH == "wasm" {
+			c.cameraPanBoundary = 6
+		}
+		c.cameraPanBoundary += 2 * float64(c.state.Persistent.Settings.EdgeScrollRange-1)
 	}
 
 	var worldSize float64
@@ -330,7 +333,7 @@ func (c *Controller) Update(delta float64) {
 	if mainInput.ActionIsPressed(controls.ActionPanUp) {
 		cameraPan.Y -= c.cameraPanSpeed
 	}
-	if cameraPan.IsZero() {
+	if cameraPan.IsZero() && c.cameraPanBoundary != 0 {
 		// Mouse cursor can pan the camera too.
 		cursor := mainInput.CursorPos()
 		if cursor.X > c.camera.Rect.Width()-c.cameraPanBoundary {

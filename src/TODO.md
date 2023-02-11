@@ -18,7 +18,6 @@ itchio page:
 - description
 
 iskander:
-- edge scroll pad option
 - mid mouse button scroll
 - more explosion sprites and better effects in general
 - test moving base when drone is about to land it (recycle)

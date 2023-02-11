@@ -50,7 +50,7 @@ func (c *CreditsMenuController) initUI() {
 
 	testers := []string{
 		"bontequero",
-		"kreker",
+		"yukki",
 		"NKMory",
 		"BaBuwkaPride",
 	}
@@ -61,6 +61,7 @@ func (c *CreditsMenuController) initUI() {
 		"quasilyte - coding, game design, testing",
 		"shooQrow - graphics, testing",
 		strings.Join(testers, ", ") + " - testing",
+		"(yukki cleared the game before everyone)",
 	}
 
 	for _, l := range lines {

@@ -209,7 +209,7 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 				"hotkeys: [1]-[5] and [q]-[t].",
 				"",
 				"Actions are shared between the",
-				"colonies, but the effects are not.",
+				"colonies, but effects are not.",
 			}, "\n"),
 		},
 
@@ -217,8 +217,8 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 			text: strings.Join([]string{
 				"Every choice does two main",
 				"things. It adjusts the colony",
-				"priorities and shifts the",
-				"robot faction distribution.",
+				"priorities (text) and shifts the",
+				"factions distribution (color).",
 				"",
 				"Priorities affect the way colony",
 				"is behaving: what does it do,",

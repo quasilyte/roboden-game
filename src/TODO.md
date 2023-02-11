@@ -21,7 +21,6 @@ iskander:
 - maybe add servant drone somehow (hard mode only)
 - less chance to recycle a unit that can be used in a recipe?
 - make cloning prefer non-tier1 units
-- fix middle button scroll
 oleg:
 - flamer projectile
 - replace gamepad icons in game

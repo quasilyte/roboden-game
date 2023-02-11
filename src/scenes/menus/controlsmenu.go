@@ -50,7 +50,7 @@ func (c *ControlsMenuController) initUI() {
 
 	lines := []string{
 		"[Pan Camera]",
-		"    Mouse: middle button + drag, edge scroll",
+		"    Mouse: middle button + move, edge scroll",
 		"    Keyboard: arrow keys",
 		"[Move Colony]",
 		"    Mouse: right mouse button click on the destination",

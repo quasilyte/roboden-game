@@ -39,8 +39,6 @@ type Controller struct {
 
 	musicPlayer *musicPlayer
 
-	prevCursorPos gmath.Vec
-
 	tier3spawnDelay float64
 	tier3spawnRate  float64
 
@@ -333,11 +331,11 @@ func (c *Controller) Update(delta float64) {
 		cameraPan.Y -= c.cameraPanSpeed
 	}
 	if cameraPan.IsZero() {
-		if info, ok := mainInput.PressedActionInfo(controls.ActionPanAlt); ok && info.Pos != c.prevCursorPos {
-			cameraPan = gmath.RadToVec(info.Pos.AngleToPoint(c.prevCursorPos)).Mulf(c.cameraPanSpeed * 0.8)
+		if info, ok := mainInput.PressedActionInfo(controls.ActionPanAlt); ok {
+			cameraCenter := c.camera.Rect.Center()
+			cameraPan = gmath.RadToVec(cameraCenter.AngleToPoint(info.Pos)).Mulf(c.cameraPanSpeed * 0.8)
 		}
 	}
-	c.prevCursorPos = mainInput.CursorPos()
 	if cameraPan.IsZero() && c.cameraPanBoundary != 0 {
 		// Mouse cursor can pan the camera too.
 		cursor := mainInput.CursorPos()

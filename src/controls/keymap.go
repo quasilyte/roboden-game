@@ -13,6 +13,7 @@ const (
 	ActionPanDown
 	ActionPanLeft
 	ActionPanUp
+	ActionPanAlt
 
 	ActionToggleColony
 
@@ -34,6 +35,7 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 		ActionPanDown:  {input.KeyDown, input.KeyGamepadLStickDown, input.KeyGamepadDown},
 		ActionPanLeft:  {input.KeyLeft, input.KeyGamepadLStickLeft, input.KeyGamepadLeft},
 		ActionPanUp:    {input.KeyUp, input.KeyGamepadLStickUp, input.KeyGamepadUp},
+		ActionPanAlt:   {input.KeyMouseMiddle},
 
 		ActionToggleColony: {input.KeyTab, input.KeyGamepadL1},
 

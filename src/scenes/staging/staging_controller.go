@@ -37,6 +37,8 @@ type Controller struct {
 
 	choices *choiceWindowNode
 
+	prevCursorPos gmath.Vec
+
 	tier3spawnDelay float64
 	tier3spawnRate  float64
 
@@ -101,18 +103,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.tier3spawnDelay = scene.Rand().FloatRange(14*60.0, 16*60.0)
 	c.tier3spawnRate = 1.0
 
-	switch c.state.Persistent.Settings.ScrollingSpeed {
-	case 0:
-		c.cameraPanSpeed = 3.0
-	case 1:
-		c.cameraPanSpeed = 6.0
-	case 2:
-		c.cameraPanSpeed = 8.0
-	case 3:
-		c.cameraPanSpeed = 10.0
-	case 4:
-		c.cameraPanSpeed = 13.0
-	}
+	c.cameraPanSpeed = float64(c.state.Persistent.Settings.ScrollingSpeed+1) * 4
 
 	world := &worldState{
 		debug:          c.state.Persistent.Settings.Debug,
@@ -333,6 +324,12 @@ func (c *Controller) Update(delta float64) {
 	if mainInput.ActionIsPressed(controls.ActionPanUp) {
 		cameraPan.Y -= c.cameraPanSpeed
 	}
+	if cameraPan.IsZero() {
+		if info, ok := mainInput.PressedActionInfo(controls.ActionPanAlt); ok && info.Pos != c.prevCursorPos {
+			cameraPan = gmath.RadToVec(info.Pos.AngleToPoint(c.prevCursorPos)).Mulf(c.cameraPanSpeed * 0.8)
+		}
+	}
+	c.prevCursorPos = mainInput.CursorPos()
 	if cameraPan.IsZero() && c.cameraPanBoundary != 0 {
 		// Mouse cursor can pan the camera too.
 		cursor := mainInput.CursorPos()

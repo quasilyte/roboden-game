@@ -13,7 +13,6 @@ todo:
 - menu buttons focus?
 
 iskander:
-- make tileset rendering more efficient
 - test moving base when drone is about to land it (recycle)
 - maybe add servant drone somehow
 - test game in browsers

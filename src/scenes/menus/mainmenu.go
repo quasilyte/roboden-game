@@ -3,6 +3,7 @@ package menus
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
@@ -68,9 +69,11 @@ func (c *MainMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewCreditsMenuController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Exit", func() {
-		os.Exit(0)
-	}))
+	if runtime.GOARCH != "wasm" {
+		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Exit", func() {
+			os.Exit(0)
+		}))
+	}
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

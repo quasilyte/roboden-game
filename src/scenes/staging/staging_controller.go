@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"runtime"
 	"runtime/pprof"
 	"time"
 
@@ -20,8 +21,9 @@ import (
 type Controller struct {
 	state *session.State
 
-	backController ge.SceneController
-	cameraPanSpeed float64
+	backController    ge.SceneController
+	cameraPanSpeed    float64
+	cameraPanBoundary float64
 
 	startTime time.Time
 
@@ -68,6 +70,11 @@ func (c *Controller) Init(scene *ge.Scene) {
 			panic(err)
 		}
 		c.state.MemProfileWriter = f
+	}
+
+	c.cameraPanBoundary = 2
+	if runtime.GOARCH == "wasm" {
+		c.cameraPanBoundary = 8
 	}
 
 	var worldSize float64
@@ -326,16 +333,16 @@ func (c *Controller) Update(delta float64) {
 	if cameraPan.IsZero() {
 		// Mouse cursor can pan the camera too.
 		cursor := mainInput.CursorPos()
-		if cursor.X > c.camera.Rect.Width()-2 {
+		if cursor.X > c.camera.Rect.Width()-c.cameraPanBoundary {
 			cameraPan.X += c.cameraPanSpeed
 		}
-		if cursor.Y > c.camera.Rect.Height()-2 {
+		if cursor.Y > c.camera.Rect.Height()-c.cameraPanBoundary {
 			cameraPan.Y += c.cameraPanSpeed
 		}
-		if cursor.X < 2 {
+		if cursor.X < c.cameraPanBoundary {
 			cameraPan.X -= c.cameraPanSpeed
 		}
-		if cursor.Y < 2 {
+		if cursor.Y < c.cameraPanBoundary {
 			cameraPan.Y -= c.cameraPanSpeed
 		}
 	}

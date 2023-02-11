@@ -41,9 +41,9 @@ func (c *OptionsMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer()
 	root.AddChild(rowContainer)
 
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 
-	titleLabel := eui.NewLabel(uiResources, "Settings", smallFont)
+	titleLabel := eui.NewLabel(uiResources, "Main Menu -> Settings", normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings

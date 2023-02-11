@@ -1,8 +1,6 @@
 package menus
 
 import (
-	"strconv"
-
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -43,53 +41,71 @@ func (c *LobbyMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer()
 	root.AddChild(rowContainer)
 
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 
-	titleLabel := eui.NewLabel(uiResources, "New Game Options", smallFont)
+	titleLabel := eui.NewLabel(uiResources, "Main Menu -> Start Game", normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.LevelOptions
 
 	{
+		valueNames := []string{
+			"very low",
+			"low",
+			"normal",
+			"rich",
+			"very rich",
+		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 4)
 		slider.TrySetValue(options.Resources)
-		button := eui.NewButtonSelected(uiResources, "Map Resources: "+strconv.Itoa(slider.Value()+1))
+		button := eui.NewButtonSelected(uiResources, "Map Resources: "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
 			options.Resources = slider.Value()
-			button.Text().Label = "Map Resources: " + strconv.Itoa(slider.Value()+1)
+			button.Text().Label = "Map Resources: " + valueNames[slider.Value()]
 		})
 		rowContainer.AddChild(button)
 	}
 
 	{
+		valueNames := []string{
+			"very easy",
+			"easy",
+			"normal",
+			"hard",
+		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 3)
 		slider.TrySetValue(options.Difficulty)
-		button := eui.NewButtonSelected(uiResources, "Difficulty: "+strconv.Itoa(slider.Value()+1))
+		button := eui.NewButtonSelected(uiResources, "Difficulty: "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
 			options.Difficulty = slider.Value()
-			button.Text().Label = "Difficulty: " + strconv.Itoa(slider.Value()+1)
+			button.Text().Label = "Difficulty: " + valueNames[slider.Value()]
 		})
 		rowContainer.AddChild(button)
 	}
 
 	{
+		valueNames := []string{
+			"very small",
+			"small",
+			"normal",
+		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 2)
 		slider.TrySetValue(options.WorldSize)
-		button := eui.NewButtonSelected(uiResources, "Map Size: "+strconv.Itoa(slider.Value()+1))
+		button := eui.NewButtonSelected(uiResources, "Map Size: "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
 			options.WorldSize = slider.Value()
-			button.Text().Label = "Map Size: " + strconv.Itoa(slider.Value()+1)
+			button.Text().Label = "Map Size: " + valueNames[slider.Value()]
 		})
 		rowContainer.AddChild(button)
 	}
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Start", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Go", func() {
 		c.state.LevelOptions.Tutorial = false
 		c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
 	}))

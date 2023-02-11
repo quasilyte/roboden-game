@@ -41,9 +41,10 @@ func (c *CreditsMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer()
 	root.AddChild(rowContainer)
 
+	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	titleLabel := eui.NewLabel(uiResources, "Credits", smallFont)
+	titleLabel := eui.NewLabel(uiResources, "Main Menu -> Credits", normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

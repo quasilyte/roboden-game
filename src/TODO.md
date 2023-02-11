@@ -10,3 +10,7 @@ final things:
 todo:
 - tier3 scrap sprites
 - menu buttons focus?
+
++ maybe make choices in menu more human readable
+- replace gamepad icons in game
+- maybe add servant drone somehow

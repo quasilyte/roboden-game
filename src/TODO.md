@@ -13,10 +13,10 @@ todo:
 - menu buttons focus?
 
 iskander:
+- make tileset rendering more efficient
 - test moving base when drone is about to land it (recycle)
 - maybe add servant drone somehow
-- profile & optimize game (desktop build)
-- test game in browsers (also profile and optimize)
+- test game in browsers
 oleg:
 - replace gamepad icons in game
 - redraw tier2 drone (recharger)

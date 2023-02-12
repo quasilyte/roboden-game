@@ -9,13 +9,19 @@ final things:
 - music
 
 todo:
-- tier3 scrap sprites
 - menu buttons focus?
+- don't clone non-combat units that exceed 20% population
+- show enemy bases on the radar
+- base should check landing zone before landing
+- rework action delay (same action vs other action)
+- flamer explosions should be above their target
+- make evolution recycle workers that use 50%+ population?
+
+tech debdt:
+- fix agent traversal, universal slice seems untraversed in walk/find functions
 
 itchio page:
-- screenshots
 - preview pic
-- description
 
 iskander:
 - maybe add servant drone somehow (hard mode only)

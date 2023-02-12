@@ -11,16 +11,23 @@ type World struct {
 	Height float64
 }
 
+type cameraObject interface {
+	ge.SceneGraphics
+	BoundsRect() gmath.Rect
+}
+
 type Camera struct {
 	World *World
 
 	Offset gmath.Vec
 
-	Rect gmath.Rect
+	Rect       gmath.Rect
+	globalRect gmath.Rect
 
-	belowObjects []ge.SceneGraphics
-	objects      []ge.SceneGraphics
-	aboveObjects []ge.SceneGraphics
+	bg           *ge.TiledBackground
+	belowObjects []cameraObject
+	objects      []cameraObject
+	aboveObjects []cameraObject
 
 	screen *ebiten.Image
 
@@ -46,28 +53,54 @@ func (c *Camera) IsDisposed() bool {
 	return c.disposed
 }
 
-func (c *Camera) AddGraphics(o ge.SceneGraphics) {
+func (c *Camera) AddGraphics(o cameraObject) {
 	c.objects = append(c.objects, o)
 }
 
-func (c *Camera) AddGraphicsAbove(o ge.SceneGraphics) {
+func (c *Camera) AddGraphicsAbove(o cameraObject) {
 	c.aboveObjects = append(c.aboveObjects, o)
 }
 
-func (c *Camera) AddGraphicsBelow(o ge.SceneGraphics) {
+func (c *Camera) AddGraphicsBelow(o cameraObject) {
 	c.belowObjects = append(c.belowObjects, o)
 }
 
-func (c *Camera) drawSlice(screen *ebiten.Image, objects []ge.SceneGraphics) []ge.SceneGraphics {
+func (c *Camera) SetBackground(bg *ge.TiledBackground) {
+	c.bg = bg
+}
+
+func (c *Camera) drawSlice(screen *ebiten.Image, objects []cameraObject) []cameraObject {
 	liveObjects := objects[:0]
 	for _, o := range objects {
 		if o.IsDisposed() {
 			continue
 		}
-		o.Draw(c.screen)
+		if c.isVisible(o) {
+			o.Draw(c.screen)
+		}
 		liveObjects = append(liveObjects, o)
 	}
 	return liveObjects
+}
+
+func (c *Camera) isVisible(o cameraObject) bool {
+	objectRect := o.BoundsRect()
+	cameraRect := c.globalRect
+
+	if objectRect.Max.X < cameraRect.Min.X {
+		return false
+	}
+	if objectRect.Min.X > cameraRect.Max.X {
+		return false
+	}
+	if objectRect.Max.Y < cameraRect.Min.Y {
+		return false
+	}
+	if objectRect.Min.Y > cameraRect.Max.Y {
+		return false
+	}
+
+	return true
 }
 
 func (c *Camera) ContainsPos(pos gmath.Vec) bool {
@@ -96,7 +129,14 @@ func (c *Camera) CenterOn(pos gmath.Vec) {
 }
 
 func (c *Camera) Draw(screen *ebiten.Image) {
+	c.globalRect = c.Rect
+	c.globalRect.Min = c.Offset
+	c.globalRect.Max = c.globalRect.Max.Add(c.Offset)
+
 	c.screen.Clear()
+	if c.bg != nil {
+		c.bg.Draw(c.screen)
+	}
 	c.belowObjects = c.drawSlice(c.screen, c.belowObjects)
 	c.objects = c.drawSlice(c.screen, c.objects)
 	c.aboveObjects = c.drawSlice(c.screen, c.aboveObjects)

@@ -129,7 +129,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	bg := ge.NewTiledBackground()
 	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
-	c.camera.AddGraphicsBelow(bg)
+	c.camera.SetBackground(bg)
 	g := newLevelGenerator(scene, c.world)
 	g.Generate()
 

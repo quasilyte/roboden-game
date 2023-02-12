@@ -7,10 +7,10 @@ import (
 
 func registerFontResources(ctx *ge.Context) {
 	fontResources := map[resource.FontID]resource.FontInfo{
-		FontTiny:   {Path: "font/DejavuSansMono.ttf", Size: 10},
-		FontSmall:  {Path: "font/DejavuSansMono.ttf", Size: 14},
-		FontNormal: {Path: "font/DejavuSansMono.ttf", Size: 18},
-		FontBig:    {Path: "font/DejavuSansMono.ttf", Size: 22},
+		FontTiny:   {Path: "font/aesymatt.otf", Size: 10},
+		FontSmall:  {Path: "font/aesymatt.otf", Size: 16},
+		FontNormal: {Path: "font/aesymatt.otf", Size: 18},
+		FontBig:    {Path: "font/aesymatt.otf", Size: 28},
 	}
 
 	for id, res := range fontResources {

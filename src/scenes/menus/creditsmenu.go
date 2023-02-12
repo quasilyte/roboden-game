@@ -63,8 +63,8 @@ func (c *CreditsMenuController) initUI() {
 		"    shooQrow (Oleg) - graphics, co-game design, testing",
 		"    " + strings.Join(testers, ", ") + " - testing",
 		"[assets]",
-		"    JAM - Deadly Windmills music track",
 		"    DROZERiX - Crush and War Path music tracks",
+		"    JAM - Deadly Windmills music track",
 		"    unTied Games - pixel art explosions free asset pack",
 	}
 

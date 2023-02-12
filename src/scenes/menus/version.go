@@ -12,4 +12,5 @@ package menus
 // - Fixed colony movement overjump
 // - Fixed some typos
 // - Fixed some text rendering issues (it was too blurry at times)
+// - Made macos/osx build possible
 const buildNumber int = 3

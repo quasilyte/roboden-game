@@ -553,7 +553,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		evoGain := 0.0
 		var connectedWorker *colonyAgentNode
 		var connectedFighter *colonyAgentNode
-		c.WalkAgents(func(a *colonyAgentNode) bool {
+		c.RandWalkAgents(func(a *colonyAgentNode) bool {
 			if evoGain >= maxEvoGain {
 				return false
 			}
@@ -751,7 +751,7 @@ func (c *colonyCoreNode) pick(n int, agents []*colonyAgentNode, f func(a *colony
 	}
 }
 
-func (c *colonyCoreNode) WalkAgents(f func(a *colonyAgentNode) bool) {
+func (c *colonyCoreNode) RandWalkAgents(f func(a *colonyAgentNode) bool) {
 	var slider gmath.Slider
 	if len(c.combatAgents) != 0 {
 		slider.SetBounds(0, len(c.combatAgents)-1)
@@ -777,7 +777,7 @@ func (c *colonyCoreNode) WalkAgents(f func(a *colonyAgentNode) bool) {
 
 func (c *colonyCoreNode) FindRandomAgent(f func(a *colonyAgentNode) bool) *colonyAgentNode {
 	var result *colonyAgentNode
-	c.WalkAgents(func(a *colonyAgentNode) bool {
+	c.RandWalkAgents(func(a *colonyAgentNode) bool {
 		if f(a) {
 			result = a
 			return false

@@ -33,6 +33,8 @@ const (
 	agentRecharger
 	agentGenerator
 	agentRefresher
+
+	agentKindNum
 )
 
 type colonyAgentMode uint8

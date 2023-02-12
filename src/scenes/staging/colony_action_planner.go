@@ -163,19 +163,42 @@ func (p *colonyActionPlanner) pickCloner() *colonyAgentNode {
 }
 
 func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bool) *colonyAgentNode {
-	var agents = p.colony.availableAgents
-	if combat {
-		agents = p.colony.availableCombatAgents
+	var agentCountTable [agentKindNum]uint8
+	var agentKindThreshold uint8
+	var agents = p.colony.availableCombatAgents
+	if !combat {
+		agents = p.colony.availableAgents
+		p.colony.FindAgent(func(a *colonyAgentNode) bool {
+			agentCountTable[a.stats.kind]++
+			return false
+		})
+		agentKindThreshold = uint8(gmath.Clamp(p.colony.NumAgents()/5, 5, math.MaxUint8))
 	}
-	minTier := 1
-	if p.numTier2Agents != 0 && p.world.rand.Chance(0.7) {
-		minTier = 2
-	}
-	return randFind(p.world.rand, agents, func(a *colonyAgentNode) bool {
-		return a != cloner &&
-			agentCloningCost(p.colony, cloner, a)*1.5 < p.colony.resources &&
-			a.stats.tier >= minTier
+
+	bestScore := 0.0
+	var bestCandidate *colonyAgentNode
+	randWalk(p.world.rand, agents, func(a *colonyAgentNode) bool {
+		if a == cloner {
+			return true // Self is not a cloning target
+		}
+		if agentCloningCost(p.colony, cloner, a)*1.5 < p.colony.resources {
+			return true // Not enough resources
+		}
+		if !combat && a.stats.tier > 1 && agentCountTable[a.stats.kind] > agentKindThreshold {
+			return true // Don't need more of those
+		}
+		// Try to use weighted priorities with randomization.
+		// Higher tiers are good, but it's also good to clone the units that
+		// are not as numerous as some others.
+		scoreMultiplier := gmath.ClampMin(1.0/float64(agentCountTable[a.stats.kind]), 0.1)
+		score := ((1.25 * float64(a.stats.tier)) * scoreMultiplier) * p.world.rand.FloatRange(0.7, 1.3)
+		if score > bestScore {
+			bestScore = score
+			bestCandidate = a
+		}
+		return true
 	})
+	return bestCandidate
 }
 
 func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {

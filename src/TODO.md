@@ -5,9 +5,6 @@ todo engine:
 - need to round the positions due to rendering issues (round them in Sprite?)
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 
-final things:
-- music
-
 todo:
 - add fullscreen option (disable/enable windowed mode)
 - menu buttons focus?

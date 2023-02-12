@@ -9,6 +9,7 @@ final things:
 - music
 
 todo:
+- add fullscreen option (disable/enable windowed mode)
 - menu buttons focus?
 - don't clone non-combat units that exceed 20% population
 - show enemy bases on the radar

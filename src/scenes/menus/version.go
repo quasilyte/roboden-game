@@ -6,6 +6,7 @@ package menus
 //
 // Version 3 (post jam)
 // - Improved performance
+// - Big map size option
 // - New font
 // - Updated drone cloning algorithm
 // - Fixed a cloning price bug in colony planner

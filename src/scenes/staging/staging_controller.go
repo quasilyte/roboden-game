@@ -227,7 +227,7 @@ func (c *Controller) pickColonyPos(core *colonyCoreNode, pos gmath.Vec, r float6
 }
 
 func (c *Controller) launchAttack() {
-	if len(c.selectedColony.combatAgents) == 0 {
+	if c.selectedColony.agents.NumAvailableFighters() == 0 {
 		return
 	}
 	closeTargets := c.world.tmpTargetSlice[:0]
@@ -245,18 +245,13 @@ func (c *Controller) launchAttack() {
 	if len(closeTargets) == 0 {
 		return
 	}
-	maxDispatched := gmath.Clamp(int(float64(len(c.selectedColony.combatAgents))*0.6), 1, 15)
-	for _, agent := range c.selectedColony.combatAgents {
-		if agent.mode != agentModeStandby && agent.mode != agentModePatrol {
-			continue
-		}
-		if maxDispatched == 0 {
-			break
-		}
+	maxDispatched := gmath.Clamp(int(float64(c.selectedColony.agents.NumAvailableFighters())*0.6), 1, 15)
+	c.selectedColony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
 		maxDispatched--
 		target := gmath.RandElem(c.world.rand, closeTargets)
-		agent.AssignMode(agentModeAttack, gmath.Vec{}, target)
-	}
+		a.AssignMode(agentModeAttack, gmath.Vec{}, target)
+		return maxDispatched <= 0
+	})
 }
 
 func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec) {

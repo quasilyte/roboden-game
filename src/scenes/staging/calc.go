@@ -30,7 +30,7 @@ func agentCloningCost(core *colonyCoreNode, cloner, a *colonyAgentNode) float64 
 }
 
 func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
-	if source.stats == redOilSource && !core.hasRedMiner {
+	if source.stats == redOilSource && !core.agents.hasRedMiner {
 		return 0
 	}
 	if source.stats.regenDelay != 0 && source.percengage < 0.15 {

@@ -4,7 +4,6 @@ import (
 	"math"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
@@ -67,14 +66,7 @@ type colonyCoreNode struct {
 	evoPoints        float64
 	world            *worldState
 
-	agents       []*colonyAgentNode
-	combatAgents []*colonyAgentNode
-
-	hasRedMiner              bool
-	numServoAgents           int
-	availableAgents          []*colonyAgentNode
-	availableCombatAgents    []*colonyAgentNode
-	availableUniversalAgents []*colonyAgentNode
+	agents *colonyAgentContainer
 
 	planner *colonyActionPlanner
 
@@ -106,14 +98,9 @@ type colonyConfig struct {
 
 func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	c := &colonyCoreNode{
-		world:                    config.World,
-		realRadius:               config.Radius,
-		agents:                   make([]*colonyAgentNode, 0, 32),
-		availableAgents:          make([]*colonyAgentNode, 0, 32),
-		combatAgents:             make([]*colonyAgentNode, 0, 20),
-		availableCombatAgents:    make([]*colonyAgentNode, 0, 20),
-		availableUniversalAgents: make([]*colonyAgentNode, 0, 20),
-		maxHealth:                100,
+		world:      config.World,
+		realRadius: config.Radius,
+		maxHealth:  100,
 	}
 	c.actionPriorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
 	c.factionWeights = newWeightContainer(neutralFactionTag, yellowFactionTag, redFactionTag, greenFactionTag, blueFactionTag)
@@ -124,6 +111,8 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 
 func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.scene = scene
+
+	c.agents = newColonyAgentContainer(scene.Rand())
 
 	c.factionTagPicker = gmath.NewRandPicker[factionTag](scene.Rand())
 
@@ -184,7 +173,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 func (c *colonyCoreNode) IsFlying() bool { return false }
 
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
-	return 180.0 + (float64(c.numServoAgents) * 30.0)
+	return 180.0 + (float64(c.agents.servoNum) * 30.0)
 }
 
 func (c *colonyCoreNode) PatrolRadius() float64 {
@@ -230,10 +219,9 @@ func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
 }
 
 func (c *colonyCoreNode) Destroy() {
-	for _, agent := range c.agents {
-		agent.OnDamage(damageValue{health: 1000}, gmath.Vec{})
-	}
-
+	c.agents.Each(func(a *colonyAgentNode) {
+		a.OnDamage(damageValue{health: 1000}, gmath.Vec{})
+	})
 	c.EventDestroyed.Emit(c)
 	c.Dispose()
 }
@@ -280,32 +268,18 @@ func (c *colonyCoreNode) NewColonyAgentNode(stats *agentStats, pos gmath.Vec) *c
 
 func (c *colonyCoreNode) DetachAgent(a *colonyAgentNode) {
 	a.EventDestroyed.Disconnect(c)
-	if a.stats.canPatrol {
-		c.combatAgents = xslices.Remove(c.combatAgents, a)
-	} else {
-		c.agents = xslices.Remove(c.agents, a)
-	}
+	c.agents.Remove(a)
 }
 
 func (c *colonyCoreNode) AcceptAgent(a *colonyAgentNode) {
 	a.EventDestroyed.Connect(c, func(x *colonyAgentNode) {
-		if x.stats.canPatrol {
-			c.combatAgents = xslices.Remove(c.combatAgents, x)
-		} else {
-			c.agents = xslices.Remove(c.agents, x)
-		}
+		c.agents.Remove(x)
 	})
-	if a.stats.canPatrol {
-		c.combatAgents = append(c.combatAgents, a)
-	} else {
-		c.agents = append(c.agents, a)
-	}
+	c.agents.Add(a)
 	a.colonyCore = c
 }
 
-func (c *colonyCoreNode) NumAgents() int {
-	return len(c.agents) + len(c.combatAgents)
-}
+func (c *colonyCoreNode) NumAgents() int { return c.agents.TotalNum() }
 
 func (c *colonyCoreNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 
@@ -359,7 +333,7 @@ func (c *colonyCoreNode) movementSpeed() float64 {
 	case colonyModeTakeoff, colonyModeLanding:
 		return 8.0
 	case colonyModeRelocating:
-		return 16.0 + (float64(c.numServoAgents) * 3)
+		return 16.0 + (float64(c.agents.servoNum) * 3)
 	default:
 		return 0
 	}
@@ -413,12 +387,11 @@ func (c *colonyCoreNode) calcUnitLimit() int {
 func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 	upkeepTotal := 0
 	upkeepDecrease := 0
-	c.FindAgent(func(a *colonyAgentNode) bool {
+	c.agents.Each(func(a *colonyAgentNode) {
 		if a.stats.kind == agentGenerator {
 			upkeepDecrease++
 		}
 		upkeepTotal += a.stats.upkeep
-		return false
 	})
 	upkeepDecrease = gmath.ClampMax(upkeepDecrease, 10)
 	upkeepTotal = gmath.ClampMin(upkeepTotal-(upkeepDecrease*15), 0)
@@ -472,14 +445,13 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.relocationPoint = pos
 
-	c.FindAgent(func(a *colonyAgentNode) bool {
+	c.agents.Each(func(a *colonyAgentNode) {
 		a.payload = 0
 		if a.height != agentFlightHeight {
 			a.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
 		} else {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		}
-		return false
 	})
 
 	c.mode = colonyModeTakeoff
@@ -555,12 +527,12 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		evoGain := 0.0
 		var connectedWorker *colonyAgentNode
 		var connectedFighter *colonyAgentNode
-		c.RandWalkAgents(func(a *colonyAgentNode) bool {
+		c.agents.Find(searchWorkers|searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
 			if evoGain >= maxEvoGain {
-				return false
+				return true
 			}
 			if a.stats.tier != 2 {
-				return true
+				return false
 			}
 			if a.stats.canPatrol {
 				if connectedFighter == nil {
@@ -572,7 +544,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 				}
 			}
 			evoGain += 0.1
-			return true
+			return false
 		})
 		if connectedWorker != nil {
 			beam := newBeamNode(c.world.camera, c.evoDiode.Pos, ge.Pos{Base: &connectedWorker.pos}, evoBeamColor)
@@ -589,11 +561,11 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionMineEssence:
-		if len(c.availableAgents) == 0 && len(c.availableUniversalAgents) == 0 {
+		if c.agents.NumAvailableWorkers() == 0 {
 			return false
 		}
-		maxNumAgents := gmath.Clamp(len(c.availableAgents)/4, 2, 10)
-		minNumAgents := gmath.Clamp(len(c.availableAgents)/10, 2, 6)
+		maxNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/4, 2, 10)
+		minNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/10, 2, 6)
 		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)
 		extraAssign := gmath.Clamp(int(c.GetResourcePriority()*10)-1, 0, 10)
 		toAssign += extraAssign
@@ -618,8 +590,8 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 
 	case actionBuildBase:
 		sendCost := 4.0
-		maxNumAgents := gmath.Clamp(len(c.availableAgents)/10, 1, 5)
-		minNumAgents := gmath.Clamp(len(c.availableAgents)/15, 1, 3)
+		maxNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/10, 1, 5)
+		minNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/15, 1, 3)
 		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)
 		c.pickWorkerUnits(toAssign, func(a *colonyAgentNode) {
 			if c.resources < sendCost {
@@ -724,83 +696,19 @@ func (c *colonyCoreNode) pickAgentFaction() factionTag {
 }
 
 func (c *colonyCoreNode) pickWorkerUnits(n int, f func(a *colonyAgentNode)) {
-	c.pick(n, c.availableAgents, func(a *colonyAgentNode) {
+	c.agents.Find(searchWorkers|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
 		f(a)
 		n--
+		return n <= 0
 	})
-	c.pick(n, c.availableUniversalAgents, f)
 }
 
 func (c *colonyCoreNode) pickCombatUnits(n int, f func(a *colonyAgentNode)) {
-	c.pick(n, c.availableCombatAgents, func(a *colonyAgentNode) {
+	c.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
 		f(a)
 		n--
+		return n == 0
 	})
-	c.pick(n, c.availableUniversalAgents, f)
-}
-
-func (c *colonyCoreNode) pick(n int, agents []*colonyAgentNode, f func(a *colonyAgentNode)) {
-	if len(agents) == 0 || n <= 0 {
-		return
-	}
-	var slider gmath.Slider
-	slider.SetBounds(0, len(agents)-1)
-	slider.TrySetValue(c.scene.Rand().IntRange(0, len(agents)-1))
-	n = gmath.ClampMax(n, len(agents))
-	for i := 0; i < n; i++ {
-		f(agents[slider.Value()])
-		slider.Inc()
-	}
-}
-
-func (c *colonyCoreNode) RandWalkAgents(f func(a *colonyAgentNode) bool) {
-	var slider gmath.Slider
-	if len(c.combatAgents) != 0 {
-		slider.SetBounds(0, len(c.combatAgents)-1)
-		slider.TrySetValue(c.scene.Rand().IntRange(0, len(c.combatAgents)-1))
-		for i := 0; i < len(c.combatAgents); i++ {
-			if !f(c.combatAgents[slider.Value()]) {
-				return
-			}
-			slider.Inc()
-		}
-	}
-	if len(c.agents) != 0 {
-		slider.SetBounds(0, len(c.agents)-1)
-		slider.TrySetValue(c.scene.Rand().IntRange(0, len(c.agents)-1))
-		for i := 0; i < len(c.agents); i++ {
-			if !f(c.agents[slider.Value()]) {
-				return
-			}
-			slider.Inc()
-		}
-	}
-}
-
-func (c *colonyCoreNode) FindRandomAgent(f func(a *colonyAgentNode) bool) *colonyAgentNode {
-	var result *colonyAgentNode
-	c.RandWalkAgents(func(a *colonyAgentNode) bool {
-		if f(a) {
-			result = a
-			return false
-		}
-		return true
-	})
-	return result
-}
-
-func (c *colonyCoreNode) FindAgent(f func(a *colonyAgentNode) bool) *colonyAgentNode {
-	for _, a := range c.agents {
-		if f(a) {
-			return a
-		}
-	}
-	for _, a := range c.combatAgents {
-		if f(a) {
-			return a
-		}
-	}
-	return nil
 }
 
 func (c *colonyCoreNode) moveTowards(delta, speed float64, pos gmath.Vec) bool {

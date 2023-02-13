@@ -1,7 +1,6 @@
 package staging
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/quasilyte/ge"
@@ -199,10 +198,6 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
 
 func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target any) bool {
-	if a.mode == agentModeMerging && mode != agentModeMergeTransform && mode != agentModeStandby && mode != agentModeAlignStandby {
-		panic(fmt.Sprint("changing merging to", mode))
-	}
-
 	switch mode {
 	case agentModePatrol:
 		a.mode = mode
@@ -520,7 +515,7 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 
 func (a *colonyAgentNode) doRecharge() {
 	const rechargerEnergyRecorery float64 = 25.0
-	target := a.colonyCore.FindRandomAgent(func(x *colonyAgentNode) bool {
+	target := a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized, func(x *colonyAgentNode) bool {
 		return x != a &&
 			(x.energy+rechargerEnergyRecorery) < x.maxEnergy &&
 			x.pos.DistanceTo(a.pos) < rechargeAgentStats.supportRange
@@ -535,7 +530,7 @@ func (a *colonyAgentNode) doRecharge() {
 }
 
 func (a *colonyAgentNode) doRepair() {
-	target := a.colonyCore.FindRandomAgent(func(x *colonyAgentNode) bool {
+	target := a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized, func(x *colonyAgentNode) bool {
 		return x != a &&
 			x.health < x.maxHealth &&
 			x.pos.DistanceTo(a.pos) < repairAgentStats.supportRange

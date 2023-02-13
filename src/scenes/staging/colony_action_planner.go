@@ -35,43 +35,26 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 	p.leadingFaction = p.colony.factionWeights.MaxKey()
 	p.numPatrolAgents = 0
 	p.numTier2Agents = 0
-	p.colony.hasRedMiner = false
-	p.colony.numServoAgents = 0
-	p.colony.availableAgents = p.colony.availableAgents[:0]
-	p.colony.availableCombatAgents = p.colony.availableCombatAgents[:0]
-	p.colony.availableUniversalAgents = p.colony.availableUniversalAgents[:0]
 	leadingFactionAgents := 0
 	leadingFactionCombatAgents := 0
 
-	for _, a := range p.colony.agents {
+	p.colony.agents.Update()
+
+	p.colony.agents.Each(func(a *colonyAgentNode) {
 		switch a.stats.tier {
 		case 1:
 			p.numTier1Agents++
 		case 2:
 			p.numTier2Agents++
 		}
-		if a.mode == agentModeStandby {
-			p.colony.availableAgents = append(p.colony.availableAgents, a)
-			switch a.stats.kind {
-			case agentRedminer:
-				p.colony.hasRedMiner = true
-			case agentServo:
-				p.colony.numServoAgents++
+		if !a.stats.canPatrol {
+			if a.faction == p.leadingFaction {
+				leadingFactionAgents++
 			}
+			return
 		}
 		if a.faction == p.leadingFaction {
-			leadingFactionAgents++
-		}
-	}
-	if p.colony.numServoAgents > 10 {
-		p.colony.numServoAgents = 10
-	}
-	for _, a := range p.colony.combatAgents {
-		switch a.stats.tier {
-		case 1:
-			p.numTier1Agents++
-		case 2:
-			p.numTier2Agents++
+			leadingFactionCombatAgents++
 		}
 		if a.mode == agentModePatrol {
 			p.numPatrolAgents++
@@ -79,19 +62,10 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 		if a.mode == agentModeStandby {
 			p.numGarrisonAgents++
 		}
-		if a.mode == agentModePatrol || a.mode == agentModeStandby {
-			if a.stats.canGather {
-				p.colony.availableUniversalAgents = append(p.colony.availableUniversalAgents, a)
-			} else {
-				p.colony.availableCombatAgents = append(p.colony.availableCombatAgents, a)
-			}
-		}
-		if a.faction == p.leadingFaction {
-			leadingFactionCombatAgents++
-		}
-	}
-	p.leadingFactionAgents = float64(leadingFactionAgents) / float64(len(p.colony.agents))
-	p.leadingFactionCombatAgents = float64(leadingFactionCombatAgents) / float64(len(p.colony.combatAgents))
+	})
+
+	p.leadingFactionAgents = float64(leadingFactionAgents) / float64(len(p.colony.agents.workers))
+	p.leadingFactionCombatAgents = float64(leadingFactionCombatAgents) / float64(len(p.colony.agents.fighters))
 
 	p.priorityPicker.Reset()
 	p.priorityPicker.AddOption(priorityResources, p.colony.GetResourcePriority())
@@ -116,6 +90,9 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 
 func (p *colonyActionPlanner) pickGatherAction() colonyAction {
 	if len(p.world.essenceSources) == 0 {
+		return colonyAction{}
+	}
+	if p.colony.agents.NumAvailableWorkers() == 0 {
 		return colonyAction{}
 	}
 	baseNeedsResources := p.colony.resources <= maxVisualResources
@@ -145,11 +122,11 @@ func (p *colonyActionPlanner) pickGatherAction() colonyAction {
 
 func (p *colonyActionPlanner) combatUnitProbability() float64 {
 	minCombatUnits := int(p.colony.GetSecurityPriority() * 20)
-	if p.colony.GetSecurityPriority() > 0.1 && len(p.colony.combatAgents) < minCombatUnits {
+	if p.colony.GetSecurityPriority() > 0.1 && len(p.colony.agents.fighters) < minCombatUnits {
 		return 0.9
 	}
 	wantedCombatAgentRatio := p.colony.GetSecurityPriority() * 0.8
-	currentCombatAgentRatio := float64(len(p.colony.combatAgents)) / float64(len(p.colony.agents))
+	currentCombatAgentRatio := float64(len(p.colony.agents.fighters)) / float64(len(p.colony.agents.workers))
 	if currentCombatAgentRatio < wantedCombatAgentRatio {
 		return 0.75
 	}
@@ -157,18 +134,24 @@ func (p *colonyActionPlanner) combatUnitProbability() float64 {
 }
 
 func (p *colonyActionPlanner) pickCloner() *colonyAgentNode {
-	return randFind(p.world.rand, p.colony.availableAgents, func(a *colonyAgentNode) bool {
-		return a.energy > agentCloningEnergyCost() && a.energyBill == 0
+	var bestCandidate *colonyAgentNode
+	p.colony.agents.Find(searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
+		if a.energy < agentCloningEnergyCost() || a.energyBill != 0 {
+			return true
+		}
+		bestCandidate = a
+		return a.faction == greenFactionTag
 	})
+	return bestCandidate
 }
 
 func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bool) *colonyAgentNode {
 	var agentCountTable [agentKindNum]uint8
 	var agentKindThreshold uint8
-	var agents = p.colony.availableCombatAgents
+	searchFlags := searchFighters | searchOnlyAvailable | searchRandomized
 	if !combat {
-		agents = p.colony.availableAgents
-		p.colony.FindAgent(func(a *colonyAgentNode) bool {
+		searchFlags = searchWorkers | searchOnlyAvailable | searchRandomized
+		p.colony.agents.Find(searchWorkers, func(a *colonyAgentNode) bool {
 			agentCountTable[a.stats.kind]++
 			return false
 		})
@@ -177,15 +160,15 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 
 	bestScore := 0.0
 	var bestCandidate *colonyAgentNode
-	randWalk(p.world.rand, agents, func(a *colonyAgentNode) bool {
+	p.colony.agents.Find(searchFlags, func(a *colonyAgentNode) bool {
 		if a == cloner {
-			return true // Self is not a cloning target
+			return false // Self is not a cloning target
 		}
-		if agentCloningCost(p.colony, cloner, a)*1.5 < p.colony.resources {
-			return true // Not enough resources
+		if agentCloningCost(p.colony, cloner, a)*1.5 > p.colony.resources {
+			return false // Not enough resources
 		}
 		if !combat && a.stats.tier > 1 && agentCountTable[a.stats.kind] > agentKindThreshold {
-			return true // Don't need more of those
+			return false // Don't need more of those
 		}
 		// Try to use weighted priorities with randomization.
 		// Higher tiers are good, but it's also good to clone the units that
@@ -196,7 +179,7 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 			bestScore = score
 			bestCandidate = a
 		}
-		return true
+		return false
 	})
 	return bestCandidate
 }
@@ -223,7 +206,7 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 }
 
 func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
-	canRepair := len(p.colony.availableAgents) != 0 &&
+	canRepair := p.colony.agents.NumAvailableWorkers() != 0 &&
 		p.colony.health < p.colony.maxHealth &&
 		p.colony.resources > 30
 	if canRepair && p.world.rand.Chance(0.25) {
@@ -233,7 +216,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 		}
 	}
 
-	canBuild := len(p.colony.availableAgents) != 0 &&
+	canBuild := p.colony.agents.NumAvailableWorkers() != 0 &&
 		len(p.world.coreConstructions) != 0 &&
 		p.colony.resources > 30
 	if canBuild && p.world.rand.Chance(0.55) {
@@ -267,7 +250,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 		return colonyAction{}
 	}
 
-	tryCloning := len(p.colony.availableAgents) >= 2 &&
+	tryCloning := p.colony.agents.NumAvailableWorkers() >= 2 &&
 		p.leadingFactionCombatAgents >= 0.2 &&
 		p.leadingFactionAgents >= 0.3
 	if tryCloning {
@@ -298,7 +281,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 	if p.colony.NumAgents() == 0 {
 		// Need to call reinforcements.
 		for _, c := range p.world.colonies {
-			if c.NumAgents() < 10 || len(c.availableAgents) < 6 || len(c.availableCombatAgents) < 3 {
+			if c.NumAgents() < 10 || c.agents.NumAvailableWorkers() < 6 || c.agents.NumAvailableFighters() < 2 {
 				continue
 			}
 			dist := c.pos.DistanceTo(p.colony.pos)
@@ -361,14 +344,14 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 		recipe = gmath.RandElem(p.world.rand, tier2agentMergeRecipeList)
 	}
 
-	firstAgent := p.colony.FindAgent(func(a *colonyAgentNode) bool {
-		return a.mode == agentModeStandby && recipe.Match1(a.AsRecipeSubject())
+	firstAgent := p.colony.agents.Find(searchWorkers|searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
+		return recipe.Match1(a.AsRecipeSubject())
 	})
 	if firstAgent == nil {
 		return colonyAction{}
 	}
-	secondAgent := p.colony.FindAgent(func(a *colonyAgentNode) bool {
-		return a.mode == agentModeStandby && a != firstAgent && recipe.Match2(a.AsRecipeSubject())
+	secondAgent := p.colony.agents.Find(searchWorkers|searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
+		return a != firstAgent && recipe.Match2(a.AsRecipeSubject())
 	})
 	if secondAgent == nil {
 		return colonyAction{}
@@ -397,10 +380,10 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 		}
 	}
 
-	if len(p.colony.agents) > 5 && p.colony.factionWeights.GetWeight(neutralFactionTag) < 0.6 {
+	if p.colony.agents.TotalNum() > 5 && p.colony.factionWeights.GetWeight(neutralFactionTag) < 0.6 {
 		// Are there any drones to recycle?
 		recycleOther := p.world.rand.Chance(0.35)
-		toRecycle := p.colony.FindAgent(func(a *colonyAgentNode) bool {
+		toRecycle := p.colony.agents.Find(searchWorkers|searchFighters|searchRandomized, func(a *colonyAgentNode) bool {
 			switch a.mode {
 			case agentModeStandby, agentModeCharging:
 				// OK
@@ -452,7 +435,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 
 func (p *colonyActionPlanner) canUseInRecipe(x *colonyAgentNode) bool {
 	recipes := recipesIndex[x.AsRecipeSubject()]
-	mergeCandidate := p.colony.FindAgent(func(y *colonyAgentNode) bool {
+	mergeCandidate := p.colony.agents.Find(searchWorkers|searchFighters|searchRandomized, func(y *colonyAgentNode) bool {
 		if x == y {
 			return false
 		}

@@ -14,5 +14,7 @@ package menus
 // - Fixed some typos
 // - Fixed some text rendering issues (it was too blurry at times)
 // - Made macos/osx build possible
+// - Improved tutorial texts a bit
 // - Improved colony planner & core code (agent search code)
+// - Colonies now prefer to use green cloners
 const buildNumber int = 3

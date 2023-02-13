@@ -95,6 +95,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 		worldSize = 2368
 	case 2:
 		worldSize = 2880
+	case 3:
+		worldSize = 3392
 	}
 
 	viewportWorld := &viewport.World{
@@ -127,7 +129,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 	c.world = world
 
-	bg := ge.NewTiledBackground()
+	bg := ge.NewTiledBackground(scene.Context())
 	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
 	c.camera.SetBackground(bg)
 	g := newLevelGenerator(scene, c.world)

@@ -158,6 +158,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		0.8,
 		0.9,
 		1.0,
+		1.1,
 	}
 	multiplier := resMultiplier * worldSizeMultipliers[g.world.worldSize]
 	numIron := int(float64(rand.IntRange(26, 38)) * multiplier)

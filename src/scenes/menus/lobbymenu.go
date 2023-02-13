@@ -111,9 +111,10 @@ func (c *LobbyMenuController) initUI() {
 			"very small",
 			"small",
 			"normal",
+			"big",
 		}
 		var slider gmath.Slider
-		slider.SetBounds(0, 2)
+		slider.SetBounds(0, 3)
 		slider.TrySetValue(options.WorldSize)
 		button := eui.NewButtonSelected(uiResources, "Map Size: "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {

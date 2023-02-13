@@ -135,7 +135,7 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 
 	c.screen.Clear()
 	if c.bg != nil {
-		c.bg.Draw(c.screen)
+		c.bg.DrawPartial(c.screen, c.globalRect)
 	}
 	c.belowObjects = c.drawSlice(c.screen, c.belowObjects)
 	c.objects = c.drawSlice(c.screen, c.objects)

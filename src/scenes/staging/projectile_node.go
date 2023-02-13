@@ -39,6 +39,7 @@ type projectileTarget interface {
 	GetVelocity() gmath.Vec
 	OnDamage(damage damageValue, source gmath.Vec)
 	IsDisposed() bool
+	IsFlying() bool
 }
 
 type projectileConfig struct {
@@ -110,6 +111,6 @@ func (p *projectileNode) detonate() {
 
 	switch p.explosion {
 	case projectileExplosionNormal:
-		createExplosion(p.scene, p.camera, p.pos.Add(p.scene.Rand().Offset(-3, 3)))
+		createExplosion(p.scene, p.camera, p.target.IsFlying(), p.pos.Add(p.scene.Rand().Offset(-3, 3)))
 	}
 }

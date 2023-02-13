@@ -14,22 +14,28 @@ type effectNode struct {
 	pos   gmath.Vec
 	image resource.ImageID
 	anim  *ge.Animation
+	above bool
 
 	EventCompleted gesignal.Event[gesignal.Void]
 }
 
-func newEffectNode(camera *viewport.Camera, pos gmath.Vec, image resource.ImageID) *effectNode {
+func newEffectNode(camera *viewport.Camera, pos gmath.Vec, above bool, image resource.ImageID) *effectNode {
 	return &effectNode{
 		camera: camera,
 		pos:    pos,
 		image:  image,
+		above:  above,
 	}
 }
 
 func (e *effectNode) Init(scene *ge.Scene) {
 	s := scene.NewSprite(e.image)
 	s.Pos.Base = &e.pos
-	e.camera.AddGraphicsAbove(s)
+	if e.above {
+		e.camera.AddGraphicsAbove(s)
+	} else {
+		e.camera.AddGraphics(s)
+	}
 
 	e.anim = ge.NewAnimation(s, -1)
 	e.anim.SetSecondsPerFrame(0.05)

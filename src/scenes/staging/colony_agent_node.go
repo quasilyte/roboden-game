@@ -440,6 +440,8 @@ func (a *colonyAgentNode) Destroy() {
 	a.Dispose()
 }
 
+func (a *colonyAgentNode) IsFlying() bool { return true }
+
 func (a *colonyAgentNode) ReceiveEnergyDamage(damage float64) {
 	a.energy = gmath.ClampMin(a.energy-damage, 0)
 }
@@ -454,7 +456,7 @@ func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 
 		roll := a.scene.Rand().Float()
 		if roll < 0.3 {
-			createExplosion(a.scene, a.camera(), a.pos)
+			createExplosion(a.scene, a.camera(), true, a.pos)
 		} else {
 			var scraps *essenceSourceStats
 			if roll > 0.6 {

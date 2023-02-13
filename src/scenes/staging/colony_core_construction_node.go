@@ -55,6 +55,8 @@ func (c *colonyCoreConstructionNode) Destroy() {
 	c.Dispose()
 }
 
+func (c *colonyCoreConstructionNode) IsFlying() bool { return false }
+
 func (c *colonyCoreConstructionNode) OnDamage(damage damageValue, source gmath.Vec) {
 	c.progress -= damage.health * 0.02
 	if c.progress < 0 {
@@ -68,7 +70,7 @@ func (c *colonyCoreConstructionNode) OnDamage(damage damageValue, source gmath.V
 	}
 	explosionOffset := c.scene.Rand().FloatRange(-22, 22)
 	explosionPos := c.constructPos.Add(gmath.Vec{X: explosionOffset, Y: c.scene.Rand().FloatRange(0, 4)})
-	createExplosion(c.scene, c.world.camera, explosionPos)
+	createExplosion(c.scene, c.world.camera, false, explosionPos)
 	c.sprite.Shader.SetFloatValue("Time", c.progress)
 }
 

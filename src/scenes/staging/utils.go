@@ -44,6 +44,7 @@ func createAreaExplosion(scene *ge.Scene, camera *viewport.Camera, rect gmath.Re
 	size := rect.Width() * rect.Height()
 	minExplosions := gmath.ClampMin(size/120.0, 1)
 	numExplosions := scene.Rand().IntRange(int(minExplosions), int(minExplosions*1.3))
+	above := !allowVertical
 	for numExplosions > 0 {
 		offset := gmath.Vec{
 			X: scene.Rand().FloatRange(-rect.Width()*0.4, rect.Width()*0.4),
@@ -51,23 +52,23 @@ func createAreaExplosion(scene *ge.Scene, camera *viewport.Camera, rect gmath.Re
 		}
 		if numExplosions >= 4 && scene.Rand().Chance(0.4) {
 			numExplosions -= 4
-			scene.AddObject(newEffectNode(camera, center.Add(offset), assets.ImageBigExplosion))
+			scene.AddObject(newEffectNode(camera, center.Add(offset), above, assets.ImageBigExplosion))
 		} else {
 			numExplosions--
 			if allowVertical && scene.Rand().Chance(0.4) {
-				effect := newEffectNode(camera, center.Add(offset), assets.ImageVerticalExplosion)
+				effect := newEffectNode(camera, center.Add(offset), above, assets.ImageVerticalExplosion)
 				scene.AddObject(effect)
 				effect.anim.SetSecondsPerFrame(0.035)
 			} else {
-				createMuteExplosion(scene, camera, center.Add(offset))
+				createMuteExplosion(scene, camera, above, center.Add(offset))
 			}
 		}
 	}
 	playExplosionSound(scene, camera, center)
 }
 
-func createMuteExplosion(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
-	explosion := newEffectNode(camera, pos, assets.ImageSmallExplosion1)
+func createMuteExplosion(scene *ge.Scene, camera *viewport.Camera, above bool, pos gmath.Vec) {
+	explosion := newEffectNode(camera, pos, above, assets.ImageSmallExplosion1)
 	scene.AddObject(explosion)
 }
 
@@ -77,8 +78,8 @@ func playExplosionSound(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec)
 	playSound(scene, camera, explosionSound, pos)
 }
 
-func createExplosion(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
-	createMuteExplosion(scene, camera, pos)
+func createExplosion(scene *ge.Scene, camera *viewport.Camera, above bool, pos gmath.Vec) {
+	createMuteExplosion(scene, camera, above, pos)
 	playExplosionSound(scene, camera, pos)
 }
 

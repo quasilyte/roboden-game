@@ -164,13 +164,13 @@ func (c *creepNode) explode() {
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.scene.AddObject(scraps)
 	case creepTank:
-		createExplosion(c.scene, c.world.camera, c.pos)
+		createExplosion(c.scene, c.world.camera, false, c.pos)
 		scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 		c.scene.AddObject(scraps)
 	default:
 		roll := c.scene.Rand().Float()
 		if roll < 0.3 {
-			createExplosion(c.scene, c.world.camera, c.pos)
+			createExplosion(c.scene, c.world.camera, true, c.pos)
 		} else {
 			var scraps *essenceSourceStats
 			if roll > 0.65 {

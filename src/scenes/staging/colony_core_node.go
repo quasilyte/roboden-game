@@ -181,6 +181,8 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	}
 }
 
+func (c *colonyCoreNode) IsFlying() bool { return false }
+
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
 	return 180.0 + (float64(c.numServoAgents) * 30.0)
 }

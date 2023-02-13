@@ -382,7 +382,7 @@ func (c *Controller) Update(delta float64) {
 	}
 
 	if c.debugInfo != nil {
-		c.debugInfo.Text = fmt.Sprintf("FPS: %f", ebiten.CurrentFPS())
+		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f", ebiten.CurrentFPS())
 	}
 	// colony := c.selectedColony
 	// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",

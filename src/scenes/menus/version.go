@@ -17,4 +17,7 @@ package menus
 // - Improved tutorial texts a bit
 // - Improved colony planner & core code (agent search code)
 // - Colonies now prefer to use green cloners
+//
+// Version 4
+// - Unit cost changes (rebalancing)
 const buildNumber int = 3

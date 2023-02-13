@@ -29,7 +29,7 @@ func newEffectNode(camera *viewport.Camera, pos gmath.Vec, image resource.ImageI
 func (e *effectNode) Init(scene *ge.Scene) {
 	s := scene.NewSprite(e.image)
 	s.Pos.Base = &e.pos
-	e.camera.AddGraphics(s)
+	e.camera.AddGraphicsAbove(s)
 
 	e.anim = ge.NewAnimation(s, -1)
 	e.anim.SetSecondsPerFrame(0.05)

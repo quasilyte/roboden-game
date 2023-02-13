@@ -10,11 +10,9 @@ todo:
 - check why drones don't like to mine ore
 - add fullscreen option (disable/enable windowed mode)
 - menu buttons focus?
-- don't clone non-combat units that exceed 20% population
 - show enemy bases on the radar
 - base should check landing zone before landing
-- rework action delay (same action vs other action)
-- flamer explosions should be above their target
+- rework planner action delay (same action vs other action)
 - make evolution recycle workers that use 50%+ population?
 
 tech debdt:

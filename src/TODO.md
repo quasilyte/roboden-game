@@ -14,6 +14,8 @@ todo:
 - base should check landing zone before landing
 - rework planner action delay (same action vs other action)
 - make evolution recycle workers that use 50%+ population?
+- repellers are not cloned because universal agents slice is not handled properly
+- is morale damage even viable?
 
 tech debdt:
 - fix agent traversal, universal slice seems untraversed in walk/find functions

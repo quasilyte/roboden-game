@@ -85,7 +85,7 @@ func (c *MainMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	buildVersionLabel := eui.NewLabel(uiResources, fmt.Sprintf("Build %d", buildNumber), smallFont)
+	buildVersionLabel := eui.NewLabel(uiResources, fmt.Sprintf("Build %d (alpha testing)", buildNumber), smallFont)
 	rowContainer.AddChild(buildVersionLabel)
 
 	uiObject := eui.NewSceneObject(root)

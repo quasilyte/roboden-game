@@ -99,7 +99,8 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 				"placing your cursor close to",
 				"the edge of the screen.",
 				"",
-				"You can also use arrow keys.",
+				"You can also use arrow keys",
+				"or your middle mouse button.",
 			}, "\n"),
 		},
 		{
@@ -110,10 +111,12 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 				"It's located to the south-west",
 				"from your first base position.",
 				"",
-				"You can press [TAB] to switch",
+				"You can press TAB to switch",
 				"between colonies easily.",
 				"If you only have one base, it'll",
 				"center the camera on that.",
+				"",
+				"Left-clicking the colony works too.",
 			}, "\n"),
 		},
 
@@ -140,19 +143,8 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 				"",
 				"There is a boss-detection radar",
 				"in the upper right corner.",
-				"Try finding the boss on this map.",
-			}, "\n"),
-		},
-
-		{
-			text: strings.Join([]string{
-				"In this tutorial level the",
-				"boss is immovable. It's also",
-				"decreased in power levels",
-				"as they're under 9000.",
-				"",
-				"It's much harder to defeat",
-				"the boss in the real game.",
+				"Try finding the boss on this map, but",
+				"don't engage it just yet.",
 			}, "\n"),
 		},
 
@@ -181,7 +173,8 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 				"bar on its body. It can be empty.",
 				"",
 				"The resources are collected by",
-				"workers around the base.",
+				"workers around the base. They are used",
+				"to build new drones and other bases.",
 			}, "\n"),
 		},
 
@@ -206,10 +199,10 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 				"Click on the action label with",
 				"your left mouse button.",
 				"It's also possible to use the",
-				"hotkeys: [1]-[5] and [Q]-[T].",
+				"hotkeys: 1-5 and Q-T.",
 				"",
 				"Actions are shared between the",
-				"colonies, but effects are not.",
+				"colonies, but their effects are not.",
 			}, "\n"),
 		},
 
@@ -230,8 +223,38 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 
 		{
 			text: strings.Join([]string{
-				"The fifth action choice is an",
-				"exception from the rules.",
+				"You don't have to choose a",
+				"new priority every phase right",
+				"away, the colony will follow",
+				"its current priorities just fine.",
+				"",
+				"Note that changing the priorities",
+				"will not always yield an immediate",
+				"result. Observe it over time.",
+			}, "\n"),
+		},
+
+		{
+			refreshChoices: true,
+			text: strings.Join([]string{
+				"The options are random every phase.",
+				"",
+				"Resources makes colony more greedy.",
+				"Growth increases the drones population.",
+				"Evolution will help you get new drones.",
+				"Security changes the combat unit ratio.",
+				"",
+				"Increasing one priority means decreasing",
+				"the others.",
+			}, "\n"),
+		},
+
+		{
+			text: strings.Join([]string{
+				"The fifth option choice is different.",
+				"",
+				"It's usually some direct action that",
+				"has an immediate effect.",
 				"",
 				"It doesn't affect the factions.",
 				"It doesn't change the priorities.",
@@ -252,14 +275,14 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 
 		{
 			text: strings.Join([]string{
-				"Now you know all the basics.",
+				"Now you know the basics.",
 				"",
 				"It's time for you to discover",
 				"the rest by yourself.",
 				"",
 				"You can win the tutorial level",
 				"by defeating the boss. Or you",
-				"can leave by pressing [ESC].",
+				"can leave by pressing ESC.",
 			}, "\n"),
 		},
 

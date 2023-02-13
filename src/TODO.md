@@ -6,6 +6,7 @@ todo engine:
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 
 todo:
+- display boss hp
 - check why drones don't like to mine ore
 - add fullscreen option (disable/enable windowed mode)
 - menu buttons focus?

@@ -34,6 +34,13 @@ go run ./cmd/game
 
 > You will need a [go](https://go.dev/) 1.18+ toolchain in order to build this game.
 
+You may need to install [Ebitengine dependencies](https://ebitengine.org/en/documents/install.html#Installing_dependencies):
+
+```bash
+# For Debian/Ubuntu
+$ sudo apt install libc6-dev libglu1-mesa-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
+```
+
 If you want to build a game for a different platform, use Go cross-compilation:
 
 ```bash

@@ -24,6 +24,8 @@ Features:
 
 If you're playing a browser version of the game, please use Chrome or some other browser that has good wasm support (you may have performance issues in Firefox). If possible, prefer a native build instead; you'll get a smooth 60fps experience this way.
 
+![screenshot](_metadata/screenshot.png)
+
 ## How to Run
 
 ```bash

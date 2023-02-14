@@ -1,6 +1,6 @@
 ![logo](_metadata/logo.png)
 
-The online demo and release binaries can be found here: <https://quasilyte.itch.io/roboden>.
+The **online demo** and **release binaries** can be found here: <https://quasilyte.itch.io/roboden>.
 
 ## Game Overview
 

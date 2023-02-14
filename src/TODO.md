@@ -17,6 +17,7 @@ todo:
 - repellers are not cloned because universal agents slice is not handled properly
 - is morale damage even viable?
 - draw only a piece of tiled bg that fits camera?
+- if resource is dry, to not land to pick it up
 
 tech debdt:
 - fix agent traversal, universal slice seems untraversed in walk/find functions

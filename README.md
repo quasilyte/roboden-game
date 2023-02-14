@@ -32,15 +32,13 @@ cd roboden-game/src
 go run ./cmd/game
 ```
 
-> You will need a go 1.18+ in order to build this game.
+> You will need a [go](https://go.dev/) 1.18+ toolchain in order to build this game.
 
 If you want to build a game for a different platform, use Go cross-compilation:
 
 ```bash
 GOOS=windows go build -o ../bin/decipherism.exe ./cmd/game
 ```
-
-Put these files into a single archive to create an itch-io uploadable bundle.
 
 This game is tested on these targets:
 

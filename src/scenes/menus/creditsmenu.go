@@ -41,10 +41,12 @@ func (c *CreditsMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer()
 	root.AddChild(rowContainer)
 
+	d := c.scene.Context().Dict
+
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	titleLabel := eui.NewLabel(uiResources, "Main Menu -> Credits", normalFont)
+	titleLabel := eui.NewLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.credits"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -58,11 +60,11 @@ func (c *CreditsMenuController) initUI() {
 	sort.Strings(testers)
 
 	lines := []string{
-		"[crew]",
+		"[" + d.Get("menu.credits.crew") + "]",
 		"    quasilyte (Iskander senpai) - coding, game design, sfx, testing",
 		"    shooQrow (Oleg) - graphics, co-game design, testing",
 		"    " + strings.Join(testers, ", ") + " - testing",
-		"[assets]",
+		"[" + d.Get("menu.credits.assets") + "]",
 		"    DROZERiX - Crush and War Path music tracks",
 		"    JAM - Deadly Windmills music track",
 		"    unTied Games - pixel art explosions free asset pack",
@@ -75,11 +77,11 @@ func (c *CreditsMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "More", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.more"), func() {
 		c.scene.Context().ChangeScene(NewExtraCreditsMenuController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
 

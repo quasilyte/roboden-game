@@ -51,41 +51,43 @@ func (c *MainMenuController) initUI() {
 	bigFont := c.scene.Context().Loader.LoadFont(assets.FontBig).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	titleLabel := eui.NewLabel(uiResources, "Roboden", bigFont)
+	d := c.scene.Dict()
+
+	titleLabel := eui.NewLabel(uiResources, d.Get("game.title"), bigFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Start Game", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.start_game"), func() {
 		c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Tutorial", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.tutorial"), func() {
 		c.state.LevelOptions.Tutorial = true
 		c.scene.Context().ChangeScene(staging.NewController(c.state, 0, NewMainMenuController(c.state)))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Settings", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.settings"), func() {
 		c.scene.Context().ChangeScene(NewOptionsController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Controls", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.controls"), func() {
 		c.scene.Context().ChangeScene(NewControlsMenuController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Credits", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.credits"), func() {
 		c.scene.Context().ChangeScene(NewCreditsMenuController(c.state))
 	}))
 
 	if runtime.GOARCH != "wasm" {
-		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Exit", func() {
+		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.exit"), func() {
 			os.Exit(0)
 		}))
 	}
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	buildVersionLabel := eui.NewLabel(uiResources, fmt.Sprintf("Build %d (alpha testing)", buildNumber), smallFont)
+	buildVersionLabel := eui.NewLabel(uiResources, fmt.Sprintf("%s %d (alpha testing)", d.Get("menu.main.build"), buildNumber), smallFont)
 	rowContainer.AddChild(buildVersionLabel)
 
 	uiObject := eui.NewSceneObject(root)

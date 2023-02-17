@@ -1,8 +1,6 @@
 package staging
 
 import (
-	"strings"
-
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
@@ -60,8 +58,8 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 
 	l := scene.NewLabel(assets.FontTiny)
 	l.ColorScale.SetColor(ge.RGB(0x9dd793))
-	l.Pos.Offset = m.dialogueWindow.Pos.Offset.Add(gmath.Vec{X: 26, Y: 20})
-	l.Width = 228 + 40
+	l.Pos.Offset = m.dialogueWindow.Pos.Offset.Add(gmath.Vec{X: 25, Y: 20})
+	l.Width = 228 + 72
 	l.Height = 186
 	l.AlignHorizontal = ge.AlignHorizontalCenter
 	l.AlignVertical = ge.AlignVerticalCenter
@@ -76,220 +74,73 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 
 	m.enabled = true
 
+	d := m.scene.Dict()
+
 	m.steps = []tutorialStep{
 		{
-			text: strings.Join([]string{
-				"Welcome to the Roboden tutorial!",
-				"",
-				"You continue by clicking",
-				"on the tutorial window.",
-				"",
-				"Try it right now, get to the",
-				"next tutorial message.",
-			}, "\n"),
+			text: d.Get("tutorial.message1"),
 		},
 		{
-			text: strings.Join([]string{
-				"Great!",
-				"",
-				"The map is bigger than the",
-				"camera boundaries.",
-				"",
-				"Try panning the camery by",
-				"placing your cursor close to",
-				"the edge of the screen.",
-				"",
-				"You can also use arrow keys",
-				"or your middle mouse button.",
-			}, "\n"),
+			text: d.Get("tutorial.message2"),
 		},
 		{
-			text: strings.Join([]string{
-				"Have you discovered your second",
-				"robot colony on this level?",
-				"",
-				"It's located to the south-west",
-				"from your first base position.",
-				"",
-				"You can press TAB to switch",
-				"between colonies easily.",
-				"If you only have one base, it'll",
-				"center the camera on that.",
-				"",
-				"Left-clicking the colony works too.",
-			}, "\n"),
+			text: d.Get("tutorial.message3"),
 		},
 
 		{
 			refreshChoices: true,
-			text: strings.Join([]string{
-				"You can move a colony by",
-				"clicking the right mouse button",
-				"on the destination spot.",
-				"",
-				"Keep in mind that colonies",
-				"have limited max flight range.",
-				"",
-				"Try moving either of your bases.",
-			}, "\n"),
+			text:           d.Get("tutorial.message4"),
 		},
 
 		{
-			text: strings.Join([]string{
-				"You lose if all of your colonies",
-				"are destroyed.",
-				"",
-				"You win if you defeat the boss.",
-				"",
-				"There is a boss-detection radar",
-				"in the upper right corner.",
-				"Try finding the boss on this map, but",
-				"don't engage it just yet.",
-			}, "\n"),
+			text: d.Get("tutorial.message5"),
 		},
 
 		{
-			text: strings.Join([]string{
-				"As you might have noticed,",
-				"your colonies were active",
-				"all this time.",
-				"",
-				"Every colony should have its",
-				"drones: workers and fighters.",
-				"",
-				"Workers are good at keeping",
-				"the base functioning while",
-				"fighters are defending it and,",
-				"ultimately, defeat the boss.",
-			}, "\n"),
+			text: d.Get("tutorial.message6"),
 		},
 
 		{
-			text: strings.Join([]string{
-				"All colonies need resources.",
-				"",
-				"The colony resource level is",
-				"indicated by the middle yellow",
-				"bar on its body. It can be empty.",
-				"",
-				"The resources are collected by",
-				"workers around the base. They are used",
-				"to build new drones and other bases.",
-			}, "\n"),
+			text: d.Get("tutorial.message7"),
 		},
 
 		{
 			refreshChoices: true,
-			text: strings.Join([]string{
-				"Apart from the movement,",
-				"there is also a choice selection.",
-				"",
-				"Both movement and choices use",
-				"the same action gauge that",
-				"needs to recharge afterwards.",
-			}, "\n"),
+			text:           d.Get("tutorial.message8"),
 		},
 
 		{
 			refreshChoices: true,
-			text: strings.Join([]string{
-				"Try using any of the actions",
-				"from the bottom right corner.",
-				"",
-				"Click on the action label with",
-				"your left mouse button.",
-				"It's also possible to use the",
-				"hotkeys: 1-5 and Q-T.",
-				"",
-				"Actions are shared between the",
-				"colonies, but their effects are not.",
-			}, "\n"),
+			text:           d.Get("tutorial.message9"),
 		},
 
 		{
-			text: strings.Join([]string{
-				"Every choice does two main",
-				"things. It adjusts the colony",
-				"priorities (text) and shifts the",
-				"factions distribution (color).",
-				"",
-				"Priorities affect the way colony",
-				"is behaving: what does it do,",
-				"and how often.",
-				"",
-				"Factions affect the robots.",
-			}, "\n"),
+			text: d.Get("tutorial.message10"),
 		},
 
 		{
-			text: strings.Join([]string{
-				"You don't have to choose a",
-				"new priority every phase right",
-				"away, the colony will follow",
-				"its current priorities just fine.",
-				"",
-				"Note that changing the priorities",
-				"will not always yield an immediate",
-				"result. Observe it over time.",
-			}, "\n"),
+			text: d.Get("tutorial.message11"),
 		},
 
 		{
 			refreshChoices: true,
-			text: strings.Join([]string{
-				"The options are random every phase.",
-				"",
-				"Resources makes colony more greedy.",
-				"Growth increases the drones population.",
-				"Evolution will help you get new drones.",
-				"Security changes the combat unit ratio.",
-				"",
-				"Increasing one priority means decreasing",
-				"the others.",
-			}, "\n"),
+			text:           d.Get("tutorial.message12"),
 		},
 
 		{
-			text: strings.Join([]string{
-				"The fifth option choice is different.",
-				"",
-				"It's usually some direct action that",
-				"has an immediate effect.",
-				"",
-				"It doesn't affect the factions.",
-				"It doesn't change the priorities.",
-			}, "\n"),
+			text: d.Get("tutorial.message13"),
 		},
 
 		{
-			text: strings.Join([]string{
-				"Try getting more colored drones.",
-				"",
-				"Mine resources, pick faction",
-				"choices, evolve your drones.",
-				"",
-				"If resources run out, move",
-				"colony to a new location.",
-			}, "\n"),
+			text: d.Get("tutorial.message14"),
 		},
 
 		{
-			text: strings.Join([]string{
-				"Now you know the basics.",
-				"",
-				"It's time for you to discover",
-				"the rest by yourself.",
-				"",
-				"You can win the tutorial level",
-				"by defeating the boss. Or you",
-				"can leave by pressing ESC.",
-			}, "\n"),
+			text: d.Get("tutorial.message15"),
 		},
 
 		{
-			text: strings.Join([]string{
-				"Good luck and good hunting.",
-			}, "\n"),
+			text: d.Get("tutorial.message_last"),
 		},
 	}
 

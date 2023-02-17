@@ -20,4 +20,5 @@ package menus
 //
 // Version 4
 // - Unit cost changes (rebalancing)
-const buildNumber int = 3
+// - Added Russian language support
+const buildNumber int = 4

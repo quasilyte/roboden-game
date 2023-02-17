@@ -7,10 +7,10 @@ import (
 
 func registerFontResources(ctx *ge.Context) {
 	fontResources := map[resource.FontID]resource.FontInfo{
-		FontTiny:   {Path: "font/aesymatt.otf", Size: 10},
-		FontSmall:  {Path: "font/aesymatt.otf", Size: 16},
-		FontNormal: {Path: "font/aesymatt.otf", Size: 18},
-		FontBig:    {Path: "font/aesymatt.otf", Size: 28},
+		FontTiny:   {Path: "font/Retron2000.ttf", Size: 10},
+		FontSmall:  {Path: "font/Retron2000.ttf", Size: 14},
+		FontNormal: {Path: "font/Retron2000.ttf", Size: 16},
+		FontBig:    {Path: "font/Retron2000.ttf", Size: 26},
 	}
 
 	for id, res := range fontResources {

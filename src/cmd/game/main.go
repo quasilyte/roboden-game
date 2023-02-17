@@ -26,6 +26,7 @@ func main() {
 				ScrollingSpeed:     2,
 				EdgeScrollRange:    2,
 				Debug:              false,
+				Lang:               inferDefaultLang(),
 			},
 		},
 	}
@@ -46,8 +47,27 @@ func main() {
 	controls.BindKeymap(ctx, state)
 
 	ctx.LoadGameData("save", &state.Persistent)
+	state.ReloadLanguage(ctx)
 
 	if err := ge.RunGame(ctx, menus.NewMainMenuController(state)); err != nil {
 		panic(err)
 	}
+}
+
+func inferDefaultLang() string {
+	languages := ge.InferLanguages()
+	defaultLanguage := "en"
+	selectedLanguage := ""
+	for _, l := range languages {
+		switch l {
+		case "en", "ru":
+			if selectedLanguage == "" || selectedLanguage != defaultLanguage {
+				selectedLanguage = l
+			}
+		}
+	}
+	if selectedLanguage == "" {
+		selectedLanguage = defaultLanguage
+	}
+	return selectedLanguage
 }

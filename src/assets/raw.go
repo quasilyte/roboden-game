@@ -10,6 +10,8 @@ import (
 func registerRawResources(ctx *ge.Context) {
 	rawResources := map[resource.RawID]resource.RawInfo{
 		RawTilesJSON: {Path: "raw/tiles.json"},
+		RawDictEn:    {Path: "raw/en.txt"},
+		RawDictRu:    {Path: "raw/ru.txt"},
 	}
 
 	for id, res := range rawResources {
@@ -22,4 +24,6 @@ const (
 	RawNone resource.RawID = iota
 
 	RawTilesJSON
+	RawDictEn
+	RawDictRu
 )

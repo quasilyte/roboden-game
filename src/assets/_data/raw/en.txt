@@ -1,0 +1,230 @@
+##game.title : Roboden
+
+##menu.main.title : Main Menu
+##menu.main.start_game : Start Game
+##menu.main.tutorial : Tutorial
+##menu.main.settings : Settings
+##menu.main.controls : Controls
+##menu.main.credits : Credits
+##menu.main.exit : Exit
+##menu.main.build : Build
+
+##menu.back : Back
+##menu.more : More
+
+##menu.option.on : on
+##menu.option.off : off
+
+##menu.option.very_low : very low
+##menu.option.low : low
+##menu.option.normal : normal
+##menu.option.rich : rich
+##menu.option.very_rich : very rich
+
+##menu.option.very_easy : very easy
+##menu.option.easy : easy
+##menu.option.hard : hard
+
+##menu.option.very_small : very small
+##menu.option.small : small
+##menu.option.big : big
+
+##menu.options.effects_volume : Effects Volume
+##menu.options.music_volume : Music Volume
+##menu.options.scroll_speed : Scroll Speed
+##menu.options.edge_scroll_range : Edge Scroll Range
+##menu.options.debug : Debug Mode
+
+##menu.credits.crew : crew
+##menu.credits.assets : assets
+##menu.credits.thank_player : And thank you, dear player <3
+
+##menu.lobby.world_resources : World Resources
+##menu.lobby.world_size : World Size
+##menu.lobby.difficulty : Difficulty
+##menu.lobby.go : Go!
+
+##menu.controls.text
+[Pan Camera]
+\tMouse: middle button + move, edge scroll
+\tKeyboard: arrow keys
+[Move Colony]
+\tMouse: right mouse button click on the destination
+[Select Colony]
+\tMouse: left mouse button click on the colony
+\tKeyboard: tab to switch between the colonies
+[Choice Select]
+\tMouse: left mouse button click on the option
+\tKeyboard: 1, 2, 3, 4, 5, q, w, e, r, t
+[Exit/Back]
+\tKeyboard: escape
+
+##game.choice.resources : Resources
+##game.choice.growth : Growth
+##game.choice.evolution : Evolution
+##game.choice.security : Security
+##game.choice.attack : Attack
+##game.choice.build_colony : Build new colony
+##game.choice.increase_radius : Increase radius
+##game.choice.decrease_radius : Decrease radius
+
+##tutorial.message1
+Welcome to the Roboden tutorial!
+
+You continue by clicking
+on the tutorial window.
+
+Try it right now, get to the
+next tutorial message.
+
+##tutorial.message2
+Great!
+
+The map is bigger than the
+camera boundaries.
+
+Try panning the camery:
+move cursor to the screen edge.
+
+You can also use arrow keys
+or your middle mouse button.
+
+##tutorial.message3
+Your second colony is located
+to the south-west from your
+initial location.
+
+You can press TAB to switch
+between colonies easily.
+If you only have one base, it'll
+center the camera on that.
+
+Left-clicking the colony works too.
+
+##tutorial.message4
+You can move a colony by
+clicking the right mouse button
+on the destination spot.
+
+Keep in mind that colonies
+have limited max flight range.
+
+Try moving either of your bases.
+
+##tutorial.message5
+You lose if all of your colonies
+are destroyed.
+
+You win if you defeat the boss.
+
+There is a boss-detection radar
+in the upper right corner.
+Try finding the boss on this map,
+but don't engage it just yet.
+
+##tutorial.message6
+Your colonies were active
+all this time.
+
+Every colony should have its
+drones: workers and fighters.
+
+Workers are good at keeping
+the base functioning while
+fighters are defending it and,
+ultimately, defeat the boss.
+
+##tutorial.message7
+All colonies need resources
+to build drones and bases.
+
+The colony resource level is
+indicated by the middle yellow
+bar on its body. It can be empty.
+
+The resources are collected by
+workers around the base.
+
+##tutorial.message8
+Apart from the movement,
+there is also a choice selection.
+
+Both movement and choices use
+the same action gauge that
+needs to recharge afterwards.
+
+##tutorial.message9
+Try using any of the actions
+from the bottom right corner.
+
+Click on the action label with
+your left mouse button.
+It's also possible to use the
+hotkeys: 1-5 and Q-T.
+
+Actions are shared between the
+colonies, but their effects are not.
+
+##tutorial.message10
+Every choice does two main
+things. It adjusts the colony
+priorities (text) and shifts the
+factions distribution (color).
+
+Priorities affect the way colony
+is behaving: what does it do,
+and how often.
+
+Factions affect the robots.
+
+##tutorial.message11
+You don't have to choose a
+new priority every phase right
+away, the colony will follow
+its current priorities just fine.
+
+Note that changing the priorities
+will not always yield an immediate
+result. Observe it over time.
+
+##tutorial.message12
+The option combinations are random.
+
+Resources: more focus on gathering.
+Growth: increase drones population.
+Evolution: merge drones more often.
+Security: sets combat unit ratio.
+
+Increasing one priority means
+decreasing the others.
+
+##tutorial.message13
+The fifth option choice is different.
+
+It's usually some direct action that
+has an immediate effect.
+
+It doesn't affect the factions.
+It doesn't change the priorities.
+
+##tutorial.message14
+Try getting more colored drones.
+
+Mine resources, pick faction
+choices, evolve your drones.
+
+If resources run out, move
+colony to a new location.
+
+##tutorial.message15
+Now you know the basics.
+
+It's time for you to discover
+the rest by yourself.
+
+You can win the tutorial level
+by defeating the boss. Or you
+can leave by pressing ESC.
+
+##tutorial.message_last
+Good luck and good hunting.

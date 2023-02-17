@@ -1,6 +1,8 @@
 package staging
 
 import (
+	"strings"
+
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
@@ -50,22 +52,22 @@ type choiceOptionEffect struct {
 
 var specialChoicesList = []choiceOption{
 	{
-		text:    "Attack",
+		text:    "attack",
 		special: specialAttack,
 		cost:    5,
 	},
 	{
-		text:    "Build new colony",
+		text:    "build_colony",
 		special: specialBuildColony,
 		cost:    40,
 	},
 	{
-		text:    "Increase radius",
+		text:    "increase_radius",
 		special: specialIncreaseRadius,
 		cost:    15,
 	},
 	{
-		text:    "Decrease radius",
+		text:    "decrease_radius",
 		special: specialDecreaseRadius,
 		cost:    4,
 	},
@@ -73,67 +75,67 @@ var specialChoicesList = []choiceOption{
 
 var choiceOptionList = []choiceOption{
 	{
-		text: "Resources",
+		text: "resources",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.2},
 		},
 	},
 	{
-		text: "Growth",
+		text: "growth",
 		effects: []choiceOptionEffect{
 			{priority: priorityGrowth, value: 0.2},
 		},
 	},
 	{
-		text: "Security",
+		text: "security",
 		effects: []choiceOptionEffect{
 			{priority: prioritySecurity, value: 0.2},
 		},
 	},
 	{
-		text: "Evolution",
+		text: "evolution",
 		effects: []choiceOptionEffect{
 			{priority: priorityEvolution, value: 0.2},
 		},
 	},
 
 	{
-		text: "Resources+Growth",
+		text: "resources+growth",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.15},
 			{priority: priorityGrowth, value: 0.15},
 		},
 	},
 	{
-		text: "Resources+Security",
+		text: "resources+security",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.15},
 			{priority: prioritySecurity, value: 0.15},
 		},
 	},
 	{
-		text: "Resources+Evolution",
+		text: "resources+evolution",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.15},
 			{priority: priorityEvolution, value: 0.15},
 		},
 	},
 	{
-		text: "Growth+Security",
+		text: "growth+security",
 		effects: []choiceOptionEffect{
 			{priority: priorityGrowth, value: 0.15},
 			{priority: prioritySecurity, value: 0.15},
 		},
 	},
 	{
-		text: "Growth+Evolution",
+		text: "growth+evolution",
 		effects: []choiceOptionEffect{
 			{priority: priorityGrowth, value: 0.15},
 			{priority: priorityEvolution, value: 0.15},
 		},
 	},
 	{
-		text: "Security+Evolution",
+		text: "security+evolution",
 		effects: []choiceOptionEffect{
 			{priority: prioritySecurity, value: 0.15},
 			{priority: priorityEvolution, value: 0.15},
@@ -186,11 +188,28 @@ func newChoiceWindowNode(pos gmath.Vec, h *input.Handler) *choiceWindowNode {
 func (w *choiceWindowNode) Init(scene *ge.Scene) {
 	w.scene = scene
 
+	d := scene.Dict()
+
 	w.shuffledOptions = make([]choiceOption, len(choiceOptionList))
 	copy(w.shuffledOptions, choiceOptionList)
 
+	// Now translate the options.
+	for i := range w.shuffledOptions {
+		o := &w.shuffledOptions[i]
+		keys := strings.Split(o.text, "+")
+		for _, k := range keys {
+			o.text = strings.Replace(o.text, k, d.Get("game.choice", k), 1)
+		}
+	}
+
 	w.specialChoices = make([]choiceOption, len(specialChoicesList))
 	copy(w.specialChoices, specialChoicesList)
+
+	// Now translate the special choices.
+	for i := range w.specialChoices {
+		o := &w.specialChoices[i]
+		o.text = strings.Replace(o.text, o.text, d.Get("game.choice", o.text), 1)
+	}
 
 	w.openSprite = scene.NewSprite(assets.ImageChoiceWindow)
 	w.openSprite.Centered = false
@@ -200,13 +219,13 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 	w.foldedSprite = scene.NewSprite(assets.ImageChoiceRechargeWindow)
 	w.foldedSprite.Centered = false
 	w.foldedSprite.Pos.Base = &w.pos
-	w.foldedSprite.Pos.Offset.Y = 136
+	w.foldedSprite.Pos.Offset.Y = 136 + 8
 	scene.AddGraphics(w.foldedSprite)
 
 	bgColor := ge.RGB(0x080c10)
 	fgColor := ge.RGB(0x5994b9)
 	chargeBarPos := w.foldedSprite.Pos.WithOffset(22, 16)
-	w.chargeBar = gameui.NewProgressBar(chargeBarPos, 224-44, 24, bgColor, fgColor)
+	w.chargeBar = gameui.NewProgressBar(chargeBarPos, 232-44, 24, bgColor, fgColor)
 	scene.AddObject(w.chargeBar)
 
 	icons := [...]resource.ImageID{

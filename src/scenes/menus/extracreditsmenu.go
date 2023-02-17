@@ -44,7 +44,9 @@ func (c *ExtraCreditsMenuController) initUI() {
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	titleLabel := eui.NewLabel(uiResources, "Main Menu -> Credits -> More", normalFont)
+	d := c.scene.Context().Dict
+
+	titleLabel := eui.NewLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.credits")+" -> "+d.Get("menu.more"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -59,7 +61,7 @@ func (c *ExtraCreditsMenuController) initUI() {
 	normalContainer.AddChild(label)
 	rowContainer.AddChild(normalContainer)
 
-	rowContainer.AddChild(eui.NewLabel(uiResources, "And thank you, player <3", bigFont))
+	rowContainer.AddChild(eui.NewLabel(uiResources, d.Get("menu.credits.thank_player"), bigFont))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

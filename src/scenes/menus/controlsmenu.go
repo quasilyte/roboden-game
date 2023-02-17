@@ -1,8 +1,6 @@
 package menus
 
 import (
-	"strings"
-
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
@@ -40,32 +38,20 @@ func (c *ControlsMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer()
 	root.AddChild(rowContainer)
 
+	d := c.scene.Dict()
+
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	titleLabel := eui.NewLabel(uiResources, "Main Menu -> Controls", normalFont)
+	titleLabel := eui.NewLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.controls"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	lines := []string{
-		"[Pan Camera]",
-		"    Mouse: middle button + move, edge scroll",
-		"    Keyboard: arrow keys",
-		"[Move Colony]",
-		"    Mouse: right mouse button click on the destination",
-		"[Select Colony]",
-		"    Mouse: left mouse button click on the colony",
-		"    Keyboard: tab to switch between the colonies",
-		"[Choice Select]",
-		"    Mouse: left mouse button click on the option",
-		"    Keyboard: 1, 2, 3, 4, 5, q, w, e, r, t",
-		"[Exit/Back]",
-		"    Keyboard: escape",
-	}
+	controlsText := d.Get("menu.controls.text")
 
 	normalContainer := eui.NewAnchorContainer()
-	label := eui.NewLabel(uiResources, strings.Join(lines, "\n"), smallFont)
+	label := eui.NewLabel(uiResources, controlsText, smallFont)
 	normalContainer.AddChild(label)
 	rowContainer.AddChild(normalContainer)
 

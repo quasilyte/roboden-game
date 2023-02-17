@@ -334,6 +334,11 @@ func (g *levelGenerator) placeCreepBases() {
 		if g.world.debug {
 			fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
 		}
+		baseRegion := gmath.Rect{
+			Min: basePos.Sub(gmath.Vec{X: 96, Y: 96}),
+			Max: basePos.Add(gmath.Vec{X: 96, Y: 96}),
+		}
+		g.placeCreepsCluster(baseRegion, 1, turretCreepStats)
 		base := g.world.NewCreepNode(basePos, baseCreepStats)
 		if i == 0 {
 			base.specialDelay = (9 * 60.0) * g.scene.Rand().FloatRange(0.9, 1.1)

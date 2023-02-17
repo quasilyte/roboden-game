@@ -21,4 +21,5 @@ package menus
 // Version 4
 // - Unit cost changes (rebalancing)
 // - Added Russian language support
+// - Creep bases are now guarded by a tower (usually)
 const buildNumber int = 4

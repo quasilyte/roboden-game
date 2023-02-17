@@ -122,7 +122,7 @@ func (c *LobbyMenuController) initUI() {
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
 			options.Difficulty = slider.Value()
-			button.Text().Label = d.Get("menu.lobby.difficulty") + valueNames[slider.Value()]
+			button.Text().Label = d.Get("menu.lobby.difficulty") + ": " + valueNames[slider.Value()]
 		})
 		rowContainer.AddChild(button)
 	}

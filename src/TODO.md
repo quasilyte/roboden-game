@@ -26,3 +26,37 @@ iskander:
 - esc for menu, not exit right away
 oleg:
 - flamer projectile
+
+next release:
+- artifacts idea
+- better how to play
+- multi-language support
+- higher resolution
+- more input device support (gamepad, touch screen)
+- more "new game" options
+- vs mode with colonies (and less creeps)
+- unlockable content / achievements
+- local pvp and coop
+- boss building bases
+- online leaderboard
+- daily run (same seed, different players, leaderboard)
+- different bases (colonies)
+  - bonuses and disadvantages
+  - ground base (can't pass hard terrain)
+  - tier 4 units for bases
+- achievement conditions
+  - win without faction
+  - run without creep kills
+  - speedrun achievement
+- game modes
+  - base race
+  - vs colony
+  - endless mode
+- drone rarity
+- drone pickups
+- attack, inc/dec, build base, tech, build tower
+- reroll
+- game lore
+- game terrain, land units
+- weather
+- random events

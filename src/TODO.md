@@ -19,6 +19,7 @@ todo:
 - if resource is dry, to not land to pick it up
 - render big stone tiles separately (so they don't collide with other tiles like walls)
 - show upkeep while flying
+- maybe group resources into clusters to speedup collision checking?
 
 iskander:
 - maybe add servant drone somehow (hard mode only)

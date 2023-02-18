@@ -82,6 +82,10 @@ func registerImageResources(ctx *ge.Context) {
 		ImageLandCreep:      {Path: "image/land_creep.png"},
 
 		ImageBackgroundTiles: {Path: "image/tiles.png"},
+		ImageLandCrack:       {Path: "image/landcrack.png", FrameWidth: 32},
+		ImageLandCrack2:      {Path: "image/landcrack2.png", FrameWidth: 32},
+		ImageLandCrack3:      {Path: "image/landcrack3.png", FrameWidth: 32},
+		ImageLandCrack4:      {Path: "image/landcrack4.png", FrameWidth: 32},
 
 		ImageTankProjectile:     {Path: "image/tank_projectile.png"},
 		ImageAssaultProjectile:  {Path: "image/assault_projectile.png"},
@@ -195,6 +199,10 @@ const (
 	ImageLandCreep
 
 	ImageBackgroundTiles
+	ImageLandCrack
+	ImageLandCrack2
+	ImageLandCrack3
+	ImageLandCrack4
 
 	ImageTankProjectile
 	ImageAssaultProjectile

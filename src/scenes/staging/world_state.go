@@ -17,6 +17,7 @@ type worldState struct {
 	creeps            []*creepNode
 	colonies          []*colonyCoreNode
 	coreConstructions []*colonyCoreConstructionNode
+	walls             []*wallClusterNode
 
 	boss *creepNode
 
@@ -35,6 +36,12 @@ type worldState struct {
 
 func (w *worldState) IsTutorial() bool {
 	return w.options.Tutorial
+}
+
+func (w *worldState) NewWallClusterNode(config wallClusterConfig) *wallClusterNode {
+	n := newWallClusterNode(config)
+	w.walls = append(w.walls, n)
+	return n
 }
 
 func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {

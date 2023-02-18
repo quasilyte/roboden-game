@@ -17,6 +17,7 @@ todo:
 - make evolution recycle workers that use 50%+ population?
 - is morale damage even viable?
 - if resource is dry, to not land to pick it up
+- render big stone tiles separately (so they don't collide with other tiles like walls)
 
 iskander:
 - maybe add servant drone somehow (hard mode only)

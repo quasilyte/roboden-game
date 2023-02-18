@@ -22,4 +22,5 @@ package menus
 // - Unit cost changes (rebalancing)
 // - Added Russian language support
 // - Creep bases are now guarded by a tower (usually)
+// - Added walls (in forms of land cracks)
 const buildNumber int = 4

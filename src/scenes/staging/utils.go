@@ -32,6 +32,12 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 			return false
 		}
 	}
+	wallCheckRadius := radius + 24
+	for _, wall := range world.walls {
+		if wall.CollidesWith(pos, wallCheckRadius) {
+			return false
+		}
+	}
 	return true
 }
 

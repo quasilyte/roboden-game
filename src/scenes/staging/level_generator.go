@@ -2,11 +2,17 @@ package staging
 
 import (
 	"fmt"
+	"math"
 	"sort"
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+)
+
+const (
+	maxWallSegments int     = 16
+	wallTileSize    float64 = 32
 )
 
 type levelGenerator struct {
@@ -38,6 +44,7 @@ func (g *levelGenerator) Generate() {
 	if g.world.IsTutorial() {
 		g.placePlayers()
 		g.placeSecondTutorialBase()
+		g.placeWalls()
 		g.placeResources(0.65)
 		g.placeTutorialBoss()
 		for _, colony := range g.world.colonies {
@@ -53,6 +60,7 @@ func (g *levelGenerator) Generate() {
 			1.6,
 		}
 		g.placePlayers()
+		g.placeWalls()
 		g.placeCreepBases()
 		g.placeCreeps()
 		g.placeResources(resourceMultipliers[g.world.options.Resources])
@@ -292,6 +300,180 @@ func (g *levelGenerator) placeCreeps() {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
 		numTanks -= g.placeCreepsCluster(sector, 1, tankCreepStats)
+	}
+}
+
+func (g *levelGenerator) placeWalls() {
+	rand := g.scene.Rand()
+
+	worldSizeMultipliers := []float64{
+		0.5,
+		0.75,
+		1.0,
+		1.3,
+	}
+	multiplier := worldSizeMultipliers[g.world.worldSize]
+	numWallClusters := int(float64(rand.IntRange(10, 14)) * multiplier)
+
+	const (
+		// A simple 1x1 wall tile (rect shape: true).
+		wallPit int = iota
+		// A straight line shaped wall.
+		wallLine
+		// Like a line, but may have branches.
+		wallSpikedLine
+		// A randomly drawed shape.
+		wallSnake
+	)
+
+	shapePicker := gmath.NewRandPicker[int](rand)
+	shapePicker.AddOption(wallPit, 0.1)
+	shapePicker.AddOption(wallLine, 0.15)
+	shapePicker.AddOption(wallSpikedLine, 0.2)
+	shapePicker.AddOption(wallSnake, 0.25)
+
+	chooseRandDirection := func() gmath.Vec {
+		roll := rand.IntRange(0, 4)
+		var d gmath.Vec
+		switch roll {
+		case 0:
+			d.X = wallTileSize
+		case 1:
+			d.X = -wallTileSize
+		case 2:
+			d.Y = wallTileSize
+		default:
+			d.Y = -wallTileSize
+		}
+		return d
+	}
+
+	reverseDirection := func(d gmath.Vec) gmath.Vec {
+		reversed := d
+		reversed.X = -d.X
+		reversed.Y = -d.Y
+		return d
+	}
+
+	rotateDirection := func(d gmath.Vec) gmath.Vec {
+		rotated := d
+		if rand.Bool() {
+			rotated.X = d.Y
+			rotated.Y = d.X
+		} else {
+			rotated.X = -d.Y
+			rotated.Y = -d.X
+		}
+		return rotated
+	}
+
+	removeDuplicates := func(points []gmath.Vec) []gmath.Vec {
+		set := make(map[gmath.Vec]struct{})
+		for _, p := range points {
+			set[p] = struct{}{}
+		}
+		filtered := points[:0]
+		for p := range set {
+			filtered = append(filtered, p)
+		}
+		return filtered
+	}
+
+	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
+	for i := 0; i < numWallClusters; i++ {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+
+		var pos gmath.Vec
+		for i := 0; i < 10; i++ {
+			pos = correctedPos(sector, g.randomPos(sector), 96)
+			if posIsFree(g.world, nil, pos, 48) {
+				break
+			}
+		}
+		if pos.IsZero() {
+			continue
+		}
+
+		// Wall positions should be rounded to a tile size.
+		{
+			x := math.Floor(pos.X/wallTileSize) * wallTileSize
+			y := math.Floor(pos.Y/wallTileSize) * wallTileSize
+			pos = gmath.Vec{X: x + wallTileSize/2, Y: y + wallTileSize/2}
+		}
+
+		var config wallClusterConfig
+		shape := shapePicker.Pick()
+		switch shape {
+		case wallPit:
+			config.points = append(config.points, pos)
+
+		case wallSnake:
+			steps := rand.IntRange(3, maxWallSegments-1)
+			config.points = append(config.points, pos)
+			currentPos := pos
+			dir := chooseRandDirection()
+			for i := 0; i < steps; i++ {
+				currentPos = currentPos.Add(dir)
+				if !posIsFree(g.world, nil, currentPos, 48) {
+					break
+				}
+				config.points = append(config.points, currentPos)
+				roll := rand.Float()
+				if roll < 0.2 {
+					currentPos = pos
+				} else if roll < 0.35 {
+					dir = chooseRandDirection()
+				} else if roll < 0.5 {
+					dir = rotateDirection(dir)
+				}
+			}
+			config.points = removeDuplicates(config.points)
+
+		case wallLine, wallSpikedLine:
+			spiked := shape == wallSpikedLine
+			config.points = append(config.points, pos)
+			currentPos := pos
+			maxLength := 3
+			if spiked {
+				maxLength = 6
+			}
+			lengthRoll := rand.IntRange(1, maxLength)
+			length := lengthRoll
+			dir := chooseRandDirection()
+			for length > 0 {
+				currentPos = currentPos.Add(dir)
+				if !posIsFree(g.world, nil, currentPos, 48) {
+					break
+				}
+				if spiked && rand.Chance(0.5) {
+					sidePos := currentPos.Add(rotateDirection(dir))
+					if posIsFree(g.world, nil, sidePos, 48) {
+						config.points = append(config.points, sidePos)
+					}
+				}
+				config.points = append(config.points, currentPos)
+				length--
+			}
+			if length > 0 {
+				dir = reverseDirection(dir)
+				for length > 0 {
+					currentPos = currentPos.Add(dir)
+					if !posIsFree(g.world, nil, currentPos, 48) {
+						break
+					}
+					config.points = append(config.points, currentPos)
+					length--
+				}
+			}
+		}
+
+		if len(config.points) != 0 {
+			config.atlas = wallAtras{layers: landcrackAtlas}
+			config.world = g.world
+			wall := g.world.NewWallClusterNode(config)
+			g.scene.AddObject(wall)
+		}
 	}
 }
 

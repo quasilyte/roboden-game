@@ -885,7 +885,12 @@ func (a *colonyAgentNode) updateCharging(delta float64) {
 
 func (a *colonyAgentNode) updateMineEssence(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
-		a.AssignMode(agentModePickup, gmath.Vec{}, nil)
+		source := a.target.(*essenceSourceNode)
+		if source.IsDisposed() {
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		} else {
+			a.AssignMode(agentModePickup, gmath.Vec{}, nil)
+		}
 	}
 }
 

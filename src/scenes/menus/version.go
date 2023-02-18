@@ -19,8 +19,13 @@ package menus
 // - Colonies now prefer to use green cloners
 //
 // Version 4
-// - Unit cost changes (rebalancing)
-// - Added Russian language support
-// - Creep bases are now guarded by a tower (usually)
-// - Added walls (in forms of land cracks)
+// * Misc:
+//   - Added Russian language support
+// * New features:
+//   - Added walls (in forms of land cracks)
+// * Gameplay:
+//   - Unit cost changes (rebalancing)
+//   - Creep bases are now guarded by a tower (usually)
+// * Fixes:
+//   - Drones no longer try to pick up a depleted resource
 const buildNumber int = 4

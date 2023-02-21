@@ -17,6 +17,7 @@ type GridPath struct {
 
 type BuildPathResult struct {
 	Steps    GridPath
+	Finish   GridCoord
 	Complete bool
 }
 

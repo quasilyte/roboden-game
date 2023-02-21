@@ -1,16 +1,21 @@
 package pathing
 
 type GreedyBFS struct {
-	pqueue     *priorityQueue[GridCoord]
-	coordSlice []GridCoord
+	pqueue     *priorityQueue[weightedGridCoord]
+	coordSlice []weightedGridCoord
 	coordMap   *coordMap
+}
+
+type weightedGridCoord struct {
+	Coord  GridCoord
+	Weight int
 }
 
 func NewGreedyBFS(numRows, numCols int) *GreedyBFS {
 	return &GreedyBFS{
-		pqueue:     newPriorityQueue[GridCoord](80),
+		pqueue:     newPriorityQueue[weightedGridCoord](80),
 		coordMap:   newCoordMap(numRows, numCols),
-		coordSlice: make([]GridCoord, 0, 40),
+		coordSlice: make([]weightedGridCoord, 0, 40),
 	}
 }
 
@@ -31,13 +36,13 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 	frontier.Reset()
 
 	hotFrontier := bfs.coordSlice[:0]
-	hotFrontier = append(hotFrontier, start)
+	hotFrontier = append(hotFrontier, weightedGridCoord{Coord: start})
 
 	pathmap := bfs.coordMap
 	pathmap.Reset()
 
 	for len(hotFrontier)+frontier.Len() != 0 {
-		var current GridCoord
+		var current weightedGridCoord
 		if len(hotFrontier) != 0 {
 			current = hotFrontier[len(hotFrontier)-1]
 			hotFrontier = hotFrontier[:len(hotFrontier)-1]
@@ -45,15 +50,21 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 			current = frontier.Pop()
 		}
 
-		if current == goal {
+		if current.Coord == goal {
 			result.Steps = bfs.constructPath(start, goal, pathmap)
 			result.Complete = true
 			break
 		}
-		dist := goal.Dist(current)
+		if current.Weight >= gridPathMaxLen {
+			result.Steps = bfs.constructPath(start, current.Coord, pathmap)
+			result.Finish = current.Coord
+			break
+		}
+
+		dist := goal.Dist(current.Coord)
 		for dir := DirRight; dir <= DirUp; dir++ {
 			// TODO: handle origin point.
-			next := current.Move(dir)
+			next := current.Coord.Move(dir)
 			if !g.CellIsFree(next) {
 				continue
 			}
@@ -63,10 +74,14 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 
 			pathmap.Set(next, dir)
 			nextDist := goal.Dist(next)
+			nextWighted := weightedGridCoord{
+				Coord:  next,
+				Weight: current.Weight + 1,
+			}
 			if nextDist < dist {
-				hotFrontier = append(hotFrontier, next)
+				hotFrontier = append(hotFrontier, nextWighted)
 			} else {
-				frontier.Push(nextDist, next)
+				frontier.Push(nextDist, nextWighted)
 			}
 		}
 	}

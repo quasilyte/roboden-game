@@ -71,6 +71,44 @@ func TestGridOutOfBounds(t *testing.T) {
 	}
 }
 
+func TestGridMaps(t *testing.T) {
+	tests := [][]string{
+		{
+			"A.............x...............................x.....x.....x....",
+			"..............x.......x......xxxxxxxxxx.......x..x..x..x..x....",
+			"....xxxxxxxxxxx.......x...............x.......x..x..x..x..x....",
+			"......................x...............x..........x.....x......B",
+		},
+
+		{
+			"A.............x..........x................x.x..x...x.x...x.....x....",
+			"..............x........x.x....xxxxxxxxxx..x.xxxx...x.xx..x..x..x....",
+			"....xxxxxxxxxxx...xx...x.x.............x..x.x..x...x.xx..x..x..x....",
+			"..................xx...x.x.............x..x.x..x.....xx.....x......B",
+		},
+	}
+
+	for i, test := range tests {
+		parsed := testParseGrid(t, test)
+		for row := 0; row < parsed.numRows; row++ {
+			for col := 0; col < parsed.numCols; col++ {
+				marker := test[row][col]
+				cell := pathing.GridCoord{X: col, Y: row}
+				switch marker {
+				case 'x':
+					if parsed.grid.CellIsFree(cell) {
+						t.Fatalf("test%d: x cell is reported as free", i)
+					}
+				case '.', ' ':
+					if !parsed.grid.CellIsFree(cell) {
+						t.Fatalf("test%d: empty/free cell is reported as marked", i)
+					}
+				}
+			}
+		}
+	}
+}
+
 func TestSmallGrid(t *testing.T) {
 	p := pathing.NewGrid(9*pathing.CellSize, 6*pathing.CellSize)
 

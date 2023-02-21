@@ -715,12 +715,24 @@ var bfsTests = []bfsTestCase{
 		},
 	},
 
-	// {
-	// 	name: "distlimit1",
-	// 	path: []string{
-	// 		"A..................................................................B",
-	// 	},
-	// 	bench:   true,
-	// 	partial: true,
-	// },
+	{
+		name: "distlimit1",
+		path: []string{
+			"A                                                        ..........B",
+		},
+		bench:   true,
+		partial: true,
+	},
+
+	{
+		name: "distlimit2",
+		path: []string{
+			"A.............x......   ....            ......x.....x.....x....",
+			" .............x...... x      xxxxxxxxxx ......x..x..x..x..x....",
+			" ...xxxxxxxxxxx...... x...............x ......x..x..x..x..x....",
+			"                      x...............x       ...x.....x......B",
+		},
+		bench:   true,
+		partial: true,
+	},
 }

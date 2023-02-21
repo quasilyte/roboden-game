@@ -68,11 +68,11 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 			if !g.CellIsFree(next) {
 				continue
 			}
-			if pathmap.Get(next) != DirNone {
+			pathmapKey := pathmap.packCoord(next)
+			if pathmap.Get(pathmapKey) != DirNone {
 				continue
 			}
-
-			pathmap.Set(next, dir)
+			pathmap.Set(pathmapKey, dir)
 			nextDist := goal.Dist(next)
 			nextWighted := weightedGridCoord{
 				Coord:  next,
@@ -102,7 +102,7 @@ func (bfs *GreedyBFS) constructPath(from, to GridCoord, pathmap *coordMap) GridP
 	var result GridPath
 	pos := to
 	for {
-		d := pathmap.Get(pos)
+		d := pathmap.Get(pathmap.packCoord(pos))
 		if pos == from {
 			break
 		}

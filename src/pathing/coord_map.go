@@ -37,8 +37,7 @@ func (m *coordMap) Len() int {
 	return len(m.dense)
 }
 
-func (m *coordMap) Get(c GridCoord) Direction {
-	k := uint(m.packCoord(c))
+func (m *coordMap) Get(k uint) Direction {
 	if k < uint(len(m.sparse)) {
 		i := uint(m.sparse[k])
 		if i < uint(len(m.dense)) && uint(m.dense[i].key) == k {
@@ -48,8 +47,7 @@ func (m *coordMap) Get(c GridCoord) Direction {
 	return DirNone
 }
 
-func (m *coordMap) Set(c GridCoord, d Direction) {
-	k := uint(m.packCoord(c))
+func (m *coordMap) Set(k uint, d Direction) {
 	sparse := m.sparse
 	if k < uint(len(sparse)) {
 		i := uint(sparse[k])
@@ -67,6 +65,6 @@ func (m *coordMap) Reset() {
 	m.dense = m.dense[:0]
 }
 
-func (s *coordMap) packCoord(c GridCoord) uint16 {
-	return uint16((c.Y * s.numCols) + c.X)
+func (s *coordMap) packCoord(c GridCoord) uint {
+	return uint((c.Y * s.numCols) + c.X)
 }

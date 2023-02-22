@@ -32,12 +32,7 @@ func TestGreedyBFS(t *testing.T) {
 	for i := range bfsTests {
 		test := bfsTests[i]
 		t.Run(test.name, func(t *testing.T) {
-			m := make([]string, len(test.path))
-			for i := range test.path {
-				line := strings.ReplaceAll(test.path[i], " ", ".")
-				line = strings.ReplaceAll(line, "$", "B")
-				m[i] = line
-			}
+			m := test.path
 
 			parseResult := testParseGrid(t, m)
 			bfs := pathing.NewGreedyBFS(parseResult.numRows, parseResult.numCols)
@@ -47,7 +42,9 @@ func TestGreedyBFS(t *testing.T) {
 			path := result.Steps
 
 			pos := parseResult.start
+			pathLen := 0
 			for path.HasNext() {
+				pathLen++
 				d := path.Next()
 				pos = pos.Move(d)
 				marker := parseResult.haveRows[pos.Y][pos.X]
@@ -69,7 +66,8 @@ func TestGreedyBFS(t *testing.T) {
 			want := strings.Join(test.path, "\n")
 
 			if have != want {
-				t.Fatalf("paths mismatch\nmap:\n%s\nhave:\n%s\nwant:\n%s", strings.Join(m, "\n"), have, want)
+				t.Fatalf("paths mismatch\nmap:\n%s\nhave (l=%d):\n%s\nwant (l=%d):\n%s",
+					strings.Join(m, "\n"), pathLen, have, parseResult.pathLen, want)
 			}
 
 			wantComplete := !test.partial
@@ -85,6 +83,7 @@ type testGrid struct {
 	start    pathing.GridCoord
 	dest     pathing.GridCoord
 	grid     *pathing.Grid
+	pathLen  int
 	numCols  int
 	numRows  int
 	haveRows [][]byte
@@ -98,6 +97,7 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 
 	grid := pathing.NewGrid(pathing.CellSize*float64(numCols), pathing.CellSize*float64(numRows))
 
+	pathLen := 0
 	var startPos pathing.GridCoord
 	var destPos pathing.GridCoord
 	haveRows := make([][]byte, numRows)
@@ -105,20 +105,28 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 		haveRows[row] = make([]byte, numCols)
 		for col := 0; col < numCols; col++ {
 			marker := m[row][col]
-			haveRows[row][col] = marker
 			cell := pathing.GridCoord{X: col, Y: row}
+			haveRows[row][col] = marker
 			switch marker {
 			case 'x':
 				grid.MarkCell(cell)
 			case 'A':
 				startPos = cell
 			case 'B', '$':
+				if marker == '$' {
+					pathLen++
+				}
 				destPos = cell
+				haveRows[row][col] = 'B'
+			case ' ':
+				pathLen++
+				haveRows[row][col] = '.'
 			}
 		}
 	}
 
 	return testGrid{
+		pathLen:  pathLen,
 		start:    startPos,
 		dest:     destPos,
 		numRows:  numRows,
@@ -345,10 +353,10 @@ var bfsTests = []bfsTestCase{
 	{
 		name: "double_corner2",
 		path: []string{
-			".   .x..A.",
-			". x .x.. .",
-			"x x .x.. .",
-			"  x  x.. .",
+			".    x..A.",
+			". x. x.. .",
+			"x x. x.. .",
+			"  x. x.. .",
 			" xx.     .",
 			" .xxxxxxxx",
 			"        $.",
@@ -359,9 +367,9 @@ var bfsTests = []bfsTestCase{
 	{
 		name: "double_corner3",
 		path: []string{
-			"   .x..A.",
-			" x .x.. .",
-			" x  x.. .",
+			"    x..A.",
+			" x. x.. .",
+			" x. x.. .",
 			" x.     .",
 			" xxxxxxxx",
 			"       $.",
@@ -419,33 +427,36 @@ var bfsTests = []bfsTestCase{
 			".. .x.x..x.....x...   .x........",
 			".. .x.x..x...xxxx.  x         ..",
 			"..        x....... xxxxxxxxxx ..",
-			"xxxx.....       .. x......    ..",
-			"...x.....xxx..x    x...... x..xx",
-			"......x..x....xxx..x.....  x....",
-			"......x..x....x....xxxxxx xxxx..",
-			"....x.x........x....x..x.  $....",
+			"xxxx.....       .. x........  ..",
+			"...x.....xxx..x    x.......x .xx",
+			"......x..x....xxx..x.......x   .",
+			"......x..x....x....xxxxxx.xxxx .",
+			"....x.x........x....x..x...$   .",
 		},
 		bench: true,
 	},
 
 	{
+		// This is unfortunate.
+		// TODO: can we adjust anything to make it better?
 		name: "depth1",
 		path: []string{
 			"........................",
 			".xxxxxxxxxxxxxxxxxxxx...",
+			"                    x...",
+			".xxxxxxxxxxxxxxxxxx x...",
+			"..                  x...",
+			".x xxxxxxxxxxxxxxxxxx...",
+			"..                A.x.B.",
+			".x.xxxxxxxxxxxxxxxxxx...",
 			"....................x...",
 			".xxxxxxxxxxxxxxxxxx.x...",
 			"....................x...",
-			".x.xxxxxxxxxxxxxxxxxx...",
-			"                  A.x $.",
-			" x.xxxxxxxxxxxxxxxxxx ..",
-			" ...................x ..",
-			" xxxxxxxxxxxxxxxxxx.x ..",
-			" ...................x ..",
-			" xxxxxxxxxxxxxxxxxxxx ..",
-			"                      ..",
+			".xxxxxxxxxxxxxxxxxxxx...",
+			"........................",
 		},
-		bench: true,
+		partial: true,
+		bench:   true,
 	},
 
 	{

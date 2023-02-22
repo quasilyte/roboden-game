@@ -13,7 +13,7 @@ type weightedGridCoord struct {
 
 func NewGreedyBFS(numRows, numCols int) *GreedyBFS {
 	return &GreedyBFS{
-		pqueue:     newPriorityQueue[weightedGridCoord](80),
+		pqueue:     newPriorityQueue[weightedGridCoord](),
 		coordMap:   newCoordMap(numRows, numCols),
 		coordSlice: make([]weightedGridCoord, 0, 40),
 	}
@@ -41,7 +41,8 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 	pathmap := bfs.coordMap
 	pathmap.Reset()
 
-	for len(hotFrontier)+frontier.Len() != 0 {
+	// for len(hotFrontier)+frontier.Len() != 0 {
+	for len(hotFrontier) != 0 || !frontier.IsEmpty() {
 		var current weightedGridCoord
 		if len(hotFrontier) != 0 {
 			current = hotFrontier[len(hotFrontier)-1]

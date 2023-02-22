@@ -8,21 +8,15 @@ import (
 	"time"
 )
 
-func BenchmarkPriorityQueue(b *testing.B) {
-	q := newPriorityQueue[int](20)
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		q.Reset()
-		q.Push(1, 10)
-		q.Push(2, 10)
-		q.Push(3, 10)
-		q.Push(4, 10)
-		q.Push(0, 10)
-		q.Push(1, 10)
-		q.Push(10, 10)
-		q.Push(0, 10)
-		q.Push(100, 10)
-		q.Push(100, 10)
+func ensureEmpty[T any](t *testing.T, q *priorityQueue[T]) {
+	t.Helper()
+	if !q.IsEmpty() || q.mask != 0 {
+		t.Fatal("queue is not empty")
+	}
+	for i, b := range &q.buckets {
+		if len(b) != 0 {
+			t.Fatalf("buckets[%d] is not empty", i)
+		}
 	}
 }
 
@@ -42,25 +36,37 @@ func TestPriorityQueue(t *testing.T) {
 		{"aaba", "aaab"},
 		{"abcd", "abcd"},
 		{"dcab", "abcd"},
+		{"aaaaaaa", "aaaaaaa"},
+		{"aaaaaab", "aaaaaab"},
+		{"baaaaaa", "aaaaaab"},
+		{"baaaaab", "aaaaabb"},
+		{"aaaaaaaaaaaaaaa", "aaaaaaaaaaaaaaa"},
+		{"ababababab", "aaaaabbbbb"},
+		{"abcabcabcabc", "aaaabbbbcccc"},
+		{"abcdabcdabcdabcd", "aaaabbbbccccdddd"},
+		{"aabbccddaabbccdd", "aaaabbbbccccdddd"},
 	}
 
 	for _, test := range tests {
 		pqueue.Reset()
 		for i := 0; i < len(test.input); i++ {
 			b := test.input[i]
-			pqueue.Push(int(b), b)
+			priority := int(b) - 'a'
+			pqueue.Push(priority, b)
 		}
 		var output strings.Builder
-		for pqueue.Len() != 0 {
+		for !pqueue.IsEmpty() {
 			output.WriteByte(pqueue.Pop())
 		}
+		ensureEmpty(t, &pqueue)
 		if output.String() != test.output {
 			t.Fatalf("input=%q:\nhave: %q\nwant: %q", test.input, output.String(), test.output)
 		}
 	}
 
 	{
-		var q priorityQueue[int]
+		q := newPriorityQueue[int]()
+		ensureEmpty(t, q)
 		for i := 0; i < 50; i++ {
 			q.Push(i, i)
 		}
@@ -70,6 +76,7 @@ func TestPriorityQueue(t *testing.T) {
 				t.Fatal("invalid result in push+pop pair")
 			}
 		}
+		ensureEmpty(t, q)
 	}
 
 	for i := 0; i < 64; i++ {
@@ -77,7 +84,10 @@ func TestPriorityQueue(t *testing.T) {
 		var values []int
 		num := r.Intn(96) + 6
 		for i := 0; i < num; i++ {
-			values = append(values, r.Int())
+			maxValue := gridPathMaxLen
+			minValue := 0
+			v := rand.Intn(maxValue-minValue) + minValue
+			values = append(values, v)
 		}
 		sortedValues := make([]int, len(values))
 		copy(sortedValues, values)
@@ -94,5 +104,6 @@ func TestPriorityQueue(t *testing.T) {
 				t.Fatal("invalid result in push+pop pair")
 			}
 		}
+		ensureEmpty(t, &q)
 	}
 }

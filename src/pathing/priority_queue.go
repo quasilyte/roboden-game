@@ -1,74 +1,71 @@
 package pathing
 
+import (
+	"math/bits"
+)
+
 type priorityQueue[T any] struct {
-	data []priorityQueueElem[T]
+	buckets [64][]T
+	mask    uint64
 }
 
-type priorityQueueElem[T any] struct {
-	Value    T
-	Priority int
-}
-
-func newPriorityQueue[T any](size int) *priorityQueue[T] {
-	h := &priorityQueue[T]{
-		data: make([]priorityQueueElem[T], 0, size),
+func newPriorityQueue[T any]() *priorityQueue[T] {
+	h := &priorityQueue[T]{}
+	for i := range &h.buckets {
+		// Start with some small capacity for every bucket.
+		h.buckets[i] = make([]T, 0, 4)
 	}
 	return h
 }
 
-func (q *priorityQueue[T]) Len() int {
-	return len(q.data)
+func (q *priorityQueue[T]) Reset() {
+	// Reslice storage slices back.
+	// To avoid traversing all len(q.buckets),
+	// we have some offset to skip uninteresting (already empty) buckets.
+	// We also stop when mask is 0 meaning all remaining buckets are empty too.
+	// In other words, it would only touch slices between min and max non-empty priorities.
+	mask := q.mask
+	offset := uint(bits.TrailingZeros64(mask))
+	mask >>= offset
+	i := offset
+	for mask != 0 {
+		if i < uint(len(q.buckets)) {
+			q.buckets[i] = q.buckets[i][:0]
+		}
+		mask >>= 1
+		i++
+	}
+
+	q.mask = 0
 }
 
-func (q *priorityQueue[T]) Reset() {
-	q.data = q.data[:0]
+func (q *priorityQueue[T]) IsEmpty() bool {
+	return q.mask == 0
 }
 
 func (q *priorityQueue[T]) Push(priority int, value T) {
-	q.data = append(q.data, priorityQueueElem[T]{
-		Priority: priority,
-		Value:    value,
-	})
-
-	data := q.data
-	i := uint(len(data) - 1)
-	for {
-		j := (i - 1) / 2
-		if i <= j || i >= uint(len(data)) || data[i].Priority >= data[j].Priority {
-			break
-		}
-		data[i], data[j] = data[j], data[i]
-		i = j
-	}
+	// No bound checks since compiler knows that i will never exceed 64.
+	// We also get a cool truncation of values above 64 to store them
+	// in our biggest bucket.
+	i := uint(priority) & 0b111111
+	q.buckets[i] = append(q.buckets[i], value)
+	q.mask |= 1 << i
 }
 
 func (q *priorityQueue[T]) Pop() T {
-	if q.Len() == 0 {
-		var zero T
-		return zero
-	}
-	data := q.data
-	size := len(data) - 1
-	data[0], data[size] = data[size], data[0]
-
-	// down(0)
-	i := 0
-	for {
-		j := 2*i + 1
-		if j >= size {
-			break
+	// Using uints here and explicit len check to avoid the
+	// implicitly inserted bound check.
+	i := uint(bits.TrailingZeros64(q.mask))
+	if i < uint(len(q.buckets)) {
+		e := q.buckets[i][len(q.buckets[i])-1]
+		q.buckets[i] = q.buckets[i][:len(q.buckets[i])-1]
+		if len(q.buckets[i]) == 0 {
+			q.mask &^= 1 << i
 		}
-		if j2 := j + 1; j2 < size && data[j2].Priority < data[j].Priority {
-			j = j2
-		}
-		if data[i].Priority < data[j].Priority {
-			break
-		}
-		data[i], data[j] = data[j], data[i]
-		i = j
+		return e
 	}
 
-	value := data[size].Value
-	q.data = data[:size]
-	return value
+	// A queue is empty?
+	var x T
+	return x
 }

@@ -26,9 +26,8 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 		return result
 	}
 
-	// Translate the world (grid) coordinates to our local coordinates.
-	// Start will be centered.
-	// The goal coordinate will be truncated, if necessary.
+	// If we would like to use small (local) coordinates instead of global
+	// ones, it will be necessary to translate both start and dest here.
 	start := from
 	goal := to
 
@@ -63,7 +62,6 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 
 		dist := goal.Dist(current.Coord)
 		for dir := DirRight; dir <= DirUp; dir++ {
-			// TODO: handle origin point.
 			next := current.Coord.Move(dir)
 			if !g.CellIsFree(next) {
 				continue

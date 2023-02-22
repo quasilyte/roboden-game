@@ -41,7 +41,6 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 	pathmap := bfs.coordMap
 	pathmap.Reset()
 
-	// for len(hotFrontier)+frontier.Len() != 0 {
 	for len(hotFrontier) != 0 || !frontier.IsEmpty() {
 		var current weightedGridCoord
 		if len(hotFrontier) != 0 {

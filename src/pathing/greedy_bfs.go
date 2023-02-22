@@ -74,14 +74,14 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 			}
 			pathmap.Set(pathmapKey, dir)
 			nextDist := goal.Dist(next)
-			nextWighted := weightedGridCoord{
+			nextWeighted := weightedGridCoord{
 				Coord:  next,
 				Weight: current.Weight + 1,
 			}
 			if nextDist < dist {
-				hotFrontier = append(hotFrontier, nextWighted)
+				hotFrontier = append(hotFrontier, nextWeighted)
 			} else {
-				frontier.Push(nextDist, nextWighted)
+				frontier.Push(nextDist, nextWeighted)
 			}
 		}
 	}

@@ -84,6 +84,10 @@ func (g *Grid) CellIsFree(c GridCoord) bool {
 	return false
 }
 
+func (g *Grid) AlignPos(pos gmath.Vec) gmath.Vec {
+	return g.CoordToPos(g.PosToCoord(pos))
+}
+
 func (g *Grid) PosToCoord(pos gmath.Vec) GridCoord {
 	x := int(pos.X) / int(CellSize)
 	y := int(pos.Y) / int(CellSize)

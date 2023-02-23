@@ -21,6 +21,14 @@ type BuildPathResult struct {
 	Complete bool
 }
 
+func MakeGridPath(steps ...Direction) GridPath {
+	var result GridPath
+	for i := len(steps) - 1; i >= 0; i-- {
+		result.push(steps[i])
+	}
+	return result
+}
+
 func (p GridPath) String() string {
 	parts := make([]string, 0, p.len)
 	prevPos := p.pos // Restore the pos later

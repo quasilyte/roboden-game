@@ -19,7 +19,7 @@ func BenchmarkGreedyBFS(b *testing.B) {
 		numRows := len(test.path)
 		b.Run(fmt.Sprintf("%s_%dx%d", test.name, numCols, numRows), func(b *testing.B) {
 			parseResult := testParseGrid(b, test.path)
-			bfs := pathing.NewGreedyBFS(parseResult.numRows, parseResult.numCols)
+			bfs := pathing.NewGreedyBFS(parseResult.numCols, parseResult.numRows)
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
 				bfs.BuildPath(parseResult.grid, parseResult.start, parseResult.dest)
@@ -35,7 +35,7 @@ func TestGreedyBFS(t *testing.T) {
 			m := test.path
 
 			parseResult := testParseGrid(t, m)
-			bfs := pathing.NewGreedyBFS(parseResult.numRows, parseResult.numCols)
+			bfs := pathing.NewGreedyBFS(parseResult.numCols, parseResult.numRows)
 			grid := parseResult.grid
 
 			result := bfs.BuildPath(grid, parseResult.start, parseResult.dest)

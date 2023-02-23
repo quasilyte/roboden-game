@@ -11,10 +11,10 @@ type weightedGridCoord struct {
 	Weight int
 }
 
-func NewGreedyBFS(numRows, numCols int) *GreedyBFS {
+func NewGreedyBFS(numCols, numRows int) *GreedyBFS {
 	return &GreedyBFS{
 		pqueue:     newPriorityQueue[weightedGridCoord](),
-		coordMap:   newCoordMap(numRows, numCols),
+		coordMap:   newCoordMap(numCols, numRows),
 		coordSlice: make([]weightedGridCoord, 0, 40),
 	}
 }

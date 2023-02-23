@@ -19,7 +19,7 @@ type coordMapElem struct {
 	value Direction
 }
 
-func newCoordMap(numRows, numCols int) *coordMap {
+func newCoordMap(numCols, numRows int) *coordMap {
 	size := numRows * numCols
 	return &coordMap{
 		dense:   make([]coordMapElem, 0, size/8),

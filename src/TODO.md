@@ -6,6 +6,7 @@ todo engine:
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 
 todo:
+- make low energy fighters fire at a slower rate
 - crawlers should not walk through the base
 - base selector is hidden by shadow
 - falling base should have damaged shader applied too

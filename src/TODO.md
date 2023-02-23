@@ -8,20 +8,13 @@ todo engine:
 todo:
 - crawlers should not walk through the base
 - base selector is hidden by shadow
-- hide base diode when it flies
 - falling base should have damaged shader applied too
-- new crawlers are graphically above the flying base
 - send nearby crawlers to save the boss if it is under attack
-- if base can combine flamers, it always does that due to the lowest evo cost; needs to be fixed
-- visual effect when unit is hit (becomes brighter for a split second)
-- display boss hp
-- check why drones don't like to mine ore
 - add fullscreen option (disable/enable windowed mode)
 - menu buttons focus?
 - show enemy bases on the radar
 - base should check landing zone before landing
 - rework planner action delay (same action vs other action)
-- make evolution recycle workers that use 50%+ population?
 - is morale damage even viable?
 - render big stone tiles separately (so they don't collide with other tiles like walls)
 - show upkeep while flying
@@ -29,7 +22,6 @@ todo:
 
 iskander:
 - maybe add servant drone somehow (hard mode only)
-- make base prefer using green cloners
 - implement pause?
 - make tab smooth
 - esc for menu, not exit right away
@@ -39,14 +31,13 @@ oleg:
 next release:
 - artifacts idea
 - better how to play
-- multi-language support
++ multi-language support
 - higher resolution
 - more input device support (gamepad, touch screen)
 - more "new game" options
 - vs mode with colonies (and less creeps)
 - unlockable content / achievements
 - local pvp and coop
-- boss building bases
 - online leaderboard
 - daily run (same seed, different players, leaderboard)
 - different bases (colonies)
@@ -64,8 +55,7 @@ next release:
 - drone rarity
 - drone pickups
 - attack, inc/dec, build base, tech, build tower
-- reroll
+- action reroll
 - game lore
-- game terrain, land units
 - weather
 - random events

@@ -1,23 +1,9 @@
 package staging
 
 import (
-	"math"
-
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/roboden-game/assets"
 )
-
-var minEvoCost float64 = 0.0
-
-func init() {
-	minCost := math.MaxFloat64
-	for _, recipe := range tier3agentMergeRecipeList {
-		if recipe.evoCost < minCost {
-			minCost = recipe.evoCost
-		}
-	}
-	minEvoCost = minCost
-}
 
 type agentMergeRecipe struct {
 	agent1kind    colonyAgentKind

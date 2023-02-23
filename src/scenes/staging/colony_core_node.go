@@ -14,6 +14,7 @@ const (
 	maxUpkeepValue     int     = 270
 	maxEvoPoints       float64 = 20
 	maxEvoGain         float64 = 1.0
+	blueEvoThreshold   float64 = 15.0
 	maxResources       float64 = 400.0
 	maxVisualResources float64 = maxResources - 100.0
 )
@@ -356,7 +357,7 @@ func (c *colonyCoreNode) movementSpeed() float64 {
 
 func (c *colonyCoreNode) updateEvoDiode() {
 	offset := 0.0
-	if c.evoPoints >= 15 {
+	if c.evoPoints >= blueEvoThreshold {
 		offset = c.evoDiode.FrameWidth * 2
 	} else if c.evoPoints >= 1 {
 		offset = c.evoDiode.FrameWidth * 1
@@ -478,6 +479,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.sprite.Visible = false
 	c.hatch.Visible = false
 	c.upkeepBar.Visible = false
+	c.evoDiode.Visible = false
 	c.waypoint = c.pos.Sub(gmath.Vec{Y: coreFlightHeight})
 }
 
@@ -508,6 +510,7 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.sprite.Visible = true
 		c.hatch.Visible = true
 		c.upkeepBar.Visible = true
+		c.evoDiode.Visible = true
 		playSound(c.scene, c.world.camera, assets.AudioColonyLanded, c.pos)
 	}
 }

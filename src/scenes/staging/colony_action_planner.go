@@ -333,7 +333,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 
 func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 	var list []agentMergeRecipe
-	if p.colony.evoPoints >= minEvoCost && p.numTier2Agents >= 2 && (p.numTier1Agents < 2 || p.world.rand.Bool()) {
+	if p.colony.evoPoints >= blueEvoThreshold && p.numTier2Agents >= 2 && (p.numTier1Agents < 2 || p.world.rand.Bool()) {
 		list = tier3agentMergeRecipeList
 	} else {
 		list = tier2agentMergeRecipeList

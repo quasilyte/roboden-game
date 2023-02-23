@@ -25,6 +25,10 @@ var (
 		{texture: assets.ImageLandCrack3, weight: 0.25},
 		{texture: assets.ImageLandCrack4, weight: 0.1},
 	}
+
+	mountainsAtlas = []wallAtlasLayer{
+		{texture: assets.ImageMountains, weight: 0.35},
+	}
 )
 
 type wallClusterNode struct {

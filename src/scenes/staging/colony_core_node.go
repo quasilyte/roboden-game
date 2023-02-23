@@ -51,7 +51,6 @@ type colonyCoreNode struct {
 
 	pos       gmath.Vec
 	spritePos gmath.Vec
-	diodePos  gmath.Vec
 	height    float64
 	maxHealth float64
 	health    float64
@@ -350,6 +349,7 @@ func (c *colonyCoreNode) updateEvoDiode() {
 }
 
 func (c *colonyCoreNode) updateUpkeepBar(upkeepValue int) {
+	upkeepValue = gmath.Clamp(upkeepValue, 0, maxUpkeepValue)
 	percentage := float64(upkeepValue) / float64(maxUpkeepValue)
 	c.upkeepBar.FrameWidth = c.upkeepBar.ImageWidth() * percentage
 }

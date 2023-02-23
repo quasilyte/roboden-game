@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/pathing"
 )
 
 const (
@@ -66,12 +67,51 @@ func (g *levelGenerator) Generate() {
 		g.placeResources(resourceMultipliers[g.world.options.Resources])
 		g.placeBoss()
 	}
+
+	g.fillPathgrid()
 }
 
 func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
 	return gmath.Vec{
 		X: g.scene.Rand().FloatRange(sector.Min.X, sector.Max.X),
 		Y: g.scene.Rand().FloatRange(sector.Min.Y, sector.Max.Y),
+	}
+}
+
+func (g *levelGenerator) fillPathgrid() {
+	p := g.world.pathgrid
+
+	numCols, numRows := p.Size()
+	fmt.Printf("pathgrid size: cols=%d rows=%d\n", numCols, numRows)
+
+	if pathing.CellSize != wallTileSize {
+		panic("update the pathgrid build algorithm")
+	}
+
+	// Traverse all relevant world objects and mark the occupied cells.
+
+	// We're using a few assumptions here:
+	// 1. Wall tiles are always grid-aligned.
+	// 2. Wall tiles have the same grid size as path grid cells.
+	for _, wall := range g.world.walls {
+		if wall.rectShape {
+			for y := wall.rect.Min.Y; y <= wall.rect.Max.Y; y += pathing.CellSize {
+				for x := wall.rect.Min.X; x <= wall.rect.Max.X; x += pathing.CellSize {
+					pos := gmath.Vec{X: x, Y: y}
+					p.MarkCell(p.PosToCoord(pos))
+				}
+			}
+			continue
+		}
+		for _, pos := range wall.points {
+			p.MarkCell(p.PosToCoord(pos))
+		}
+	}
+
+	// For resources we can only get an approx grid cell,
+	// since resources are not grid-aligned.
+	for _, essence := range g.world.essenceSources {
+		p.MarkCell(p.PosToCoord(essence.pos))
 	}
 }
 
@@ -295,7 +335,7 @@ func (g *levelGenerator) placeCreeps() {
 		numTurrets -= g.placeCreepsCluster(sector, 1, turretCreepStats)
 	}
 
-	numTanks := rand.IntRange(10, 15)
+	numTanks := rand.IntRange(8, 12)
 	for numTanks > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
@@ -313,7 +353,7 @@ func (g *levelGenerator) placeWalls() {
 		1.3,
 	}
 	multiplier := worldSizeMultipliers[g.world.worldSize]
-	numWallClusters := int(float64(rand.IntRange(10, 14)) * multiplier)
+	numWallClusters := int(float64(rand.IntRange(12, 16)) * multiplier)
 
 	const (
 		// A simple 1x1 wall tile (rect shape: true).
@@ -470,6 +510,9 @@ func (g *levelGenerator) placeWalls() {
 
 		if len(config.points) != 0 {
 			config.atlas = wallAtras{layers: landcrackAtlas}
+			if rand.Chance(0.3) {
+				config.atlas = wallAtras{layers: mountainsAtlas}
+			}
 			config.world = g.world
 			wall := g.world.NewWallClusterNode(config)
 			g.scene.AddObject(wall)

@@ -15,16 +15,12 @@ const (
 )
 
 type projectileNode struct {
-	image       resource.ImageID
-	fromPos     gmath.Vec
-	pos         gmath.Vec
-	toPos       gmath.Vec
-	target      projectileTarget
-	speed       float64
-	rotateSpeed float64
-	area        float64
-	damage      damageValue
-	explosion   projectileExplosionKind
+	fromPos   *gmath.Vec
+	pos       gmath.Vec
+	toPos     gmath.Vec
+	target    projectileTarget
+	fireDelay float64
+	weapon    *weaponStats
 
 	rotation gmath.Rad
 
@@ -42,60 +38,80 @@ type projectileTarget interface {
 	IsFlying() bool
 }
 
+type weaponStats struct {
+	MaxTargets            int
+	ProjectileImage       resource.ImageID
+	ProjectileSpeed       float64
+	ProjectileRotateSpeed float64
+	ImpactArea            float64
+	AttackRange           float64
+	Damage                damageValue
+	Explosion             projectileExplosionKind
+	BurstSize             int
+	Reload                float64
+	AttackSound           resource.AudioID
+	FireOffset            gmath.Vec
+}
+
 type projectileConfig struct {
-	Camera      *viewport.Camera
-	Image       resource.ImageID
-	FromPos     gmath.Vec
-	ToPos       gmath.Vec
-	Target      projectileTarget
-	Area        float64
-	Speed       float64
-	RotateSpeed float64
-	Damage      damageValue
-	Explosion   projectileExplosionKind
+	Weapon    *weaponStats
+	Camera    *viewport.Camera
+	FromPos   *gmath.Vec
+	ToPos     gmath.Vec
+	Target    projectileTarget
+	FireDelay float64
 }
 
 func newProjectileNode(config projectileConfig) *projectileNode {
 	return &projectileNode{
-		camera:      config.Camera,
-		image:       config.Image,
-		fromPos:     config.FromPos,
-		pos:         config.FromPos,
-		toPos:       config.ToPos,
-		target:      config.Target,
-		area:        config.Area,
-		speed:       config.Speed,
-		damage:      config.Damage,
-		rotateSpeed: config.RotateSpeed,
-		explosion:   config.Explosion,
+		camera:    config.Camera,
+		weapon:    config.Weapon,
+		fromPos:   config.FromPos,
+		pos:       *config.FromPos,
+		toPos:     config.ToPos,
+		target:    config.Target,
+		fireDelay: config.FireDelay,
 	}
 }
 
 func (p *projectileNode) Init(scene *ge.Scene) {
 	p.scene = scene
-	if p.rotateSpeed == 0 {
+	if p.weapon.ProjectileRotateSpeed == 0 {
 		p.rotation = p.pos.AngleToPoint(p.toPos)
 	} else {
 		p.rotation = scene.Rand().Rad()
 	}
 
-	p.sprite = scene.NewSprite(p.image)
+	p.sprite = scene.NewSprite(p.weapon.ProjectileImage)
 	p.sprite.Pos.Base = &p.pos
 	p.sprite.Rotation = &p.rotation
+	if p.fireDelay > 0 {
+		p.sprite.Visible = false
+	}
 	p.camera.AddGraphicsAbove(p.sprite)
 }
 
 func (p *projectileNode) IsDisposed() bool { return p.sprite.IsDisposed() }
 
 func (p *projectileNode) Update(delta float64) {
-	travelled := p.speed * delta
+	if p.fireDelay > 0 {
+		p.fireDelay -= delta
+		if p.fireDelay <= 0 {
+			p.sprite.Visible = true
+			p.pos = *p.fromPos
+		} else {
+			return
+		}
+	}
+
+	travelled := p.weapon.ProjectileSpeed * delta
 	if p.pos.DistanceTo(p.toPos) <= travelled {
 		p.detonate()
 		return
 	}
 	p.pos = p.pos.MoveTowards(p.toPos, travelled)
-	if p.rotateSpeed != 0 {
-		p.rotation += gmath.Rad(delta * p.rotateSpeed)
+	if p.weapon.ProjectileRotateSpeed != 0 {
+		p.rotation += gmath.Rad(delta * p.weapon.ProjectileRotateSpeed)
 	}
 }
 
@@ -104,12 +120,12 @@ func (p *projectileNode) detonate() {
 	if p.target.IsDisposed() {
 		return
 	}
-	if p.toPos.DistanceTo(*p.target.GetPos()) > p.area {
+	if p.toPos.DistanceTo(*p.target.GetPos()) > p.weapon.ImpactArea {
 		return
 	}
-	p.target.OnDamage(p.damage, p.fromPos)
+	p.target.OnDamage(p.weapon.Damage, *p.fromPos)
 
-	switch p.explosion {
+	switch p.weapon.Explosion {
 	case projectileExplosionNormal:
 		createExplosion(p.scene, p.camera, p.target.IsFlying(), p.pos.Add(p.scene.Rand().Offset(-3, 3)))
 	}

@@ -3,6 +3,7 @@ package staging
 import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/viewport"
 )
@@ -19,13 +20,17 @@ type worldState struct {
 	coreConstructions []*colonyCoreConstructionNode
 	walls             []*wallClusterNode
 
-	boss *creepNode
+	boss             *creepNode
+	creepCoordinator *creepCoordinator
 
 	debug bool
 
 	width  float64
 	height float64
 	rect   gmath.Rect
+
+	pathgrid *pathing.Grid
+	bfs      *pathing.GreedyBFS
 
 	result battleResults
 
@@ -62,10 +67,43 @@ func (w *worldState) NewColonyCoreConstructionNode(pos gmath.Vec) *colonyCoreCon
 	return n
 }
 
+func (w *worldState) NumActiveCrawlers() int {
+	return len(w.creepCoordinator.crawlers)
+}
+
+func (w *worldState) EliteCrawlerChance() float64 {
+	switch w.options.Difficulty {
+	case 0:
+		return 0
+	case 1:
+		return 0.2
+	case 2:
+		return 0.4
+	default:
+		return 0.65
+	}
+}
+
+func (w *worldState) MaxActiveCrawlers() int {
+	switch w.options.Difficulty {
+	case 0:
+		return 15
+	case 1:
+		return 20
+	case 2:
+		return 30
+	default:
+		return 40
+	}
+}
+
 func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 	n := newCreepNode(w, stats, pos)
 	n.EventDestroyed.Connect(nil, func(x *creepNode) {
 		w.creeps = xslices.Remove(w.creeps, x)
+		if x.stats.kind == creepCrawler {
+			w.creepCoordinator.crawlers = xslices.Remove(w.creepCoordinator.crawlers, x)
+		}
 		if x == w.boss {
 			w.boss = nil
 		} else {
@@ -73,6 +111,9 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 		}
 	})
 	w.creeps = append(w.creeps, n)
+	if stats.kind == creepCrawler {
+		w.creepCoordinator.crawlers = append(w.creepCoordinator.crawlers, n)
+	}
 	return n
 }
 
@@ -107,6 +148,14 @@ func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r
 		}
 	}
 	return nil
+}
+
+func (w *worldState) Update(delta float64) {
+	w.creepCoordinator.Update(delta)
+}
+
+func (w *worldState) BuildPath(from, to gmath.Vec) pathing.BuildPathResult {
+	return w.bfs.BuildPath(w.pathgrid, w.pathgrid.PosToCoord(from), w.pathgrid.PosToCoord(to))
 }
 
 func (w *worldState) FindColonyAgent(pos gmath.Vec, r float64, f func(a *colonyAgentNode) bool) *colonyAgentNode {

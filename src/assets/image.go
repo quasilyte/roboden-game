@@ -64,7 +64,6 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceCrystalSource:         {Path: "image/resources/crystal_source.png", FrameWidth: 16},
 		ImageEssenceGoldSource:            {Path: "image/resources/gold_source.png", FrameWidth: 28},
 		ImageEssenceIronSource:            {Path: "image/resources/iron_source.png", FrameWidth: 32},
-		ImageEssenceWasteSource:           {Path: "image/resources/waste_source.png"},
 		ImageEssenceScrapSource:           {Path: "image/resources/scrap_source.png"},
 		ImageEssenceSmallScrapSource:      {Path: "image/resources/small_scrap_source.png"},
 		ImageEssenceScrapCreepSource:      {Path: "image/resources/scrap_source_creep.png"},
@@ -73,29 +72,34 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceSource:                {Path: "image/resources/essence_source.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/resources/red_essence_source.png", FrameWidth: 32},
 
-		ImagePrimitiveCreep: {Path: "image/creeps/tier1_creep.png"},
-		ImageCreepTier2:     {Path: "image/creeps/tier2_creep.png"},
-		ImageCreepTier3:     {Path: "image/creeps/tier3_creep.png", FrameWidth: 25},
-		ImageTurretCreep:    {Path: "image/creeps/turret_creep.png"},
-		ImageLandCreep:      {Path: "image/creeps/land_creep.png"},
-		ImageUberBoss:       {Path: "image/creeps/uber_boss.png", FrameWidth: 40},
-		ImageCreepBase:      {Path: "image/creeps/creep_base.png", FrameWidth: 32},
+		ImageEliteCrawlerCreep: {Path: "image/creeps/elite_crawler_creep.png", FrameWidth: 23},
+		ImageCrawlerCreep:      {Path: "image/creeps/crawler_creep.png", FrameWidth: 23},
+		ImagePrimitiveCreep:    {Path: "image/creeps/tier1_creep.png"},
+		ImageCreepTier2:        {Path: "image/creeps/tier2_creep.png"},
+		ImageCreepTier3:        {Path: "image/creeps/tier3_creep.png", FrameWidth: 25},
+		ImageTurretCreep:       {Path: "image/creeps/turret_creep.png"},
+		ImageTankCreep:         {Path: "image/creeps/tank_creep.png"},
+		ImageUberBoss:          {Path: "image/creeps/uber_boss.png", FrameWidth: 40},
+		ImageUberBossOpen:      {Path: "image/creeps/uber_boss_open.png"},
+		ImageCreepBase:         {Path: "image/creeps/creep_base.png", FrameWidth: 32},
 
 		ImageBackgroundTiles: {Path: "image/landscape/tiles.png"},
+		ImageMountains:       {Path: "image/landscape/mountains.png", FrameWidth: 32},
 		ImageLandCrack:       {Path: "image/landscape/landcrack.png", FrameWidth: 32},
 		ImageLandCrack2:      {Path: "image/landscape/landcrack2.png", FrameWidth: 32},
 		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
-		ImageTankProjectile:     {Path: "image/projectile/tank_projectile.png"},
-		ImageAssaultProjectile:  {Path: "image/projectile/assault_projectile.png"},
-		ImageCripplerProjectile: {Path: "image/projectile/crippler_projectile.png"},
-		ImageMilitiaProjectile:  {Path: "image/projectile/militia_projectile.png"},
-		ImageRepellerProjectile: {Path: "image/projectile/repeller_projectile.png"},
-		ImageFighterProjectile:  {Path: "image/projectile/fighter_projectile.png"},
-		ImageWandererProjectile: {Path: "image/projectile/wanderer_projectile.png"},
-		ImageFlamerProjectile:   {Path: "image/projectile/flamer_projectile.png"},
-		ImageMissile:            {Path: "image/projectile/missile.png"},
+		ImageEliteCrawlerProjectile: {Path: "image/projectile/elite_crawler_projectile.png"},
+		ImageTankProjectile:         {Path: "image/projectile/tank_projectile.png"},
+		ImageAssaultProjectile:      {Path: "image/projectile/assault_projectile.png"},
+		ImageCripplerProjectile:     {Path: "image/projectile/crippler_projectile.png"},
+		ImageMilitiaProjectile:      {Path: "image/projectile/militia_projectile.png"},
+		ImageRepellerProjectile:     {Path: "image/projectile/repeller_projectile.png"},
+		ImageFighterProjectile:      {Path: "image/projectile/fighter_projectile.png"},
+		ImageWandererProjectile:     {Path: "image/projectile/wanderer_projectile.png"},
+		ImageFlamerProjectile:       {Path: "image/projectile/flamer_projectile.png"},
+		ImageMissile:                {Path: "image/projectile/missile.png"},
 
 		ImageUIButtonIdle:             {Path: "image/ebitenui/button-idle.png"},
 		ImageUIButtonHover:            {Path: "image/ebitenui/button-hover.png"},
@@ -159,6 +163,7 @@ const (
 
 	ImageFactionDiode
 	ImageUberBoss
+	ImageUberBossOpen
 	ImageUberBossShadow
 	ImageCreepBase
 	ImageColonyCoreSelector
@@ -184,7 +189,6 @@ const (
 	ImageEssenceCrystalSource
 	ImageEssenceGoldSource
 	ImageEssenceIronSource
-	ImageEssenceWasteSource
 	ImageEssenceScrapSource
 	ImageEssenceSmallScrapSource
 	ImageEssenceScrapCreepSource
@@ -192,18 +196,22 @@ const (
 	ImageEssenceBigScrapCreepSource
 	ImageEssenceSource
 	ImageRedEssenceSource
+	ImageCrawlerCreep
+	ImageEliteCrawlerCreep
 	ImagePrimitiveCreep
 	ImageCreepTier2
 	ImageCreepTier3
 	ImageTurretCreep
-	ImageLandCreep
+	ImageTankCreep
 
 	ImageBackgroundTiles
+	ImageMountains
 	ImageLandCrack
 	ImageLandCrack2
 	ImageLandCrack3
 	ImageLandCrack4
 
+	ImageEliteCrawlerProjectile
 	ImageTankProjectile
 	ImageAssaultProjectile
 	ImageCripplerProjectile

@@ -64,15 +64,6 @@ var ironSource = &essenceSourceStats{
 	size:        18,
 }
 
-var wasteSource = &essenceSourceStats{
-	image:      assets.ImageEssenceWasteSource,
-	capacity:   gmath.MakeRange(30, 30),
-	regenDelay: 0, // none
-	value:      1, // approx 20-30 total
-	canRotate:  true,
-	size:       30,
-}
-
 var smallScrapSource = &essenceSourceStats{
 	image:      assets.ImageEssenceSmallScrapSource,
 	capacity:   gmath.MakeRange(4, 5),

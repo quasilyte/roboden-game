@@ -111,15 +111,16 @@ func init() {
 // Merge usage:
 //
 // * militia
-//   * red ++
-//   * blue +
-//   * yellow +
-//   * green +++
+//   - red ++
+//   - blue +
+//   - yellow +
+//   - green +++
+//
 // * worker
-//   * red ++
-//   * blue ++++
-//   * yellow +++
-//   * green +++
+//   - red ++
+//   - blue ++++
+//   - yellow +++
+//   - green +++
 var tier2agentMergeRecipeList = []agentMergeRecipe{
 	{
 		agent1kind:    agentWorker,
@@ -239,16 +240,7 @@ type agentStats struct {
 	supportReload float64
 	supportRange  float64
 
-	attackTargets         int
-	attackRange           float64
-	attackDelay           float64
-	projectileArea        float64
-	projectileSpeed       float64
-	projectileRotateSpeed float64
-	projectileDamage      damageValue
-	projectileImage       resource.ImageID
-	projectileImpact      projectileExplosionKind
-	attackSound           resource.AudioID
+	weapon *weaponStats
 }
 
 var workerAgentStats = &agentStats{
@@ -258,7 +250,7 @@ var workerAgentStats = &agentStats{
 	diodeOffset: 5,
 	tier:        1,
 	cost:        9,
-	upkeep:      2,
+	upkeep:      200,
 	canGather:   true,
 	maxPayload:  1,
 	speed:       80,
@@ -372,127 +364,139 @@ var freighterAgentStats = &agentStats{
 }
 
 var militiaAgentStats = &agentStats{
-	kind:             agentMilitia,
-	image:            assets.ImageMilitiaAgent,
-	size:             sizeSmall,
-	diodeOffset:      5,
-	tier:             1,
-	cost:             12,
-	upkeep:           4,
-	canPatrol:        true,
-	speed:            75,
-	maxHealth:        12,
-	attackRange:      130,
-	attackDelay:      2.5,
-	attackSound:      assets.AudioMilitiaShot,
-	projectileImage:  assets.ImageMilitiaProjectile,
-	projectileArea:   10,
-	projectileSpeed:  180,
-	projectileDamage: damageValue{health: 2, morale: 2},
-	attackTargets:    1,
+	kind:        agentMilitia,
+	image:       assets.ImageMilitiaAgent,
+	size:        sizeSmall,
+	diodeOffset: 5,
+	tier:        1,
+	cost:        12,
+	upkeep:      4,
+	canPatrol:   true,
+	speed:       75,
+	maxHealth:   12,
+	weapon: &weaponStats{
+		AttackRange:     130,
+		Reload:          2.5,
+		AttackSound:     assets.AudioMilitiaShot,
+		ProjectileImage: assets.ImageMilitiaProjectile,
+		ImpactArea:      10,
+		ProjectileSpeed: 180,
+		Damage:          damageValue{health: 2, morale: 2},
+		MaxTargets:      1,
+	},
 }
 
 var cripplerAgentStats = &agentStats{
-	kind:             agentCrippler,
-	image:            assets.ImageCripplerAgent,
-	size:             sizeMedium,
-	diodeOffset:      5,
-	tier:             1,
-	cost:             15,
-	upkeep:           4,
-	canPatrol:        true,
-	speed:            55,
-	maxHealth:        15,
-	attackRange:      240,
-	attackDelay:      3.2,
-	attackSound:      assets.AudioCripplerShot,
-	projectileImage:  assets.ImageCripplerProjectile,
-	projectileArea:   10,
-	projectileSpeed:  250,
-	projectileDamage: damageValue{health: 1, slow: 2},
-	attackTargets:    2,
+	kind:        agentCrippler,
+	image:       assets.ImageCripplerAgent,
+	size:        sizeMedium,
+	diodeOffset: 5,
+	tier:        1,
+	cost:        15,
+	upkeep:      4,
+	canPatrol:   true,
+	speed:       55,
+	maxHealth:   15,
+	weapon: &weaponStats{
+		AttackRange:     240,
+		Reload:          3.2,
+		AttackSound:     assets.AudioCripplerShot,
+		ProjectileImage: assets.ImageCripplerProjectile,
+		ImpactArea:      10,
+		ProjectileSpeed: 250,
+		Damage:          damageValue{health: 1, slow: 2},
+		MaxTargets:      2,
+	},
 }
 
 var flamerAgentStats = &agentStats{
-	kind:             agentFlamer,
-	image:            assets.ImageFlamerAgent,
-	size:             sizeLarge,
-	diodeOffset:      7,
-	tier:             3,
-	cost:             30,
-	upkeep:           8,
-	canPatrol:        true,
-	speed:            135,
-	maxHealth:        40,
-	attackRange:      115,
-	attackDelay:      1.1,
-	attackSound:      assets.AudioFlamerShot,
-	projectileImage:  assets.ImageFlamerProjectile,
-	projectileImpact: projectileExplosionNormal,
-	projectileArea:   18,
-	projectileSpeed:  160,
-	projectileDamage: damageValue{health: 5},
-	attackTargets:    2,
+	kind:        agentFlamer,
+	image:       assets.ImageFlamerAgent,
+	size:        sizeLarge,
+	diodeOffset: 7,
+	tier:        3,
+	cost:        30,
+	upkeep:      8,
+	canPatrol:   true,
+	speed:       135,
+	maxHealth:   40,
+	weapon: &weaponStats{
+		AttackRange:     115,
+		Reload:          1.1,
+		AttackSound:     assets.AudioFlamerShot,
+		ProjectileImage: assets.ImageFlamerProjectile,
+		Explosion:       projectileExplosionNormal,
+		ImpactArea:      18,
+		ProjectileSpeed: 160,
+		Damage:          damageValue{health: 5},
+		MaxTargets:      2,
+	},
 }
 
 var fighterAgentStats = &agentStats{
-	kind:             agentFighter,
-	image:            assets.ImageFighterAgent,
-	size:             sizeMedium,
-	diodeOffset:      1,
-	tier:             2,
-	cost:             20,
-	upkeep:           7,
-	canPatrol:        true,
-	speed:            90,
-	maxHealth:        21,
-	attackRange:      180,
-	attackDelay:      2,
-	attackSound:      assets.AudioFighterBeam,
-	projectileImage:  assets.ImageFighterProjectile,
-	projectileArea:   8,
-	projectileSpeed:  220,
-	projectileDamage: damageValue{health: 4},
-	attackTargets:    1,
+	kind:        agentFighter,
+	image:       assets.ImageFighterAgent,
+	size:        sizeMedium,
+	diodeOffset: 1,
+	tier:        2,
+	cost:        20,
+	upkeep:      7,
+	canPatrol:   true,
+	speed:       90,
+	maxHealth:   21,
+	weapon: &weaponStats{
+		AttackRange:     180,
+		Reload:          2,
+		AttackSound:     assets.AudioFighterBeam,
+		ProjectileImage: assets.ImageFighterProjectile,
+		ImpactArea:      8,
+		ProjectileSpeed: 220,
+		Damage:          damageValue{health: 4},
+		MaxTargets:      1,
+	},
 }
 
 var destroyerAgentStats = &agentStats{
-	kind:             agentDestroyer,
-	image:            assets.ImageDestroyerAgent,
-	size:             sizeLarge,
-	diodeOffset:      0,
-	tier:             3,
-	cost:             45,
-	upkeep:           20,
-	canPatrol:        true,
-	speed:            85,
-	maxHealth:        35,
-	attackRange:      210,
-	attackDelay:      1.9,
-	attackSound:      assets.AudioDestroyerBeam,
-	projectileDamage: damageValue{health: 6},
-	attackTargets:    1,
+	kind:        agentDestroyer,
+	image:       assets.ImageDestroyerAgent,
+	size:        sizeLarge,
+	diodeOffset: 0,
+	tier:        3,
+	cost:        45,
+	upkeep:      20,
+	canPatrol:   true,
+	speed:       85,
+	maxHealth:   35,
+	weapon: &weaponStats{
+		AttackRange: 210,
+		Reload:      1.9,
+		AttackSound: assets.AudioDestroyerBeam,
+		Damage:      damageValue{health: 6},
+		MaxTargets:  1,
+	},
 }
 
 var repellerAgentStats = &agentStats{
-	kind:             agentRepeller,
-	image:            assets.ImageRepellerAgent,
-	size:             sizeMedium,
-	diodeOffset:      8,
-	tier:             2,
-	cost:             15,
-	upkeep:           4,
-	canGather:        true,
-	maxPayload:       1,
-	canPatrol:        true,
-	speed:            115,
-	maxHealth:        22,
-	attackRange:      160,
-	attackDelay:      2.4,
-	attackSound:      assets.AudioRepellerBeam,
-	projectileImage:  assets.ImageRepellerProjectile,
-	projectileArea:   10,
-	projectileSpeed:  200,
-	projectileDamage: damageValue{health: 1, morale: 4},
-	attackTargets:    2,
+	kind:        agentRepeller,
+	image:       assets.ImageRepellerAgent,
+	size:        sizeMedium,
+	diodeOffset: 8,
+	tier:        2,
+	cost:        15,
+	upkeep:      4,
+	canGather:   true,
+	maxPayload:  1,
+	canPatrol:   true,
+	speed:       115,
+	maxHealth:   22,
+	weapon: &weaponStats{
+		AttackRange:     160,
+		Reload:          2.4,
+		AttackSound:     assets.AudioRepellerBeam,
+		ProjectileImage: assets.ImageRepellerProjectile,
+		ImpactArea:      10,
+		ProjectileSpeed: 200,
+		Damage:          damageValue{health: 1, morale: 4},
+		MaxTargets:      2,
+	},
 }

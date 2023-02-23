@@ -14,6 +14,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/viewport"
 )
@@ -41,6 +42,8 @@ type Controller struct {
 
 	tier3spawnDelay float64
 	tier3spawnRate  float64
+
+	transitionQueued bool
 
 	camera *viewport.Camera
 
@@ -114,6 +117,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	world := &worldState{
 		debug:          c.state.Persistent.Settings.Debug,
 		worldSize:      c.worldSize,
+		pathgrid:       pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
 		options:        &c.state.LevelOptions,
 		camera:         c.camera,
 		rand:           scene.Rand(),
@@ -127,6 +131,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 			},
 		},
 	}
+	world.creepCoordinator = newCreepCoordinator(world)
+	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
 	c.world = world
 
 	bg := ge.NewTiledBackground(scene.Context())
@@ -190,14 +196,15 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	case specialIncreaseRadius:
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 	case specialDecreaseRadius:
-		value := c.world.rand.FloatRange(16, 32)
+		value := c.world.rand.FloatRange(30, 40)
 		c.selectedColony.realRadius = gmath.ClampMin(c.selectedColony.realRadius-value, 60)
 	case specialBuildColony:
+		// TODO: use a pathing.Grid to find a free cell?
 		dist := 60.0
 		direction := c.world.rand.Rad()
-		for i := 0; i < 11; i++ {
+		for i := 0; i < 13; i++ {
 			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.selectedColony.pos)
-			direction += (2 * math.Pi) / 13
+			direction += (2 * math.Pi) / 15
 			constructionPos := c.pickColonyPos(nil, locationProbe, 40, 3)
 			if !constructionPos.IsZero() {
 				construction := c.world.NewColonyCoreConstructionNode(constructionPos)
@@ -272,6 +279,8 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec) {
 }
 
 func (c *Controller) spawnTier3Creep() {
+	// TODO: move to a creep coordinator?
+
 	c.tier3spawnRate = gmath.ClampMin(c.tier3spawnRate-0.025, 0.4)
 	c.tier3spawnDelay = c.scene.Rand().FloatRange(55, 80) * c.tier3spawnRate
 
@@ -295,18 +304,40 @@ func (c *Controller) spawnTier3Creep() {
 	c.scene.AddObject(creep)
 }
 
+func (c *Controller) defeat() {
+	if c.transitionQueued {
+		return
+	}
+	c.transitionQueued = true
+	c.scene.DelayedCall(2.0, func() {
+		c.world.result.Victory = false
+		c.world.result.TimePlayed = time.Since(c.startTime)
+		c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
+	})
+}
+
+func (c *Controller) victory() {
+	if c.transitionQueued {
+		return
+	}
+	c.transitionQueued = true
+	c.scene.DelayedCall(5.0, func() {
+		c.world.result.Victory = true
+		c.world.result.TimePlayed = time.Since(c.startTime)
+		for _, colony := range c.world.colonies {
+			c.world.result.SurvivingDrones += colony.NumAgents()
+		}
+		c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
+	})
+}
+
 func (c *Controller) Update(delta float64) {
 	c.musicPlayer.Update(delta)
+	c.world.Update(delta)
 
 	if c.world.boss == nil {
-		c.scene.DelayedCall(5.0, func() {
-			c.world.result.Victory = true
-			c.world.result.TimePlayed = time.Since(c.startTime)
-			for _, colony := range c.world.colonies {
-				c.world.result.SurvivingDrones += colony.NumAgents()
-			}
-			c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
-		})
+		// TODO: just subscribe to a boss destruction event?
+		c.victory()
 	}
 
 	c.choices.Enabled = c.selectedColony != nil &&
@@ -379,7 +410,7 @@ func (c *Controller) Update(delta float64) {
 	}
 
 	if c.debugInfo != nil {
-		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f", ebiten.CurrentFPS())
+		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f", ebiten.ActualFPS())
 	}
 	// colony := c.selectedColony
 	// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",
@@ -420,11 +451,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	c.radar.SetBase(c.selectedColony)
 	if c.selectedColony == nil {
 		c.colonySelector.Visible = false
-		c.scene.DelayedCall(2.0, func() {
-			c.world.result.Victory = false
-			c.world.result.TimePlayed = time.Since(c.startTime)
-			c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
-		})
+		c.defeat()
 		return
 	}
 	c.selectedColony.EventDestroyed.Connect(c, func(_ *colonyCoreNode) {

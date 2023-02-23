@@ -554,14 +554,14 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		return
 	}
 
-	a.attackDelay = a.stats.attackDelay * a.scene.Rand().FloatRange(0.8, 1.2)
+	a.attackDelay = a.stats.weapon.Reload * a.scene.Rand().FloatRange(0.8, 1.2)
 
 	targets := a.colonyCore.world.tmpTargetSlice[:0]
 	for _, c := range a.colonyCore.world.creeps {
-		if len(targets) >= a.stats.attackTargets {
+		if len(targets) >= a.stats.weapon.MaxTargets {
 			break
 		}
-		if c.pos.DistanceTo(a.pos) >= a.stats.attackRange {
+		if c.pos.DistanceTo(a.pos) >= a.stats.weapon.AttackRange {
 			continue
 		}
 		targets = append(targets, c)
@@ -586,28 +586,23 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			offset = offset.Add(offsetStep)
 			targetOffset = targetOffset.Add(targetOffsetStep)
 		}
-		target.OnDamage(a.stats.projectileDamage, a.pos)
+		target.OnDamage(a.stats.weapon.Damage, a.pos)
 
 	case agentMilitia, agentFighter, agentRepeller, agentFlamer, agentCrippler:
 		for _, target := range targets {
-			toPos := snipePos(a.stats.projectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
+			toPos := snipePos(a.stats.weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
 			p := newProjectileNode(projectileConfig{
-				Camera:      a.colonyCore.world.camera,
-				Image:       a.stats.projectileImage,
-				Explosion:   a.stats.projectileImpact,
-				FromPos:     a.pos,
-				ToPos:       toPos,
-				Target:      target,
-				Speed:       a.stats.projectileSpeed,
-				Area:        a.stats.projectileArea,
-				RotateSpeed: a.stats.projectileRotateSpeed,
-				Damage:      a.stats.projectileDamage,
+				Camera:  a.colonyCore.world.camera,
+				Weapon:  a.stats.weapon,
+				FromPos: &a.pos,
+				ToPos:   toPos,
+				Target:  target,
 			})
 			a.scene.AddObject(p)
 		}
 	}
 
-	playSound(a.scene, a.camera(), a.stats.attackSound, a.pos)
+	playSound(a.scene, a.camera(), a.stats.weapon.AttackSound, a.pos)
 }
 
 func (a *colonyAgentNode) movementSpeed() float64 {
@@ -836,7 +831,7 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 }
 
 func (a *colonyAgentNode) followWaypoint(targetPos gmath.Vec) gmath.Vec {
-	preferredDist := gmath.ClampMin(a.stats.attackRange*0.6, 80)
+	preferredDist := gmath.ClampMin(a.stats.weapon.AttackRange*0.6, 80)
 	return a.pos.DirectionTo(targetPos).Mulf(preferredDist).Add(targetPos).Add(a.scene.Rand().Offset(-52, 52))
 }
 

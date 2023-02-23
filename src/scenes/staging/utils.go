@@ -5,8 +5,24 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/viewport"
 )
+
+func posMove(pos gmath.Vec, d pathing.Direction) gmath.Vec {
+	switch d {
+	case pathing.DirRight:
+		return pos.Add(gmath.Vec{X: pathing.CellSize})
+	case pathing.DirDown:
+		return pos.Add(gmath.Vec{Y: pathing.CellSize})
+	case pathing.DirLeft:
+		return pos.Add(gmath.Vec{X: -pathing.CellSize})
+	case pathing.DirUp:
+		return pos.Add(gmath.Vec{Y: -pathing.CellSize})
+	default:
+		return pos
+	}
+}
 
 func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, radius float64) bool {
 	for _, source := range world.essenceSources {

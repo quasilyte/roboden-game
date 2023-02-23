@@ -18,14 +18,21 @@ package menus
 // - Improved colony planner & core code (agent search code)
 // - Colonies now prefer to use green cloners
 //
-// Version 4
+// # Version 4
+//
 // * Misc:
 //   - Added Russian language support
+//
 // * New features:
 //   - Added walls (in forms of land cracks)
+//   - Added mountains as a higher height wall types
+//   - Crawler creeps (spawned by a boss)
+//
 // * Gameplay:
 //   - Unit cost changes (rebalancing)
 //   - Creep bases are now guarded by a tower (usually)
+//
 // * Fixes:
 //   - Drones no longer try to pick up a depleted resource
+//   - Fixed an upkeed visual bug (trash is rendered near the base)
 const buildNumber int = 4

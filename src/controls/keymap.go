@@ -21,6 +21,8 @@ const (
 
 	ActionBack
 
+	ActionDebug
+
 	ActionChoice1
 	ActionChoice2
 	ActionChoice3
@@ -38,6 +40,8 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 		ActionPanAlt:   {input.KeyMouseMiddle},
 
 		ActionToggleColony: {input.KeyTab, input.KeyGamepadL1},
+
+		ActionDebug: {input.KeyBackquote},
 
 		ActionBack: {input.KeyEscape},
 

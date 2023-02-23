@@ -202,10 +202,10 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		// TODO: use a pathing.Grid to find a free cell?
 		dist := 60.0
 		direction := c.world.rand.Rad()
-		for i := 0; i < 13; i++ {
+		for i := 0; i < 14; i++ {
 			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.selectedColony.pos)
 			direction += (2 * math.Pi) / 15
-			constructionPos := c.pickColonyPos(nil, locationProbe, 40, 3)
+			constructionPos := c.pickColonyPos(nil, locationProbe, 40, 4)
 			if !constructionPos.IsZero() {
 				construction := c.world.NewColonyCoreConstructionNode(constructionPos)
 				c.scene.AddObject(construction)

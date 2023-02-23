@@ -350,10 +350,10 @@ func (g *levelGenerator) placeWalls() {
 		0.5,
 		0.75,
 		1.0,
-		1.3,
+		1.4,
 	}
 	multiplier := worldSizeMultipliers[g.world.worldSize]
-	numWallClusters := int(float64(rand.IntRange(12, 16)) * multiplier)
+	numWallClusters := int(float64(rand.IntRange(11, 14)) * multiplier)
 
 	const (
 		// A simple 1x1 wall tile (rect shape: true).
@@ -364,13 +364,26 @@ func (g *levelGenerator) placeWalls() {
 		wallSpikedLine
 		// A randomly drawed shape.
 		wallSnake
+		// A cross-like shape.
+		wallCrossway
+		// Like a spiked line, but more predictable.
+		wallZap
 	)
 
 	shapePicker := gmath.NewRandPicker[int](rand)
-	shapePicker.AddOption(wallPit, 0.1)
-	shapePicker.AddOption(wallLine, 0.15)
-	shapePicker.AddOption(wallSpikedLine, 0.2)
-	shapePicker.AddOption(wallSnake, 0.25)
+	shapePicker.AddOption(wallPit, 0.05)
+	shapePicker.AddOption(wallLine, 0.1)
+	shapePicker.AddOption(wallSpikedLine, 0.1)
+	shapePicker.AddOption(wallZap, 0.2)
+	shapePicker.AddOption(wallSnake, 0.15)
+	shapePicker.AddOption(wallCrossway, 0.1)
+
+	directions := []gmath.Vec{
+		{X: wallTileSize},
+		{X: -wallTileSize},
+		{Y: wallTileSize},
+		{Y: -wallTileSize},
+	}
 
 	chooseRandDirection := func() gmath.Vec {
 		roll := rand.IntRange(0, 4)
@@ -448,6 +461,49 @@ func (g *levelGenerator) placeWalls() {
 		case wallPit:
 			config.points = append(config.points, pos)
 
+		case wallCrossway:
+			config.points = append(config.points, pos)
+			for _, dir := range directions {
+				length := rand.IntRange(0, 3)
+				currentPos := pos
+				for i := 0; i < length; i++ {
+					currentPos = currentPos.Add(dir)
+					if !posIsFree(g.world, nil, currentPos, 48) {
+						break
+					}
+					config.points = append(config.points, currentPos)
+				}
+			}
+
+		case wallZap:
+			numJoints := rand.IntRange(1, 3) + 1
+			dir := chooseRandDirection()
+			config.points = append(config.points, pos)
+			currentPos := pos
+		OuterLoop:
+			for i := 0; i < numJoints; i++ {
+				length := rand.IntRange(2, 4)
+				for j := 0; j < length; j++ {
+					currentPos = currentPos.Add(dir)
+					if !posIsFree(g.world, nil, currentPos, 48) {
+						break OuterLoop
+					}
+					config.points = append(config.points, currentPos)
+					if len(config.points) == maxWallSegments {
+						break OuterLoop
+					}
+				}
+				jointPos := currentPos.Add(rotateDirection(dir))
+				if !posIsFree(g.world, nil, jointPos, 48) {
+					break
+				}
+				currentPos = jointPos
+				config.points = append(config.points, jointPos)
+				if len(config.points) == maxWallSegments {
+					break OuterLoop
+				}
+			}
+
 		case wallSnake:
 			steps := rand.IntRange(3, maxWallSegments-1)
 			config.points = append(config.points, pos)
@@ -510,8 +566,11 @@ func (g *levelGenerator) placeWalls() {
 
 		if len(config.points) != 0 {
 			config.atlas = wallAtras{layers: landcrackAtlas}
-			if rand.Chance(0.3) {
-				config.atlas = wallAtras{layers: mountainsAtlas}
+			switch shape {
+			case wallPit, wallLine, wallZap, wallCrossway:
+				if rand.Chance(0.45) {
+					config.atlas = wallAtras{layers: mountainsAtlas}
+				}
 			}
 			config.world = g.world
 			wall := g.world.NewWallClusterNode(config)

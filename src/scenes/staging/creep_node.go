@@ -172,7 +172,7 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 }
 
 func (c *creepNode) IsFlying() bool {
-	return c.stats.shadowImage != assets.ImageNone
+	return c.shadow != nil
 }
 
 func (c *creepNode) explode() {

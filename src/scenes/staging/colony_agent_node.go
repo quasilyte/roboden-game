@@ -19,19 +19,24 @@ type colonyAgentKind uint8
 
 const (
 	agentWorker colonyAgentKind = iota
+	agentMilitia
+
+	// Tier2
 	agentFreighter
 	agentRedminer
-	agentMilitia
 	agentCrippler
 	agentFighter
 	agentServo
-	agentDestroyer
-	agentFlamer
 	agentRepeller
 	agentRepair
 	agentRecharger
 	agentGenerator
+	agentMortar
+
+	// Tier3
 	agentRefresher
+	agentFlamer
+	agentDestroyer
 
 	agentKindNum
 )
@@ -571,6 +576,9 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		if len(targets) >= a.stats.weapon.MaxTargets {
 			break
 		}
+		if a.stats.weapon.GroundOnly && c.IsFlying() {
+			continue
+		}
 		if c.pos.DistanceTo(a.pos) >= a.stats.weapon.AttackRange {
 			continue
 		}
@@ -598,7 +606,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		}
 		target.OnDamage(a.stats.weapon.Damage, a.pos)
 
-	case agentMilitia, agentFighter, agentRepeller, agentFlamer, agentCrippler:
+	default:
 		for _, target := range targets {
 			toPos := snipePos(a.stats.weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
 			p := newProjectileNode(projectileConfig{

@@ -24,6 +24,11 @@ type projectileNode struct {
 
 	rotation gmath.Rad
 
+	arcProgressionScaling float64
+	arcProgression        float64
+	arcFrom               gmath.Vec
+	arcTo                 gmath.Vec
+
 	scene *ge.Scene
 
 	camera *viewport.Camera
@@ -51,6 +56,8 @@ type weaponStats struct {
 	Reload                float64
 	AttackSound           resource.AudioID
 	FireOffset            gmath.Vec
+	Arc                   bool
+	GroundOnly            bool
 }
 
 type projectileConfig struct {
@@ -63,7 +70,7 @@ type projectileConfig struct {
 }
 
 func newProjectileNode(config projectileConfig) *projectileNode {
-	return &projectileNode{
+	p := &projectileNode{
 		camera:    config.Camera,
 		weapon:    config.Weapon,
 		fromPos:   config.FromPos,
@@ -72,6 +79,15 @@ func newProjectileNode(config projectileConfig) *projectileNode {
 		target:    config.Target,
 		fireDelay: config.FireDelay,
 	}
+	if p.weapon.Arc {
+		dist := p.fromPos.DistanceTo(p.toPos)
+		t := dist / p.weapon.ProjectileSpeed
+		p.arcProgressionScaling = 1.0 / t
+		power := gmath.Vec{Y: dist * 2}
+		p.arcFrom = p.fromPos.Add(power)
+		p.arcTo = p.toPos.Add(power)
+	}
+	return p
 }
 
 func (p *projectileNode) Init(scene *ge.Scene) {
@@ -89,6 +105,13 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 		p.sprite.Visible = false
 	}
 	p.camera.AddGraphicsAbove(p.sprite)
+
+	if p.arcProgressionScaling != 0 {
+		if scene.Rand().Chance(0.4) {
+			// Most likely will be a miss.
+			p.toPos = p.toPos.Add(scene.Rand().Offset(-28, 28))
+		}
+	}
 }
 
 func (p *projectileNode) IsDisposed() bool { return p.sprite.IsDisposed() }
@@ -105,14 +128,26 @@ func (p *projectileNode) Update(delta float64) {
 	}
 
 	travelled := p.weapon.ProjectileSpeed * delta
-	if p.pos.DistanceTo(p.toPos) <= travelled {
+
+	if p.arcProgressionScaling == 0 {
+		if p.pos.DistanceTo(p.toPos) <= travelled {
+			p.detonate()
+			return
+		}
+		p.pos = p.pos.MoveTowards(p.toPos, travelled)
+		if p.weapon.ProjectileRotateSpeed != 0 {
+			p.rotation += gmath.Rad(delta * p.weapon.ProjectileRotateSpeed)
+		}
+		return
+	}
+
+	p.arcProgression += delta * p.arcProgressionScaling
+	if p.arcProgression >= 1 {
 		p.detonate()
 		return
 	}
-	p.pos = p.pos.MoveTowards(p.toPos, travelled)
-	if p.weapon.ProjectileRotateSpeed != 0 {
-		p.rotation += gmath.Rad(delta * p.weapon.ProjectileRotateSpeed)
-	}
+	newPos := p.fromPos.CubicInterpolate(p.arcFrom, p.toPos, p.arcTo, p.arcProgression)
+	p.pos = newPos
 }
 
 func (p *projectileNode) detonate() {

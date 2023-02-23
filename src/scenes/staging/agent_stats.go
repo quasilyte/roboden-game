@@ -19,27 +19,6 @@ func init() {
 	minEvoCost = minCost
 }
 
-// tier 1
-// * worker => basic unit, can be produced
-// * militia => basic combat unit, can be produced
-//
-// tier 2
-// * +++ fighter => advanced combat unit; ?
-// * + repeller => a worker that can repell creeps; ?
-// * ++ repairbot => a worker that can repair units; ?
-// * + rechargebot => a worker that can recharge units; ?
-// * + freighter => a worker with much higher capacity; ?
-// * tetherbot => a worker that connects to another bot and improves it; ?
-// * sciencebot => a worker that generates x2 evolution points; ?
-// * generatorbot => a worker that decreases the effective upkeep by 15 (~3 militia equiv)
-//
-// tier 3
-// * destroyer => powerful combat unit; fighter + fighter
-// * artillery => long-range combat unit; fighter + freighter
-// * engineer => a worker that can repair buildings (including the base); repairbot + repairbot
-// * leech => a worker that drains energy from enemies and transfers it to allies; repeller + rechargebot
-// * essencebot => a worker that generates resources passively; ?
-
 type agentMergeRecipe struct {
 	agent1kind    colonyAgentKind
 	agent1faction factionTag
@@ -110,18 +89,54 @@ func init() {
 
 // Merge usage:
 //
-// * militia
-//   - red ++
-//   - blue +
-//   - yellow +
-//   - green +++
+// yellow worker +++
+// yellow militia ++
+// red worker +++
+// red militia ++
+// green worker +++
+// green militia ++
+// blue worker +++
+// blue militia ++
 //
-// * worker
-//   - red ++
-//   - blue ++++
-//   - yellow +++
-//   - green +++
+// Used:
+// freighter: yellow worker + green worker
+// redminer: yellow worker + red worker
+// crippler: yellow militia + green militia
+// fighter: red militia + green militia
+// servo: yellow worker + blue worker
+// repeller: blue worker + blue militia
+// repair: red worker + blue militia
+// recharger: red worker + blue worker
+// generator: green worker + yellow militia
+// mortar: green worker + red militia
+//
+// Unused:
+// green worker + blue worker
+// yellow worker + red militia
+// yellow worker + yellow militia
+// yellow worker + green militia
+// yellow worker + blue militia
+// red worker + green worker
+// red worker + green militia
+// red worker + yellow militia
+// red worker + red militia
+// green worker + green militia
+// green worker + blue militia
+// blue worker + red militia
+// blue worker + green militia
+// blue worker + yellow militia
+// yellow militia + blue militia
+// yellow militia + red militia
+// red militia + blue militia
+// green militia + blue militia
 var tier2agentMergeRecipeList = []agentMergeRecipe{
+	{
+		agent1kind:    agentWorker,
+		agent1faction: greenFactionTag,
+		agent2kind:    agentMilitia,
+		agent2faction: redFactionTag,
+		result:        mortarAgentStats,
+	},
 	{
 		agent1kind:    agentWorker,
 		agent1faction: blueFactionTag,
@@ -453,6 +468,32 @@ var fighterAgentStats = &agentStats{
 		ProjectileSpeed: 220,
 		Damage:          damageValue{health: 4},
 		MaxTargets:      1,
+	},
+}
+
+var mortarAgentStats = &agentStats{
+	kind:        agentMortar,
+	image:       assets.ImageMortarAgent,
+	size:        sizeMedium,
+	diodeOffset: 1,
+	tier:        2,
+	cost:        18,
+	upkeep:      6,
+	canPatrol:   true,
+	speed:       70,
+	maxHealth:   28,
+	weapon: &weaponStats{
+		AttackRange:     320,
+		Reload:          3.6,
+		AttackSound:     assets.AudioMortarShot,
+		ProjectileImage: assets.ImageMortarProjectile,
+		ImpactArea:      14,
+		ProjectileSpeed: 180,
+		Damage:          damageValue{health: 8},
+		MaxTargets:      1,
+		Explosion:       projectileExplosionNormal,
+		Arc:             true,
+		GroundOnly:      true,
 	},
 }
 

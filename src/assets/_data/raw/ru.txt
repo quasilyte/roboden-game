@@ -11,6 +11,7 @@
 
 ##menu.back : Назад
 ##menu.more : Ещё
+##menu.lobby_back : Назад в Меню
 
 ##menu.option.on : вкл
 ##menu.option.off : выкл
@@ -44,6 +45,14 @@
 ##menu.lobby.difficulty : Сложность
 ##menu.lobby.go : Вперёд!
 
+##menu.results.victory : Победа
+##menu.results.defeat : Поражение
+##menu.results.time_played : Длительность
+##menu.results.resources_gathered : Ресурсов Собрано
+##menu.results.drone_survivors : Дронов Выжило
+##menu.results.drones_total : Дронов Создано
+##menu.results.creeps_defeated : Врагов Уничтожено
+
 ##menu.controls.text
 [Управление Камерой]
 \tМышь: колёсико + перемещение, скролл у края экрана
@@ -58,6 +67,10 @@
 \tКлавиатура: 1, 2, 3, 4, 5, й, ц, у, к, е
 [Выход/Назад]
 \tКлавиатура: escape
+
+##game.value.hour : ч
+##game.value.minute : м
+##game.value.second : с
 
 ##game.choice.resources : Ресурсы
 ##game.choice.growth : Рост

@@ -6,6 +6,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
@@ -60,9 +61,11 @@ func (c *resultsController) initUI() {
 
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	titleString := "Victory!"
-	if !c.results.Victory {
-		titleString = "Defeat"
+	d := c.scene.Dict()
+
+	titleString := d.Get("menu.results.defeat")
+	if c.results.Victory {
+		titleString = d.Get("menu.results.victory") + "!"
 	}
 	titleLabel := eui.NewLabel(uiResources, titleString, smallFont)
 	rowContainer.AddChild(titleLabel)
@@ -70,11 +73,11 @@ func (c *resultsController) initUI() {
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	lines := []string{
-		fmt.Sprintf("Time Played: %v", formatDuration(c.results.TimePlayed)),
-		fmt.Sprintf("Resources Gathered: %v", int(c.results.ResourcesGathered)),
-		fmt.Sprintf("Drone Survivors: %v", c.results.SurvivingDrones),
-		fmt.Sprintf("Drones Total: %v", c.results.DronesProduced),
-		fmt.Sprintf("Creeps Defeated: %v", c.results.CreepsDefeated),
+		fmt.Sprintf("%s: %v", d.Get("menu.results.time_played"), formatDuration(d, c.results.TimePlayed)),
+		fmt.Sprintf("%s: %v", d.Get("menu.results.resources_gathered"), int(c.results.ResourcesGathered)),
+		fmt.Sprintf("%s: %v", d.Get("menu.results.drone_survivors"), c.results.SurvivingDrones),
+		fmt.Sprintf("%s: %v", d.Get("menu.results.drones_total"), c.results.DronesProduced),
+		fmt.Sprintf("%s: %v", d.Get("menu.results.creeps_defeated"), c.results.CreepsDefeated),
 	}
 
 	for _, l := range lines {
@@ -84,7 +87,7 @@ func (c *resultsController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "To The Menu", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby_back"), func() {
 		c.back()
 	}))
 
@@ -97,7 +100,7 @@ func (c *resultsController) back() {
 	c.scene.Context().ChangeScene(c.backController)
 }
 
-func formatDuration(d time.Duration) string {
+func formatDuration(dict *langs.Dictionary, d time.Duration) string {
 	d = d.Round(time.Second)
 	hours := d / time.Hour
 	d -= hours * time.Hour
@@ -105,11 +108,12 @@ func formatDuration(d time.Duration) string {
 	d -= minutes * time.Minute
 	seconds := d / time.Second
 	if hours >= 1 {
-		return fmt.Sprintf("%dh %dm %ds", hours, minutes, seconds)
+		return fmt.Sprintf("%d%s %d%s %d%s",
+			hours, dict.Get("game.value.hour"), minutes, dict.Get("game.value.minute"), seconds, dict.Get("game.value.second"))
 	}
 	if minutes >= 1 {
-		return fmt.Sprintf("%dm %ds", minutes, seconds)
+		return fmt.Sprintf("%d%s %d%s", minutes, dict.Get("game.value.minute"), seconds, dict.Get("game.value.second"))
 
 	}
-	return fmt.Sprintf("%ds", seconds)
+	return fmt.Sprintf("%d%s", seconds, dict.Get("game.value.second"))
 }

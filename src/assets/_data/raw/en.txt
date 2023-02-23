@@ -11,6 +11,7 @@
 
 ##menu.back : Back
 ##menu.more : More
+##menu.lobby_back : To The Menu
 
 ##menu.option.on : on
 ##menu.option.off : off
@@ -44,6 +45,14 @@
 ##menu.lobby.difficulty : Difficulty
 ##menu.lobby.go : Go!
 
+##menu.results.victory : Victory
+##menu.results.defeat : Defeat
+##menu.results.time_played : Time Played
+##menu.results.resources_gathered : Resources Gathered
+##menu.results.drone_survivors : Drone Survivors
+##menu.results.drones_total : Drones Total
+##menu.results.creeps_defeated : Creeps Defeated
+
 ##menu.controls.text
 [Pan Camera]
 \tMouse: middle button + move, edge scroll
@@ -58,6 +67,10 @@
 \tKeyboard: 1, 2, 3, 4, 5, q, w, e, r, t
 [Exit/Back]
 \tKeyboard: escape
+
+##game.value.hour : h
+##game.value.minute : m
+##game.value.second : s
 
 ##game.choice.resources : Resources
 ##game.choice.growth : Growth

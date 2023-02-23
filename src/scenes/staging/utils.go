@@ -9,6 +9,8 @@ import (
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
+var defaultColorScale = ge.ColorScale{R: 1, G: 1, B: 1, A: 1}
+
 func posMove(pos gmath.Vec, d pathing.Direction) gmath.Vec {
 	switch d {
 	case pathing.DirRight:

@@ -6,6 +6,7 @@ todo engine:
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 
 todo:
+- new crawlers are graphically above the flying base
 - send nearby crawlers to save the boss if it is under attack
 - if base can combine flamers, it always does that due to the lowest evo cost; needs to be fixed
 - visual effect when unit is hit (becomes brighter for a split second)

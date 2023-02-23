@@ -49,6 +49,8 @@ type colonyCoreNode struct {
 
 	scene *ge.Scene
 
+	flashComponent damageFlashComponent
+
 	pos       gmath.Vec
 	spritePos gmath.Vec
 	height    float64
@@ -126,6 +128,8 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
 	c.world.camera.AddGraphicsBelow(c.sprite)
 
+	c.flashComponent.sprite = c.sprite
+
 	c.flyingSprite = scene.NewSprite(assets.ImageColonyCoreFlying)
 	c.flyingSprite.Pos.Base = &c.spritePos
 	c.flyingSprite.Visible = false
@@ -199,6 +203,10 @@ func (c *colonyCoreNode) OnHeal(amount float64) {
 }
 
 func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
+	if damage.health != 0 {
+		c.flashComponent.flash = 0.2
+	}
+
 	c.health -= damage.health
 	if c.health < 0 {
 		if c.height == 0 {
@@ -301,6 +309,8 @@ func (c *colonyCoreNode) updateHealthShader() {
 }
 
 func (c *colonyCoreNode) Update(delta float64) {
+	c.flashComponent.Update(delta)
+
 	// FIXME: this should be fixed in the ge package.
 	c.spritePos.X = math.Round(c.pos.X)
 	c.spritePos.Y = math.Round(c.pos.Y)
@@ -458,6 +468,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.openHatchTime = 0
 	c.shadow.Visible = true
 	c.flyingSprite.Visible = true
+	c.flashComponent.sprite = c.flyingSprite
 	c.sprite.Visible = false
 	c.hatch.Visible = false
 	c.upkeepBar.Visible = false
@@ -486,6 +497,7 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.height = 0
 		c.mode = colonyModeNormal
 		c.flyingSprite.Visible = false
+		c.flashComponent.sprite = c.sprite
 		c.shadow.Visible = false
 		c.sprite.Visible = true
 		c.hatch.Visible = true

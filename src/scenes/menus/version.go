@@ -28,6 +28,9 @@ package menus
 //   - Added mountains as a higher height wall types
 //   - Crawler creeps (spawned by a boss)
 //
+// * Visual improvements:
+//   - Added a flash effect when a unit (friendly or not) takes damage
+//
 // * Gameplay:
 //   - Unit cost changes (rebalancing)
 //   - Creep bases are now guarded by a tower (usually)

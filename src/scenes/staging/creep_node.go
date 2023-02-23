@@ -29,6 +29,8 @@ type creepNode struct {
 
 	scene *ge.Scene
 
+	flashComponent damageFlashComponent
+
 	world *worldState
 	stats *creepStats
 
@@ -89,6 +91,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.anim.Tick(scene.Rand().FloatRange(0, 0.7))
 		c.anim.SetSecondsPerFrame(c.stats.animSpeed)
 	}
+	c.flashComponent.sprite = c.sprite
 
 	c.height = agentFlightHeight
 
@@ -126,6 +129,8 @@ func (c *creepNode) Destroy() {
 func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 
 func (c *creepNode) Update(delta float64) {
+	c.flashComponent.Update(delta)
+
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
 	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
 	if c.attackDelay == 0 && c.stats.weapon != nil {
@@ -212,6 +217,10 @@ func (c *creepNode) explode() {
 }
 
 func (c *creepNode) OnDamage(damage damageValue, source gmath.Vec) {
+	if damage.health != 0 {
+		c.flashComponent.flash = 0.2
+	}
+
 	c.health -= damage.health
 	if c.health < 0 {
 		c.explode()
@@ -529,6 +538,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			c.height = crawlersSpawnHeight
 			c.sprite.Visible = false
 			c.altSprite.Visible = true
+			c.flashComponent.sprite = c.altSprite
 		}
 		return
 	}
@@ -554,6 +564,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			c.specialDelay = c.scene.Rand().FloatRange(50, 70)
 			c.sprite.Visible = true
 			c.altSprite.Visible = false
+			c.flashComponent.sprite = c.sprite
 			return
 		}
 		return

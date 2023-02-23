@@ -74,6 +74,8 @@ type colonyAgentNode struct {
 	diode      *ge.Sprite
 	colonyCore *colonyCoreNode
 
+	flashComponent damageFlashComponent
+
 	scene *ge.Scene
 
 	stats *agentStats
@@ -169,6 +171,8 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.sprite = scene.NewSprite(a.stats.image)
 	a.sprite.Pos.Base = &a.spritePos
 	a.colonyCore.world.camera.AddGraphicsAbove(a.sprite)
+
+	a.flashComponent.sprite = a.sprite
 
 	if a.faction != neutralFactionTag {
 		a.diode = scene.NewSprite(assets.ImageFactionDiode)
@@ -352,6 +356,7 @@ func (a *colonyAgentNode) orbitingWaypoint() gmath.Vec {
 
 func (a *colonyAgentNode) Update(delta float64) {
 	a.anim.Tick(delta)
+	a.flashComponent.Update(delta)
 
 	a.shadow.Pos.Offset.Y = math.Round(a.height + 4)
 	newShadowAlpha := float32(1.0 - ((a.height / agentFlightHeight) * 0.5))
@@ -442,7 +447,12 @@ func (a *colonyAgentNode) ReceiveEnergyDamage(damage float64) {
 }
 
 func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
+	if damage.health != 0 {
+		a.flashComponent.flash = 0.2
+	}
+
 	a.health -= damage.health
+
 	if a.health < 0 {
 		playSound(a.scene, a.camera(), assets.AudioAgentDestroyed, a.pos)
 		a.colonyCore.actionPriorities.AddWeight(prioritySecurity, 0.05)

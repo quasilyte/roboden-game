@@ -318,6 +318,7 @@ func (g *levelGenerator) placeBoss() {
 	}
 	pos := gmath.RandElem(g.world.rand, spawnLocations)
 	boss := g.world.NewCreepNode(pos, uberBossCreepStats)
+	boss.specialDelay = g.world.rand.FloatRange(3*60, 4*60)
 	g.scene.AddObject(boss)
 
 	g.world.boss = boss

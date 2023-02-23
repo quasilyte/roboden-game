@@ -250,7 +250,7 @@ var workerAgentStats = &agentStats{
 	diodeOffset: 5,
 	tier:        1,
 	cost:        9,
-	upkeep:      200,
+	upkeep:      2,
 	canGather:   true,
 	maxPayload:  1,
 	speed:       80,

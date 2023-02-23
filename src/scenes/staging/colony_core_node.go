@@ -49,7 +49,8 @@ type colonyCoreNode struct {
 
 	scene *ge.Scene
 
-	flashComponent damageFlashComponent
+	flashComponent      damageFlashComponent
+	hatchFlashComponent damageFlashComponent
 
 	pos       gmath.Vec
 	spritePos gmath.Vec
@@ -126,20 +127,21 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 	c.sprite.Shader.SetFloatValue("HP", 1.0)
 	c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
-	c.world.camera.AddGraphicsBelow(c.sprite)
-
-	c.flashComponent.sprite = c.sprite
+	c.world.camera.AddGraphics(c.sprite)
 
 	c.flyingSprite = scene.NewSprite(assets.ImageColonyCoreFlying)
 	c.flyingSprite.Pos.Base = &c.spritePos
 	c.flyingSprite.Visible = false
 	c.flyingSprite.Shader = c.sprite.Shader
-	c.world.camera.AddGraphics(c.flyingSprite)
+	c.world.camera.AddGraphicsSlightlyAbove(c.flyingSprite)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
 	c.hatch.Pos.Base = &c.spritePos
 	c.hatch.Pos.Offset.Y = -20
 	c.world.camera.AddGraphics(c.hatch)
+
+	c.flashComponent.sprite = c.sprite
+	c.hatchFlashComponent.sprite = c.hatch
 
 	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
 	c.evoDiode.Pos.Base = &c.spritePos
@@ -151,13 +153,13 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.upkeepBar.Pos.Offset.Y = -5
 	c.upkeepBar.Pos.Offset.X = -c.upkeepBar.ImageWidth() * 0.5
 	c.upkeepBar.Centered = false
-	c.world.camera.AddGraphicsBelow(c.upkeepBar)
+	c.world.camera.AddGraphics(c.upkeepBar)
 	c.updateUpkeepBar(0)
 
 	c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
 	c.shadow.Pos.Base = &c.spritePos
 	c.shadow.Visible = false
-	c.world.camera.AddGraphicsBelow(c.shadow)
+	c.world.camera.AddGraphics(c.shadow)
 
 	c.resourceRects = make([]*ge.Rect, 3)
 	for i := range c.resourceRects {
@@ -205,6 +207,7 @@ func (c *colonyCoreNode) OnHeal(amount float64) {
 func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
 	if damage.health != 0 {
 		c.flashComponent.flash = 0.2
+		c.hatchFlashComponent.flash = 0.2
 	}
 
 	c.health -= damage.health
@@ -310,6 +313,9 @@ func (c *colonyCoreNode) updateHealthShader() {
 
 func (c *colonyCoreNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
+	if c.hatch.Visible {
+		c.hatchFlashComponent.Update(delta)
+	}
 
 	// FIXME: this should be fixed in the ge package.
 	c.spritePos.X = math.Round(c.pos.X)

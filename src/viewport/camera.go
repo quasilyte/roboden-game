@@ -24,10 +24,11 @@ type Camera struct {
 	Rect       gmath.Rect
 	globalRect gmath.Rect
 
-	bg           *ge.TiledBackground
-	belowObjects []cameraObject
-	objects      []cameraObject
-	aboveObjects []cameraObject
+	bg                   *ge.TiledBackground
+	belowObjects         []cameraObject
+	objects              []cameraObject
+	slightlyAboveObjects []cameraObject
+	aboveObjects         []cameraObject
 
 	screen *ebiten.Image
 
@@ -55,6 +56,10 @@ func (c *Camera) IsDisposed() bool {
 
 func (c *Camera) AddGraphics(o cameraObject) {
 	c.objects = append(c.objects, o)
+}
+
+func (c *Camera) AddGraphicsSlightlyAbove(o cameraObject) {
+	c.slightlyAboveObjects = append(c.slightlyAboveObjects, o)
 }
 
 func (c *Camera) AddGraphicsAbove(o cameraObject) {
@@ -139,6 +144,7 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 	}
 	c.belowObjects = c.drawSlice(c.screen, c.belowObjects)
 	c.objects = c.drawSlice(c.screen, c.objects)
+	c.slightlyAboveObjects = c.drawSlice(c.screen, c.slightlyAboveObjects)
 	c.aboveObjects = c.drawSlice(c.screen, c.aboveObjects)
 
 	var options ebiten.DrawImageOptions

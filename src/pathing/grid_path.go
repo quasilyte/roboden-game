@@ -16,9 +16,9 @@ type GridPath struct {
 }
 
 type BuildPathResult struct {
-	Steps    GridPath
-	Finish   GridCoord
-	Complete bool
+	Steps   GridPath
+	Finish  GridCoord
+	Partial bool
 }
 
 func MakeGridPath(steps ...Direction) GridPath {

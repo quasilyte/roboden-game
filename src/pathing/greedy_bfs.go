@@ -22,7 +22,6 @@ func NewGreedyBFS(numCols, numRows int) *GreedyBFS {
 func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 	var result BuildPathResult
 	if from == to {
-		result.Complete = true
 		return result
 	}
 
@@ -40,6 +39,9 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 	pathmap := bfs.coordMap
 	pathmap.Reset()
 
+	shortestDist := 0xff
+	var fallbackCoord GridCoord
+	foundPath := false
 	for len(hotFrontier) != 0 || !frontier.IsEmpty() {
 		var current weightedGridCoord
 		if len(hotFrontier) != 0 {
@@ -51,16 +53,22 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 
 		if current.Coord == goal {
 			result.Steps = bfs.constructPath(start, goal, pathmap)
-			result.Complete = true
+			foundPath = true
 			break
 		}
 		if current.Weight >= gridPathMaxLen {
 			result.Steps = bfs.constructPath(start, current.Coord, pathmap)
 			result.Finish = current.Coord
+			result.Partial = true
+			foundPath = true
 			break
 		}
 
 		dist := goal.Dist(current.Coord)
+		if dist < shortestDist {
+			shortestDist = dist
+			fallbackCoord = current.Coord
+		}
 		for dir := DirRight; dir <= DirUp; dir++ {
 			next := current.Coord.Move(dir)
 			if !g.CellIsFree(next) {
@@ -82,6 +90,12 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 				frontier.Push(nextDist, nextWeighted)
 			}
 		}
+	}
+
+	if !foundPath {
+		result.Steps = bfs.constructPath(start, fallbackCoord, pathmap)
+		result.Finish = fallbackCoord
+		result.Partial = true
 	}
 
 	// In case if that slice was growing due to appends,

@@ -70,10 +70,10 @@ func TestGreedyBFS(t *testing.T) {
 					strings.Join(m, "\n"), pathLen, have, parseResult.pathLen, want)
 			}
 
-			wantComplete := !test.partial
-			haveComplete := pos == parseResult.dest && result.Complete
-			if haveComplete != wantComplete {
-				t.Fatalf("completed mismatch\nmap:\n%s\nhave: %v\nwant: %v", strings.Join(m, "\n"), haveComplete, wantComplete)
+			wantPartial := test.partial
+			havePartial := pos != parseResult.dest && result.Partial
+			if havePartial != wantPartial {
+				t.Fatalf("partial flag mismatch\nmap:\n%s\nhave: %v\nwant: %v", strings.Join(m, "\n"), havePartial, wantPartial)
 			}
 		})
 	}
@@ -474,6 +474,71 @@ var bfsTests = []bfsTestCase{
 			"........................",
 		},
 		bench: true,
+	},
+
+	{
+		name: "nopath1",
+		path: []string{
+			"A    x.B",
+			".....x..",
+		},
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "nopath2",
+		path: []string{
+			"....Ax.B",
+			".....x..",
+		},
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "nopath3",
+		path: []string{
+			"........",
+			".xxxxx..",
+			".x...x..",
+			".x.A.x..",
+			".x.  x..",
+			".xxxxx..",
+			".......B",
+		},
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "nopath4",
+		path: []string{
+			".....x.....x..",
+			".xxxxx.   .x..",
+			".x...x. x .x..",
+			".x.A.x. x  x..",
+			".x.     xxxx..",
+			".xxxxxxxx.....",
+			".............B",
+		},
+		partial: true,
+		bench:   true,
+	},
+
+	{
+		name: "nopath5",
+		path: []string{
+			".B...x.....x..",
+			".xxxxx.....x..",
+			".x  .x..x..x..",
+			".x.A.x..x..x..",
+			".x......xxxx..",
+			".xxxxxxxx.....",
+			"..............",
+		},
+		partial: true,
+		bench:   true,
 	},
 
 	{

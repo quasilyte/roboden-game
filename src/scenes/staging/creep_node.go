@@ -234,11 +234,9 @@ func (c *creepNode) OnDamage(damage damageValue, source gmath.Vec) {
 		if c.specialModifier == crawlerIdle && (c.pos.DistanceTo(source) > c.stats.weapon.AttackRange*0.8) && c.world.rand.Chance(0.45) {
 			followPos := c.pos.MoveTowards(source, 64*c.world.rand.FloatRange(0.8, 1.4))
 			p := c.world.BuildPath(c.pos, followPos)
-			if p.Complete {
-				c.specialModifier = crawlerMove
-				c.path = p.Steps
-				c.waypoint = c.world.pathgrid.AlignPos(c.pos)
-			}
+			c.specialModifier = crawlerMove
+			c.path = p.Steps
+			c.waypoint = c.world.pathgrid.AlignPos(c.pos)
 		}
 		return
 	}

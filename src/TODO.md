@@ -17,7 +17,6 @@ todo:
 - base should check landing zone before landing
 - rework planner action delay (same action vs other action)
 - is morale damage even viable?
-- render big stone tiles separately (so they don't collide with other tiles like walls)
 - show upkeep while flying
 - maybe group resources into clusters to speedup collision checking?
 

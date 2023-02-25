@@ -35,6 +35,7 @@ package menus
 // * Gameplay:
 //   - Unit cost changes (rebalancing)
 //   - Creep bases are now guarded by a tower (usually)
+//   - Higher resource priority decreases the upkeep (bonus caps at 80% priority with 60% reduction)
 //
 // * Fixes:
 //   - Drones no longer try to pick up a depleted resource

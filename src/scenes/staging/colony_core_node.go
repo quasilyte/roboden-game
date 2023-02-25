@@ -412,6 +412,14 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 	})
 	upkeepDecrease = gmath.ClampMax(upkeepDecrease, 10)
 	upkeepTotal = gmath.ClampMin(upkeepTotal-(upkeepDecrease*15), 0)
+	if resourcesPriority := c.GetResourcePriority(); resourcesPriority > 0.2 {
+		// <=20 -> 0%
+		// 40%  -> 20%
+		// 80%  -> 60% (max)
+		// 100% -> 60% (max)
+		maxPercentageDecrease := gmath.ClampMax(resourcesPriority, 0.6)
+		upkeepTotal = int(float64(upkeepTotal) * (1.2 - maxPercentageDecrease))
+	}
 	var resourcePrice float64
 	switch {
 	case upkeepTotal <= 30:

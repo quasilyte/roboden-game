@@ -247,6 +247,7 @@ var militiaAgentStats = &agentStats{
 		ProjectileSpeed: 180,
 		Damage:          damageValue{health: 2, morale: 2},
 		MaxTargets:      1,
+		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
 	},
 }
@@ -271,6 +272,7 @@ var cripplerAgentStats = &agentStats{
 		ProjectileSpeed: 250,
 		Damage:          damageValue{health: 1, slow: 2},
 		MaxTargets:      2,
+		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
 	},
 }
@@ -296,6 +298,7 @@ var flamerAgentStats = &agentStats{
 		ProjectileSpeed: 160,
 		Damage:          damageValue{health: 5},
 		MaxTargets:      2,
+		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
 	},
 }
@@ -320,6 +323,7 @@ var fighterAgentStats = &agentStats{
 		ProjectileSpeed: 220,
 		Damage:          damageValue{health: 4},
 		MaxTargets:      1,
+		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
 	},
 }
@@ -344,11 +348,11 @@ var antiAirAgentStats = &agentStats{
 		ProjectileSpeed: 250,
 		Damage:          damageValue{health: 2},
 		MaxTargets:      1,
+		BurstSize:       4,
+		BurstDelay:      0.1,
 		Explosion:       projectileExplosionNormal,
 		ArcPower:        2,
 		TargetFlags:     targetFlying,
-		BurstSize:       4,
-		BurstDelay:      0.1,
 		FireOffset:      gmath.Vec{Y: -8},
 	},
 }
@@ -373,6 +377,7 @@ var mortarAgentStats = &agentStats{
 		ProjectileSpeed: 180,
 		Damage:          damageValue{health: 8},
 		MaxTargets:      1,
+		BurstSize:       1,
 		Explosion:       projectileExplosionNormal,
 		ArcPower:        2.5,
 		TargetFlags:     targetGround,
@@ -397,6 +402,7 @@ var destroyerAgentStats = &agentStats{
 		AttackSound: assets.AudioDestroyerBeam,
 		Damage:      damageValue{health: 6},
 		MaxTargets:  1,
+		BurstSize:   1,
 		TargetFlags: targetFlying | targetGround,
 	},
 }
@@ -423,6 +429,7 @@ var repellerAgentStats = &agentStats{
 		ProjectileSpeed: 200,
 		Damage:          damageValue{health: 1, morale: 4},
 		MaxTargets:      2,
+		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
 	},
 }

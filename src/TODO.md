@@ -7,6 +7,7 @@ todo engine:
 - why animation affects Y axis?
 
 todo:
+- show resources when base is flying
 - consider taking a target size into account when calculating impact range
 - controls rebinding
 - move world generation to a background task and add a loading screen that waits for it?

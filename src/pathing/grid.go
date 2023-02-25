@@ -52,8 +52,8 @@ func (g *Grid) SetCell(c GridCoord, v bool) {
 func (g *Grid) UnmarkCell(c GridCoord) {
 	i := uint(c.Y)*g.numCols + uint(c.X)
 	byteIndex := i / 8
-	bitIndex := i % 8
 	if byteIndex < uint(len(g.bytes)) {
+		bitIndex := i % 8
 		g.bytes[byteIndex] &^= 1 << bitIndex
 	}
 }
@@ -61,8 +61,8 @@ func (g *Grid) UnmarkCell(c GridCoord) {
 func (g *Grid) MarkCell(c GridCoord) {
 	i := uint(c.Y)*g.numCols + uint(c.X)
 	byteIndex := i / 8
-	bitIndex := i % 8
 	if byteIndex < uint(len(g.bytes)) {
+		bitIndex := i % 8
 		g.bytes[byteIndex] |= 1 << bitIndex
 	}
 }
@@ -76,8 +76,8 @@ func (g *Grid) CellIsFree(c GridCoord) bool {
 
 	i := y*g.numCols + x
 	byteIndex := i / 8
-	bitIndex := i % 8
 	if byteIndex < uint(len(g.bytes)) {
+		bitIndex := i % 8
 		return (g.bytes[byteIndex] & (1 << bitIndex)) == 0
 	}
 	// Consider out of bound cells as marked.

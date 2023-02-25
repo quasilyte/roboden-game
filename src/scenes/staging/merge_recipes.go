@@ -12,17 +12,17 @@ package staging
 // blue militia ++
 //
 // Used:
-// freighter: yellow worker + green worker
-// redminer: yellow worker + red worker
-// crippler: yellow militia + green militia
-// fighter: red militia + green militia
-// servo: yellow worker + blue worker
-// repeller: red worker + blue worker
-// recharger: green worker + blue worker
-// repair: red worker + blue militia
-// generator: green worker + yellow militia
 // mortar: green worker + red militia
 // antiair: red militia + blue militia
+// recharger: green worker + blue worker
+// freighter: yellow worker + green worker
+// redminer: yellow worker + red worker
+// fighter: red militia + green militia
+// servo: yellow worker + blue worker
+// crippler: yellow militia + green militia
+// repeller: red worker + blue worker
+// generator: green worker + yellow militia
+// repair: red worker + blue militia
 //
 // Unused:
 // yellow worker + red militia
@@ -51,61 +51,60 @@ var tier2agentMergeRecipeList = []agentMergeRecipe{
 		agent1faction: redFactionTag,
 		agent2kind:    agentMilitia,
 		agent2faction: blueFactionTag,
-		result:        mortarAgentStats,
+		result:        antiAirAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,
 		agent1faction: blueFactionTag,
 		agent2kind:    agentWorker,
-		agent2faction: blueFactionTag,
+		agent2faction: greenFactionTag,
 		result:        rechargeAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,
 		agent1faction: yellowFactionTag,
 		agent2kind:    agentWorker,
-		agent2faction: yellowFactionTag,
+		agent2faction: greenFactionTag,
 		result:        freighterAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,
 		agent1faction: redFactionTag,
 		agent2kind:    agentWorker,
-		agent2faction: redFactionTag,
+		agent2faction: yellowFactionTag,
 		result:        redminerAgentStats,
 	},
-
 	{
 		agent1kind:    agentMilitia,
 		agent1faction: redFactionTag,
 		agent2kind:    agentMilitia,
-		agent2faction: redFactionTag,
+		agent2faction: greenFactionTag,
 		result:        fighterAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,
 		agent1faction: yellowFactionTag,
 		agent2kind:    agentWorker,
-		agent2faction: greenFactionTag,
+		agent2faction: blueFactionTag,
 		result:        servoAgentStats,
 	},
 	{
 		agent1kind:    agentMilitia,
-		agent1faction: greenFactionTag,
+		agent1faction: yellowFactionTag,
 		agent2kind:    agentMilitia,
 		agent2faction: greenFactionTag,
 		result:        cripplerAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,
-		agent1faction: blueFactionTag,
-		agent2kind:    agentMilitia,
+		agent1faction: redFactionTag,
+		agent2kind:    agentWorker,
 		agent2faction: blueFactionTag,
 		result:        repellerAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,
-		agent1faction: blueFactionTag,
+		agent1faction: greenFactionTag,
 		agent2kind:    agentMilitia,
 		agent2faction: yellowFactionTag,
 		result:        generatorAgentStats,
@@ -114,7 +113,7 @@ var tier2agentMergeRecipeList = []agentMergeRecipe{
 		agent1kind:    agentWorker,
 		agent1faction: redFactionTag,
 		agent2kind:    agentMilitia,
-		agent2faction: greenFactionTag,
+		agent2faction: blueFactionTag,
 		result:        repairAgentStats,
 	},
 }

@@ -28,6 +28,7 @@ package menus
 //   - Added mountains as a higher height wall types
 //   - Crawler creeps (spawned by a boss)
 //   - Added mortar drone
+//   - Added anti-air missile drone
 //
 // * Visual improvements:
 //   - Added a flash effect when a unit (friendly or not) takes damage

@@ -24,9 +24,8 @@ type creepStats struct {
 
 	weapon *weaponStats
 
-	beamColor  color.RGBA
-	beamWidth  float64
-	fireOffset gmath.Vec
+	beamColor color.RGBA
+	beamWidth float64
 }
 
 var turretCreepStats = &creepStats{
@@ -46,6 +45,7 @@ var turretCreepStats = &creepStats{
 		Explosion:       projectileExplosionNormal,
 		Reload:          3.5,
 		FireOffset:      gmath.Vec{Y: -8},
+		TargetFlags:     targetFlying | targetGround,
 	},
 	size: 38,
 }
@@ -75,6 +75,7 @@ var wandererCreepStats = &creepStats{
 		Damage:          damageValue{health: 4},
 		ProjectileImage: assets.ImageWandererProjectile,
 		Reload:          1.8,
+		TargetFlags:     targetFlying | targetGround,
 	},
 }
 
@@ -86,6 +87,7 @@ var tankCreepStats = &creepStats{
 	weapon: &weaponStats{
 		MaxTargets:      1,
 		BurstSize:       3,
+		BurstDelay:      0.12,
 		AttackSound:     assets.AudioTankShot,
 		AttackRange:     110,
 		ImpactArea:      10,
@@ -94,6 +96,7 @@ var tankCreepStats = &creepStats{
 		ProjectileImage: assets.ImageTankProjectile,
 		Reload:          2.2,
 		FireOffset:      gmath.Vec{Y: -2},
+		TargetFlags:     targetFlying | targetGround,
 	},
 	size: 24,
 }
@@ -107,6 +110,7 @@ var crawlerCreepStats = &creepStats{
 	weapon: &weaponStats{
 		MaxTargets:      1,
 		BurstSize:       2,
+		BurstDelay:      0.12,
 		AttackSound:     assets.AudioTankShot,
 		AttackRange:     170,
 		ImpactArea:      14,
@@ -114,9 +118,10 @@ var crawlerCreepStats = &creepStats{
 		Damage:          damageValue{health: 2},
 		ProjectileImage: assets.ImageTankProjectile,
 		Reload:          1.7,
+		TargetFlags:     targetFlying | targetGround,
+		FireOffset:      gmath.Vec{Y: -2},
 	},
-	fireOffset: gmath.Vec{Y: -2},
-	size:       24,
+	size: 24,
 }
 
 var eliteCrawlerCreepStats = &creepStats{
@@ -135,9 +140,10 @@ var eliteCrawlerCreepStats = &creepStats{
 		Damage:          damageValue{health: 3},
 		ProjectileImage: assets.ImageEliteCrawlerProjectile,
 		Reload:          1.9,
+		TargetFlags:     targetFlying | targetGround,
+		FireOffset:      gmath.Vec{Y: -2},
 	},
-	fireOffset: gmath.Vec{Y: -2},
-	size:       24,
+	size: 24,
 }
 
 var assaultCreepStats = &creepStats{
@@ -158,6 +164,7 @@ var assaultCreepStats = &creepStats{
 		Damage:          damageValue{health: 2},
 		ProjectileImage: assets.ImageAssaultProjectile,
 		Reload:          0.55,
+		TargetFlags:     targetFlying | targetGround,
 	},
 }
 
@@ -175,6 +182,7 @@ var uberBossCreepStats = &creepStats{
 		AttackRange: 220,
 		Damage:      damageValue{health: 8},
 		Reload:      2.8,
+		TargetFlags: targetFlying | targetGround,
 	},
 	beamColor: railgunBeamColor,
 	beamWidth: 3,
@@ -194,6 +202,7 @@ var stunnerCreepStats = &creepStats{
 		AttackRange: 230,
 		Damage:      damageValue{health: 2, energy: 50},
 		Reload:      2.6,
+		TargetFlags: targetFlying | targetGround,
 	},
 	beamColor: stunnerBeamColor,
 	beamWidth: 2,

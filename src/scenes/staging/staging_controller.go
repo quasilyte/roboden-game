@@ -171,6 +171,15 @@ func (c *Controller) Init(scene *ge.Scene) {
 		scene.AddObject(tutorial)
 	}
 
+	{
+		creep := c.world.NewCreepNode(c.selectedColony.pos.Add(gmath.Vec{X: 160}), wandererCreepStats)
+		scene.AddObject(creep)
+	}
+	{
+		creep := c.world.NewCreepNode(c.selectedColony.pos.Add(gmath.Vec{X: -160}), wandererCreepStats)
+		scene.AddObject(creep)
+	}
+
 	scene.AddObject(c.choices)
 }
 

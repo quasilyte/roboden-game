@@ -2,6 +2,7 @@ package staging
 
 import (
 	resource "github.com/quasilyte/ebitengine-resource"
+	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 )
 
@@ -78,11 +79,11 @@ func init() {
 // yellow worker +++
 // yellow militia ++
 // red worker +++
-// red militia ++
+// red militia +++
 // green worker +++
 // green militia ++
 // blue worker +++
-// blue militia ++
+// blue militia +++
 //
 // Used:
 // freighter: yellow worker + green worker
@@ -95,6 +96,7 @@ func init() {
 // recharger: red worker + blue worker
 // generator: green worker + yellow militia
 // mortar: green worker + red militia
+// antiair: red militia + blue militia
 //
 // Unused:
 // green worker + blue worker
@@ -113,7 +115,6 @@ func init() {
 // blue worker + yellow militia
 // yellow militia + blue militia
 // yellow militia + red militia
-// red militia + blue militia
 // green militia + blue militia
 var tier2agentMergeRecipeList = []agentMergeRecipe{
 	{
@@ -121,6 +122,13 @@ var tier2agentMergeRecipeList = []agentMergeRecipe{
 		agent1faction: greenFactionTag,
 		agent2kind:    agentMilitia,
 		agent2faction: redFactionTag,
+		result:        mortarAgentStats,
+	},
+	{
+		agent1kind:    agentMilitia,
+		agent1faction: redFactionTag,
+		agent2kind:    agentMilitia,
+		agent2faction: blueFactionTag,
 		result:        mortarAgentStats,
 	},
 	{
@@ -384,6 +392,7 @@ var militiaAgentStats = &agentStats{
 		ProjectileSpeed: 180,
 		Damage:          damageValue{health: 2, morale: 2},
 		MaxTargets:      1,
+		TargetFlags:     targetFlying | targetGround,
 	},
 }
 
@@ -407,6 +416,7 @@ var cripplerAgentStats = &agentStats{
 		ProjectileSpeed: 250,
 		Damage:          damageValue{health: 1, slow: 2},
 		MaxTargets:      2,
+		TargetFlags:     targetFlying | targetGround,
 	},
 }
 
@@ -431,6 +441,7 @@ var flamerAgentStats = &agentStats{
 		ProjectileSpeed: 160,
 		Damage:          damageValue{health: 5},
 		MaxTargets:      2,
+		TargetFlags:     targetFlying | targetGround,
 	},
 }
 
@@ -444,7 +455,7 @@ var fighterAgentStats = &agentStats{
 	upkeep:      7,
 	canPatrol:   true,
 	speed:       90,
-	maxHealth:   21,
+	maxHealth:   25,
 	weapon: &weaponStats{
 		AttackRange:     180,
 		Reload:          2,
@@ -454,6 +465,36 @@ var fighterAgentStats = &agentStats{
 		ProjectileSpeed: 220,
 		Damage:          damageValue{health: 4},
 		MaxTargets:      1,
+		TargetFlags:     targetFlying | targetGround,
+	},
+}
+
+var antiAirAgentStats = &agentStats{
+	kind:        agentAntiAir,
+	image:       assets.ImageAntiAirAgent,
+	size:        sizeMedium,
+	diodeOffset: 1,
+	tier:        2,
+	cost:        22,
+	upkeep:      8,
+	canPatrol:   true,
+	speed:       80,
+	maxHealth:   22,
+	weapon: &weaponStats{
+		AttackRange:     240,
+		Reload:          2.4,
+		AttackSound:     assets.AudioAntiAirMissiles,
+		ProjectileImage: assets.ImageAntiAirMissile,
+		ImpactArea:      18,
+		ProjectileSpeed: 250,
+		Damage:          damageValue{health: 2},
+		MaxTargets:      1,
+		Explosion:       projectileExplosionNormal,
+		ArcPower:        2,
+		TargetFlags:     targetFlying,
+		BurstSize:       4,
+		BurstDelay:      0.1,
+		FireOffset:      gmath.Vec{Y: -8},
 	},
 }
 
@@ -478,8 +519,9 @@ var mortarAgentStats = &agentStats{
 		Damage:          damageValue{health: 8},
 		MaxTargets:      1,
 		Explosion:       projectileExplosionNormal,
-		Arc:             true,
-		GroundOnly:      true,
+		ArcPower:        2.5,
+		TargetFlags:     targetGround,
+		RoundProjectile: true,
 	},
 }
 
@@ -500,6 +542,7 @@ var destroyerAgentStats = &agentStats{
 		AttackSound: assets.AudioDestroyerBeam,
 		Damage:      damageValue{health: 6},
 		MaxTargets:  1,
+		TargetFlags: targetFlying | targetGround,
 	},
 }
 
@@ -525,5 +568,6 @@ var repellerAgentStats = &agentStats{
 		ProjectileSpeed: 200,
 		Damage:          damageValue{health: 1, morale: 4},
 		MaxTargets:      2,
+		TargetFlags:     targetFlying | targetGround,
 	},
 }

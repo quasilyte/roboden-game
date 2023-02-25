@@ -32,6 +32,7 @@ const (
 	agentRecharger
 	agentGenerator
 	agentMortar
+	agentAntiAir
 
 	// Tier3
 	agentRefresher
@@ -576,7 +577,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		if len(targets) >= a.stats.weapon.MaxTargets {
 			break
 		}
-		if a.stats.weapon.GroundOnly && c.IsFlying() {
+		if a.stats.weapon.TargetFlags&c.TargetKind() == 0 {
 			continue
 		}
 		if c.pos.DistanceTo(a.pos) >= a.stats.weapon.AttackRange {
@@ -609,14 +610,18 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	default:
 		for _, target := range targets {
 			toPos := snipePos(a.stats.weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
-			p := newProjectileNode(projectileConfig{
-				Camera:  a.colonyCore.world.camera,
-				Weapon:  a.stats.weapon,
-				FromPos: &a.pos,
-				ToPos:   toPos,
-				Target:  target,
-			})
-			a.scene.AddObject(p)
+			for i := 0; i < a.stats.weapon.BurstSize; i++ {
+				fireDelay := float64(i) * a.stats.weapon.BurstDelay
+				p := newProjectileNode(projectileConfig{
+					Camera:    a.colonyCore.world.camera,
+					Weapon:    a.stats.weapon,
+					FromPos:   &a.pos,
+					ToPos:     toPos,
+					Target:    target,
+					FireDelay: fireDelay,
+				})
+				a.scene.AddObject(p)
+			}
 		}
 	}
 

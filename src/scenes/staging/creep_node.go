@@ -175,6 +175,13 @@ func (c *creepNode) IsFlying() bool {
 	return c.shadow != nil
 }
 
+func (c *creepNode) TargetKind() targetKind {
+	if c.IsFlying() {
+		return targetFlying
+	}
+	return targetGround
+}
+
 func (c *creepNode) explode() {
 	switch c.stats.kind {
 	case creepUberBoss:
@@ -256,7 +263,7 @@ func (c *creepNode) doAttack(target projectileTarget) {
 	if c.stats.weapon.ProjectileImage != assets.ImageNone {
 		toPos := snipePos(c.stats.weapon.ProjectileSpeed, c.pos, *target.GetPos(), target.GetVelocity())
 		for i := 0; i < c.stats.weapon.BurstSize; i++ {
-			fireDelay := float64(i) * 0.12
+			fireDelay := float64(i) * c.stats.weapon.BurstDelay
 			p := newProjectileNode(projectileConfig{
 				Camera:    c.world.camera,
 				Weapon:    c.stats.weapon,

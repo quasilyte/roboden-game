@@ -1,6 +1,8 @@
 package staging
 
 import (
+	"math"
+
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -26,6 +28,7 @@ type projectileNode struct {
 
 	arcProgressionScaling float64
 	arcProgression        float64
+	arcStart              gmath.Vec
 	arcFrom               gmath.Vec
 	arcTo                 gmath.Vec
 
@@ -43,6 +46,13 @@ type projectileTarget interface {
 	IsFlying() bool
 }
 
+type targetKind int
+
+const (
+	targetFlying targetKind = 1 << iota
+	targetGround
+)
+
 type weaponStats struct {
 	MaxTargets            int
 	ProjectileImage       resource.ImageID
@@ -53,11 +63,13 @@ type weaponStats struct {
 	Damage                damageValue
 	Explosion             projectileExplosionKind
 	BurstSize             int
+	BurstDelay            float64
 	Reload                float64
 	AttackSound           resource.AudioID
 	FireOffset            gmath.Vec
-	Arc                   bool
-	GroundOnly            bool
+	ArcPower              float64
+	TargetFlags           targetKind
+	RoundProjectile       bool
 }
 
 type projectileConfig struct {
@@ -74,18 +86,20 @@ func newProjectileNode(config projectileConfig) *projectileNode {
 		camera:    config.Camera,
 		weapon:    config.Weapon,
 		fromPos:   config.FromPos,
-		pos:       *config.FromPos,
+		pos:       config.FromPos.Add(config.Weapon.FireOffset),
 		toPos:     config.ToPos,
 		target:    config.Target,
 		fireDelay: config.FireDelay,
 	}
-	if p.weapon.Arc {
-		dist := p.fromPos.DistanceTo(p.toPos)
+	if p.weapon.ArcPower != 0 {
+		dist := p.pos.DistanceTo(p.toPos)
 		t := dist / p.weapon.ProjectileSpeed
 		p.arcProgressionScaling = 1.0 / t
-		power := gmath.Vec{Y: dist * 2}
-		p.arcFrom = p.fromPos.Add(power)
+		power := gmath.Vec{Y: dist * p.weapon.ArcPower}
+		p.arcFrom = p.pos.Add(power)
 		p.arcTo = p.toPos.Add(power)
+		p.arcStart = p.pos
+		p.rotation = -math.Pi / 2
 	}
 	return p
 }
@@ -121,7 +135,8 @@ func (p *projectileNode) Update(delta float64) {
 		p.fireDelay -= delta
 		if p.fireDelay <= 0 {
 			p.sprite.Visible = true
-			p.pos = *p.fromPos
+			p.pos = p.fromPos.Add(p.weapon.FireOffset)
+			p.arcStart = p.pos
 		} else {
 			return
 		}
@@ -146,7 +161,10 @@ func (p *projectileNode) Update(delta float64) {
 		p.detonate()
 		return
 	}
-	newPos := p.fromPos.CubicInterpolate(p.arcFrom, p.toPos, p.arcTo, p.arcProgression)
+	newPos := p.arcStart.CubicInterpolate(p.arcFrom, p.toPos, p.arcTo, p.arcProgression)
+	if !p.weapon.RoundProjectile {
+		p.rotation = p.pos.AngleToPoint(newPos)
+	}
 	p.pos = newPos
 }
 

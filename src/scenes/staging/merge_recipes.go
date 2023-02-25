@@ -3,13 +3,13 @@ package staging
 // Merge usage:
 //
 // yellow worker +++
-// yellow militia ++
+// yellow militia +++
 // red worker +++
 // red militia +++
 // green worker ++++
 // green militia ++
 // blue worker +++
-// blue militia ++
+// blue militia +++
 //
 // Used:
 // mortar: green worker + red militia
@@ -23,6 +23,7 @@ package staging
 // repeller: red worker + blue worker
 // generator: green worker + yellow militia
 // repair: red worker + blue militia
+// prism: yellow militia + blue militia
 //
 // Unused:
 // yellow worker + red militia
@@ -35,7 +36,6 @@ package staging
 // blue worker + red militia
 // blue worker + green militia
 // blue worker + yellow militia
-// yellow militia + blue militia
 // yellow militia + red militia
 // green militia + blue militia
 var tier2agentMergeRecipeList = []agentMergeRecipe{
@@ -52,6 +52,13 @@ var tier2agentMergeRecipeList = []agentMergeRecipe{
 		agent2kind:    agentMilitia,
 		agent2faction: blueFactionTag,
 		result:        antiAirAgentStats,
+	},
+	{
+		agent1kind:    agentMilitia,
+		agent1faction: yellowFactionTag,
+		agent2kind:    agentMilitia,
+		agent2faction: blueFactionTag,
+		result:        prismAgentStats,
 	},
 	{
 		agent1kind:    agentWorker,

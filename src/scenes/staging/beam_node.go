@@ -23,8 +23,19 @@ var (
 	railgunBeamColor   = ge.RGB(0xbd1844)
 	stunnerBeamColor   = ge.RGB(0x7d21cd)
 	destroyerBeamColor = ge.RGB(0xf58f54)
+	prismBeamColor1    = ge.RGB(0x529eb8)
+	prismBeamColor2    = ge.RGB(0x61bad8)
+	prismBeamColor3    = ge.RGB(0x7bdbfc)
+	prismBeamColor4    = ge.RGB(0xccf2ff)
 	evoBeamColor       = ge.RGB(0xa641c2)
 )
+
+var prismBeamColors = []color.RGBA{
+	prismBeamColor1,
+	prismBeamColor2,
+	prismBeamColor3,
+	prismBeamColor4,
+}
 
 func newBeamNode(camera *viewport.Camera, from, to ge.Pos, c color.RGBA) *beamNode {
 	return &beamNode{

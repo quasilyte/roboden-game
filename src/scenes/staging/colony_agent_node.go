@@ -26,6 +26,7 @@ const (
 	agentRedminer
 	agentCrippler
 	agentFighter
+	agentPrism
 	agentServo
 	agentRepeller
 	agentRepair
@@ -606,6 +607,34 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			targetOffset = targetOffset.Add(targetOffsetStep)
 		}
 		target.OnDamage(a.stats.weapon.Damage, a.pos)
+
+	case agentPrism:
+		target := targets[0]
+		damage := a.stats.weapon.Damage
+		width := 1.0
+		numReflections := 0
+		pos := &a.pos
+		a.colonyCore.agents.Find(searchFighters|searchRandomized, func(ally *colonyAgentNode) bool {
+			if ally.stats.kind != agentPrism || ally == a {
+				return false
+			}
+			if ally.pos.DistanceSquaredTo(*pos) > (196 * 196) {
+				return false
+			}
+			ally.attackDelay += float64(numReflections) * 0.3
+			beam := newBeamNode(a.camera(), ge.Pos{Base: pos}, ge.Pos{Base: &ally.pos}, prismBeamColors[numReflections])
+			beam.width = width
+			a.scene.AddObject(beam)
+			numReflections++
+			damage.health++
+			width++
+			pos = &ally.pos
+			return numReflections >= 3
+		})
+		beam := newBeamNode(a.camera(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
+		beam.width = width
+		a.scene.AddObject(beam)
+		target.OnDamage(damage, a.pos)
 
 	default:
 		for _, target := range targets {

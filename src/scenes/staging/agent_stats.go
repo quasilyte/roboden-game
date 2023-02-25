@@ -303,6 +303,30 @@ var flamerAgentStats = &agentStats{
 	},
 }
 
+var prismAgentStats = &agentStats{
+	kind:        agentPrism,
+	image:       assets.ImagePrismAgent,
+	size:        sizeMedium,
+	diodeOffset: 1,
+	tier:        2,
+	cost:        24,
+	upkeep:      10,
+	canPatrol:   true,
+	speed:       65,
+	maxHealth:   28,
+	weapon: &weaponStats{
+		AttackRange:     200,
+		Reload:          3.7,
+		AttackSound:     assets.AudioPrismShot,
+		ImpactArea:      8,
+		ProjectileSpeed: 220,
+		Damage:          damageValue{health: 4},
+		MaxTargets:      1,
+		BurstSize:       1,
+		TargetFlags:     targetFlying | targetGround,
+	},
+}
+
 var fighterAgentStats = &agentStats{
 	kind:        agentFighter,
 	image:       assets.ImageFighterAgent,

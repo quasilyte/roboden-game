@@ -54,6 +54,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageRechargerAgent: {Path: "image/drones/recharger_agent.png", FrameWidth: 17},
 		ImageRefresherAgent: {Path: "image/drones/refresher_agent.png", FrameWidth: 23},
 		ImageFighterAgent:   {Path: "image/drones/fighter_agent.png", FrameWidth: 15},
+		ImagePrismAgent:     {Path: "image/drones/prism_agent.png", FrameWidth: 15},
 		ImageDestroyerAgent: {Path: "image/drones/destroyer_agent.png", FrameWidth: 33},
 		ImageRepellerAgent:  {Path: "image/drones/repeller_agent.png", FrameWidth: 15},
 		ImageFreighterAgent: {Path: "image/drones/freighter_agent.png", FrameWidth: 17},
@@ -181,6 +182,7 @@ const (
 	ImageMilitiaAgent
 	ImageFlamerAgent
 	ImageAntiAirAgent
+	ImagePrismAgent
 	ImageRepairAgent
 	ImageRechargerAgent
 	ImageRefresherAgent

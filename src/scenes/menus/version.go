@@ -29,6 +29,7 @@ package menus
 //   - Crawler creeps (spawned by a boss)
 //   - Added mortar drone
 //   - Added anti-air missile drone
+//   - Added prism drone
 //
 // * Visual improvements:
 //   - Added a flash effect when a unit (friendly or not) takes damage

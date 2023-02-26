@@ -7,6 +7,7 @@ todo engine:
 - why animation affects Y axis?
 
 todo:
+- don't send attacking units that can't attack target
 - add antiair missle fire effect
 - show resources when base is flying
 - consider taking a target size into account when calculating impact range

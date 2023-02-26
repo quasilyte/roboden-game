@@ -310,7 +310,7 @@ var prismAgentStats = &agentStats{
 	diodeOffset: 1,
 	tier:        2,
 	cost:        24,
-	upkeep:      10,
+	upkeep:      12,
 	canPatrol:   true,
 	speed:       65,
 	maxHealth:   28,
@@ -337,7 +337,7 @@ var fighterAgentStats = &agentStats{
 	upkeep:      7,
 	canPatrol:   true,
 	speed:       90,
-	maxHealth:   25,
+	maxHealth:   26,
 	weapon: &weaponStats{
 		AttackRange:     180,
 		Reload:          2,

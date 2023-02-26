@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/quasilyte/ge"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/scenes/menus"
@@ -61,7 +62,7 @@ func inferDefaultLang() string {
 	for _, l := range languages {
 		switch l {
 		case "en", "ru":
-			if selectedLanguage == "" || selectedLanguage != defaultLanguage {
+			if selectedLanguage != defaultLanguage {
 				selectedLanguage = l
 			}
 		}

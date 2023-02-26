@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui"

@@ -3,6 +3,7 @@ package controls
 import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
+
 	"github.com/quasilyte/roboden-game/session"
 )
 
@@ -52,7 +53,7 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 		ActionChoice5:    {input.Key5, input.KeyT, input.KeyGamepadR1},
 		ActionMoveChoice: {input.KeyMouseRight},
 
-		ActionClick: {input.KeyMouseLeft},
+		ActionClick: {input.KeyMouseLeft, input.KeyTouchTap},
 	}
 
 	state.MainInput = ctx.Input.NewHandler(0, keymap)

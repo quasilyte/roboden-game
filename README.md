@@ -49,7 +49,16 @@ If you want to build a game for a different platform, use Go cross-compilation:
 GOOS=windows go build -o ../bin/roboden.exe ./cmd/game
 ```
 
-This game is tested on these targets:
+#### Build for web(wasm):
+
+```bash
+cd src/
+make wasm
+```
+
+After that you can open index.html in browser.
+
+#### This game is tested on these targets:
 
 * windows/amd64
 * linux/amd64

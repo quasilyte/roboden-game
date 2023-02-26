@@ -152,9 +152,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.scene = scene
 
 	if a.cloneGen == 0 {
-		a.maxHealth = scene.Rand().FloatRange(10, 15)
-		a.maxEnergy = scene.Rand().FloatRange(60, 200)
-		a.speed = scene.Rand().FloatRange(70, 100)
+		a.maxHealth = a.stats.maxHealth * scene.Rand().FloatRange(0.9, 1.1)
+		a.maxEnergy = scene.Rand().FloatRange(100, 200)
+		a.speed = a.stats.speed * scene.Rand().FloatRange(0.8, 1.1)
 
 		if scene.Rand().Chance(0.4) {
 			a.traits |= traitNeverStop

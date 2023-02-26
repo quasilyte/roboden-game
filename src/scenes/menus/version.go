@@ -43,4 +43,5 @@ package menus
 // * Fixes:
 //   - Drones no longer try to pick up a depleted resource
 //   - Fixed an upkeed visual bug (trash is rendered near the base)
+//   - Fixed invalid drone stats (max hp and speed)
 const buildNumber int = 4

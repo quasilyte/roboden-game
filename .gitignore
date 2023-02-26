@@ -1,1 +1,4 @@
 bin
+*.wasm
+src/vendor
+.idea

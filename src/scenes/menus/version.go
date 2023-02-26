@@ -41,6 +41,7 @@ package menus
 //   - Higher resource priority decreases the upkeep (bonus caps at 80% priority with 60% reduction)
 //   - Reworked most merge recipes
 //   - Bases try to send at least 1 worker as reinforcements
+//   - Base will try to produce at least 2 workers even if security priority is high
 //
 // * Fixes:
 //   - Drones no longer try to pick up a depleted resource

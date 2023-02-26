@@ -121,6 +121,9 @@ func (p *colonyActionPlanner) pickGatherAction() colonyAction {
 }
 
 func (p *colonyActionPlanner) combatUnitProbability() float64 {
+	if len(p.colony.agents.workers) < 2 {
+		return 0
+	}
 	minCombatUnits := int(p.colony.GetSecurityPriority() * 20)
 	if p.colony.GetSecurityPriority() > 0.1 && len(p.colony.agents.fighters) < minCombatUnits {
 		return 0.9
@@ -244,7 +247,11 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 		}
 	}
 
-	combatUnit := p.world.rand.Chance(p.combatUnitProbability())
+	combatUnitChance := p.combatUnitProbability()
+	combatUnit := false
+	if combatUnitChance != 0 {
+		combatUnit = p.world.rand.Chance(combatUnitChance)
+	}
 
 	if !combatUnit && p.colony.NumAgents() > p.colony.calcUnitLimit() {
 		return colonyAction{}

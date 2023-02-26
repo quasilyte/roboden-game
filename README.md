@@ -56,7 +56,7 @@ cd src/
 make wasm
 ```
 
-After this you can open index.html in browser.
+After that you can open index.html in browser.
 
 #### This game is tested on these targets:
 

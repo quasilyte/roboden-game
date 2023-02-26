@@ -43,6 +43,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageColonyCoreDiode:    {Path: "image/colony_core_diode.png", FrameWidth: 4},
 		ImageColonyCoreShadow:   {Path: "image/colony_core_shadow.png"},
 
+		ImageGunpointAgent:  {Path: "image/drones/gunpoint_agent.png"},
 		ImageWorkerAgent:    {Path: "image/drones/worker_agent.png", FrameWidth: 9},
 		ImageMilitiaAgent:   {Path: "image/drones/militia_agent.png", FrameWidth: 11},
 		ImageMortarAgent:    {Path: "image/drones/mortar_agent.png", FrameWidth: 21},
@@ -99,6 +100,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageCripplerProjectile:     {Path: "image/projectile/crippler_projectile.png"},
 		ImageMilitiaProjectile:      {Path: "image/projectile/militia_projectile.png"},
 		ImageRepellerProjectile:     {Path: "image/projectile/repeller_projectile.png"},
+		ImageGunpointProjectile:     {Path: "image/projectile/gunpoint_projectile.png"},
 		ImageFighterProjectile:      {Path: "image/projectile/fighter_projectile.png"},
 		ImageWandererProjectile:     {Path: "image/projectile/wanderer_projectile.png"},
 		ImageFlamerProjectile:       {Path: "image/projectile/flamer_projectile.png"},
@@ -177,6 +179,7 @@ const (
 	ImageColonyCoreHatch
 	ImageColonyCoreDiode
 	ImageColonyCoreShadow
+	ImageGunpointAgent
 	ImageWorkerAgent
 	ImageGeneratorAgent
 	ImageMilitiaAgent
@@ -225,6 +228,7 @@ const (
 	ImageCripplerProjectile
 	ImageMilitiaProjectile
 	ImageRepellerProjectile
+	ImageGunpointProjectile
 	ImageFighterProjectile
 	ImageWandererProjectile
 	ImageFlamerProjectile

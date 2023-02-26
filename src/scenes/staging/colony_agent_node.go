@@ -41,6 +41,9 @@ const (
 	agentDestroyer
 
 	agentKindNum
+
+	// Buildings (not real agents/drones)
+	agentGunpoint
 )
 
 type colonyAgentMode uint8
@@ -64,7 +67,8 @@ const (
 	agentModeRecycleLanding
 	agentModeMerging
 	agentModeMergeTransform
-	agentModeBuildBase
+	agentModeBuildBuilding
+	agentModeGuardForever
 )
 
 type agentTraitBits uint64
@@ -177,7 +181,11 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 	a.sprite = scene.NewSprite(a.stats.image)
 	a.sprite.Pos.Base = &a.spritePos
-	a.colonyCore.world.camera.AddGraphicsAbove(a.sprite)
+	if a.IsFlying() {
+		a.camera().AddGraphicsAbove(a.sprite)
+	} else {
+		a.camera().AddGraphics(a.sprite)
+	}
 
 	a.flashComponent.sprite = a.sprite
 
@@ -188,19 +196,21 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		var colorScale ge.ColorScale
 		colorScale.SetColor(factionByTag(a.faction).color)
 		a.diode.SetColorScale(colorScale)
-		a.colonyCore.world.camera.AddGraphicsAbove(a.diode)
+		a.camera().AddGraphicsAbove(a.diode)
 	}
 
-	shadowImage := assets.ImageSmallShadow
-	switch a.stats.size {
-	case sizeMedium:
-		shadowImage = assets.ImageMediumShadow
-	case sizeLarge:
-		shadowImage = assets.ImageBigShadow
+	if !a.IsTurret() {
+		shadowImage := assets.ImageSmallShadow
+		switch a.stats.size {
+		case sizeMedium:
+			shadowImage = assets.ImageMediumShadow
+		case sizeLarge:
+			shadowImage = assets.ImageBigShadow
+		}
+		a.shadow = scene.NewSprite(shadowImage)
+		a.shadow.Pos.Base = &a.spritePos
+		a.camera().AddGraphics(a.shadow)
 	}
-	a.shadow = scene.NewSprite(shadowImage)
-	a.shadow.Pos.Base = &a.spritePos
-	a.colonyCore.world.camera.AddGraphics(a.shadow)
 
 	a.anim = ge.NewRepeatedAnimation(a.sprite, -1)
 	a.anim.Tick(scene.Rand().FloatRange(0, 0.7))
@@ -208,7 +218,15 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
 
+func (a *colonyAgentNode) IsTurret() bool {
+	return a.stats.kind == agentGunpoint
+}
+
 func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target any) bool {
+	if a.IsTurret() {
+		panic("assigning a mode to a turret")
+	}
+
 	switch mode {
 	case agentModePatrol:
 		a.mode = mode
@@ -330,8 +348,8 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.waypoint = gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(a.colonyCore.pos)
 		return true
 
-	case agentModeBuildBase:
-		construction := target.(*colonyCoreConstructionNode)
+	case agentModeBuildBuilding:
+		construction := target.(*constructionNode)
 		energyCost := construction.pos.DistanceTo(a.pos) * 0.6
 		if energyCost > a.energy {
 			return false
@@ -365,9 +383,11 @@ func (a *colonyAgentNode) Update(delta float64) {
 	a.anim.Tick(delta)
 	a.flashComponent.Update(delta)
 
-	a.shadow.Pos.Offset.Y = math.Round(a.height + 4)
-	newShadowAlpha := float32(1.0 - ((a.height / agentFlightHeight) * 0.5))
-	a.shadow.SetAlpha(newShadowAlpha)
+	if a.shadow != nil {
+		a.shadow.Pos.Offset.Y = math.Round(a.height + 4)
+		newShadowAlpha := float32(1.0 - ((a.height / agentFlightHeight) * 0.5))
+		a.shadow.SetAlpha(newShadowAlpha)
+	}
 
 	// FIXME: this should be fixed in the ge package.
 	a.spritePos.X = math.Round(a.pos.X)
@@ -423,16 +443,20 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRecycleReturn(delta)
 	case agentModeRecycleLanding:
 		a.updateRecycleLanding(delta)
-	case agentModeBuildBase:
+	case agentModeBuildBuilding:
 		a.updateBuildBase(delta)
 	case agentModeRepairBase:
 		a.updateRepairBase(delta)
+	case agentModeGuardForever:
+		// Just chill.
 	}
 }
 
 func (a *colonyAgentNode) Dispose() {
 	a.sprite.Dispose()
-	a.shadow.Dispose()
+	if a.shadow != nil {
+		a.shadow.Dispose()
+	}
 	if a.diode != nil {
 		a.diode.Dispose()
 	}
@@ -447,10 +471,40 @@ func (a *colonyAgentNode) Destroy() {
 	a.Dispose()
 }
 
-func (a *colonyAgentNode) IsFlying() bool { return true }
+func (a *colonyAgentNode) IsFlying() bool {
+	return !a.IsTurret()
+}
 
 func (a *colonyAgentNode) ReceiveEnergyDamage(damage float64) {
 	a.energy = gmath.ClampMin(a.energy-damage, 0)
+}
+
+func (a *colonyAgentNode) explode() {
+	if a.IsTurret() {
+		createAreaExplosion(a.scene, a.camera(), spriteRect(a.pos, a.sprite), true)
+		scraps := a.colonyCore.world.NewEssenceSourceNode(scrapSource, a.pos.Add(gmath.Vec{Y: 2}))
+		a.scene.AddObject(scraps)
+		return
+	}
+
+	playSound(a.scene, a.camera(), assets.AudioAgentDestroyed, a.pos)
+	a.colonyCore.actionPriorities.AddWeight(prioritySecurity, 0.05)
+	a.colonyCore.actionPriorities.AddWeight(priorityGrowth, 0.01)
+
+	roll := a.scene.Rand().Float()
+	if roll < 0.3 {
+		createExplosion(a.scene, a.camera(), true, a.pos)
+	} else {
+		var scraps *essenceSourceStats
+		if roll > 0.6 {
+			scraps = smallScrapSource
+			if a.stats.size != sizeSmall {
+				scraps = scrapSource
+			}
+		}
+		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.image, a.shadow.ImageID(), a.pos, a.height)
+		a.scene.AddObject(fall)
+	}
 }
 
 func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
@@ -461,25 +515,8 @@ func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 	a.health -= damage.health
 
 	if a.health < 0 {
-		playSound(a.scene, a.camera(), assets.AudioAgentDestroyed, a.pos)
-		a.colonyCore.actionPriorities.AddWeight(prioritySecurity, 0.05)
-		a.colonyCore.actionPriorities.AddWeight(priorityGrowth, 0.01)
+		a.explode()
 		a.Destroy()
-
-		roll := a.scene.Rand().Float()
-		if roll < 0.3 {
-			createExplosion(a.scene, a.camera(), true, a.pos)
-		} else {
-			var scraps *essenceSourceStats
-			if roll > 0.6 {
-				scraps = smallScrapSource
-				if a.stats.size != sizeSmall {
-					scraps = scrapSource
-				}
-			}
-			fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.image, a.shadow.ImageID(), a.pos, a.height)
-			a.scene.AddObject(fall)
-		}
 	}
 
 	a.energy = gmath.ClampMin(a.energy-damage.energy, 0)
@@ -739,7 +776,7 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 }
 
 func (a *colonyAgentNode) updateBuildBase(delta float64) {
-	target := a.target.(*colonyCoreConstructionNode)
+	target := a.target.(*constructionNode)
 	if target.IsDisposed() {
 		if a.cloningBeam != nil {
 			a.cloningBeam.Dispose()
@@ -751,10 +788,7 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 		if a.moveTowards(delta, a.waypoint) {
 			target.attention += 3.5
 			a.waypoint = gmath.Vec{}
-			buildPos := ge.Pos{
-				Base:   &target.constructPos,
-				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-20, 20)},
-			}
+			buildPos := target.GetConstructPos()
 			beam := newCloningBeamNode(a.colonyCore.world.camera, false, &a.pos, buildPos)
 			a.cloningBeam = beam
 			a.scene.AddObject(beam)
@@ -766,11 +800,7 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 	if a.faction == greenFactionTag {
 		amountConstructed *= 1.5
 	}
-	newColony := target.Construct(amountConstructed)
-	if newColony != nil {
-		a.colonyCore.DetachAgent(a)
-		newColony.AcceptAgent(a)
-		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	if target.Construct(amountConstructed, a.colonyCore) {
 		return
 	}
 	a.dist -= delta

@@ -107,6 +107,30 @@ type agentStats struct {
 	weapon *weaponStats
 }
 
+var gunpointAgentStats = &agentStats{
+	kind:      agentGunpoint,
+	image:     assets.ImageGunpointAgent,
+	size:      sizeLarge,
+	cost:      12,
+	upkeep:    18,
+	maxHealth: 75,
+	canPatrol: true,
+	weapon: &weaponStats{
+		AttackRange:     200,
+		Reload:          2.2,
+		AttackSound:     assets.AudioGunpointShot,
+		ProjectileImage: assets.ImageGunpointProjectile,
+		ImpactArea:      10,
+		ProjectileSpeed: 280,
+		Damage:          damageValue{health: 2},
+		MaxTargets:      1,
+		BurstSize:       3,
+		BurstDelay:      0.1,
+		TargetFlags:     targetGround,
+		FireOffset:      gmath.Vec{Y: 4},
+	},
+}
+
 var workerAgentStats = &agentStats{
 	kind:        agentWorker,
 	image:       assets.ImageWorkerAgent,

@@ -32,12 +32,18 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 			return false
 		}
 	}
-	for _, construction := range world.coreConstructions {
+	for _, construction := range world.constructions {
 		if construction.pos.DistanceTo(pos) < (radius + 40) {
 			return false
 		}
 	}
 	for _, colony := range world.colonies {
+		for _, turret := range colony.turrets {
+			if turret.pos.DistanceTo(pos) < (radius + 32) {
+				return false
+			}
+		}
+		// TODO: flying colonies are not a problem.
 		if colony == skipColony {
 			continue
 		}
@@ -148,33 +154,6 @@ func snipePos(projectileSpeed float64, fireFrom, targetPos, targetVelocity gmath
 	dist := targetPos.DistanceTo(fireFrom)
 	predictedPos := targetPos.Add(targetVelocity.Mulf(dist / projectileSpeed))
 	return predictedPos
-}
-
-func randFind[T any](rand *gmath.Rand, slice []T, f func(x T) bool) T {
-	var result T
-	randWalk(rand, slice, func(x T) bool {
-		if f(x) {
-			result = x
-			return false
-		}
-		return true
-	})
-	return result
-}
-
-func randWalk[T any](rand *gmath.Rand, slice []T, f func(x T) bool) {
-	if len(slice) == 0 {
-		return
-	}
-	var slider gmath.Slider
-	slider.SetBounds(0, len(slice)-1)
-	slider.TrySetValue(rand.IntRange(0, len(slice)-1))
-	for i := 0; i < len(slice); i++ {
-		if !f(slice[slider.Value()]) {
-			break
-		}
-		slider.Inc()
-	}
 }
 
 func playSound(scene *ge.Scene, camera *viewport.Camera, id resource.AudioID, pos gmath.Vec) {

@@ -20,6 +20,7 @@ const (
 	specialChoiceNone specialChoiceKind = iota
 	specialDecreaseRadius
 	specialIncreaseRadius
+	specialBuildGunpoint
 	specialBuildColony
 	specialAttack
 	specialChoiceMoveColony
@@ -51,23 +52,28 @@ type choiceOptionEffect struct {
 	value    float64
 }
 
-var specialChoicesList = []choiceOption{
-	{
+var specialChoicesTable = [...]choiceOption{
+	specialAttack: {
 		text:    "attack",
 		special: specialAttack,
 		cost:    5,
 	},
-	{
+	specialBuildColony: {
 		text:    "build_colony",
 		special: specialBuildColony,
 		cost:    40,
 	},
-	{
+	specialBuildGunpoint: {
+		text:    "build_gunpoint",
+		special: specialBuildGunpoint,
+		cost:    30,
+	},
+	specialIncreaseRadius: {
 		text:    "increase_radius",
 		special: specialIncreaseRadius,
 		cost:    15,
 	},
-	{
+	specialDecreaseRadius: {
 		text:    "decrease_radius",
 		special: specialDecreaseRadius,
 		cost:    4,
@@ -175,6 +181,8 @@ type choiceWindowNode struct {
 	shuffledOptions []choiceOption
 
 	beforeSpecialShuffle int
+	canBuildBase         bool
+	specialChoiceKinds   []specialChoiceKind
 	specialChoices       []choiceOption
 
 	chargeBar *gameui.ProgressBar
@@ -203,12 +211,21 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		}
 	}
 
-	w.specialChoices = make([]choiceOption, len(specialChoicesList))
-	copy(w.specialChoices, specialChoicesList)
+	w.specialChoiceKinds = []specialChoiceKind{
+		specialBuildColony,
+		specialAttack,
+		specialDecreaseRadius,
+		specialIncreaseRadius,
+	}
 
 	// Now translate the special choices.
+	w.specialChoices = make([]choiceOption, len(specialChoicesTable))
+	copy(w.specialChoices, specialChoicesTable[:])
 	for i := range w.specialChoices {
 		o := &w.specialChoices[i]
+		if o.text == "" {
+			continue
+		}
 		o.text = strings.Replace(o.text, o.text, d.Get("game.choice", o.text), 1)
 	}
 
@@ -312,13 +329,20 @@ func (w *choiceWindowNode) revealChoices() {
 	}
 
 	if w.beforeSpecialShuffle == 0 {
-		gmath.Shuffle(w.scene.Rand(), w.specialChoices)
-		w.beforeSpecialShuffle = gmath.Clamp(4, 1, len(specialChoicesList))
+		w.canBuildBase = !w.canBuildBase
+		gmath.Shuffle(w.scene.Rand(), w.specialChoiceKinds)
+		w.beforeSpecialShuffle = gmath.Clamp(4, 1, len(w.specialChoiceKinds))
 	}
 	w.beforeSpecialShuffle--
 	specialIndex := w.beforeSpecialShuffle
 
-	specialOption := w.specialChoices[specialIndex]
+	specialOptionKind := w.specialChoiceKinds[specialIndex]
+	if specialOptionKind == specialBuildColony {
+		if !w.canBuildBase {
+			specialOptionKind = specialBuildGunpoint
+		}
+	}
+	specialOption := w.specialChoices[specialOptionKind]
 	w.choices[4].option = specialOption
 	w.choices[4].label.Text = specialOption.text
 

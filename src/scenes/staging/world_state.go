@@ -14,11 +14,11 @@ type worldState struct {
 	worldSize int
 	camera    *viewport.Camera
 
-	essenceSources    []*essenceSourceNode
-	creeps            []*creepNode
-	colonies          []*colonyCoreNode
-	coreConstructions []*colonyCoreConstructionNode
-	walls             []*wallClusterNode
+	essenceSources []*essenceSourceNode
+	creeps         []*creepNode
+	colonies       []*colonyCoreNode
+	constructions  []*constructionNode
+	walls          []*wallClusterNode
 
 	boss             *creepNode
 	creepCoordinator *creepCoordinator
@@ -58,12 +58,12 @@ func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	return n
 }
 
-func (w *worldState) NewColonyCoreConstructionNode(pos gmath.Vec) *colonyCoreConstructionNode {
-	n := newColonyCoreConstructionNode(w, pos)
-	n.EventDestroyed.Connect(nil, func(x *colonyCoreConstructionNode) {
-		w.coreConstructions = xslices.Remove(w.coreConstructions, x)
+func (w *worldState) NewConstructionNode(pos gmath.Vec, stats *constructionStats) *constructionNode {
+	n := newConstructionNode(w, pos, stats)
+	n.EventDestroyed.Connect(nil, func(x *constructionNode) {
+		w.constructions = xslices.Remove(w.constructions, x)
 	})
-	w.coreConstructions = append(w.coreConstructions, n)
+	w.constructions = append(w.constructions, n)
 	return n
 }
 
@@ -158,15 +158,33 @@ func (w *worldState) BuildPath(from, to gmath.Vec) pathing.BuildPathResult {
 	return w.bfs.BuildPath(w.pathgrid, w.pathgrid.PosToCoord(from), w.pathgrid.PosToCoord(to))
 }
 
-func (w *worldState) FindColonyAgent(pos gmath.Vec, r float64, f func(a *colonyAgentNode) bool) *colonyAgentNode {
+func (w *worldState) FindColonyAgent(pos gmath.Vec, r float64, f func(a *colonyAgentNode) bool) {
+	// TODO: use an agent container for turrets too?
+	// Randomized order for iteration would be good here.
+	// Also, this "find" function is used to collect N units, not a single unit (see its usage).
+	for _, c := range w.colonies {
+		if len(c.turrets) == 0 {
+			continue
+		}
+		for _, turret := range c.turrets {
+			dist := turret.pos.DistanceTo(pos)
+			if dist > r {
+				continue
+			}
+			if f(turret) {
+				return
+			}
+		}
+	}
+
+	// TODO: use agents container methods here.
 	for _, c := range w.colonies {
 		skipIdling := c.pos.DistanceTo(pos)*0.75 > r
 		if a := w.findColonyAgent(c.agents.fighters, pos, r, skipIdling, f); a != nil {
-			return a
+			return
 		}
 		if a := w.findColonyAgent(c.agents.workers, pos, r, skipIdling, f); a != nil {
-			return a
+			return
 		}
 	}
-	return nil
 }

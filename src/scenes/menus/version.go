@@ -30,6 +30,7 @@ package menus
 //   - Added mortar drone
 //   - Added anti-air missile drone
 //   - Added prism drone
+//   - Added turrets
 //
 // * Visual improvements:
 //   - Added a flash effect when a unit (friendly or not) takes damage
@@ -39,6 +40,7 @@ package menus
 //   - Creep bases are now guarded by a tower (usually)
 //   - Higher resource priority decreases the upkeep (bonus caps at 80% priority with 60% reduction)
 //   - Reworked most merge recipes
+//   - Bases try to send at least 1 worker as reinforcements
 //
 // * Fixes:
 //   - Drones no longer try to pick up a depleted resource

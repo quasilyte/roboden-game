@@ -303,7 +303,7 @@ func (c *creepNode) findTargets() []projectileTarget {
 	if len(targets) >= c.stats.weapon.MaxTargets {
 		return targets
 	}
-	for _, colony := range c.world.coreConstructions {
+	for _, colony := range c.world.constructions {
 		if len(targets) >= c.stats.weapon.MaxTargets {
 			return targets
 		}

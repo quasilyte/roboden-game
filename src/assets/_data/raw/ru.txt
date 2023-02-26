@@ -78,6 +78,7 @@
 ##game.choice.security : Войска
 ##game.choice.attack : Атаковать
 ##game.choice.build_colony : Построить колонию
+##game.choice.build_gunpoint : Построить турель
 ##game.choice.increase_radius : Увеличить радиус
 ##game.choice.decrease_radius : Уменьшить радиус
 

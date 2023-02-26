@@ -217,12 +217,12 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	}
 
 	canBuild := p.colony.agents.NumAvailableWorkers() != 0 &&
-		len(p.world.coreConstructions) != 0 &&
+		len(p.world.constructions) != 0 &&
 		p.colony.resources > 30
 	if canBuild && p.world.rand.Chance(0.55) {
-		var construction *colonyCoreConstructionNode
+		var construction *constructionNode
 		closest := 0.0
-		for _, c := range p.world.coreConstructions {
+		for _, c := range p.world.constructions {
 			if c.attention > 2 {
 				continue
 			}
@@ -237,7 +237,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 		}
 		if construction != nil {
 			return colonyAction{
-				Kind:     actionBuildBase,
+				Kind:     actionBuildBuilding,
 				Value:    construction,
 				TimeCost: 0.35,
 			}

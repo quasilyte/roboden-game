@@ -78,6 +78,7 @@
 ##game.choice.security : Security
 ##game.choice.attack : Attack
 ##game.choice.build_colony : Build new colony
+##game.choice.build_gunpoint : Build turret
 ##game.choice.increase_radius : Increase radius
 ##game.choice.decrease_radius : Decrease radius
 

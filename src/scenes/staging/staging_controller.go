@@ -197,22 +197,30 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 	case specialDecreaseRadius:
 		value := c.world.rand.FloatRange(30, 40)
-		c.selectedColony.realRadius = gmath.ClampMin(c.selectedColony.realRadius-value, 60)
-	case specialBuildColony:
+		c.selectedColony.realRadius = gmath.ClampMin(c.selectedColony.realRadius-value, 96)
+	case specialBuildColony, specialBuildGunpoint:
 		// TODO: use a pathing.Grid to find a free cell?
+		stats := colonyCoreConstructionStats
 		dist := 60.0
+		size := 40.0
+		if choice.Option.special == specialBuildGunpoint {
+			stats = gunpointConstructionStats
+			dist = 48.0
+			size = 32.0
+		}
 		direction := c.world.rand.Rad()
 		for i := 0; i < 14; i++ {
 			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.selectedColony.pos)
 			direction += (2 * math.Pi) / 15
-			constructionPos := c.pickColonyPos(nil, locationProbe, 40, 4)
+			constructionPos := c.pickColonyPos(nil, locationProbe, size, 4)
 			if !constructionPos.IsZero() {
-				construction := c.world.NewColonyCoreConstructionNode(constructionPos)
+				construction := c.world.NewConstructionNode(constructionPos, stats)
 				c.scene.AddObject(construction)
 				break
 			}
 		}
 	}
+
 	if !relocationVec.IsZero() {
 		c.launchRelocation(c.selectedColony, relocationVec)
 	}

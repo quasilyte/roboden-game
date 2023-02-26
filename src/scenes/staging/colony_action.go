@@ -32,6 +32,6 @@ const (
 	actionDefencePanic
 	actionMergeAgents
 	actionRepairBase
-	actionBuildBase
+	actionBuildBuilding
 	actionGetReinforcements
 )

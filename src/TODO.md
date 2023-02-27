@@ -20,7 +20,6 @@ todo:
 - controls rebinding
 - move world generation to a background task and add a loading screen that waits for it?
 - make low energy fighters fire at a slower rate
-- crawlers should not walk through the base
 - base selector is hidden by shadow
 - falling base should have damaged shader applied too
 - send nearby crawlers to save the boss if it is under attack

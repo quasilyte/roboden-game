@@ -401,6 +401,22 @@ func (c *creepNode) updateCrawler(delta float64) {
 	if !c.waypoint.IsZero() {
 		c.anim.Tick(delta)
 		if c.moveTowards(delta, c.waypoint) {
+			// To avoid weird cases of walking above colony core or turret,
+			// stop if there are any targets in vicinity.
+			const stopDistSqr float64 = 96 * 96
+			for _, colony := range c.world.colonies {
+				if colony.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
+					c.path = pathing.GridPath{}
+					break
+				}
+				for _, turret := range colony.turrets {
+					if turret.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
+						c.path = pathing.GridPath{}
+						break
+					}
+				}
+			}
+
 			if c.path.HasNext() {
 				d := c.path.Next()
 				aligned := c.world.pathgrid.AlignPos(c.pos)

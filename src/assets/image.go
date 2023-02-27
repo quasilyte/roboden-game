@@ -62,7 +62,11 @@ func registerImageResources(ctx *ge.Context) {
 		ImageRedminerAgent:  {Path: "image/drones/redminer_agent.png", FrameWidth: 13},
 		ImageGeneratorAgent: {Path: "image/drones/generator_agent.png", FrameWidth: 15},
 
-		ImageColonyDamageMask: {Path: "image/colony_damage_mask.png"},
+		ImageColonyDamageMask:  {Path: "image/colony_damage_mask.png"},
+		ImageTurretDamageMask1: {Path: "image/turret_damage_mask1.png"},
+		ImageTurretDamageMask2: {Path: "image/turret_damage_mask2.png"},
+		ImageTurretDamageMask3: {Path: "image/turret_damage_mask3.png"},
+		ImageTurretDamageMask4: {Path: "image/turret_damage_mask4.png"},
 
 		ImageEssenceSourceDissolveMask:    {Path: "image/resources/essence_source_dissolve_mask.png"},
 		ImageEssenceCrystalSource:         {Path: "image/resources/crystal_source.png", FrameWidth: 16},
@@ -160,6 +164,10 @@ const (
 	ImageUpkeepBar
 
 	ImageColonyDamageMask
+	ImageTurretDamageMask1
+	ImageTurretDamageMask2
+	ImageTurretDamageMask3
+	ImageTurretDamageMask4
 	ImageEssenceSourceDissolveMask
 
 	ImageLogoBg

@@ -8,7 +8,6 @@ todo engine:
 
 todo:
 - add turrets to a pathgrid?
-- add damage shader for turrets
 - enemies focus 1 turret too much (see FindColonyAgent)
 - FindColonyAgent should use agents container for iteration
 - make choice selection window bigger or make English text fit better?

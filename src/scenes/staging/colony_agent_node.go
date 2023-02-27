@@ -3,6 +3,7 @@ package staging
 import (
 	"math"
 
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
@@ -14,6 +15,13 @@ const (
 	agentFlightHeight float64 = 40.0
 	agentPickupSpeed  float64 = 40.0
 )
+
+var turretDamageTextureList = []resource.ImageID{
+	assets.ImageTurretDamageMask1,
+	assets.ImageTurretDamageMask2,
+	assets.ImageTurretDamageMask3,
+	assets.ImageTurretDamageMask4,
+}
 
 type colonyAgentKind uint8
 
@@ -187,6 +195,10 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.camera().AddGraphicsAbove(a.sprite)
 	} else {
 		a.camera().AddGraphics(a.sprite)
+		a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
+		a.sprite.Shader.SetFloatValue("HP", 1.0)
+		damageTexture := gmath.RandElem(scene.Rand(), turretDamageTextureList)
+		a.sprite.Shader.Texture1 = scene.LoadImage(damageTexture)
 	}
 
 	a.flashComponent.sprite = a.sprite
@@ -530,13 +542,16 @@ func (a *colonyAgentNode) OnBuildingRepair(amount float64) {
 		return
 	}
 	a.health = gmath.ClampMax(a.health+amount, a.maxHealth)
+	a.updateHealthShader()
+}
+
+func (a *colonyAgentNode) updateHealthShader() {
+	percentage := a.health / a.maxHealth
+	a.sprite.Shader.SetFloatValue("HP", percentage)
+	a.sprite.Shader.Enabled = percentage < 0.95
 }
 
 func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
-	if damage.health != 0 {
-		a.flashComponent.flash = 0.2
-	}
-
 	a.health -= damage.health
 
 	if a.health < 0 {
@@ -544,10 +559,19 @@ func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 		a.Destroy()
 	}
 
+	if damage.health != 0 {
+		a.flashComponent.flash = 0.2
+		if a.IsTurret() {
+			a.updateHealthShader()
+		}
+	}
+
 	a.energy = gmath.ClampMin(a.energy-damage.energy, 0)
 
-	if a.colonyCore.GetSecurityPriority() < 0.65 && a.scene.Rand().Chance(1.0-a.colonyCore.GetSecurityPriority()) {
-		a.colonyCore.actionPriorities.AddWeight(prioritySecurity, 0.01)
+	if !a.IsTurret() {
+		if a.colonyCore.GetSecurityPriority() < 0.65 && a.scene.Rand().Chance(1.0-a.colonyCore.GetSecurityPriority()) {
+			a.colonyCore.actionPriorities.AddWeight(prioritySecurity, 0.01)
+		}
 	}
 }
 

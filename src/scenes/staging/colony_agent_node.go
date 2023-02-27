@@ -311,6 +311,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModeCharging:
 		a.mode = mode
+		a.waypoint = gmath.Vec{}
 		return true
 
 	case agentModeMineEssence:

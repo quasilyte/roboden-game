@@ -48,4 +48,9 @@ package menus
 //   - Drones no longer try to pick up a depleted resource
 //   - Fixed an upkeed visual bug (trash is rendered near the base)
 //   - Fixed invalid drone stats (max hp and speed)
-const buildNumber int = 4
+//
+// # Version 5
+//
+// * Fixes:
+//   - Drones with charging mode no longer confuse creeps (we're clearing the waypoint now)
+const buildNumber int = 5

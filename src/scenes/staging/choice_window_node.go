@@ -29,6 +29,7 @@ const (
 type selectedChoice struct {
 	Faction factionTag
 	Option  choiceOption
+	Pos     gmath.Vec
 }
 
 type choiceOptionSlot struct {
@@ -185,13 +186,19 @@ type choiceWindowNode struct {
 	specialChoiceKinds   []specialChoiceKind
 	specialChoices       []choiceOption
 
+	cursor *cursorNode
+
 	chargeBar *gameui.ProgressBar
 
 	EventChoiceSelected gsignal.Event[selectedChoice]
 }
 
-func newChoiceWindowNode(pos gmath.Vec, h *input.Handler) *choiceWindowNode {
-	return &choiceWindowNode{pos: pos, input: h}
+func newChoiceWindowNode(pos gmath.Vec, h *input.Handler, cursor *cursorNode) *choiceWindowNode {
+	return &choiceWindowNode{
+		pos:    pos,
+		input:  h,
+		cursor: cursor,
+	}
 }
 
 func (w *choiceWindowNode) Init(scene *ge.Scene) {
@@ -382,10 +389,10 @@ func (w *choiceWindowNode) Update(delta float64) {
 		w.chargeBar.SetValue(w.value / w.targetValue)
 
 	case choiceReady:
-		if info, ok := w.input.JustPressedActionInfo(controls.ActionMoveChoice); ok {
-			globalClickPos := info.Pos.Add(w.selectedColony.world.camera.Offset)
+		if pos, ok := w.cursor.ClickPos(); ok {
+			globalClickPos := pos.Add(w.selectedColony.world.camera.Offset)
 			if globalClickPos.DistanceTo(w.selectedColony.pos) > 28 {
-				w.activateMoveChoice()
+				w.activateMoveChoice(globalClickPos)
 				return
 			}
 		}
@@ -413,13 +420,14 @@ func (w *choiceWindowNode) Update(delta float64) {
 	}
 }
 
-func (w *choiceWindowNode) activateMoveChoice() {
+func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
 	if !w.Enabled {
 		w.scene.Audio().PlaySound(assets.AudioError)
 		return
 	}
 	choice := selectedChoice{
 		Option: choiceOption{special: specialChoiceMoveColony},
+		Pos:    pos,
 	}
 	delayRoll := w.scene.Rand().FloatRange(0.8, 1.2)
 	w.startCharging(20.0 * delayRoll)

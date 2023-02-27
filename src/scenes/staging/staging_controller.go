@@ -47,6 +47,8 @@ type Controller struct {
 
 	camera *viewport.Camera
 
+	cursor *cursorNode
+
 	debugInfo *ge.Label
 }
 
@@ -147,11 +149,14 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.radar = newRadarNode(c.world)
 	scene.AddObject(c.radar)
 
+	c.cursor = newCursorNode(c.state.MainInput, c.camera.Rect)
+	scene.AddObject(c.cursor)
+
 	choicesPos := gmath.Vec{
 		X: 960 - 232 - 16,
 		Y: 540 - 200 - 16,
 	}
-	c.choices = newChoiceWindowNode(choicesPos, c.state.MainInput)
+	c.choices = newChoiceWindowNode(choicesPos, c.state.MainInput, c.cursor)
 	c.choices.EventChoiceSelected.Connect(nil, c.onChoiceSelected)
 
 	c.selectNextColony(true)
@@ -189,7 +194,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		c.launchAttack()
 	case specialChoiceMoveColony:
 		maxDist := c.selectedColony.MaxFlyDistance() * c.world.rand.FloatRange(0.9, 1.1)
-		clickPos := c.state.MainInput.CursorPos().Add(c.camera.Offset)
+		clickPos := choice.Pos
 		clickDist := c.selectedColony.pos.DistanceTo(clickPos)
 		dist := gmath.ClampMax(clickDist, maxDist)
 		relocationVec = c.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)

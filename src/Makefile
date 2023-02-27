@@ -1,2 +1,2 @@
 wasm:
-	GOARCH=wasm GOOS=js go build -o ../web/main.wasm cmd/game/main.go
+	GOARCH=wasm GOOS=js go build -o ../_web/main.wasm cmd/game/main.go

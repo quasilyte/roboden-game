@@ -115,7 +115,7 @@ var gunpointAgentStats = &agentStats{
 	upkeep:    18,
 	maxHealth: 75,
 	canPatrol: true,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     200,
 		Reload:          2.2,
 		AttackSound:     assets.AudioGunpointShot,
@@ -128,7 +128,7 @@ var gunpointAgentStats = &agentStats{
 		BurstDelay:      0.1,
 		TargetFlags:     targetGround,
 		FireOffset:      gmath.Vec{Y: 4},
-	},
+	}),
 }
 
 var workerAgentStats = &agentStats{
@@ -262,7 +262,7 @@ var militiaAgentStats = &agentStats{
 	canPatrol:   true,
 	speed:       75,
 	maxHealth:   12,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     130,
 		Reload:          2.5,
 		AttackSound:     assets.AudioMilitiaShot,
@@ -273,7 +273,7 @@ var militiaAgentStats = &agentStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 }
 
 var cripplerAgentStats = &agentStats{
@@ -287,7 +287,7 @@ var cripplerAgentStats = &agentStats{
 	canPatrol:   true,
 	speed:       60,
 	maxHealth:   15,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     240,
 		Reload:          3.2,
 		AttackSound:     assets.AudioCripplerShot,
@@ -298,7 +298,7 @@ var cripplerAgentStats = &agentStats{
 		MaxTargets:      2,
 		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 }
 
 var flamerAgentStats = &agentStats{
@@ -312,7 +312,7 @@ var flamerAgentStats = &agentStats{
 	canPatrol:   true,
 	speed:       110,
 	maxHealth:   40,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     115,
 		Reload:          1.1,
 		AttackSound:     assets.AudioFlamerShot,
@@ -324,7 +324,7 @@ var flamerAgentStats = &agentStats{
 		MaxTargets:      2,
 		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 }
 
 var prismAgentStats = &agentStats{
@@ -338,7 +338,7 @@ var prismAgentStats = &agentStats{
 	canPatrol:   true,
 	speed:       65,
 	maxHealth:   28,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     200,
 		Reload:          3.7,
 		AttackSound:     assets.AudioPrismShot,
@@ -348,7 +348,7 @@ var prismAgentStats = &agentStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 }
 
 var fighterAgentStats = &agentStats{
@@ -362,7 +362,7 @@ var fighterAgentStats = &agentStats{
 	canPatrol:   true,
 	speed:       90,
 	maxHealth:   26,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     180,
 		Reload:          2,
 		AttackSound:     assets.AudioFighterBeam,
@@ -373,7 +373,7 @@ var fighterAgentStats = &agentStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 }
 
 var antiAirAgentStats = &agentStats{
@@ -387,7 +387,7 @@ var antiAirAgentStats = &agentStats{
 	canPatrol:   true,
 	speed:       80,
 	maxHealth:   22,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     250,
 		Reload:          2.4,
 		AttackSound:     assets.AudioAntiAirMissiles,
@@ -402,7 +402,7 @@ var antiAirAgentStats = &agentStats{
 		ArcPower:        2,
 		TargetFlags:     targetFlying,
 		FireOffset:      gmath.Vec{Y: -8},
-	},
+	}),
 }
 
 var mortarAgentStats = &agentStats{
@@ -416,7 +416,7 @@ var mortarAgentStats = &agentStats{
 	canPatrol:   true,
 	speed:       70,
 	maxHealth:   28,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     350,
 		Reload:          3.6,
 		AttackSound:     assets.AudioMortarShot,
@@ -430,7 +430,7 @@ var mortarAgentStats = &agentStats{
 		ArcPower:        2.5,
 		TargetFlags:     targetGround,
 		RoundProjectile: true,
-	},
+	}),
 }
 
 var destroyerAgentStats = &agentStats{
@@ -444,7 +444,7 @@ var destroyerAgentStats = &agentStats{
 	canPatrol:   true,
 	speed:       85,
 	maxHealth:   35,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange: 210,
 		Reload:      1.9,
 		AttackSound: assets.AudioDestroyerBeam,
@@ -452,7 +452,7 @@ var destroyerAgentStats = &agentStats{
 		MaxTargets:  1,
 		BurstSize:   1,
 		TargetFlags: targetFlying | targetGround,
-	},
+	}),
 }
 
 var repellerAgentStats = &agentStats{
@@ -468,7 +468,7 @@ var repellerAgentStats = &agentStats{
 	canPatrol:   true,
 	speed:       105,
 	maxHealth:   22,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     160,
 		Reload:          2.4,
 		AttackSound:     assets.AudioRepellerBeam,
@@ -479,5 +479,5 @@ var repellerAgentStats = &agentStats{
 		MaxTargets:      2,
 		BurstSize:       1,
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 }

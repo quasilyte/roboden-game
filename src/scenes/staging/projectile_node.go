@@ -59,6 +59,7 @@ type weaponStats struct {
 	ProjectileSpeed       float64
 	ProjectileRotateSpeed float64
 	ImpactArea            float64
+	ImpactAreaSqr         float64 // A precomputed ImpactArea*ImpactArea value
 	AttackRange           float64
 	Damage                damageValue
 	Explosion             projectileExplosionKind
@@ -70,6 +71,11 @@ type weaponStats struct {
 	ArcPower              float64
 	TargetFlags           targetKind
 	RoundProjectile       bool
+}
+
+func initWeaponStats(stats *weaponStats) *weaponStats {
+	stats.ImpactAreaSqr = stats.ImpactArea * stats.ImpactArea
+	return stats
 }
 
 type projectileConfig struct {
@@ -173,7 +179,7 @@ func (p *projectileNode) detonate() {
 	if p.target.IsDisposed() {
 		return
 	}
-	if p.toPos.DistanceTo(*p.target.GetPos()) > p.weapon.ImpactArea {
+	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > p.weapon.ImpactAreaSqr {
 		return
 	}
 	p.target.OnDamage(p.weapon.Damage, *p.fromPos)

@@ -33,7 +33,7 @@ var turretCreepStats = &creepStats{
 	image:     assets.ImageTurretCreep,
 	speed:     0,
 	maxHealth: 42,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		AttackSound:     assets.AudioMissile,
@@ -46,7 +46,7 @@ var turretCreepStats = &creepStats{
 		Reload:          3.5,
 		FireOffset:      gmath.Vec{Y: -8},
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 	size: 38,
 }
 
@@ -65,7 +65,7 @@ var wandererCreepStats = &creepStats{
 	tier:        1,
 	speed:       40,
 	maxHealth:   15,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		AttackSound:     assets.AudioWandererBeam,
@@ -76,7 +76,7 @@ var wandererCreepStats = &creepStats{
 		ProjectileImage: assets.ImageWandererProjectile,
 		Reload:          1.8,
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 }
 
 var tankCreepStats = &creepStats{
@@ -84,7 +84,7 @@ var tankCreepStats = &creepStats{
 	image:     assets.ImageTankCreep,
 	speed:     6,
 	maxHealth: 12,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		MaxTargets:      1,
 		BurstSize:       3,
 		BurstDelay:      0.12,
@@ -97,7 +97,7 @@ var tankCreepStats = &creepStats{
 		Reload:          2.2,
 		FireOffset:      gmath.Vec{Y: -2},
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 	size: 24,
 }
 
@@ -107,7 +107,7 @@ var crawlerCreepStats = &creepStats{
 	animSpeed: 0.09,
 	speed:     44,
 	maxHealth: 16,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		MaxTargets:      1,
 		BurstSize:       2,
 		BurstDelay:      0.12,
@@ -120,7 +120,7 @@ var crawlerCreepStats = &creepStats{
 		Reload:          1.7,
 		TargetFlags:     targetFlying | targetGround,
 		FireOffset:      gmath.Vec{Y: -2},
-	},
+	}),
 	size: 24,
 }
 
@@ -130,7 +130,7 @@ var eliteCrawlerCreepStats = &creepStats{
 	animSpeed: 0.09,
 	speed:     40,
 	maxHealth: 22,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		MaxTargets:      2,
 		BurstSize:       1,
 		AttackSound:     assets.AudioEliteCrawlerShot,
@@ -142,7 +142,7 @@ var eliteCrawlerCreepStats = &creepStats{
 		Reload:          1.9,
 		TargetFlags:     targetFlying | targetGround,
 		FireOffset:      gmath.Vec{Y: -2},
-	},
+	}),
 	size: 24,
 }
 
@@ -154,7 +154,7 @@ var assaultCreepStats = &creepStats{
 	tier:        3,
 	speed:       30,
 	maxHealth:   55,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		AttackSound:     assets.AudioAssaultShot,
@@ -165,7 +165,7 @@ var assaultCreepStats = &creepStats{
 		ProjectileImage: assets.ImageAssaultProjectile,
 		Reload:          0.55,
 		TargetFlags:     targetFlying | targetGround,
-	},
+	}),
 }
 
 var uberBossCreepStats = &creepStats{
@@ -175,7 +175,7 @@ var uberBossCreepStats = &creepStats{
 	shadowImage: assets.ImageUberBossShadow,
 	speed:       10,
 	maxHealth:   500,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		MaxTargets:  5,
 		BurstSize:   1,
 		AttackSound: assets.AudioRailgun,
@@ -183,7 +183,7 @@ var uberBossCreepStats = &creepStats{
 		Damage:      damageValue{health: 8},
 		Reload:      2.8,
 		TargetFlags: targetFlying | targetGround,
-	},
+	}),
 	beamColor: railgunBeamColor,
 	beamWidth: 3,
 }
@@ -195,7 +195,7 @@ var stunnerCreepStats = &creepStats{
 	tier:        2,
 	speed:       55,
 	maxHealth:   30,
-	weapon: &weaponStats{
+	weapon: initWeaponStats(&weaponStats{
 		MaxTargets:  3,
 		BurstSize:   1,
 		AttackSound: assets.AudioStunBeam,
@@ -203,7 +203,7 @@ var stunnerCreepStats = &creepStats{
 		Damage:      damageValue{health: 2, energy: 50},
 		Reload:      2.6,
 		TargetFlags: targetFlying | targetGround,
-	},
+	}),
 	beamColor: stunnerBeamColor,
 	beamWidth: 2,
 }

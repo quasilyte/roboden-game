@@ -231,7 +231,7 @@ var servoAgentStats = &agentStats{
 	upkeep:        7,
 	canGather:     true,
 	maxPayload:    1,
-	speed:         165,
+	speed:         135,
 	maxHealth:     18,
 	supportReload: 8,
 	supportRange:  310,
@@ -285,7 +285,7 @@ var cripplerAgentStats = &agentStats{
 	cost:        15,
 	upkeep:      4,
 	canPatrol:   true,
-	speed:       55,
+	speed:       60,
 	maxHealth:   15,
 	weapon: &weaponStats{
 		AttackRange:     240,
@@ -310,7 +310,7 @@ var flamerAgentStats = &agentStats{
 	cost:        30,
 	upkeep:      8,
 	canPatrol:   true,
-	speed:       135,
+	speed:       110,
 	maxHealth:   40,
 	weapon: &weaponStats{
 		AttackRange:     115,
@@ -466,7 +466,7 @@ var repellerAgentStats = &agentStats{
 	canGather:   true,
 	maxPayload:  1,
 	canPatrol:   true,
-	speed:       115,
+	speed:       105,
 	maxHealth:   22,
 	weapon: &weaponStats{
 		AttackRange:     160,

@@ -7,6 +7,7 @@ todo engine:
 - why animation affects Y axis?
 
 todo:
+- add attention limit to repair action
 - add turrets to a pathgrid?
 - enemies focus 1 turret too much (see FindColonyAgent)
 - FindColonyAgent should use agents container for iteration

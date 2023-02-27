@@ -173,6 +173,9 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 		// are not as numerous as some others.
 		scoreMultiplier := gmath.ClampMin(1.0/float64(agentCountTable[a.stats.kind]), 0.1)
 		score := ((1.25 * float64(a.stats.tier)) * scoreMultiplier) * p.world.rand.FloatRange(0.7, 1.3)
+		if a.faction != neutralFactionTag {
+			score *= 1.1
+		}
 		if score > bestScore {
 			bestScore = score
 			bestCandidate = a

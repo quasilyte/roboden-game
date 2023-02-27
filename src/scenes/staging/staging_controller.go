@@ -195,9 +195,11 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		relocationVec = c.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
 	case specialIncreaseRadius:
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
+		c.selectedColony.realRadiusSqr = c.selectedColony.realRadius * c.selectedColony.realRadius
 	case specialDecreaseRadius:
 		value := c.world.rand.FloatRange(30, 40)
 		c.selectedColony.realRadius = gmath.ClampMin(c.selectedColony.realRadius-value, 96)
+		c.selectedColony.realRadiusSqr = c.selectedColony.realRadius * c.selectedColony.realRadius
 	case specialBuildColony, specialBuildGunpoint:
 		// TODO: use a pathing.Grid to find a free cell?
 		stats := colonyCoreConstructionStats

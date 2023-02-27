@@ -137,15 +137,10 @@ func (p *colonyActionPlanner) combatUnitProbability() float64 {
 }
 
 func (p *colonyActionPlanner) pickCloner() *colonyAgentNode {
-	var bestCandidate *colonyAgentNode
-	p.colony.agents.Find(searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
-		if a.energy < agentCloningEnergyCost() || a.energyBill != 0 {
-			return true
-		}
-		bestCandidate = a
-		return a.faction == greenFactionTag
+	cloner := p.colony.agents.Find(searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
+		return a.energy >= agentCloningEnergyCost() && a.energyBill == 0
 	})
-	return bestCandidate
+	return cloner
 }
 
 func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bool) *colonyAgentNode {
@@ -188,7 +183,6 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 }
 
 func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
-	// TODO: prefer a green cloner.
 	cloner := p.pickCloner()
 	if cloner == nil {
 		return colonyAction{}
@@ -209,13 +203,29 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 }
 
 func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
-	canRepair := p.colony.agents.NumAvailableWorkers() != 0 &&
+	canRepairColony := p.colony.agents.NumAvailableWorkers() != 0 &&
 		p.colony.health < p.colony.maxHealth &&
 		p.colony.resources > 30
-	if canRepair && p.world.rand.Chance(0.25) {
+	if canRepairColony && p.world.rand.Chance(0.25) {
 		return colonyAction{
 			Kind:     actionRepairBase,
 			TimeCost: 0.4,
+		}
+	}
+	canRepairTurret := p.colony.agents.NumAvailableWorkers() != 0 &&
+		p.colony.resources > 40 &&
+		len(p.colony.turrets) > 0
+	if canRepairTurret && p.world.rand.Chance(0.3) {
+		for _, turret := range p.colony.turrets {
+			distSqr := turret.pos.DistanceSquaredTo(p.colony.pos)
+			if distSqr > p.colony.realRadiusSqr*1.2 {
+				continue
+			}
+			return colonyAction{
+				Kind:     actionRepairTurret,
+				Value:    turret,
+				TimeCost: 0.3,
+			}
 		}
 	}
 

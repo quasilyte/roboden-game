@@ -54,6 +54,7 @@ const (
 	agentModeCharging
 	agentModeMineEssence
 	agentModeRepairBase
+	agentModeRepairTurret
 	agentModeReturn
 	agentModePatrol
 	agentModeFollow
@@ -170,9 +171,10 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		switch a.faction {
 		case redFactionTag:
 			a.maxHealth *= 1.4
+		case greenFactionTag:
+			a.speed *= 1.2
 		case blueFactionTag:
 			a.maxEnergy *= 1.8
-			a.speed *= 1.2
 		}
 	}
 
@@ -337,6 +339,18 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.waypoint = a.colonyCore.GetEntrancePos()
 		return true
 
+	case agentModeRepairTurret:
+		energyCost := 40.0
+		if energyCost > a.energy {
+			return false
+		}
+		a.target = target
+		a.mode = mode
+		a.energyBill += energyCost
+		a.dist = a.scene.Rand().FloatRange(3, 4) // repair time
+		a.waypoint = gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(target.(*colonyAgentNode).pos)
+		return true
+
 	case agentModeRepairBase:
 		energyCost := 40.0
 		if energyCost > a.energy {
@@ -447,6 +461,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateBuildBase(delta)
 	case agentModeRepairBase:
 		a.updateRepairBase(delta)
+	case agentModeRepairTurret:
+		a.updateRepairTurret(delta)
 	case agentModeGuardForever:
 		// Just chill.
 	}
@@ -505,6 +521,15 @@ func (a *colonyAgentNode) explode() {
 		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.image, a.shadow.ImageID(), a.pos, a.height)
 		a.scene.AddObject(fall)
 	}
+}
+
+func (a *colonyAgentNode) OnBuildingRepair(amount float64) {
+	// Turrets are 2 times easier to repair than a base, hence x2 multiplier.
+	amount *= 2
+	if a.health >= a.maxHealth {
+		return
+	}
+	a.health = gmath.ClampMax(a.health+amount, a.maxHealth)
 }
 
 func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
@@ -771,6 +796,34 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 	if a.dist <= 0 {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		a.colonyCore.OnHeal(a.scene.Rand().FloatRange(3, 5))
+		return
+	}
+}
+
+func (a *colonyAgentNode) updateRepairTurret(delta float64) {
+	target := a.target.(*colonyAgentNode)
+	if !a.waypoint.IsZero() {
+		if a.moveTowards(delta, a.waypoint) {
+			a.waypoint = gmath.Vec{}
+			buildPos := ge.Pos{
+				Base:   &target.pos,
+				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-10, 10)},
+			}
+			beam := newCloningBeamNode(a.colonyCore.world.camera, false, &a.pos, buildPos)
+			a.cloningBeam = beam
+			a.scene.AddObject(beam)
+			return
+		}
+		return
+	}
+	a.dist -= delta
+	if a.dist <= 0 {
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		amountRepaired := a.scene.Rand().FloatRange(3, 5)
+		if a.faction == greenFactionTag {
+			amountRepaired *= 1.5
+		}
+		target.OnBuildingRepair(amountRepaired)
 		return
 	}
 }

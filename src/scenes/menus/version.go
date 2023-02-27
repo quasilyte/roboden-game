@@ -42,6 +42,7 @@ package menus
 //   - Reworked most merge recipes
 //   - Bases try to send at least 1 worker as reinforcements
 //   - Base will try to produce at least 2 workers even if security priority is high
+//   - Rework faction passive bonuses
 //
 // * Fixes:
 //   - Drones no longer try to pick up a depleted resource

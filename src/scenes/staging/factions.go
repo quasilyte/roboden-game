@@ -13,6 +13,21 @@ type faction struct {
 
 type factionTag int
 
+// Yellow faction (miners):
+// +1 max payload (basically doubles the worker capacity as it's 1 by default)
+//
+// Red faction (warriors):
+// +40% max hp
+//
+// Green faction (engineers):
+// +20% movement speed
+// +50% faster building construction
+// +50% more efficient building repair (more hp restored)
+//
+// Blue faction (scientists):
+// +80% max energy
+// +20% evo points income
+
 const (
 	neutralFactionTag factionTag = iota
 	yellowFactionTag

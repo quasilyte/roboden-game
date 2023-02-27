@@ -77,7 +77,8 @@ type colonyCoreNode struct {
 
 	openHatchTime float64
 
-	realRadius float64
+	realRadius    float64
+	realRadiusSqr float64
 
 	upkeepDelay float64
 
@@ -107,6 +108,7 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 		realRadius: config.Radius,
 		maxHealth:  100,
 	}
+	c.realRadiusSqr = c.realRadius * c.realRadius
 	c.actionPriorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
 	c.factionWeights = newWeightContainer(neutralFactionTag, yellowFactionTag, redFactionTag, greenFactionTag, blueFactionTag)
 	c.factionWeights.SetWeight(neutralFactionTag, 1.0)
@@ -590,7 +592,12 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 					connectedWorker = a
 				}
 			}
-			evoGain += 0.1
+			if a.faction == blueFactionTag {
+				// 20% more evo points per blue drones.
+				evoGain += 0.12
+			} else {
+				evoGain += 0.1
+			}
 			return false
 		})
 		if connectedWorker != nil {
@@ -621,13 +628,27 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		})
 		return true
 
+	case actionRepairTurret:
+		repairCost := 8.0
+		ok := false
+		if c.resources < repairCost {
+			return false
+		}
+		c.pickWorkerUnits(1, func(a *colonyAgentNode) {
+			if a.AssignMode(agentModeRepairTurret, gmath.Vec{}, action.Value) {
+				c.resources -= repairCost
+				ok = true
+			}
+		})
+		return ok
+
 	case actionRepairBase:
 		repairCost := 10.0
 		ok := false
+		if c.resources < repairCost {
+			return false
+		}
 		c.pickWorkerUnits(1, func(a *colonyAgentNode) {
-			if c.resources < repairCost {
-				return
-			}
 			if a.AssignMode(agentModeRepairBase, gmath.Vec{}, nil) {
 				c.resources -= repairCost
 				ok = true

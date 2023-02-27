@@ -209,9 +209,9 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 			size = 32.0
 		}
 		direction := c.world.rand.Rad()
-		for i := 0; i < 14; i++ {
+		for i := 0; i < 18; i++ {
 			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.selectedColony.pos)
-			direction += (2 * math.Pi) / 15
+			direction += (2 * math.Pi) / 17
 			constructionPos := c.pickColonyPos(nil, locationProbe, size, 4)
 			if !constructionPos.IsZero() {
 				construction := c.world.NewConstructionNode(constructionPos, stats)

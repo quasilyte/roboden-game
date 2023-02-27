@@ -4,12 +4,12 @@ package staging
 //
 // yellow worker +++
 // yellow militia +++
-// red worker +++
+// red worker ++
 // red militia +++
 // green worker ++++
-// green militia ++
-// blue worker +++
-// blue militia +++
+// green militia +++
+// blue worker ++++
+// blue militia ++
 //
 // Used:
 // mortar: green worker + red militia
@@ -22,7 +22,7 @@ package staging
 // crippler: yellow militia + green militia
 // repeller: red worker + blue worker
 // generator: green worker + yellow militia
-// repair: red worker + blue militia
+// repair: blue worker + green militia
 // prism: yellow militia + blue militia
 //
 // Unused:
@@ -32,6 +32,7 @@ package staging
 // red worker + green worker
 // red worker + green militia
 // red worker + yellow militia
+// red worker + blue militia
 // green worker + blue militia
 // blue worker + red militia
 // blue worker + green militia
@@ -118,9 +119,9 @@ var tier2agentMergeRecipeList = []agentMergeRecipe{
 	},
 	{
 		agent1kind:    agentWorker,
-		agent1faction: redFactionTag,
+		agent1faction: blueFactionTag,
 		agent2kind:    agentMilitia,
-		agent2faction: blueFactionTag,
+		agent2faction: greenFactionTag,
 		result:        repairAgentStats,
 	},
 }

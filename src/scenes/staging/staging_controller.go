@@ -266,8 +266,15 @@ func (c *Controller) launchAttack() {
 	}
 	maxDispatched := gmath.Clamp(int(float64(c.selectedColony.agents.NumAvailableFighters())*0.6), 1, 15)
 	c.selectedColony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
-		maxDispatched--
 		target := gmath.RandElem(c.world.rand, closeTargets)
+		kind := targetGround
+		if target.IsFlying() {
+			kind = targetFlying
+		}
+		if !a.CanAttack(kind) {
+			return false
+		}
+		maxDispatched--
 		a.AssignMode(agentModeAttack, gmath.Vec{}, target)
 		return maxDispatched <= 0
 	})

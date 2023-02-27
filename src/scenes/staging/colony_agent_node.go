@@ -551,6 +551,10 @@ func (a *colonyAgentNode) updateHealthShader() {
 	a.sprite.Shader.Enabled = percentage < 0.95
 }
 
+func (a *colonyAgentNode) CanAttack(mask targetKind) bool {
+	return a.stats.weapon.TargetFlags&mask != 0
+}
+
 func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 	a.health -= damage.health
 
@@ -664,7 +668,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		if len(targets) >= a.stats.weapon.MaxTargets {
 			break
 		}
-		if a.stats.weapon.TargetFlags&c.TargetKind() == 0 {
+		if !a.CanAttack(c.TargetKind()) {
 			continue
 		}
 		if c.pos.DistanceTo(a.pos) >= a.stats.weapon.AttackRange {

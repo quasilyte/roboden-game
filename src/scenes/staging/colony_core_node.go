@@ -742,7 +742,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		attacker := action.Value.(*creepNode)
 		numAgents := c.scene.Rand().IntRange(2, 4)
 		c.pickCombatUnits(numAgents, func(a *colonyAgentNode) {
-			if a.mode == agentModeStandby {
+			if a.mode == agentModeStandby && a.CanAttack(attacker.TargetKind()) {
 				a.AssignMode(agentModeFollow, gmath.Vec{}, attacker)
 			}
 		})
@@ -752,7 +752,9 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		attacker := action.Value.(*creepNode)
 		numAgents := c.scene.Rand().IntRange(2, 4)
 		c.pickCombatUnits(numAgents, func(a *colonyAgentNode) {
-			a.AssignMode(agentModeFollow, gmath.Vec{}, attacker)
+			if a.CanAttack(attacker.TargetKind()) {
+				a.AssignMode(agentModeFollow, gmath.Vec{}, attacker)
+			}
 		})
 		return true
 

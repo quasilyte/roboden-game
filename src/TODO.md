@@ -11,7 +11,6 @@ todo:
 - enemies focus 1 turret too much (see FindColonyAgent)
 - FindColonyAgent should use agents container for iteration
 - make choice selection window bigger or make English text fit better?
-- don't send attacking units that can't attack target
 - add antiair missle fire effect
 - show resources when base is flying
 - consider taking a target size into account when calculating impact range

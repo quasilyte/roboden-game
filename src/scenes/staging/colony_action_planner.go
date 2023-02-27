@@ -220,6 +220,9 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 		len(p.colony.turrets) > 0
 	if canRepairTurret && p.world.rand.Chance(0.3) {
 		for _, turret := range p.colony.turrets {
+			if turret.health >= turret.maxHealth*0.9 {
+				continue
+			}
 			distSqr := turret.pos.DistanceSquaredTo(p.colony.pos)
 			if distSqr > p.colony.realRadiusSqr*1.2 {
 				continue

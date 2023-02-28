@@ -439,11 +439,15 @@ func (c *Controller) handleInput() {
 	if len(c.world.colonies) > 1 {
 		if info, ok := mainInput.JustPressedActionInfo(controls.ActionClick); ok {
 			clickPos := info.Pos.Add(c.camera.Offset)
+			selectDist := 40.0
+			if c.state.Device.IsMobile {
+				selectDist = 80.0
+			}
 			for _, colony := range c.world.colonies {
 				if colony == c.selectedColony {
 					continue
 				}
-				if colony.pos.DistanceTo(clickPos) > 40 {
+				if colony.pos.DistanceTo(clickPos) > selectDist {
 					continue
 				}
 				c.selectColony(colony)

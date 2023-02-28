@@ -54,6 +54,7 @@ package menus
 // * New features:
 //   - Experimental mobile devices support
 //   - Finished controllers (gamepad devices) support
+//   - Crawlers now know a "scatter" behavior
 //
 // * UX:
 //   - The colony selection is more precise now
@@ -64,4 +65,5 @@ package menus
 //
 // * Fixes:
 //   - Drones with charging mode no longer confuse creeps (we're clearing the waypoint now)
+//   - Fixed crawlers "never scout" bug
 const buildNumber int = 5

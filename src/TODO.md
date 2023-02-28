@@ -8,7 +8,6 @@ todo engine:
 
 todo:
 - make menu/toggle buttons transparent a bit (like other windows)
-- make crawlers more aggressive when there are hordes of them
 - make tutorial device-aware; if gamepad is connected, tell controller bindings; if it's a mobile device, tell about touch controls
 - add turrets to a pathgrid?
 - enemies focus 1 turret too much (see FindColonyAgent)
@@ -22,10 +21,8 @@ todo:
 - make low energy fighters fire at a slower rate
 - base selector is hidden by shadow
 - falling base should have damaged shader applied too
-- send nearby crawlers to save the boss if it is under attack
 - add fullscreen option (disable/enable windowed mode)
 - menu buttons focus?
-- show enemy bases on the radar
 - base should check landing zone before landing
 - rework planner action delay (same action vs other action)
 - is morale damage even viable?

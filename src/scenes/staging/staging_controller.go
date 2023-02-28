@@ -521,24 +521,25 @@ func (c *Controller) Update(delta float64) {
 
 	if c.debugInfo != nil {
 		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f", ebiten.ActualFPS())
+		// colony := c.selectedColony
+		// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",
+		// 	colony.resources,
+		// 	len(colony.agents.workers),
+		// 	len(colony.agents.fighters),
+		// 	colony.calcUnitLimit(),
+		// 	int(colony.realRadius),
+		// 	int(colony.GetResourcePriority()*100),
+		// 	int(colony.GetGrowthPriority()*100),
+		// 	int(colony.GetEvolutionPriority()*100),
+		// 	int(colony.GetSecurityPriority()*100),
+		// 	int(colony.factionWeights.GetWeight(neutralFactionTag)*100),
+		// 	int(colony.factionWeights.GetWeight(yellowFactionTag)*100),
+		// 	int(colony.factionWeights.GetWeight(redFactionTag)*100),
+		// 	int(colony.factionWeights.GetWeight(greenFactionTag)*100),
+		// 	int(colony.factionWeights.GetWeight(blueFactionTag)*100),
+		// 	ebiten.ActualFPS())
 	}
-	// colony := c.selectedColony
-	// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",
-	// 	colony.resources.Essence,
-	// 	len(colony.agents),
-	// 	len(colony.combatAgents),
-	// 	colony.calcUnitLimit(),
-	// 	int(colony.realRadius),
-	// 	int(colony.GetResourcePriority()*100),
-	// 	int(colony.GetGrowthPriority()*100),
-	// 	int(colony.GetEvolutionPriority()*100),
-	// 	int(colony.GetSecurityPriority()*100),
-	// 	int(colony.factionWeights.GetWeight(neutralFactionTag)*100),
-	// 	int(colony.factionWeights.GetWeight(yellowFactionTag)*100),
-	// 	int(colony.factionWeights.GetWeight(redFactionTag)*100),
-	// 	int(colony.factionWeights.GetWeight(greenFactionTag)*100),
-	// 	int(colony.factionWeights.GetWeight(blueFactionTag)*100),
-	// 	ebiten.CurrentFPS())
+
 }
 
 func (c *Controller) IsDisposed() bool { return false }

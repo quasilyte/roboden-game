@@ -378,44 +378,50 @@ func (w *choiceWindowNode) Update(delta float64) {
 	if w.selectedColony == nil {
 		return
 	}
+	if w.state != choiceCharging {
+		return
+	}
+	w.value += delta
+	if w.value >= w.targetValue {
+		w.revealChoices()
+		return
+	}
+	w.chargeBar.SetValue(w.value / w.targetValue)
+}
 
-	switch w.state {
-	case choiceCharging:
-		w.value += delta
-		if w.value >= w.targetValue {
-			w.revealChoices()
-			return
-		}
-		w.chargeBar.SetValue(w.value / w.targetValue)
-
-	case choiceReady:
-		if pos, ok := w.cursor.ClickPos(); ok {
-			globalClickPos := pos.Add(w.selectedColony.world.camera.Offset)
-			if globalClickPos.DistanceTo(w.selectedColony.pos) > 28 {
-				w.activateMoveChoice(globalClickPos)
-				return
-			}
-		}
-		if info, ok := w.input.JustPressedActionInfo(controls.ActionClick); ok {
-			for i, choice := range w.choices {
-				if choice.rect.Contains(info.Pos) {
-					w.activateChoice(i)
-					return
-				}
-			}
-		}
-		actions := [...]input.Action{
-			controls.ActionChoice1,
-			controls.ActionChoice2,
-			controls.ActionChoice3,
-			controls.ActionChoice4,
-			controls.ActionChoice5,
-		}
-		for i, a := range actions {
-			if w.input.ActionIsJustPressed(a) {
+func (w *choiceWindowNode) HandleInput() {
+	if w.selectedColony == nil {
+		return
+	}
+	if w.state != choiceReady {
+		return
+	}
+	if info, ok := w.input.JustPressedActionInfo(controls.ActionClick); ok {
+		for i, choice := range w.choices {
+			if choice.rect.Contains(info.Pos) {
 				w.activateChoice(i)
 				return
 			}
+		}
+	}
+	if pos, ok := w.cursor.ClickPos(); ok {
+		globalClickPos := pos.Add(w.selectedColony.world.camera.Offset)
+		if globalClickPos.DistanceTo(w.selectedColony.pos) > 28 {
+			w.activateMoveChoice(globalClickPos)
+			return
+		}
+	}
+	actions := [...]input.Action{
+		controls.ActionChoice1,
+		controls.ActionChoice2,
+		controls.ActionChoice3,
+		controls.ActionChoice4,
+		controls.ActionChoice5,
+	}
+	for i, a := range actions {
+		if w.input.ActionIsJustPressed(a) {
+			w.activateChoice(i)
+			return
 		}
 	}
 }

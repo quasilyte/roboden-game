@@ -373,23 +373,7 @@ func (c *Controller) victory() {
 	})
 }
 
-func (c *Controller) Update(delta float64) {
-	c.musicPlayer.Update(delta)
-	c.world.Update(delta)
-
-	if c.world.boss == nil {
-		// TODO: just subscribe to a boss destruction event?
-		c.victory()
-	}
-
-	c.choices.Enabled = c.selectedColony != nil &&
-		c.selectedColony.mode == colonyModeNormal
-
-	c.tier3spawnDelay = gmath.ClampMin(c.tier3spawnDelay-delta, 0)
-	if c.tier3spawnDelay == 0 {
-		c.spawnTier3Creep()
-	}
-
+func (c *Controller) handleInput() {
 	mainInput := c.state.MainInput
 	if !c.state.Device.IsMobile {
 		// Camera panning only makes sense on non-mobile devices
@@ -450,6 +434,8 @@ func (c *Controller) Update(delta float64) {
 	if mainInput.ActionIsJustPressed(controls.ActionToggleColony) {
 		c.selectNextColony(true)
 	}
+
+	handledClick := false
 	if len(c.world.colonies) > 1 {
 		if info, ok := mainInput.JustPressedActionInfo(controls.ActionClick); ok {
 			clickPos := info.Pos.Add(c.camera.Offset)
@@ -457,14 +443,39 @@ func (c *Controller) Update(delta float64) {
 				if colony == c.selectedColony {
 					continue
 				}
-				if colony.pos.DistanceTo(clickPos) > 30 {
+				if colony.pos.DistanceTo(clickPos) > 40 {
 					continue
 				}
 				c.selectColony(colony)
+				handledClick = true
 				break
 			}
 		}
 	}
+
+	if !handledClick {
+		c.choices.HandleInput()
+	}
+}
+
+func (c *Controller) Update(delta float64) {
+	c.musicPlayer.Update(delta)
+	c.world.Update(delta)
+
+	if c.world.boss == nil {
+		// TODO: just subscribe to a boss destruction event?
+		c.victory()
+	}
+
+	c.choices.Enabled = c.selectedColony != nil &&
+		c.selectedColony.mode == colonyModeNormal
+
+	c.tier3spawnDelay = gmath.ClampMin(c.tier3spawnDelay-delta, 0)
+	if c.tier3spawnDelay == 0 {
+		c.spawnTier3Creep()
+	}
+
+	c.handleInput()
 
 	if c.debugInfo != nil {
 		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f", ebiten.ActualFPS())

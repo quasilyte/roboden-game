@@ -55,7 +55,7 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 		ActionChoice3:    {input.Key3, input.KeyE, input.KeyGamepadA},
 		ActionChoice4:    {input.Key4, input.KeyR, input.KeyGamepadX},
 		ActionChoice5:    {input.Key5, input.KeyT, input.KeyGamepadR1},
-		ActionMoveChoice: {input.KeyMouseRight, input.KeyGamepadRStick},
+		ActionMoveChoice: {input.KeyMouseRight, input.KeyGamepadRStick, input.KeyTouchTap},
 
 		ActionMoveCursor: {input.KeyGamepadRStickMotion},
 

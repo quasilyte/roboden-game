@@ -36,6 +36,10 @@ func (b *TextureButton) IsDisposed() bool {
 	return false
 }
 
+func (b *TextureButton) SetVisibility(visible bool) {
+	b.sprite.Visible = visible
+}
+
 func (b *TextureButton) Update(delta float64) {
 	pos, ok := b.cursor.ClickPos(controls.ActionClick)
 	if !ok || !b.sprite.BoundsRect().Contains(pos) {

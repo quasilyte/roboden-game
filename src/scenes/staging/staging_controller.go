@@ -201,7 +201,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.debugInfo = scene.NewLabel(assets.FontSmall)
 		c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
 		c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
-		scene.AddGraphics(c.debugInfo)
+		scene.AddGraphicsAbove(c.debugInfo, 1)
 	}
 
 	if c.state.LevelOptions.Tutorial {
@@ -371,6 +371,9 @@ func (c *Controller) defeat() {
 	if c.transitionQueued {
 		return
 	}
+	c.menuButton.SetVisibility(false)
+	c.toggleButton.SetVisibility(false)
+
 	c.transitionQueued = true
 	c.scene.DelayedCall(2.0, func() {
 		c.world.result.Victory = false

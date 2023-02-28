@@ -67,4 +67,12 @@ package menus
 // * Fixes:
 //   - Drones with charging mode no longer confuse creeps (we're clearing the waypoint now)
 //   - Fixed crawlers "never scout" bug
-const buildNumber int = 5
+//
+// # Version 6
+//
+// * UX:
+//   - Make it clear which option was selected
+//
+// * Fixes:
+//   - Upon defeat, hide munu and toggle buttons
+const buildNumber int = 6

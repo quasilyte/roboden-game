@@ -156,8 +156,9 @@ func (m *tutorialManager) Update(delta float64) {
 		return
 	}
 
-	if info, ok := m.input.JustPressedActionInfo(controls.ActionClick); ok {
-		if m.windowRect.Contains(info.Pos) {
+	cursor := m.choiceWindow.cursor
+	if pos, ok := cursor.ClickPos(controls.ActionClick); ok {
+		if m.windowRect.Contains(pos) {
 			m.enabled = false
 			m.setWindowVisibility(false)
 			m.scene.Audio().PlaySound(assets.AudioClick)

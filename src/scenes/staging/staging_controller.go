@@ -437,8 +437,8 @@ func (c *Controller) handleInput() {
 
 	handledClick := false
 	if len(c.world.colonies) > 1 {
-		if info, ok := mainInput.JustPressedActionInfo(controls.ActionClick); ok {
-			clickPos := info.Pos.Add(c.camera.Offset)
+		if pos, ok := c.cursor.ClickPos(controls.ActionClick); ok {
+			clickPos := pos.Add(c.camera.Offset)
 			selectDist := 40.0
 			if c.state.Device.IsMobile {
 				selectDist = 80.0

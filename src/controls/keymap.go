@@ -59,7 +59,7 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 
 		ActionMoveCursor: {input.KeyGamepadRStickMotion},
 
-		ActionClick: {input.KeyMouseLeft, input.KeyTouchTap},
+		ActionClick: {input.KeyMouseLeft, input.KeyGamepadRStick, input.KeyTouchTap},
 	}
 
 	state.MainInput = ctx.Input.NewHandler(0, keymap)

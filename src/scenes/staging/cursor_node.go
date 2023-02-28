@@ -32,8 +32,8 @@ func (c *cursorNode) Init(scene *ge.Scene) {
 
 func (c *cursorNode) IsDisposed() bool { return false }
 
-func (c *cursorNode) ClickPos() (gmath.Vec, bool) {
-	info, ok := c.input.JustPressedActionInfo(controls.ActionMoveChoice)
+func (c *cursorNode) ClickPos(action input.Action) (gmath.Vec, bool) {
+	info, ok := c.input.JustPressedActionInfo(action)
 	if !ok {
 		return gmath.Vec{}, false
 	}

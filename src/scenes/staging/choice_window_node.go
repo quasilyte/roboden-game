@@ -396,15 +396,15 @@ func (w *choiceWindowNode) HandleInput() {
 	if w.state != choiceReady {
 		return
 	}
-	if info, ok := w.input.JustPressedActionInfo(controls.ActionClick); ok {
+	if pos, ok := w.cursor.ClickPos(controls.ActionClick); ok {
 		for i, choice := range w.choices {
-			if choice.rect.Contains(info.Pos) {
+			if choice.rect.Contains(pos) {
 				w.activateChoice(i)
 				return
 			}
 		}
 	}
-	if pos, ok := w.cursor.ClickPos(); ok {
+	if pos, ok := w.cursor.ClickPos(controls.ActionMoveChoice); ok {
 		globalClickPos := pos.Add(w.selectedColony.world.camera.Offset)
 		if globalClickPos.DistanceTo(w.selectedColony.pos) > 28 {
 			w.activateMoveChoice(globalClickPos)

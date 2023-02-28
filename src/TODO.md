@@ -8,13 +8,10 @@ todo engine:
 
 todo:
 - make crawlers more aggressive when there are hordes of them
-- make icons in action selection clickable too?
-- add a separate layout (crosshair-like) for gamepads?
 - make tutorial device-aware; if gamepad is connected, tell controller bindings; if it's a mobile device, tell about touch controls
 - add turrets to a pathgrid?
 - enemies focus 1 turret too much (see FindColonyAgent)
 - FindColonyAgent should use agents container for iteration
-- make choice selection window bigger or make English text fit better?
 - add antiair missle fire effect
 - show resources when base is flying
 - consider taking a target size into account when calculating impact range

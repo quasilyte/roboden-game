@@ -21,10 +21,12 @@ func registerImageResources(ctx *ge.Context) {
 		ImageChoiceRechargeWindow: {Path: "image/ui/choice_recharge_window.png"},
 		ImageTutorialDialogue:     {Path: "image/ui/window_tutorial.png"},
 
-		ImageRadar:         {Path: "image/ui/radar.png"},
-		ImageRadarWave:     {Path: "image/ui/radar_wave.png"},
-		ImageRadarBossFar:  {Path: "image/ui/radar_boss_far.png"},
-		ImageRadarBossNear: {Path: "image/ui/radar_boss_near.png"},
+		ImageRadar:            {Path: "image/ui/radar.png"},
+		ImageRadarWave:        {Path: "image/ui/radar_wave.png"},
+		ImageRadarBossFar:     {Path: "image/ui/radar_boss_far.png"},
+		ImageRadarBossNear:    {Path: "image/ui/radar_boss_near.png"},
+		ImageButtonMenu:       {Path: "image/ui/menu_button.png"},
+		ImageButtonBaseToggle: {Path: "image/ui/base_toggle_button.png"},
 
 		ImageFloppyYellow: {Path: "image/ui/floppy_yellow.png"},
 		ImageFloppyRed:    {Path: "image/ui/floppy_red.png"},
@@ -163,6 +165,8 @@ const (
 	ImageRadarWave
 	ImageRadarBossFar
 	ImageRadarBossNear
+	ImageButtonMenu
+	ImageButtonBaseToggle
 
 	ImageSmallExplosion1
 	ImageVerticalExplosion

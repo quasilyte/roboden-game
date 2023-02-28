@@ -12,8 +12,10 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/viewport"
@@ -32,6 +34,8 @@ type Controller struct {
 	selectedColony *colonyCoreNode
 	colonySelector *ge.Sprite
 	radar          *radarNode
+	menuButton     *gameui.TextureButton
+	toggleButton   *gameui.TextureButton
 
 	scene     *ge.Scene
 	world     *worldState
@@ -166,10 +170,19 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
 	c.camera.AddGraphicsBelow(c.colonySelector)
 
+	c.cursor = newCursorNode(c.state.MainInput, c.camera.Rect)
+
+	c.menuButton = gameui.NewTextureButton(ge.Pos{Offset: gmath.Vec{X: 76, Y: 12}}, assets.ImageButtonMenu, c.cursor)
+	c.menuButton.EventClicked.Connect(c, c.onMenuButtonClicked)
+	scene.AddObject(c.menuButton)
+
+	c.toggleButton = gameui.NewTextureButton(ge.Pos{Offset: gmath.Vec{X: 12, Y: 76}}, assets.ImageButtonBaseToggle, c.cursor)
+	c.toggleButton.EventClicked.Connect(c, c.onToggleButtonClicked)
+	scene.AddObject(c.toggleButton)
+
 	c.radar = newRadarNode(c.world)
 	scene.AddObject(c.radar)
 
-	c.cursor = newCursorNode(c.state.MainInput, c.camera.Rect)
 	scene.AddObject(c.cursor)
 
 	choicesPos := gmath.Vec{
@@ -197,6 +210,14 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	scene.AddObject(c.choices)
+}
+
+func (c *Controller) onMenuButtonClicked(gsignal.Void) {
+	c.leaveScene(c.backController)
+}
+
+func (c *Controller) onToggleButtonClicked(gsignal.Void) {
+	c.selectNextColony(true)
 }
 
 func (c *Controller) onChoiceSelected(choice selectedChoice) {
@@ -428,11 +449,11 @@ func (c *Controller) handleInput() {
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionBack) {
-		c.leaveScene(c.backController)
+		c.onMenuButtonClicked(gsignal.Void{})
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionToggleColony) {
-		c.selectNextColony(true)
+		c.onToggleButtonClicked(gsignal.Void{})
 	}
 
 	handledClick := false

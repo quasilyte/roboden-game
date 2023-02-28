@@ -58,6 +58,7 @@ package menus
 //
 // * UX:
 //   - The colony selection is more precise now
+//   - Added "toggle base" and "menu" (burger) buttons
 //
 // * Visual improvements:
 //   - Added icons for the 5th option

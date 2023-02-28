@@ -74,5 +74,5 @@ package menus
 //   - Made it clear which option was selected
 //
 // * Fixes:
-//   - Upon defeat, hide munu and toggle buttons
+//   - Upon defeat, hide menu and toggle buttons
 const buildNumber int = 6

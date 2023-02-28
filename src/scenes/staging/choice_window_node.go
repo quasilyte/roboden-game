@@ -489,6 +489,7 @@ func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
 		w.scene.Audio().PlaySound(assets.AudioError)
 		return
 	}
+	w.selectedIndex = -1
 	choice := selectedChoice{
 		Option: choiceOption{special: specialChoiceMoveColony},
 		Pos:    pos,

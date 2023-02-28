@@ -55,6 +55,9 @@ package menus
 //   - Experimental mobile devices support
 //   - Finished controllers (gamepad devices) support
 //
+// * UX:
+//   - The colony selection is more precise now
+//
 // * Fixes:
 //   - Drones with charging mode no longer confuse creeps (we're clearing the waypoint now)
 const buildNumber int = 5

@@ -35,6 +35,7 @@ type selectedChoice struct {
 
 type choiceOptionSlot struct {
 	floppy     *ge.Sprite
+	icon       *ge.Sprite
 	labelLight *ge.Label
 	labelDark  *ge.Label
 	rect       gmath.Rect
@@ -45,6 +46,7 @@ type choiceOption struct {
 	text    string
 	effects []choiceOptionEffect
 	special specialChoiceKind
+	icon    resource.ImageID
 	cost    float64
 }
 
@@ -58,26 +60,31 @@ var specialChoicesTable = [...]choiceOption{
 		text:    "attack",
 		special: specialAttack,
 		cost:    5,
+		icon:    assets.ImageActionAttack,
 	},
 	specialBuildColony: {
 		text:    "build_colony",
 		special: specialBuildColony,
 		cost:    40,
+		icon:    assets.ImageActionBuildColony,
 	},
 	specialBuildGunpoint: {
 		text:    "build_gunpoint",
 		special: specialBuildGunpoint,
 		cost:    15,
+		icon:    assets.ImageActionBuildTurret,
 	},
 	specialIncreaseRadius: {
 		text:    "increase_radius",
 		special: specialIncreaseRadius,
 		cost:    15,
+		icon:    assets.ImageActionIncreaseRadius,
 	},
 	specialDecreaseRadius: {
 		text:    "decrease_radius",
 		special: specialDecreaseRadius,
 		cost:    4,
+		icon:    assets.ImageActionDecreaseRadius,
 	},
 }
 
@@ -300,10 +307,21 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 
 		scene.AddGraphics(darkLabel)
 		scene.AddGraphics(lightLabel)
+
+		var icon *ge.Sprite
+		if i == 4 {
+			icon = ge.NewSprite(scene.Context())
+			icon.Centered = false
+			icon.Pos.Base = &floppy.Pos.Offset
+			icon.Pos.Offset = gmath.Vec{X: 5, Y: 26}
+			scene.AddGraphics(icon)
+		}
+
 		choice := &choiceOptionSlot{
 			labelDark:  darkLabel,
 			labelLight: lightLabel,
 			floppy:     floppy,
+			icon:       icon,
 			rect: gmath.Rect{
 				Min: floppy.Pos.Resolve(),
 				Max: floppy.Pos.Resolve().Add(gmath.Vec{
@@ -316,8 +334,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		w.choices[i] = choice
 	}
 
-	// w.startCharging(10)
-	w.startCharging(1)
+	w.startCharging(10)
 }
 
 func (w *choiceWindowNode) IsDisposed() bool {
@@ -338,6 +355,9 @@ func (w *choiceWindowNode) revealChoices() {
 		o.labelDark.Visible = true
 		o.labelLight.Visible = true
 		o.floppy.Visible = true
+		if o.icon != nil {
+			o.icon.Visible = true
+		}
 	}
 	w.state = choiceReady
 
@@ -366,6 +386,7 @@ func (w *choiceWindowNode) revealChoices() {
 	w.choices[4].option = specialOption
 	w.choices[4].labelDark.Text = specialOption.text
 	w.choices[4].labelLight.Text = specialOption.text
+	w.choices[4].icon.SetImage(w.scene.LoadImage(specialOption.icon))
 
 	w.scene.Audio().PlaySound(assets.AudioChoiceReady)
 }
@@ -380,6 +401,9 @@ func (w *choiceWindowNode) startCharging(targetValue float64) {
 		o.labelDark.Visible = false
 		o.labelLight.Visible = false
 		o.floppy.Visible = false
+		if o.icon != nil {
+			o.icon.Visible = false
+		}
 	}
 	w.state = choiceCharging
 }

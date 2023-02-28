@@ -32,6 +32,12 @@ func registerImageResources(ctx *ge.Context) {
 		ImageFloppyBlue:   {Path: "image/ui/floppy_blue.png"},
 		ImageFloppyGray:   {Path: "image/ui/floppy_gray.png"},
 
+		ImageActionBuildColony:    {Path: "image/ui/action_build_colony.png"},
+		ImageActionBuildTurret:    {Path: "image/ui/action_build_turret.png"},
+		ImageActionAttack:         {Path: "image/ui/action_attack.png"},
+		ImageActionIncreaseRadius: {Path: "image/ui/action_increase_radius.png"},
+		ImageActionDecreaseRadius: {Path: "image/ui/action_decrease_radius.png"},
+
 		ImageSmallExplosion1:   {Path: "image/effects/small_explosion1.png", FrameWidth: 32},
 		ImageVerticalExplosion: {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
 		ImageBigExplosion:      {Path: "image/effects/big_explosion.png", FrameWidth: 64},
@@ -176,6 +182,12 @@ const (
 	ImageFloppyGreen
 	ImageFloppyBlue
 	ImageFloppyGray
+
+	ImageActionBuildColony
+	ImageActionBuildTurret
+	ImageActionAttack
+	ImageActionIncreaseRadius
+	ImageActionDecreaseRadius
 
 	ImageFactionDiode
 	ImageUberBoss

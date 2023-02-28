@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"time"
 
 	"github.com/quasilyte/ge"
@@ -10,6 +11,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/scenes/menus"
 	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/userdevice"
 )
 
 func main() {
@@ -30,6 +32,7 @@ func main() {
 				Lang:               inferDefaultLang(),
 			},
 		},
+		Device: userdevice.GetInfo(),
 	}
 
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
@@ -49,6 +52,8 @@ func main() {
 
 	ctx.LoadGameData("save", &state.Persistent)
 	state.ReloadLanguage(ctx)
+
+	fmt.Println("is mobile?", state.Device.IsMobile)
 
 	if err := ge.RunGame(ctx, menus.NewMainMenuController(state)); err != nil {
 		panic(err)

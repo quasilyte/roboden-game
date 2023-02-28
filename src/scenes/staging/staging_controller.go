@@ -23,6 +23,7 @@ type Controller struct {
 	state *session.State
 
 	backController    ge.SceneController
+	cameraPanDragPos  gmath.Vec
 	cameraPanSpeed    float64
 	cameraPanBoundary float64
 
@@ -87,7 +88,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	if c.state.Persistent.Settings.EdgeScrollRange != 0 {
 		c.cameraPanBoundary = 1
 		if runtime.GOARCH == "wasm" {
-			c.cameraPanBoundary = 6
+			c.cameraPanBoundary = 8
 		}
 		c.cameraPanBoundary += 2 * float64(c.state.Persistent.Settings.EdgeScrollRange-1)
 	}
@@ -371,42 +372,57 @@ func (c *Controller) Update(delta float64) {
 	}
 
 	mainInput := c.state.MainInput
-	var cameraPan gmath.Vec
-	if mainInput.ActionIsPressed(controls.ActionPanRight) {
-		cameraPan.X += c.cameraPanSpeed
-	}
-	if mainInput.ActionIsPressed(controls.ActionPanDown) {
-		cameraPan.Y += c.cameraPanSpeed
-	}
-	if mainInput.ActionIsPressed(controls.ActionPanLeft) {
-		cameraPan.X -= c.cameraPanSpeed
-	}
-	if mainInput.ActionIsPressed(controls.ActionPanUp) {
-		cameraPan.Y -= c.cameraPanSpeed
-	}
-	if cameraPan.IsZero() {
-		if info, ok := mainInput.PressedActionInfo(controls.ActionPanAlt); ok {
-			cameraCenter := c.camera.Rect.Center()
-			cameraPan = gmath.RadToVec(cameraCenter.AngleToPoint(info.Pos)).Mulf(c.cameraPanSpeed * 0.8)
-		}
-	}
-	if cameraPan.IsZero() && c.cameraPanBoundary != 0 {
-		// Mouse cursor can pan the camera too.
-		cursor := mainInput.CursorPos()
-		if cursor.X > c.camera.Rect.Width()-c.cameraPanBoundary {
+	if !c.state.Device.IsMobile {
+		// Camera panning only makes sense on non-mobile devices
+		// where we have a keyboard/gamepad or a cursor.
+		var cameraPan gmath.Vec
+		if mainInput.ActionIsPressed(controls.ActionPanRight) {
 			cameraPan.X += c.cameraPanSpeed
 		}
-		if cursor.Y > c.camera.Rect.Height()-c.cameraPanBoundary {
+		if mainInput.ActionIsPressed(controls.ActionPanDown) {
 			cameraPan.Y += c.cameraPanSpeed
 		}
-		if cursor.X < c.cameraPanBoundary {
+		if mainInput.ActionIsPressed(controls.ActionPanLeft) {
 			cameraPan.X -= c.cameraPanSpeed
 		}
-		if cursor.Y < c.cameraPanBoundary {
+		if mainInput.ActionIsPressed(controls.ActionPanUp) {
 			cameraPan.Y -= c.cameraPanSpeed
 		}
+		if cameraPan.IsZero() {
+			if info, ok := mainInput.PressedActionInfo(controls.ActionPanAlt); ok {
+				cameraCenter := c.camera.Rect.Center()
+				cameraPan = gmath.RadToVec(cameraCenter.AngleToPoint(info.Pos)).Mulf(c.cameraPanSpeed * 0.8)
+			}
+		}
+		if cameraPan.IsZero() && c.cameraPanBoundary != 0 {
+			// Mouse cursor can pan the camera too.
+			cursor := mainInput.CursorPos()
+			if cursor.X > c.camera.Rect.Width()-c.cameraPanBoundary {
+				cameraPan.X += c.cameraPanSpeed
+			}
+			if cursor.Y > c.camera.Rect.Height()-c.cameraPanBoundary {
+				cameraPan.Y += c.cameraPanSpeed
+			}
+			if cursor.X < c.cameraPanBoundary {
+				cameraPan.X -= c.cameraPanSpeed
+			}
+			if cursor.Y < c.cameraPanBoundary {
+				cameraPan.Y -= c.cameraPanSpeed
+			}
+		}
+		c.camera.Pan(cameraPan)
+	} else {
+		// On mobile devices we expect a touch screen support.
+		// Instead of panning, we use dragging here.
+		if mainInput.ActionIsJustPressed(controls.ActionPanDrag) {
+			c.cameraPanDragPos = c.camera.Offset
+		}
+		if info, ok := mainInput.PressedActionInfo(controls.ActionPanDrag); ok {
+			posDelta := info.StartPos.Sub(info.Pos).Mulf(c.cameraPanSpeed * 0.15)
+			newPos := c.cameraPanDragPos.Add(posDelta)
+			c.camera.SetOffset(newPos)
+		}
 	}
-	c.camera.Pan(cameraPan)
 
 	if mainInput.ActionIsJustPressed(controls.ActionBack) {
 		c.leaveScene(c.backController)

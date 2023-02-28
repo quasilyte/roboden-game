@@ -9,6 +9,7 @@ import (
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/userdevice"
 )
 
 type State struct {
@@ -16,6 +17,8 @@ type State struct {
 	CPUProfileWriter io.WriteCloser
 	MemProfile       string
 	MemProfileWriter io.WriteCloser
+
+	Device userdevice.Info
 
 	MainInput *input.Handler
 

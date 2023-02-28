@@ -133,6 +133,11 @@ func (c *Camera) CenterOn(pos gmath.Vec) {
 	c.checkBounds()
 }
 
+func (c *Camera) SetOffset(pos gmath.Vec) {
+	c.Offset = pos
+	c.checkBounds()
+}
+
 func (c *Camera) Draw(screen *ebiten.Image) {
 	c.globalRect = c.Rect
 	c.globalRect.Min = c.Offset

@@ -51,6 +51,10 @@ package menus
 //
 // # Version 5
 //
+// * New features:
+//   - Experimental mobile devices support
+//   - Finished controllers (gamepad devices) support
+//
 // * Fixes:
 //   - Drones with charging mode no longer confuse creeps (we're clearing the waypoint now)
 const buildNumber int = 5

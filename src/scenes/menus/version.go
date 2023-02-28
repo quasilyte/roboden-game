@@ -58,6 +58,10 @@ package menus
 // * UX:
 //   - The colony selection is more precise now
 //
+// * Visual improvements:
+//   - Added icons for the 5th option
+//   - Reworked sprites for the action options
+//
 // * Fixes:
 //   - Drones with charging mode no longer confuse creeps (we're clearing the waypoint now)
 const buildNumber int = 5

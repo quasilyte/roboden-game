@@ -58,8 +58,8 @@ func (r *radarNode) Init(scene *ge.Scene) {
 	r.scaleRatio = r.nearDistPixels / r.nearDist
 
 	r.pos = gmath.Vec{
-		X: r.world.camera.Rect.Width() - r.sprite.ImageWidth()/2 - 8,
-		Y: r.sprite.ImageHeight()/2 + 8,
+		X: 8 + r.sprite.ImageWidth()/2,
+		Y: 8 + r.sprite.ImageHeight()/2,
 	}
 
 	r.wave = scene.NewSprite(assets.ImageRadarWave)

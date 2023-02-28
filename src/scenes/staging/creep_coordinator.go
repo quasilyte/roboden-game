@@ -1,6 +1,8 @@
 package staging
 
 import (
+	"fmt"
+
 	"github.com/quasilyte/gmath"
 )
 
@@ -62,6 +64,7 @@ func (c *creepCoordinator) sendScout() {
 		return
 	}
 
+	fmt.Println("launch creep scout")
 	c.scoutingDelay = c.world.rand.FloatRange(10.0, 30.0)
 
 	scoutingDist := 256 * c.world.rand.FloatRange(1, 2)
@@ -126,6 +129,7 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 	// Launch the attack.
 
 	// The next action will be much later.
+	fmt.Println("launch creep attack")
 	c.attackDelay = c.world.rand.FloatRange(20.0, 55.0)
 
 	for _, creep := range group {

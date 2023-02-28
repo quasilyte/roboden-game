@@ -1,6 +1,7 @@
 package staging
 
 import (
+	"image/color"
 	"strings"
 
 	resource "github.com/quasilyte/ebitengine-resource"
@@ -33,12 +34,11 @@ type selectedChoice struct {
 }
 
 type choiceOptionSlot struct {
-	icon    *ge.Sprite
-	iconBg  *ge.Sprite
-	label   *ge.Label
-	labelBg *ge.Rect
-	rect    gmath.Rect
-	option  choiceOption
+	floppy     *ge.Sprite
+	labelLight *ge.Label
+	labelDark  *ge.Label
+	rect       gmath.Rect
+	option     choiceOption
 }
 
 type choiceOption struct {
@@ -174,7 +174,6 @@ type choiceWindowNode struct {
 	targetValue float64
 	value       float64
 
-	openSprite   *ge.Sprite
 	foldedSprite *ge.Sprite
 
 	choices []*choiceOptionSlot
@@ -209,13 +208,20 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 	w.shuffledOptions = make([]choiceOption, len(choiceOptionList))
 	copy(w.shuffledOptions, choiceOptionList)
 
+	translateText := func(s string) string {
+		keys := strings.Split(s, "+")
+		for _, k := range keys {
+			s = strings.Replace(s, k, d.Get("game.choice", k), 1)
+		}
+		s = strings.ReplaceAll(s, "+", "\n+\n")
+		s = strings.ReplaceAll(s, " ", "\n")
+		return s
+	}
+
 	// Now translate the options.
 	for i := range w.shuffledOptions {
 		o := &w.shuffledOptions[i]
-		keys := strings.Split(o.text, "+")
-		for _, k := range keys {
-			o.text = strings.Replace(o.text, k, d.Get("game.choice", k), 1)
-		}
+		o.text = translateText(o.text)
 	}
 
 	w.specialChoiceKinds = []specialChoiceKind{
@@ -233,13 +239,8 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		if o.text == "" {
 			continue
 		}
-		o.text = strings.Replace(o.text, o.text, d.Get("game.choice", o.text), 1)
+		o.text = translateText(o.text)
 	}
-
-	w.openSprite = scene.NewSprite(assets.ImageChoiceWindow)
-	w.openSprite.Centered = false
-	w.openSprite.Pos.Base = &w.pos
-	scene.AddGraphics(w.openSprite)
 
 	w.foldedSprite = scene.NewSprite(assets.ImageChoiceRechargeWindow)
 	w.foldedSprite.Centered = false
@@ -253,55 +254,70 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 	w.chargeBar = gameui.NewProgressBar(chargeBarPos, 232-44, 24, bgColor, fgColor)
 	scene.AddObject(w.chargeBar)
 
-	icons := [...]resource.ImageID{
-		assets.ImageYellowLogo,
-		assets.ImageRedLogo,
-		assets.ImageGreenLogo,
-		assets.ImageBlueLogo,
+	camera := w.selectedColony.world.camera
+	floppies := [...]resource.ImageID{
+		assets.ImageFloppyYellow,
+		assets.ImageFloppyRed,
+		assets.ImageFloppyGreen,
+		assets.ImageFloppyBlue,
+		assets.ImageFloppyGray,
 	}
-	offsetY := 18.0
+	fontColors := [...][2]color.RGBA{
+		{ge.RGB(0x99943d), ge.RGB(0x666114)},
+		{ge.RGB(0x804140), ge.RGB(0x4d1717)},
+		{ge.RGB(0x40804a), ge.RGB(0x174d1f)},
+		{ge.RGB(0x405680), ge.RGB(0x172a4d)},
+		{ge.RGB(0x5e5a5d), ge.RGB(0x3d3a3c)},
+	}
+	offsetY := 8.0
+	offset := gmath.Vec{X: camera.Rect.Width() - 144 - 8, Y: 8}
 	w.choices = make([]*choiceOptionSlot, 5)
 	for i := range w.choices {
-		l := scene.NewLabel(assets.FontTiny)
-		l.ColorScale.SetColor(ge.RGB(0x9dd793))
-		l.Pos.Base = &w.pos
-		l.Pos.Offset.Y = offsetY
-		l.Pos.Offset.X = 50
-		l.AlignVertical = ge.AlignVerticalCenter
-		l.Width = 224 - 60
-		l.Height = 28
-		bg := ge.NewRect(scene.Context(), l.Width, l.Height)
-		bg.Centered = false
-		bg.Pos = l.Pos.WithOffset(-2, 0)
-		bg.FillColorScale.SetColor(bgColor)
-		scene.AddGraphics(bg)
-		scene.AddGraphics(l)
+		floppy := scene.NewSprite(floppies[i])
+		floppy.Centered = false
+		floppy.Pos.Offset = offset
+		scene.AddGraphics(floppy)
+
+		offset.Y += floppy.ImageHeight() + offsetY
+
+		darkLabel := scene.NewLabel(assets.FontTiny)
+		darkLabel.ColorScale.SetColor(fontColors[i][1])
+		darkLabel.Pos.Base = &floppy.Pos.Offset
+		darkLabel.Pos.Offset = gmath.Vec{X: 48, Y: 6}
+		darkLabel.AlignVertical = ge.AlignVerticalCenter
+		darkLabel.AlignHorizontal = ge.AlignHorizontalCenter
+		darkLabel.Width = 86
+		darkLabel.Height = 62
+
+		lightLabel := scene.NewLabel(assets.FontTiny)
+		lightLabel.ColorScale.SetColor(fontColors[i][0])
+		lightLabel.Pos = darkLabel.Pos
+		lightLabel.Pos.Offset = lightLabel.Pos.Offset.Add(gmath.Vec{X: -2, Y: -2})
+		lightLabel.AlignVertical = ge.AlignVerticalCenter
+		lightLabel.AlignHorizontal = ge.AlignHorizontalCenter
+		lightLabel.Width = 86 + 2
+		lightLabel.Height = 62 + 2
+
+		scene.AddGraphics(darkLabel)
+		scene.AddGraphics(lightLabel)
 		choice := &choiceOptionSlot{
-			label:   l,
-			labelBg: bg,
+			labelDark:  darkLabel,
+			labelLight: lightLabel,
+			floppy:     floppy,
 			rect: gmath.Rect{
-				Min: bg.AnchorPos().Resolve(),
-				Max: bg.AnchorPos().Resolve().Add(gmath.Vec{X: l.Width, Y: l.Height}),
+				Min: floppy.Pos.Resolve(),
+				Max: floppy.Pos.Resolve().Add(gmath.Vec{
+					X: floppy.ImageWidth(),
+					Y: floppy.ImageHeight(),
+				}),
 			},
 		}
-		if i < len(icons) {
-			iconBg := scene.NewSprite(assets.ImageLogoBg)
-			iconBg.Centered = false
-			iconBg.Pos = l.Pos.WithOffset(-36, -2)
-			scene.AddGraphics(iconBg)
-			choice.iconBg = iconBg
 
-			icon := scene.NewSprite(icons[i])
-			icon.Centered = false
-			icon.Pos = iconBg.Pos
-			scene.AddGraphics(icon)
-			choice.icon = icon
-		}
 		w.choices[i] = choice
-		offsetY += l.Height + 6
 	}
 
-	w.startCharging(10)
+	// w.startCharging(10)
+	w.startCharging(1)
 }
 
 func (w *choiceWindowNode) IsDisposed() bool {
@@ -316,23 +332,20 @@ func (w *choiceWindowNode) ForceRefresh() {
 }
 
 func (w *choiceWindowNode) revealChoices() {
-	w.openSprite.Visible = true
 	w.foldedSprite.Visible = false
 	w.chargeBar.Visible = false
 	for _, o := range w.choices {
-		o.label.Visible = true
-		if o.icon != nil {
-			o.icon.Visible = true
-			o.iconBg.Visible = true
-		}
-		o.labelBg.Visible = true
+		o.labelDark.Visible = true
+		o.labelLight.Visible = true
+		o.floppy.Visible = true
 	}
 	w.state = choiceReady
 
 	gmath.Shuffle(w.scene.Rand(), w.shuffledOptions)
 	for i, o := range w.shuffledOptions[:4] {
 		w.choices[i].option = o
-		w.choices[i].label.Text = o.text
+		w.choices[i].labelDark.Text = o.text
+		w.choices[i].labelLight.Text = o.text
 	}
 
 	if w.beforeSpecialShuffle == 0 {
@@ -351,7 +364,8 @@ func (w *choiceWindowNode) revealChoices() {
 	}
 	specialOption := w.specialChoices[specialOptionKind]
 	w.choices[4].option = specialOption
-	w.choices[4].label.Text = specialOption.text
+	w.choices[4].labelDark.Text = specialOption.text
+	w.choices[4].labelLight.Text = specialOption.text
 
 	w.scene.Audio().PlaySound(assets.AudioChoiceReady)
 }
@@ -360,16 +374,12 @@ func (w *choiceWindowNode) startCharging(targetValue float64) {
 	w.chargeBar.SetValue(0)
 	w.value = 0
 	w.targetValue = targetValue
-	w.openSprite.Visible = false
 	w.foldedSprite.Visible = true
 	w.chargeBar.Visible = true
 	for _, o := range w.choices {
-		o.label.Visible = false
-		o.labelBg.Visible = false
-		if o.icon != nil {
-			o.icon.Visible = false
-			o.iconBg.Visible = false
-		}
+		o.labelDark.Visible = false
+		o.labelLight.Visible = false
+		o.floppy.Visible = false
 	}
 	w.state = choiceCharging
 }

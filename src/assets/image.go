@@ -18,7 +18,6 @@ func registerImageResources(ctx *ge.Context) {
 
 		ImageCursor: {Path: "image/cursor.png"},
 
-		ImageChoiceWindow:         {Path: "image/ui/choice_window.png"},
 		ImageChoiceRechargeWindow: {Path: "image/ui/choice_recharge_window.png"},
 		ImageTutorialDialogue:     {Path: "image/ui/window_tutorial.png"},
 
@@ -27,11 +26,11 @@ func registerImageResources(ctx *ge.Context) {
 		ImageRadarBossFar:  {Path: "image/ui/radar_boss_far.png"},
 		ImageRadarBossNear: {Path: "image/ui/radar_boss_near.png"},
 
-		ImageLogoBg:     {Path: "image/ui/logo_bg.png"},
-		ImageYellowLogo: {Path: "image/ui/yellow_logo.png"},
-		ImageRedLogo:    {Path: "image/ui/red_logo.png"},
-		ImageGreenLogo:  {Path: "image/ui/green_logo.png"},
-		ImageBlueLogo:   {Path: "image/ui/blue_logo.png"},
+		ImageFloppyYellow: {Path: "image/ui/floppy_yellow.png"},
+		ImageFloppyRed:    {Path: "image/ui/floppy_red.png"},
+		ImageFloppyGreen:  {Path: "image/ui/floppy_green.png"},
+		ImageFloppyBlue:   {Path: "image/ui/floppy_blue.png"},
+		ImageFloppyGray:   {Path: "image/ui/floppy_gray.png"},
 
 		ImageSmallExplosion1:   {Path: "image/effects/small_explosion1.png", FrameWidth: 32},
 		ImageVerticalExplosion: {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
@@ -151,7 +150,6 @@ const (
 	ImageBigShadow
 
 	ImageCursor
-	ImageChoiceWindow
 	ImageChoiceRechargeWindow
 	ImageTutorialDialogue
 
@@ -173,11 +171,11 @@ const (
 	ImageTurretDamageMask4
 	ImageEssenceSourceDissolveMask
 
-	ImageLogoBg
-	ImageYellowLogo
-	ImageRedLogo
-	ImageGreenLogo
-	ImageBlueLogo
+	ImageFloppyYellow
+	ImageFloppyRed
+	ImageFloppyGreen
+	ImageFloppyBlue
+	ImageFloppyGray
 
 	ImageFactionDiode
 	ImageUberBoss

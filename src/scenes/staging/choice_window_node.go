@@ -67,7 +67,7 @@ var specialChoicesTable = [...]choiceOption{
 	specialBuildGunpoint: {
 		text:    "build_gunpoint",
 		special: specialBuildGunpoint,
-		cost:    30,
+		cost:    15,
 	},
 	specialIncreaseRadius: {
 		text:    "increase_radius",

@@ -73,6 +73,9 @@ package menus
 // * UX:
 //   - Made it clear which option was selected
 //
+// * Visual improvements:
+//   - New action cooldown effect
+//
 // * Fixes:
 //   - Upon defeat, hide menu and toggle buttons
 const buildNumber int = 6

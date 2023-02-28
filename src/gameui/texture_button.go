@@ -3,8 +3,8 @@ package gameui
 import (
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gsignal"
-	"github.com/quasilyte/roboden-game/controls"
 )
 
 type TextureButton struct {
@@ -40,10 +40,13 @@ func (b *TextureButton) SetVisibility(visible bool) {
 	b.sprite.Visible = visible
 }
 
-func (b *TextureButton) Update(delta float64) {
-	pos, ok := b.cursor.ClickPos(controls.ActionClick)
+func (b *TextureButton) HandleInput(action input.Action) bool {
+	pos, ok := b.cursor.ClickPos(action)
 	if !ok || !b.sprite.BoundsRect().Contains(pos) {
-		return
+		return false
 	}
 	b.EventClicked.Emit(gsignal.Void{})
+	return true
 }
+
+func (b *TextureButton) Update(delta float64) {}

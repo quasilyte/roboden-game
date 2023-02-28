@@ -488,10 +488,16 @@ func (c *Controller) handleInput() {
 			}
 		}
 	}
-
-	if !handledClick {
-		c.choices.HandleInput()
+	if handledClick {
+		return
 	}
+	if c.menuButton.HandleInput(controls.ActionClick) {
+		return
+	}
+	if c.toggleButton.HandleInput(controls.ActionClick) {
+		return
+	}
+	c.choices.HandleInput()
 }
 
 func (c *Controller) Update(delta float64) {

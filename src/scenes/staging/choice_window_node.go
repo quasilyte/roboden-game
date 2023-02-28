@@ -71,7 +71,7 @@ var specialChoicesTable = [...]choiceOption{
 	specialBuildGunpoint: {
 		text:    "build_gunpoint",
 		special: specialBuildGunpoint,
-		cost:    15,
+		cost:    10,
 		icon:    assets.ImageActionBuildTurret,
 	},
 	specialIncreaseRadius: {

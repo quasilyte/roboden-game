@@ -14,6 +14,7 @@ todo:
 - FindColonyAgent should use agents container for iteration
 - add antiair missle fire effect
 - show resources when base is flying
+- maybe add x4 zoom scale (toggable in-game)
 - consider taking a target size into account when calculating impact range
 - controls rebinding
 - move world generation to a background task and add a loading screen that waits for it?

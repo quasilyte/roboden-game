@@ -2,6 +2,7 @@ package staging
 
 import (
 	"image/color"
+	"math"
 	"strings"
 
 	resource "github.com/quasilyte/ebitengine-resource"
@@ -178,6 +179,10 @@ type choiceWindowNode struct {
 
 	Enabled bool
 
+	floppyOffsetX float64
+	selectedSlide float64
+	selectedIndex int
+
 	targetValue float64
 	value       float64
 
@@ -201,9 +206,10 @@ type choiceWindowNode struct {
 
 func newChoiceWindowNode(pos gmath.Vec, h *input.Handler, cursor *cursorNode) *choiceWindowNode {
 	return &choiceWindowNode{
-		pos:    pos,
-		input:  h,
-		cursor: cursor,
+		pos:           pos,
+		input:         h,
+		cursor:        cursor,
+		selectedIndex: -1,
 	}
 }
 
@@ -277,7 +283,8 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		{ge.RGB(0x5e5a5d), ge.RGB(0x3d3a3c)},
 	}
 	offsetY := 8.0
-	offset := gmath.Vec{X: camera.Rect.Width() - 144 - 8, Y: 8}
+	w.floppyOffsetX = camera.Rect.Width() - 144 - 8
+	offset := gmath.Vec{X: w.floppyOffsetX, Y: 8}
 	w.choices = make([]*choiceOptionSlot, 5)
 	for i := range w.choices {
 		floppy := scene.NewSprite(floppies[i])
@@ -351,7 +358,11 @@ func (w *choiceWindowNode) ForceRefresh() {
 func (w *choiceWindowNode) revealChoices() {
 	w.foldedSprite.Visible = false
 	w.chargeBar.Visible = false
-	for _, o := range w.choices {
+	for i, o := range w.choices {
+		if i == w.selectedIndex {
+			o.floppy.Pos.Offset.X = w.floppyOffsetX
+			continue
+		}
 		o.labelDark.Visible = true
 		o.labelLight.Visible = true
 		o.floppy.Visible = true
@@ -397,7 +408,10 @@ func (w *choiceWindowNode) startCharging(targetValue float64) {
 	w.targetValue = targetValue
 	w.foldedSprite.Visible = true
 	w.chargeBar.Visible = true
-	for _, o := range w.choices {
+	for i, o := range w.choices {
+		if i == w.selectedIndex {
+			continue
+		}
 		o.labelDark.Visible = false
 		o.labelLight.Visible = false
 		o.floppy.Visible = false
@@ -421,6 +435,16 @@ func (w *choiceWindowNode) Update(delta float64) {
 		return
 	}
 	w.chargeBar.SetValue(w.value / w.targetValue)
+
+	const maxSelectedSlide float64 = 64
+	if w.selectedSlide != -1 && w.selectedIndex != -1 {
+		w.selectedSlide = gmath.ClampMax(w.selectedSlide+delta*16, maxSelectedSlide)
+		w.choices[w.selectedIndex].floppy.Pos.Offset.X = math.Round(w.floppyOffsetX + w.selectedSlide)
+		if w.selectedSlide == maxSelectedSlide {
+			w.selectedSlide = -1
+		}
+	}
+
 }
 
 func (w *choiceWindowNode) HandleInput() {
@@ -480,6 +504,9 @@ func (w *choiceWindowNode) activateChoice(i int) {
 		w.scene.Audio().PlaySound(assets.AudioError)
 		return
 	}
+
+	w.selectedIndex = i
+	w.selectedSlide = 0
 
 	selectedFaction := factionTag(i + 1)
 	choice := selectedChoice{

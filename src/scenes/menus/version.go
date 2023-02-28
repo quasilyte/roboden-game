@@ -71,7 +71,7 @@ package menus
 // # Version 6
 //
 // * UX:
-//   - Make it clear which option was selected
+//   - Made it clear which option was selected
 //
 // * Fixes:
 //   - Upon defeat, hide munu and toggle buttons

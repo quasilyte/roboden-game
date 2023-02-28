@@ -32,7 +32,7 @@ var redOilSource = &essenceSourceStats{
 	image:       assets.ImageRedEssenceSource,
 	capacity:    gmath.MakeRange(40, 80),
 	regenDelay:  9,
-	value:       1.5, // 60-120 total
+	value:       2, // 80-160 total
 	spritesheet: true,
 	size:        32,
 }
@@ -50,7 +50,7 @@ var crystalSource = &essenceSourceStats{
 	image:       assets.ImageEssenceCrystalSource,
 	capacity:    gmath.MakeRange(10, 20),
 	regenDelay:  0, // none
-	value:       5, // 50-100 total
+	value:       6, // 60-120 total
 	spritesheet: true,
 	size:        16,
 }
@@ -90,17 +90,17 @@ var scrapSource = &essenceSourceStats{
 
 var scrapCreepSource = &essenceSourceStats{
 	image:      assets.ImageEssenceScrapCreepSource,
-	capacity:   gmath.MakeRange(9, 16),
+	capacity:   gmath.MakeRange(8, 14),
 	regenDelay: 0, // none
-	value:      1, // 9-16
+	value:      1, // 8-14
 	size:       16,
 }
 
 var bigScrapCreepSource = &essenceSourceStats{
 	image:      assets.ImageEssenceBigScrapCreepSource,
-	capacity:   gmath.MakeRange(15, 30),
+	capacity:   gmath.MakeRange(12, 20),
 	regenDelay: 0, // none
-	value:      1, // 15-30
+	value:      1, // 12-20
 	size:       20,
 }
 

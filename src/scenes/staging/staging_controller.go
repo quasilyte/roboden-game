@@ -443,16 +443,24 @@ func (c *Controller) handleInput() {
 			if c.state.Device.IsMobile {
 				selectDist = 80.0
 			}
+			var closestColony *colonyCoreNode
+			closestDist := math.MaxFloat64
 			for _, colony := range c.world.colonies {
 				if colony == c.selectedColony {
 					continue
 				}
-				if colony.pos.DistanceTo(clickPos) > selectDist {
+				dist := colony.pos.DistanceTo(clickPos)
+				if dist > selectDist {
 					continue
 				}
-				c.selectColony(colony)
+				if dist < closestDist {
+					closestColony = colony
+					closestDist = dist
+				}
+			}
+			if closestColony != nil {
+				c.selectColony(closestColony)
 				handledClick = true
-				break
 			}
 		}
 	}

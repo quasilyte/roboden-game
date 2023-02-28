@@ -13,7 +13,6 @@ import (
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
-	"github.com/quasilyte/roboden-game/gameui"
 )
 
 type specialChoiceKind int
@@ -186,8 +185,6 @@ type choiceWindowNode struct {
 	targetValue float64
 	value       float64
 
-	foldedSprite *ge.Sprite
-
 	choices []*choiceOptionSlot
 
 	shuffledOptions []choiceOption
@@ -198,8 +195,6 @@ type choiceWindowNode struct {
 	specialChoices       []choiceOption
 
 	cursor *cursorNode
-
-	chargeBar *gameui.ProgressBar
 
 	EventChoiceSelected gsignal.Event[selectedChoice]
 }
@@ -254,18 +249,6 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		}
 		o.text = translateText(o.text)
 	}
-
-	w.foldedSprite = scene.NewSprite(assets.ImageChoiceRechargeWindow)
-	w.foldedSprite.Centered = false
-	w.foldedSprite.Pos.Base = &w.pos
-	w.foldedSprite.Pos.Offset.Y = 136 + 8
-	scene.AddGraphics(w.foldedSprite)
-
-	bgColor := ge.RGB(0x080c10)
-	fgColor := ge.RGB(0x5994b9)
-	chargeBarPos := w.foldedSprite.Pos.WithOffset(22, 16)
-	w.chargeBar = gameui.NewProgressBar(chargeBarPos, 232-44, 24, bgColor, fgColor)
-	scene.AddObject(w.chargeBar)
 
 	camera := w.selectedColony.world.camera
 	floppies := [...]resource.ImageID{
@@ -337,6 +320,8 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 				}),
 			},
 		}
+		// Hide it behind the camera before Update() starts to drag it in.
+		floppy.Pos.Offset.X += 640
 
 		w.choices[i] = choice
 	}
@@ -356,16 +341,8 @@ func (w *choiceWindowNode) ForceRefresh() {
 }
 
 func (w *choiceWindowNode) revealChoices() {
-	w.foldedSprite.Visible = false
-	w.chargeBar.Visible = false
-	for i, o := range w.choices {
-		if i == w.selectedIndex {
-			o.floppy.Pos.Offset.X = w.floppyOffsetX
-			continue
-		}
-		o.labelDark.Visible = true
-		o.labelLight.Visible = true
-		o.floppy.Visible = true
+	for _, o := range w.choices {
+		o.floppy.Pos.Offset.X = w.floppyOffsetX
 		if o.icon != nil {
 			o.icon.Visible = true
 		}
@@ -403,18 +380,14 @@ func (w *choiceWindowNode) revealChoices() {
 }
 
 func (w *choiceWindowNode) startCharging(targetValue float64) {
-	w.chargeBar.SetValue(0)
 	w.value = 0
 	w.targetValue = targetValue
-	w.foldedSprite.Visible = true
-	w.chargeBar.Visible = true
 	for i, o := range w.choices {
 		if i == w.selectedIndex {
 			continue
 		}
-		o.labelDark.Visible = false
-		o.labelLight.Visible = false
-		o.floppy.Visible = false
+		o.labelDark.Text = "?"
+		o.labelLight.Text = "?"
 		if o.icon != nil {
 			o.icon.Visible = false
 		}
@@ -434,17 +407,27 @@ func (w *choiceWindowNode) Update(delta float64) {
 		w.revealChoices()
 		return
 	}
-	w.chargeBar.SetValue(w.value / w.targetValue)
 
-	const maxSelectedSlide float64 = 64
-	if w.selectedSlide != -1 && w.selectedIndex != -1 {
-		w.selectedSlide = gmath.ClampMax(w.selectedSlide+delta*16, maxSelectedSlide)
-		w.choices[w.selectedIndex].floppy.Pos.Offset.X = math.Round(w.floppyOffsetX + w.selectedSlide)
-		if w.selectedSlide == maxSelectedSlide {
-			w.selectedSlide = -1
+	percentage := w.value / w.targetValue
+	const maxSlideOffset float64 = 144 + 8
+	for i, o := range w.choices {
+		if i == w.selectedIndex {
+			if percentage >= 0.8 {
+				o.floppy.Pos.Offset.X = math.Round(w.floppyOffsetX + maxSlideOffset*(1-(5*(percentage-0.8))))
+				if o.labelDark.Text != "?" {
+					o.labelDark.Text = "?"
+					o.labelLight.Text = "?"
+					if o.icon != nil {
+						o.icon.Visible = false
+					}
+				}
+			} else if percentage >= 0.6 {
+				o.floppy.Pos.Offset.X = math.Round(w.floppyOffsetX + maxSlideOffset*(5*(percentage-0.6)))
+			}
+			continue
 		}
+		o.floppy.Pos.Offset.X = math.Round(w.floppyOffsetX + maxSlideOffset*(1-percentage))
 	}
-
 }
 
 func (w *choiceWindowNode) HandleInput() {

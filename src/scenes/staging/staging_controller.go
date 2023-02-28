@@ -115,7 +115,26 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.tier3spawnDelay = scene.Rand().FloatRange(14*60.0, 16*60.0)
 	c.tier3spawnRate = 1.0
 
-	c.cameraPanSpeed = float64(c.state.Persistent.Settings.ScrollingSpeed+1) * 4
+	if c.state.Device.IsMobile {
+		switch c.state.Persistent.Settings.ScrollingSpeed {
+		case 0:
+			c.cameraPanSpeed = 0.5
+		case 1:
+			c.cameraPanSpeed = 0.8
+		case 2:
+			// The default speed, x1 factor.
+			// This is the most pleasant and convenient to use, but could
+			// be too slow for a pro player.
+			c.cameraPanSpeed = 1
+		case 3:
+			// Just a bit faster.
+			c.cameraPanSpeed = 1.2
+		case 4:
+			c.cameraPanSpeed = 2
+		}
+	} else {
+		c.cameraPanSpeed = float64(c.state.Persistent.Settings.ScrollingSpeed+1) * 4
+	}
 
 	world := &worldState{
 		debug:          c.state.Persistent.Settings.Debug,
@@ -418,7 +437,7 @@ func (c *Controller) Update(delta float64) {
 			c.cameraPanDragPos = c.camera.Offset
 		}
 		if info, ok := mainInput.PressedActionInfo(controls.ActionPanDrag); ok {
-			posDelta := info.StartPos.Sub(info.Pos).Mulf(c.cameraPanSpeed * 0.15)
+			posDelta := info.StartPos.Sub(info.Pos).Mulf(c.cameraPanSpeed)
 			newPos := c.cameraPanDragPos.Add(posDelta)
 			c.camera.SetOffset(newPos)
 		}

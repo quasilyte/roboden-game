@@ -36,6 +36,8 @@
 ##menu.options.edge_scroll_range : Edge Scroll Range
 ##menu.options.debug : Debug Mode
 
+##menu.options.graphics.shadows : Shadows
+
 ##menu.credits.crew : crew
 ##menu.credits.assets : assets
 ##menu.credits.thank_player : And thank you, dear player <3

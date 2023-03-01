@@ -7,6 +7,7 @@ import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+
 	"github.com/quasilyte/roboden-game/assets"
 )
 
@@ -161,10 +162,12 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.world.camera.AddGraphics(c.upkeepBar)
 	c.updateUpkeepBar(0)
 
-	c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
-	c.shadow.Pos.Base = &c.spritePos
-	c.shadow.Visible = false
-	c.world.camera.AddGraphics(c.shadow)
+	if c.world.graphicsSettings.ShadowsEnabled {
+		c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
+		c.shadow.Pos.Base = &c.spritePos
+		c.shadow.Visible = false
+		c.world.camera.AddGraphics(c.shadow)
+	}
 
 	c.resourceRects = make([]*ge.Rect, 3)
 	for i := range c.resourceRects {

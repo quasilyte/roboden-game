@@ -214,7 +214,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.camera().AddGraphicsAbove(a.diode)
 	}
 
-	if !a.IsTurret() && !a.colonyCore.world.isMobile {
+	if !a.IsTurret() && a.colonyCore.world.graphicsSettings.ShadowsEnabled {
 		shadowImage := assets.ImageSmallShadow
 		switch a.stats.size {
 		case sizeMedium:

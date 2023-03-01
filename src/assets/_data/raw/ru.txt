@@ -36,6 +36,8 @@
 ##menu.options.edge_scroll_range : Ширина Границы Прокрутки
 ##menu.options.debug : Режим Отладки
 
+##menu.options.graphics.shadows : Тени
+
 ##menu.credits.crew : команда
 ##menu.credits.assets : ассеты
 ##menu.credits.thank_player : И тебе спасибо, дорогой игрок <3

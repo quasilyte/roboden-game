@@ -30,6 +30,9 @@ func main() {
 				EdgeScrollRange:    2,
 				Debug:              false,
 				Lang:               inferDefaultLang(),
+				Graphics: session.GraphicsSettings{
+					ShadowsEnabled: true,
+				},
 			},
 		},
 		Device: userdevice.GetInfo(),

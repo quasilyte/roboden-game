@@ -96,7 +96,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	c.height = agentFlightHeight
 
-	if c.stats.shadowImage != assets.ImageNone && !c.world.isMobile {
+	if c.stats.shadowImage != assets.ImageNone && c.world.graphicsSettings.ShadowsEnabled {
 		c.shadow = scene.NewSprite(c.stats.shadowImage)
 		c.shadow.Pos.Base = &c.pos
 		c.world.camera.AddGraphics(c.shadow)

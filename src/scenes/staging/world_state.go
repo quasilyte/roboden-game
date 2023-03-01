@@ -24,8 +24,8 @@ type worldState struct {
 	boss             *creepNode
 	creepCoordinator *creepCoordinator
 
-	isMobile bool
-	debug    bool
+	graphicsSettings session.GraphicsSettings
+	debug            bool
 
 	width  float64
 	height float64

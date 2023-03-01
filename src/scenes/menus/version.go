@@ -70,6 +70,9 @@ package menus
 //
 // # Version 6
 //
+// * Gameplay
+//   - Increased a colony drone limit
+//
 // * UX:
 //   - Made it clear which option was selected
 //

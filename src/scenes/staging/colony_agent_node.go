@@ -7,6 +7,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/viewport"
 )
@@ -213,7 +214,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.camera().AddGraphicsAbove(a.diode)
 	}
 
-	if !a.IsTurret() {
+	if !a.IsTurret() && !a.colonyCore.world.isMobile {
 		shadowImage := assets.ImageSmallShadow
 		switch a.stats.size {
 		case sizeMedium:

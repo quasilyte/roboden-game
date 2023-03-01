@@ -191,7 +191,12 @@ func (c *creepNode) TargetKind() targetKind {
 func (c *creepNode) explode() {
 	switch c.stats.kind {
 	case creepUberBoss:
-		fall := newDroneFallNode(c.world, nil, c.stats.image, c.shadow.ImageID(), c.pos, c.height)
+		shadowImg := assets.ImageNone
+		if c.shadow != nil {
+			shadowImg = c.shadow.ImageID()
+		}
+
+		fall := newDroneFallNode(c.world, nil, c.stats.image, shadowImg, c.pos, c.height)
 		c.scene.AddObject(fall)
 	case creepTurret, creepBase:
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
@@ -223,7 +228,12 @@ func (c *creepNode) explode() {
 					scraps = bigScrapCreepSource
 				}
 			}
-			fall := newDroneFallNode(c.world, scraps, c.stats.image, c.shadow.ImageID(), c.pos, agentFlightHeight)
+			shadowImg := assets.ImageNone
+			if c.shadow != nil {
+				shadowImg = c.shadow.ImageID()
+			}
+
+			fall := newDroneFallNode(c.world, scraps, c.stats.image, shadowImg, c.pos, agentFlightHeight)
 			c.scene.AddObject(fall)
 		}
 	}

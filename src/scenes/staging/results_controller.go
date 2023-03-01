@@ -27,9 +27,10 @@ type battleResults struct {
 	TimePlayed      time.Duration
 	SurvivingDrones int
 
-	ResourcesGathered float64
-	DronesProduced    int
-	CreepsDefeated    int
+	ResourcesGathered      float64
+	EliteResourcesGathered float64
+	DronesProduced         int
+	CreepsDefeated         int
 }
 
 func newResultsController(state *session.State, backController ge.SceneController, results battleResults) *resultsController {

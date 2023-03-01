@@ -23,14 +23,14 @@ type constructionStats struct {
 }
 
 var colonyCoreConstructionStats = &constructionStats{
-	ConstructionSpeed: 0.008,
-	DamageModifier:    0.02,
+	ConstructionSpeed: 0.01,
+	DamageModifier:    0.01,
 	Kind:              constructBase,
 	Image:             assets.ImageColonyCore,
 }
 
 var gunpointConstructionStats = &constructionStats{
-	ConstructionSpeed: 0.025,
+	ConstructionSpeed: 0.03,
 	DamageModifier:    0.03,
 	Kind:              constructGunpoint,
 	Image:             assets.ImageGunpointAgent,

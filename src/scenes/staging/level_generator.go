@@ -215,7 +215,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
 	numRedOil := gmath.ClampMin(int(float64(rand.IntRange(2, 3))*multiplier), 2)
-	numRedCrystals := int(float64(rand.IntRange(8, 12)) * multiplier)
+	numRedCrystals := int(float64(rand.IntRange(10, 15)) * multiplier)
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 

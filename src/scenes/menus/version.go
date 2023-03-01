@@ -72,6 +72,7 @@ package menus
 //
 // * New features:
 //   - Red crystals resource
+//   - Drone ranks (normal, elite, super elite)
 //
 // * Gameplay
 //   - Increased a colony drone limit
@@ -85,4 +86,5 @@ package menus
 //
 // * Fixes:
 //   - Upon defeat, hide menu and toggle buttons
+//   - Fixed resource collection bug (drone cargo value stacking)
 const buildNumber int = 7

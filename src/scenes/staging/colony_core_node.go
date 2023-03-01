@@ -67,6 +67,7 @@ type colonyCoreNode struct {
 
 	resourceShortage int
 	resources        float64
+	eliteResources   float64
 	evoPoints        float64
 	world            *worldState
 
@@ -181,11 +182,11 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
-	return false
+	return c.mode != colonyModeNormal
 }
 
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
-	return 180.0 + (float64(c.agents.servoNum) * 30.0)
+	return 200 + (float64(c.agents.servoNum) * 30.0)
 }
 
 func (c *colonyCoreNode) PatrolRadius() float64 {
@@ -409,13 +410,13 @@ func (c *colonyCoreNode) updateResourceRects() {
 }
 
 func (c *colonyCoreNode) calcUnitLimit() int {
-	calculated := ((c.realRadius - 80) * 0.35) + 10
+	calculated := ((c.realRadius - 96) * 0.35) + 10
 	growth := c.GetGrowthPriority()
 	if growth > 0.1 {
 		// 50% growth priority gives ~8 extra units to the limit.
 		calculated += (growth - 0.1) * 20
 	}
-	return gmath.Clamp(int(calculated), 10, 200)
+	return gmath.Clamp(int(calculated), 10, 160)
 }
 
 func (c *colonyCoreNode) calcUpkeed() (float64, int) {
@@ -476,6 +477,7 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 	if c.upkeepDelay > 0 {
 		return
 	}
+	c.eliteResources = gmath.ClampMax(c.eliteResources, 10)
 	c.upkeepDelay = c.scene.Rand().FloatRange(6.5, 8.5)
 	upkeepPrice, upkeepValue := c.calcUpkeed()
 	c.updateUpkeepBar(upkeepValue)
@@ -631,7 +633,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionRepairTurret:
-		repairCost := 8.0
+		repairCost := 4.0
 		ok := false
 		if c.resources < repairCost {
 			return false
@@ -645,7 +647,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return ok
 
 	case actionRepairBase:
-		repairCost := 10.0
+		repairCost := 7.0
 		ok := false
 		if c.resources < repairCost {
 			return false
@@ -659,7 +661,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return ok
 
 	case actionBuildBuilding:
-		sendCost := 4.0
+		sendCost := 3.0
 		maxNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/10, 1, 6)
 		minNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/15, 1, 3)
 		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)
@@ -681,8 +683,12 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 
 	case actionProduceAgent:
 		a := c.NewColonyAgentNode(action.Value.(*agentStats), c.GetEntrancePos())
-		a.height = 0
 		a.faction = c.pickAgentFaction()
+		if c.eliteResources >= 1 {
+			c.eliteResources--
+			a.rank = 1
+		}
+		a.height = 0
 		c.scene.AddObject(a)
 		c.resources -= a.stats.cost
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)

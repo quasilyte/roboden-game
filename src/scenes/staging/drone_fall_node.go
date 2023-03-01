@@ -10,8 +10,9 @@ type droneFallNode struct {
 	world *worldState
 	scene *ge.Scene
 
-	image       resource.ImageID
-	shadowImage resource.ImageID
+	image        resource.ImageID
+	shadowImage  resource.ImageID
+	FrameOffsetY float64
 
 	sprite *ge.Sprite
 	shadow *ge.Sprite
@@ -41,6 +42,7 @@ func (d *droneFallNode) Init(scene *ge.Scene) {
 	d.sprite = scene.NewSprite(d.image)
 	d.sprite.Pos.Base = &d.pos
 	d.sprite.Rotation = &d.rotation
+	d.sprite.FrameOffset.Y = d.FrameOffsetY
 	d.world.camera.AddGraphics(d.sprite)
 
 	d.shadow = scene.NewSprite(d.shadowImage)

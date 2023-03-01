@@ -146,14 +146,14 @@ func (p *colonyActionPlanner) pickCloner() *colonyAgentNode {
 func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bool) *colonyAgentNode {
 	var agentCountTable [agentKindNum]uint8
 	var agentKindThreshold uint8
+	p.colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
+		agentCountTable[a.stats.kind]++
+		return false
+	})
+	agentKindThreshold = uint8(gmath.Clamp(p.colony.NumAgents()/5, 5, math.MaxUint8))
 	searchFlags := searchFighters | searchOnlyAvailable | searchRandomized
 	if !combat {
 		searchFlags = searchWorkers | searchOnlyAvailable | searchRandomized
-		p.colony.agents.Find(searchWorkers, func(a *colonyAgentNode) bool {
-			agentCountTable[a.stats.kind]++
-			return false
-		})
-		agentKindThreshold = uint8(gmath.Clamp(p.colony.NumAgents()/5, 5, math.MaxUint8))
 	}
 
 	bestScore := 0.0
@@ -162,10 +162,13 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 		if a == cloner {
 			return false // Self is not a cloning target
 		}
+		if a.rank > 0 {
+			return false // Can't clone elite units
+		}
 		if agentCloningCost(p.colony, cloner, a)*1.5 > p.colony.resources {
 			return false // Not enough resources
 		}
-		if !combat && a.stats.tier > 1 && agentCountTable[a.stats.kind] > agentKindThreshold {
+		if a.stats.tier > 1 && agentCountTable[a.stats.kind] > agentKindThreshold {
 			return false // Don't need more of those
 		}
 		// Try to use weighted priorities with randomization.
@@ -224,7 +227,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 				continue
 			}
 			distSqr := turret.pos.DistanceSquaredTo(p.colony.pos)
-			if distSqr > p.colony.realRadiusSqr*1.2 {
+			if distSqr > p.colony.realRadiusSqr*1.8 {
 				continue
 			}
 			return colonyAction{
@@ -405,7 +408,8 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 
 	canRecycle := p.colony.agents.TotalNum() > 15 &&
 		len(p.colony.agents.workers) > 5 &&
-		p.colony.factionWeights.GetWeight(neutralFactionTag) < 0.6 &&
+		p.colony.GetEvolutionPriority() >= 0.1 &&
+		p.colony.factionWeights.GetWeight(neutralFactionTag) < 0.5 &&
 		p.colony.resources > 20
 	if canRecycle {
 		// Are there any drones to recycle?

@@ -119,10 +119,13 @@ type colonyAgentNode struct {
 	waypoint gmath.Vec
 	target   any
 
-	payload    int
-	cloneGen   int
-	faction    factionTag
-	cargoValue float64
+	payload         int
+	cloneGen        int
+	rank            int
+	faction         factionTag
+	cargoValue      float64
+	cargoEliteValue float64
+	reloadRate      float64
 
 	height float64
 
@@ -150,6 +153,7 @@ func newColonyAgentNode(core *colonyCoreNode, stats *agentStats, pos gmath.Vec) 
 		stats:      stats,
 		pos:        pos,
 		height:     agentFlightHeight,
+		reloadRate: 1,
 	}
 	return a
 }
@@ -160,10 +164,14 @@ func (a *colonyAgentNode) AsRecipeSubject() recipeSubject {
 
 func (a *colonyAgentNode) Clone() *colonyAgentNode {
 	// TODO: a clone should have the same current energy/health levels?
+	if a.rank > 0 {
+		panic("attempted to clone an elite unit")
+	}
 	cloned := newColonyAgentNode(a.colonyCore, a.stats, a.pos)
 	cloned.speed = a.speed
 	cloned.maxHealth = a.maxHealth
 	cloned.maxEnergy = a.maxEnergy
+	cloned.reloadRate = a.reloadRate
 	cloned.traits = a.traits
 	cloned.cloneGen = a.cloneGen + 1
 	cloned.faction = a.faction
@@ -173,11 +181,7 @@ func (a *colonyAgentNode) Clone() *colonyAgentNode {
 func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.scene = scene
 
-	if a.cloneGen == 0 {
-		a.maxHealth = a.stats.maxHealth * scene.Rand().FloatRange(0.9, 1.1)
-		a.maxEnergy = scene.Rand().FloatRange(120, 200)
-		a.speed = a.stats.speed * scene.Rand().FloatRange(0.8, 1.1)
-
+	if a.cloneGen == 0 && !a.IsTurret() {
 		// There are 64 random bits in total.
 		// Every bit adds 1/64 chance (~1.5%).
 		// Number of bits => chance table:
@@ -239,6 +243,13 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		}
 	}
 
+	if a.cloneGen == 0 {
+		a.maxHealth = a.stats.maxHealth * scene.Rand().FloatRange(0.9, 1.1)
+		a.maxEnergy = scene.Rand().FloatRange(120, 200)
+		a.speed = a.stats.speed * scene.Rand().FloatRange(0.8, 1.1)
+		a.applyRankBonuses()
+	}
+
 	a.health = a.maxHealth
 	a.energy = a.maxEnergy
 
@@ -281,12 +292,34 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 	a.anim = ge.NewRepeatedAnimation(a.sprite, -1)
 	a.anim.Tick(scene.Rand().FloatRange(0, 0.7))
+	a.anim.SetOffsetY(float64(a.rank) * a.sprite.FrameHeight)
 }
 
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
 
 func (a *colonyAgentNode) IsTurret() bool {
 	return a.stats.kind == agentGunpoint
+}
+
+func (a *colonyAgentNode) applyRankBonuses() {
+	switch a.rank {
+	case 0:
+		// A normal unit. No bonuses.
+
+	case 1:
+		// An elite unit.
+		a.maxHealth *= 1.15
+		a.speed *= 1.15
+		a.maxEnergy *= 1.4
+		a.reloadRate = 1.3 // +30% attack/special reload speed
+
+	case 2:
+		// A super elite unit.
+		a.maxHealth *= 1.5
+		a.speed *= 1.2
+		a.maxEnergy *= 2.0
+		a.reloadRate = 1.6 // +60% attack/special reload speed
+	}
 }
 
 func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target any) bool {
@@ -603,6 +636,7 @@ func (a *colonyAgentNode) explode() {
 			}
 		}
 		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.image, a.shadow.ImageID(), a.pos, a.height)
+		fall.FrameOffsetY = float64(a.rank) * a.sprite.FrameHeight
 		a.scene.AddObject(fall)
 	}
 }
@@ -644,7 +678,7 @@ func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 			}
 		case a.hasTrait(traitLowHPRecycle):
 			// Recycle agents may go to recycle themselves on low health.
-			if a.mode != agentModeRecycleReturn && a.mode != agentModeRecycleLanding {
+			if a.colonyCore.mode == colonyModeNormal && a.mode != agentModeRecycleReturn && a.mode != agentModeRecycleLanding {
 				if a.scene.Rand().Chance(0.8) {
 					a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
 				}
@@ -697,11 +731,11 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 		return
 	}
 
-	a.supportDelay = gmath.ClampMin(a.supportDelay-delta, 0)
+	a.supportDelay = gmath.ClampMin(a.supportDelay-(delta*a.reloadRate), 0)
 
 	if a.supportDelay != 0 {
 		if a.stats.kind == agentRefresher {
-			a.attackDelay = gmath.ClampMin(a.attackDelay-delta, 0)
+			a.attackDelay = gmath.ClampMin(a.attackDelay-(delta*a.reloadRate), 0)
 			if a.attackDelay != 0 {
 				return
 			}
@@ -757,7 +791,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		return
 	}
 
-	a.attackDelay = gmath.ClampMin(a.attackDelay-delta, 0)
+	a.attackDelay = gmath.ClampMin(a.attackDelay-(delta*a.reloadRate), 0)
 	if a.attackDelay != 0 {
 		return
 	}
@@ -968,7 +1002,7 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 	}
 	if !a.waypoint.IsZero() {
 		if a.moveTowards(delta, a.waypoint) {
-			target.attention += 3.5
+			target.attention += 2.5
 			a.waypoint = gmath.Vec{}
 			buildPos := target.GetConstructPos()
 			beam := newCloningBeamNode(a.colonyCore.world.camera, false, &a.pos, buildPos)
@@ -1000,6 +1034,9 @@ func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
 	}
 	if a.moveTowards(delta, a.waypoint) {
 		a.colonyCore.resources += a.stats.cost * 0.9
+		if a.rank != 0 {
+			a.colonyCore.eliteResources += float64(a.rank)
+		}
 		playSound(a.scene, a.camera(), assets.AudioAgentRecycled, a.pos)
 		a.Destroy()
 	}
@@ -1045,6 +1082,26 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		newStats := mergeAgents(a, target)
 		newAgent := a.colonyCore.NewColonyAgentNode(newStats, target.pos)
 		var newFaction factionTag
+		rankScore := a.rank + target.rank
+		switch rankScore {
+		case 0:
+			// Two normal units => normal unit.
+		case 1:
+			// Only one elite unit => a chance to get an elite.
+			if a.scene.Rand().Chance(0.75) {
+				newAgent.rank = 1
+			}
+		case 2:
+			// Only one super elite unit or two elite units => a super elite or normal elite.
+			if a.scene.Rand().Chance(0.75) {
+				newAgent.rank = 2
+			} else {
+				newAgent.rank = 1
+			}
+		default:
+			// Anything better is capped at rank 2.
+			newAgent.rank = 2
+		}
 		if newStats.tier == 2 {
 			newFaction = a.colonyCore.pickAgentFaction()
 		} else {
@@ -1184,7 +1241,8 @@ func (a *colonyAgentNode) updatePickup(delta float64) {
 		source := a.target.(*essenceSourceNode)
 		harvested := source.Harvest(a.maxPayload())
 		a.payload = harvested
-		a.cargoValue += float64(harvested) * source.stats.value
+		a.cargoValue = float64(harvested) * source.stats.value
+		a.cargoEliteValue = float64(harvested) * source.stats.eliteValue
 	}
 }
 
@@ -1203,7 +1261,11 @@ func (a *colonyAgentNode) updateReturn(delta float64) {
 		if a.payload != 0 {
 			a.colonyCore.resources += a.cargoValue
 			a.colonyCore.world.result.ResourcesGathered += a.cargoValue
+			a.colonyCore.eliteResources += a.cargoEliteValue
+			a.colonyCore.world.result.EliteResourcesGathered = a.cargoEliteValue
 			a.payload = 0
+			a.cargoValue = 0
+			a.cargoEliteValue = 0
 			playSound(a.scene, a.camera(), assets.AudioEssenceCollected, a.pos)
 		}
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)

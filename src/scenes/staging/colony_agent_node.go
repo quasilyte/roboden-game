@@ -87,6 +87,8 @@ type agentTraitBits uint64
 const (
 	traitNeverStop agentTraitBits = 1 << iota
 	traitCounterClocwiseOrbiting
+	traitWorkaholic
+	traitDoOrDie
 	traitLowHPBerserk
 	traitLowHPRetreat
 	traitLowHPRecycle
@@ -147,7 +149,7 @@ func newColonyAgentNode(core *colonyCoreNode, stats *agentStats, pos gmath.Vec) 
 		colonyCore: core,
 		stats:      stats,
 		pos:        pos,
-		height:     40,
+		height:     agentFlightHeight,
 	}
 	return a
 }
@@ -157,6 +159,7 @@ func (a *colonyAgentNode) AsRecipeSubject() recipeSubject {
 }
 
 func (a *colonyAgentNode) Clone() *colonyAgentNode {
+	// TODO: a clone should have the same current energy/health levels?
 	cloned := newColonyAgentNode(a.colonyCore, a.stats, a.pos)
 	cloned.speed = a.speed
 	cloned.maxHealth = a.maxHealth
@@ -172,15 +175,42 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 	if a.cloneGen == 0 {
 		a.maxHealth = a.stats.maxHealth * scene.Rand().FloatRange(0.9, 1.1)
-		a.maxEnergy = scene.Rand().FloatRange(100, 200)
+		a.maxEnergy = scene.Rand().FloatRange(120, 200)
 		a.speed = a.stats.speed * scene.Rand().FloatRange(0.8, 1.1)
+
+		// There are 64 random bits in total.
+		// Every bit adds 1/64 chance (~1.5%).
+		// Number of bits => chance table:
+		//   1 => 50%
+		//   2 => 25%
+		//   3 => 12.5%
+		//   4 => 6.25%
+		//   5 => 3.125%
+		//   6 => 1.5625%
+		const (
+			chance12                    = 0b111
+			chance12bits                = 3
+			counterClockwiseBits uint64 = chance12 << (0 * chance12bits)
+			workaholicBits       uint64 = chance12 << (1 * chance12bits)
+			doOrDieBits          uint64 = chance12 << (2 * chance12bits)
+		)
+		traitBitChance12Roll := scene.Rand().Uint64()
+		if traitBitChance12Roll&counterClockwiseBits == counterClockwiseBits {
+			a.traits |= traitCounterClocwiseOrbiting
+		}
+		if traitBitChance12Roll&workaholicBits == workaholicBits {
+			a.traits |= traitWorkaholic
+		}
+		if traitBitChance12Roll&doOrDieBits == doOrDieBits {
+			a.traits |= traitDoOrDie
+		}
 
 		if scene.Rand().Chance(0.4) {
 			a.traits |= traitNeverStop
 		}
-		if scene.Rand().Chance(0.1) {
-			a.traits |= traitCounterClocwiseOrbiting
-		}
+
+		// These trait bits can't be combined.
+		// Only one of them will take place.
 		roll := scene.Rand().Float()
 		switch {
 		case roll < 0.10:
@@ -188,7 +218,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 			a.traits |= traitLowHPRetreat
 		case roll < 0.20:
 			// 10% for recycle.
-			a.traits |= traitLowHPRecycle
+			if a.stats.tier == 1 {
+				a.traits |= traitLowHPRecycle
+			}
 		case roll < 0.25:
 			// 5% for berserk.
 			a.traits |= traitLowHPBerserk
@@ -338,6 +370,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		}
 		if mode == agentModeAttack {
 			a.waypointsLeft += 5
+			if a.hasTrait(traitDoOrDie) {
+				a.waypointsLeft += 5
+			}
 		}
 		return true
 
@@ -355,7 +390,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			return false
 		}
 		energyCost := source.pos.DistanceTo(a.pos) / 2
-		if energyCost > a.energy {
+		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		a.energyBill += energyCost
@@ -386,7 +421,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModeRepairTurret:
 		energyCost := 40.0
-		if energyCost > a.energy {
+		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		a.target = target
@@ -398,7 +433,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModeRepairBase:
 		energyCost := 40.0
-		if energyCost > a.energy {
+		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		a.mode = mode
@@ -410,7 +445,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModeBuildBuilding:
 		construction := target.(*constructionNode)
 		energyCost := construction.pos.DistanceTo(a.pos) * 0.6
-		if energyCost > a.energy {
+		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		a.mode = mode

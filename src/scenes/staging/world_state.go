@@ -3,6 +3,7 @@ package staging
 import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/viewport"
@@ -23,7 +24,8 @@ type worldState struct {
 	boss             *creepNode
 	creepCoordinator *creepCoordinator
 
-	debug bool
+	isMobile bool
+	debug    bool
 
 	width  float64
 	height float64

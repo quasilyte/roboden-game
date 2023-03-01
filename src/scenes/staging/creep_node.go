@@ -4,6 +4,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/pathing"
 )
@@ -95,7 +96,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	c.height = agentFlightHeight
 
-	if c.stats.shadowImage != assets.ImageNone {
+	if c.stats.shadowImage != assets.ImageNone && !c.world.isMobile {
 		c.shadow = scene.NewSprite(c.stats.shadowImage)
 		c.shadow.Pos.Base = &c.pos
 		c.world.camera.AddGraphics(c.shadow)

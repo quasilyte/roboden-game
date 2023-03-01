@@ -13,6 +13,7 @@ import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui"
@@ -141,6 +142,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	world := &worldState{
+		isMobile:       c.state.Device.IsMobile,
 		debug:          c.state.Persistent.Settings.Debug,
 		worldSize:      c.worldSize,
 		pathgrid:       pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),

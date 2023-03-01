@@ -66,6 +66,8 @@ const (
 	agentModeReturn
 	agentModePatrol
 	agentModeFollow
+	agentModeMove
+	agentModePanic
 	agentModeAttack
 	agentModeMakeClone
 	agentModeWaitCloning
@@ -85,6 +87,10 @@ type agentTraitBits uint64
 const (
 	traitNeverStop agentTraitBits = 1 << iota
 	traitCounterClocwiseOrbiting
+	traitLowHPBerserk
+	traitLowHPRetreat
+	traitLowHPRecycle
+	traitLowHPPanic
 )
 
 type colonyAgentNode struct {
@@ -174,6 +180,21 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		}
 		if scene.Rand().Chance(0.1) {
 			a.traits |= traitCounterClocwiseOrbiting
+		}
+		roll := scene.Rand().Float()
+		switch {
+		case roll < 0.10:
+			// 10% for retreat.
+			a.traits |= traitLowHPRetreat
+		case roll < 0.20:
+			// 10% for recycle.
+			a.traits |= traitLowHPRecycle
+		case roll < 0.25:
+			// 5% for berserk.
+			a.traits |= traitLowHPBerserk
+		case roll < 0.30:
+			// 5% for panic.
+			a.traits |= traitLowHPPanic
 		}
 
 		switch a.faction {
@@ -277,6 +298,17 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		}
 		a.mode = mode
 		a.waypoint = a.pos.Sub(gmath.Vec{Y: agentFlightHeight - a.height})
+		return true
+
+	case agentModeMove:
+		a.mode = mode
+		a.waypoint = pos
+		return true
+
+	case agentModePanic:
+		a.mode = mode
+		a.waypoint = a.pos
+		a.waypointsLeft = a.scene.Rand().IntRange(4, 9)
 		return true
 
 	case agentModeStandby:
@@ -454,6 +486,10 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateReturn(delta)
 	case agentModePatrol:
 		a.updatePatrol(delta)
+	case agentModeMove:
+		a.updateMove(delta)
+	case agentModePanic:
+		a.updatePanic(delta)
 	case agentModeFollow:
 		a.updateFollow(delta)
 	case agentModeWaitCloning:
@@ -562,6 +598,35 @@ func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 	if a.health < 0 {
 		a.explode()
 		a.Destroy()
+	}
+
+	if a.health <= 8 {
+		switch {
+		case a.hasTrait(traitLowHPBerserk):
+			// Berserks go straight into the danger when low on health.
+			if a.mode != agentModeMove {
+				a.AssignMode(agentModeMove, source.Add(a.scene.Rand().Offset(-20, 20)), nil)
+			}
+		case a.hasTrait(traitLowHPRecycle):
+			// Recycle agents may go to recycle themselves on low health.
+			if a.mode != agentModeRecycleReturn && a.mode != agentModeRecycleLanding {
+				if a.scene.Rand().Chance(0.8) {
+					a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
+				}
+			}
+		case a.hasTrait(traitLowHPRetreat):
+			// Agents with retreat trait will try to fly away from a threat on low health.
+			if a.mode != agentModeMove {
+				pos := retreatPos(a.scene.Rand(), a.scene.Rand().FloatRange(80, 140), a.pos, source)
+				a.AssignMode(agentModeMove, pos, nil)
+			}
+		case a.hasTrait(traitLowHPPanic):
+			// Agents with panic trait will stop what they're doing and fly like crazy.
+			if a.mode != agentModePanic {
+				a.AssignMode(agentModePanic, gmath.Vec{}, nil)
+			}
+		}
+
 	}
 
 	if damage.health != 0 {
@@ -997,6 +1062,28 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 func (a *colonyAgentNode) followWaypoint(targetPos gmath.Vec) gmath.Vec {
 	preferredDist := gmath.ClampMin(a.stats.weapon.AttackRange*0.6, 80)
 	return a.pos.DirectionTo(targetPos).Mulf(preferredDist).Add(targetPos).Add(a.scene.Rand().Offset(-52, 52))
+}
+
+func (a *colonyAgentNode) updateMove(delta float64) {
+	if a.moveTowards(delta, a.waypoint) {
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	}
+}
+
+func (a *colonyAgentNode) updatePanic(delta float64) {
+	if a.moveTowards(delta, a.waypoint) {
+		a.waypointsLeft--
+		a.waypoint = gmath.Vec{}
+	}
+
+	if a.waypoint.IsZero() {
+		if a.waypointsLeft <= 0 {
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+			return
+		}
+		waypoint := a.pos.Add(a.scene.Rand().Offset(-32, 32))
+		a.waypoint = correctedPos(a.colonyCore.world.rect, waypoint, 64)
+	}
 }
 
 func (a *colonyAgentNode) updateFollow(delta float64) {

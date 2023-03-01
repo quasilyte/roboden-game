@@ -72,6 +72,7 @@ package menus
 //
 // * Gameplay
 //   - Increased a colony drone limit
+//   - Added more colony drone traits
 //
 // * UX:
 //   - Made it clear which option was selected

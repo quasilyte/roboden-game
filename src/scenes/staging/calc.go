@@ -38,11 +38,8 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 	if dist > core.realRadius*maxDist || source.resource == 0 {
 		return 0
 	}
-
 	distScore := 4.0 - gmath.ClampMax(dist/200, 4.0)
-
 	percentagePenalty := 0.0
-
 	if dist > core.realRadius*1.2 {
 		percentagePenalty += 0.6
 	}

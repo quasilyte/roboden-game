@@ -156,6 +156,11 @@ func snipePos(projectileSpeed float64, fireFrom, targetPos, targetVelocity gmath
 	return predictedPos
 }
 
+func retreatPos(rand *gmath.Rand, dist float64, objectPos, threatPos gmath.Vec) gmath.Vec {
+	direction := threatPos.AngleToPoint(objectPos) + gmath.Rad(rand.FloatRange(-0.2, 0.2))
+	return objectPos.MoveInDirection(dist, direction)
+}
+
 func playSound(scene *ge.Scene, camera *viewport.Camera, id resource.AudioID, pos gmath.Vec) {
 	if camera.ContainsPos(pos) {
 		scene.Audio().PlaySound(id)

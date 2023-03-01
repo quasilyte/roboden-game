@@ -618,13 +618,15 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		if c.agents.NumAvailableWorkers() == 0 {
 			return false
 		}
+		source := action.Value.(*essenceSourceNode)
 		maxNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/4, 2, 10)
 		minNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/10, 2, 6)
 		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)
 		extraAssign := gmath.Clamp(int(c.GetResourcePriority()*10)-1, 0, 10)
 		toAssign += extraAssign
+		toAssign = gmath.ClampMax(toAssign, source.resource)
 		c.pickWorkerUnits(toAssign, func(a *colonyAgentNode) {
-			a.AssignMode(agentModeMineEssence, gmath.Vec{}, action.Value.(*essenceSourceNode))
+			a.AssignMode(agentModeMineEssence, gmath.Vec{}, source)
 		})
 		return true
 

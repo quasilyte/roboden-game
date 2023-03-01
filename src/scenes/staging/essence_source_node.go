@@ -19,6 +19,14 @@ type essenceSourceStats struct {
 	size        float64
 }
 
+var redCrystalSource = &essenceSourceStats{
+	image:       assets.ImageEssenceRedCrystalSource,
+	capacity:    gmath.MakeRange(1, 1),
+	value:       10,
+	spritesheet: true,
+	size:        32,
+}
+
 var oilSource = &essenceSourceStats{
 	image:       assets.ImageEssenceSource,
 	capacity:    gmath.MakeRange(50, 80),

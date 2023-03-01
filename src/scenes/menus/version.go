@@ -70,6 +70,9 @@ package menus
 //
 // # Version 7 (was uploaded as version 6 by accident)
 //
+// * New features:
+//   - Red crystals resource
+//
 // * Gameplay
 //   - Increased a colony drone limit
 //   - Added more colony drone traits

@@ -76,7 +76,7 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 	actionKind := p.priorityPicker.Pick()
 	switch actionKind {
 	case priorityResources:
-		return p.pickGatherAction()
+		return p.pickResourcesAction()
 	case priorityGrowth:
 		return p.pickGrowthAction()
 	case prioritySecurity:
@@ -88,7 +88,7 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 	panic("unreachable")
 }
 
-func (p *colonyActionPlanner) pickGatherAction() colonyAction {
+func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	if len(p.world.essenceSources) == 0 {
 		return colonyAction{}
 	}
@@ -101,19 +101,40 @@ func (p *colonyActionPlanner) pickGatherAction() colonyAction {
 	}
 
 	var bestSource *essenceSourceNode
+	var bestRedOilSource *essenceSourceNode
 	bestScore := 0.0
+	bestRedOilScore := 0.0
 	for _, source := range p.world.essenceSources {
 		score := resourceScore(p.colony, source) * p.world.rand.FloatRange(0.8, 1.4)
-		if score > bestScore {
-			bestScore = score
-			bestSource = source
+		if source.stats == redOilSource {
+			if !p.colony.agents.hasRedMiner {
+				continue
+			}
+			if score != 0 && score > bestRedOilScore {
+				bestRedOilScore = score
+				bestRedOilSource = source
+			}
+		} else {
+			if score != 0 && score > bestScore {
+				bestScore = score
+				bestSource = source
+			}
 		}
 	}
+
+	if bestRedOilSource != nil && p.world.rand.Chance(0.25) {
+		return colonyAction{
+			Kind:     actionMineEssence,
+			Value:    bestRedOilSource,
+			TimeCost: 0.35,
+		}
+	}
+
 	if bestSource != nil {
 		return colonyAction{
 			Kind:     actionMineEssence,
 			Value:    bestSource,
-			TimeCost: 0.75,
+			TimeCost: 0.7,
 		}
 	}
 

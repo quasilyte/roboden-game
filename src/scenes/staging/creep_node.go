@@ -453,7 +453,7 @@ func (c *creepNode) updateTank(delta float64) {
 func (c *creepNode) updateCreepBase(delta float64) {
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 	if c.specialDelay == 0 && c.specialModifier < 15 {
-		c.specialDelay = c.scene.Rand().FloatRange(55, 90)
+		c.specialDelay = c.scene.Rand().FloatRange(80, 120)
 		c.specialModifier += 1 // base level up
 	}
 

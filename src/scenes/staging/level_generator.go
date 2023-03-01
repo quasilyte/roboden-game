@@ -210,7 +210,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	}
 	multiplier := resMultiplier * worldSizeMultipliers[g.world.worldSize]
 	numIron := int(float64(rand.IntRange(26, 38)) * multiplier)
-	numScrap := int(float64(rand.IntRange(8, 10)) * multiplier)
+	numScrap := int(float64(rand.IntRange(6, 8)) * multiplier)
 	numGold := int(float64(rand.IntRange(20, 28)) * multiplier)
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)

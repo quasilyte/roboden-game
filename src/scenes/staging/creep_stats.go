@@ -64,7 +64,7 @@ var wandererCreepStats = &creepStats{
 	shadowImage: assets.ImageSmallShadow,
 	tier:        1,
 	speed:       40,
-	maxHealth:   15,
+	maxHealth:   14,
 	weapon: initWeaponStats(&weaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
@@ -74,7 +74,7 @@ var wandererCreepStats = &creepStats{
 		ProjectileSpeed: 400,
 		Damage:          damageValue{health: 4},
 		ProjectileImage: assets.ImageWandererProjectile,
-		Reload:          1.8,
+		Reload:          2.2,
 		TargetFlags:     targetFlying | targetGround,
 	}),
 }

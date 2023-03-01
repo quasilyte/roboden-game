@@ -40,15 +40,15 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 	}
 	distScore := 4.0 - gmath.ClampMax(dist/200, 4.0)
 	percentagePenalty := 0.0
-	if source.percengage < 0.1 {
-		percentagePenalty += 0.55
-	}
 	if dist > core.realRadius*1.2 {
 		percentagePenalty += 0.6
 	}
 	multiplier := 1.0 + (source.stats.value * 0.4)
 	if source.stats.regenDelay == 0 {
 		multiplier += 0.3
+	}
+	if source.percengage < 0.2 {
+		multiplier += 0.1
 	}
 	return gmath.ClampMin((distScore+(source.percengage*3)-percentagePenalty)*multiplier, 0.01)
 }

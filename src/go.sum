@@ -38,6 +38,8 @@ github.com/quasilyte/ge v0.0.0-20230228204123-506f8d4f681b h1:QNtk9jLCuVw5U4mNwg
 github.com/quasilyte/ge v0.0.0-20230228204123-506f8d4f681b/go.mod h1:F/8nwhUzsOGThfVy5sNR1vyy4xQUKfGEqY9LCYUfZWM=
 github.com/quasilyte/gmath v0.0.0-20221217210116-fba37a2e15c7 h1:mvIS9aGirkzuYmHHNWAP6sLRoA5VFaIzMoFdPmqgPdY=
 github.com/quasilyte/gmath v0.0.0-20221217210116-fba37a2e15c7/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
+github.com/quasilyte/gmath v0.0.0-20230301114146-53cf1cfcdcd5 h1:ySf/HgUnnlWjX1GaMF1JC9RtsSd9NhUZZddNkozCqSI=
+github.com/quasilyte/gmath v0.0.0-20230301114146-53cf1cfcdcd5/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gsignal v0.0.0-20230130114532-ff67b4bb9e15 h1:7JgEJ6KA+VQtt+Bbx2MpV4LttBOJTLH4ehB/R3DfijM=
 github.com/quasilyte/gsignal v0.0.0-20230130114532-ff67b4bb9e15/go.mod h1:qAMDDsI56AFnSrBZYG8Tj/Ys+sRsakd8Ho2be2S8Vfc=
 github.com/stretchr/objx v0.5.0 h1:1zr/of2m5FGMsad5YfcqgdqdWrIhu+EBEJRhR1U7z/c=

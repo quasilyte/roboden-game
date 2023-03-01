@@ -77,6 +77,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageTurretDamageMask4: {Path: "image/turret_damage_mask4.png"},
 
 		ImageEssenceSourceDissolveMask:    {Path: "image/resources/essence_source_dissolve_mask.png"},
+		ImageEssenceRedCrystalSource:      {Path: "image/resources/red_crystal.png"},
 		ImageEssenceCrystalSource:         {Path: "image/resources/crystal_source.png", FrameWidth: 16},
 		ImageEssenceGoldSource:            {Path: "image/resources/gold_source.png", FrameWidth: 28},
 		ImageEssenceIronSource:            {Path: "image/resources/iron_source.png", FrameWidth: 32},
@@ -220,6 +221,7 @@ const (
 	ImageRepellerAgent
 	ImageServoAgent
 	ImageFreighterAgent
+	ImageEssenceRedCrystalSource
 	ImageEssenceCrystalSource
 	ImageEssenceGoldSource
 	ImageEssenceIronSource

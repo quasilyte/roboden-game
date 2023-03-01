@@ -68,7 +68,14 @@ package menus
 //   - Drones with charging mode no longer confuse creeps (we're clearing the waypoint now)
 //   - Fixed crawlers "never scout" bug
 //
-// # Version 6
+// # Version 7 (was uploaded as version 6 by accident)
+//
+// * New features:
+//   - Red crystals resource
+//
+// * Gameplay
+//   - Increased a colony drone limit
+//   - Added more colony drone traits
 //
 // * UX:
 //   - Made it clear which option was selected
@@ -78,4 +85,4 @@ package menus
 //
 // * Fixes:
 //   - Upon defeat, hide menu and toggle buttons
-const buildNumber int = 6
+const buildNumber int = 7

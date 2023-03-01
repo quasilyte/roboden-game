@@ -215,6 +215,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
 	numRedOil := gmath.ClampMin(int(float64(rand.IntRange(2, 3))*multiplier), 2)
+	numRedCrystals := int(float64(rand.IntRange(8, 12)) * multiplier)
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 
@@ -255,6 +256,11 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
 		numRedOil -= g.placeResourceCluster(sector, 1, redOilSource)
+	}
+	for numRedCrystals > 0 {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numRedCrystals -= g.placeResourceCluster(sector, 1, redCrystalSource)
 	}
 	for numCrystals > 0 {
 		clusterSize := 1

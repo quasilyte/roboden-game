@@ -300,9 +300,7 @@ func (c *creepNode) doAttack(target projectileTarget) {
 }
 
 func (c *creepNode) retreatFrom(pos gmath.Vec) {
-	direction := pos.AngleToPoint(c.pos) + gmath.Rad(c.scene.Rand().FloatRange(-0.2, 0.2))
-	dist := c.scene.Rand().FloatRange(300, 500)
-	c.setWaypoint(pos.MoveInDirection(dist, direction))
+	c.setWaypoint(retreatPos(c.scene.Rand(), c.scene.Rand().FloatRange(300, 500), c.pos, pos))
 	c.wasAttacking = false
 }
 

@@ -403,7 +403,11 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 		}
 	}
 
-	if p.colony.agents.TotalNum() > 15 && len(p.colony.agents.workers) > 5 && p.colony.factionWeights.GetWeight(neutralFactionTag) < 0.6 {
+	canRecycle := p.colony.agents.TotalNum() > 15 &&
+		len(p.colony.agents.workers) > 5 &&
+		p.colony.factionWeights.GetWeight(neutralFactionTag) < 0.6 &&
+		p.colony.resources > 20
+	if canRecycle {
 		// Are there any drones to recycle?
 		recycleOther := p.world.rand.Chance(0.35)
 		toRecycle := p.colony.agents.Find(searchWorkers|searchFighters|searchRandomized, func(a *colonyAgentNode) bool {

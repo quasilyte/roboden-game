@@ -532,7 +532,13 @@ func (a *colonyAgentNode) explode() {
 				scraps = scrapSource
 			}
 		}
-		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.image, a.shadow.ImageID(), a.pos, a.height)
+
+		shadowImg := assets.ImageNone
+		if a.shadow != nil {
+			shadowImg = a.shadow.ImageID()
+		}
+
+		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.image, shadowImg, a.pos, a.height)
 		a.scene.AddObject(fall)
 	}
 }

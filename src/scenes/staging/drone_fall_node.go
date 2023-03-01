@@ -55,7 +55,9 @@ func (d *droneFallNode) Init(scene *ge.Scene) {
 
 func (d *droneFallNode) Destroy() {
 	d.sprite.Dispose()
-	d.shadow.Dispose()
+	if d.shadow != nil {
+		d.shadow.Dispose()
+	}
 
 	createAreaExplosion(d.scene, d.world.camera, spriteRect(d.pos, d.sprite), true)
 
@@ -82,7 +84,9 @@ func (d *droneFallNode) Update(delta float64) {
 
 	d.rotation += gmath.Rad(delta * 2)
 
-	d.shadow.Pos.Offset.Y = d.height + 4
-	newShadowAlpha := float32(1.0 - ((d.height / agentFlightHeight) * 0.5))
-	d.shadow.SetAlpha(newShadowAlpha)
+	if d.shadow != nil {
+		d.shadow.Pos.Offset.Y = d.height + 4
+		newShadowAlpha := float32(1.0 - ((d.height / agentFlightHeight) * 0.5))
+		d.shadow.SetAlpha(newShadowAlpha)
+	}
 }

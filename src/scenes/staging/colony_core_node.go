@@ -81,7 +81,8 @@ type colonyCoreNode struct {
 	realRadius    float64
 	realRadiusSqr float64
 
-	upkeepDelay float64
+	upkeepDelay  float64
+	cloningDelay float64
 
 	actionDelay      float64
 	actionPriorities *weightContainer[colonyPriority]
@@ -341,6 +342,8 @@ func (c *colonyCoreNode) Update(delta float64) {
 	c.spritePos.Y = math.Round(c.pos.Y)
 
 	c.updateResourceRects()
+
+	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
 
 	if c.shadow.Visible {
 		c.shadow.Pos.Offset.Y = c.height + 4
@@ -719,6 +722,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionCloneAgent:
+		c.cloningDelay = 3
 		cloneTarget := action.Value.(*colonyAgentNode)
 		cloner := action.Value2.(*colonyAgentNode)
 		c.resources -= agentCloningCost(c, cloner, cloneTarget)

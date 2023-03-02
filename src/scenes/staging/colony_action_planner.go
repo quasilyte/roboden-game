@@ -223,7 +223,7 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 			Kind:     actionCloneAgent,
 			Value:    cloneTarget,
 			Value2:   cloner,
-			TimeCost: 0.8,
+			TimeCost: 0.6,
 		}
 	}
 	return colonyAction{}
@@ -297,7 +297,8 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 		return colonyAction{}
 	}
 
-	tryCloning := p.colony.agents.NumAvailableWorkers() >= 2 &&
+	tryCloning := p.colony.cloningDelay == 0 &&
+		p.colony.agents.NumAvailableWorkers() >= 2 &&
 		p.leadingFactionCombatAgents >= 0.2 &&
 		p.leadingFactionAgents >= 0.3
 	if tryCloning {

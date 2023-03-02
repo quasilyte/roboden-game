@@ -155,7 +155,7 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 		e.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageEssenceSourceDissolveMask)
 		e.sprite.Shader.Enabled = false
 	}
-	e.camera.AddGraphicsBelow(e.sprite)
+	e.camera.AddSpriteBelow(e.sprite)
 
 	if e.stats.canRotate {
 		e.rotation = scene.Rand().Rad()

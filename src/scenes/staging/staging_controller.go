@@ -168,7 +168,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	g.Generate()
 
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
-	c.camera.AddGraphicsBelow(c.colonySelector)
+	c.camera.AddSpriteBelow(c.colonySelector)
 
 	c.cursor = newCursorNode(c.state.MainInput, c.camera.Rect)
 

@@ -256,9 +256,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.sprite = scene.NewSprite(a.stats.image)
 	a.sprite.Pos.Base = &a.spritePos
 	if a.IsFlying() {
-		a.camera().AddGraphicsAbove(a.sprite)
+		a.camera().AddSpriteAbove(a.sprite)
 	} else {
-		a.camera().AddGraphics(a.sprite)
+		a.camera().AddSprite(a.sprite)
 		a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 		a.sprite.Shader.SetFloatValue("HP", 1.0)
 		damageTexture := gmath.RandElem(scene.Rand(), turretDamageTextureList)
@@ -274,7 +274,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		var colorScale ge.ColorScale
 		colorScale.SetColor(factionByTag(a.faction).color)
 		a.diode.SetColorScale(colorScale)
-		a.camera().AddGraphicsAbove(a.diode)
+		a.camera().AddSpriteAbove(a.diode)
 	}
 
 	if !a.IsTurret() {
@@ -287,7 +287,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		}
 		a.shadow = scene.NewSprite(shadowImage)
 		a.shadow.Pos.Base = &a.spritePos
-		a.camera().AddGraphics(a.shadow)
+		a.camera().AddSprite(a.shadow)
 	}
 
 	a.anim = ge.NewRepeatedAnimation(a.sprite, -1)

@@ -32,9 +32,9 @@ func (e *effectNode) Init(scene *ge.Scene) {
 	s := scene.NewSprite(e.image)
 	s.Pos.Base = &e.pos
 	if e.above {
-		e.camera.AddGraphicsAbove(s)
+		e.camera.AddSpriteAbove(s)
 	} else {
-		e.camera.AddGraphics(s)
+		e.camera.AddSprite(s)
 	}
 
 	e.anim = ge.NewAnimation(s, -1)

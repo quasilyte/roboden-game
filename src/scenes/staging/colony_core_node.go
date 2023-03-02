@@ -133,18 +133,18 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 	c.sprite.Shader.SetFloatValue("HP", 1.0)
 	c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
-	c.world.camera.AddGraphics(c.sprite)
+	c.world.camera.AddSprite(c.sprite)
 
 	c.flyingSprite = scene.NewSprite(assets.ImageColonyCoreFlying)
 	c.flyingSprite.Pos.Base = &c.spritePos
 	c.flyingSprite.Visible = false
 	c.flyingSprite.Shader = c.sprite.Shader
-	c.world.camera.AddGraphicsSlightlyAbove(c.flyingSprite)
+	c.world.camera.AddSpriteSlightlyAbove(c.flyingSprite)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
 	c.hatch.Pos.Base = &c.spritePos
 	c.hatch.Pos.Offset.Y = -20
-	c.world.camera.AddGraphics(c.hatch)
+	c.world.camera.AddSprite(c.hatch)
 
 	c.flashComponent.sprite = c.sprite
 	c.hatchFlashComponent.sprite = c.hatch
@@ -152,20 +152,20 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
 	c.evoDiode.Pos.Base = &c.spritePos
 	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
-	c.world.camera.AddGraphics(c.evoDiode)
+	c.world.camera.AddSprite(c.evoDiode)
 
 	c.upkeepBar = scene.NewSprite(assets.ImageUpkeepBar)
 	c.upkeepBar.Pos.Base = &c.spritePos
 	c.upkeepBar.Pos.Offset.Y = -5
 	c.upkeepBar.Pos.Offset.X = -c.upkeepBar.ImageWidth() * 0.5
 	c.upkeepBar.Centered = false
-	c.world.camera.AddGraphics(c.upkeepBar)
+	c.world.camera.AddSprite(c.upkeepBar)
 	c.updateUpkeepBar(0)
 
 	c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
 	c.shadow.Pos.Base = &c.spritePos
 	c.shadow.Visible = false
-	c.world.camera.AddGraphics(c.shadow)
+	c.world.camera.AddSprite(c.shadow)
 
 	c.resourceRects = make([]*ge.Rect, 3)
 	for i := range c.resourceRects {

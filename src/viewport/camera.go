@@ -25,10 +25,10 @@ type Camera struct {
 	globalRect gmath.Rect
 
 	bg                   *ge.TiledBackground
-	belowObjects         []cameraObject
-	objects              []cameraObject
-	slightlyAboveObjects []cameraObject
-	aboveObjects         []cameraObject
+	belowObjects         layer
+	objects              layer
+	slightlyAboveObjects layer
+	aboveObjects         layer
 
 	screen *ebiten.Image
 
@@ -54,42 +54,63 @@ func (c *Camera) IsDisposed() bool {
 	return c.disposed
 }
 
-func (c *Camera) AddGraphics(o cameraObject) {
-	c.objects = append(c.objects, o)
+func (c *Camera) AddSprite(s *ge.Sprite) {
+	c.objects.AddSprite(s)
 }
 
-func (c *Camera) AddGraphicsSlightlyAbove(o cameraObject) {
-	c.slightlyAboveObjects = append(c.slightlyAboveObjects, o)
+func (c *Camera) AddGraphics(o cameraObject) {
+	c.objects.Add(o)
+}
+
+func (c *Camera) AddSpriteSlightlyAbove(s *ge.Sprite) {
+	c.slightlyAboveObjects.AddSprite(s)
+}
+
+func (c *Camera) AddSpriteAbove(s *ge.Sprite) {
+	c.aboveObjects.AddSprite(s)
 }
 
 func (c *Camera) AddGraphicsAbove(o cameraObject) {
-	c.aboveObjects = append(c.aboveObjects, o)
+	c.aboveObjects.Add(o)
 }
 
-func (c *Camera) AddGraphicsBelow(o cameraObject) {
-	c.belowObjects = append(c.belowObjects, o)
+func (c *Camera) AddSpriteBelow(s *ge.Sprite) {
+	c.belowObjects.AddSprite(s)
 }
 
 func (c *Camera) SetBackground(bg *ge.TiledBackground) {
 	c.bg = bg
 }
 
-func (c *Camera) drawSlice(screen *ebiten.Image, objects []cameraObject) []cameraObject {
-	liveObjects := objects[:0]
-	for _, o := range objects {
-		if o.IsDisposed() {
+func (c *Camera) drawLayer(screen *ebiten.Image, l *layer) {
+	liveSprites := l.sprites[:0]
+	for _, s := range l.sprites {
+		if s.IsDisposed() {
 			continue
 		}
-		if c.isVisible(o) {
-			o.Draw(c.screen)
+		if c.isVisible(s.BoundsRect()) {
+			s.Draw(screen)
 		}
-		liveObjects = append(liveObjects, o)
+		liveSprites = append(liveSprites, s)
 	}
-	return liveObjects
+	l.sprites = liveSprites
+
+	if len(l.objects) != 0 {
+		liveObjects := l.objects[:0]
+		for _, o := range l.objects {
+			if o.IsDisposed() {
+				continue
+			}
+			if c.isVisible(o.BoundsRect()) {
+				o.Draw(screen)
+			}
+			liveObjects = append(liveObjects, o)
+		}
+		l.objects = liveObjects
+	}
 }
 
-func (c *Camera) isVisible(o cameraObject) bool {
-	objectRect := o.BoundsRect()
+func (c *Camera) isVisible(objectRect gmath.Rect) bool {
 	cameraRect := c.globalRect
 
 	if objectRect.Max.X < cameraRect.Min.X {
@@ -147,12 +168,25 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 	if c.bg != nil {
 		c.bg.DrawPartial(c.screen, c.globalRect)
 	}
-	c.belowObjects = c.drawSlice(c.screen, c.belowObjects)
-	c.objects = c.drawSlice(c.screen, c.objects)
-	c.slightlyAboveObjects = c.drawSlice(c.screen, c.slightlyAboveObjects)
-	c.aboveObjects = c.drawSlice(c.screen, c.aboveObjects)
+	c.drawLayer(c.screen, &c.belowObjects)
+	c.drawLayer(c.screen, &c.objects)
+	c.drawLayer(c.screen, &c.slightlyAboveObjects)
+	c.drawLayer(c.screen, &c.aboveObjects)
 
 	var options ebiten.DrawImageOptions
 	options.GeoM.Translate(-c.Offset.X, -c.Offset.Y)
 	screen.DrawImage(c.screen, &options)
+}
+
+type layer struct {
+	sprites []*ge.Sprite
+	objects []cameraObject
+}
+
+func (l *layer) Add(o cameraObject) {
+	l.objects = append(l.objects, o)
+}
+
+func (l *layer) AddSprite(s *ge.Sprite) {
+	l.sprites = append(l.sprites, s)
 }

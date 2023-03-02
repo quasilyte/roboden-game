@@ -79,9 +79,9 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	c.sprite = scene.NewSprite(c.stats.image)
 	c.sprite.Pos.Base = &c.pos
 	if c.stats.shadowImage != assets.ImageNone {
-		c.world.camera.AddGraphicsAbove(c.sprite)
+		c.world.camera.AddSpriteAbove(c.sprite)
 	} else {
-		c.world.camera.AddGraphics(c.sprite)
+		c.world.camera.AddSprite(c.sprite)
 	}
 	if c.stats.kind == creepTank {
 		c.sprite.FlipHorizontal = scene.Rand().Bool()
@@ -98,7 +98,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	if c.stats.shadowImage != assets.ImageNone {
 		c.shadow = scene.NewSprite(c.stats.shadowImage)
 		c.shadow.Pos.Base = &c.pos
-		c.world.camera.AddGraphics(c.shadow)
+		c.world.camera.AddSprite(c.shadow)
 		c.shadow.Pos.Offset.Y = c.height
 		c.shadow.SetAlpha(0.5)
 		if c.spawnedFromBase {
@@ -110,7 +110,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.altSprite = scene.NewSprite(assets.ImageUberBossOpen)
 		c.altSprite.Visible = false
 		c.altSprite.Pos.Base = &c.pos
-		c.world.camera.AddGraphics(c.altSprite)
+		c.world.camera.AddSprite(c.altSprite)
 	}
 }
 

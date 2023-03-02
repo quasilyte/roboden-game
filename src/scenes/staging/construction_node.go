@@ -76,7 +76,7 @@ func (c *constructionNode) Init(scene *ge.Scene) {
 	case constructGunpoint:
 		c.sprite.Shader = scene.NewShader(assets.ShaderTurretBuild)
 	}
-	c.world.camera.AddGraphicsBelow(c.sprite)
+	c.world.camera.AddSpriteBelow(c.sprite)
 
 	c.maxBuildHeight = c.sprite.ImageHeight() * 0.9
 	c.initialBuildHeight = c.sprite.ImageHeight() * 0.45

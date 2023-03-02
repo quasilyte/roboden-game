@@ -124,7 +124,7 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 	if p.fireDelay > 0 {
 		p.sprite.Visible = false
 	}
-	p.camera.AddGraphicsAbove(p.sprite)
+	p.camera.AddSpriteAbove(p.sprite)
 
 	if p.arcProgressionScaling != 0 {
 		if scene.Rand().Chance(0.4) {

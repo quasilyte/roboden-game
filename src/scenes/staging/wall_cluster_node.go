@@ -81,7 +81,7 @@ func (w *wallClusterNode) Init(scene *ge.Scene) {
 		s := scene.NewSprite(texture)
 		s.Pos.Base = &w.points[i]
 		w.sprites[i] = s
-		w.world.camera.AddGraphicsBelow(s)
+		w.world.camera.AddSpriteBelow(s)
 		if p.X < w.rect.Min.X {
 			w.rect.Min.X = p.X
 		}

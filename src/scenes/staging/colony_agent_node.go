@@ -661,6 +661,39 @@ func (a *colonyAgentNode) CanAttack(mask targetKind) bool {
 	return a.stats.weapon.TargetFlags&mask != 0
 }
 
+func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
+	// Don't do anything weird when colony is being relocated.
+	if a.colonyCore.mode != colonyModeNormal {
+		return
+	}
+
+	switch a.mode {
+	case agentModeStandby, agentModeFollow, agentModePatrol:
+		// OK, can interrupt.
+	default:
+		// Most modes can't be safely be interrupted like this.
+		return
+	}
+
+	switch {
+	case a.hasTrait(traitLowHPBerserk):
+		// Berserks go straight into the danger when low on health.
+		a.AssignMode(agentModeMove, source.Add(a.scene.Rand().Offset(-20, 20)), nil)
+	case a.hasTrait(traitLowHPRecycle):
+		// Recycle agents may go to recycle themselves on low health.
+		if a.scene.Rand().Chance(0.8) {
+			a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
+		}
+	case a.hasTrait(traitLowHPRetreat):
+		// Agents with retreat trait will try to fly away from a threat on low health.
+		pos := retreatPos(a.scene.Rand(), a.scene.Rand().FloatRange(80, 140), a.pos, source)
+		a.AssignMode(agentModeMove, pos, nil)
+	case a.hasTrait(traitLowHPPanic):
+		// Agents with panic trait will stop what they're doing and fly like crazy.
+		a.AssignMode(agentModePanic, gmath.Vec{}, nil)
+	}
+}
+
 func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 	a.health -= damage.health
 
@@ -670,32 +703,7 @@ func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 	}
 
 	if a.health <= 8 {
-		switch {
-		case a.hasTrait(traitLowHPBerserk):
-			// Berserks go straight into the danger when low on health.
-			if a.mode != agentModeMove {
-				a.AssignMode(agentModeMove, source.Add(a.scene.Rand().Offset(-20, 20)), nil)
-			}
-		case a.hasTrait(traitLowHPRecycle):
-			// Recycle agents may go to recycle themselves on low health.
-			if a.colonyCore.mode == colonyModeNormal && a.mode != agentModeRecycleReturn && a.mode != agentModeRecycleLanding {
-				if a.scene.Rand().Chance(0.8) {
-					a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
-				}
-			}
-		case a.hasTrait(traitLowHPRetreat):
-			// Agents with retreat trait will try to fly away from a threat on low health.
-			if a.mode != agentModeMove {
-				pos := retreatPos(a.scene.Rand(), a.scene.Rand().FloatRange(80, 140), a.pos, source)
-				a.AssignMode(agentModeMove, pos, nil)
-			}
-		case a.hasTrait(traitLowHPPanic):
-			// Agents with panic trait will stop what they're doing and fly like crazy.
-			if a.mode != agentModePanic {
-				a.AssignMode(agentModePanic, gmath.Vec{}, nil)
-			}
-		}
-
+		a.onLowHealthDamage(source)
 	}
 
 	if damage.health != 0 {

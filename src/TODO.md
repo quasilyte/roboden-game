@@ -7,6 +7,8 @@ todo engine:
 - why animation affects Y axis?
 
 todo:
+- graphics options: allow disabling some optional shaders (like scrap dissolving)
+- boss defeated on ground glitches graphically
 - make menu/toggle buttons transparent a bit (like other windows)
 - make tutorial device-aware; if gamepad is connected, tell controller bindings; if it's a mobile device, tell about touch controls
 - add turrets to a pathgrid?

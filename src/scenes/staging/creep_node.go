@@ -119,6 +119,9 @@ func (c *creepNode) Dispose() {
 	if c.shadow != nil {
 		c.shadow.Dispose()
 	}
+	if c.altSprite != nil {
+		c.altSprite.Dispose()
+	}
 }
 
 func (c *creepNode) Destroy() {
@@ -185,8 +188,12 @@ func (c *creepNode) TargetKind() targetKind {
 func (c *creepNode) explode() {
 	switch c.stats.kind {
 	case creepUberBoss:
-		fall := newDroneFallNode(c.world, nil, c.stats.image, c.shadow.ImageID(), c.pos, c.height)
-		c.scene.AddObject(fall)
+		if c.altSprite.Visible {
+			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.altSprite), true)
+		} else {
+			fall := newDroneFallNode(c.world, nil, c.stats.image, c.shadow.ImageID(), c.pos, c.height)
+			c.scene.AddObject(fall)
+		}
 	case creepTurret, creepBase:
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))

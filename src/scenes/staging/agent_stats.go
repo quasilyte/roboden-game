@@ -113,7 +113,7 @@ var gunpointAgentStats = &agentStats{
 	size:      sizeLarge,
 	cost:      12,
 	upkeep:    18,
-	maxHealth: 75,
+	maxHealth: 85,
 	canPatrol: true,
 	weapon: initWeaponStats(&weaponStats{
 		AttackRange:     240,

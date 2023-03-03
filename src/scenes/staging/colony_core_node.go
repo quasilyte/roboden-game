@@ -722,7 +722,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionCloneAgent:
-		c.cloningDelay = 3
+		c.cloningDelay = 4.5
 		cloneTarget := action.Value.(*colonyAgentNode)
 		cloner := action.Value2.(*colonyAgentNode)
 		c.resources -= agentCloningCost(c, cloner, cloneTarget)

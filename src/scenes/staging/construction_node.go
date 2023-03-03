@@ -30,7 +30,7 @@ var colonyCoreConstructionStats = &constructionStats{
 }
 
 var gunpointConstructionStats = &constructionStats{
-	ConstructionSpeed: 0.03,
+	ConstructionSpeed: 0.04,
 	DamageModifier:    0.03,
 	Kind:              constructGunpoint,
 	Image:             assets.ImageGunpointAgent,

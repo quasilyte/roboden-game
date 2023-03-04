@@ -9,13 +9,6 @@ import (
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
-type projectileExplosionKind int
-
-const (
-	projectileExplosionNone projectileExplosionKind = iota
-	projectileExplosionNormal
-)
-
 type projectileNode struct {
 	fromPos   *gmath.Vec
 	pos       gmath.Vec

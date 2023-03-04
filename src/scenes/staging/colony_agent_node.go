@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
@@ -159,7 +160,7 @@ func newColonyAgentNode(core *colonyCoreNode, stats *agentStats, pos gmath.Vec) 
 }
 
 func (a *colonyAgentNode) AsRecipeSubject() recipeSubject {
-	return recipeSubject{kind: a.stats.kind, faction: a.faction}
+	return recipeSubject{kind: a.stats.Kind, faction: a.faction}
 }
 
 func (a *colonyAgentNode) Clone() *colonyAgentNode {
@@ -222,7 +223,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 			a.traits |= traitLowHPRetreat
 		case roll < 0.20:
 			// 10% for recycle.
-			if a.stats.tier == 1 {
+			if a.stats.Tier == 1 {
 				a.traits |= traitLowHPRecycle
 			}
 		case roll < 0.25:
@@ -244,16 +245,16 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	}
 
 	if a.cloneGen == 0 {
-		a.maxHealth = a.stats.maxHealth * scene.Rand().FloatRange(0.9, 1.1)
+		a.maxHealth = a.stats.MaxHealth * scene.Rand().FloatRange(0.9, 1.1)
 		a.maxEnergy = scene.Rand().FloatRange(120, 200)
-		a.speed = a.stats.speed * scene.Rand().FloatRange(0.8, 1.1)
+		a.speed = a.stats.Speed * scene.Rand().FloatRange(0.8, 1.1)
 		a.applyRankBonuses()
 	}
 
 	a.health = a.maxHealth
 	a.energy = a.maxEnergy
 
-	a.sprite = scene.NewSprite(a.stats.image)
+	a.sprite = scene.NewSprite(a.stats.Image)
 	a.sprite.Pos.Base = &a.spritePos
 	if a.IsFlying() {
 		a.camera().AddSpriteAbove(a.sprite)
@@ -270,7 +271,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	if a.faction != neutralFactionTag {
 		a.diode = scene.NewSprite(assets.ImageFactionDiode)
 		a.diode.Pos.Base = &a.spritePos
-		a.diode.Pos.Offset.Y = a.stats.diodeOffset
+		a.diode.Pos.Offset.Y = a.stats.DiodeOffset
 		var colorScale ge.ColorScale
 		colorScale.SetColor(factionByTag(a.faction).color)
 		a.diode.SetColorScale(colorScale)
@@ -279,7 +280,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 	if !a.IsTurret() {
 		shadowImage := assets.ImageSmallShadow
-		switch a.stats.size {
+		switch a.stats.Size {
 		case sizeMedium:
 			shadowImage = assets.ImageMediumShadow
 		case sizeLarge:
@@ -298,7 +299,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
 
 func (a *colonyAgentNode) IsTurret() bool {
-	return a.stats.kind == agentGunpoint
+	return a.stats.Kind == agentGunpoint
 }
 
 func (a *colonyAgentNode) applyRankBonuses() {
@@ -383,7 +384,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		}
 		a.mode = mode
 		maxDist := a.colonyCore.realRadius
-		if !a.stats.canPatrol {
+		if !a.stats.CanPatrol {
 			maxDist *= 0.65
 		}
 		a.dist = a.scene.Rand().FloatRange(40, maxDist)
@@ -415,11 +416,11 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModeMineEssence:
-		if !a.stats.canGather {
+		if !a.stats.CanGather {
 			return false
 		}
 		source := target.(*essenceSourceNode)
-		if source.stats == redOilSource && a.stats.kind != agentRedminer {
+		if source.stats == redOilSource && a.stats.Kind != agentRedminer {
 			return false
 		}
 		energyCost := source.pos.DistanceTo(a.pos) / 2
@@ -631,11 +632,11 @@ func (a *colonyAgentNode) explode() {
 		var scraps *essenceSourceStats
 		if roll > 0.6 {
 			scraps = smallScrapSource
-			if a.stats.size != sizeSmall {
+			if a.stats.Size != sizeSmall {
 				scraps = scrapSource
 			}
 		}
-		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.image, a.shadow.ImageID(), a.pos, a.height)
+		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.Image, a.shadow.ImageID(), a.pos, a.height)
 		fall.FrameOffsetY = float64(a.rank) * a.sprite.FrameHeight
 		a.scene.AddObject(fall)
 	}
@@ -657,8 +658,8 @@ func (a *colonyAgentNode) updateHealthShader() {
 	a.sprite.Shader.Enabled = percentage < 0.95
 }
 
-func (a *colonyAgentNode) CanAttack(mask targetKind) bool {
-	return a.stats.weapon.TargetFlags&mask != 0
+func (a *colonyAgentNode) CanAttack(mask gamedata.TargetKind) bool {
+	return a.stats.Weapon.TargetFlags&mask != 0
 }
 
 func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
@@ -694,8 +695,8 @@ func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
 	}
 }
 
-func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
-	a.health -= damage.health
+func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+	a.health -= damage.Health
 
 	if a.health < 0 {
 		a.explode()
@@ -706,14 +707,14 @@ func (a *colonyAgentNode) OnDamage(damage damageValue, source gmath.Vec) {
 		a.onLowHealthDamage(source)
 	}
 
-	if damage.health != 0 {
+	if damage.Health != 0 {
 		a.flashComponent.flash = 0.2
 		if a.IsTurret() {
 			a.updateHealthShader()
 		}
 	}
 
-	a.energy = gmath.ClampMin(a.energy-damage.energy, 0)
+	a.energy = gmath.ClampMin(a.energy-damage.Energy, 0)
 
 	if !a.IsTurret() {
 		if a.colonyCore.GetSecurityPriority() < 0.65 && a.scene.Rand().Chance(1.0-a.colonyCore.GetSecurityPriority()) {
@@ -732,7 +733,7 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 }
 
 func (a *colonyAgentNode) processSupport(delta float64) {
-	switch a.stats.kind {
+	switch a.stats.Kind {
 	case agentRepair, agentRecharger, agentRefresher:
 		// OK
 	default:
@@ -742,20 +743,20 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 	a.supportDelay = gmath.ClampMin(a.supportDelay-(delta*a.reloadRate), 0)
 
 	if a.supportDelay != 0 {
-		if a.stats.kind == agentRefresher {
+		if a.stats.Kind == agentRefresher {
 			a.attackDelay = gmath.ClampMin(a.attackDelay-(delta*a.reloadRate), 0)
 			if a.attackDelay != 0 {
 				return
 			}
-			a.attackDelay = repairAgentStats.supportReload * a.scene.Rand().FloatRange(0.7, 1.4)
+			a.attackDelay = repairAgentStats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
 			a.doRepair()
 		}
 		return
 	}
 
-	a.supportDelay = a.stats.supportReload * a.scene.Rand().FloatRange(0.7, 1.4)
+	a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
 
-	switch a.stats.kind {
+	switch a.stats.Kind {
 	case agentRecharger, agentRefresher:
 		a.doRecharge()
 	case agentRepair:
@@ -768,7 +769,7 @@ func (a *colonyAgentNode) doRecharge() {
 	target := a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized, func(x *colonyAgentNode) bool {
 		return x != a &&
 			(x.energy+rechargerEnergyRecorery) < x.maxEnergy &&
-			x.pos.DistanceTo(a.pos) < rechargeAgentStats.supportRange
+			x.pos.DistanceTo(a.pos) < rechargeAgentStats.SupportRange
 	})
 	if target != nil {
 		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, rechargerBeamColor)
@@ -783,7 +784,7 @@ func (a *colonyAgentNode) doRepair() {
 	target := a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized, func(x *colonyAgentNode) bool {
 		return x != a &&
 			x.health < x.maxHealth &&
-			x.pos.DistanceTo(a.pos) < repairAgentStats.supportRange
+			x.pos.DistanceTo(a.pos) < repairAgentStats.SupportRange
 	})
 	if target != nil {
 		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, repairBeamColor)
@@ -795,7 +796,7 @@ func (a *colonyAgentNode) doRepair() {
 }
 
 func (a *colonyAgentNode) processAttack(delta float64) {
-	if !a.stats.canPatrol {
+	if !a.stats.CanPatrol {
 		return
 	}
 
@@ -804,17 +805,17 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		return
 	}
 
-	a.attackDelay = a.stats.weapon.Reload * a.scene.Rand().FloatRange(0.8, 1.2)
+	a.attackDelay = a.stats.Weapon.Reload * a.scene.Rand().FloatRange(0.8, 1.2)
 
 	targets := a.colonyCore.world.tmpTargetSlice[:0]
 	for _, c := range a.colonyCore.world.creeps {
-		if len(targets) >= a.stats.weapon.MaxTargets {
+		if len(targets) >= a.stats.Weapon.MaxTargets {
 			break
 		}
 		if !a.CanAttack(c.TargetKind()) {
 			continue
 		}
-		if c.pos.DistanceTo(a.pos) >= a.stats.weapon.AttackRange {
+		if c.pos.DistanceTo(a.pos) >= a.stats.Weapon.AttackRange {
 			continue
 		}
 		targets = append(targets, c)
@@ -823,7 +824,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		return
 	}
 
-	switch a.stats.kind {
+	switch a.stats.Kind {
 	case agentDestroyer:
 		target := targets[0]
 		offset := gmath.Vec{X: -7, Y: 2}
@@ -839,16 +840,16 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			offset = offset.Add(offsetStep)
 			targetOffset = targetOffset.Add(targetOffsetStep)
 		}
-		target.OnDamage(a.stats.weapon.Damage, a.pos)
+		target.OnDamage(a.stats.Weapon.Damage, a.pos)
 
 	case agentPrism:
 		target := targets[0]
-		damage := a.stats.weapon.Damage
+		damage := a.stats.Weapon.Damage
 		width := 1.0
 		numReflections := 0
 		pos := &a.pos
 		a.colonyCore.agents.Find(searchFighters|searchRandomized, func(ally *colonyAgentNode) bool {
-			if ally.stats.kind != agentPrism || ally == a {
+			if ally.stats.Kind != agentPrism || ally == a {
 				return false
 			}
 			if ally.pos.DistanceSquaredTo(*pos) > (196 * 196) {
@@ -859,7 +860,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			beam.width = width
 			a.scene.AddObject(beam)
 			numReflections++
-			damage.health++
+			damage.Health++
 			width++
 			pos = &ally.pos
 			return numReflections >= 3
@@ -871,12 +872,12 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 
 	default:
 		for _, target := range targets {
-			toPos := snipePos(a.stats.weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
-			for i := 0; i < a.stats.weapon.BurstSize; i++ {
-				fireDelay := float64(i) * a.stats.weapon.BurstDelay
+			toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
+			for i := 0; i < a.stats.Weapon.BurstSize; i++ {
+				fireDelay := float64(i) * a.stats.Weapon.BurstDelay
 				p := newProjectileNode(projectileConfig{
 					Camera:    a.colonyCore.world.camera,
-					Weapon:    a.stats.weapon,
+					Weapon:    a.stats.Weapon,
 					FromPos:   &a.pos,
 					ToPos:     toPos,
 					Target:    target,
@@ -887,7 +888,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		}
 	}
 
-	playSound(a.scene, a.camera(), a.stats.weapon.AttackSound, a.pos)
+	playSound(a.scene, a.camera(), a.stats.Weapon.AttackSound, a.pos)
 }
 
 func (a *colonyAgentNode) movementSpeed() float64 {
@@ -1041,7 +1042,7 @@ func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
 		a.sprite.SetColorScaleRGBA(200, 200, 200, 255)
 	}
 	if a.moveTowards(delta, a.waypoint) {
-		a.colonyCore.resources += a.stats.cost * 0.9
+		a.colonyCore.resources += a.stats.Cost * 0.9
 		if a.rank != 0 {
 			a.colonyCore.eliteResources += float64(a.rank)
 		}
@@ -1110,7 +1111,7 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 			// Anything better is capped at rank 2.
 			newAgent.rank = 2
 		}
-		if newStats.tier == 2 {
+		if newStats.Tier == 2 {
 			newFaction = a.colonyCore.pickAgentFaction()
 		} else {
 			newFaction = a.faction
@@ -1160,7 +1161,7 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 }
 
 func (a *colonyAgentNode) followWaypoint(targetPos gmath.Vec) gmath.Vec {
-	preferredDist := gmath.ClampMin(a.stats.weapon.AttackRange*0.6, 80)
+	preferredDist := gmath.ClampMin(a.stats.Weapon.AttackRange*0.6, 80)
 	return a.pos.DirectionTo(targetPos).Mulf(preferredDist).Add(targetPos).Add(a.scene.Rand().Offset(-52, 52))
 }
 
@@ -1289,7 +1290,7 @@ func (a *colonyAgentNode) hasTrait(t agentTraitBits) bool {
 }
 
 func (a *colonyAgentNode) maxPayload() int {
-	n := a.stats.maxPayload
+	n := a.stats.MaxPayload
 	if a.faction == yellowFactionTag {
 		n++
 	}

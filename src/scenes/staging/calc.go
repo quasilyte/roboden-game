@@ -6,7 +6,7 @@ import (
 
 func mergeAgents(x, y *colonyAgentNode) *agentStats {
 	list := tier2agentMergeRecipeList
-	if x.stats.tier == 2 {
+	if x.stats.Tier == 2 {
 		list = tier3agentMergeRecipeList
 	}
 	for _, recipe := range list {
@@ -23,7 +23,7 @@ func agentCloningEnergyCost() float64 {
 
 func agentCloningCost(core *colonyCoreNode, cloner, a *colonyAgentNode) float64 {
 	multiplier := 0.85
-	return a.stats.cost * multiplier
+	return a.stats.Cost * multiplier
 }
 
 func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {

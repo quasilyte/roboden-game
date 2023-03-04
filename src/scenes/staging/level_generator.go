@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
@@ -310,7 +311,7 @@ func (g *levelGenerator) placeTutorialBoss() {
 	boss := g.world.NewCreepNode(gmath.Vec{X: 256, Y: 256}, uberBossCreepStats)
 	g.scene.AddObject(boss)
 
-	boss.OnDamage(damageValue{health: uberBossCreepStats.maxHealth * 0.33}, gmath.Vec{})
+	boss.OnDamage(gamedata.DamageValue{Health: uberBossCreepStats.maxHealth * 0.5}, gmath.Vec{})
 
 	g.world.boss = boss
 }

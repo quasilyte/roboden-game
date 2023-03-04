@@ -15,6 +15,7 @@ import (
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
@@ -313,9 +314,9 @@ func (c *Controller) launchAttack() {
 	maxDispatched := gmath.Clamp(int(float64(c.selectedColony.agents.NumAvailableFighters())*0.6), 1, 15)
 	c.selectedColony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
 		target := gmath.RandElem(c.world.rand, closeTargets)
-		kind := targetGround
+		kind := gamedata.TargetGround
 		if target.IsFlying() {
-			kind = targetFlying
+			kind = gamedata.TargetFlying
 		}
 		if !a.CanAttack(kind) {
 			return false

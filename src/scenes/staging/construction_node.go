@@ -6,6 +6,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type constructionKind int
@@ -108,8 +109,8 @@ func (c *constructionNode) Destroy() {
 
 func (c *constructionNode) IsFlying() bool { return false }
 
-func (c *constructionNode) OnDamage(damage damageValue, source gmath.Vec) {
-	c.progress -= damage.health * c.stats.DamageModifier
+func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+	c.progress -= damage.Health * c.stats.DamageModifier
 	xdelta := c.sprite.ImageWidth() * 0.3
 	if c.progress < 0 {
 		rect := gmath.Rect{

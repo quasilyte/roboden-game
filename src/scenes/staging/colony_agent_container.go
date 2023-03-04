@@ -81,12 +81,12 @@ func (c *colonyAgentContainer) Update() {
 	c.availableUniversal = c.availableUniversal[:0]
 
 	for _, a := range c.workers {
-		if a.stats.kind == agentServo {
+		if a.stats.Kind == agentServo {
 			c.servoNum++
 		}
 		if a.mode == agentModeStandby {
 			c.availableWorkers = append(c.availableWorkers, a)
-			if a.stats.kind == agentRedminer {
+			if a.stats.Kind == agentRedminer {
 				c.hasRedMiner = true
 			}
 		}
@@ -98,7 +98,7 @@ func (c *colonyAgentContainer) Update() {
 
 	for _, a := range c.fighters {
 		if a.mode == agentModePatrol || a.mode == agentModeStandby {
-			if a.stats.canGather {
+			if a.stats.CanGather {
 				c.availableUniversal = append(c.availableUniversal, a)
 			} else {
 				c.availableFighters = append(c.availableFighters, a)
@@ -120,7 +120,7 @@ func (c *colonyAgentContainer) NumAvailableFighters() int {
 }
 
 func (c *colonyAgentContainer) Add(a *colonyAgentNode) {
-	if a.stats.canPatrol {
+	if a.stats.CanPatrol {
 		c.fighters = append(c.fighters, a)
 	} else {
 		c.workers = append(c.workers, a)
@@ -128,9 +128,9 @@ func (c *colonyAgentContainer) Add(a *colonyAgentNode) {
 }
 
 func (c *colonyAgentContainer) Remove(a *colonyAgentNode) {
-	if a.stats.canPatrol {
+	if a.stats.CanPatrol {
 		c.fighters = xslices.Remove(c.fighters, a)
-		if a.stats.canGather {
+		if a.stats.CanGather {
 			c.availableUniversal = xslices.Remove(c.availableUniversal, a)
 		} else {
 			c.availableFighters = xslices.Remove(c.availableFighters, a)

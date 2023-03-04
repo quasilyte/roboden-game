@@ -3,9 +3,9 @@ package staging
 import (
 	"math"
 
-	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
@@ -22,7 +22,7 @@ type projectileNode struct {
 	toPos     gmath.Vec
 	target    projectileTarget
 	fireDelay float64
-	weapon    *weaponStats
+	weapon    *gamedata.WeaponStats
 
 	rotation gmath.Rad
 
@@ -41,45 +41,18 @@ type projectileNode struct {
 type projectileTarget interface {
 	GetPos() *gmath.Vec
 	GetVelocity() gmath.Vec
-	OnDamage(damage damageValue, source gmath.Vec)
+	OnDamage(damage gamedata.DamageValue, source gmath.Vec)
 	IsDisposed() bool
 	IsFlying() bool
 }
 
-type targetKind int
-
-const (
-	targetFlying targetKind = 1 << iota
-	targetGround
-)
-
-type weaponStats struct {
-	MaxTargets            int
-	ProjectileImage       resource.ImageID
-	ProjectileSpeed       float64
-	ProjectileRotateSpeed float64
-	ImpactArea            float64
-	ImpactAreaSqr         float64 // A precomputed ImpactArea*ImpactArea value
-	AttackRange           float64
-	Damage                damageValue
-	Explosion             projectileExplosionKind
-	BurstSize             int
-	BurstDelay            float64
-	Reload                float64
-	AttackSound           resource.AudioID
-	FireOffset            gmath.Vec
-	ArcPower              float64
-	TargetFlags           targetKind
-	RoundProjectile       bool
-}
-
-func initWeaponStats(stats *weaponStats) *weaponStats {
+func initWeaponStats(stats *gamedata.WeaponStats) *gamedata.WeaponStats {
 	stats.ImpactAreaSqr = stats.ImpactArea * stats.ImpactArea
 	return stats
 }
 
 type projectileConfig struct {
-	Weapon    *weaponStats
+	Weapon    *gamedata.WeaponStats
 	Camera    *viewport.Camera
 	FromPos   *gmath.Vec
 	ToPos     gmath.Vec
@@ -185,7 +158,7 @@ func (p *projectileNode) detonate() {
 	p.target.OnDamage(p.weapon.Damage, *p.fromPos)
 
 	switch p.weapon.Explosion {
-	case projectileExplosionNormal:
+	case gamedata.ProjectileExplosionNormal:
 		createExplosion(p.scene, p.camera, p.target.IsFlying(), p.pos.Add(p.scene.Rand().Offset(-3, 3)))
 	}
 }

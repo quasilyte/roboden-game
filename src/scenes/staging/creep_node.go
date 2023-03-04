@@ -5,6 +5,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
@@ -178,11 +179,11 @@ func (c *creepNode) IsFlying() bool {
 	return c.shadow != nil
 }
 
-func (c *creepNode) TargetKind() targetKind {
+func (c *creepNode) TargetKind() gamedata.TargetKind {
 	if c.IsFlying() {
-		return targetFlying
+		return gamedata.TargetFlying
 	}
-	return targetGround
+	return gamedata.TargetGround
 }
 
 func (c *creepNode) explode() {
@@ -230,19 +231,19 @@ func (c *creepNode) explode() {
 	}
 }
 
-func (c *creepNode) OnDamage(damage damageValue, source gmath.Vec) {
-	if damage.health != 0 {
+func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+	if damage.Health != 0 {
 		c.flashComponent.flash = 0.2
 	}
 
-	c.health -= damage.health
+	c.health -= damage.Health
 	if c.health < 0 {
 		c.explode()
 		c.Destroy()
 		return
 	}
 
-	c.slow = gmath.ClampMax(c.slow+damage.slow, 5)
+	c.slow = gmath.ClampMax(c.slow+damage.Slow, 5)
 
 	if c.stats.kind == creepCrawler {
 		if c.specialModifier == crawlerIdle && (c.pos.DistanceTo(source) > c.stats.weapon.AttackRange*0.8) && c.world.rand.Chance(0.45) {
@@ -255,11 +256,11 @@ func (c *creepNode) OnDamage(damage damageValue, source gmath.Vec) {
 		return
 	}
 
-	if damage.morale != 0 {
+	if damage.Morale != 0 {
 		if c.wasRetreating {
 			return
 		}
-		if c.scene.Rand().Chance(damage.morale * 0.15) {
+		if c.scene.Rand().Chance(damage.Morale * 0.15) {
 			c.wasAttacking = true
 			c.retreatFrom(source)
 		}
@@ -301,7 +302,7 @@ func (c *creepNode) findTargets() []projectileTarget {
 		targets = append(targets, a)
 		return len(targets) >= c.stats.weapon.MaxTargets
 	})
-	if c.stats.weapon.Damage.health == 0 {
+	if c.stats.weapon.Damage.Health == 0 {
 		return targets
 	}
 

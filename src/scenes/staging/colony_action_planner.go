@@ -41,13 +41,13 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 	p.colony.agents.Update()
 
 	p.colony.agents.Each(func(a *colonyAgentNode) {
-		switch a.stats.tier {
+		switch a.stats.Tier {
 		case 1:
 			p.numTier1Agents++
 		case 2:
 			p.numTier2Agents++
 		}
-		if !a.stats.canPatrol {
+		if !a.stats.CanPatrol {
 			if a.faction == p.leadingFaction {
 				leadingFactionAgents++
 			}
@@ -168,7 +168,7 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 	var agentCountTable [agentKindNum]uint8
 	var agentKindThreshold uint8
 	p.colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
-		agentCountTable[a.stats.kind]++
+		agentCountTable[a.stats.Kind]++
 		return false
 	})
 	agentKindThreshold = uint8(gmath.Clamp(p.colony.NumAgents()/5, 5, math.MaxUint8))
@@ -189,14 +189,14 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 		if agentCloningCost(p.colony, cloner, a)*1.5 > p.colony.resources {
 			return false // Not enough resources
 		}
-		if a.stats.tier > 1 && agentCountTable[a.stats.kind] > agentKindThreshold {
+		if a.stats.Tier > 1 && agentCountTable[a.stats.Kind] > agentKindThreshold {
 			return false // Don't need more of those
 		}
 		// Try to use weighted priorities with randomization.
 		// Higher tiers are good, but it's also good to clone the units that
 		// are not as numerous as some others.
-		scoreMultiplier := gmath.ClampMin(1.0/float64(agentCountTable[a.stats.kind]), 0.1)
-		score := ((1.25 * float64(a.stats.tier)) * scoreMultiplier) * p.world.rand.FloatRange(0.7, 1.3)
+		scoreMultiplier := gmath.ClampMin(1.0/float64(agentCountTable[a.stats.Kind]), 0.1)
+		score := ((1.25 * float64(a.stats.Tier)) * scoreMultiplier) * p.world.rand.FloatRange(0.7, 1.3)
 		if a.faction != neutralFactionTag {
 			score *= 1.1
 		}
@@ -312,7 +312,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	if combatUnit {
 		stats = militiaAgentStats
 	}
-	if p.colony.resources >= stats.cost {
+	if p.colony.resources >= stats.Cost {
 		return colonyAction{
 			Kind:     actionProduceAgent,
 			Value:    stats,
@@ -443,7 +443,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 			default:
 				return false
 			}
-			switch a.stats.kind {
+			switch a.stats.Kind {
 			case agentWorker, agentMilitia:
 				// OK
 			default:
@@ -453,7 +453,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 				return true
 			}
 			if recycleOther && a.faction != p.leadingFaction {
-				if a.stats.canPatrol {
+				if a.stats.CanPatrol {
 					return p.leadingFactionCombatAgents < 0.35
 				}
 				return p.leadingFactionAgents < 0.25

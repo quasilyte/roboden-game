@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 const (
@@ -213,13 +214,13 @@ func (c *colonyCoreNode) OnHeal(amount float64) {
 	c.updateHealthShader()
 }
 
-func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
-	if damage.health != 0 {
+func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+	if damage.Health != 0 {
 		c.flashComponent.flash = 0.2
 		c.hatchFlashComponent.flash = 0.2
 	}
 
-	c.health -= damage.health
+	c.health -= damage.Health
 	if c.health < 0 {
 		if c.height == 0 {
 			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
@@ -239,10 +240,10 @@ func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
 
 func (c *colonyCoreNode) Destroy() {
 	c.agents.Each(func(a *colonyAgentNode) {
-		a.OnDamage(damageValue{health: 1000}, gmath.Vec{})
+		a.OnDamage(gamedata.DamageValue{Health: 1000}, gmath.Vec{})
 	})
 	for _, turret := range c.turrets {
-		turret.OnDamage(damageValue{health: 1000}, gmath.Vec{})
+		turret.OnDamage(gamedata.DamageValue{Health: 1000}, gmath.Vec{})
 	}
 	c.EventDestroyed.Emit(c)
 	c.Dispose()
@@ -426,13 +427,13 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 	upkeepTotal := 0
 	upkeepDecrease := 0
 	c.agents.Each(func(a *colonyAgentNode) {
-		if a.stats.kind == agentGenerator {
+		if a.stats.Kind == agentGenerator {
 			upkeepDecrease++
 		}
-		upkeepTotal += a.stats.upkeep
+		upkeepTotal += a.stats.Upkeep
 	})
 	for _, turret := range c.turrets {
-		upkeepTotal += turret.stats.upkeep
+		upkeepTotal += turret.stats.Upkeep
 	}
 	upkeepDecrease = gmath.ClampMax(upkeepDecrease, 10)
 	upkeepTotal = gmath.ClampMin(upkeepTotal-(upkeepDecrease*15), 0)
@@ -585,10 +586,10 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			if evoGain >= maxEvoGain {
 				return true
 			}
-			if a.stats.tier != 2 {
+			if a.stats.Tier != 2 {
 				return false
 			}
-			if a.stats.canPatrol {
+			if a.stats.CanPatrol {
 				if connectedFighter == nil {
 					connectedFighter = a
 				}
@@ -693,7 +694,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		}
 		a.height = 0
 		c.scene.AddObject(a)
-		c.resources -= a.stats.cost
+		c.resources -= a.stats.Cost
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)
 		playSound(c.scene, c.world.camera, assets.AudioAgentProduced, c.pos)
 		c.openHatchTime = 1.5

@@ -15,7 +15,7 @@ type colonyActionPlanner struct {
 	numPatrolAgents   int
 	numGarrisonAgents int
 
-	leadingFaction             factionTag
+	leadingFaction             gamedata.FactionTag
 	leadingFactionAgents       float64
 	leadingFactionCombatAgents float64
 
@@ -198,7 +198,7 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 		// are not as numerous as some others.
 		scoreMultiplier := gmath.ClampMin(1.0/float64(agentCountTable[a.stats.Kind]), 0.1)
 		score := ((1.25 * float64(a.stats.Tier)) * scoreMultiplier) * p.world.rand.FloatRange(0.7, 1.3)
-		if a.faction != neutralFactionTag {
+		if a.faction != gamedata.NeutralFactionTag {
 			score *= 1.1
 		}
 		if score > bestScore {
@@ -381,16 +381,16 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 }
 
 func (p *colonyActionPlanner) tryMergingAction() colonyAction {
-	var list []agentMergeRecipe
+	var list []gamedata.AgentMergeRecipe
 	if p.colony.evoPoints >= blueEvoThreshold && p.numTier2Agents >= 2 && (p.numTier1Agents < 2 || p.world.rand.Bool()) {
-		list = tier3agentMergeRecipeList
+		list = gamedata.Tier3agentMergeRecipeList
 	} else {
-		list = tier2agentMergeRecipeList
+		list = gamedata.Tier2agentMergeRecipeList
 	}
 
 	recipe := gmath.RandElem(p.world.rand, list)
-	if recipe.evoCost > p.colony.evoPoints {
-		recipe = gmath.RandElem(p.world.rand, tier2agentMergeRecipeList)
+	if recipe.EvoCost > p.colony.evoPoints {
+		recipe = gmath.RandElem(p.world.rand, gamedata.Tier2agentMergeRecipeList)
 	}
 
 	firstAgent := p.colony.agents.Find(searchWorkers|searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
@@ -409,7 +409,7 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 		Kind:     actionMergeAgents,
 		Value:    firstAgent,
 		Value2:   secondAgent,
-		Value3:   recipe.evoCost,
+		Value3:   recipe.EvoCost,
 		TimeCost: 1.2,
 	}
 }
@@ -432,7 +432,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 	canRecycle := p.colony.agents.TotalNum() > 15 &&
 		len(p.colony.agents.workers) > 5 &&
 		p.colony.GetEvolutionPriority() >= 0.1 &&
-		p.colony.factionWeights.GetWeight(neutralFactionTag) < 0.5 &&
+		p.colony.factionWeights.GetWeight(gamedata.NeutralFactionTag) < 0.5 &&
 		p.colony.resources > 20
 	if canRecycle {
 		// Are there any drones to recycle?
@@ -450,7 +450,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 			default:
 				return false
 			}
-			if a.faction == neutralFactionTag {
+			if a.faction == gamedata.NeutralFactionTag {
 				return true
 			}
 			if recycleOther && a.faction != p.leadingFaction {
@@ -463,7 +463,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 		})
 		if toRecycle != nil {
 			// Try not to recyle units that may be needed later for merging.
-			if toRecycle.faction != neutralFactionTag && p.canUseInRecipe(toRecycle) {
+			if toRecycle.faction != gamedata.NeutralFactionTag && p.canUseInRecipe(toRecycle) {
 				return colonyAction{}
 			}
 			return colonyAction{
@@ -488,13 +488,13 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 }
 
 func (p *colonyActionPlanner) canUseInRecipe(x *colonyAgentNode) bool {
-	recipes := recipesIndex[x.AsRecipeSubject()]
+	recipes := gamedata.RecipesIndex[x.AsRecipeSubject()]
 	mergeCandidate := p.colony.agents.Find(searchWorkers|searchFighters|searchRandomized, func(y *colonyAgentNode) bool {
 		if x == y {
 			return false
 		}
 		for _, recipe := range recipes {
-			if recipe.Match(x, y) {
+			if recipe.Match(x.AsRecipeSubject(), y.AsRecipeSubject()) {
 				return true
 			}
 		}

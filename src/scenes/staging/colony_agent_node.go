@@ -92,7 +92,7 @@ type colonyAgentNode struct {
 	payload         int
 	cloneGen        int
 	rank            int
-	faction         factionTag
+	faction         gamedata.FactionTag
 	cargoValue      float64
 	cargoEliteValue float64
 	reloadRate      float64
@@ -128,8 +128,8 @@ func newColonyAgentNode(core *colonyCoreNode, stats *gamedata.AgentStats, pos gm
 	return a
 }
 
-func (a *colonyAgentNode) AsRecipeSubject() recipeSubject {
-	return recipeSubject{kind: a.stats.Kind, faction: a.faction}
+func (a *colonyAgentNode) AsRecipeSubject() gamedata.RecipeSubject {
+	return gamedata.RecipeSubject{Kind: a.stats.Kind, Faction: a.faction}
 }
 
 func (a *colonyAgentNode) Clone() *colonyAgentNode {
@@ -204,11 +204,11 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		}
 
 		switch a.faction {
-		case redFactionTag:
+		case gamedata.RedFactionTag:
 			a.maxHealth *= 1.4
-		case greenFactionTag:
+		case gamedata.GreenFactionTag:
 			a.speed *= 1.2
-		case blueFactionTag:
+		case gamedata.BlueFactionTag:
 			a.maxEnergy *= 1.8
 		}
 	}
@@ -237,12 +237,12 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 	a.flashComponent.sprite = a.sprite
 
-	if a.faction != neutralFactionTag {
+	if a.faction != gamedata.NeutralFactionTag {
 		a.diode = scene.NewSprite(assets.ImageFactionDiode)
 		a.diode.Pos.Base = &a.spritePos
 		a.diode.Pos.Offset.Y = a.stats.DiodeOffset
 		var colorScale ge.ColorScale
-		colorScale.SetColor(factionByTag(a.faction).color)
+		colorScale.SetColor(gamedata.FactionByTag(a.faction).Color)
 		a.diode.SetColorScale(colorScale)
 		a.camera().AddSpriteAbove(a.diode)
 	}
@@ -961,7 +961,7 @@ func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 	if a.dist <= 0 {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		amountRepaired := a.scene.Rand().FloatRange(3, 5)
-		if a.faction == greenFactionTag {
+		if a.faction == gamedata.GreenFactionTag {
 			amountRepaired *= 1.5
 		}
 		target.OnBuildingRepair(amountRepaired)
@@ -991,7 +991,7 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 		return
 	}
 	amountConstructed := delta
-	if a.faction == greenFactionTag {
+	if a.faction == gamedata.GreenFactionTag {
 		amountConstructed *= 1.5
 	}
 	if target.Construct(amountConstructed, a.colonyCore) {
@@ -1059,7 +1059,7 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		a.cloningBeam = nil
 		newStats := mergeAgents(a, target)
 		newAgent := a.colonyCore.NewColonyAgentNode(newStats, target.pos)
-		var newFaction factionTag
+		var newFaction gamedata.FactionTag
 		rankScore := a.rank + target.rank
 		switch rankScore {
 		case 0:
@@ -1084,7 +1084,7 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 			newFaction = a.colonyCore.pickAgentFaction()
 		} else {
 			newFaction = a.faction
-			if newFaction == neutralFactionTag || (target.faction != neutralFactionTag && a.faction != target.faction && a.scene.Rand().Bool()) {
+			if newFaction == gamedata.NeutralFactionTag || (target.faction != gamedata.NeutralFactionTag && a.faction != target.faction && a.scene.Rand().Bool()) {
 				newFaction = target.faction
 			}
 		}
@@ -1260,7 +1260,7 @@ func (a *colonyAgentNode) hasTrait(t agentTraitBits) bool {
 
 func (a *colonyAgentNode) maxPayload() int {
 	n := a.stats.MaxPayload
-	if a.faction == yellowFactionTag {
+	if a.faction == gamedata.YellowFactionTag {
 		n++
 	}
 	return n

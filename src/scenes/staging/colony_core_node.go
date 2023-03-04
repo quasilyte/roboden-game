@@ -90,9 +90,9 @@ type colonyCoreNode struct {
 
 	resourceRects []*ge.Rect
 
-	factionTagPicker *gmath.RandPicker[factionTag]
+	factionTagPicker *gmath.RandPicker[gamedata.FactionTag]
 
-	factionWeights *weightContainer[factionTag]
+	factionWeights *weightContainer[gamedata.FactionTag]
 
 	EventDestroyed gsignal.Event[*colonyCoreNode]
 }
@@ -113,8 +113,13 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	}
 	c.realRadiusSqr = c.realRadius * c.realRadius
 	c.actionPriorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
-	c.factionWeights = newWeightContainer(neutralFactionTag, yellowFactionTag, redFactionTag, greenFactionTag, blueFactionTag)
-	c.factionWeights.SetWeight(neutralFactionTag, 1.0)
+	c.factionWeights = newWeightContainer(
+		gamedata.NeutralFactionTag,
+		gamedata.YellowFactionTag,
+		gamedata.RedFactionTag,
+		gamedata.GreenFactionTag,
+		gamedata.BlueFactionTag)
+	c.factionWeights.SetWeight(gamedata.NeutralFactionTag, 1.0)
 	c.pos = config.Pos
 	return c
 }
@@ -124,7 +129,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 
 	c.agents = newColonyAgentContainer(scene.Rand())
 
-	c.factionTagPicker = gmath.NewRandPicker[factionTag](scene.Rand())
+	c.factionTagPicker = gmath.NewRandPicker[gamedata.FactionTag](scene.Rand())
 
 	c.planner = newColonyActionPlanner(c, scene.Rand())
 
@@ -598,7 +603,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 					connectedWorker = a
 				}
 			}
-			if a.faction == blueFactionTag {
+			if a.faction == gamedata.BlueFactionTag {
 				// 20% more evo points per blue drones.
 				evoGain += 0.12
 			} else {
@@ -776,7 +781,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	}
 }
 
-func (c *colonyCoreNode) pickAgentFaction() factionTag {
+func (c *colonyCoreNode) pickAgentFaction() gamedata.FactionTag {
 	c.factionTagPicker.Reset()
 	for _, kv := range c.factionWeights.Elems {
 		c.factionTagPicker.AddOption(kv.Key, kv.Weight)

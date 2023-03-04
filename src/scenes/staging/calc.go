@@ -6,13 +6,13 @@ import (
 )
 
 func mergeAgents(x, y *colonyAgentNode) *gamedata.AgentStats {
-	list := tier2agentMergeRecipeList
+	list := gamedata.Tier2agentMergeRecipeList
 	if x.stats.Tier == 2 {
-		list = tier3agentMergeRecipeList
+		list = gamedata.Tier3agentMergeRecipeList
 	}
 	for _, recipe := range list {
-		if recipe.Match(x, y) {
-			return recipe.result
+		if recipe.Match(x.AsRecipeSubject(), y.AsRecipeSubject()) {
+			return recipe.Result
 		}
 	}
 	return nil

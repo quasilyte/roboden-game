@@ -1,4 +1,4 @@
-package staging
+package gamedata
 
 import (
 	"image/color"
@@ -7,11 +7,11 @@ import (
 )
 
 type faction struct {
-	tag   factionTag
-	color color.RGBA
+	Tag   FactionTag
+	Color color.RGBA
 }
 
-type factionTag int
+type FactionTag int
 
 // Yellow faction (miners):
 // +1 max payload (basically doubles the worker capacity as it's 1 by default)
@@ -29,22 +29,22 @@ type factionTag int
 // +20% evo points income
 
 const (
-	neutralFactionTag factionTag = iota
-	yellowFactionTag
-	redFactionTag
-	greenFactionTag
-	blueFactionTag
+	NeutralFactionTag FactionTag = iota
+	YellowFactionTag
+	RedFactionTag
+	GreenFactionTag
+	BlueFactionTag
 )
 
-func factionByTag(tag factionTag) *faction {
+func FactionByTag(tag FactionTag) *faction {
 	switch tag {
-	case yellowFactionTag:
+	case YellowFactionTag:
 		return yellowFaction
-	case redFactionTag:
+	case RedFactionTag:
 		return redFaction
-	case greenFactionTag:
+	case GreenFactionTag:
 		return greenFaction
-	case blueFactionTag:
+	case BlueFactionTag:
 		return blueFaction
 	default:
 		return nil
@@ -53,22 +53,22 @@ func factionByTag(tag factionTag) *faction {
 
 var (
 	yellowFaction = &faction{
-		tag:   yellowFactionTag,
-		color: ge.RGB(0xf1e851),
+		Tag:   YellowFactionTag,
+		Color: ge.RGB(0xf1e851),
 	}
 
 	redFaction = &faction{
-		tag:   redFactionTag,
-		color: ge.RGB(0xef6a57),
+		Tag:   RedFactionTag,
+		Color: ge.RGB(0xef6a57),
 	}
 
 	greenFaction = &faction{
-		tag:   greenFactionTag,
-		color: ge.RGB(0x92d866),
+		Tag:   GreenFactionTag,
+		Color: ge.RGB(0x92d866),
 	}
 
 	blueFaction = &faction{
-		tag:   blueFactionTag,
-		color: ge.RGB(0x7078db),
+		Tag:   BlueFactionTag,
+		Color: ge.RGB(0x7078db),
 	}
 )

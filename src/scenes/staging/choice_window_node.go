@@ -13,6 +13,7 @@ import (
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type specialChoiceKind int
@@ -28,7 +29,7 @@ const (
 )
 
 type selectedChoice struct {
-	Faction factionTag
+	Faction gamedata.FactionTag
 	Option  choiceOption
 	Pos     gmath.Vec
 }
@@ -492,7 +493,7 @@ func (w *choiceWindowNode) activateChoice(i int) {
 	w.selectedIndex = i
 	w.selectedSlide = 0
 
-	selectedFaction := factionTag(i + 1)
+	selectedFaction := gamedata.FactionTag(i + 1)
 	choice := selectedChoice{
 		Faction: selectedFaction,
 		Option:  w.choices[i].option,

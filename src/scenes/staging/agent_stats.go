@@ -8,9 +8,9 @@ import (
 )
 
 type agentMergeRecipe struct {
-	agent1kind    colonyAgentKind
+	agent1kind    gamedata.ColonyAgentKind
 	agent1faction factionTag
-	agent2kind    colonyAgentKind
+	agent2kind    gamedata.ColonyAgentKind
 	agent2faction factionTag
 	evoCost       float64
 	result        *agentStats
@@ -34,7 +34,7 @@ func (r *agentMergeRecipe) Match2(s recipeSubject) bool {
 	return r.match(r.agent2kind, r.agent2faction, s)
 }
 
-func (r *agentMergeRecipe) match(kind colonyAgentKind, faction factionTag, s recipeSubject) bool {
+func (r *agentMergeRecipe) match(kind gamedata.ColonyAgentKind, faction factionTag, s recipeSubject) bool {
 	if s.kind != kind {
 		return false
 	}
@@ -45,7 +45,7 @@ func (r *agentMergeRecipe) match(kind colonyAgentKind, faction factionTag, s rec
 }
 
 type recipeSubject struct {
-	kind    colonyAgentKind
+	kind    gamedata.ColonyAgentKind
 	faction factionTag
 }
 
@@ -58,9 +58,9 @@ func init() {
 		blueFactionTag,
 		greenFactionTag,
 	}
-	kinds := []colonyAgentKind{
-		agentWorker,
-		agentMilitia,
+	kinds := []gamedata.ColonyAgentKind{
+		gamedata.AgentWorker,
+		gamedata.AgentMilitia,
 	}
 	for _, f := range factions {
 		for _, k := range kinds {
@@ -75,22 +75,14 @@ func init() {
 	}
 }
 
-type unitSize int
-
-const (
-	sizeSmall unitSize = iota
-	sizeMedium
-	sizeLarge
-)
-
 type agentStats struct {
-	Kind   colonyAgentKind
+	Kind   gamedata.ColonyAgentKind
 	Image  resource.ImageID
 	Tier   int
 	Cost   float64
 	Upkeep int
 
-	Size unitSize
+	Size gamedata.UnitSize
 
 	Speed float64
 
@@ -109,9 +101,9 @@ type agentStats struct {
 }
 
 var gunpointAgentStats = &agentStats{
-	Kind:      agentGunpoint,
+	Kind:      gamedata.AgentGunpoint,
 	Image:     assets.ImageGunpointAgent,
-	Size:      sizeLarge,
+	Size:      gamedata.SizeLarge,
 	Cost:      12,
 	Upkeep:    18,
 	MaxHealth: 85,
@@ -133,9 +125,9 @@ var gunpointAgentStats = &agentStats{
 }
 
 var workerAgentStats = &agentStats{
-	Kind:        agentWorker,
+	Kind:        gamedata.AgentWorker,
 	Image:       assets.ImageWorkerAgent,
-	Size:        sizeSmall,
+	Size:        gamedata.SizeSmall,
 	DiodeOffset: 5,
 	Tier:        1,
 	Cost:        8,
@@ -147,9 +139,9 @@ var workerAgentStats = &agentStats{
 }
 
 var redminerAgentStats = &agentStats{
-	Kind:        agentRedminer,
+	Kind:        gamedata.AgentRedminer,
 	Image:       assets.ImageRedminerAgent,
-	Size:        sizeMedium,
+	Size:        gamedata.SizeMedium,
 	DiodeOffset: 6,
 	Tier:        2,
 	Cost:        15,
@@ -161,9 +153,9 @@ var redminerAgentStats = &agentStats{
 }
 
 var generatorAgentStats = &agentStats{
-	Kind:        agentGenerator,
+	Kind:        gamedata.AgentGenerator,
 	Image:       assets.ImageGeneratorAgent,
-	Size:        sizeMedium,
+	Size:        gamedata.SizeMedium,
 	DiodeOffset: 10,
 	Tier:        2,
 	Cost:        15,
@@ -175,9 +167,9 @@ var generatorAgentStats = &agentStats{
 }
 
 var repairAgentStats = &agentStats{
-	Kind:          agentRepair,
+	Kind:          gamedata.AgentRepair,
 	Image:         assets.ImageRepairAgent,
-	Size:          sizeMedium,
+	Size:          gamedata.SizeMedium,
 	DiodeOffset:   5,
 	Tier:          2,
 	Cost:          20,
@@ -191,9 +183,9 @@ var repairAgentStats = &agentStats{
 }
 
 var rechargeAgentStats = &agentStats{
-	Kind:          agentRecharger,
+	Kind:          gamedata.AgentRecharger,
 	Image:         assets.ImageRechargerAgent,
-	Size:          sizeMedium,
+	Size:          gamedata.SizeMedium,
 	DiodeOffset:   9,
 	Tier:          2,
 	Cost:          15,
@@ -207,9 +199,9 @@ var rechargeAgentStats = &agentStats{
 }
 
 var refresherAgentStats = &agentStats{
-	Kind:          agentRefresher,
+	Kind:          gamedata.AgentRefresher,
 	Image:         assets.ImageRefresherAgent,
-	Size:          sizeLarge,
+	Size:          gamedata.SizeLarge,
 	DiodeOffset:   7,
 	Tier:          3,
 	Cost:          40,
@@ -223,9 +215,9 @@ var refresherAgentStats = &agentStats{
 }
 
 var servoAgentStats = &agentStats{
-	Kind:          agentServo,
+	Kind:          gamedata.AgentServo,
 	Image:         assets.ImageServoAgent,
-	Size:          sizeMedium,
+	Size:          gamedata.SizeMedium,
 	DiodeOffset:   -4,
 	Tier:          2,
 	Cost:          30,
@@ -239,9 +231,9 @@ var servoAgentStats = &agentStats{
 }
 
 var freighterAgentStats = &agentStats{
-	Kind:        agentFreighter,
+	Kind:        gamedata.AgentFreighter,
 	Image:       assets.ImageFreighterAgent,
-	Size:        sizeMedium,
+	Size:        gamedata.SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
 	Cost:        15,
@@ -253,9 +245,9 @@ var freighterAgentStats = &agentStats{
 }
 
 var militiaAgentStats = &agentStats{
-	Kind:        agentMilitia,
+	Kind:        gamedata.AgentMilitia,
 	Image:       assets.ImageMilitiaAgent,
-	Size:        sizeSmall,
+	Size:        gamedata.SizeSmall,
 	DiodeOffset: 5,
 	Tier:        1,
 	Cost:        10,
@@ -278,9 +270,9 @@ var militiaAgentStats = &agentStats{
 }
 
 var cripplerAgentStats = &agentStats{
-	Kind:        agentCrippler,
+	Kind:        gamedata.AgentCrippler,
 	Image:       assets.ImageCripplerAgent,
-	Size:        sizeMedium,
+	Size:        gamedata.SizeMedium,
 	DiodeOffset: 5,
 	Tier:        1,
 	Cost:        15,
@@ -303,9 +295,9 @@ var cripplerAgentStats = &agentStats{
 }
 
 var flamerAgentStats = &agentStats{
-	Kind:        agentFlamer,
+	Kind:        gamedata.AgentFlamer,
 	Image:       assets.ImageFlamerAgent,
-	Size:        sizeLarge,
+	Size:        gamedata.SizeLarge,
 	DiodeOffset: 7,
 	Tier:        3,
 	Cost:        30,
@@ -329,9 +321,9 @@ var flamerAgentStats = &agentStats{
 }
 
 var prismAgentStats = &agentStats{
-	Kind:        agentPrism,
+	Kind:        gamedata.AgentPrism,
 	Image:       assets.ImagePrismAgent,
-	Size:        sizeMedium,
+	Size:        gamedata.SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
 	Cost:        24,
@@ -353,9 +345,9 @@ var prismAgentStats = &agentStats{
 }
 
 var fighterAgentStats = &agentStats{
-	Kind:        agentFighter,
+	Kind:        gamedata.AgentFighter,
 	Image:       assets.ImageFighterAgent,
-	Size:        sizeMedium,
+	Size:        gamedata.SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
 	Cost:        20,
@@ -378,9 +370,9 @@ var fighterAgentStats = &agentStats{
 }
 
 var antiAirAgentStats = &agentStats{
-	Kind:        agentAntiAir,
+	Kind:        gamedata.AgentAntiAir,
 	Image:       assets.ImageAntiAirAgent,
-	Size:        sizeMedium,
+	Size:        gamedata.SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
 	Cost:        22,
@@ -407,9 +399,9 @@ var antiAirAgentStats = &agentStats{
 }
 
 var mortarAgentStats = &agentStats{
-	Kind:        agentMortar,
+	Kind:        gamedata.AgentMortar,
 	Image:       assets.ImageMortarAgent,
-	Size:        sizeMedium,
+	Size:        gamedata.SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
 	Cost:        18,
@@ -435,9 +427,9 @@ var mortarAgentStats = &agentStats{
 }
 
 var destroyerAgentStats = &agentStats{
-	Kind:        agentDestroyer,
+	Kind:        gamedata.AgentDestroyer,
 	Image:       assets.ImageDestroyerAgent,
-	Size:        sizeLarge,
+	Size:        gamedata.SizeLarge,
 	DiodeOffset: 0,
 	Tier:        3,
 	Cost:        45,
@@ -457,9 +449,9 @@ var destroyerAgentStats = &agentStats{
 }
 
 var repellerAgentStats = &agentStats{
-	Kind:        agentRepeller,
+	Kind:        gamedata.AgentRepeller,
 	Image:       assets.ImageRepellerAgent,
-	Size:        sizeMedium,
+	Size:        gamedata.SizeMedium,
 	DiodeOffset: 8,
 	Tier:        2,
 	Cost:        15,

@@ -427,7 +427,7 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 	upkeepTotal := 0
 	upkeepDecrease := 0
 	c.agents.Each(func(a *colonyAgentNode) {
-		if a.stats.Kind == agentGenerator {
+		if a.stats.Kind == gamedata.AgentGenerator {
 			upkeepDecrease++
 		}
 		upkeepTotal += a.stats.Upkeep

@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type colonyActionPlanner struct {
@@ -165,7 +166,7 @@ func (p *colonyActionPlanner) pickCloner() *colonyAgentNode {
 }
 
 func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bool) *colonyAgentNode {
-	var agentCountTable [agentKindNum]uint8
+	var agentCountTable [gamedata.AgentKindNum]uint8
 	var agentKindThreshold uint8
 	p.colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
 		agentCountTable[a.stats.Kind]++
@@ -444,7 +445,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 				return false
 			}
 			switch a.stats.Kind {
-			case agentWorker, agentMilitia:
+			case gamedata.AgentWorker, gamedata.AgentMilitia:
 				// OK
 			default:
 				return false

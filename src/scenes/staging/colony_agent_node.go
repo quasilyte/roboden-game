@@ -24,37 +24,6 @@ var turretDamageTextureList = []resource.ImageID{
 	assets.ImageTurretDamageMask4,
 }
 
-type colonyAgentKind uint8
-
-const (
-	agentWorker colonyAgentKind = iota
-	agentMilitia
-
-	// Tier2
-	agentFreighter
-	agentRedminer
-	agentCrippler
-	agentFighter
-	agentPrism
-	agentServo
-	agentRepeller
-	agentRepair
-	agentRecharger
-	agentGenerator
-	agentMortar
-	agentAntiAir
-
-	// Tier3
-	agentRefresher
-	agentFlamer
-	agentDestroyer
-
-	agentKindNum
-
-	// Buildings (not real agents/drones)
-	agentGunpoint
-)
-
 type colonyAgentMode uint8
 
 const (
@@ -281,9 +250,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	if !a.IsTurret() {
 		shadowImage := assets.ImageSmallShadow
 		switch a.stats.Size {
-		case sizeMedium:
+		case gamedata.SizeMedium:
 			shadowImage = assets.ImageMediumShadow
-		case sizeLarge:
+		case gamedata.SizeLarge:
 			shadowImage = assets.ImageBigShadow
 		}
 		a.shadow = scene.NewSprite(shadowImage)
@@ -299,7 +268,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
 
 func (a *colonyAgentNode) IsTurret() bool {
-	return a.stats.Kind == agentGunpoint
+	return a.stats.Kind == gamedata.AgentGunpoint
 }
 
 func (a *colonyAgentNode) applyRankBonuses() {
@@ -420,7 +389,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			return false
 		}
 		source := target.(*essenceSourceNode)
-		if source.stats == redOilSource && a.stats.Kind != agentRedminer {
+		if source.stats == redOilSource && a.stats.Kind != gamedata.AgentRedminer {
 			return false
 		}
 		energyCost := source.pos.DistanceTo(a.pos) / 2
@@ -632,7 +601,7 @@ func (a *colonyAgentNode) explode() {
 		var scraps *essenceSourceStats
 		if roll > 0.6 {
 			scraps = smallScrapSource
-			if a.stats.Size != sizeSmall {
+			if a.stats.Size != gamedata.SizeSmall {
 				scraps = scrapSource
 			}
 		}
@@ -734,7 +703,7 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 
 func (a *colonyAgentNode) processSupport(delta float64) {
 	switch a.stats.Kind {
-	case agentRepair, agentRecharger, agentRefresher:
+	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher:
 		// OK
 	default:
 		return
@@ -743,7 +712,7 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 	a.supportDelay = gmath.ClampMin(a.supportDelay-(delta*a.reloadRate), 0)
 
 	if a.supportDelay != 0 {
-		if a.stats.Kind == agentRefresher {
+		if a.stats.Kind == gamedata.AgentRefresher {
 			a.attackDelay = gmath.ClampMin(a.attackDelay-(delta*a.reloadRate), 0)
 			if a.attackDelay != 0 {
 				return
@@ -757,9 +726,9 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 	a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
 
 	switch a.stats.Kind {
-	case agentRecharger, agentRefresher:
+	case gamedata.AgentRecharger, gamedata.AgentRefresher:
 		a.doRecharge()
-	case agentRepair:
+	case gamedata.AgentRepair:
 		a.doRepair()
 	}
 }
@@ -825,7 +794,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	}
 
 	switch a.stats.Kind {
-	case agentDestroyer:
+	case gamedata.AgentDestroyer:
 		target := targets[0]
 		offset := gmath.Vec{X: -7, Y: 2}
 		offsetStep := gmath.Vec{X: 14}
@@ -842,14 +811,14 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		}
 		target.OnDamage(a.stats.Weapon.Damage, a.pos)
 
-	case agentPrism:
+	case gamedata.AgentPrism:
 		target := targets[0]
 		damage := a.stats.Weapon.Damage
 		width := 1.0
 		numReflections := 0
 		pos := &a.pos
 		a.colonyCore.agents.Find(searchFighters|searchRandomized, func(ally *colonyAgentNode) bool {
-			if ally.stats.Kind != agentPrism || ally == a {
+			if ally.stats.Kind != gamedata.AgentPrism || ally == a {
 				return false
 			}
 			if ally.pos.DistanceSquaredTo(*pos) > (196 * 196) {

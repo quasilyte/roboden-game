@@ -3,6 +3,7 @@ package staging
 import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type agentSearchFlags int
@@ -81,12 +82,12 @@ func (c *colonyAgentContainer) Update() {
 	c.availableUniversal = c.availableUniversal[:0]
 
 	for _, a := range c.workers {
-		if a.stats.Kind == agentServo {
+		if a.stats.Kind == gamedata.AgentServo {
 			c.servoNum++
 		}
 		if a.mode == agentModeStandby {
 			c.availableWorkers = append(c.availableWorkers, a)
-			if a.stats.Kind == agentRedminer {
+			if a.stats.Kind == gamedata.AgentRedminer {
 				c.hasRedMiner = true
 			}
 		}

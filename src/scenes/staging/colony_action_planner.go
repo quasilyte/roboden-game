@@ -309,9 +309,9 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 		}
 	}
 
-	stats := workerAgentStats
+	stats := gamedata.WorkerAgentStats
 	if combatUnit {
-		stats = militiaAgentStats
+		stats = gamedata.MilitiaAgentStats
 	}
 	if p.colony.resources >= stats.Cost {
 		return colonyAction{

@@ -282,7 +282,7 @@ func (c *colonyCoreNode) CloneAgentNode(a *colonyAgentNode) *colonyAgentNode {
 	return cloned
 }
 
-func (c *colonyCoreNode) NewColonyAgentNode(stats *agentStats, pos gmath.Vec) *colonyAgentNode {
+func (c *colonyCoreNode) NewColonyAgentNode(stats *gamedata.AgentStats, pos gmath.Vec) *colonyAgentNode {
 	a := newColonyAgentNode(c, stats, pos)
 	c.AcceptAgent(a)
 	c.world.result.DronesProduced++
@@ -686,7 +686,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionProduceAgent:
-		a := c.NewColonyAgentNode(action.Value.(*agentStats), c.GetEntrancePos())
+		a := c.NewColonyAgentNode(action.Value.(*gamedata.AgentStats), c.GetEntrancePos())
 		a.faction = c.pickAgentFaction()
 		if c.eliteResources >= 1 {
 			c.eliteResources--

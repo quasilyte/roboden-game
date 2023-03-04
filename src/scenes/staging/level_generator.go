@@ -137,7 +137,7 @@ func (g *levelGenerator) createBase(pos gmath.Vec) {
 	g.scene.AddObject(core)
 
 	for i := 0; i < 5; i++ {
-		a := core.NewColonyAgentNode(workerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
+		a := core.NewColonyAgentNode(gamedata.WorkerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}

@@ -151,7 +151,7 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 
 	switch c.stats.Kind {
 	case constructGunpoint:
-		turret := newColonyAgentNode(builder, gunpointAgentStats, c.pos)
+		turret := newColonyAgentNode(builder, gamedata.GunpointAgentStats, c.pos)
 		builder.AcceptTurret(turret)
 		c.scene.AddObject(turret)
 		turret.mode = agentModeGuardForever

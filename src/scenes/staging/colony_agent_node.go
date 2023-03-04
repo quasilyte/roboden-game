@@ -76,7 +76,7 @@ type colonyAgentNode struct {
 
 	scene *ge.Scene
 
-	stats *agentStats
+	stats *gamedata.AgentStats
 
 	cloningBeam *cloningBeamNode
 
@@ -117,7 +117,7 @@ type colonyAgentNode struct {
 	EventDestroyed gsignal.Event[*colonyAgentNode]
 }
 
-func newColonyAgentNode(core *colonyCoreNode, stats *agentStats, pos gmath.Vec) *colonyAgentNode {
+func newColonyAgentNode(core *colonyCoreNode, stats *gamedata.AgentStats, pos gmath.Vec) *colonyAgentNode {
 	a := &colonyAgentNode{
 		colonyCore: core,
 		stats:      stats,
@@ -717,7 +717,7 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 			if a.attackDelay != 0 {
 				return
 			}
-			a.attackDelay = repairAgentStats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
+			a.attackDelay = gamedata.RepairAgentStats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
 			a.doRepair()
 		}
 		return
@@ -738,7 +738,7 @@ func (a *colonyAgentNode) doRecharge() {
 	target := a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized, func(x *colonyAgentNode) bool {
 		return x != a &&
 			(x.energy+rechargerEnergyRecorery) < x.maxEnergy &&
-			x.pos.DistanceTo(a.pos) < rechargeAgentStats.SupportRange
+			x.pos.DistanceTo(a.pos) < gamedata.RechargeAgentStats.SupportRange
 	})
 	if target != nil {
 		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, rechargerBeamColor)
@@ -753,7 +753,7 @@ func (a *colonyAgentNode) doRepair() {
 	target := a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized, func(x *colonyAgentNode) bool {
 		return x != a &&
 			x.health < x.maxHealth &&
-			x.pos.DistanceTo(a.pos) < repairAgentStats.SupportRange
+			x.pos.DistanceTo(a.pos) < gamedata.RepairAgentStats.SupportRange
 	})
 	if target != nil {
 		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, repairBeamColor)

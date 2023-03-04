@@ -2,9 +2,10 @@ package staging
 
 import (
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
-func mergeAgents(x, y *colonyAgentNode) *agentStats {
+func mergeAgents(x, y *colonyAgentNode) *gamedata.AgentStats {
 	list := tier2agentMergeRecipeList
 	if x.stats.Tier == 2 {
 		list = tier3agentMergeRecipeList

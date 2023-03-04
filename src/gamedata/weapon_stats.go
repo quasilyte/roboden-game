@@ -45,3 +45,8 @@ const (
 	TargetFlying TargetKind = 1 << iota
 	TargetGround
 )
+
+func initWeaponStats(stats *WeaponStats) *WeaponStats {
+	stats.ImpactAreaSqr = stats.ImpactArea * stats.ImpactArea
+	return stats
+}

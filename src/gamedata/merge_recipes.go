@@ -41,120 +41,94 @@ package gamedata
 // green militia + blue militia
 var Tier2agentMergeRecipeList = []AgentMergeRecipe{
 	{
-		Agent1kind:    AgentWorker,
-		Agent1faction: GreenFactionTag,
-		Agent2kind:    AgentMilitia,
-		Agent2faction: RedFactionTag,
-		Result:        MortarAgentStats,
+		Drone1: RecipeSubject{GreenFactionTag, AgentWorker},
+		Drone2: RecipeSubject{RedFactionTag, AgentMilitia},
+		Result: MortarAgentStats,
 	},
 	{
-		Agent1kind:    AgentMilitia,
-		Agent1faction: RedFactionTag,
-		Agent2kind:    AgentMilitia,
-		Agent2faction: BlueFactionTag,
-		Result:        AntiAirAgentStats,
+		Drone1: RecipeSubject{RedFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Result: AntiAirAgentStats,
 	},
 	{
-		Agent1kind:    AgentMilitia,
-		Agent1faction: YellowFactionTag,
-		Agent2kind:    AgentMilitia,
-		Agent2faction: BlueFactionTag,
-		Result:        PrismAgentStats,
+		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Result: PrismAgentStats,
 	},
 	{
-		Agent1kind:    AgentWorker,
-		Agent1faction: BlueFactionTag,
-		Agent2kind:    AgentWorker,
-		Agent2faction: GreenFactionTag,
-		Result:        RechargeAgentStats,
+		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
+		Drone2: RecipeSubject{GreenFactionTag, AgentWorker},
+		Result: RechargeAgentStats,
 	},
 	{
-		Agent1kind:    AgentWorker,
-		Agent1faction: YellowFactionTag,
-		Agent2kind:    AgentWorker,
-		Agent2faction: GreenFactionTag,
-		Result:        FreighterAgentStats,
+		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
+		Drone2: RecipeSubject{GreenFactionTag, AgentWorker},
+		Result: FreighterAgentStats,
 	},
 	{
-		Agent1kind:    AgentWorker,
-		Agent1faction: RedFactionTag,
-		Agent2kind:    AgentWorker,
-		Agent2faction: YellowFactionTag,
-		Result:        RedminerAgentStats,
+		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
+		Drone2: RecipeSubject{YellowFactionTag, AgentWorker},
+		Result: RedminerAgentStats,
 	},
 	{
-		Agent1kind:    AgentMilitia,
-		Agent1faction: RedFactionTag,
-		Agent2kind:    AgentMilitia,
-		Agent2faction: GreenFactionTag,
-		Result:        FighterAgentStats,
+		Drone1: RecipeSubject{RedFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Result: FighterAgentStats,
 	},
 	{
-		Agent1kind:    AgentWorker,
-		Agent1faction: YellowFactionTag,
-		Agent2kind:    AgentWorker,
-		Agent2faction: BlueFactionTag,
-		Result:        ServoAgentStats,
+		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
+		Drone2: RecipeSubject{BlueFactionTag, AgentWorker},
+		Result: ServoAgentStats,
 	},
 	{
-		Agent1kind:    AgentMilitia,
-		Agent1faction: YellowFactionTag,
-		Agent2kind:    AgentMilitia,
-		Agent2faction: GreenFactionTag,
-		Result:        CripplerAgentStats,
+		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Result: CripplerAgentStats,
 	},
 	{
-		Agent1kind:    AgentWorker,
-		Agent1faction: RedFactionTag,
-		Agent2kind:    AgentWorker,
-		Agent2faction: BlueFactionTag,
-		Result:        RepellerAgentStats,
+		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
+		Drone2: RecipeSubject{BlueFactionTag, AgentWorker},
+		Result: RepellerAgentStats,
 	},
 	{
-		Agent1kind:    AgentWorker,
-		Agent1faction: GreenFactionTag,
-		Agent2kind:    AgentMilitia,
-		Agent2faction: YellowFactionTag,
-		Result:        GeneratorAgentStats,
+		Drone1: RecipeSubject{GreenFactionTag, AgentWorker},
+		Drone2: RecipeSubject{YellowFactionTag, AgentMilitia},
+		Result: GeneratorAgentStats,
 	},
 	{
-		Agent1kind:    AgentWorker,
-		Agent1faction: BlueFactionTag,
-		Agent2kind:    AgentMilitia,
-		Agent2faction: GreenFactionTag,
-		Result:        RepairAgentStats,
+		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
+		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Result: RepairAgentStats,
 	},
 }
 
 var Tier3agentMergeRecipeList = []AgentMergeRecipe{
 	{
-		Agent1kind: AgentRepeller,
-		Agent2kind: AgentFreighter,
-		EvoCost:    5,
-		Result:     FlamerAgentStats,
+		Drone1:  RecipeSubject{Kind: AgentRepeller},
+		Drone2:  RecipeSubject{Kind: AgentFreighter},
+		EvoCost: 5,
+		Result:  FlamerAgentStats,
 	},
 	{
-		Agent1kind: AgentFighter,
-		Agent2kind: AgentFighter,
-		EvoCost:    11,
-		Result:     DestroyerAgentStats,
+		Drone1:  RecipeSubject{Kind: AgentFighter},
+		Drone2:  RecipeSubject{Kind: AgentFighter},
+		EvoCost: 11,
+		Result:  DestroyerAgentStats,
 	},
 
 	{
-		Agent1kind: AgentRecharger,
-		Agent2kind: AgentRepair,
-		EvoCost:    7,
-		Result:     RefresherAgentStats,
+		Drone1:  RecipeSubject{Kind: AgentRecharger},
+		Drone2:  RecipeSubject{Kind: AgentRepair},
+		EvoCost: 7,
+		Result:  RefresherAgentStats,
 	},
 }
 
 type AgentMergeRecipe struct {
-	Agent1kind    ColonyAgentKind
-	Agent1faction FactionTag
-	Agent2kind    ColonyAgentKind
-	Agent2faction FactionTag
-	EvoCost       float64
-	Result        *AgentStats
+	Drone1  RecipeSubject
+	Drone2  RecipeSubject
+	EvoCost float64
+	Result  *AgentStats
 }
 
 func (r *AgentMergeRecipe) Match(x, y RecipeSubject) bool {
@@ -168,11 +142,11 @@ func (r *AgentMergeRecipe) Match(x, y RecipeSubject) bool {
 }
 
 func (r *AgentMergeRecipe) Match1(s RecipeSubject) bool {
-	return r.match(r.Agent1kind, r.Agent1faction, s)
+	return r.match(r.Drone1.Kind, r.Drone1.Faction, s)
 }
 
 func (r *AgentMergeRecipe) Match2(s RecipeSubject) bool {
-	return r.match(r.Agent2kind, r.Agent2faction, s)
+	return r.match(r.Drone2.Kind, r.Drone2.Faction, s)
 }
 
 func (r *AgentMergeRecipe) match(kind ColonyAgentKind, faction FactionTag, s RecipeSubject) bool {
@@ -186,8 +160,8 @@ func (r *AgentMergeRecipe) match(kind ColonyAgentKind, faction FactionTag, s Rec
 }
 
 type RecipeSubject struct {
-	Kind    ColonyAgentKind
 	Faction FactionTag
+	Kind    ColonyAgentKind
 }
 
 var RecipesIndex = map[RecipeSubject][]AgentMergeRecipe{}

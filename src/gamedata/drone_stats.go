@@ -14,6 +14,7 @@ const (
 	SizeLarge
 )
 
+//go:generate stringer -type=ColonyAgentKind -trimprefix=Agent
 type ColonyAgentKind uint8
 
 const (
@@ -46,11 +47,12 @@ const (
 )
 
 type AgentStats struct {
-	Kind   ColonyAgentKind
-	Image  resource.ImageID
-	Tier   int
-	Cost   float64
-	Upkeep int
+	Kind      ColonyAgentKind
+	Image     resource.ImageID
+	Tier      int
+	PointCost int
+	Cost      float64
+	Upkeep    int
 
 	Size UnitSize
 
@@ -68,6 +70,10 @@ type AgentStats struct {
 	SupportRange  float64
 
 	Weapon *WeaponStats
+}
+
+var TurretStatsList = []*AgentStats{
+	GunpointAgentStats,
 }
 
 var GunpointAgentStats = &AgentStats{
@@ -108,12 +114,38 @@ var WorkerAgentStats = &AgentStats{
 	MaxHealth:   12,
 }
 
+var MilitiaAgentStats = &AgentStats{
+	Kind:        AgentMilitia,
+	Image:       assets.ImageMilitiaAgent,
+	Size:        SizeSmall,
+	DiodeOffset: 5,
+	Tier:        1,
+	Cost:        10,
+	Upkeep:      4,
+	CanPatrol:   true,
+	Speed:       75,
+	MaxHealth:   12,
+	Weapon: initWeaponStats(&WeaponStats{
+		AttackRange:     130,
+		Reload:          2.5,
+		AttackSound:     assets.AudioMilitiaShot,
+		ProjectileImage: assets.ImageMilitiaProjectile,
+		ImpactArea:      10,
+		ProjectileSpeed: 180,
+		Damage:          DamageValue{Health: 2, Morale: 2},
+		MaxTargets:      1,
+		BurstSize:       1,
+		TargetFlags:     TargetFlying | TargetGround,
+	}),
+}
+
 var RedminerAgentStats = &AgentStats{
 	Kind:        AgentRedminer,
 	Image:       assets.ImageRedminerAgent,
 	Size:        SizeMedium,
 	DiodeOffset: 6,
 	Tier:        2,
+	PointCost:   2,
 	Cost:        15,
 	Upkeep:      3,
 	CanGather:   true,
@@ -128,6 +160,7 @@ var GeneratorAgentStats = &AgentStats{
 	Size:        SizeMedium,
 	DiodeOffset: 10,
 	Tier:        2,
+	PointCost:   1,
 	Cost:        15,
 	Upkeep:      2,
 	CanGather:   true,
@@ -142,6 +175,7 @@ var RepairAgentStats = &AgentStats{
 	Size:          SizeMedium,
 	DiodeOffset:   5,
 	Tier:          2,
+	PointCost:     4,
 	Cost:          20,
 	Upkeep:        5,
 	CanGather:     true,
@@ -158,6 +192,7 @@ var RechargeAgentStats = &AgentStats{
 	Size:          SizeMedium,
 	DiodeOffset:   9,
 	Tier:          2,
+	PointCost:     2,
 	Cost:          15,
 	Upkeep:        4,
 	CanGather:     true,
@@ -190,6 +225,7 @@ var ServoAgentStats = &AgentStats{
 	Size:          SizeMedium,
 	DiodeOffset:   -4,
 	Tier:          2,
+	PointCost:     3,
 	Cost:          30,
 	Upkeep:        7,
 	CanGather:     true,
@@ -206,6 +242,7 @@ var FreighterAgentStats = &AgentStats{
 	Size:        SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
+	PointCost:   2,
 	Cost:        15,
 	Upkeep:      3,
 	CanGather:   true,
@@ -214,37 +251,13 @@ var FreighterAgentStats = &AgentStats{
 	MaxHealth:   25,
 }
 
-var MilitiaAgentStats = &AgentStats{
-	Kind:        AgentMilitia,
-	Image:       assets.ImageMilitiaAgent,
-	Size:        SizeSmall,
-	DiodeOffset: 5,
-	Tier:        1,
-	Cost:        10,
-	Upkeep:      4,
-	CanPatrol:   true,
-	Speed:       75,
-	MaxHealth:   12,
-	Weapon: initWeaponStats(&WeaponStats{
-		AttackRange:     130,
-		Reload:          2.5,
-		AttackSound:     assets.AudioMilitiaShot,
-		ProjectileImage: assets.ImageMilitiaProjectile,
-		ImpactArea:      10,
-		ProjectileSpeed: 180,
-		Damage:          DamageValue{Health: 2, Morale: 2},
-		MaxTargets:      1,
-		BurstSize:       1,
-		TargetFlags:     TargetFlying | TargetGround,
-	}),
-}
-
 var CripplerAgentStats = &AgentStats{
 	Kind:        AgentCrippler,
 	Image:       assets.ImageCripplerAgent,
 	Size:        SizeMedium,
 	DiodeOffset: 5,
 	Tier:        1,
+	PointCost:   2,
 	Cost:        15,
 	Upkeep:      4,
 	CanPatrol:   true,
@@ -296,6 +309,7 @@ var PrismAgentStats = &AgentStats{
 	Size:        SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
+	PointCost:   4,
 	Cost:        24,
 	Upkeep:      12,
 	CanPatrol:   true,
@@ -320,6 +334,7 @@ var FighterAgentStats = &AgentStats{
 	Size:        SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
+	PointCost:   4,
 	Cost:        20,
 	Upkeep:      7,
 	CanPatrol:   true,
@@ -345,6 +360,7 @@ var AntiAirAgentStats = &AgentStats{
 	Size:        SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
+	PointCost:   3,
 	Cost:        22,
 	Upkeep:      8,
 	CanPatrol:   true,
@@ -374,6 +390,7 @@ var MortarAgentStats = &AgentStats{
 	Size:        SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
+	PointCost:   1,
 	Cost:        18,
 	Upkeep:      6,
 	CanPatrol:   true,
@@ -424,6 +441,7 @@ var RepellerAgentStats = &AgentStats{
 	Size:        SizeMedium,
 	DiodeOffset: 8,
 	Tier:        2,
+	PointCost:   3,
 	Cost:        15,
 	Upkeep:      4,
 	CanGather:   true,

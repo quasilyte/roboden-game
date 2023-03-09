@@ -639,7 +639,7 @@ func (g *levelGenerator) placeCreepBases() {
 		}
 		g.placeCreepsCluster(baseRegion, 1, turretCreepStats)
 		base := g.world.NewCreepNode(basePos, baseCreepStats)
-		if i == 0 {
+		if i == 0 || i == 3 {
 			base.specialDelay = (9 * 60.0) * g.scene.Rand().FloatRange(0.9, 1.1)
 		} else {
 			base.specialModifier = 1.0 // Initial level base

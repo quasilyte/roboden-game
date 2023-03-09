@@ -270,7 +270,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 
 	{
 		var slider gmath.Slider
-		slider.SetBounds(0, 3)
+		slider.SetBounds(0, 4)
 		slider.TrySetValue(options.CreepsDifficulty)
 		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.creeps_difficulty")+": "+strconv.Itoa(slider.Value()))
 		button.ClickedEvent.AddHandler(func(args interface{}) {

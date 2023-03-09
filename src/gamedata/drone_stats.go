@@ -565,6 +565,7 @@ var MarauderAgentStats = &AgentStats{
 	Speed:         100,
 	SupportReload: 14,
 	MaxHealth:     28,
+	MaxPayload:    3,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:     255,
 		Reload:          2.5,

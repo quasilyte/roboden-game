@@ -80,6 +80,28 @@ var wandererCreepStats = &creepStats{
 	}),
 }
 
+var servantCreepStats = &creepStats{
+	kind:        creepServant,
+	image:       assets.ImageServantCreep,
+	shadowImage: assets.ImageMediumShadow,
+	tier:        2,
+	speed:       70,
+	maxHealth:   30,
+	animSpeed:   0.15,
+	weapon: initWeaponStats(&gamedata.WeaponStats{
+		MaxTargets:      1,
+		BurstSize:       1,
+		AttackSound:     assets.AudioServantShot,
+		AttackRange:     240,
+		ImpactArea:      10,
+		ProjectileSpeed: 340,
+		Damage:          gamedata.DamageValue{Health: 3, Energy: 20},
+		ProjectileImage: assets.ImageServantProjectile,
+		Reload:          3.2,
+		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
+	}),
+}
+
 var tankCreepStats = &creepStats{
 	kind:      creepTank,
 	image:     assets.ImageTankCreep,

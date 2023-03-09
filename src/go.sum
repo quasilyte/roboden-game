@@ -5,6 +5,8 @@ github.com/ebitengine/purego v0.1.1 h1:HI8nW+LniW9Yb34k34jBs8nz+PNzsw68o7JF8jWFH
 github.com/ebitengine/purego v0.1.1/go.mod h1:Eh8I3yvknDYZeCuXH9kRNaPuHEwvXDCk378o9xszmHg=
 github.com/ebitenui/ebitenui v0.2.7 h1:OKjIp8BzzHjw8ZVqOO7lT1ab1nNtsQH0hXzzNFt/8XI=
 github.com/ebitenui/ebitenui v0.2.7/go.mod h1:6N/X7+q16oFS1sGZczpo7v9Cu9rZEsmMf9977zICP5Y=
+github.com/ebitenui/ebitenui v0.3.4 h1:muEroSZsQ+6CanHuimaCL50gG4t2UW1sDTzcup9OIr0=
+github.com/ebitenui/ebitenui v0.3.4/go.mod h1:6N/X7+q16oFS1sGZczpo7v9Cu9rZEsmMf9977zICP5Y=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20220806181222-55e207c401ad/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b h1:GgabKamyOYguHqHjSkDACcgoPIz3w0Dis/zJ1wyHHHU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=

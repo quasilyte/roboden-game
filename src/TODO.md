@@ -6,7 +6,10 @@ todo engine:
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 - why animation affects Y axis?
 
+- check if supports use rand iterate to choose an ally to heal
+
 todo:
+- maybe make it possible for support drones to heal/recharge nearby colony drones
 - graphics options: allow disabling some optional shaders (like scrap dissolving)
 - boss defeated on ground glitches graphically
 - make menu/toggle buttons transparent a bit (like other windows)
@@ -36,8 +39,6 @@ iskander:
 - implement pause?
 - make tab smooth
 - esc for menu, not exit right away
-oleg:
-- flamer projectile
 
 next release:
 - artifacts idea

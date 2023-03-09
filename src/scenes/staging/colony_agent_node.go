@@ -1,6 +1,7 @@
 package staging
 
 import (
+	"fmt"
 	"math"
 
 	resource "github.com/quasilyte/ebitengine-resource"
@@ -31,6 +32,8 @@ const (
 	agentModeAlignStandby
 	agentModeCharging
 	agentModeMineEssence
+	agentModeCourierFlight
+	agentModeScavenge
 	agentModeRepairBase
 	agentModeRepairTurret
 	agentModeReturn
@@ -102,11 +105,14 @@ type colonyAgentNode struct {
 	attackDelay  float64
 	supportDelay float64
 
-	maxHealth  float64
-	health     float64
-	maxEnergy  float64
-	energy     float64
-	energyBill float64
+	maxHealth       float64
+	health          float64
+	maxEnergy       float64
+	energy          float64
+	energyBill      float64
+	energyRegenRate float64
+	slow            float64
+	lifetime        float64
 
 	resting bool
 	speed   float64
@@ -119,11 +125,12 @@ type colonyAgentNode struct {
 
 func newColonyAgentNode(core *colonyCoreNode, stats *gamedata.AgentStats, pos gmath.Vec) *colonyAgentNode {
 	a := &colonyAgentNode{
-		colonyCore: core,
-		stats:      stats,
-		pos:        pos,
-		height:     agentFlightHeight,
-		reloadRate: 1,
+		colonyCore:      core,
+		stats:           stats,
+		pos:             pos,
+		height:          agentFlightHeight,
+		reloadRate:      1,
+		energyRegenRate: 1,
 	}
 	return a
 }
@@ -150,6 +157,21 @@ func (a *colonyAgentNode) Clone() *colonyAgentNode {
 
 func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.scene = scene
+	a.energyRegenRate = 1 + a.stats.EnergyRegenRateBonus
+
+	if a.stats.Tier == 1 {
+		if a.stats.CanPatrol {
+			a.lifetime = scene.Rand().FloatRange(3*60, 6*60)
+		} else {
+			a.lifetime = scene.Rand().FloatRange(2*60, 4*60)
+		}
+		// If it's a neutral drone, don't hurry to recycle it.
+		// It's probably a new base and it may need drones to live for longer.
+		// If evolution priority is high, neutral drones will be recycled anyway.
+		if a.faction == gamedata.NeutralFactionTag {
+			a.lifetime *= 2
+		}
+	}
 
 	if a.cloneGen == 0 && !a.IsTurret() {
 		// There are 64 random bits in total.
@@ -210,6 +232,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 			a.speed *= 1.2
 		case gamedata.BlueFactionTag:
 			a.maxEnergy *= 1.8
+			a.energyRegenRate += 0.2
+		case gamedata.YellowFactionTag:
+			a.energyRegenRate += 0.5
 		}
 	}
 
@@ -281,6 +306,7 @@ func (a *colonyAgentNode) applyRankBonuses() {
 		a.maxHealth *= 1.15
 		a.speed *= 1.15
 		a.maxEnergy *= 1.4
+		a.energyRegenRate += 0.1
 		a.reloadRate = 1.3 // +30% attack/special reload speed
 
 	case 2:
@@ -288,6 +314,7 @@ func (a *colonyAgentNode) applyRankBonuses() {
 		a.maxHealth *= 1.5
 		a.speed *= 1.2
 		a.maxEnergy *= 2.0
+		a.energyRegenRate += 0.3
 		a.reloadRate = 1.6 // +60% attack/special reload speed
 	}
 }
@@ -298,6 +325,12 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	}
 
 	switch mode {
+	case agentModeReturn:
+		entranceNum := a.scene.Rand().IntRange(0, 2)
+		a.waypoint = a.colonyCore.GetStoragePos().Add(gmath.Vec{Y: float64(entranceNum) * 8})
+		a.mode = mode
+		return true
+
 	case agentModePatrol:
 		a.mode = mode
 		a.dist = a.colonyCore.PatrolRadius()
@@ -323,7 +356,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModeMerging:
 		a.mode = mode
 		a.target = target
-		a.dist = a.scene.Rand().FloatRange(5, 6) // merging time
+		a.dist = a.scene.Rand().FloatRange(8, 10) // merging time
 		return true
 
 	case agentModeAlignStandby:
@@ -384,15 +417,47 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.waypoint = gmath.Vec{}
 		return true
 
+	case agentModeCourierFlight:
+		colony := target.(*colonyCoreNode)
+		energyCost := gmath.ClampMax(colony.pos.DistanceTo(a.pos)*0.33, 100)
+		if a.stats.Kind == gamedata.AgentTrucker {
+			// Truckers consume 20% less energy for flights.
+			energyCost *= 0.8
+		}
+		a.energyBill += energyCost
+		a.target = target
+		a.mode = mode
+		a.waypoint = a.pos
+		return true
+
+	case agentModeScavenge:
+		source := target.(*essenceSourceNode)
+		energyCost := source.pos.DistanceTo(a.pos) * 0.33
+		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+			return false
+		}
+		a.energyBill += energyCost
+		a.mode = agentModeMineEssence
+		a.waypoint = roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8)))
+		a.target = target
+		return true
+
 	case agentModeMineEssence:
 		if !a.stats.CanGather {
 			return false
+		}
+		switch a.stats.Kind {
+		case gamedata.AgentCourier, gamedata.AgentTrucker:
+			// Couriers try to keep their energy for travelling between the bases.
+			if a.energy < 120 || a.energyBill > 10 {
+				return false
+			}
 		}
 		source := target.(*essenceSourceNode)
 		if source.stats == redOilSource && a.stats.Kind != gamedata.AgentRedminer {
 			return false
 		}
-		energyCost := source.pos.DistanceTo(a.pos) / 2
+		energyCost := source.pos.DistanceTo(a.pos) * 0.5
 		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
@@ -480,6 +545,10 @@ func (a *colonyAgentNode) Update(delta float64) {
 	a.anim.Tick(delta)
 	a.flashComponent.Update(delta)
 
+	if a.stats.Tier == 1 {
+		a.lifetime -= delta
+	}
+
 	if a.shadow != nil {
 		a.shadow.Pos.Offset.Y = math.Round(a.height + 4)
 		newShadowAlpha := float32(1.0 - ((a.height / agentFlightHeight) * 0.5))
@@ -506,6 +575,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		}
 	}
 
+	a.slow = gmath.ClampMin(a.slow-delta, 0)
+
 	a.processAttack(delta)
 	a.processSupport(delta)
 
@@ -528,6 +599,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateMove(delta)
 	case agentModePanic:
 		a.updatePanic(delta)
+	case agentModeCourierFlight:
+		a.updateCourierFlight(delta)
 	case agentModeFollow:
 		a.updateFollow(delta)
 	case agentModeWaitCloning:
@@ -684,6 +757,7 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec
 	}
 
 	a.energy = gmath.ClampMin(a.energy-damage.Energy, 0)
+	a.slow = gmath.ClampMax(a.slow+damage.Slow, 5)
 
 	if !a.IsTurret() {
 		if a.colonyCore.GetSecurityPriority() < 0.65 && a.scene.Rand().Chance(1.0-a.colonyCore.GetSecurityPriority()) {
@@ -703,7 +777,7 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 
 func (a *colonyAgentNode) processSupport(delta float64) {
 	switch a.stats.Kind {
-	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher:
+	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher, gamedata.AgentScavenger:
 		// OK
 	default:
 		return
@@ -730,6 +804,47 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 		a.doRecharge()
 	case gamedata.AgentRepair:
 		a.doRepair()
+	case gamedata.AgentScavenger:
+		a.doScavenge()
+	}
+}
+
+func (a *colonyAgentNode) doScavenge() {
+	if a.colonyCore.mode != colonyModeNormal {
+		return
+	}
+	if a.mode != agentModeStandby && a.mode != agentModePatrol {
+		return
+	}
+	if a.energy < 20 || a.energyBill > 100 {
+		return
+	}
+	if a.colonyCore.resources > maxVisualResources {
+		return
+	}
+
+	const maxDistSqr = 256.0 * 256.0
+	var bestSource *essenceSourceNode
+	bestScore := 0.0
+	for _, source := range a.colonyCore.world.essenceSources {
+		switch source.stats {
+		case smallScrapCreepSource, scrapCreepSource, bigScrapCreepSource, smallScrapSource, scrapSource:
+			// OK
+		default:
+			continue // Not a scrap resource
+		}
+		distSqr := a.pos.DistanceSquaredTo(source.pos)
+		if distSqr > maxDistSqr {
+			continue
+		}
+		score := distSqr * a.scene.Rand().FloatRange(0.6, 1.6)
+		if score != 0 && score > bestScore {
+			bestScore = score
+			bestSource = source
+		}
+	}
+	if bestSource != nil {
+		a.AssignMode(agentModeScavenge, gmath.Vec{}, bestSource)
 	}
 }
 
@@ -765,7 +880,7 @@ func (a *colonyAgentNode) doRepair() {
 }
 
 func (a *colonyAgentNode) processAttack(delta float64) {
-	if !a.stats.CanPatrol {
+	if a.stats.Weapon == nil {
 		return
 	}
 
@@ -773,18 +888,32 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	if a.attackDelay != 0 {
 		return
 	}
+	creeps := a.colonyCore.world.creeps
+	if len(creeps) == 0 {
+		return
+	}
 
 	a.attackDelay = a.stats.Weapon.Reload * a.scene.Rand().FloatRange(0.8, 1.2)
 
 	targets := a.colonyCore.world.tmpTargetSlice[:0]
-	for _, c := range a.colonyCore.world.creeps {
+	inc := a.scene.Rand().Bool()
+	var slider gmath.Slider
+	slider.SetBounds(0, len(creeps)-1)
+	slider.TrySetValue(a.scene.Rand().IntRange(0, len(creeps)-1))
+	for i := 0; i < len(creeps); i++ {
 		if len(targets) >= a.stats.Weapon.MaxTargets {
 			break
+		}
+		c := creeps[slider.Value()]
+		if inc {
+			slider.Inc()
+		} else {
+			slider.Dec()
 		}
 		if !a.CanAttack(c.TargetKind()) {
 			continue
 		}
-		if c.pos.DistanceTo(a.pos) >= a.stats.Weapon.AttackRange {
+		if c.pos.DistanceSquaredTo(a.pos) > a.stats.Weapon.AttackRangeSqr {
 			continue
 		}
 		targets = append(targets, c)
@@ -867,10 +996,14 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 	case agentModePickup, agentModeResourceTakeoff, agentModeAlignStandby:
 		return agentPickupSpeed
 	}
+	multiplier := 1.0
 	if a.resting {
-		return a.speed * 0.5
+		multiplier = 0.5
 	}
-	return a.speed
+	if a.slow > 0 {
+		multiplier *= 0.6
+	}
+	return a.speed * multiplier
 }
 
 func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {
@@ -1049,15 +1182,18 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 	}
 	a.dist -= delta
 	if a.pos.DistanceTo(target.pos) > 10 {
-		a.pos = a.pos.MoveTowards(target.pos, delta*10)
+		a.pos = a.pos.MoveTowards(target.pos, delta*12)
 	} else {
-		// Merging is x2 faster when units are next to each other.
-		a.dist -= delta
+		// Merging is x3 faster when units are next to each other.
+		a.dist -= delta * 2
 	}
 	if a.dist <= 0 {
 		a.cloningBeam.Dispose()
 		a.cloningBeam = nil
-		newStats := mergeAgents(a, target)
+		newStats := mergeAgents(a.colonyCore.world, a, target)
+		if newStats == nil {
+			panic(fmt.Sprintf("empty merge result for %s %s + %s %s", a.faction, a.stats.Kind, target.faction, target.stats.Kind))
+		}
 		newAgent := a.colonyCore.NewColonyAgentNode(newStats, target.pos)
 		var newFaction gamedata.FactionTag
 		rankScore := a.rank + target.rank
@@ -1156,6 +1292,40 @@ func (a *colonyAgentNode) updatePanic(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) updateCourierFlight(delta float64) {
+	if a.moveTowards(delta, a.waypoint) {
+		target := a.target.(*colonyCoreNode)
+		if target.IsDisposed() || target.mode != colonyModeNormal {
+			if a.payload != 0 {
+				// Has some payload, should return it back.
+				a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
+			} else {
+				a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+			}
+			return
+		}
+		if target.pos.DistanceTo(a.pos) < 70 {
+			if a.payload != 0 {
+				target.resources += a.cargoValue
+				a.clearCargo()
+			}
+			beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, courierResourceBeamColor)
+			beam.width = 2
+			a.scene.AddObject(beam)
+			playSound(a.scene, a.camera(), assets.AudioCourierResourceBeam, a.pos)
+			// Now go back and bring some resources.
+			a.payload = a.maxPayload()
+			a.cargoValue = float64(a.payload) * 2
+			a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
+			// Get a minor repair+recharge.
+			a.health = gmath.ClampMax(a.health+5, a.maxHealth)
+			a.energy = gmath.ClampMax(a.energy+15, a.maxEnergy)
+			return
+		}
+		a.waypoint = a.pos.DirectionTo(target.pos).Mulf(60).Add(target.pos).Add(a.scene.Rand().Offset(-20, 20))
+	}
+}
+
 func (a *colonyAgentNode) updateFollow(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
 		target := a.target.(*creepNode)
@@ -1177,13 +1347,12 @@ func (a *colonyAgentNode) updateAlignStandby(delta float64) {
 }
 
 func (a *colonyAgentNode) updateStandby(delta float64) {
-	a.energy += delta * 0.5
+	a.energy = gmath.ClampMax(a.energy+delta*0.5*a.energyRegenRate, a.maxEnergy)
 	if a.moveTowards(delta, a.waypoint) {
-		if a.waypointsLeft == 0 {
-			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		if a.stats.Tier == 1 && a.lifetime < 0 && a.colonyCore.mode == colonyModeNormal {
+			a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
 			return
 		}
-		a.waypointsLeft--
 		a.waypoint = a.orbitingWaypoint()
 		if !a.hasTrait(traitNeverStop) && a.energy < 40 && a.scene.Rand().Chance(0.2) {
 			a.AssignMode(agentModeCharging, gmath.Vec{}, nil)
@@ -1193,8 +1362,9 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 }
 
 func (a *colonyAgentNode) updateCharging(delta float64) {
-	a.energy += delta * 3
-	if a.energy >= 50 {
+	a.energy = gmath.ClampMax(a.energy+delta*3.5*a.energyRegenRate, a.maxEnergy)
+	if a.energy >= a.maxEnergy*0.5 {
+		a.energyBill = 0
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }
@@ -1228,10 +1398,14 @@ func (a *colonyAgentNode) updateResourceTakeoff(delta float64) {
 	a.height += delta * agentPickupSpeed
 	if a.moveTowards(delta, a.waypoint) {
 		a.height = agentFlightHeight
-		entranceNum := a.scene.Rand().IntRange(0, 2)
-		a.waypoint = a.colonyCore.GetStoragePos().Add(gmath.Vec{Y: float64(entranceNum) * 8})
-		a.mode = agentModeReturn
+		a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
 	}
+}
+
+func (a *colonyAgentNode) clearCargo() {
+	a.payload = 0
+	a.cargoValue = 0
+	a.cargoEliteValue = 0
 }
 
 func (a *colonyAgentNode) updateReturn(delta float64) {
@@ -1241,9 +1415,7 @@ func (a *colonyAgentNode) updateReturn(delta float64) {
 			a.colonyCore.world.result.ResourcesGathered += a.cargoValue
 			a.colonyCore.eliteResources += a.cargoEliteValue
 			a.colonyCore.world.result.EliteResourcesGathered = a.cargoEliteValue
-			a.payload = 0
-			a.cargoValue = 0
-			a.cargoEliteValue = 0
+			a.clearCargo()
 			playSound(a.scene, a.camera(), assets.AudioEssenceCollected, a.pos)
 		}
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)

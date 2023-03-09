@@ -22,6 +22,10 @@
 ##menu.option.rich : много
 ##menu.option.very_rich : очень много
 
+##menu.option.none : никаких
+##menu.option.some : немного
+##menu.option.full : много
+
 ##menu.option.very_easy : очень легко
 ##menu.option.easy : легко
 ##menu.option.hard : сложно
@@ -42,8 +46,15 @@
 
 ##menu.lobby.world_resources : Ресурсы Мира
 ##menu.lobby.world_size : Размер Мира
-##menu.lobby.difficulty : Сложность
+##menu.lobby.creeps_difficulty : Кол-во Баз Противника
+##menu.lobby.boss_difficulty : Сила Босса
+##menu.lobby.starting_resources : Стартовые Ресурсы
 ##menu.lobby.go : Вперёд!
+
+##menu.lobby.tab.colony : Колония
+##menu.lobby.tab.world : Мир
+##menu.lobby.tab.difficulty : Сложность
+##menu.lobby.tab.extra : Доп
 
 ##menu.results.victory : Победа
 ##menu.results.defeat : Поражение
@@ -238,3 +249,21 @@
 
 ##tutorial.message_last
 Удачи и хорошей охоты.
+
+##drone.function : Функция
+##drone.kind.worker : рабочий
+##drone.kind.military : военный
+##drone.kind.universal : универсальный
+
+##drone.freighter : Грузовой
+##drone.redminer : Алый Рудокоп
+##drone.crippler : Охотник
+##drone.fighter : Боец
+##drone.prism : Призма
+##drone.servo : Ускоритель
+##drone.repeller : Отпугиватель
+##drone.repair : Ремонтник
+##drone.recharger : Заряжатель
+##drone.generator : Генератор
+##drone.mortar : Мортира
+##drone.antiair : Ракетчик

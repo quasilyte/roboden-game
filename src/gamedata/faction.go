@@ -11,6 +11,7 @@ type faction struct {
 	Color color.RGBA
 }
 
+//go:generate stringer -type=FactionTag
 type FactionTag int
 
 // Yellow faction (miners):

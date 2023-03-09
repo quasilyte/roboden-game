@@ -66,7 +66,7 @@ var specialChoicesTable = [...]choiceOption{
 	specialBuildColony: {
 		text:    "build_colony",
 		special: specialBuildColony,
-		cost:    40,
+		cost:    25,
 		icon:    assets.ImageActionBuildColony,
 	},
 	specialBuildGunpoint: {
@@ -479,7 +479,7 @@ func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
 		Pos:    pos,
 	}
 	delayRoll := w.scene.Rand().FloatRange(0.8, 1.2)
-	w.startCharging(20.0 * delayRoll)
+	w.startCharging(8.0 * delayRoll)
 	w.scene.Audio().PlaySound(assets.AudioChoiceMade)
 	w.EventChoiceSelected.Emit(choice)
 }

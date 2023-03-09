@@ -149,6 +149,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		camera:         c.camera,
 		rand:           scene.Rand(),
 		tmpTargetSlice: make([]projectileTarget, 0, 20),
+		tmpColonySlice: make([]*colonyCoreNode, 0, 4),
 		width:          viewportWorld.Width,
 		height:         viewportWorld.Height,
 		rect: gmath.Rect{
@@ -157,10 +158,12 @@ func (c *Controller) Init(scene *ge.Scene) {
 				Y: viewportWorld.Height,
 			},
 		},
+		tier2recipes: c.state.LevelOptions.Tier2Recipes,
 	}
 	world.creepCoordinator = newCreepCoordinator(world)
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
 	c.world = world
+	world.Init()
 
 	bg := ge.NewTiledBackground(scene.Context())
 	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
@@ -211,6 +214,15 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	scene.AddObject(c.choices)
+
+	{
+		creep := c.world.NewCreepNode(c.selectedColony.pos, uberBossCreepStats)
+		scene.AddObject(creep)
+
+		creep2 := c.world.NewCreepNode(c.selectedColony.pos, servantCreepStats)
+		creep2.specialTarget = c.selectedColony
+		scene.AddObject(creep2)
+	}
 }
 
 func (c *Controller) onMenuButtonClicked(gsignal.Void) {
@@ -521,24 +533,16 @@ func (c *Controller) Update(delta float64) {
 	c.handleInput()
 
 	if c.debugInfo != nil {
-		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f", ebiten.ActualFPS())
-		// colony := c.selectedColony
-		// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",
-		// 	colony.resources,
-		// 	len(colony.agents.workers),
-		// 	len(colony.agents.fighters),
-		// 	colony.calcUnitLimit(),
-		// 	int(colony.realRadius),
-		// 	int(colony.GetResourcePriority()*100),
-		// 	int(colony.GetGrowthPriority()*100),
-		// 	int(colony.GetEvolutionPriority()*100),
-		// 	int(colony.GetSecurityPriority()*100),
-		// 	int(colony.factionWeights.GetWeight(neutralFactionTag)*100),
-		// 	int(colony.factionWeights.GetWeight(yellowFactionTag)*100),
-		// 	int(colony.factionWeights.GetWeight(redFactionTag)*100),
-		// 	int(colony.factionWeights.GetWeight(greenFactionTag)*100),
-		// 	int(colony.factionWeights.GetWeight(blueFactionTag)*100),
-		// 	ebiten.ActualFPS())
+		colony := c.selectedColony
+		numDrones := 0
+		droneLimit := 0
+		if colony != nil {
+			numDrones = colony.NumAgents()
+			droneLimit = colony.calcUnitLimit()
+		}
+		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f Drones: %d/%d",
+			ebiten.ActualFPS(),
+			numDrones, droneLimit)
 	}
 
 }

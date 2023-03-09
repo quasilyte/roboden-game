@@ -157,15 +157,17 @@ func (m *tutorialManager) Update(delta float64) {
 	}
 
 	cursor := m.choiceWindow.cursor
-	if pos, ok := cursor.ClickPos(controls.ActionClick); ok {
-		if m.windowRect.Contains(pos) {
-			m.enabled = false
-			m.setWindowVisibility(false)
-			m.scene.Audio().PlaySound(assets.AudioClick)
-			m.scene.DelayedCall(0.25, func() {
-				m.enabled = true
-				m.openNextMessage()
-			})
+	if m.tutorialStep < len(m.steps) {
+		if pos, ok := cursor.ClickPos(controls.ActionClick); ok {
+			if m.windowRect.Contains(pos) {
+				m.enabled = false
+				m.setWindowVisibility(false)
+				m.scene.Audio().PlaySound(assets.AudioClick)
+				m.scene.DelayedCall(0.25, func() {
+					m.enabled = true
+					m.openNextMessage()
+				})
+			}
 		}
 	}
 }

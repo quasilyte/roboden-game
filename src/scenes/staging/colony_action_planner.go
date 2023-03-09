@@ -15,6 +15,9 @@ type colonyActionPlanner struct {
 	numPatrolAgents   int
 	numGarrisonAgents int
 
+	agentCountTable [gamedata.AgentKindNum]uint8
+	mergetab        mergeTable
+
 	leadingFaction             gamedata.FactionTag
 	leadingFactionAgents       float64
 	leadingFactionCombatAgents float64
@@ -36,12 +39,14 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 	p.leadingFaction = p.colony.factionWeights.MaxKey()
 	p.numPatrolAgents = 0
 	p.numTier2Agents = 0
+	p.agentCountTable = [gamedata.AgentKindNum]uint8{}
 	leadingFactionAgents := 0
 	leadingFactionCombatAgents := 0
 
 	p.colony.agents.Update()
 
 	p.colony.agents.Each(func(a *colonyAgentNode) {
+		p.agentCountTable[a.stats.Kind]++
 		switch a.stats.Tier {
 		case 1:
 			p.numTier1Agents++
@@ -89,6 +94,50 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 	panic("unreachable")
 }
 
+func (p *colonyActionPlanner) trySendingCourier() colonyAction {
+	// Try to find a colony for a trading route.
+	maxTradingDist := (p.colony.PatrolRadius() * 1.75) + 200
+	potentialTargets := &p.world.tmpColonySlice
+	(*potentialTargets) = (*potentialTargets)[:0]
+	for _, colony := range p.world.colonies {
+		if colony == p.colony {
+			continue
+		}
+		if colony.mode != colonyModeNormal {
+			continue
+		}
+		if colony.pos.DistanceTo(p.colony.pos) > maxTradingDist {
+			continue
+		}
+		*potentialTargets = append(*potentialTargets, colony)
+	}
+	if len(*potentialTargets) == 0 {
+		return colonyAction{}
+	}
+
+	selectedColony := gmath.RandElem(p.world.rand, *potentialTargets)
+	if p.colony.resources >= maxVisualResources && selectedColony.resources >= maxVisualResources {
+		return colonyAction{}
+	}
+	courier := p.colony.agents.Find(searchWorkers|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
+		switch a.stats.Kind {
+		case gamedata.AgentCourier, gamedata.AgentTrucker:
+			return a.energy >= 50 && a.energyBill < 20
+		default:
+			return false
+		}
+	})
+	if courier == nil {
+		return colonyAction{}
+	}
+	return colonyAction{
+		Kind:     actionSendCourier,
+		Value:    selectedColony,
+		Value2:   courier,
+		TimeCost: 0.2,
+	}
+}
+
 func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	if len(p.world.essenceSources) == 0 {
 		return colonyAction{}
@@ -99,6 +148,13 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	baseNeedsResources := p.colony.resources <= maxVisualResources
 	if !baseNeedsResources {
 		return colonyAction{}
+	}
+
+	if len(p.world.colonies) >= 2 && p.colony.agents.hasCourier {
+		a := p.trySendingCourier()
+		if a.Kind != actionNone {
+			return a
+		}
 	}
 
 	var bestSource *essenceSourceNode
@@ -155,24 +211,21 @@ func (p *colonyActionPlanner) combatUnitProbability() float64 {
 	if currentCombatAgentRatio < wantedCombatAgentRatio {
 		return 0.75
 	}
-	return 0
+	return 0.2
 }
 
 func (p *colonyActionPlanner) pickCloner() *colonyAgentNode {
 	cloner := p.colony.agents.Find(searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
+		if a.stats.Kind != gamedata.AgentCloner {
+			return false
+		}
 		return a.energy >= agentCloningEnergyCost() && a.energyBill == 0
 	})
 	return cloner
 }
 
 func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bool) *colonyAgentNode {
-	var agentCountTable [gamedata.AgentKindNum]uint8
-	var agentKindThreshold uint8
-	p.colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
-		agentCountTable[a.stats.Kind]++
-		return false
-	})
-	agentKindThreshold = uint8(gmath.Clamp(p.colony.NumAgents()/5, 5, math.MaxUint8))
+	agentKindThreshold := uint8(gmath.Clamp(p.colony.NumAgents()/5, 5, math.MaxUint8))
 	searchFlags := searchFighters | searchOnlyAvailable | searchRandomized
 	if !combat {
 		searchFlags = searchWorkers | searchOnlyAvailable | searchRandomized
@@ -190,13 +243,13 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 		if agentCloningCost(p.colony, cloner, a)*1.5 > p.colony.resources {
 			return false // Not enough resources
 		}
-		if a.stats.Tier > 1 && agentCountTable[a.stats.Kind] > agentKindThreshold {
+		if a.stats.Tier > 1 && p.agentCountTable[a.stats.Kind] > agentKindThreshold {
 			return false // Don't need more of those
 		}
 		// Try to use weighted priorities with randomization.
 		// Higher tiers are good, but it's also good to clone the units that
 		// are not as numerous as some others.
-		scoreMultiplier := gmath.ClampMin(1.0/float64(agentCountTable[a.stats.Kind]), 0.1)
+		scoreMultiplier := gmath.ClampMin(1.0/float64(p.agentCountTable[a.stats.Kind]), 0.1)
 		score := ((1.25 * float64(a.stats.Tier)) * scoreMultiplier) * p.world.rand.FloatRange(0.7, 1.3)
 		if a.faction != gamedata.NeutralFactionTag {
 			score *= 1.1
@@ -294,11 +347,16 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 		combatUnit = p.world.rand.Chance(combatUnitChance)
 	}
 
-	if !combatUnit && p.colony.NumAgents() > p.colony.calcUnitLimit() {
+	softUnitLimit := p.colony.calcUnitLimit()
+	if combatUnit {
+		softUnitLimit = int(float64(softUnitLimit) * 1.3)
+	}
+	if p.colony.NumAgents() > softUnitLimit {
 		return colonyAction{}
 	}
 
 	tryCloning := p.colony.cloningDelay == 0 &&
+		p.colony.agents.hasCloner &&
 		p.colony.agents.NumAvailableWorkers() >= 2 &&
 		p.leadingFactionCombatAgents >= 0.2 &&
 		p.leadingFactionAgents >= 0.3
@@ -377,20 +435,73 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 		}
 	}
 	return colonyAction{Kind: actionDefencePatrol, Value: closestAttacker, TimeCost: 0.5}
-	// return colonyAction{Kind: actionDefencePanic, TimeCost: 0.5}
+}
+
+func (p *colonyActionPlanner) pickMergeRecipe(list []gamedata.AgentMergeRecipe, tier int) gamedata.AgentMergeRecipe {
+	if tier == 3 {
+		return randIterate(p.world.rand, list, func(recipe gamedata.AgentMergeRecipe) bool {
+			return p.agentCountTable[recipe.Result.Kind] < 10
+		})
+	}
+
+	bestScore := 0.0
+	var result gamedata.AgentMergeRecipe
+	preferCombatUnits := p.colony.GetResourcePriority() < p.colony.GetSecurityPriority()
+	for _, recipe := range list {
+		if p.agentCountTable[recipe.Result.Kind] >= 10 {
+			continue
+		}
+		if !p.mergetab.CanProduce(recipe) {
+			continue
+		}
+		count := p.agentCountTable[recipe.Result.Kind]
+		score := 12.0 - float64(count)
+		score *= p.world.rand.FloatRange(0.7, 1.4)
+		if count == 0 {
+			score *= 1.2
+		}
+		switch {
+		case recipe.Result.CanPatrol && preferCombatUnits:
+			score *= 1.15
+		case recipe.Result.CanGather && !preferCombatUnits:
+			score *= 1.1
+		}
+		if recipe.Result.Tier == 2 && recipe.Drone1.Faction == recipe.Drone2.Faction {
+			score *= 0.9
+		}
+		if score > bestScore {
+			bestScore = score
+			result = recipe
+		}
+	}
+	return result
 }
 
 func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 	var list []gamedata.AgentMergeRecipe
+	tier := 0
 	if p.colony.evoPoints >= blueEvoThreshold && p.numTier2Agents >= 2 && (p.numTier1Agents < 2 || p.world.rand.Bool()) {
-		list = gamedata.Tier3agentMergeRecipeList
+		list = gamedata.Tier3agentMergeRecipes
+		tier = 3
 	} else {
-		list = gamedata.Tier2agentMergeRecipeList
+		list = p.world.tier2recipes
+		tier = 2
+		p.mergetab.Update(p.colony.agents)
 	}
 
-	recipe := gmath.RandElem(p.world.rand, list)
+	recipe := p.pickMergeRecipe(list, tier)
+	if recipe.Result == nil {
+		return colonyAction{}
+	}
 	if recipe.EvoCost > p.colony.evoPoints {
-		recipe = gmath.RandElem(p.world.rand, gamedata.Tier2agentMergeRecipeList)
+		// This happens only when tier3 can't be produced due to the evo points shortage.
+		list = p.world.tier2recipes
+		tier = 2
+		p.mergetab.Update(p.colony.agents)
+		recipe = p.pickMergeRecipe(list, tier)
+		if recipe.Result == nil {
+			return colonyAction{}
+		}
 	}
 
 	firstAgent := p.colony.agents.Find(searchWorkers|searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
@@ -410,22 +521,16 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 		Value:    firstAgent,
 		Value2:   secondAgent,
 		Value3:   recipe.EvoCost,
-		TimeCost: 1.2,
+		TimeCost: 0.9,
 	}
 }
 
 func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 	// Maybe find merging candidates.
 	if p.world.rand.Chance(0.85) {
-		numAttempts := 1
-		if p.world.rand.Chance(p.colony.GetEvolutionPriority() * 1.1) {
-			numAttempts++
-		}
-		for i := 0; i < numAttempts; i++ {
-			action := p.tryMergingAction()
-			if action.Kind != actionNone {
-				return action
-			}
+		action := p.tryMergingAction()
+		if action.Kind != actionNone {
+			return action
 		}
 	}
 
@@ -488,7 +593,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 }
 
 func (p *colonyActionPlanner) canUseInRecipe(x *colonyAgentNode) bool {
-	recipes := gamedata.RecipesIndex[x.AsRecipeSubject()]
+	recipes := p.world.tier2recipeIndex[x.AsRecipeSubject()]
 	mergeCandidate := p.colony.agents.Find(searchWorkers|searchFighters|searchRandomized, func(y *colonyAgentNode) bool {
 		if x == y {
 			return false

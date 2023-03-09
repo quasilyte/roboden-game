@@ -1,15 +1,17 @@
 package gamedata
 
+import "fmt"
+
 // Merge usage:
 //
 // yellow worker +++
 // yellow militia +++
-// red worker ++
+// red worker +++
 // red militia +++
 // green worker ++++
 // green militia +++
 // blue worker ++++
-// blue militia ++
+// blue militia +++
 //
 // Used:
 // mortar: green worker + red militia
@@ -24,6 +26,9 @@ package gamedata
 // generator: green worker + yellow militia
 // repair: blue worker + green militia
 // prism: yellow militia + blue militia
+// cloner: red worker + blue militia
+// scavenger: red worker + yellow militia
+// courier: red worker + green militia
 //
 // Unused:
 // yellow worker + red militia
@@ -32,14 +37,58 @@ package gamedata
 // red worker + green worker
 // red worker + green militia
 // red worker + yellow militia
-// red worker + blue militia
 // green worker + blue militia
 // blue worker + red militia
 // blue worker + green militia
 // blue worker + yellow militia
 // yellow militia + red militia
 // green militia + blue militia
-var Tier2agentMergeRecipeList = []AgentMergeRecipe{
+var Tier2agentMergeRecipes = []AgentMergeRecipe{
+	{
+		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
+		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Result: ClonerAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{RedFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Result: FighterAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
+		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Result: RepairAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
+		Drone2: RecipeSubject{GreenFactionTag, AgentWorker},
+		Result: FreighterAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Result: CripplerAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
+		Drone2: RecipeSubject{YellowFactionTag, AgentWorker},
+		Result: RedminerAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
+		Drone2: RecipeSubject{BlueFactionTag, AgentWorker},
+		Result: ServoAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
+		Drone2: RecipeSubject{YellowFactionTag, AgentMilitia},
+		Result: ScavengerAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
+		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Result: CourierAgentStats,
+	},
 	{
 		Drone1: RecipeSubject{GreenFactionTag, AgentWorker},
 		Drone2: RecipeSubject{RedFactionTag, AgentMilitia},
@@ -61,31 +110,6 @@ var Tier2agentMergeRecipeList = []AgentMergeRecipe{
 		Result: RechargeAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
-		Drone2: RecipeSubject{GreenFactionTag, AgentWorker},
-		Result: FreighterAgentStats,
-	},
-	{
-		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
-		Drone2: RecipeSubject{YellowFactionTag, AgentWorker},
-		Result: RedminerAgentStats,
-	},
-	{
-		Drone1: RecipeSubject{RedFactionTag, AgentMilitia},
-		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
-		Result: FighterAgentStats,
-	},
-	{
-		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
-		Drone2: RecipeSubject{BlueFactionTag, AgentWorker},
-		Result: ServoAgentStats,
-	},
-	{
-		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
-		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
-		Result: CripplerAgentStats,
-	},
-	{
 		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
 		Drone2: RecipeSubject{BlueFactionTag, AgentWorker},
 		Result: RepellerAgentStats,
@@ -95,19 +119,20 @@ var Tier2agentMergeRecipeList = []AgentMergeRecipe{
 		Drone2: RecipeSubject{YellowFactionTag, AgentMilitia},
 		Result: GeneratorAgentStats,
 	},
-	{
-		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
-		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
-		Result: RepairAgentStats,
-	},
 }
 
-var Tier3agentMergeRecipeList = []AgentMergeRecipe{
+var Tier3agentMergeRecipes = []AgentMergeRecipe{
 	{
 		Drone1:  RecipeSubject{Kind: AgentRepeller},
-		Drone2:  RecipeSubject{Kind: AgentFreighter},
-		EvoCost: 5,
-		Result:  FlamerAgentStats,
+		Drone2:  RecipeSubject{Kind: AgentGenerator},
+		EvoCost: 8,
+		Result:  StormbringerAgentStats,
+	},
+	{
+		Drone1:  RecipeSubject{Kind: AgentFreighter},
+		Drone2:  RecipeSubject{Kind: AgentCourier},
+		EvoCost: 8,
+		Result:  TruckerAgentStats,
 	},
 	{
 		Drone1:  RecipeSubject{Kind: AgentFighter},
@@ -115,7 +140,6 @@ var Tier3agentMergeRecipeList = []AgentMergeRecipe{
 		EvoCost: 11,
 		Result:  DestroyerAgentStats,
 	},
-
 	{
 		Drone1:  RecipeSubject{Kind: AgentRecharger},
 		Drone2:  RecipeSubject{Kind: AgentRepair},
@@ -129,6 +153,21 @@ type AgentMergeRecipe struct {
 	Drone2  RecipeSubject
 	EvoCost float64
 	Result  *AgentStats
+}
+
+func FindRecipe(stats *AgentStats) AgentMergeRecipe {
+	var slice []AgentMergeRecipe
+	if stats.Tier == 2 {
+		slice = Tier2agentMergeRecipes
+	} else {
+		slice = Tier3agentMergeRecipes
+	}
+	for _, r := range slice {
+		if r.Result == stats {
+			return r
+		}
+	}
+	panic(fmt.Sprintf("requested a non-existing recipe: %s", stats.Kind.String()))
 }
 
 func (r *AgentMergeRecipe) Match(x, y RecipeSubject) bool {
@@ -164,28 +203,28 @@ type RecipeSubject struct {
 	Kind    ColonyAgentKind
 }
 
-var RecipesIndex = map[RecipeSubject][]AgentMergeRecipe{}
+// var RecipesIndex = map[RecipeSubject][]AgentMergeRecipe{}
 
-func init() {
-	factions := []FactionTag{
-		YellowFactionTag,
-		RedFactionTag,
-		BlueFactionTag,
-		GreenFactionTag,
-	}
-	kinds := []ColonyAgentKind{
-		AgentWorker,
-		AgentMilitia,
-	}
-	for _, f := range factions {
-		for _, k := range kinds {
-			subject := RecipeSubject{Kind: k, Faction: f}
-			for _, recipe := range Tier2agentMergeRecipeList {
-				if !recipe.Match1(subject) && !recipe.Match2(subject) {
-					continue
-				}
-				RecipesIndex[subject] = append(RecipesIndex[subject], recipe)
-			}
-		}
-	}
-}
+// func init() {
+// 	factions := []FactionTag{
+// 		YellowFactionTag,
+// 		RedFactionTag,
+// 		BlueFactionTag,
+// 		GreenFactionTag,
+// 	}
+// 	kinds := []ColonyAgentKind{
+// 		AgentWorker,
+// 		AgentMilitia,
+// 	}
+// 	for _, f := range factions {
+// 		for _, k := range kinds {
+// 			subject := RecipeSubject{Kind: k, Faction: f}
+// 			for _, recipe := range Tier2agentMergeRecipeList {
+// 				if !recipe.Match1(subject) && !recipe.Match2(subject) {
+// 					continue
+// 				}
+// 				RecipesIndex[subject] = append(RecipesIndex[subject], recipe)
+// 			}
+// 		}
+// 	}
+// }

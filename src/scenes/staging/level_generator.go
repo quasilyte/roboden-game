@@ -136,6 +136,13 @@ func (g *levelGenerator) createBase(pos gmath.Vec) {
 	core.actionPriorities.SetWeight(prioritySecurity, 0.1)
 	g.scene.AddObject(core)
 
+	switch g.world.options.StartingResources {
+	case 1:
+		core.resources = maxVisualResources / 3
+	case 2:
+		core.resources = maxVisualResources
+	}
+
 	for i := 0; i < 5; i++ {
 		a := core.NewColonyAgentNode(gamedata.WorkerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
 		g.scene.AddObject(a)
@@ -588,7 +595,7 @@ func (g *levelGenerator) placeWalls() {
 }
 
 func (g *levelGenerator) placeCreepBases() {
-	if g.world.options.Difficulty == 0 {
+	if g.world.options.CreepsDifficulty == 0 {
 		return // Zero bases
 	}
 	// The bases are always located somewhere on the map boundary.
@@ -606,7 +613,7 @@ func (g *levelGenerator) placeCreepBases() {
 		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
 	}
 	gmath.Shuffle(g.scene.Rand(), borders)
-	numBases := g.world.options.Difficulty
+	numBases := g.world.options.CreepsDifficulty
 	for i := 0; i < numBases; i++ {
 		border := borders[i]
 		var basePos gmath.Vec

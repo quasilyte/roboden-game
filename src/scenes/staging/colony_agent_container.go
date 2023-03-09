@@ -60,6 +60,8 @@ type colonyAgentContainer struct {
 	sortTmp [3][]*colonyAgentNode
 
 	hasRedMiner bool
+	hasCloner   bool
+	hasCourier  bool
 	servoNum    int
 }
 
@@ -76,6 +78,7 @@ func newColonyAgentContainer(rand *gmath.Rand) *colonyAgentContainer {
 
 func (c *colonyAgentContainer) Update() {
 	c.hasRedMiner = false
+	c.hasCloner = false
 	c.servoNum = 0
 	c.availableWorkers = c.availableWorkers[:0]
 	c.availableFighters = c.availableFighters[:0]
@@ -87,8 +90,13 @@ func (c *colonyAgentContainer) Update() {
 		}
 		if a.mode == agentModeStandby {
 			c.availableWorkers = append(c.availableWorkers, a)
-			if a.stats.Kind == gamedata.AgentRedminer {
+			switch a.stats.Kind {
+			case gamedata.AgentRedminer:
 				c.hasRedMiner = true
+			case gamedata.AgentCloner:
+				c.hasCloner = true
+			case gamedata.AgentCourier, gamedata.AgentTrucker:
+				c.hasCourier = true
 			}
 		}
 	}

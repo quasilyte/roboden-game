@@ -93,7 +93,11 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 	p.camera.AddSpriteAbove(p.sprite)
 
 	if p.arcProgressionScaling != 0 {
-		if scene.Rand().Chance(0.4) {
+		missChance := 0.1
+		if p.target.IsFlying() {
+			missChance = 0.4
+		}
+		if scene.Rand().Chance(missChance) {
 			// Most likely will be a miss.
 			p.toPos = p.toPos.Add(scene.Rand().Offset(-28, 28))
 		}

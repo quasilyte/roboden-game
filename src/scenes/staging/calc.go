@@ -5,10 +5,10 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
-func mergeAgents(x, y *colonyAgentNode) *gamedata.AgentStats {
-	list := gamedata.Tier2agentMergeRecipeList
+func mergeAgents(world *worldState, x, y *colonyAgentNode) *gamedata.AgentStats {
+	list := world.tier2recipes
 	if x.stats.Tier == 2 {
-		list = gamedata.Tier3agentMergeRecipeList
+		list = gamedata.Tier3agentMergeRecipes
 	}
 	for _, recipe := range list {
 		if recipe.Match(x.AsRecipeSubject(), y.AsRecipeSubject()) {

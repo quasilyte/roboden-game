@@ -13,11 +13,11 @@ import (
 
 const (
 	coreFlightHeight   float64 = 50
-	maxUpkeepValue     int     = 270
+	maxUpkeepValue     int     = 400
 	maxEvoPoints       float64 = 20
 	maxEvoGain         float64 = 1.0
 	blueEvoThreshold   float64 = 15.0
-	maxResources       float64 = 400.0
+	maxResources       float64 = 500.0
 	maxVisualResources float64 = maxResources - 100.0
 )
 
@@ -419,11 +419,12 @@ func (c *colonyCoreNode) updateResourceRects() {
 }
 
 func (c *colonyCoreNode) calcUnitLimit() int {
-	calculated := ((c.realRadius - 96) * 0.35) + 10
+	calculated := ((c.realRadius - 96) * 0.3) + 10
 	growth := c.GetGrowthPriority()
 	if growth > 0.1 {
-		// 50% growth priority gives ~8 extra units to the limit.
-		calculated += (growth - 0.1) * 20
+		// 50% growth priority gives 24 extra units to the limit.
+		// 80% => 42 extra units
+		calculated += (growth - 0.1) * 60
 	}
 	return gmath.Clamp(int(calculated), 10, 160)
 }
@@ -432,7 +433,8 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 	upkeepTotal := 0
 	upkeepDecrease := 0
 	c.agents.Each(func(a *colonyAgentNode) {
-		if a.stats.Kind == gamedata.AgentGenerator {
+		switch a.stats.Kind {
+		case gamedata.AgentGenerator, gamedata.AgentStormbringer:
 			upkeepDecrease++
 		}
 		upkeepTotal += a.stats.Upkeep
@@ -463,20 +465,22 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 		resourcePrice = 2.0
 	case upkeepTotal <= 95:
 		// ~47 workers or ~23 militia
-		resourcePrice = 4.0
+		resourcePrice = 3.0
 	case upkeepTotal <= 120:
 		// ~60 workers or 30 militia
-		resourcePrice = 6.0
+		resourcePrice = 5.0
 	case upkeepTotal <= 150:
 		// 75 workers or ~37 militia
-		resourcePrice = 9
+		resourcePrice = 7
 	case upkeepTotal <= 215:
 		// ~107 workers or ~53 militia
+		resourcePrice = 9
+	case upkeepTotal <= 300:
 		resourcePrice = 12
 	case upkeepTotal < maxUpkeepValue:
-		resourcePrice = 16
+		resourcePrice = 15
 	default:
-		resourcePrice = 12.0
+		resourcePrice = 20
 	}
 	return resourcePrice, upkeepTotal
 }
@@ -502,7 +506,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.relocationPoint = pos
 
 	c.agents.Each(func(a *colonyAgentNode) {
-		a.payload = 0
+		a.clearCargo()
 		if a.height != agentFlightHeight {
 			a.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
 		} else {
@@ -577,7 +581,7 @@ func (c *colonyCoreNode) doAction() {
 	if c.tryExecutingAction(action) {
 		c.actionDelay = c.scene.Rand().FloatRange(action.TimeCost*0.75, action.TimeCost*1.25)
 	} else {
-		c.actionDelay = c.scene.Rand().FloatRange(0.1, 0.2)
+		c.actionDelay = c.scene.Rand().FloatRange(0.15, 0.25)
 	}
 }
 
@@ -625,6 +629,16 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		c.updateEvoDiode()
 		return true
 
+	case actionSendCourier:
+		courier := action.Value2.(*colonyAgentNode)
+		target := action.Value.(*colonyCoreNode)
+		if target.resources*1.2 < c.resources && c.resources > 60 {
+			courier.payload = courier.maxPayload()
+			courier.cargoValue = float64(courier.payload) * 10
+			c.resources -= courier.cargoValue
+		}
+		return courier.AssignMode(agentModeCourierFlight, gmath.Vec{}, action.Value)
+
 	case actionMineEssence:
 		if c.agents.NumAvailableWorkers() == 0 {
 			return false
@@ -636,10 +650,13 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		extraAssign := gmath.Clamp(int(c.GetResourcePriority()*10)-1, 0, 10)
 		toAssign += extraAssign
 		toAssign = gmath.ClampMax(toAssign, source.resource)
+		numAssigned := 0
 		c.pickWorkerUnits(toAssign, func(a *colonyAgentNode) {
-			a.AssignMode(agentModeMineEssence, gmath.Vec{}, source)
+			if a.AssignMode(agentModeMineEssence, gmath.Vec{}, source) {
+				numAssigned++
+			}
 		})
-		return true
+		return numAssigned != 0
 
 	case actionRepairTurret:
 		repairCost := 4.0
@@ -728,7 +745,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionCloneAgent:
-		c.cloningDelay = 4.5
+		c.cloningDelay = 6.5
 		cloneTarget := action.Value.(*colonyAgentNode)
 		cloner := action.Value2.(*colonyAgentNode)
 		c.resources -= agentCloningCost(c, cloner, cloneTarget)

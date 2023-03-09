@@ -24,6 +24,7 @@ const (
 	actionRecycleAgent
 	actionGenerateEvo
 	actionMineEssence
+	actionSendCourier
 	actionCloneAgent
 	actionProduceAgent
 	actionSetPatrol

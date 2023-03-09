@@ -374,7 +374,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 func (c *colonyCoreNode) movementSpeed() float64 {
 	switch c.mode {
 	case colonyModeTakeoff, colonyModeLanding:
-		return 8.0
+		return 12 + float64(c.agents.servoNum)
 	case colonyModeRelocating:
 		return 16.0 + (float64(c.agents.servoNum) * 3)
 	default:

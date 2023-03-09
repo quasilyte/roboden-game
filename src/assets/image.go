@@ -43,6 +43,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageVerticalExplosion: {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
 		ImageBigExplosion:      {Path: "image/effects/big_explosion.png", FrameWidth: 64},
 		ImageIonExplosion:      {Path: "image/effects/ion_explosion.png", FrameWidth: 28},
+		ImageCloakWave:         {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
 		ImageServantWave:       {Path: "image/effects/servant_wave.png", FrameWidth: 64},
 
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
@@ -60,6 +61,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageScavengerAgent:    {Path: "image/drones/scavenger_agent.png", FrameWidth: 15, FrameHeight: 12},
 		ImageCourierAgent:      {Path: "image/drones/courier_agent.png", FrameWidth: 15, FrameHeight: 15},
 		ImageTruckerAgent:      {Path: "image/drones/trucker_agent.png", FrameWidth: 27, FrameHeight: 22},
+		ImageMarauderAgent:     {Path: "image/drones/marauder_agent.png", FrameWidth: 29, FrameHeight: 20},
 		ImageMortarAgent:       {Path: "image/drones/mortar_agent.png", FrameWidth: 21, FrameHeight: 18},
 		ImageCripplerAgent:     {Path: "image/drones/crippler_agent.png", FrameWidth: 15, FrameHeight: 15},
 		ImageStormbringerAgent: {Path: "image/drones/stormbringer_agent.png", FrameWidth: 21, FrameHeight: 19},
@@ -123,6 +125,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageGunpointProjectile:     {Path: "image/projectile/gunpoint_projectile.png"},
 		ImageFighterProjectile:      {Path: "image/projectile/fighter_projectile.png"},
 		ImageScavengerProjectile:    {Path: "image/projectile/scavenger_projectile.png"},
+		ImageMarauderProjectile:     {Path: "image/projectile/marauder_projectile.png"},
 		ImageCourierProjectile:      {Path: "image/projectile/courier_projectile.png"},
 		ImageServantProjectile:      {Path: "image/projectile/servant_projectile.png"},
 		ImageWandererProjectile:     {Path: "image/projectile/wanderer_projectile.png"},
@@ -191,6 +194,7 @@ const (
 	ImageVerticalExplosion
 	ImageBigExplosion
 	ImageIonExplosion
+	ImageCloakWave
 	ImageServantWave
 
 	ImageUpkeepBar
@@ -232,6 +236,7 @@ const (
 	ImageClonerAgent
 	ImageScavengerAgent
 	ImageCourierAgent
+	ImageMarauderAgent
 	ImageTruckerAgent
 	ImageStormbringerAgent
 	ImageAntiAirAgent
@@ -283,6 +288,7 @@ const (
 	ImageGunpointProjectile
 	ImageFighterProjectile
 	ImageScavengerProjectile
+	ImageMarauderProjectile
 	ImageCourierProjectile
 	ImageWandererProjectile
 	ImageServantProjectile

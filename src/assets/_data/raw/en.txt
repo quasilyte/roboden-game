@@ -294,6 +294,7 @@ A magma resource makes elite drones production possible.
 ##drone.crippler.description
 A light combat drone that attacks up to three targets on above average distance.
 The affected targets will lose some of their speed.
+When low on health, this unit can cloak itself to avoid fatal damage.
 
 ##drone.fighter : Fighter
 ##drone.fighter.description

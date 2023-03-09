@@ -166,6 +166,9 @@ func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r
 	for i := 0; i < len(agents); i++ {
 		slider.Inc()
 		a := agents[slider.Value()]
+		if a.IsCloaked() {
+			continue
+		}
 		if skipIdling && a.mode == agentModeStandby {
 			continue
 		}

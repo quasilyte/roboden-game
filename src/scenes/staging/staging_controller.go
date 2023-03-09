@@ -214,15 +214,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	scene.AddObject(c.choices)
-
-	{
-		creep := c.world.NewCreepNode(c.selectedColony.pos, uberBossCreepStats)
-		scene.AddObject(creep)
-
-		creep2 := c.world.NewCreepNode(c.selectedColony.pos, servantCreepStats)
-		creep2.specialTarget = c.selectedColony
-		scene.AddObject(creep2)
-	}
 }
 
 func (c *Controller) onMenuButtonClicked(gsignal.Void) {

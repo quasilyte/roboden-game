@@ -43,6 +43,7 @@ const (
 	AgentRefresher
 	AgentStormbringer
 	AgentDestroyer
+	AgentMarauder
 
 	AgentKindNum
 
@@ -68,6 +69,7 @@ type AgentStats struct {
 
 	CanGather  bool
 	CanPatrol  bool
+	CanCloak   bool
 	MaxPayload int
 
 	DiodeOffset float64
@@ -343,11 +345,12 @@ var CripplerAgentStats = &AgentStats{
 	Cost:        16,
 	Upkeep:      4,
 	CanPatrol:   true,
+	CanCloak:    true,
 	Speed:       65,
 	MaxHealth:   18,
 	Weapon: initWeaponStats(&WeaponStats{
-		AttackRange:     240,
-		Reload:          2.8,
+		AttackRange:     255,
+		Reload:          2.7,
 		AttackSound:     assets.AudioCripplerShot,
 		ProjectileImage: assets.ImageCripplerProjectile,
 		ImpactArea:      10,
@@ -511,11 +514,11 @@ var MortarAgentStats = &AgentStats{
 	Speed:       70,
 	MaxHealth:   30,
 	Weapon: initWeaponStats(&WeaponStats{
-		AttackRange:     365,
-		Reload:          3.4,
+		AttackRange:     370,
+		Reload:          3.3,
 		AttackSound:     assets.AudioMortarShot,
 		ProjectileImage: assets.ImageMortarProjectile,
-		ImpactArea:      14,
+		ImpactArea:      18,
 		ProjectileSpeed: 180,
 		Damage:          DamageValue{Health: 10},
 		MaxTargets:      1,
@@ -546,6 +549,33 @@ var DestroyerAgentStats = &AgentStats{
 		MaxTargets:  1,
 		BurstSize:   1,
 		TargetFlags: TargetFlying | TargetGround,
+	}),
+}
+
+var MarauderAgentStats = &AgentStats{
+	Kind:          AgentMarauder,
+	Image:         assets.ImageMarauderAgent,
+	Size:          SizeLarge,
+	DiodeOffset:   0,
+	Tier:          3,
+	Cost:          40,
+	Upkeep:        12,
+	CanPatrol:     true,
+	CanCloak:      true,
+	Speed:         100,
+	SupportReload: 14,
+	MaxHealth:     28,
+	Weapon: initWeaponStats(&WeaponStats{
+		AttackRange:     255,
+		Reload:          2.5,
+		ProjectileImage: assets.ImageMarauderProjectile,
+		ImpactArea:      16,
+		ProjectileSpeed: 300,
+		AttackSound:     assets.AudioMarauderShot,
+		Damage:          DamageValue{Health: 4, Slow: 2},
+		BurstSize:       1,
+		MaxTargets:      3,
+		TargetFlags:     TargetFlying | TargetGround,
 	}),
 }
 

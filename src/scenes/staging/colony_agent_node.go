@@ -40,6 +40,7 @@ const (
 	agentModePatrol
 	agentModeFollow
 	agentModeMove
+	agentModeCloakHide
 	agentModePanic
 	agentModeAttack
 	agentModeMakeClone
@@ -104,6 +105,8 @@ type colonyAgentNode struct {
 
 	attackDelay  float64
 	supportDelay float64
+	specialDelay float64
+	cloaking     float64
 
 	maxHealth       float64
 	health          float64
@@ -412,6 +415,11 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		}
 		return true
 
+	case agentModeCloakHide:
+		a.mode = mode
+		a.waypoint = gmath.Vec{}
+		return true
+
 	case agentModeCharging:
 		a.mode = mode
 		a.waypoint = gmath.Vec{}
@@ -576,6 +584,14 @@ func (a *colonyAgentNode) Update(delta float64) {
 	}
 
 	a.slow = gmath.ClampMin(a.slow-delta, 0)
+	a.specialDelay = gmath.ClampMin(a.specialDelay-delta, 0)
+
+	if a.cloaking > 0 {
+		a.cloaking -= delta
+		if a.cloaking <= 0 {
+			a.doUncloak()
+		}
+	}
 
 	a.processAttack(delta)
 	a.processSupport(delta)
@@ -587,6 +603,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateAlignStandby(delta)
 	case agentModeCharging:
 		a.updateCharging(delta)
+	case agentModeCloakHide:
+		a.updateCloakHide(delta)
 	case agentModeMineEssence:
 		a.updateMineEssence(delta)
 	case agentModePickup:
@@ -655,6 +673,18 @@ func (a *colonyAgentNode) ReceiveEnergyDamage(damage float64) {
 	a.energy = gmath.ClampMin(a.energy-damage, 0)
 }
 
+func (a *colonyAgentNode) doUncloak() {
+	a.cloaking = 0
+	a.sprite.SetAlpha(1)
+}
+
+func (a *colonyAgentNode) doCloak(d float64) {
+	a.cloaking = d
+	a.sprite.SetAlpha(0.2)
+	a.scene.AddObject(newEffectNode(a.camera(), a.pos, true, assets.ImageCloakWave))
+	playSound(a.scene, a.camera(), assets.AudioStealth, a.pos)
+}
+
 func (a *colonyAgentNode) explode() {
 	if a.IsTurret() {
 		createAreaExplosion(a.scene, a.camera(), spriteRect(a.pos, a.sprite), true)
@@ -704,6 +734,10 @@ func (a *colonyAgentNode) CanAttack(mask gamedata.TargetKind) bool {
 	return a.stats.Weapon.TargetFlags&mask != 0
 }
 
+func (a *colonyAgentNode) IsCloaked() bool {
+	return a.cloaking > 0
+}
+
 func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
 	// Don't do anything weird when colony is being relocated.
 	if a.colonyCore.mode != colonyModeNormal {
@@ -715,6 +749,13 @@ func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
 		// OK, can interrupt.
 	default:
 		// Most modes can't be safely be interrupted like this.
+		return
+	}
+
+	if a.stats.CanCloak && !a.IsCloaked() && a.specialDelay == 0 {
+		a.doCloak(a.scene.Rand().FloatRange(6, 10))
+		a.specialDelay = a.scene.Rand().FloatRange(6, 10)
+		a.AssignMode(agentModeCloakHide, gmath.Vec{}, nil)
 		return
 	}
 
@@ -743,9 +784,10 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec
 	if a.health < 0 {
 		a.explode()
 		a.Destroy()
+		return
 	}
 
-	if a.health <= 8 {
+	if a.health <= (a.maxHealth * 0.33) {
 		a.onLowHealthDamage(source)
 	}
 
@@ -777,7 +819,7 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 
 func (a *colonyAgentNode) processSupport(delta float64) {
 	switch a.stats.Kind {
-	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher, gamedata.AgentScavenger:
+	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher, gamedata.AgentScavenger, gamedata.AgentMarauder:
 		// OK
 	default:
 		return
@@ -804,7 +846,7 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 		a.doRecharge()
 	case gamedata.AgentRepair:
 		a.doRepair()
-	case gamedata.AgentScavenger:
+	case gamedata.AgentScavenger, gamedata.AgentMarauder:
 		a.doScavenge()
 	}
 }
@@ -823,7 +865,11 @@ func (a *colonyAgentNode) doScavenge() {
 		return
 	}
 
-	const maxDistSqr = 256.0 * 256.0
+	maxDistSqr := 256.0 * 256.0
+	if a.stats.Kind == gamedata.AgentMarauder {
+		maxDistSqr = 300.0 * 300.0
+	}
+
 	var bestSource *essenceSourceNode
 	bestScore := 0.0
 	for _, source := range a.colonyCore.world.essenceSources {
@@ -844,6 +890,10 @@ func (a *colonyAgentNode) doScavenge() {
 		}
 	}
 	if bestSource != nil {
+		if a.stats.Kind == gamedata.AgentMarauder && a.specialDelay == 0 {
+			a.doCloak(20)
+			a.specialDelay = 10
+		}
 		a.AssignMode(agentModeScavenge, gmath.Vec{}, bestSource)
 	}
 }
@@ -886,6 +936,9 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 
 	a.attackDelay = gmath.ClampMin(a.attackDelay-(delta*a.reloadRate), 0)
 	if a.attackDelay != 0 {
+		return
+	}
+	if a.IsCloaked() {
 		return
 	}
 	creeps := a.colonyCore.world.creeps
@@ -1361,6 +1414,14 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) updateCloakHide(delta float64) {
+	a.energy = gmath.ClampMax(a.energy+delta*a.energyRegenRate, a.maxEnergy)
+	if a.cloaking <= 0 {
+		a.health = gmath.ClampMax(a.health+2, a.maxHealth)
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	}
+}
+
 func (a *colonyAgentNode) updateCharging(delta float64) {
 	a.energy = gmath.ClampMax(a.energy+delta*3.5*a.energyRegenRate, a.maxEnergy)
 	if a.energy >= a.maxEnergy*0.5 {
@@ -1410,6 +1471,9 @@ func (a *colonyAgentNode) clearCargo() {
 
 func (a *colonyAgentNode) updateReturn(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
+		if a.IsCloaked() {
+			a.doUncloak()
+		}
 		if a.payload != 0 {
 			a.colonyCore.resources += a.cargoValue
 			a.colonyCore.world.result.ResourcesGathered += a.cargoValue

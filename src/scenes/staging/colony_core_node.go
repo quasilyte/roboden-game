@@ -359,8 +359,9 @@ func (c *colonyCoreNode) Update(delta float64) {
 
 	c.updateResourceRects()
 
+	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
+
 	if c.shadow != nil && c.shadow.Visible {
-		c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
 		c.shadow.Pos.Offset.Y = c.height + 4
 		newShadowAlpha := float32(1.0 - ((c.height / coreFlightHeight) * 0.5))
 		c.shadow.SetAlpha(newShadowAlpha)

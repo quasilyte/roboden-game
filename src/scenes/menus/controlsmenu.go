@@ -35,7 +35,7 @@ func (c *ControlsMenuController) initUI() {
 	uiResources := eui.LoadResources(c.scene.Context().Loader)
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer()
+	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()

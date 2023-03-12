@@ -72,6 +72,7 @@ package menus
 //
 // * New features:
 //   - Red crystals resource
+//   - Drone ranks (normal, elite, super elite)
 //
 // * Gameplay
 //   - Increased a colony drone limit
@@ -85,4 +86,9 @@ package menus
 //
 // * Fixes:
 //   - Upon defeat, hide menu and toggle buttons
+//   - Fixed resource collection bug (drone cargo value stacking)
+//
+// * Performance:
+//   - Use a pre-decoded ogg stream instead of decoding it on the fly
+//   - Since 99% graphic objects are ge.Sprite, they're now stored as separate slices (less iface calls)
 const buildNumber int = 7

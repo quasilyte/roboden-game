@@ -3,10 +3,10 @@ module github.com/quasilyte/roboden-game
 go 1.20
 
 require (
-	github.com/ebitenui/ebitenui v0.2.7
+	github.com/ebitenui/ebitenui v0.3.4
 	github.com/hajimehoshi/ebiten/v2 v2.4.16
-	github.com/quasilyte/ebitengine-resource v0.5.1-0.20230215192522-62a61a4ab6b8
-	github.com/quasilyte/ge v0.0.0-20230228204123-506f8d4f681b
+	github.com/quasilyte/ebitengine-resource v0.5.1-0.20230301215552-afd21c3065ff
+	github.com/quasilyte/ge v0.0.0-20230301222223-9ccd6adfef3e
 	github.com/quasilyte/gmath v0.0.0-20230301114146-53cf1cfcdcd5
 	github.com/quasilyte/gsignal v0.0.0-20230130114532-ff67b4bb9e15
 	golang.org/x/image v0.5.0

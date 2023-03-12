@@ -45,7 +45,7 @@ func (c *MainMenuController) initUI() {
 	uiResources := eui.LoadResources(c.scene.Context().Loader)
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer()
+	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
 	bigFont := c.scene.Context().Loader.LoadFont(assets.FontBig).Face
@@ -53,7 +53,7 @@ func (c *MainMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	titleLabel := eui.NewLabel(uiResources, d.Get("game.title"), bigFont)
+	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("game.title"), bigFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -87,7 +87,7 @@ func (c *MainMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	buildVersionLabel := eui.NewLabel(uiResources, fmt.Sprintf("%s %d (alpha testing)", d.Get("menu.main.build"), buildNumber), smallFont)
+	buildVersionLabel := eui.NewCenteredLabel(uiResources, fmt.Sprintf("%s %d (alpha testing)", d.Get("menu.main.build"), buildNumber), smallFont)
 	rowContainer.AddChild(buildVersionLabel)
 
 	uiObject := eui.NewSceneObject(root)

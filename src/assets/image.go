@@ -42,6 +42,9 @@ func registerImageResources(ctx *ge.Context) {
 		ImageSmallExplosion1:   {Path: "image/effects/small_explosion1.png", FrameWidth: 32},
 		ImageVerticalExplosion: {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
 		ImageBigExplosion:      {Path: "image/effects/big_explosion.png", FrameWidth: 64},
+		ImageIonExplosion:      {Path: "image/effects/ion_explosion.png", FrameWidth: 28},
+		ImageCloakWave:         {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
+		ImageServantWave:       {Path: "image/effects/servant_wave.png", FrameWidth: 64},
 
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
 		ImageColonyCoreSelector: {Path: "image/colony_core_selector.png"},
@@ -51,24 +54,29 @@ func registerImageResources(ctx *ge.Context) {
 		ImageColonyCoreDiode:    {Path: "image/colony_core_diode.png", FrameWidth: 4},
 		ImageColonyCoreShadow:   {Path: "image/colony_core_shadow.png"},
 
-		ImageGunpointAgent:  {Path: "image/drones/gunpoint_agent.png"},
-		ImageWorkerAgent:    {Path: "image/drones/worker_agent.png", FrameWidth: 9},
-		ImageMilitiaAgent:   {Path: "image/drones/militia_agent.png", FrameWidth: 11},
-		ImageMortarAgent:    {Path: "image/drones/mortar_agent.png", FrameWidth: 21},
-		ImageCripplerAgent:  {Path: "image/drones/crippler_agent.png", FrameWidth: 15},
-		ImageFlamerAgent:    {Path: "image/drones/flamer_agent.png", FrameWidth: 21},
-		ImageRepairAgent:    {Path: "image/drones/repair_agent.png", FrameWidth: 17},
-		ImageAntiAirAgent:   {Path: "image/drones/antiair_agent.png", FrameWidth: 17},
-		ImageServoAgent:     {Path: "image/drones/servo_agent.png", FrameWidth: 15},
-		ImageRechargerAgent: {Path: "image/drones/recharger_agent.png", FrameWidth: 17},
-		ImageRefresherAgent: {Path: "image/drones/refresher_agent.png", FrameWidth: 23},
-		ImageFighterAgent:   {Path: "image/drones/fighter_agent.png", FrameWidth: 15},
-		ImagePrismAgent:     {Path: "image/drones/prism_agent.png", FrameWidth: 15},
-		ImageDestroyerAgent: {Path: "image/drones/destroyer_agent.png", FrameWidth: 33},
-		ImageRepellerAgent:  {Path: "image/drones/repeller_agent.png", FrameWidth: 15},
-		ImageFreighterAgent: {Path: "image/drones/freighter_agent.png", FrameWidth: 17},
-		ImageRedminerAgent:  {Path: "image/drones/redminer_agent.png", FrameWidth: 13},
-		ImageGeneratorAgent: {Path: "image/drones/generator_agent.png", FrameWidth: 15},
+		ImageGunpointAgent:     {Path: "image/drones/gunpoint_agent.png"},
+		ImageWorkerAgent:       {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
+		ImageMilitiaAgent:      {Path: "image/drones/militia_agent.png", FrameWidth: 11, FrameHeight: 13},
+		ImageClonerAgent:       {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 13},
+		ImageScavengerAgent:    {Path: "image/drones/scavenger_agent.png", FrameWidth: 15, FrameHeight: 12},
+		ImageCourierAgent:      {Path: "image/drones/courier_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImageTruckerAgent:      {Path: "image/drones/trucker_agent.png", FrameWidth: 27, FrameHeight: 22},
+		ImageMarauderAgent:     {Path: "image/drones/marauder_agent.png", FrameWidth: 29, FrameHeight: 20},
+		ImageMortarAgent:       {Path: "image/drones/mortar_agent.png", FrameWidth: 21, FrameHeight: 18},
+		ImageCripplerAgent:     {Path: "image/drones/crippler_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImageStormbringerAgent: {Path: "image/drones/stormbringer_agent.png", FrameWidth: 21, FrameHeight: 19},
+		ImageRepairAgent:       {Path: "image/drones/repair_agent.png", FrameWidth: 17, FrameHeight: 13},
+		ImageAntiAirAgent:      {Path: "image/drones/antiair_agent.png", FrameWidth: 17, FrameHeight: 19},
+		ImageServoAgent:        {Path: "image/drones/servo_agent.png", FrameWidth: 15, FrameHeight: 22},
+		ImageRechargerAgent:    {Path: "image/drones/recharger_agent.png", FrameWidth: 17, FrameHeight: 20},
+		ImageRefresherAgent:    {Path: "image/drones/refresher_agent.png", FrameWidth: 31, FrameHeight: 31},
+		ImageFighterAgent:      {Path: "image/drones/fighter_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImagePrismAgent:        {Path: "image/drones/prism_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImageDestroyerAgent:    {Path: "image/drones/destroyer_agent.png", FrameWidth: 33, FrameHeight: 24},
+		ImageRepellerAgent:     {Path: "image/drones/repeller_agent.png", FrameWidth: 15, FrameHeight: 13},
+		ImageFreighterAgent:    {Path: "image/drones/freighter_agent.png", FrameWidth: 17, FrameHeight: 16},
+		ImageRedminerAgent:     {Path: "image/drones/redminer_agent.png", FrameWidth: 13, FrameHeight: 18},
+		ImageGeneratorAgent:    {Path: "image/drones/generator_agent.png", FrameWidth: 15, FrameHeight: 17},
 
 		ImageColonyDamageMask:  {Path: "image/colony_damage_mask.png"},
 		ImageTurretDamageMask1: {Path: "image/turret_damage_mask1.png"},
@@ -92,6 +100,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEliteCrawlerCreep: {Path: "image/creeps/elite_crawler_creep.png", FrameWidth: 23},
 		ImageCrawlerCreep:      {Path: "image/creeps/crawler_creep.png", FrameWidth: 23},
 		ImagePrimitiveCreep:    {Path: "image/creeps/tier1_creep.png"},
+		ImageServantCreep:      {Path: "image/creeps/servant_creep.png", FrameWidth: 15},
 		ImageCreepTier2:        {Path: "image/creeps/tier2_creep.png"},
 		ImageCreepTier3:        {Path: "image/creeps/tier3_creep.png", FrameWidth: 25},
 		ImageTurretCreep:       {Path: "image/creeps/turret_creep.png"},
@@ -115,33 +124,47 @@ func registerImageResources(ctx *ge.Context) {
 		ImageRepellerProjectile:     {Path: "image/projectile/repeller_projectile.png"},
 		ImageGunpointProjectile:     {Path: "image/projectile/gunpoint_projectile.png"},
 		ImageFighterProjectile:      {Path: "image/projectile/fighter_projectile.png"},
+		ImageScavengerProjectile:    {Path: "image/projectile/scavenger_projectile.png"},
+		ImageMarauderProjectile:     {Path: "image/projectile/marauder_projectile.png"},
+		ImageCourierProjectile:      {Path: "image/projectile/courier_projectile.png"},
+		ImageServantProjectile:      {Path: "image/projectile/servant_projectile.png"},
 		ImageWandererProjectile:     {Path: "image/projectile/wanderer_projectile.png"},
-		ImageFlamerProjectile:       {Path: "image/projectile/flamer_projectile.png"},
+		ImageStormbringerProjectile: {Path: "image/projectile/stormbringer_projectile.png"},
 		ImageMortarProjectile:       {Path: "image/projectile/mortar_projectile.png"},
 		ImageAntiAirMissile:         {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                {Path: "image/projectile/missile.png"},
 
-		ImageUIButtonIdle:             {Path: "image/ebitenui/button-idle.png"},
-		ImageUIButtonHover:            {Path: "image/ebitenui/button-hover.png"},
-		ImageUIButtonPressed:          {Path: "image/ebitenui/button-pressed.png"},
-		ImageUIButtonDisabled:         {Path: "image/ebitenui/button-disabled.png"},
-		ImageUIButtonSelectedIdle:     {Path: "image/ebitenui/button-selected-idle.png"},
-		ImageUIButtonSelectedHover:    {Path: "image/ebitenui/button-selected-hover.png"},
-		ImageUIButtonSelectedPressed:  {Path: "image/ebitenui/button-selected-pressed.png"},
-		ImageUIButtonSelectedDisabled: {Path: "image/ebitenui/button-selected-disabled.png"},
-		ImageUIArrowDownIdle:          {Path: "image/ebitenui/arrow-down-idle.png"},
-		ImageUIArrowDownDisabled:      {Path: "image/ebitenui/arrow-down-disabled.png"},
-		ImageUIOptionButtonIdle:       {Path: "image/ebitenui/combo-button-idle.png"},
-		ImageUIOptionButtonHover:      {Path: "image/ebitenui/combo-button-hover.png"},
-		ImageUIOptionButtonPressed:    {Path: "image/ebitenui/combo-button-pressed.png"},
-		ImageUIOptionButtonDisabled:   {Path: "image/ebitenui/combo-button-disabled.png"},
-		ImageUIListIdle:               {Path: "image/ebitenui/list-idle.png"},
-		ImageUIListDisabled:           {Path: "image/ebitenui/list-disabled.png"},
-		ImageUIListMask:               {Path: "image/ebitenui/list-mask.png"},
-		ImageUIListTrackIdle:          {Path: "image/ebitenui/list-track-idle.png"},
-		ImageUIListTrackDisabled:      {Path: "image/ebitenui/list-track-disabled.png"},
-		ImageUISliderHandleIdle:       {Path: "image/ebitenui/slider-handle-idle.png"},
-		ImageUISliderHandleHover:      {Path: "image/ebitenui/slider-handle-hover.png"},
+		ImageUIButtonIdle:               {Path: "image/ebitenui/button-idle.png"},
+		ImageUIButtonHover:              {Path: "image/ebitenui/button-hover.png"},
+		ImageUIButtonPressed:            {Path: "image/ebitenui/button-pressed.png"},
+		ImageUIButtonDisabled:           {Path: "image/ebitenui/button-disabled.png"},
+		ImageUITabButtonIdle:            {Path: "image/ebitenui/tabbutton-idle.png"},
+		ImageUITabButtonHover:           {Path: "image/ebitenui/tabbutton-hover.png"},
+		ImageUITabButtonPressed:         {Path: "image/ebitenui/tabbutton-pressed.png"},
+		ImageUITabButtonDisabled:        {Path: "image/ebitenui/tabbutton-disabled.png"},
+		ImageUITextInputIdle:            {Path: "image/ebitenui/text-input-idle.png"},
+		ImageUITextInputDisabled:        {Path: "image/ebitenui/text-input-disabled.png"},
+		ImageUIItemButtonIdle:           {Path: "image/ebitenui/itembutton-idle.png"},
+		ImageUIItemButtonHover:          {Path: "image/ebitenui/itembutton-hover.png"},
+		ImageUIItemButtonPressed:        {Path: "image/ebitenui/itembutton-pressed.png"},
+		ImageUIItemButtonDisabled:       {Path: "image/ebitenui/itembutton-disabled.png"},
+		ImageUIAltItemButtonIdle:        {Path: "image/ebitenui/itembutton-alt-idle.png"},
+		ImageUIAltItemButtonHover:       {Path: "image/ebitenui/itembutton-alt-hover.png"},
+		ImageUIAltItemButtonPressed:     {Path: "image/ebitenui/itembutton-alt-pressed.png"},
+		ImageUIAltItemButtonDisabled:    {Path: "image/ebitenui/itembutton-alt-disabled.png"},
+		ImageUIBigItemButtonIdle:        {Path: "image/ebitenui/bigitembutton-idle.png"},
+		ImageUIBigItemButtonHover:       {Path: "image/ebitenui/bigitembutton-hover.png"},
+		ImageUIBigItemButtonPressed:     {Path: "image/ebitenui/bigitembutton-pressed.png"},
+		ImageUIBigItemButtonDisabled:    {Path: "image/ebitenui/bigitembutton-disabled.png"},
+		ImageUIAltBigItemButtonIdle:     {Path: "image/ebitenui/bigitembutton-alt-idle.png"},
+		ImageUIAltBigItemButtonHover:    {Path: "image/ebitenui/bigitembutton-alt-hover.png"},
+		ImageUIAltBigItemButtonPressed:  {Path: "image/ebitenui/bigitembutton-alt-pressed.png"},
+		ImageUIAltBigItemButtonDisabled: {Path: "image/ebitenui/bigitembutton-alt-disabled.png"},
+		ImageUIButtonSelectedIdle:       {Path: "image/ebitenui/button-selected-idle.png"},
+		ImageUIButtonSelectedHover:      {Path: "image/ebitenui/button-selected-hover.png"},
+		ImageUIButtonSelectedPressed:    {Path: "image/ebitenui/button-selected-pressed.png"},
+		ImageUIButtonSelectedDisabled:   {Path: "image/ebitenui/button-selected-disabled.png"},
+		ImageUIPanelIdle:                {Path: "image/ebitenui/panel-idle.png"},
 	}
 
 	for id, res := range imageResources {
@@ -170,6 +193,9 @@ const (
 	ImageSmallExplosion1
 	ImageVerticalExplosion
 	ImageBigExplosion
+	ImageIonExplosion
+	ImageCloakWave
+	ImageServantWave
 
 	ImageUpkeepBar
 
@@ -207,7 +233,12 @@ const (
 	ImageWorkerAgent
 	ImageGeneratorAgent
 	ImageMilitiaAgent
-	ImageFlamerAgent
+	ImageClonerAgent
+	ImageScavengerAgent
+	ImageCourierAgent
+	ImageMarauderAgent
+	ImageTruckerAgent
+	ImageStormbringerAgent
 	ImageAntiAirAgent
 	ImagePrismAgent
 	ImageRepairAgent
@@ -235,6 +266,7 @@ const (
 	ImageCrawlerCreep
 	ImageEliteCrawlerCreep
 	ImagePrimitiveCreep
+	ImageServantCreep
 	ImageCreepTier2
 	ImageCreepTier3
 	ImageTurretCreep
@@ -255,8 +287,12 @@ const (
 	ImageRepellerProjectile
 	ImageGunpointProjectile
 	ImageFighterProjectile
+	ImageScavengerProjectile
+	ImageMarauderProjectile
+	ImageCourierProjectile
 	ImageWandererProjectile
-	ImageFlamerProjectile
+	ImageServantProjectile
+	ImageStormbringerProjectile
 	ImageMortarProjectile
 	ImageAntiAirMissile
 	ImageMissile
@@ -265,21 +301,31 @@ const (
 	ImageUIButtonHover
 	ImageUIButtonPressed
 	ImageUIButtonDisabled
+	ImageUITabButtonIdle
+	ImageUITabButtonHover
+	ImageUITabButtonPressed
+	ImageUITabButtonDisabled
+	ImageUITextInputIdle
+	ImageUITextInputDisabled
+	ImageUIItemButtonIdle
+	ImageUIItemButtonHover
+	ImageUIItemButtonPressed
+	ImageUIItemButtonDisabled
+	ImageUIAltItemButtonIdle
+	ImageUIAltItemButtonHover
+	ImageUIAltItemButtonPressed
+	ImageUIAltItemButtonDisabled
+	ImageUIBigItemButtonIdle
+	ImageUIBigItemButtonHover
+	ImageUIBigItemButtonPressed
+	ImageUIBigItemButtonDisabled
+	ImageUIAltBigItemButtonIdle
+	ImageUIAltBigItemButtonHover
+	ImageUIAltBigItemButtonPressed
+	ImageUIAltBigItemButtonDisabled
 	ImageUIButtonSelectedIdle
 	ImageUIButtonSelectedHover
 	ImageUIButtonSelectedPressed
 	ImageUIButtonSelectedDisabled
-	ImageUIArrowDownIdle
-	ImageUIArrowDownDisabled
-	ImageUIOptionButtonIdle
-	ImageUIOptionButtonHover
-	ImageUIOptionButtonPressed
-	ImageUIOptionButtonDisabled
-	ImageUIListIdle
-	ImageUIListDisabled
-	ImageUIListMask
-	ImageUIListTrackIdle
-	ImageUIListTrackDisabled
-	ImageUISliderHandleIdle
-	ImageUISliderHandleHover
+	ImageUIPanelIdle
 )

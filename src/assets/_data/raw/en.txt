@@ -22,6 +22,10 @@
 ##menu.option.rich : rich
 ##menu.option.very_rich : very rich
 
+##menu.option.none : none
+##menu.option.some : some
+##menu.option.lots : lots
+
 ##menu.option.very_easy : very easy
 ##menu.option.easy : easy
 ##menu.option.hard : hard
@@ -44,8 +48,15 @@
 
 ##menu.lobby.world_resources : World Resources
 ##menu.lobby.world_size : World Size
-##menu.lobby.difficulty : Difficulty
+##menu.lobby.creeps_difficulty : Creep Bases
+##menu.lobby.boss_difficulty : Boss Power
+##menu.lobby.starting_resources : Starting Resources
 ##menu.lobby.go : Go!
+
+##menu.lobby.tab.colony : Colony
+##menu.lobby.tab.world : World
+##menu.lobby.tab.difficulty : Difficulty
+##menu.lobby.tab.extra : Extra
 
 ##menu.results.victory : Victory
 ##menu.results.defeat : Defeat
@@ -244,3 +255,92 @@ can leave by pressing ESC.
 
 ##tutorial.message_last
 Good luck and good hunting.
+
+##drone.function : Function
+##drone.kind.worker : worker
+##drone.kind.military : military
+##drone.kind.universal : universal
+
+##drone.target : Targets
+##drone.target.ground : ground
+##drone.target.flying : flying
+
+##drone.scavenger : Scavenger
+##drone.scavenger.description
+A light combat drone that can harvest nearby scraps occasionally.
+This drone can't perform any real worker-related tasks.
+Most of its stats are inferior to the fighter drone, but the upkeep is lower too.
+
+##drone.courier : Courier
+##drone.courier.description
+A drone that travels between colonies to improve their economy.
+This unit has a very weak slow gun for self-defense.
+Its defence is good and it recovers a bit of durability after every successfull trip.
+
+##drone.cloner : Cloner
+##drone.cloner.description
+A unique drone that can clone any non-elite drone.
+Cloning drones requires less resources than normal production.
+
+##drone.freighter : Freighter
+##drone.freighter.description
+A drone with extra carrying capacity.
+This worker will collect more resources per flight than any other drone model.
+
+##drone.redminer : Red Miner
+##drone.redminer.description
+A drone that can harvest a special magma resource.
+A magma resource makes elite drones production possible.
+
+##drone.crippler : Hunter
+##drone.crippler.description
+A light combat drone that attacks up to three targets on above average distance.
+The affected targets will lose some of their speed.
+When low on health, this unit can cloak itself to avoid fatal damage.
+
+##drone.fighter : Fighter
+##drone.fighter.description
+An all-around good combat drone.
+It has good range, damage as well as above average durability.
+
+##drone.prism : Prism
+##drone.prism.description
+An expensive, but capable combat drone those attacks become even stronger when combined with other drones of the same type.
+
+##drone.servo : Servobot
+##drone.servo.description
+A support drone that improves the colony mobility.
+The colony will travel longer distances at higher speed.
+This effect can be stacked.
+
+##drone.repeller : Shocker
+##drone.repeller.description
+A worker that mounts a light EMP-cannon that can attack up to two targets.
+Its attacks may cause the enemy to lose their ability to attack.
+
+##drone.repair : Repairbot
+##drone.repair.description
+A drone that can fix the damaged allies.
+It can't repair itself, so having multiple repair bots is advised.
+
+##drone.recharger : Recharger
+##drone.recharger.description
+A unit that recovers some of the allied drones energy.
+This makes the colony perform more efficiently in general.
+A recharger can't targets itself.
+
+##drone.generator : Generator
+##drone.generator.description
+A worker drone that reduces the colony upkeep value.
+This effect can be stacked multiple times.
+
+##drone.mortar : Mortar
+##drone.mortar.description
+A drone with a very long range ground-only attack.
+Its attacks are precise enough to hit both stationary and moving targets from afar.
+The mortar drone is also quite durable itself.
+
+##drone.antiair : Missilebot
+##drone.antiair.description
+A drone with an anti-air missle launcher as a weapon.
+It's highly effective, but it's quite fragile and it can't attack the ground targets.

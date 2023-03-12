@@ -10,8 +10,9 @@ type droneFallNode struct {
 	world *worldState
 	scene *ge.Scene
 
-	image       resource.ImageID
-	shadowImage resource.ImageID
+	image        resource.ImageID
+	shadowImage  resource.ImageID
+	FrameOffsetY float64
 
 	sprite *ge.Sprite
 	shadow *ge.Sprite
@@ -41,12 +42,13 @@ func (d *droneFallNode) Init(scene *ge.Scene) {
 	d.sprite = scene.NewSprite(d.image)
 	d.sprite.Pos.Base = &d.pos
 	d.sprite.Rotation = &d.rotation
-	d.world.camera.AddGraphics(d.sprite)
+	d.sprite.FrameOffset.Y = d.FrameOffsetY
+	d.world.camera.AddSprite(d.sprite)
 
 	if d.world.graphicsSettings.ShadowsEnabled {
 		d.shadow = scene.NewSprite(d.shadowImage)
 		d.shadow.Pos.Base = &d.pos
-		d.world.camera.AddGraphicsBelow(d.shadow)
+		d.world.camera.AddSpriteBelow(d.shadow)
 	}
 
 	d.height -= 4

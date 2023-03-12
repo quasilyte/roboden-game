@@ -27,9 +27,10 @@ type battleResults struct {
 	TimePlayed      time.Duration
 	SurvivingDrones int
 
-	ResourcesGathered float64
-	DronesProduced    int
-	CreepsDefeated    int
+	ResourcesGathered      float64
+	EliteResourcesGathered float64
+	DronesProduced         int
+	CreepsDefeated         int
 }
 
 func newResultsController(state *session.State, backController ge.SceneController, results battleResults) *resultsController {
@@ -56,7 +57,7 @@ func (c *resultsController) initUI() {
 	uiResources := eui.LoadResources(c.scene.Context().Loader)
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer()
+	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face

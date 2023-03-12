@@ -3,6 +3,7 @@ package staging
 import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type agentSearchFlags int
@@ -59,6 +60,8 @@ type colonyAgentContainer struct {
 	sortTmp [3][]*colonyAgentNode
 
 	hasRedMiner bool
+	hasCloner   bool
+	hasCourier  bool
 	servoNum    int
 }
 
@@ -75,19 +78,25 @@ func newColonyAgentContainer(rand *gmath.Rand) *colonyAgentContainer {
 
 func (c *colonyAgentContainer) Update() {
 	c.hasRedMiner = false
+	c.hasCloner = false
 	c.servoNum = 0
 	c.availableWorkers = c.availableWorkers[:0]
 	c.availableFighters = c.availableFighters[:0]
 	c.availableUniversal = c.availableUniversal[:0]
 
 	for _, a := range c.workers {
-		if a.stats.kind == agentServo {
+		if a.stats.Kind == gamedata.AgentServo {
 			c.servoNum++
 		}
 		if a.mode == agentModeStandby {
 			c.availableWorkers = append(c.availableWorkers, a)
-			if a.stats.kind == agentRedminer {
+			switch a.stats.Kind {
+			case gamedata.AgentRedminer:
 				c.hasRedMiner = true
+			case gamedata.AgentCloner:
+				c.hasCloner = true
+			case gamedata.AgentCourier, gamedata.AgentTrucker:
+				c.hasCourier = true
 			}
 		}
 	}
@@ -98,7 +107,7 @@ func (c *colonyAgentContainer) Update() {
 
 	for _, a := range c.fighters {
 		if a.mode == agentModePatrol || a.mode == agentModeStandby {
-			if a.stats.canGather {
+			if a.stats.CanGather {
 				c.availableUniversal = append(c.availableUniversal, a)
 			} else {
 				c.availableFighters = append(c.availableFighters, a)
@@ -120,7 +129,7 @@ func (c *colonyAgentContainer) NumAvailableFighters() int {
 }
 
 func (c *colonyAgentContainer) Add(a *colonyAgentNode) {
-	if a.stats.canPatrol {
+	if a.stats.CanPatrol {
 		c.fighters = append(c.fighters, a)
 	} else {
 		c.workers = append(c.workers, a)
@@ -128,9 +137,9 @@ func (c *colonyAgentContainer) Add(a *colonyAgentNode) {
 }
 
 func (c *colonyAgentContainer) Remove(a *colonyAgentNode) {
-	if a.stats.canPatrol {
+	if a.stats.CanPatrol {
 		c.fighters = xslices.Remove(c.fighters, a)
-		if a.stats.canGather {
+		if a.stats.CanGather {
 			c.availableUniversal = xslices.Remove(c.availableUniversal, a)
 		} else {
 			c.availableFighters = xslices.Remove(c.availableFighters, a)

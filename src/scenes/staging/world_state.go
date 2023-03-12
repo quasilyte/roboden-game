@@ -3,7 +3,7 @@ package staging
 import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
-
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/viewport"
@@ -24,8 +24,12 @@ type worldState struct {
 	boss             *creepNode
 	creepCoordinator *creepCoordinator
 
+
 	graphicsSettings session.GraphicsSettings
-	debug            bool
+	tier2recipes     []gamedata.AgentMergeRecipe
+	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
+
+	debug bool
 
 	width  float64
 	height float64
@@ -39,6 +43,32 @@ type worldState struct {
 	options *session.LevelOptions
 
 	tmpTargetSlice []projectileTarget
+	tmpColonySlice []*colonyCoreNode
+}
+
+func (w *worldState) Init() {
+	factions := []gamedata.FactionTag{
+		gamedata.YellowFactionTag,
+		gamedata.RedFactionTag,
+		gamedata.BlueFactionTag,
+		gamedata.GreenFactionTag,
+	}
+	kinds := []gamedata.ColonyAgentKind{
+		gamedata.AgentWorker,
+		gamedata.AgentMilitia,
+	}
+	w.tier2recipeIndex = make(map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe)
+	for _, f := range factions {
+		for _, k := range kinds {
+			subject := gamedata.RecipeSubject{Kind: k, Faction: f}
+			for _, recipe := range w.tier2recipes {
+				if !recipe.Match1(subject) && !recipe.Match2(subject) {
+					continue
+				}
+				w.tier2recipeIndex[subject] = append(w.tier2recipeIndex[subject], recipe)
+			}
+		}
+	}
 }
 
 func (w *worldState) IsTutorial() bool {
@@ -74,7 +104,7 @@ func (w *worldState) NumActiveCrawlers() int {
 }
 
 func (w *worldState) EliteCrawlerChance() float64 {
-	switch w.options.Difficulty {
+	switch w.options.BossDifficulty {
 	case 0:
 		return 0
 	case 1:
@@ -87,7 +117,7 @@ func (w *worldState) EliteCrawlerChance() float64 {
 }
 
 func (w *worldState) MaxActiveCrawlers() int {
-	switch w.options.Difficulty {
+	switch w.options.BossDifficulty {
 	case 0:
 		return 15
 	case 1:
@@ -138,7 +168,10 @@ func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r
 	for i := 0; i < len(agents); i++ {
 		slider.Inc()
 		a := agents[slider.Value()]
-		if skipIdling && (a.mode == agentModeCharging || a.mode == agentModeStandby) {
+		if a.IsCloaked() {
+			continue
+		}
+		if skipIdling && a.mode == agentModeStandby {
 			continue
 		}
 		dist := a.pos.DistanceTo(pos)
@@ -181,7 +214,7 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, r float64, f func(a *colonyA
 
 	// TODO: use agents container methods here.
 	for _, c := range w.colonies {
-		skipIdling := c.pos.DistanceTo(pos)*0.75 > r
+		skipIdling := c.pos.DistanceTo(pos)*0.3 > r
 		if a := w.findColonyAgent(c.agents.fighters, pos, r, skipIdling, f); a != nil {
 			return
 		}

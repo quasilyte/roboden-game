@@ -6,6 +6,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type constructionKind int
@@ -23,14 +24,14 @@ type constructionStats struct {
 }
 
 var colonyCoreConstructionStats = &constructionStats{
-	ConstructionSpeed: 0.008,
-	DamageModifier:    0.02,
+	ConstructionSpeed: 0.01,
+	DamageModifier:    0.01,
 	Kind:              constructBase,
 	Image:             assets.ImageColonyCore,
 }
 
 var gunpointConstructionStats = &constructionStats{
-	ConstructionSpeed: 0.025,
+	ConstructionSpeed: 0.04,
 	DamageModifier:    0.03,
 	Kind:              constructGunpoint,
 	Image:             assets.ImageGunpointAgent,
@@ -76,7 +77,7 @@ func (c *constructionNode) Init(scene *ge.Scene) {
 	case constructGunpoint:
 		c.sprite.Shader = scene.NewShader(assets.ShaderTurretBuild)
 	}
-	c.world.camera.AddGraphicsBelow(c.sprite)
+	c.world.camera.AddSpriteBelow(c.sprite)
 
 	c.maxBuildHeight = c.sprite.ImageHeight() * 0.9
 	c.initialBuildHeight = c.sprite.ImageHeight() * 0.45
@@ -108,8 +109,8 @@ func (c *constructionNode) Destroy() {
 
 func (c *constructionNode) IsFlying() bool { return false }
 
-func (c *constructionNode) OnDamage(damage damageValue, source gmath.Vec) {
-	c.progress -= damage.health * c.stats.DamageModifier
+func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+	c.progress -= damage.Health * c.stats.DamageModifier
 	xdelta := c.sprite.ImageWidth() * 0.3
 	if c.progress < 0 {
 		rect := gmath.Rect{
@@ -150,7 +151,7 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 
 	switch c.stats.Kind {
 	case constructGunpoint:
-		turret := newColonyAgentNode(builder, gunpointAgentStats, c.pos)
+		turret := newColonyAgentNode(builder, gamedata.GunpointAgentStats, c.pos)
 		builder.AcceptTurret(turret)
 		c.scene.AddObject(turret)
 		turret.mode = agentModeGuardForever

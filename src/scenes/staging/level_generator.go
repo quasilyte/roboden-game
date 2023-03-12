@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
@@ -135,8 +136,15 @@ func (g *levelGenerator) createBase(pos gmath.Vec) {
 	core.actionPriorities.SetWeight(prioritySecurity, 0.1)
 	g.scene.AddObject(core)
 
+	switch g.world.options.StartingResources {
+	case 1:
+		core.resources = maxVisualResources / 3
+	case 2:
+		core.resources = maxVisualResources
+	}
+
 	for i := 0; i < 5; i++ {
-		a := core.NewColonyAgentNode(workerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
+		a := core.NewColonyAgentNode(gamedata.WorkerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
@@ -210,12 +218,12 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	}
 	multiplier := resMultiplier * worldSizeMultipliers[g.world.worldSize]
 	numIron := int(float64(rand.IntRange(26, 38)) * multiplier)
-	numScrap := int(float64(rand.IntRange(8, 10)) * multiplier)
+	numScrap := int(float64(rand.IntRange(6, 8)) * multiplier)
 	numGold := int(float64(rand.IntRange(20, 28)) * multiplier)
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
 	numRedOil := gmath.ClampMin(int(float64(rand.IntRange(2, 3))*multiplier), 2)
-	numRedCrystals := int(float64(rand.IntRange(8, 12)) * multiplier)
+	numRedCrystals := int(float64(rand.IntRange(10, 15)) * multiplier)
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 
@@ -310,7 +318,7 @@ func (g *levelGenerator) placeTutorialBoss() {
 	boss := g.world.NewCreepNode(gmath.Vec{X: 256, Y: 256}, uberBossCreepStats)
 	g.scene.AddObject(boss)
 
-	boss.OnDamage(damageValue{health: uberBossCreepStats.maxHealth * 0.33}, gmath.Vec{})
+	boss.OnDamage(gamedata.DamageValue{Health: uberBossCreepStats.maxHealth * 0.5}, gmath.Vec{})
 
 	g.world.boss = boss
 }
@@ -587,7 +595,7 @@ func (g *levelGenerator) placeWalls() {
 }
 
 func (g *levelGenerator) placeCreepBases() {
-	if g.world.options.Difficulty == 0 {
+	if g.world.options.CreepsDifficulty == 0 {
 		return // Zero bases
 	}
 	// The bases are always located somewhere on the map boundary.
@@ -605,7 +613,7 @@ func (g *levelGenerator) placeCreepBases() {
 		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
 	}
 	gmath.Shuffle(g.scene.Rand(), borders)
-	numBases := g.world.options.Difficulty
+	numBases := g.world.options.CreepsDifficulty
 	for i := 0; i < numBases; i++ {
 		border := borders[i]
 		var basePos gmath.Vec
@@ -631,7 +639,7 @@ func (g *levelGenerator) placeCreepBases() {
 		}
 		g.placeCreepsCluster(baseRegion, 1, turretCreepStats)
 		base := g.world.NewCreepNode(basePos, baseCreepStats)
-		if i == 0 {
+		if i == 0 || i == 3 {
 			base.specialDelay = (9 * 60.0) * g.scene.Rand().FloatRange(0.9, 1.1)
 		} else {
 			base.specialModifier = 1.0 // Initial level base

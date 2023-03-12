@@ -13,6 +13,7 @@ import (
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type specialChoiceKind int
@@ -28,7 +29,7 @@ const (
 )
 
 type selectedChoice struct {
-	Faction factionTag
+	Faction gamedata.FactionTag
 	Option  choiceOption
 	Pos     gmath.Vec
 }
@@ -65,7 +66,7 @@ var specialChoicesTable = [...]choiceOption{
 	specialBuildColony: {
 		text:    "build_colony",
 		special: specialBuildColony,
-		cost:    40,
+		cost:    25,
 		icon:    assets.ImageActionBuildColony,
 	},
 	specialBuildGunpoint: {
@@ -478,7 +479,7 @@ func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
 		Pos:    pos,
 	}
 	delayRoll := w.scene.Rand().FloatRange(0.8, 1.2)
-	w.startCharging(20.0 * delayRoll)
+	w.startCharging(8.0 * delayRoll)
 	w.scene.Audio().PlaySound(assets.AudioChoiceMade)
 	w.EventChoiceSelected.Emit(choice)
 }
@@ -492,7 +493,7 @@ func (w *choiceWindowNode) activateChoice(i int) {
 	w.selectedIndex = i
 	w.selectedSlide = 0
 
-	selectedFaction := factionTag(i + 1)
+	selectedFaction := gamedata.FactionTag(i + 1)
 	choice := selectedChoice{
 		Faction: selectedFaction,
 		Option:  w.choices[i].option,

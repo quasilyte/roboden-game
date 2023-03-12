@@ -2,16 +2,17 @@ package staging
 
 import (
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
-func mergeAgents(x, y *colonyAgentNode) *agentStats {
-	list := tier2agentMergeRecipeList
-	if x.stats.tier == 2 {
-		list = tier3agentMergeRecipeList
+func mergeAgents(world *worldState, x, y *colonyAgentNode) *gamedata.AgentStats {
+	list := world.tier2recipes
+	if x.stats.Tier == 2 {
+		list = gamedata.Tier3agentMergeRecipes
 	}
 	for _, recipe := range list {
-		if recipe.Match(x, y) {
-			return recipe.result
+		if recipe.Match(x.AsRecipeSubject(), y.AsRecipeSubject()) {
+			return recipe.Result
 		}
 	}
 	return nil
@@ -23,13 +24,10 @@ func agentCloningEnergyCost() float64 {
 
 func agentCloningCost(core *colonyCoreNode, cloner, a *colonyAgentNode) float64 {
 	multiplier := 0.85
-	return a.stats.cost * multiplier
+	return a.stats.Cost * multiplier
 }
 
 func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
-	if source.stats == redOilSource && !core.agents.hasRedMiner {
-		return 0
-	}
 	if source.stats.regenDelay != 0 && source.percengage < 0.15 {
 		return 0
 	}

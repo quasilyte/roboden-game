@@ -7,10 +7,11 @@ todo engine:
 - why animation affects Y axis?
 
 todo:
+- maybe make it possible for support drones to heal/recharge nearby colony drones
+- graphics options: allow disabling some optional shaders (like scrap dissolving)
 - make menu/toggle buttons transparent a bit (like other windows)
 - make tutorial device-aware; if gamepad is connected, tell controller bindings; if it's a mobile device, tell about touch controls
 - add turrets to a pathgrid?
-- enemies focus 1 turret too much (see FindColonyAgent)
 - FindColonyAgent should use agents container for iteration
 - add antiair missle fire effect
 - show resources when base is flying
@@ -30,12 +31,9 @@ todo:
 - maybe group resources into clusters to speedup collision checking?
 
 iskander:
-- maybe add servant drone somehow (hard mode only)
 - implement pause?
 - make tab smooth
 - esc for menu, not exit right away
-oleg:
-- flamer projectile
 
 next release:
 - artifacts idea

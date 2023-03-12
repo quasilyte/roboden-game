@@ -11,6 +11,30 @@ import (
 
 var defaultColorScale = ge.ColorScale{R: 1, G: 1, B: 1, A: 1}
 
+func randIterate[T any](rand *gmath.Rand, slice []T, f func(x T) bool) T {
+	var result T
+	if len(slice) == 0 {
+		return result
+	}
+	var slider gmath.Slider
+	slider.SetBounds(0, len(slice)-1)
+	slider.TrySetValue(rand.IntRange(0, len(slice)-1))
+	inc := rand.Bool()
+	for i := 0; i < len(slice); i++ {
+		x := slice[slider.Value()]
+		if inc {
+			slider.Inc()
+		} else {
+			slider.Dec()
+		}
+		if f(x) {
+			result = x
+			break
+		}
+	}
+	return result
+}
+
 func posMove(pos gmath.Vec, d pathing.Direction) gmath.Vec {
 	switch d {
 	case pathing.DirRight:
@@ -100,6 +124,12 @@ func createAreaExplosion(scene *ge.Scene, camera *viewport.Camera, rect gmath.Re
 func createMuteExplosion(scene *ge.Scene, camera *viewport.Camera, above bool, pos gmath.Vec) {
 	explosion := newEffectNode(camera, pos, above, assets.ImageSmallExplosion1)
 	scene.AddObject(explosion)
+}
+
+func playIonExplosionSound(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
+	explosionSoundIndex := scene.Rand().IntRange(0, 1)
+	explosionSound := resource.AudioID(int(assets.AudioIonExplosion1) + explosionSoundIndex)
+	playSound(scene, camera, explosionSound, pos)
 }
 
 func playExplosionSound(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {

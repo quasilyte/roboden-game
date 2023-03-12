@@ -9,15 +9,16 @@ import (
 	"github.com/quasilyte/gsignal"
 
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 const (
 	coreFlightHeight   float64 = 50
-	maxUpkeepValue     int     = 270
+	maxUpkeepValue     int     = 400
 	maxEvoPoints       float64 = 20
 	maxEvoGain         float64 = 1.0
 	blueEvoThreshold   float64 = 15.0
-	maxResources       float64 = 400.0
+	maxResources       float64 = 500.0
 	maxVisualResources float64 = maxResources - 100.0
 )
 
@@ -68,6 +69,7 @@ type colonyCoreNode struct {
 
 	resourceShortage int
 	resources        float64
+	eliteResources   float64
 	evoPoints        float64
 	world            *worldState
 
@@ -81,16 +83,17 @@ type colonyCoreNode struct {
 	realRadius    float64
 	realRadiusSqr float64
 
-	upkeepDelay float64
+	upkeepDelay  float64
+	cloningDelay float64
 
 	actionDelay      float64
 	actionPriorities *weightContainer[colonyPriority]
 
 	resourceRects []*ge.Rect
 
-	factionTagPicker *gmath.RandPicker[factionTag]
+	factionTagPicker *gmath.RandPicker[gamedata.FactionTag]
 
-	factionWeights *weightContainer[factionTag]
+	factionWeights *weightContainer[gamedata.FactionTag]
 
 	EventDestroyed gsignal.Event[*colonyCoreNode]
 }
@@ -111,8 +114,13 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	}
 	c.realRadiusSqr = c.realRadius * c.realRadius
 	c.actionPriorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
-	c.factionWeights = newWeightContainer(neutralFactionTag, yellowFactionTag, redFactionTag, greenFactionTag, blueFactionTag)
-	c.factionWeights.SetWeight(neutralFactionTag, 1.0)
+	c.factionWeights = newWeightContainer(
+		gamedata.NeutralFactionTag,
+		gamedata.YellowFactionTag,
+		gamedata.RedFactionTag,
+		gamedata.GreenFactionTag,
+		gamedata.BlueFactionTag)
+	c.factionWeights.SetWeight(gamedata.NeutralFactionTag, 1.0)
 	c.pos = config.Pos
 	return c
 }
@@ -122,7 +130,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 
 	c.agents = newColonyAgentContainer(scene.Rand())
 
-	c.factionTagPicker = gmath.NewRandPicker[factionTag](scene.Rand())
+	c.factionTagPicker = gmath.NewRandPicker[gamedata.FactionTag](scene.Rand())
 
 	c.planner = newColonyActionPlanner(c, scene.Rand())
 
@@ -133,18 +141,18 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 	c.sprite.Shader.SetFloatValue("HP", 1.0)
 	c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
-	c.world.camera.AddGraphics(c.sprite)
+	c.world.camera.AddSprite(c.sprite)
 
 	c.flyingSprite = scene.NewSprite(assets.ImageColonyCoreFlying)
 	c.flyingSprite.Pos.Base = &c.spritePos
 	c.flyingSprite.Visible = false
 	c.flyingSprite.Shader = c.sprite.Shader
-	c.world.camera.AddGraphicsSlightlyAbove(c.flyingSprite)
+	c.world.camera.AddSpriteSlightlyAbove(c.flyingSprite)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
 	c.hatch.Pos.Base = &c.spritePos
 	c.hatch.Pos.Offset.Y = -20
-	c.world.camera.AddGraphics(c.hatch)
+	c.world.camera.AddSprite(c.hatch)
 
 	c.flashComponent.sprite = c.sprite
 	c.hatchFlashComponent.sprite = c.hatch
@@ -152,21 +160,21 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
 	c.evoDiode.Pos.Base = &c.spritePos
 	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
-	c.world.camera.AddGraphics(c.evoDiode)
+	c.world.camera.AddSprite(c.evoDiode)
 
 	c.upkeepBar = scene.NewSprite(assets.ImageUpkeepBar)
 	c.upkeepBar.Pos.Base = &c.spritePos
 	c.upkeepBar.Pos.Offset.Y = -5
 	c.upkeepBar.Pos.Offset.X = -c.upkeepBar.ImageWidth() * 0.5
 	c.upkeepBar.Centered = false
-	c.world.camera.AddGraphics(c.upkeepBar)
+	c.world.camera.AddSprite(c.upkeepBar)
 	c.updateUpkeepBar(0)
 
 	if c.world.graphicsSettings.ShadowsEnabled {
 		c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
 		c.shadow.Pos.Base = &c.spritePos
 		c.shadow.Visible = false
-		c.world.camera.AddGraphics(c.shadow)
+		c.world.camera.AddSprite(c.shadow)
 	}
 
 	c.resourceRects = make([]*ge.Rect, 3)
@@ -184,11 +192,11 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
-	return false
+	return c.mode != colonyModeNormal
 }
 
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
-	return 180.0 + (float64(c.agents.servoNum) * 30.0)
+	return 200 + (float64(c.agents.servoNum) * 30.0)
 }
 
 func (c *colonyCoreNode) PatrolRadius() float64 {
@@ -214,13 +222,13 @@ func (c *colonyCoreNode) OnHeal(amount float64) {
 	c.updateHealthShader()
 }
 
-func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
-	if damage.health != 0 {
+func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+	if damage.Health != 0 {
 		c.flashComponent.flash = 0.2
 		c.hatchFlashComponent.flash = 0.2
 	}
 
-	c.health -= damage.health
+	c.health -= damage.Health
 	if c.health < 0 {
 		if c.height == 0 {
 			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
@@ -245,10 +253,10 @@ func (c *colonyCoreNode) OnDamage(damage damageValue, source gmath.Vec) {
 
 func (c *colonyCoreNode) Destroy() {
 	c.agents.Each(func(a *colonyAgentNode) {
-		a.OnDamage(damageValue{health: 1000}, gmath.Vec{})
+		a.OnDamage(gamedata.DamageValue{Health: 1000}, gmath.Vec{})
 	})
 	for _, turret := range c.turrets {
-		turret.OnDamage(damageValue{health: 1000}, gmath.Vec{})
+		turret.OnDamage(gamedata.DamageValue{Health: 1000}, gmath.Vec{})
 	}
 	c.EventDestroyed.Emit(c)
 	c.Dispose()
@@ -287,7 +295,7 @@ func (c *colonyCoreNode) CloneAgentNode(a *colonyAgentNode) *colonyAgentNode {
 	return cloned
 }
 
-func (c *colonyCoreNode) NewColonyAgentNode(stats *agentStats, pos gmath.Vec) *colonyAgentNode {
+func (c *colonyCoreNode) NewColonyAgentNode(stats *gamedata.AgentStats, pos gmath.Vec) *colonyAgentNode {
 	a := newColonyAgentNode(c, stats, pos)
 	c.AcceptAgent(a)
 	c.world.result.DronesProduced++
@@ -352,6 +360,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 	c.updateResourceRects()
 
 	if c.shadow != nil && c.shadow.Visible {
+  	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
 		c.shadow.Pos.Offset.Y = c.height + 4
 		newShadowAlpha := float32(1.0 - ((c.height / coreFlightHeight) * 0.5))
 		c.shadow.SetAlpha(newShadowAlpha)
@@ -374,9 +383,9 @@ func (c *colonyCoreNode) Update(delta float64) {
 func (c *colonyCoreNode) movementSpeed() float64 {
 	switch c.mode {
 	case colonyModeTakeoff, colonyModeLanding:
-		return 8.0
+		return 12 + float64(c.agents.servoNum)
 	case colonyModeRelocating:
-		return 16.0 + (float64(c.agents.servoNum) * 3)
+		return 18.0 + (float64(c.agents.servoNum) * 3)
 	default:
 		return 0
 	}
@@ -419,26 +428,28 @@ func (c *colonyCoreNode) updateResourceRects() {
 }
 
 func (c *colonyCoreNode) calcUnitLimit() int {
-	calculated := ((c.realRadius - 80) * 0.35) + 10
+	calculated := ((c.realRadius - 96) * 0.3) + 10
 	growth := c.GetGrowthPriority()
 	if growth > 0.1 {
-		// 50% growth priority gives ~8 extra units to the limit.
-		calculated += (growth - 0.1) * 20
+		// 50% growth priority gives 24 extra units to the limit.
+		// 80% => 42 extra units
+		calculated += (growth - 0.1) * 60
 	}
-	return gmath.Clamp(int(calculated), 10, 200)
+	return gmath.Clamp(int(calculated), 10, 160)
 }
 
 func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 	upkeepTotal := 0
 	upkeepDecrease := 0
 	c.agents.Each(func(a *colonyAgentNode) {
-		if a.stats.kind == agentGenerator {
+		switch a.stats.Kind {
+		case gamedata.AgentGenerator, gamedata.AgentStormbringer:
 			upkeepDecrease++
 		}
-		upkeepTotal += a.stats.upkeep
+		upkeepTotal += a.stats.Upkeep
 	})
 	for _, turret := range c.turrets {
-		upkeepTotal += turret.stats.upkeep
+		upkeepTotal += turret.stats.Upkeep
 	}
 	upkeepDecrease = gmath.ClampMax(upkeepDecrease, 10)
 	upkeepTotal = gmath.ClampMin(upkeepTotal-(upkeepDecrease*15), 0)
@@ -463,20 +474,22 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 		resourcePrice = 2.0
 	case upkeepTotal <= 95:
 		// ~47 workers or ~23 militia
-		resourcePrice = 4.0
+		resourcePrice = 3.0
 	case upkeepTotal <= 120:
 		// ~60 workers or 30 militia
-		resourcePrice = 6.0
+		resourcePrice = 5.0
 	case upkeepTotal <= 150:
 		// 75 workers or ~37 militia
-		resourcePrice = 9
+		resourcePrice = 7
 	case upkeepTotal <= 215:
 		// ~107 workers or ~53 militia
+		resourcePrice = 9
+	case upkeepTotal <= 300:
 		resourcePrice = 12
 	case upkeepTotal < maxUpkeepValue:
-		resourcePrice = 16
+		resourcePrice = 15
 	default:
-		resourcePrice = 12.0
+		resourcePrice = 20
 	}
 	return resourcePrice, upkeepTotal
 }
@@ -486,6 +499,7 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 	if c.upkeepDelay > 0 {
 		return
 	}
+	c.eliteResources = gmath.ClampMax(c.eliteResources, 10)
 	c.upkeepDelay = c.scene.Rand().FloatRange(6.5, 8.5)
 	upkeepPrice, upkeepValue := c.calcUpkeed()
 	c.updateUpkeepBar(upkeepValue)
@@ -501,7 +515,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.relocationPoint = pos
 
 	c.agents.Each(func(a *colonyAgentNode) {
-		a.payload = 0
+		a.clearCargo()
 		if a.height != agentFlightHeight {
 			a.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
 		} else {
@@ -581,7 +595,7 @@ func (c *colonyCoreNode) doAction() {
 	if c.tryExecutingAction(action) {
 		c.actionDelay = c.scene.Rand().FloatRange(action.TimeCost*0.75, action.TimeCost*1.25)
 	} else {
-		c.actionDelay = c.scene.Rand().FloatRange(0.1, 0.2)
+		c.actionDelay = c.scene.Rand().FloatRange(0.15, 0.25)
 	}
 }
 
@@ -595,10 +609,10 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			if evoGain >= maxEvoGain {
 				return true
 			}
-			if a.stats.tier != 2 {
+			if a.stats.Tier != 2 {
 				return false
 			}
-			if a.stats.canPatrol {
+			if a.stats.CanPatrol {
 				if connectedFighter == nil {
 					connectedFighter = a
 				}
@@ -607,7 +621,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 					connectedWorker = a
 				}
 			}
-			if a.faction == blueFactionTag {
+			if a.faction == gamedata.BlueFactionTag {
 				// 20% more evo points per blue drones.
 				evoGain += 0.12
 			} else {
@@ -629,6 +643,16 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		c.updateEvoDiode()
 		return true
 
+	case actionSendCourier:
+		courier := action.Value2.(*colonyAgentNode)
+		target := action.Value.(*colonyCoreNode)
+		if target.resources*1.2 < c.resources && c.resources > 60 {
+			courier.payload = courier.maxPayload()
+			courier.cargoValue = float64(courier.payload) * 10
+			c.resources -= courier.cargoValue
+		}
+		return courier.AssignMode(agentModeCourierFlight, gmath.Vec{}, action.Value)
+
 	case actionMineEssence:
 		if c.agents.NumAvailableWorkers() == 0 {
 			return false
@@ -640,13 +664,16 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		extraAssign := gmath.Clamp(int(c.GetResourcePriority()*10)-1, 0, 10)
 		toAssign += extraAssign
 		toAssign = gmath.ClampMax(toAssign, source.resource)
+		numAssigned := 0
 		c.pickWorkerUnits(toAssign, func(a *colonyAgentNode) {
-			a.AssignMode(agentModeMineEssence, gmath.Vec{}, source)
+			if a.AssignMode(agentModeMineEssence, gmath.Vec{}, source) {
+				numAssigned++
+			}
 		})
-		return true
+		return numAssigned != 0
 
 	case actionRepairTurret:
-		repairCost := 8.0
+		repairCost := 4.0
 		ok := false
 		if c.resources < repairCost {
 			return false
@@ -660,7 +687,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return ok
 
 	case actionRepairBase:
-		repairCost := 10.0
+		repairCost := 7.0
 		ok := false
 		if c.resources < repairCost {
 			return false
@@ -674,7 +701,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return ok
 
 	case actionBuildBuilding:
-		sendCost := 4.0
+		sendCost := 3.0
 		maxNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/10, 1, 6)
 		minNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/15, 1, 3)
 		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)
@@ -695,11 +722,15 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionProduceAgent:
-		a := c.NewColonyAgentNode(action.Value.(*agentStats), c.GetEntrancePos())
-		a.height = 0
+		a := c.NewColonyAgentNode(action.Value.(*gamedata.AgentStats), c.GetEntrancePos())
 		a.faction = c.pickAgentFaction()
+		if c.eliteResources >= 1 {
+			c.eliteResources--
+			a.rank = 1
+		}
+		a.height = 0
 		c.scene.AddObject(a)
-		c.resources -= a.stats.cost
+		c.resources -= a.stats.Cost
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)
 		playSound(c.scene, c.world.camera, assets.AudioAgentProduced, c.pos)
 		c.openHatchTime = 1.5
@@ -728,6 +759,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionCloneAgent:
+		c.cloningDelay = 6.5
 		cloneTarget := action.Value.(*colonyAgentNode)
 		cloner := action.Value2.(*colonyAgentNode)
 		c.resources -= agentCloningCost(c, cloner, cloneTarget)
@@ -780,7 +812,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	}
 }
 
-func (c *colonyCoreNode) pickAgentFaction() factionTag {
+func (c *colonyCoreNode) pickAgentFaction() gamedata.FactionTag {
 	c.factionTagPicker.Reset()
 	for _, kv := range c.factionWeights.Elems {
 		c.factionTagPicker.AddOption(kv.Key, kv.Weight)

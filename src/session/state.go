@@ -10,6 +10,7 @@ import (
 	"github.com/quasilyte/ge/langs"
 
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/userdevice"
 )
 
@@ -33,12 +34,17 @@ type PersistentData struct {
 }
 
 type LevelOptions struct {
-	Resources  int
-	Difficulty int
+	Resources int
+
+	CreepsDifficulty  int
+	BossDifficulty    int
+	StartingResources int
 
 	WorldSize int
 
 	Tutorial bool
+
+	Tier2Recipes []gamedata.AgentMergeRecipe
 }
 
 type GameSettings struct {

@@ -16,6 +16,7 @@ import (
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
@@ -143,25 +144,28 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	world := &worldState{
 		graphicsSettings: c.state.Persistent.Settings.Graphics,
-		debug:            c.state.Persistent.Settings.Debug,
-		worldSize:        c.worldSize,
-		pathgrid:         pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
-		options:          &c.state.LevelOptions,
-		camera:           c.camera,
-		rand:             scene.Rand(),
-		tmpTargetSlice:   make([]projectileTarget, 0, 20),
-		width:            viewportWorld.Width,
-		height:           viewportWorld.Height,
+		debug:          c.state.Persistent.Settings.Debug,
+		worldSize:      c.worldSize,
+		pathgrid:       pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
+		options:        &c.state.LevelOptions,
+		camera:         c.camera,
+		rand:           scene.Rand(),
+		tmpTargetSlice: make([]projectileTarget, 0, 20),
+		tmpColonySlice: make([]*colonyCoreNode, 0, 4),
+		width:          viewportWorld.Width,
+		height:         viewportWorld.Height,
 		rect: gmath.Rect{
 			Max: gmath.Vec{
 				X: viewportWorld.Width,
 				Y: viewportWorld.Height,
 			},
 		},
+		tier2recipes: c.state.LevelOptions.Tier2Recipes,
 	}
 	world.creepCoordinator = newCreepCoordinator(world)
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
 	c.world = world
+	world.Init()
 
 	bg := ge.NewTiledBackground(scene.Context())
 	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
@@ -170,7 +174,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	g.Generate()
 
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
-	c.camera.AddGraphicsBelow(c.colonySelector)
+	c.camera.AddSpriteBelow(c.colonySelector)
 
 	c.cursor = newCursorNode(c.state.MainInput, c.camera.Rect)
 
@@ -315,9 +319,9 @@ func (c *Controller) launchAttack() {
 	maxDispatched := gmath.Clamp(int(float64(c.selectedColony.agents.NumAvailableFighters())*0.6), 1, 15)
 	c.selectedColony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
 		target := gmath.RandElem(c.world.rand, closeTargets)
-		kind := targetGround
+		kind := gamedata.TargetGround
 		if target.IsFlying() {
-			kind = targetFlying
+			kind = gamedata.TargetFlying
 		}
 		if !a.CanAttack(kind) {
 			return false
@@ -522,24 +526,16 @@ func (c *Controller) Update(delta float64) {
 	c.handleInput()
 
 	if c.debugInfo != nil {
-		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f", ebiten.ActualFPS())
-		// colony := c.selectedColony
-		// c.debugInfo.Text = fmt.Sprintf("colony resources: %.2f, workers: %d, warriors: %d lim: %d radius: %d\nresources=%d%% growth=%d%% evolution=%d%% security=%d%%\ngray: %d%% yellow: %d%% red: %d%% green: %d%% blue: %d%%\nfps: %f",
-		// 	colony.resources,
-		// 	len(colony.agents.workers),
-		// 	len(colony.agents.fighters),
-		// 	colony.calcUnitLimit(),
-		// 	int(colony.realRadius),
-		// 	int(colony.GetResourcePriority()*100),
-		// 	int(colony.GetGrowthPriority()*100),
-		// 	int(colony.GetEvolutionPriority()*100),
-		// 	int(colony.GetSecurityPriority()*100),
-		// 	int(colony.factionWeights.GetWeight(neutralFactionTag)*100),
-		// 	int(colony.factionWeights.GetWeight(yellowFactionTag)*100),
-		// 	int(colony.factionWeights.GetWeight(redFactionTag)*100),
-		// 	int(colony.factionWeights.GetWeight(greenFactionTag)*100),
-		// 	int(colony.factionWeights.GetWeight(blueFactionTag)*100),
-		// 	ebiten.ActualFPS())
+		colony := c.selectedColony
+		numDrones := 0
+		droneLimit := 0
+		if colony != nil {
+			numDrones = colony.NumAgents()
+			droneLimit = colony.calcUnitLimit()
+		}
+		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f Drones: %d/%d",
+			ebiten.ActualFPS(),
+			numDrones, droneLimit)
 	}
 
 }

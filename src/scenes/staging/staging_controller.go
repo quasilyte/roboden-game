@@ -144,16 +144,16 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	world := &worldState{
 		graphicsSettings: c.state.Persistent.Settings.Graphics,
-		debug:          c.state.Persistent.Settings.Debug,
-		worldSize:      c.worldSize,
-		pathgrid:       pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
-		options:        &c.state.LevelOptions,
-		camera:         c.camera,
-		rand:           scene.Rand(),
-		tmpTargetSlice: make([]projectileTarget, 0, 20),
-		tmpColonySlice: make([]*colonyCoreNode, 0, 4),
-		width:          viewportWorld.Width,
-		height:         viewportWorld.Height,
+		debug:            c.state.Persistent.Settings.Debug,
+		worldSize:        c.worldSize,
+		pathgrid:         pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
+		options:          &c.state.LevelOptions,
+		camera:           c.camera,
+		rand:             scene.Rand(),
+		tmpTargetSlice:   make([]projectileTarget, 0, 20),
+		tmpColonySlice:   make([]*colonyCoreNode, 0, 4),
+		width:            viewportWorld.Width,
+		height:           viewportWorld.Height,
 		rect: gmath.Rect{
 			Max: gmath.Vec{
 				X: viewportWorld.Width,

@@ -191,8 +191,8 @@ func (c *creepNode) IsFlying() bool {
 	switch c.stats.kind {
 	case creepBase, creepTank, creepTurret, creepCrawler:
 		return false
-  case creepUberBoss:
-   return !c.altSprite.Visible
+	case creepUberBoss:
+		return !c.altSprite.Visible
 	default:
 		return c.health > 0
 	}
@@ -209,12 +209,12 @@ func (c *creepNode) explode() {
 	switch c.stats.kind {
 	case creepUberBoss:
 		if c.IsFlying() {
-    	shadowImg := assets.ImageNone
-		  if c.shadow != nil {
-	  		shadowImg = c.shadow.ImageID()
-  		}
+			shadowImg := assets.ImageNone
+			if c.shadow != nil {
+				shadowImg = c.shadow.ImageID()
+			}
 
-			fall := newDroneFallNode(c.world, nil, c.stats.image, c.shadow.ImageID(), c.pos, c.height)
+			fall := newDroneFallNode(c.world, nil, c.stats.image, shadowImg, c.pos, c.height)
 			c.scene.AddObject(fall)
 		} else {
 			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.altSprite), true)

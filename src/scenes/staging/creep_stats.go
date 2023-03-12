@@ -86,7 +86,7 @@ var servantCreepStats = &creepStats{
 	shadowImage: assets.ImageMediumShadow,
 	tier:        2,
 	speed:       70,
-	maxHealth:   34,
+	maxHealth:   40,
 	animSpeed:   0.15,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
@@ -106,7 +106,7 @@ var tankCreepStats = &creepStats{
 	kind:      creepTank,
 	image:     assets.ImageTankCreep,
 	speed:     6,
-	maxHealth: 12,
+	maxHealth: 18,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       3,
@@ -152,7 +152,7 @@ var eliteCrawlerCreepStats = &creepStats{
 	image:     assets.ImageEliteCrawlerCreep,
 	animSpeed: 0.09,
 	speed:     40,
-	maxHealth: 24,
+	maxHealth: 25,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      2,
 		BurstSize:       1,
@@ -176,7 +176,7 @@ var assaultCreepStats = &creepStats{
 	shadowImage: assets.ImageBigShadow,
 	tier:        3,
 	speed:       30,
-	maxHealth:   60,
+	maxHealth:   70,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
@@ -184,9 +184,9 @@ var assaultCreepStats = &creepStats{
 		AttackRange:     150,
 		ImpactArea:      10,
 		ProjectileSpeed: 460,
-		Damage:          gamedata.DamageValue{Health: 2},
+		Damage:          gamedata.DamageValue{Health: 3},
 		ProjectileImage: assets.ImageAssaultProjectile,
-		Reload:          0.55,
+		Reload:          0.7,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
 }

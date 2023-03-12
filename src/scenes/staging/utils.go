@@ -128,7 +128,7 @@ func createMuteExplosion(scene *ge.Scene, camera *viewport.Camera, above bool, p
 
 func playIonExplosionSound(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
 	explosionSoundIndex := scene.Rand().IntRange(0, 1)
-	explosionSound := resource.AudioID(int(assets.AudioIonExplosion1) + explosionSoundIndex)
+	explosionSound := resource.AudioID(int(assets.AudioIonZap1) + explosionSoundIndex)
 	playSound(scene, camera, explosionSound, pos)
 }
 

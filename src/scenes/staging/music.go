@@ -15,7 +15,7 @@ type musicTrack struct {
 }
 
 var musicTrackList = []musicTrack{
-	{audio: assets.AudioMusicTrack1, length: 5*time.Minute + 13*time.Second},
+	{audio: assets.AudioMusicTrack1, length: 5*time.Minute + 12*time.Second},
 	{audio: assets.AudioMusicTrack2, length: 2*time.Minute + 44*time.Second},
 	{audio: assets.AudioMusicTrack3, length: 2*time.Minute + 3*time.Second},
 }

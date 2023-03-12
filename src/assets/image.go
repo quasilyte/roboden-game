@@ -40,9 +40,11 @@ func registerImageResources(ctx *ge.Context) {
 		ImageActionDecreaseRadius: {Path: "image/ui/action_decrease_radius.png"},
 
 		ImageSmallExplosion1:   {Path: "image/effects/small_explosion1.png", FrameWidth: 32},
+		ImagePurpleExplosion:   {Path: "image/effects/purple_explosion.png", FrameWidth: 40},
 		ImageVerticalExplosion: {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
 		ImageBigExplosion:      {Path: "image/effects/big_explosion.png", FrameWidth: 64},
-		ImageIonExplosion:      {Path: "image/effects/ion_explosion.png", FrameWidth: 28},
+		ImageIonZap:            {Path: "image/effects/ion_zap.png", FrameWidth: 28},
+		ImagePurpleIonZap:      {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
 		ImageCloakWave:         {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
 		ImageServantWave:       {Path: "image/effects/servant_wave.png", FrameWidth: 64},
 
@@ -54,29 +56,30 @@ func registerImageResources(ctx *ge.Context) {
 		ImageColonyCoreDiode:    {Path: "image/colony_core_diode.png", FrameWidth: 4},
 		ImageColonyCoreShadow:   {Path: "image/colony_core_shadow.png"},
 
-		ImageGunpointAgent:     {Path: "image/drones/gunpoint_agent.png"},
-		ImageWorkerAgent:       {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
-		ImageMilitiaAgent:      {Path: "image/drones/militia_agent.png", FrameWidth: 11, FrameHeight: 13},
-		ImageClonerAgent:       {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 13},
-		ImageScavengerAgent:    {Path: "image/drones/scavenger_agent.png", FrameWidth: 15, FrameHeight: 12},
-		ImageCourierAgent:      {Path: "image/drones/courier_agent.png", FrameWidth: 15, FrameHeight: 15},
-		ImageTruckerAgent:      {Path: "image/drones/trucker_agent.png", FrameWidth: 27, FrameHeight: 22},
-		ImageMarauderAgent:     {Path: "image/drones/marauder_agent.png", FrameWidth: 29, FrameHeight: 20},
-		ImageMortarAgent:       {Path: "image/drones/mortar_agent.png", FrameWidth: 21, FrameHeight: 18},
-		ImageCripplerAgent:     {Path: "image/drones/crippler_agent.png", FrameWidth: 15, FrameHeight: 15},
-		ImageStormbringerAgent: {Path: "image/drones/stormbringer_agent.png", FrameWidth: 21, FrameHeight: 19},
-		ImageRepairAgent:       {Path: "image/drones/repair_agent.png", FrameWidth: 17, FrameHeight: 13},
-		ImageAntiAirAgent:      {Path: "image/drones/antiair_agent.png", FrameWidth: 17, FrameHeight: 19},
-		ImageServoAgent:        {Path: "image/drones/servo_agent.png", FrameWidth: 15, FrameHeight: 22},
-		ImageRechargerAgent:    {Path: "image/drones/recharger_agent.png", FrameWidth: 17, FrameHeight: 20},
-		ImageRefresherAgent:    {Path: "image/drones/refresher_agent.png", FrameWidth: 31, FrameHeight: 31},
-		ImageFighterAgent:      {Path: "image/drones/fighter_agent.png", FrameWidth: 15, FrameHeight: 15},
-		ImagePrismAgent:        {Path: "image/drones/prism_agent.png", FrameWidth: 15, FrameHeight: 15},
-		ImageDestroyerAgent:    {Path: "image/drones/destroyer_agent.png", FrameWidth: 33, FrameHeight: 24},
-		ImageRepellerAgent:     {Path: "image/drones/repeller_agent.png", FrameWidth: 15, FrameHeight: 13},
-		ImageFreighterAgent:    {Path: "image/drones/freighter_agent.png", FrameWidth: 17, FrameHeight: 16},
-		ImageRedminerAgent:     {Path: "image/drones/redminer_agent.png", FrameWidth: 13, FrameHeight: 18},
-		ImageGeneratorAgent:    {Path: "image/drones/generator_agent.png", FrameWidth: 15, FrameHeight: 17},
+		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
+		ImageWorkerAgent:        {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
+		ImageMilitiaAgent:       {Path: "image/drones/militia_agent.png", FrameWidth: 11, FrameHeight: 13},
+		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 13},
+		ImageScavengerAgent:     {Path: "image/drones/scavenger_agent.png", FrameWidth: 15, FrameHeight: 12},
+		ImageCourierAgent:       {Path: "image/drones/courier_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImageDisintegratorAgent: {Path: "image/drones/disintegrator_agent.png", FrameWidth: 17, FrameHeight: 15},
+		ImageTruckerAgent:       {Path: "image/drones/trucker_agent.png", FrameWidth: 27, FrameHeight: 22},
+		ImageMarauderAgent:      {Path: "image/drones/marauder_agent.png", FrameWidth: 29, FrameHeight: 20},
+		ImageMortarAgent:        {Path: "image/drones/mortar_agent.png", FrameWidth: 21, FrameHeight: 18},
+		ImageCripplerAgent:      {Path: "image/drones/crippler_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImageStormbringerAgent:  {Path: "image/drones/stormbringer_agent.png", FrameWidth: 21, FrameHeight: 19},
+		ImageRepairAgent:        {Path: "image/drones/repair_agent.png", FrameWidth: 17, FrameHeight: 13},
+		ImageAntiAirAgent:       {Path: "image/drones/antiair_agent.png", FrameWidth: 17, FrameHeight: 19},
+		ImageServoAgent:         {Path: "image/drones/servo_agent.png", FrameWidth: 15, FrameHeight: 22},
+		ImageRechargerAgent:     {Path: "image/drones/recharger_agent.png", FrameWidth: 17, FrameHeight: 20},
+		ImageRefresherAgent:     {Path: "image/drones/refresher_agent.png", FrameWidth: 31, FrameHeight: 31},
+		ImageFighterAgent:       {Path: "image/drones/fighter_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImagePrismAgent:         {Path: "image/drones/prism_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImageDestroyerAgent:     {Path: "image/drones/destroyer_agent.png", FrameWidth: 33, FrameHeight: 24},
+		ImageRepellerAgent:      {Path: "image/drones/repeller_agent.png", FrameWidth: 15, FrameHeight: 13},
+		ImageFreighterAgent:     {Path: "image/drones/freighter_agent.png", FrameWidth: 17, FrameHeight: 16},
+		ImageRedminerAgent:      {Path: "image/drones/redminer_agent.png", FrameWidth: 13, FrameHeight: 18},
+		ImageGeneratorAgent:     {Path: "image/drones/generator_agent.png", FrameWidth: 15, FrameHeight: 17},
 
 		ImageColonyDamageMask:  {Path: "image/colony_damage_mask.png"},
 		ImageTurretDamageMask1: {Path: "image/turret_damage_mask1.png"},
@@ -116,23 +119,24 @@ func registerImageResources(ctx *ge.Context) {
 		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
-		ImageEliteCrawlerProjectile: {Path: "image/projectile/elite_crawler_projectile.png"},
-		ImageTankProjectile:         {Path: "image/projectile/tank_projectile.png"},
-		ImageAssaultProjectile:      {Path: "image/projectile/assault_projectile.png"},
-		ImageCripplerProjectile:     {Path: "image/projectile/crippler_projectile.png"},
-		ImageMilitiaProjectile:      {Path: "image/projectile/militia_projectile.png"},
-		ImageRepellerProjectile:     {Path: "image/projectile/repeller_projectile.png"},
-		ImageGunpointProjectile:     {Path: "image/projectile/gunpoint_projectile.png"},
-		ImageFighterProjectile:      {Path: "image/projectile/fighter_projectile.png"},
-		ImageScavengerProjectile:    {Path: "image/projectile/scavenger_projectile.png"},
-		ImageMarauderProjectile:     {Path: "image/projectile/marauder_projectile.png"},
-		ImageCourierProjectile:      {Path: "image/projectile/courier_projectile.png"},
-		ImageServantProjectile:      {Path: "image/projectile/servant_projectile.png"},
-		ImageWandererProjectile:     {Path: "image/projectile/wanderer_projectile.png"},
-		ImageStormbringerProjectile: {Path: "image/projectile/stormbringer_projectile.png"},
-		ImageMortarProjectile:       {Path: "image/projectile/mortar_projectile.png"},
-		ImageAntiAirMissile:         {Path: "image/projectile/aa_missile.png"},
-		ImageMissile:                {Path: "image/projectile/missile.png"},
+		ImageEliteCrawlerProjectile:  {Path: "image/projectile/elite_crawler_projectile.png"},
+		ImageTankProjectile:          {Path: "image/projectile/tank_projectile.png"},
+		ImageAssaultProjectile:       {Path: "image/projectile/assault_projectile.png"},
+		ImageCripplerProjectile:      {Path: "image/projectile/crippler_projectile.png"},
+		ImageMilitiaProjectile:       {Path: "image/projectile/militia_projectile.png"},
+		ImageRepellerProjectile:      {Path: "image/projectile/repeller_projectile.png"},
+		ImageGunpointProjectile:      {Path: "image/projectile/gunpoint_projectile.png"},
+		ImageFighterProjectile:       {Path: "image/projectile/fighter_projectile.png"},
+		ImageScavengerProjectile:     {Path: "image/projectile/scavenger_projectile.png"},
+		ImageMarauderProjectile:      {Path: "image/projectile/marauder_projectile.png"},
+		ImageCourierProjectile:       {Path: "image/projectile/courier_projectile.png"},
+		ImageDisintegratorProjectile: {Path: "image/projectile/disintegrator_projectile.png"},
+		ImageServantProjectile:       {Path: "image/projectile/servant_projectile.png"},
+		ImageWandererProjectile:      {Path: "image/projectile/wanderer_projectile.png"},
+		ImageStormbringerProjectile:  {Path: "image/projectile/stormbringer_projectile.png"},
+		ImageMortarProjectile:        {Path: "image/projectile/mortar_projectile.png"},
+		ImageAntiAirMissile:          {Path: "image/projectile/aa_missile.png"},
+		ImageMissile:                 {Path: "image/projectile/missile.png"},
 
 		ImageUIButtonIdle:               {Path: "image/ebitenui/button-idle.png"},
 		ImageUIButtonHover:              {Path: "image/ebitenui/button-hover.png"},
@@ -191,9 +195,11 @@ const (
 	ImageButtonBaseToggle
 
 	ImageSmallExplosion1
+	ImagePurpleExplosion
 	ImageVerticalExplosion
 	ImageBigExplosion
-	ImageIonExplosion
+	ImageIonZap
+	ImagePurpleIonZap
 	ImageCloakWave
 	ImageServantWave
 
@@ -236,6 +242,7 @@ const (
 	ImageClonerAgent
 	ImageScavengerAgent
 	ImageCourierAgent
+	ImageDisintegratorAgent
 	ImageMarauderAgent
 	ImageTruckerAgent
 	ImageStormbringerAgent
@@ -290,6 +297,7 @@ const (
 	ImageScavengerProjectile
 	ImageMarauderProjectile
 	ImageCourierProjectile
+	ImageDisintegratorProjectile
 	ImageWandererProjectile
 	ImageServantProjectile
 	ImageStormbringerProjectile

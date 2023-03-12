@@ -4,14 +4,14 @@ import "fmt"
 
 // Merge usage:
 //
-// yellow worker +++
-// yellow militia +++
-// red worker +++
+// yellow worker ++++
+// yellow militia ++++
+// red worker +++++
 // red militia +++
 // green worker ++++
-// green militia +++
+// green militia ++++
 // blue worker ++++
-// blue militia +++
+// blue militia ++++
 //
 // Used:
 // mortar: green worker + red militia
@@ -29,11 +29,11 @@ import "fmt"
 // cloner: red worker + blue militia
 // scavenger: red worker + yellow militia
 // courier: red worker + green militia
+// disintegrator: yellow worker + blue militia
 //
 // Unused:
 // yellow worker + red militia
 // yellow worker + green militia
-// yellow worker + blue militia
 // red worker + green worker
 // red worker + green militia
 // red worker + yellow militia
@@ -118,6 +118,11 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Drone1: RecipeSubject{GreenFactionTag, AgentWorker},
 		Drone2: RecipeSubject{YellowFactionTag, AgentMilitia},
 		Result: GeneratorAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
+		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Result: DisintegratorAgentStats,
 	},
 }
 

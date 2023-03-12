@@ -262,7 +262,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 	if damage.Disarm != 0 && c.stats.kind != creepUberBoss {
 		if c.scene.Rand().Chance(damage.Disarm * 0.1) {
 			c.disarm = 2.5
-			c.scene.AddObject(newEffectNode(c.world.camera, c.pos, c.IsFlying(), assets.ImageIonExplosion))
+			c.scene.AddObject(newEffectNode(c.world.camera, c.pos, c.IsFlying(), assets.ImageIonZap))
 			playIonExplosionSound(c.scene, c.world.camera, c.pos)
 		}
 	}

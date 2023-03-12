@@ -31,6 +31,7 @@ const (
 	agentModeStandby colonyAgentMode = iota
 	agentModeAlignStandby
 	agentModeCharging
+	agentModeForcedCharging
 	agentModeMineEssence
 	agentModeCourierFlight
 	agentModeScavenge
@@ -420,7 +421,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.waypoint = gmath.Vec{}
 		return true
 
-	case agentModeCharging:
+	case agentModeCharging, agentModeForcedCharging:
 		a.mode = mode
 		a.waypoint = gmath.Vec{}
 		return true
@@ -603,6 +604,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateAlignStandby(delta)
 	case agentModeCharging:
 		a.updateCharging(delta)
+	case agentModeForcedCharging:
+		a.updateForcedCharging(delta)
 	case agentModeCloakHide:
 		a.updateCloakHide(delta)
 	case agentModeMineEssence:
@@ -819,7 +822,7 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 
 func (a *colonyAgentNode) processSupport(delta float64) {
 	switch a.stats.Kind {
-	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher, gamedata.AgentScavenger, gamedata.AgentMarauder:
+	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher, gamedata.AgentScavenger, gamedata.AgentMarauder, gamedata.AgentDisintegrator:
 		// OK
 	default:
 		return
@@ -839,8 +842,7 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 		return
 	}
 
-	a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
-
+	setDelay := true
 	switch a.stats.Kind {
 	case gamedata.AgentRecharger, gamedata.AgentRefresher:
 		a.doRecharge()
@@ -848,7 +850,49 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 		a.doRepair()
 	case gamedata.AgentScavenger, gamedata.AgentMarauder:
 		a.doScavenge()
+	case gamedata.AgentDisintegrator:
+		// Reload depends on the target being there or not.
+		setDelay = false
+		a.doDisintegratorAttack()
 	}
+	if setDelay {
+		a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
+	}
+}
+
+func (a *colonyAgentNode) doDisintegratorAttack() {
+	switch a.mode {
+	case agentModePatrol, agentModeStandby, agentModeFollow, agentModeMineEssence:
+		// OK
+	default:
+		return
+	}
+
+	const attackEnergyCost = 40.0
+	if a.energy < attackEnergyCost || a.height != agentFlightHeight {
+		return
+	}
+	targets := a.findAttackTargets()
+	if len(targets) == 0 {
+		a.supportDelay = a.scene.Rand().FloatRange(0.15, 1.2)
+		return
+	}
+	a.energy -= attackEnergyCost
+	a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.8, 1.2)
+	target := targets[0]
+	toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
+	p := newProjectileNode(projectileConfig{
+		Camera:  a.colonyCore.world.camera,
+		Weapon:  a.stats.Weapon,
+		FromPos: &a.pos,
+		ToPos:   toPos,
+		Target:  target,
+	})
+	a.scene.AddObject(p)
+	a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
+	playSound(a.scene, a.camera(), a.stats.Weapon.AttackSound, a.pos)
+	a.scene.AddObject(newEffectNode(a.camera(), a.pos, true, assets.ImagePurpleIonZap))
+	a.specialDelay = a.scene.Rand().FloatRange(9, 12)
 }
 
 func (a *colonyAgentNode) doScavenge() {
@@ -929,25 +973,11 @@ func (a *colonyAgentNode) doRepair() {
 	}
 }
 
-func (a *colonyAgentNode) processAttack(delta float64) {
-	if a.stats.Weapon == nil {
-		return
-	}
-
-	a.attackDelay = gmath.ClampMin(a.attackDelay-(delta*a.reloadRate), 0)
-	if a.attackDelay != 0 {
-		return
-	}
-	if a.IsCloaked() {
-		return
-	}
+func (a *colonyAgentNode) findAttackTargets() []projectileTarget {
 	creeps := a.colonyCore.world.creeps
 	if len(creeps) == 0 {
-		return
+		return nil
 	}
-
-	a.attackDelay = a.stats.Weapon.Reload * a.scene.Rand().FloatRange(0.8, 1.2)
-
 	targets := a.colonyCore.world.tmpTargetSlice[:0]
 	inc := a.scene.Rand().Bool()
 	var slider gmath.Slider
@@ -971,6 +1001,24 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		}
 		targets = append(targets, c)
 	}
+	return targets
+}
+
+func (a *colonyAgentNode) processAttack(delta float64) {
+	if a.stats.Weapon == nil || a.stats.Kind == gamedata.AgentDisintegrator {
+		return
+	}
+
+	a.attackDelay = gmath.ClampMin(a.attackDelay-(delta*a.reloadRate), 0)
+	if a.attackDelay != 0 {
+		return
+	}
+	if a.IsCloaked() {
+		return
+	}
+
+	a.attackDelay = a.stats.Weapon.Reload * a.scene.Rand().FloatRange(0.8, 1.2)
+	targets := a.findAttackTargets()
 	if len(targets) == 0 {
 		return
 	}
@@ -1426,6 +1474,15 @@ func (a *colonyAgentNode) updateCharging(delta float64) {
 	a.energy = gmath.ClampMax(a.energy+delta*3.5*a.energyRegenRate, a.maxEnergy)
 	if a.energy >= a.maxEnergy*0.5 {
 		a.energyBill = 0
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	}
+}
+
+func (a *colonyAgentNode) updateForcedCharging(delta float64) {
+	a.energy = gmath.ClampMax(a.energy+delta*2.0*a.energyRegenRate, a.maxEnergy)
+	a.specialDelay -= delta
+	if a.specialDelay <= 0 {
+		a.specialDelay = 0
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }

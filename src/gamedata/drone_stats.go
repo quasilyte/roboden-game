@@ -32,6 +32,7 @@ const (
 	AgentPrism
 	AgentServo
 	AgentRepeller
+	AgentDisintegrator
 	AgentRepair
 	AgentCloner
 	AgentRecharger
@@ -605,5 +606,36 @@ var RepellerAgentStats = &AgentStats{
 		MaxTargets:      2,
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
+	}),
+}
+
+var DisintegratorAgentStats = &AgentStats{
+	Kind:          AgentDisintegrator,
+	Image:         assets.ImageDisintegratorAgent,
+	Size:          SizeMedium,
+	DiodeOffset:   4,
+	Tier:          2,
+	PointCost:     3,
+	Cost:          22,
+	Upkeep:        12,
+	CanGather:     true,
+	MaxPayload:    1,
+	CanPatrol:     true,
+	Speed:         80,
+	MaxHealth:     20,
+	SupportReload: 12,
+	Weapon: initWeaponStats(&WeaponStats{
+		AttackRange:           220,
+		AttackSound:           assets.AudioDisintegratorShot,
+		ProjectileImage:       assets.ImageDisintegratorProjectile,
+		ImpactArea:            18,
+		ProjectileSpeed:       210,
+		ProjectileRotateSpeed: 26,
+		Damage:                DamageValue{Health: 12},
+		MaxTargets:            1,
+		BurstSize:             1,
+		Explosion:             ProjectilePurpleExplosion,
+		TargetFlags:           TargetFlying | TargetGround,
+		GroundDamageBonus:     -0.5,
 	}),
 }

@@ -31,7 +31,13 @@ type WeaponStats struct {
 	FireOffset            gmath.Vec
 	ArcPower              float64
 	TargetFlags           TargetKind
-	RoundProjectile       bool
+
+	GroundDamageBonus      float64
+	FlyingDamageBonus      float64
+	GroundTargetDamageMult float64
+	FlyingTargetDamageMult float64
+
+	RoundProjectile bool
 }
 
 type ProjectileExplosionKind int
@@ -39,6 +45,7 @@ type ProjectileExplosionKind int
 const (
 	ProjectileExplosionNone ProjectileExplosionKind = iota
 	ProjectileExplosionNormal
+	ProjectilePurpleExplosion
 )
 
 type TargetKind int
@@ -51,5 +58,7 @@ const (
 func initWeaponStats(stats *WeaponStats) *WeaponStats {
 	stats.ImpactAreaSqr = stats.ImpactArea * stats.ImpactArea
 	stats.AttackRangeSqr = stats.AttackRange * stats.AttackRange
+	stats.FlyingTargetDamageMult = 1 + stats.FlyingDamageBonus
+	stats.GroundTargetDamageMult = 1 + stats.GroundDamageBonus
 	return stats
 }

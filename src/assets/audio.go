@@ -27,6 +27,7 @@ func registerAudioResource(ctx *ge.Context) {
 		AudioCripplerShot:        {Path: "audio/crippler_shot.wav", Volume: -0.3},
 		AudioScavengerShot:       {Path: "audio/scavenger_shot.wav", Volume: -0.3},
 		AudioCourierShot:         {Path: "audio/courier_shot.wav", Volume: -0.2},
+		AudioDisintegratorShot:   {Path: "audio/disintegrator_shot.wav", Volume: -0.2},
 		AudioMortarShot:          {Path: "audio/mortar_shot.wav", Volume: -0.3},
 		AudioAssaultShot:         {Path: "audio/assault_shot.wav", Volume: -0.5},
 		AudioStormbringerShot:    {Path: "audio/stormbringer_shot.wav", Volume: -0.1},
@@ -49,8 +50,11 @@ func registerAudioResource(ctx *ge.Context) {
 		AudioCloning2:            {Path: "audio/cloning2.wav", Volume: -0.3},
 		AudioMerging1:            {Path: "audio/merging1.wav", Volume: -0.4},
 		AudioMerging2:            {Path: "audio/merging2.wav", Volume: -0.4},
-		AudioIonExplosion1:       {Path: "audio/ion_explosion1.wav", Volume: -0.4},
-		AudioIonExplosion2:       {Path: "audio/ion_explosion2.wav", Volume: -0.4},
+		AudioIonZap1:             {Path: "audio/ion_zap1.wav", Volume: -0.4},
+		AudioIonZap2:             {Path: "audio/ion_zap2.wav", Volume: -0.4},
+		AudioPurpleExplosion1:    {Path: "audio/purple_explosion1.wav", Volume: -0.4},
+		AudioPurpleExplosion2:    {Path: "audio/purple_explosion2.wav", Volume: -0.4},
+		AudioPurpleExplosion3:    {Path: "audio/purple_explosion3.wav", Volume: -0.4},
 		AudioExplosion1:          {Path: "audio/explosion1.wav", Volume: -0.4},
 		AudioExplosion2:          {Path: "audio/explosion2.wav", Volume: -0.4},
 		AudioExplosion3:          {Path: "audio/explosion3.wav", Volume: -0.4},
@@ -92,6 +96,7 @@ const (
 	AudioCripplerShot
 	AudioScavengerShot
 	AudioCourierShot
+	AudioDisintegratorShot
 	AudioStealth
 	AudioMarauderShot
 	AudioMilitiaShot
@@ -111,8 +116,11 @@ const (
 	AudioCloning2
 	AudioMerging1
 	AudioMerging2
-	AudioIonExplosion1
-	AudioIonExplosion2
+	AudioIonZap1
+	AudioIonZap2
+	AudioPurpleExplosion1
+	AudioPurpleExplosion2
+	AudioPurpleExplosion3
 	AudioExplosion1
 	AudioExplosion2
 	AudioExplosion3

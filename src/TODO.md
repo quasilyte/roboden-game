@@ -7,6 +7,7 @@ todo engine:
 - why animation affects Y axis?
 
 todo:
+- make disintegrators prefer flying targets
 - maybe make it possible for support drones to heal/recharge nearby colony drones
 - graphics options: allow disabling some optional shaders (like scrap dissolving)
 - make menu/toggle buttons transparent a bit (like other windows)

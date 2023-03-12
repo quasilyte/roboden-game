@@ -3,8 +3,10 @@ package staging
 import (
 	"math"
 
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/viewport"
 )
@@ -152,10 +154,31 @@ func (p *projectileNode) detonate() {
 	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > p.weapon.ImpactAreaSqr {
 		return
 	}
+
+	dmg := p.weapon.Damage
+	if dmg.Health != 0 {
+		var multiplier float64
+		if p.target.IsFlying() {
+			multiplier = p.weapon.FlyingTargetDamageMult
+		} else {
+			multiplier = p.weapon.GroundTargetDamageMult
+		}
+		dmg.Health *= multiplier
+	}
 	p.target.OnDamage(p.weapon.Damage, *p.fromPos)
 
-	switch p.weapon.Explosion {
+	explosionKind := p.weapon.Explosion
+	if explosionKind == gamedata.ProjectileExplosionNone {
+		return
+	}
+	explosionPos := p.pos.Add(p.scene.Rand().Offset(-3, 3))
+	switch explosionKind {
 	case gamedata.ProjectileExplosionNormal:
-		createExplosion(p.scene, p.camera, p.target.IsFlying(), p.pos.Add(p.scene.Rand().Offset(-3, 3)))
+		createExplosion(p.scene, p.camera, p.target.IsFlying(), explosionPos)
+	case gamedata.ProjectilePurpleExplosion:
+		soundIndex := p.scene.Rand().IntRange(0, 2)
+		sound := assets.AudioPurpleExplosion1 + resource.AudioID(soundIndex)
+		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImagePurpleExplosion))
+		playSound(p.scene, p.camera, sound, explosionPos)
 	}
 }

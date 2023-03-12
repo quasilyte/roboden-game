@@ -614,16 +614,22 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 			textLines = append(textLines, d.Get("drone", key, "description")+"\n")
 
 			if drone.Weapon != nil {
-				targets := ""
-				switch {
-				case drone.Weapon.TargetFlags&gamedata.TargetFlying != 0 && drone.Weapon.TargetFlags&gamedata.TargetGround != 0:
-					targets = d.Get("drone.target.ground") + ", " + d.Get("drone.target.flying")
-				case drone.Weapon.TargetFlags&gamedata.TargetFlying != 0:
-					targets = d.Get("drone.target.flying")
-				case drone.Weapon.TargetFlags&gamedata.TargetGround != 0:
-					targets = d.Get("drone.target.ground")
+				parts := make([]string, 0, 2)
+				if drone.Weapon.TargetFlags&gamedata.TargetGround != 0 {
+					p := d.Get("drone.target.ground")
+					if drone.Weapon.GroundDamageBonus != 0 {
+						p += fmt.Sprintf(" (%d%%)", int(drone.Weapon.GroundDamageBonus*100))
+					}
+					parts = append(parts, p)
 				}
-				textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.target"), targets))
+				if drone.Weapon.TargetFlags&gamedata.TargetFlying != 0 {
+					p := d.Get("drone.target.flying")
+					if drone.Weapon.FlyingDamageBonus != 0 {
+						p += fmt.Sprintf(" (%d%%)", int(drone.Weapon.FlyingDamageBonus*100))
+					}
+					parts = append(parts, p)
+				}
+				textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.target"), strings.Join(parts, ", ")))
 			}
 
 			c.helpLabel.Label = strings.Join(textLines, "\n")

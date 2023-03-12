@@ -33,7 +33,7 @@ var turretCreepStats = &creepStats{
 	kind:      creepTurret,
 	image:     assets.ImageTurretCreep,
 	speed:     0,
-	maxHealth: 42,
+	maxHealth: 60,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
@@ -86,7 +86,7 @@ var servantCreepStats = &creepStats{
 	shadowImage: assets.ImageMediumShadow,
 	tier:        2,
 	speed:       70,
-	maxHealth:   30,
+	maxHealth:   34,
 	animSpeed:   0.15,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
@@ -129,7 +129,7 @@ var crawlerCreepStats = &creepStats{
 	image:     assets.ImageCrawlerCreep,
 	animSpeed: 0.09,
 	speed:     44,
-	maxHealth: 16,
+	maxHealth: 18,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       2,
@@ -152,7 +152,7 @@ var eliteCrawlerCreepStats = &creepStats{
 	image:     assets.ImageEliteCrawlerCreep,
 	animSpeed: 0.09,
 	speed:     40,
-	maxHealth: 22,
+	maxHealth: 24,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      2,
 		BurstSize:       1,
@@ -176,7 +176,7 @@ var assaultCreepStats = &creepStats{
 	shadowImage: assets.ImageBigShadow,
 	tier:        3,
 	speed:       30,
-	maxHealth:   55,
+	maxHealth:   60,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
@@ -197,7 +197,7 @@ var uberBossCreepStats = &creepStats{
 	animSpeed:   0.5,
 	shadowImage: assets.ImageUberBossShadow,
 	speed:       10,
-	maxHealth:   500,
+	maxHealth:   520,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:  5,
 		BurstSize:   1,
@@ -217,7 +217,7 @@ var stunnerCreepStats = &creepStats{
 	shadowImage: assets.ImageMediumShadow,
 	tier:        2,
 	speed:       55,
-	maxHealth:   30,
+	maxHealth:   35,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:  3,
 		BurstSize:   1,

@@ -13,6 +13,10 @@
 ##menu.more : More
 ##menu.lobby_back : To The Menu
 
+##menu.options.sound : Sound
+##menu.options.graphics : Graphics
+##menu.options.camera : Camera
+
 ##menu.option.on : on
 ##menu.option.off : off
 

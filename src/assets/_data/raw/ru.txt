@@ -13,6 +13,10 @@
 ##menu.more : Ещё
 ##menu.lobby_back : Назад в Меню
 
+##menu.options.sound : Звук
+##menu.options.graphics : Графика
+##menu.options.camera : Камера
+
 ##menu.option.on : вкл
 ##menu.option.off : выкл
 

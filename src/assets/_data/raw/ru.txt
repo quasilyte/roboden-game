@@ -16,6 +16,7 @@
 ##menu.options.sound : Звук
 ##menu.options.graphics : Графика
 ##menu.options.camera : Камера
+##menu.options.extra : Дополнительно
 
 ##menu.option.on : вкл
 ##menu.option.off : выкл

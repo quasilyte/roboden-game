@@ -61,6 +61,10 @@ func (c *OptionsMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewOptionsCameraMenuController(c.state))
 	}))
 
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.extra"), func() {
+		c.scene.Context().ChangeScene(NewOptionsExtraMenuController(c.state))
+	}))
+
 	{
 		langOptions := []string{
 			"en",

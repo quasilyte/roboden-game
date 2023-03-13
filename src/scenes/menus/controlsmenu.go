@@ -43,7 +43,7 @@ func (c *ControlsMenuController) initUI() {
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	titleLabel := eui.NewLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.controls"), normalFont)
+	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.controls"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

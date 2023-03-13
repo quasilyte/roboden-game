@@ -52,7 +52,8 @@ func (c *ExtraCreditsMenuController) initUI() {
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	lines := []string{
-		"* Hajime Hoshi - Ebitengine creator and maintainer",
+		"* Hajime Hoshi - Ebitengine creator and maintainer (@hajimehoshi)",
+		"* Mark Carpenter - ebitenui mainteiner (@mcarpenter622)",
 		"* Supportive Ebitengine community",
 	}
 

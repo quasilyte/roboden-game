@@ -24,7 +24,6 @@ type worldState struct {
 	boss             *creepNode
 	creepCoordinator *creepCoordinator
 
-
 	graphicsSettings session.GraphicsSettings
 	tier2recipes     []gamedata.AgentMergeRecipe
 	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
@@ -150,7 +149,7 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 }
 
 func (w *worldState) NewEssenceSourceNode(stats *essenceSourceStats, pos gmath.Vec) *essenceSourceNode {
-	n := newEssenceSourceNode(w.camera, stats, pos)
+	n := newEssenceSourceNode(w, stats, pos)
 	n.EventDestroyed.Connect(nil, func(x *essenceSourceNode) {
 		w.essenceSources = xslices.Remove(w.essenceSources, x)
 	})

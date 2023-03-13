@@ -29,6 +29,8 @@
 ##menu.option.none : никаких
 ##menu.option.some : немного
 ##menu.option.full : много
+##menu.option.mandatory : только необходимые
+##menu.option.all : все
 
 ##menu.option.very_easy : очень легко
 ##menu.option.easy : легко
@@ -45,6 +47,7 @@
 ##menu.options.debug : Режим Отладки
 
 ##menu.options.graphics.shadows : Тени
+##menu.options.graphics.shaders : Шейдеры
 
 ##menu.credits.crew : команда
 ##menu.credits.assets : ассеты

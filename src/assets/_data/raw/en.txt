@@ -29,6 +29,8 @@
 ##menu.option.none : none
 ##menu.option.some : some
 ##menu.option.lots : lots
+##menu.option.mandatory : only mandatory
+##menu.option.all : all
 
 ##menu.option.very_easy : very easy
 ##menu.option.easy : easy
@@ -45,6 +47,7 @@
 ##menu.options.debug : Debug Mode
 
 ##menu.options.graphics.shadows : Shadows
+##menu.options.graphics.shaders : Shaders
 
 ##menu.credits.crew : crew
 ##menu.credits.assets : assets

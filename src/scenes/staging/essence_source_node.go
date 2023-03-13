@@ -119,6 +119,7 @@ type essenceSourceNode struct {
 	scene *ge.Scene
 
 	camera *viewport.Camera
+	world  *worldState
 
 	stats *essenceSourceStats
 
@@ -136,9 +137,10 @@ type essenceSourceNode struct {
 	EventDestroyed gsignal.Event[*essenceSourceNode]
 }
 
-func newEssenceSourceNode(camera *viewport.Camera, stats *essenceSourceStats, pos gmath.Vec) *essenceSourceNode {
+func newEssenceSourceNode(world *worldState, stats *essenceSourceStats, pos gmath.Vec) *essenceSourceNode {
 	return &essenceSourceNode{
-		camera: camera,
+		camera: world.camera,
+		world:  world,
 		stats:  stats,
 		pos:    pos,
 	}
@@ -150,7 +152,7 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	e.sprite = scene.NewSprite(e.stats.image)
 	e.sprite.Pos.Base = &e.pos
 	e.sprite.Rotation = &e.rotation
-	if !e.stats.spritesheet {
+	if !e.stats.spritesheet && e.world.graphicsSettings.AllShadersEnabled {
 		e.sprite.Shader = scene.NewShader(assets.ShaderDissolve)
 		e.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageEssenceSourceDissolveMask)
 		e.sprite.Shader.Enabled = false
@@ -220,14 +222,17 @@ func (e *essenceSourceNode) Destroy() {
 
 func (e *essenceSourceNode) updateShader() {
 	if !e.stats.spritesheet {
-		if e.percengage >= 0.85 {
-			e.sprite.Shader.Enabled = false
-			return
+		if !e.sprite.Shader.IsNil() {
+			if e.percengage >= 0.85 {
+				e.sprite.Shader.Enabled = false
+				return
+			}
+			e.sprite.Shader.Enabled = true
+			e.sprite.Shader.SetFloatValue("Time", e.percengage+0.15)
 		}
-		e.sprite.Shader.Enabled = true
-		e.sprite.Shader.SetFloatValue("Time", e.percengage+0.15)
 		return
 	}
+
 	if e.percengage < 0.01 {
 		e.sprite.FrameOffset.X = e.sprite.ImageWidth() - e.sprite.FrameWidth
 		return

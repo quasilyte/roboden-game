@@ -43,7 +43,8 @@ func main() {
 				Debug:              false,
 				Lang:               inferDefaultLang(),
 				Graphics: session.GraphicsSettings{
-					ShadowsEnabled: true,
+					ShadowsEnabled:    true,
+					AllShadersEnabled: true,
 				},
 			},
 		},

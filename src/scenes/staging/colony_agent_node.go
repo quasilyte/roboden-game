@@ -259,10 +259,13 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.camera().AddSpriteAbove(a.sprite)
 	} else {
 		a.camera().AddSprite(a.sprite)
-		a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
-		a.sprite.Shader.SetFloatValue("HP", 1.0)
-		damageTexture := gmath.RandElem(scene.Rand(), turretDamageTextureList)
-		a.sprite.Shader.Texture1 = scene.LoadImage(damageTexture)
+		// Turret damage is an optional shader.
+		if a.colonyCore.world.graphicsSettings.AllShadersEnabled {
+			a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
+			a.sprite.Shader.SetFloatValue("HP", 1.0)
+			damageTexture := gmath.RandElem(scene.Rand(), turretDamageTextureList)
+			a.sprite.Shader.Texture1 = scene.LoadImage(damageTexture)
+		}
 	}
 
 	a.flashComponent.sprite = a.sprite
@@ -735,6 +738,9 @@ func (a *colonyAgentNode) OnBuildingRepair(amount float64) {
 }
 
 func (a *colonyAgentNode) updateHealthShader() {
+	if a.sprite.Shader.IsNil() {
+		return
+	}
 	percentage := a.health / a.maxHealth
 	a.sprite.Shader.SetFloatValue("HP", percentage)
 	a.sprite.Shader.Enabled = percentage < 0.95

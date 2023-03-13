@@ -67,6 +67,25 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		rowContainer.AddChild(disableShadows)
 	}
 
+	{
+		sliderOptions := []string{
+			d.Get("menu.option.mandatory"),
+			d.Get("menu.option.all"),
+		}
+		var slider gmath.Slider
+		slider.SetBounds(0, len(sliderOptions)-1)
+		if options.Graphics.AllShadersEnabled {
+			slider.TrySetValue(1)
+		}
+		b := eui.NewButtonSelected(uiResources, d.Get("menu.options.graphics.shaders")+": "+sliderOptions[slider.Value()])
+		b.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			options.Graphics.AllShadersEnabled = slider.Value() != 0
+			b.Text().Label = d.Get("menu.options.graphics.shaders") + ": " + sliderOptions[slider.Value()]
+		})
+		rowContainer.AddChild(b)
+	}
+
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {

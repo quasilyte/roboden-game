@@ -138,15 +138,19 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 
 	c.sprite = scene.NewSprite(assets.ImageColonyCore)
 	c.sprite.Pos.Base = &c.spritePos
-	c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
-	c.sprite.Shader.SetFloatValue("HP", 1.0)
-	c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
+	if c.world.graphicsSettings.AllShadersEnabled {
+		c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
+		c.sprite.Shader.SetFloatValue("HP", 1.0)
+		c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
+	}
 	c.world.camera.AddSprite(c.sprite)
 
 	c.flyingSprite = scene.NewSprite(assets.ImageColonyCoreFlying)
 	c.flyingSprite.Pos.Base = &c.spritePos
 	c.flyingSprite.Visible = false
-	c.flyingSprite.Shader = c.sprite.Shader
+	if c.world.graphicsSettings.AllShadersEnabled {
+		c.flyingSprite.Shader = c.sprite.Shader
+	}
 	c.world.camera.AddSpriteSlightlyAbove(c.flyingSprite)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
@@ -342,6 +346,9 @@ func (c *colonyCoreNode) Dispose() {
 }
 
 func (c *colonyCoreNode) updateHealthShader() {
+	if c.sprite.Shader.IsNil() {
+		return
+	}
 	percentage := c.health / c.maxHealth
 	c.sprite.Shader.SetFloatValue("HP", percentage)
 	c.sprite.Shader.Enabled = percentage < 0.95

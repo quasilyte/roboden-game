@@ -24,6 +24,8 @@ type worldState struct {
 	boss             *creepNode
 	creepCoordinator *creepCoordinator
 
+
+	graphicsSettings session.GraphicsSettings
 	tier2recipes     []gamedata.AgentMergeRecipe
 	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
 

@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/viewport"
@@ -276,7 +277,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.camera().AddSpriteAbove(a.diode)
 	}
 
-	if !a.IsTurret() {
+	if !a.IsTurret() && a.colonyCore.world.graphicsSettings.ShadowsEnabled {
 		shadowImage := assets.ImageSmallShadow
 		switch a.stats.Size {
 		case gamedata.SizeMedium:
@@ -711,7 +712,13 @@ func (a *colonyAgentNode) explode() {
 				scraps = scrapSource
 			}
 		}
-		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.Image, a.shadow.ImageID(), a.pos, a.height)
+
+		shadowImg := assets.ImageNone
+		if a.shadow != nil {
+			shadowImg = a.shadow.ImageID()
+		}
+
+		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.Image, shadowImg, a.pos, a.height)
 		fall.FrameOffsetY = float64(a.rank) * a.sprite.FrameHeight
 		a.scene.AddObject(fall)
 	}

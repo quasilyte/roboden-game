@@ -7,6 +7,7 @@ import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
 )
@@ -169,10 +170,12 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.world.camera.AddSprite(c.upkeepBar)
 	c.updateUpkeepBar(0)
 
-	c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
-	c.shadow.Pos.Base = &c.spritePos
-	c.shadow.Visible = false
-	c.world.camera.AddSprite(c.shadow)
+	if c.world.graphicsSettings.ShadowsEnabled {
+		c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
+		c.shadow.Pos.Base = &c.spritePos
+		c.shadow.Visible = false
+		c.world.camera.AddSprite(c.shadow)
+	}
 
 	c.resourceRects = make([]*ge.Rect, 3)
 	for i := range c.resourceRects {
@@ -230,7 +233,12 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec)
 		if c.height == 0 {
 			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
 		} else {
-			fall := newDroneFallNode(c.world, nil, c.sprite.ImageID(), c.shadow.ImageID(), c.pos, c.height)
+			shadowImg := assets.ImageNone
+			if c.shadow != nil {
+				shadowImg = c.shadow.ImageID()
+			}
+
+			fall := newDroneFallNode(c.world, nil, c.sprite.ImageID(), shadowImg, c.pos, c.height)
 			c.scene.AddObject(fall)
 		}
 		c.Destroy()
@@ -323,7 +331,9 @@ func (c *colonyCoreNode) Dispose() {
 	c.sprite.Dispose()
 	c.hatch.Dispose()
 	c.flyingSprite.Dispose()
-	c.shadow.Dispose()
+	if c.shadow != nil {
+		c.shadow.Dispose()
+	}
 	c.upkeepBar.Dispose()
 	c.evoDiode.Dispose()
 	for _, rect := range c.resourceRects {
@@ -351,7 +361,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
 
-	if c.shadow.Visible {
+	if c.shadow != nil && c.shadow.Visible {
 		c.shadow.Pos.Offset.Y = c.height + 4
 		newShadowAlpha := float32(1.0 - ((c.height / coreFlightHeight) * 0.5))
 		c.shadow.SetAlpha(newShadowAlpha)
@@ -516,7 +526,10 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 
 	c.mode = colonyModeTakeoff
 	c.openHatchTime = 0
-	c.shadow.Visible = true
+
+	if c.shadow != nil {
+		c.shadow.Visible = true
+	}
 	c.flyingSprite.Visible = true
 	c.flashComponent.sprite = c.flyingSprite
 	c.sprite.Visible = false
@@ -549,7 +562,9 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.mode = colonyModeNormal
 		c.flyingSprite.Visible = false
 		c.flashComponent.sprite = c.sprite
-		c.shadow.Visible = false
+		if c.shadow != nil {
+			c.shadow.Visible = false
+		}
 		c.sprite.Visible = true
 		c.hatch.Visible = true
 		c.upkeepBar.Visible = true

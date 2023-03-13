@@ -13,6 +13,7 @@ import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -142,16 +143,17 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	world := &worldState{
-		debug:          c.state.Persistent.Settings.Debug,
-		worldSize:      c.worldSize,
-		pathgrid:       pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
-		options:        &c.state.LevelOptions,
-		camera:         c.camera,
-		rand:           scene.Rand(),
-		tmpTargetSlice: make([]projectileTarget, 0, 20),
-		tmpColonySlice: make([]*colonyCoreNode, 0, 4),
-		width:          viewportWorld.Width,
-		height:         viewportWorld.Height,
+		graphicsSettings: c.state.Persistent.Settings.Graphics,
+		debug:            c.state.Persistent.Settings.Debug,
+		worldSize:        c.worldSize,
+		pathgrid:         pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
+		options:          &c.state.LevelOptions,
+		camera:           c.camera,
+		rand:             scene.Rand(),
+		tmpTargetSlice:   make([]projectileTarget, 0, 20),
+		tmpColonySlice:   make([]*colonyCoreNode, 0, 4),
+		width:            viewportWorld.Width,
+		height:           viewportWorld.Height,
 		rect: gmath.Rect{
 			Max: gmath.Vec{
 				X: viewportWorld.Width,

@@ -4,6 +4,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
@@ -101,7 +102,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	c.height = agentFlightHeight
 
-	if c.stats.shadowImage != assets.ImageNone {
+	if c.stats.shadowImage != assets.ImageNone && c.world.graphicsSettings.ShadowsEnabled {
 		c.shadow = scene.NewSprite(c.stats.shadowImage)
 		c.shadow.Pos.Base = &c.pos
 		c.world.camera.AddSprite(c.shadow)
@@ -187,10 +188,14 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 }
 
 func (c *creepNode) IsFlying() bool {
-	if c.stats.kind == creepUberBoss {
+	switch c.stats.kind {
+	case creepBase, creepTank, creepTurret, creepCrawler:
+		return false
+	case creepUberBoss:
 		return !c.altSprite.Visible
+	default:
+		return c.health > 0
 	}
-	return c.shadow != nil
 }
 
 func (c *creepNode) TargetKind() gamedata.TargetKind {
@@ -204,11 +209,17 @@ func (c *creepNode) explode() {
 	switch c.stats.kind {
 	case creepUberBoss:
 		if c.IsFlying() {
-			fall := newDroneFallNode(c.world, nil, c.stats.image, c.shadow.ImageID(), c.pos, c.height)
+			shadowImg := assets.ImageNone
+			if c.shadow != nil {
+				shadowImg = c.shadow.ImageID()
+			}
+
+			fall := newDroneFallNode(c.world, nil, c.stats.image, shadowImg, c.pos, c.height)
 			c.scene.AddObject(fall)
 		} else {
 			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.altSprite), true)
 		}
+
 	case creepTurret, creepBase:
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
@@ -239,7 +250,12 @@ func (c *creepNode) explode() {
 					scraps = bigScrapCreepSource
 				}
 			}
-			fall := newDroneFallNode(c.world, scraps, c.stats.image, c.shadow.ImageID(), c.pos, agentFlightHeight)
+			shadowImg := assets.ImageNone
+			if c.shadow != nil {
+				shadowImg = c.shadow.ImageID()
+			}
+
+			fall := newDroneFallNode(c.world, scraps, c.stats.image, shadowImg, c.pos, agentFlightHeight)
 			c.scene.AddObject(fall)
 		}
 	}
@@ -429,7 +445,9 @@ func (c *creepNode) wandererMovement(delta float64) {
 
 	if c.moveTowards(delta, c.waypoint) {
 		c.waypoint = gmath.Vec{}
-		c.shadow.Visible = true
+		if c.shadow != nil {
+			c.shadow.Visible = true
+		}
 		c.height = agentFlightHeight
 	}
 }
@@ -633,9 +651,11 @@ func (c *creepNode) updateUberBoss(delta float64) {
 		return
 	}
 
-	c.shadow.Pos.Offset.Y = c.height + 4
-	newShadowAlpha := float32(1.0 - ((c.height / agentFlightHeight) * 0.5))
-	c.shadow.SetAlpha(newShadowAlpha)
+	if c.shadow != nil {
+		c.shadow.Pos.Offset.Y = c.height + 4
+		newShadowAlpha := float32(1.0 - ((c.height / agentFlightHeight) * 0.5))
+		c.shadow.SetAlpha(newShadowAlpha)
+	}
 
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 	if c.specialDelay == 0 && c.specialModifier == 0 {

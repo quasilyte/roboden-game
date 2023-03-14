@@ -49,6 +49,7 @@
 
 ##menu.options.graphics.shadows : Тени
 ##menu.options.graphics.shaders : Шейдеры
+##menu.options.graphics.fullscreen : Полноэкранный режим
 
 ##menu.credits.crew : команда
 ##menu.credits.assets : ассеты

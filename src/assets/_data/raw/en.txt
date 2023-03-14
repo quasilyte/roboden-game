@@ -49,6 +49,7 @@
 
 ##menu.options.graphics.shadows : Shadows
 ##menu.options.graphics.shaders : Shaders
+##menu.options.graphics.fullscreen : Fullscreen
 
 ##menu.credits.crew : crew
 ##menu.credits.assets : assets

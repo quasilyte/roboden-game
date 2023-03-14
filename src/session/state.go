@@ -60,6 +60,7 @@ type GameSettings struct {
 type GraphicsSettings struct {
 	ShadowsEnabled    bool
 	AllShadersEnabled bool
+	FullscreenEnabled bool
 }
 
 func (state *State) ReloadLanguage(ctx *ge.Context) {

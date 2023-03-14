@@ -23,7 +23,6 @@ todo:
 - make low energy fighters fire at a slower rate
 - base selector is hidden by shadow
 - falling base should have damaged shader applied too
-- add fullscreen option (disable/enable windowed mode)
 - menu buttons focus?
 - base should check landing zone before landing
 - rework planner action delay (same action vs other action)

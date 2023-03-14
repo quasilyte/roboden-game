@@ -2,6 +2,7 @@ package menus
 
 import (
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 
@@ -84,6 +85,26 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			b.Text().Label = d.Get("menu.options.graphics.shaders") + ": " + sliderOptions[slider.Value()]
 		})
 		rowContainer.AddChild(b)
+	}
+
+	{
+		sliderOptions := []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		}
+		var slider gmath.Slider
+		slider.SetBounds(0, len(sliderOptions)-1)
+		if options.Graphics.FullscreenEnabled {
+			slider.TrySetValue(1)
+		}
+		disableShadows := eui.NewButtonSelected(uiResources, d.Get("menu.options.graphics.fullscreen")+": "+sliderOptions[slider.Value()])
+		disableShadows.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			options.Graphics.FullscreenEnabled = slider.Value() != 0
+			disableShadows.Text().Label = d.Get("menu.options.graphics.fullscreen") + ": " + sliderOptions[slider.Value()]
+			ebiten.SetFullscreen(options.Graphics.FullscreenEnabled)
+		})
+		rowContainer.AddChild(disableShadows)
 	}
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

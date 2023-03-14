@@ -45,6 +45,7 @@ func main() {
 				Graphics: session.GraphicsSettings{
 					ShadowsEnabled:    true,
 					AllShadersEnabled: true,
+					FullscreenEnabled: true,
 				},
 			},
 		},
@@ -61,13 +62,14 @@ func main() {
 	ctx.WindowTitle = "Roboden"
 	ctx.WindowWidth = 1920 / 2
 	ctx.WindowHeight = 1080 / 2
-	ctx.FullScreen = true
 
 	assets.Register(ctx)
 	controls.BindKeymap(ctx, state)
 
 	ctx.LoadGameData("save", &state.Persistent)
 	state.ReloadLanguage(ctx)
+
+	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
 
 	fmt.Println("is mobile?", state.Device.IsMobile)
 

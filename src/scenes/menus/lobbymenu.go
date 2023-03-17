@@ -212,16 +212,6 @@ func (c *LobbyMenuController) createTabs(uiResources *eui.Resources) *widget.Tab
 	tabs = append(tabs, c.createExtraTab(uiResources))
 
 	t := widget.NewTabBook(
-		// widget.TabBookOpts.FlipBookOpts(
-		// 	widget.FlipBookOpts.ContainerOpts(
-		// 		widget.ContainerOpts.Layout(widget.NewRowLayout(
-		// 			// widget.RowLayoutOpts.Padding(widget.Insets{
-		// 			// 	Top: 200,
-		// 			// }),
-		// 			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-		// 		)),
-		// 	),
-		// ),
 		widget.TabBookOpts.Tabs(tabs...),
 		widget.TabBookOpts.TabButtonImage(uiResources.TabButton.Image),
 		widget.TabBookOpts.TabButtonText(uiResources.TabButton.FontFace, uiResources.TabButton.TextColors),
@@ -679,5 +669,5 @@ func (c *LobbyMenuController) onDroneToggled() {
 }
 
 func (c *LobbyMenuController) back() {
-	c.scene.Context().ChangeScene(NewMainMenuController(c.state))
+	c.scene.Context().ChangeScene(NewPlayMenuController(c.state))
 }

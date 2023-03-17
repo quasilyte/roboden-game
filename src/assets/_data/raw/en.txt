@@ -1,13 +1,17 @@
 ##game.title : Roboden
 
 ##menu.main.title : Main Menu
-##menu.main.start_game : Start Game
-##menu.main.tutorial : Tutorial
+##menu.main.play : Play
 ##menu.main.settings : Settings
 ##menu.main.controls : Controls
 ##menu.main.credits : Credits
 ##menu.main.exit : Exit
 ##menu.main.build : Build
+
+##menu.play.classic : Classic Mode
+##menu.play.rush : Rush Mode
+##menu.play.arena : Arena Mode
+##menu.play.tutorial : Tutorial
 
 ##menu.back : Back
 ##menu.more : More

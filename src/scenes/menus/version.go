@@ -91,4 +91,7 @@ package menus
 // * Performance:
 //   - Use a pre-decoded ogg stream instead of decoding it on the fly
 //   - Since 99% graphic objects are ge.Sprite, they're now stored as separate slices (less iface calls)
-const buildNumber int = 7
+//
+// # Version 8
+// So many things happened, but I forgot to write them down.
+const buildNumber int = 8

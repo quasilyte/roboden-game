@@ -173,7 +173,6 @@ func registerImageResources(ctx *ge.Context) {
 
 	for id, res := range imageResources {
 		ctx.Loader.ImageRegistry.Set(id, res)
-		ctx.Loader.LoadImage(id)
 	}
 }
 

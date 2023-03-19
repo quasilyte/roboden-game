@@ -68,7 +68,6 @@ func registerAudioResource(ctx *ge.Context) {
 
 	for id, res := range audioResources {
 		ctx.Loader.AudioRegistry.Set(id, res)
-		ctx.Loader.LoadAudio(id)
 	}
 }
 

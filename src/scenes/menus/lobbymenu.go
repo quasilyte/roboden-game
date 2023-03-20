@@ -12,9 +12,11 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/session"
@@ -191,9 +193,35 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 
 	options := &c.state.LevelOptions
 
+	center := c.scene.Context().WindowRect().Center()
+	progressBar := gameui.NewProgressBar(ge.MakePos(gmath.Vec{
+		X: center.X - 85,
+		Y: center.Y,
+	}), 1, 0, ge.RGB(0x9dd793), ge.RGB(0x9dd793))
+
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
 		c.state.LevelOptions.Tutorial = false
-		c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
+
+		c.scene.Context().ChangeScene(progressBar)
+		go func() {
+			audioRes := assets.GetAudioResources()
+			imageRes := assets.GetImageResources()
+			max := float64(len(audioRes) + len(imageRes))
+			var counter float64 = 0
+
+			for imageID := range imageRes {
+				counter += 20 / max
+				c.scene.Context().Loader.LoadImage(imageID)
+				progressBar.SetValue(counter)
+			}
+
+			for audioID := range audioRes {
+				counter += 20 / max
+				c.scene.Context().Loader.LoadAudio(audioID)
+				progressBar.SetValue(counter)
+			}
+			c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
+		}()
 	}))
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {

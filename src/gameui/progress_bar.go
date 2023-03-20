@@ -59,6 +59,6 @@ func (b *ProgressBar) Update(delta float64) {
 }
 
 func (b *ProgressBar) SetValue(value float64) {
-	fullWidth := b.width - 8
+	fullWidth := b.width + 8
 	b.progress.Width = fullWidth * value
 }

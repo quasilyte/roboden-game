@@ -3,6 +3,7 @@ package menus
 import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"

@@ -8,7 +8,13 @@ import (
 )
 
 func registerAudioResource(ctx *ge.Context) {
-	audioResources := map[resource.AudioID]resource.AudioInfo{
+	for id, res := range GetAudioResources() {
+		ctx.Loader.AudioRegistry.Set(id, res)
+	}
+}
+
+func GetAudioResources() map[resource.AudioID]resource.AudioInfo {
+	return map[resource.AudioID]resource.AudioInfo{
 		AudioError:               {Path: "audio/error.wav", Volume: -0.25},
 		AudioClick:               {Path: "audio/button_click.wav", Volume: -0.3},
 		AudioBaseSelect:          {Path: "audio/base_select.wav", Volume: -0.4},
@@ -64,10 +70,6 @@ func registerAudioResource(ctx *ge.Context) {
 		AudioMusicTrack1: {Path: "audio/music/deadly_windmills.ogg", Volume: -0.3, Group: SoundGroupMusic},
 		AudioMusicTrack2: {Path: "audio/music/war_path.ogg", Volume: -0.3, Group: SoundGroupMusic},
 		AudioMusicTrack3: {Path: "audio/music/crush.ogg", Volume: -0.3, Group: SoundGroupMusic},
-	}
-
-	for id, res := range audioResources {
-		ctx.Loader.AudioRegistry.Set(id, res)
 	}
 }
 

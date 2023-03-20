@@ -8,7 +8,13 @@ import (
 )
 
 func registerImageResources(ctx *ge.Context) {
-	imageResources := map[resource.ImageID]resource.ImageInfo{
+	for id, res := range GetImageResources() {
+		ctx.Loader.ImageRegistry.Set(id, res)
+	}
+}
+
+func GetImageResources() map[resource.ImageID]resource.ImageInfo {
+	return map[resource.ImageID]resource.ImageInfo{
 		ImageSmallShadow:    {Path: "image/small_shadow.png"},
 		ImageMediumShadow:   {Path: "image/medium_shadow.png"},
 		ImageBigShadow:      {Path: "image/big_shadow.png"},
@@ -169,10 +175,6 @@ func registerImageResources(ctx *ge.Context) {
 		ImageUIButtonSelectedPressed:    {Path: "image/ebitenui/button-selected-pressed.png"},
 		ImageUIButtonSelectedDisabled:   {Path: "image/ebitenui/button-selected-disabled.png"},
 		ImageUIPanelIdle:                {Path: "image/ebitenui/panel-idle.png"},
-	}
-
-	for id, res := range imageResources {
-		ctx.Loader.ImageRegistry.Set(id, res)
 	}
 }
 

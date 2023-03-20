@@ -2,8 +2,8 @@
 
 ##menu.main.title : Main Menu
 ##menu.main.play : Play
+##menu.main.profile : Stats & Achievements
 ##menu.main.settings : Settings
-##menu.main.controls : Controls
 ##menu.main.credits : Credits
 ##menu.main.exit : Exit
 ##menu.main.build : Build
@@ -13,6 +13,8 @@
 ##menu.play.arena : Arena Mode
 ##menu.play.tutorial : Tutorial
 
+##menu.profile.achievements : Achievements
+
 ##menu.back : Back
 ##menu.more : More
 ##menu.lobby_back : To The Menu
@@ -21,6 +23,7 @@
 ##menu.options.graphics : Graphics
 ##menu.options.camera : Camera
 ##menu.options.extra : Extra
+##menu.options.controls : Controls
 
 ##menu.option.on : on
 ##menu.option.off : off
@@ -40,6 +43,7 @@
 ##menu.option.very_easy : very easy
 ##menu.option.easy : easy
 ##menu.option.hard : hard
+##menu.option.very_hard : very hard
 
 ##menu.option.very_small : very small
 ##menu.option.small : small
@@ -61,7 +65,8 @@
 
 ##menu.lobby.world_resources : World Resources
 ##menu.lobby.world_size : World Size
-##menu.lobby.creeps_difficulty : Creep Bases
+##menu.lobby.num_creep_bases : Creep Bases
+##menu.lobby.creeps_difficulty : Creeps Power
 ##menu.lobby.boss_difficulty : Boss Power
 ##menu.lobby.starting_resources : Starting Resources
 ##menu.lobby.go : Go!
@@ -280,7 +285,7 @@ Good luck and good hunting.
 
 ##drone.scavenger : Scavenger
 ##drone.scavenger.description
-A light combat drone that can harvest nearby scraps occasionally.
+A light combat drone that can harvest nearby scraps.
 This drone can't perform any real worker-related tasks.
 Most of its stats are inferior to the fighter drone, but the upkeep is lower too.
 
@@ -362,3 +367,57 @@ The mortar drone is also quite durable itself.
 ##drone.antiair.description
 A drone with an anti-air missle launcher as a weapon.
 It's highly effective, but it's quite fragile and it can't attack the ground targets.
+
+##achievement.impossible : Impossible Difficulty
+##achievement.impossible.description
+Win while having a difficulty set to more than 200%.
+
+##achievement.speedrunning : Speedrunning
+##achievement.speedrunning.description
+Achieve a victory under 10 minutes.
+
+##achievement.t3engineer : T3 Engineering
+##achievement.t3engineer.description
+Discover all tier 3 drones.
+
+##achievement.t3less : T3-free
+##achievement.t3less.description
+Achieve a victory without creating a single tier 3 drone.
+
+##achievement.cheapbuild10 : Small Deck
+##achievement.cheapbuild10.description
+Win while having a drone build that uses no more than 10 points allocated.
+
+##achievement.hightension : High Tension
+##achievement.hightension.description
+Win on a smallest map size possible without destroying any of the enemy bases.
+
+##achievement.solobase : Solo Base Run
+##achievement.solobase.description
+Win without building any bases.
+
+##achievement.uiless : Minimal UI
+##achievement.uiless.description
+Win while having the extra graphical user interface turned off.
+
+##achievement.powerof3 : A Power of Three
+##achievement.powerof3.description
+Win a battle without using one of the four factions.
+In other words, you can use only three factions during the battle.
+
+##achievement.victorydrag : Dragged Victory
+##achievement.victorydrag.description
+Win a battle that was going for no less than 2 hours.
+
+##achievement.tinyradius : Sealed Radius
+##achievement.tinyradius.description
+Clear the level without ever increasing the influence radius.
+
+##achievement.t1army : T1 Army
+##achievement.t1army.description
+Clear the level without having only tier 1 combat units.
+In other words, you should not create any tier 2 or 3 combat units during the game to get this achievement.
+
+##achievement.groundwin : Ground Salvo
+##achievement.groundwin.description
+Destroy the boss in the moment when it's close to the ground.

@@ -207,16 +207,17 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			audioRes := assets.GetAudioResources()
 			imageRes := assets.GetImageResources()
 			max := float64(len(audioRes) + len(imageRes))
+			var fullProgress float64 = 20
 			var counter float64 = 0
 
 			for imageID := range imageRes {
-				counter += 20 / max
+				counter += fullProgress / max
 				c.scene.Context().Loader.LoadImage(imageID)
 				progressBar.SetValue(counter)
 			}
 
 			for audioID := range audioRes {
-				counter += 20 / max
+				counter += fullProgress / max
 				c.scene.Context().Loader.LoadAudio(audioID)
 				progressBar.SetValue(counter)
 			}

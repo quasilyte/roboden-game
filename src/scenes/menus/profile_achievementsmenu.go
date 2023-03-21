@@ -58,7 +58,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	helpLabel := eui.NewLabel(uiResources, "", tinyFont)
-	helpLabel.MaxWidth = 340
+	helpLabel.MaxWidth = 320
 
 	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.achievements"), normalFont)
 	rowContainer.AddChild(titleLabel)

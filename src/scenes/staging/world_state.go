@@ -143,9 +143,15 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 		if x.stats.kind == creepCrawler {
 			w.creepCoordinator.crawlers = xslices.Remove(w.creepCoordinator.crawlers, x)
 		}
-		if x == w.boss {
+		switch x.stats.kind {
+		case creepBase:
+			w.result.CreepBasesDestroyed++
+		case creepUberBoss:
+			if !x.IsFlying() {
+				w.result.GroundBossDefeat = true
+			}
 			w.boss = nil
-		} else {
+		default:
 			w.result.CreepsDefeated++
 		}
 	})

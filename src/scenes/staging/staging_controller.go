@@ -228,6 +228,16 @@ func (c *Controller) onToggleButtonClicked(gsignal.Void) {
 
 func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	if choice.Option.special == specialChoiceNone {
+		switch choice.Faction {
+		case gamedata.YellowFactionTag:
+			c.world.result.YellowFactionUsed = true
+		case gamedata.RedFactionTag:
+			c.world.result.RedFactionUsed = true
+		case gamedata.GreenFactionTag:
+			c.world.result.GreenFactionUsed = true
+		case gamedata.BlueFactionTag:
+			c.world.result.BlueFactionUsed = true
+		}
 		c.selectedColony.factionWeights.AddWeight(choice.Faction, c.world.rand.FloatRange(0.1, 0.2))
 		for _, e := range choice.Option.effects {
 			c.selectedColony.actionPriorities.AddWeight(e.priority, e.value)
@@ -246,6 +256,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		dist := gmath.ClampMax(clickDist, maxDist)
 		relocationVec = c.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
 	case specialIncreaseRadius:
+		c.world.result.RadiusIncreases++
 		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 		c.selectedColony.realRadiusSqr = c.selectedColony.realRadius * c.selectedColony.realRadius
 	case specialDecreaseRadius:
@@ -261,6 +272,8 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 			stats = gunpointConstructionStats
 			dist = 48.0
 			size = 32.0
+		} else {
+			c.world.result.ColoniesBuilt++
 		}
 		direction := c.world.rand.Rad()
 		for i := 0; i < 18; i++ {

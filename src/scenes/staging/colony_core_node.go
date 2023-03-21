@@ -300,6 +300,9 @@ func (c *colonyCoreNode) CloneAgentNode(a *colonyAgentNode) *colonyAgentNode {
 }
 
 func (c *colonyCoreNode) NewColonyAgentNode(stats *gamedata.AgentStats, pos gmath.Vec) *colonyAgentNode {
+	if stats.Tier == 3 {
+		c.world.result.T3created++
+	}
 	a := newColonyAgentNode(c, stats, pos)
 	c.AcceptAgent(a)
 	c.world.result.DronesProduced++

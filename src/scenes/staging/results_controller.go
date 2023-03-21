@@ -26,14 +26,25 @@ type resultsController struct {
 }
 
 type battleResults struct {
-	Victory         bool
-	TimePlayed      time.Duration
-	SurvivingDrones int
+	Victory          bool
+	GroundBossDefeat bool
+	TimePlayed       time.Duration
+	SurvivingDrones  int
 
 	ResourcesGathered      float64
 	EliteResourcesGathered float64
 	DronesProduced         int
 	CreepsDefeated         int
+	CreepBasesDestroyed    int
+
+	T3created       int
+	ColoniesBuilt   int
+	RadiusIncreases int
+
+	YellowFactionUsed bool
+	RedFactionUsed    bool
+	GreenFactionUsed  bool
+	BlueFactionUsed   bool
 
 	RedCrystalsCollected int
 
@@ -71,6 +82,10 @@ func (c *resultsController) Update(delta float64) {
 }
 
 func (c *resultsController) checkAchievements() ([]string, []string) {
+	if c.state.LevelOptions.Tutorial {
+		return nil, nil
+	}
+
 	var newAchievements []string
 	var upgradedAchievements []string
 
@@ -106,23 +121,23 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "t3engineer":
 			// TODO
 		case "t3less":
-			// TODO
+			unlocked = c.results.T3created == 0
 		case "cheapbuild10":
 			unlocked = c.results.DronePointsAllocated <= 10
 		case "hightension":
-			// TODO
+			unlocked = c.state.LevelOptions.WorldSize == 0 && c.results.CreepBasesDestroyed == 0
 		case "solobase":
-			// TODO
+			unlocked = c.results.ColoniesBuilt == 0
 		case "uiless":
 			// TODO
 		case "powerof3":
-			// TODO
+			unlocked = !c.results.YellowFactionUsed || !c.results.RedFactionUsed || !c.results.GreenFactionUsed || !c.results.BlueFactionUsed
 		case "tinyradius":
-			// TODO
+			unlocked = c.results.RadiusIncreases == 0
 		case "t1army":
 			// TODO
 		case "groundwin":
-			// TODO
+			unlocked = c.results.GroundBossDefeat
 		}
 
 		if !unlocked {

@@ -94,8 +94,6 @@ func (c *LobbyMenuController) prepareRecipeIcons() {
 	diode := c.scene.LoadImage(assets.ImageFactionDiode).Data
 	diodeSize := diode.Bounds().Size()
 
-	// colorScale.SetColor(gamedata.FactionByTag(a.faction).Color)
-
 	c.recipeIcons = make(map[gamedata.RecipeSubject]*ebiten.Image)
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {
 		subjects := []gamedata.RecipeSubject{

@@ -39,7 +39,7 @@ func registerAudioResource(ctx *ge.Context) {
 		AudioRepellerBeam:        {Path: "audio/repeller_beam.wav", Volume: -0.3},
 		AudioDestroyerBeam:       {Path: "audio/destroyer_beam.wav", Volume: -0.3},
 		AudioStealth:             {Path: "audio/stealth.wav", Volume: -0.25},
-		AudioMarauderShot:        {Path: "audio/marauder_shot.wav", Volume: -0.3},
+		AudioMarauderShot:        {Path: "audio/marauder_shot.wav", Volume: -0.35},
 		AudioPrismShot:           {Path: "audio/prism_shot.wav", Volume: -0.35},
 		AudioRailgun:             {Path: "audio/railgun.wav", Volume: -0.3},
 		AudioAntiAirMissiles:     {Path: "audio/aa_missiles.wav", Volume: -0.35},

@@ -17,6 +17,7 @@
 ##menu.profile.stats : Stats
 ##menu.profile.progress : Progress
 
+##menu.profile.stats.totalscore : Total Score
 ##menu.profile.stats.highscore : The Highest Score
 
 ##menu.profile.progress.achievements : Achievements

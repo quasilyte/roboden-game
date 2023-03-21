@@ -43,6 +43,7 @@ type PlayerStats struct {
 	DronesUnlocked  []gamedata.ColonyAgentKind
 
 	TotalPlayTime          time.Duration
+	TotalScore             int
 	HighestScore           int
 	HighestScoreDifficulty int
 }

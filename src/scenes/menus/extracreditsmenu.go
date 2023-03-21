@@ -62,7 +62,7 @@ func (c *ExtraCreditsMenuController) initUI() {
 	normalContainer.AddChild(label)
 	rowContainer.AddChild(normalContainer)
 
-	rowContainer.AddChild(eui.NewLabel(uiResources, d.Get("menu.credits.thank_player"), bigFont))
+	rowContainer.AddChild(eui.NewCenteredLabel(uiResources, d.Get("menu.credits.thank_player"), bigFont))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

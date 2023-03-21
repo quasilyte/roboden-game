@@ -67,6 +67,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 
 	stats := &c.state.Persistent.PlayerStats
 	stats.TotalPlayTime += c.results.TimePlayed
+	stats.TotalScore += c.results.Score
 	if stats.HighestScore < c.results.Score {
 		stats.HighestScore = c.results.Score
 		stats.HighestScoreDifficulty = c.results.DifficultyScore

@@ -59,6 +59,7 @@ func (c *ProfileStatsMenuController) initUI() {
 	stats := c.state.Persistent.PlayerStats
 	lines := []string{
 		fmt.Sprintf("%s: %v", d.Get("menu.results.time_played"), timeutil.FormatDuration(d, stats.TotalPlayTime)),
+		fmt.Sprintf("%s: %v", d.Get("menu.profile.stats.totalscore"), stats.TotalScore),
 		fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.highscore"), stats.HighestScore, stats.HighestScoreDifficulty),
 	}
 	rowContainer.AddChild(eui.NewCenteredLabel(uiResources, strings.Join(lines, "\n"), smallFont))

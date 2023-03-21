@@ -15,22 +15,6 @@ var AchievementList = []*Achievement{
 		Mode: ModeClassic,
 	},
 	{
-		Name: "speedrunning",
-		Mode: ModeClassic,
-	},
-	{
-		Name: "victorydrag",
-		Mode: ModeClassic,
-	},
-	{
-		Name: "t3engineer",
-		Mode: ModeClassic,
-	},
-	{
-		Name: "t3less",
-		Mode: ModeClassic,
-	},
-	{
 		Name: "cheapbuild10",
 		Mode: ModeClassic,
 	},
@@ -60,6 +44,22 @@ var AchievementList = []*Achievement{
 	},
 	{
 		Name: "groundwin",
+		Mode: ModeClassic,
+	},
+	{
+		Name: "speedrunning",
+		Mode: ModeClassic,
+	},
+	{
+		Name: "victorydrag",
+		Mode: ModeClassic,
+	},
+	{
+		Name: "t3engineer",
+		Mode: ModeClassic,
+	},
+	{
+		Name: "t3less",
 		Mode: ModeClassic,
 	},
 }

@@ -379,7 +379,7 @@ The mortar drone is also quite durable itself.
 ##drone.antiair : Missilebot
 ##drone.antiair.description
 A drone with an anti-air missle launcher as a weapon.
-It's highly effective, but it's quite fragile and it can't attack the ground targets.
+It's highly effective, but also quite fragile and it can't attack the ground targets.
 
 ##achievement.impossible : Impossible Difficulty
 ##achievement.impossible.description

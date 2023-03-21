@@ -331,15 +331,14 @@ func (g *levelGenerator) placeTutorialBoss() {
 }
 
 func (g *levelGenerator) placeBoss() {
-	// spawnLocations := []gmath.Vec{
-	// 	{X: 196, Y: 196},
-	// 	{X: g.world.width - 196, Y: 196},
-	// 	{X: 196, Y: g.world.height - 196},
-	// 	{X: g.world.width - 196, Y: g.world.height - 196},
-	// }
-	// pos := gmath.RandElem(g.world.rand, spawnLocations)
-	// boss := g.world.NewCreepNode(pos, uberBossCreepStats)
-	boss := g.world.NewCreepNode(g.playerSpawn, uberBossCreepStats)
+	spawnLocations := []gmath.Vec{
+		{X: 196, Y: 196},
+		{X: g.world.width - 196, Y: 196},
+		{X: 196, Y: g.world.height - 196},
+		{X: g.world.width - 196, Y: g.world.height - 196},
+	}
+	pos := gmath.RandElem(g.world.rand, spawnLocations)
+	boss := g.world.NewCreepNode(pos, uberBossCreepStats)
 	boss.specialDelay = g.world.rand.FloatRange(3*60, 4*60)
 	g.scene.AddObject(boss)
 

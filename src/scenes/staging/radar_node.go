@@ -103,7 +103,6 @@ func (r *radarNode) Update(delta float64) {
 		r.bossSpot.Visible = true
 		r.bossPath.Visible = !r.world.IsTutorial()
 		r.bossSpot.SetAlpha(1)
-		return
 	}
 	if !r.bossSpot.Visible {
 		return

@@ -63,8 +63,6 @@ next release:
 - weather
 - random events
 
-- does marauder disable invisible if base is moved?
-
 score calculations:
 - base score is difficulty_multiplier*10 (e.g. if difficulty is 50%, the base score is 500)
 - plus 3 points per every crystal % collected (e.g. 300 points for 100% crystals collected)

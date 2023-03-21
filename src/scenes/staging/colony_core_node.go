@@ -527,6 +527,9 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 
 	c.agents.Each(func(a *colonyAgentNode) {
 		a.clearCargo()
+		if a.IsCloaked() {
+			a.doUncloak()
+		}
 		if a.height != agentFlightHeight {
 			a.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
 		} else {

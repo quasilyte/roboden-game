@@ -197,7 +197,7 @@ var uberBossCreepStats = &creepStats{
 	animSpeed:   0.5,
 	shadowImage: assets.ImageUberBossShadow,
 	speed:       10,
-	maxHealth:   650,
+	maxHealth:   600,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:  5,
 		BurstSize:   1,

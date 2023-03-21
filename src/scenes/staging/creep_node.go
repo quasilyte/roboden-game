@@ -49,10 +49,11 @@ type creepNode struct {
 	specialDelay    float64
 	specialModifier float64
 
-	disarm float64
-	slow   float64
-	health float64
-	height float64
+	disarm    float64
+	slow      float64
+	health    float64
+	maxHealth float64
+	height    float64
 
 	attackDelay float64
 
@@ -81,7 +82,7 @@ func newCreepNode(world *worldState, stats *creepStats, pos gmath.Vec) *creepNod
 func (c *creepNode) Init(scene *ge.Scene) {
 	c.scene = scene
 
-	c.health = c.stats.maxHealth
+	c.maxHealth = c.stats.maxHealth
 
 	c.sprite = scene.NewSprite(c.stats.image)
 	c.sprite.Pos.Base = &c.pos
@@ -118,10 +119,15 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.altSprite.Visible = false
 		c.altSprite.Pos.Base = &c.pos
 		c.world.camera.AddSprite(c.altSprite)
+		c.maxHealth *= c.world.bossHealthMultiplier
+	} else {
+		c.maxHealth *= c.world.creepHealthMultiplier
 	}
 	if c.stats.kind == creepServant {
 		c.specialDelay = c.scene.Rand().FloatRange(0.5, 3)
 	}
+
+	c.health = c.maxHealth
 }
 
 func (c *creepNode) Dispose() {
@@ -311,7 +317,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 		// Stage 3: send 5 servants. (hard)
 		maxStage := c.world.options.BossDifficulty
 		if c.bossStage <= maxStage {
-			hpPercentage := c.health / c.stats.maxHealth
+			hpPercentage := c.health / c.maxHealth
 			if hpPercentage < 0.8 && c.bossStage == 0 {
 				c.spawnServants(2)
 				c.bossStage++
@@ -670,7 +676,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 	// It regenerates 1 health over 4 seconds (*0.25).
 	// Meaning it's 15 health per minute.
 	// In other words, 10 minutes recover 150 health for this guy.
-	c.health = gmath.ClampMax(c.health+(delta*0.25), c.stats.maxHealth)
+	c.health = gmath.ClampMax(c.health+(delta*0.25), c.maxHealth)
 
 	const crawlersSpawnHeight float64 = 10
 	if c.specialModifier != 0 && c.height != crawlersSpawnHeight {

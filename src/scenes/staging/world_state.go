@@ -34,6 +34,11 @@ type worldState struct {
 	height float64
 	rect   gmath.Rect
 
+	creepHealthMultiplier float64
+	bossHealthMultiplier  float64
+
+	numRedCrystals int
+
 	pathgrid *pathing.Grid
 	bfs      *pathing.GreedyBFS
 
@@ -68,6 +73,9 @@ func (w *worldState) Init() {
 			}
 		}
 	}
+
+	w.creepHealthMultiplier = 1.0 + (float64(w.options.CreepDifficulty-1) * 0.20)
+	w.bossHealthMultiplier = 1.0 + (float64(w.options.BossDifficulty-1) * 0.15)
 }
 
 func (w *worldState) IsTutorial() bool {

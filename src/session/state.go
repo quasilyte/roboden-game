@@ -3,6 +3,7 @@ package session
 import (
 	"fmt"
 	"io"
+	"time"
 
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
@@ -31,20 +32,41 @@ type State struct {
 
 type PersistentData struct {
 	Settings GameSettings
+
+	PlayerStats PlayerStats
+}
+
+type PlayerStats struct {
+	Achievements []Achievement
+
+	TurretsUnlocked []gamedata.ColonyAgentKind
+	DronesUnlocked  []gamedata.ColonyAgentKind
+
+	TotalPlayTime          time.Duration
+	HighestScore           int
+	HighestScoreDifficulty int
+}
+
+type Achievement struct {
+	Name  string
+	Elite bool
 }
 
 type LevelOptions struct {
 	Resources int
 
-	CreepsDifficulty  int
+	NumCreepBases     int
+	CreepDifficulty   int
 	BossDifficulty    int
 	StartingResources int
 
 	WorldSize int
 
-	Tutorial bool
+	Tutorial        bool
+	DifficultyScore int
 
-	Tier2Recipes []gamedata.AgentMergeRecipe
+	Tier2Recipes         []gamedata.AgentMergeRecipe
+	DronePointsAllocated int
 }
 
 type GameSettings struct {

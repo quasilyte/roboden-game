@@ -19,6 +19,10 @@ var AchievementList = []*Achievement{
 		Mode: ModeClassic,
 	},
 	{
+		Name: "victorydrag",
+		Mode: ModeClassic,
+	},
+	{
 		Name: "t3engineer",
 		Mode: ModeClassic,
 	},
@@ -44,10 +48,6 @@ var AchievementList = []*Achievement{
 	},
 	{
 		Name: "powerof3",
-		Mode: ModeClassic,
-	},
-	{
-		Name: "victorydrag",
 		Mode: ModeClassic,
 	},
 	{

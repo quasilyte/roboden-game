@@ -51,10 +51,6 @@ next release:
   - bonuses and disadvantages
   - ground base (can't pass hard terrain)
   - tier 4 units for bases
-- achievement conditions
-  - win without faction
-  - run without creep kills
-  - speedrun achievement
 - game modes
   - base race
   - vs colony
@@ -66,3 +62,8 @@ next release:
 - game lore
 - weather
 - random events
+
+score calculations:
+- base score is difficulty_multiplier*10 (e.g. if difficulty is 50%, the base score is 500)
+- plus 3 points per every crystal % collected (e.g. 300 points for 100% crystals collected)
+- minus 0.000347222 multiplier per 5 seconds (-25% after 1 hour, -100% after 4 hours)

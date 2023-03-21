@@ -61,12 +61,12 @@ func (c *MainMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewPlayMenuController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.settings"), func() {
-		c.scene.Context().ChangeScene(NewOptionsController(c.state))
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.profile"), func() {
+		c.scene.Context().ChangeScene(NewProfileMenuController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.controls"), func() {
-		c.scene.Context().ChangeScene(NewControlsMenuController(c.state))
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.settings"), func() {
+		c.scene.Context().ChangeScene(NewOptionsController(c.state))
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.credits"), func() {

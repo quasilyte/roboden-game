@@ -185,8 +185,8 @@ func NewSeparator(ld interface{}) widget.PreferredSizeLocateableWidget {
 	return c
 }
 
-func NewCenteredLabel(res *Resources, text string, ff font.Face) *widget.Label {
-	return widget.NewLabel(
+func NewCenteredLabel(res *Resources, text string, ff font.Face) *widget.Text {
+	return widget.NewText(
 		// widget.LabelOpts.TextOpts(widget.TextOpts.WidgetOpts(
 		// 	widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 		// 		// Position:           widget.RowLayoutPositionCenter,
@@ -194,13 +194,13 @@ func NewCenteredLabel(res *Resources, text string, ff font.Face) *widget.Label {
 		// 		VerticalPosition:   widget.AnchorLayoutPositionCenter,
 		// 	}),
 		// )),
-		widget.LabelOpts.TextOpts(
-			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
+		widget.TextOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
 		),
-		widget.LabelOpts.Text(text, ff, &widget.LabelColor{
-			Idle:     res.Button.TextColors.Idle,
-			Disabled: res.Button.TextColors.Disabled,
-		}),
+		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
+		widget.TextOpts.Text(text, ff, res.Button.TextColors.Idle),
 	)
 }
 
@@ -309,8 +309,7 @@ func NewItemButton(res *Resources, img *ebiten.Image, label string, onclick func
 		paddingContainer := widget.NewContainer(
 			widget.ContainerOpts.Layout(
 				widget.NewAnchorLayout(widget.AnchorLayoutOpts.Padding(widget.Insets{
-					Top:  16,
-					Left: -1,
+					Top: 22,
 				})),
 			),
 		)

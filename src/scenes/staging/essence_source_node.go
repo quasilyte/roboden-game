@@ -200,11 +200,18 @@ func (e *essenceSourceNode) Add(delta float64) {
 }
 
 func (e *essenceSourceNode) Harvest(n int) int {
+	if e.IsDisposed() {
+		return 0
+	}
+
 	n = gmath.ClampMax(n, e.resource)
 	e.resource -= n
 	e.percengage = float64(e.resource) / float64(e.capacity)
 	if e.resource <= 0 && e.stats.regenDelay == 0 {
 		e.Destroy()
+		if e.stats == redCrystalSource {
+			e.world.result.RedCrystalsCollected++
+		}
 	} else {
 		e.updateShader()
 	}

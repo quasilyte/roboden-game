@@ -148,6 +148,11 @@ func (g *levelGenerator) createBase(pos gmath.Vec) {
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
+	for i := 0; i < 20; i++ {
+		a := core.NewColonyAgentNode(gamedata.DestroyerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
+		g.scene.AddObject(a)
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	}
 }
 
 func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind *creepStats) int {
@@ -224,6 +229,8 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
 	numRedOil := gmath.ClampMin(int(float64(rand.IntRange(2, 3))*multiplier), 2)
 	numRedCrystals := int(float64(rand.IntRange(10, 15)) * multiplier)
+
+	g.world.numRedCrystals = numRedCrystals
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 
@@ -324,14 +331,15 @@ func (g *levelGenerator) placeTutorialBoss() {
 }
 
 func (g *levelGenerator) placeBoss() {
-	spawnLocations := []gmath.Vec{
-		{X: 196, Y: 196},
-		{X: g.world.width - 196, Y: 196},
-		{X: 196, Y: g.world.height - 196},
-		{X: g.world.width - 196, Y: g.world.height - 196},
-	}
-	pos := gmath.RandElem(g.world.rand, spawnLocations)
-	boss := g.world.NewCreepNode(pos, uberBossCreepStats)
+	// spawnLocations := []gmath.Vec{
+	// 	{X: 196, Y: 196},
+	// 	{X: g.world.width - 196, Y: 196},
+	// 	{X: 196, Y: g.world.height - 196},
+	// 	{X: g.world.width - 196, Y: g.world.height - 196},
+	// }
+	// pos := gmath.RandElem(g.world.rand, spawnLocations)
+	// boss := g.world.NewCreepNode(pos, uberBossCreepStats)
+	boss := g.world.NewCreepNode(g.playerSpawn, uberBossCreepStats)
 	boss.specialDelay = g.world.rand.FloatRange(3*60, 4*60)
 	g.scene.AddObject(boss)
 
@@ -595,7 +603,7 @@ func (g *levelGenerator) placeWalls() {
 }
 
 func (g *levelGenerator) placeCreepBases() {
-	if g.world.options.CreepsDifficulty == 0 {
+	if g.world.options.NumCreepBases == 0 {
 		return // Zero bases
 	}
 	// The bases are always located somewhere on the map boundary.
@@ -613,7 +621,7 @@ func (g *levelGenerator) placeCreepBases() {
 		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
 	}
 	gmath.Shuffle(g.scene.Rand(), borders)
-	numBases := g.world.options.CreepsDifficulty
+	numBases := g.world.options.NumCreepBases
 	for i := 0; i < numBases; i++ {
 		border := borders[i]
 		var basePos gmath.Vec

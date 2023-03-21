@@ -68,10 +68,11 @@ type AgentStats struct {
 
 	EnergyRegenRateBonus float64
 
-	CanGather  bool
-	CanPatrol  bool
-	CanCloak   bool
-	MaxPayload int
+	AlwaysUnlocked bool
+	CanGather      bool
+	CanPatrol      bool
+	CanCloak       bool
+	MaxPayload     int
 
 	DiodeOffset float64
 
@@ -177,18 +178,19 @@ var TruckerAgentStats = &AgentStats{
 }
 
 var CourierAgentStats = &AgentStats{
-	Kind:        AgentCourier,
-	Image:       assets.ImageCourierAgent,
-	Size:        SizeMedium,
-	DiodeOffset: 5,
-	Tier:        2,
-	Cost:        20,
-	PointCost:   2,
-	Upkeep:      4,
-	CanGather:   true,
-	MaxPayload:  1,
-	Speed:       80,
-	MaxHealth:   30,
+	AlwaysUnlocked: true,
+	Kind:           AgentCourier,
+	Image:          assets.ImageCourierAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    5,
+	Tier:           2,
+	Cost:           20,
+	PointCost:      2,
+	Upkeep:         4,
+	CanGather:      true,
+	MaxPayload:     1,
+	Speed:          80,
+	MaxHealth:      30,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:           140,
 		Reload:                3.2,
@@ -205,6 +207,7 @@ var CourierAgentStats = &AgentStats{
 }
 
 var RedminerAgentStats = &AgentStats{
+	AlwaysUnlocked:       true,
 	Kind:                 AgentRedminer,
 	Image:                assets.ImageRedminerAgent,
 	Size:                 SizeMedium,
@@ -221,6 +224,7 @@ var RedminerAgentStats = &AgentStats{
 }
 
 var GeneratorAgentStats = &AgentStats{
+	AlwaysUnlocked:       true,
 	Kind:                 AgentGenerator,
 	Image:                assets.ImageGeneratorAgent,
 	Size:                 SizeMedium,
@@ -237,38 +241,41 @@ var GeneratorAgentStats = &AgentStats{
 }
 
 var ClonerAgentStats = &AgentStats{
-	Kind:        AgentCloner,
-	Image:       assets.ImageClonerAgent,
-	Size:        SizeMedium,
-	DiodeOffset: 5,
-	Tier:        2,
-	PointCost:   4,
-	Cost:        26,
-	Upkeep:      10,
-	CanGather:   true,
-	MaxPayload:  1,
-	Speed:       90,
-	MaxHealth:   16,
+	AlwaysUnlocked: true,
+	Kind:           AgentCloner,
+	Image:          assets.ImageClonerAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    5,
+	Tier:           2,
+	PointCost:      4,
+	Cost:           26,
+	Upkeep:         10,
+	CanGather:      true,
+	MaxPayload:     1,
+	Speed:          90,
+	MaxHealth:      16,
 }
 
 var RepairAgentStats = &AgentStats{
-	Kind:          AgentRepair,
-	Image:         assets.ImageRepairAgent,
-	Size:          SizeMedium,
-	DiodeOffset:   5,
-	Tier:          2,
-	PointCost:     4,
-	Cost:          26,
-	Upkeep:        7,
-	CanGather:     true,
-	MaxPayload:    1,
-	Speed:         100,
-	MaxHealth:     18,
-	SupportReload: 8.0,
-	SupportRange:  450,
+	AlwaysUnlocked: true,
+	Kind:           AgentRepair,
+	Image:          assets.ImageRepairAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    5,
+	Tier:           2,
+	PointCost:      4,
+	Cost:           26,
+	Upkeep:         7,
+	CanGather:      true,
+	MaxPayload:     1,
+	Speed:          100,
+	MaxHealth:      18,
+	SupportReload:  8.0,
+	SupportRange:   450,
 }
 
 var RechargeAgentStats = &AgentStats{
+	AlwaysUnlocked:       true,
 	Kind:                 AgentRecharger,
 	Image:                assets.ImageRechargerAgent,
 	Size:                 SizeMedium,
@@ -304,23 +311,25 @@ var RefresherAgentStats = &AgentStats{
 }
 
 var ServoAgentStats = &AgentStats{
-	Kind:          AgentServo,
-	Image:         assets.ImageServoAgent,
-	Size:          SizeMedium,
-	DiodeOffset:   -4,
-	Tier:          2,
-	PointCost:     3,
-	Cost:          26,
-	Upkeep:        7,
-	CanGather:     true,
-	MaxPayload:    1,
-	Speed:         125,
-	MaxHealth:     18,
-	SupportReload: 8,
-	SupportRange:  310,
+	AlwaysUnlocked: true,
+	Kind:           AgentServo,
+	Image:          assets.ImageServoAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    -4,
+	Tier:           2,
+	PointCost:      3,
+	Cost:           26,
+	Upkeep:         7,
+	CanGather:      true,
+	MaxPayload:     1,
+	Speed:          125,
+	MaxHealth:      18,
+	SupportReload:  8,
+	SupportRange:   310,
 }
 
 var FreighterAgentStats = &AgentStats{
+	AlwaysUnlocked:       true,
 	Kind:                 AgentFreighter,
 	Image:                assets.ImageFreighterAgent,
 	Size:                 SizeMedium,
@@ -337,18 +346,19 @@ var FreighterAgentStats = &AgentStats{
 }
 
 var CripplerAgentStats = &AgentStats{
-	Kind:        AgentCrippler,
-	Image:       assets.ImageCripplerAgent,
-	Size:        SizeMedium,
-	DiodeOffset: 5,
-	Tier:        2,
-	PointCost:   2,
-	Cost:        16,
-	Upkeep:      4,
-	CanPatrol:   true,
-	CanCloak:    true,
-	Speed:       65,
-	MaxHealth:   18,
+	AlwaysUnlocked: true,
+	Kind:           AgentCrippler,
+	Image:          assets.ImageCripplerAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    5,
+	Tier:           2,
+	PointCost:      2,
+	Cost:           16,
+	Upkeep:         4,
+	CanPatrol:      true,
+	CanCloak:       true,
+	Speed:          65,
+	MaxHealth:      18,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:     255,
 		Reload:          2.7,
@@ -393,17 +403,18 @@ var StormbringerAgentStats = &AgentStats{
 }
 
 var PrismAgentStats = &AgentStats{
-	Kind:        AgentPrism,
-	Image:       assets.ImagePrismAgent,
-	Size:        SizeMedium,
-	DiodeOffset: 1,
-	Tier:        2,
-	PointCost:   3,
-	Cost:        26,
-	Upkeep:      12,
-	CanPatrol:   true,
-	Speed:       70,
-	MaxHealth:   28,
+	AlwaysUnlocked: true,
+	Kind:           AgentPrism,
+	Image:          assets.ImagePrismAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    1,
+	Tier:           2,
+	PointCost:      3,
+	Cost:           26,
+	Upkeep:         12,
+	CanPatrol:      true,
+	Speed:          70,
+	MaxHealth:      28,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:     200,
 		Reload:          3.7,
@@ -418,17 +429,18 @@ var PrismAgentStats = &AgentStats{
 }
 
 var FighterAgentStats = &AgentStats{
-	Kind:        AgentFighter,
-	Image:       assets.ImageFighterAgent,
-	Size:        SizeMedium,
-	DiodeOffset: 1,
-	Tier:        2,
-	PointCost:   3,
-	Cost:        22,
-	Upkeep:      7,
-	CanPatrol:   true,
-	Speed:       90,
-	MaxHealth:   26,
+	AlwaysUnlocked: true,
+	Kind:           AgentFighter,
+	Image:          assets.ImageFighterAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    1,
+	Tier:           2,
+	PointCost:      3,
+	Cost:           22,
+	Upkeep:         7,
+	CanPatrol:      true,
+	Speed:          90,
+	MaxHealth:      26,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:     180,
 		Reload:          2,
@@ -444,19 +456,20 @@ var FighterAgentStats = &AgentStats{
 }
 
 var ScavengerAgentStats = &AgentStats{
-	Kind:          AgentScavenger,
-	Image:         assets.ImageScavengerAgent,
-	Size:          SizeMedium,
-	DiodeOffset:   -5,
-	Tier:          2,
-	PointCost:     2,
-	Cost:          18,
-	Upkeep:        6,
-	CanPatrol:     true,
-	Speed:         100,
-	MaxHealth:     22,
-	SupportReload: 16,
-	MaxPayload:    2,
+	AlwaysUnlocked: true,
+	Kind:           AgentScavenger,
+	Image:          assets.ImageScavengerAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    -5,
+	Tier:           2,
+	PointCost:      2,
+	Cost:           18,
+	Upkeep:         6,
+	CanPatrol:      true,
+	Speed:          100,
+	MaxHealth:      22,
+	SupportReload:  16,
+	MaxPayload:     2,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:     160,
 		Reload:          2.5,
@@ -473,17 +486,18 @@ var ScavengerAgentStats = &AgentStats{
 }
 
 var AntiAirAgentStats = &AgentStats{
-	Kind:        AgentAntiAir,
-	Image:       assets.ImageAntiAirAgent,
-	Size:        SizeMedium,
-	DiodeOffset: 1,
-	Tier:        2,
-	PointCost:   3,
-	Cost:        24,
-	Upkeep:      8,
-	CanPatrol:   true,
-	Speed:       80,
-	MaxHealth:   20,
+	AlwaysUnlocked: true,
+	Kind:           AgentAntiAir,
+	Image:          assets.ImageAntiAirAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    1,
+	Tier:           2,
+	PointCost:      3,
+	Cost:           24,
+	Upkeep:         8,
+	CanPatrol:      true,
+	Speed:          80,
+	MaxHealth:      20,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:     250,
 		Reload:          2.4,
@@ -503,17 +517,18 @@ var AntiAirAgentStats = &AgentStats{
 }
 
 var MortarAgentStats = &AgentStats{
-	Kind:        AgentMortar,
-	Image:       assets.ImageMortarAgent,
-	Size:        SizeMedium,
-	DiodeOffset: 1,
-	Tier:        2,
-	PointCost:   1,
-	Cost:        18,
-	Upkeep:      6,
-	CanPatrol:   true,
-	Speed:       70,
-	MaxHealth:   30,
+	AlwaysUnlocked: true,
+	Kind:           AgentMortar,
+	Image:          assets.ImageMortarAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    1,
+	Tier:           2,
+	PointCost:      1,
+	Cost:           18,
+	Upkeep:         6,
+	CanPatrol:      true,
+	Speed:          70,
+	MaxHealth:      30,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:     370,
 		Reload:          3.3,
@@ -582,19 +597,20 @@ var MarauderAgentStats = &AgentStats{
 }
 
 var RepellerAgentStats = &AgentStats{
-	Kind:        AgentRepeller,
-	Image:       assets.ImageRepellerAgent,
-	Size:        SizeMedium,
-	DiodeOffset: 8,
-	Tier:        2,
-	PointCost:   3,
-	Cost:        16,
-	Upkeep:      4,
-	CanGather:   true,
-	MaxPayload:  1,
-	CanPatrol:   true,
-	Speed:       105,
-	MaxHealth:   22,
+	AlwaysUnlocked: true,
+	Kind:           AgentRepeller,
+	Image:          assets.ImageRepellerAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    8,
+	Tier:           2,
+	PointCost:      3,
+	Cost:           16,
+	Upkeep:         4,
+	CanGather:      true,
+	MaxPayload:     1,
+	CanPatrol:      true,
+	Speed:          105,
+	MaxHealth:      22,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:     160,
 		Reload:          2.2,
@@ -610,20 +626,21 @@ var RepellerAgentStats = &AgentStats{
 }
 
 var DisintegratorAgentStats = &AgentStats{
-	Kind:          AgentDisintegrator,
-	Image:         assets.ImageDisintegratorAgent,
-	Size:          SizeMedium,
-	DiodeOffset:   4,
-	Tier:          2,
-	PointCost:     3,
-	Cost:          22,
-	Upkeep:        12,
-	CanGather:     true,
-	MaxPayload:    1,
-	CanPatrol:     true,
-	Speed:         80,
-	MaxHealth:     20,
-	SupportReload: 12,
+	AlwaysUnlocked: true,
+	Kind:           AgentDisintegrator,
+	Image:          assets.ImageDisintegratorAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    4,
+	Tier:           2,
+	PointCost:      3,
+	Cost:           22,
+	Upkeep:         12,
+	CanGather:      true,
+	MaxPayload:     1,
+	CanPatrol:      true,
+	Speed:          80,
+	MaxHealth:      20,
+	SupportReload:  12,
 	Weapon: initWeaponStats(&WeaponStats{
 		AttackRange:           220,
 		AttackSound:           assets.AudioDisintegratorShot,

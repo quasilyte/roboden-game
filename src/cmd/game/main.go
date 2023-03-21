@@ -16,10 +16,40 @@ import (
 )
 
 func main() {
+	state := getDefaultSessionState()
+
+	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
+	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
+	flag.Parse()
+
+	ctx := ge.NewContext()
+	ctx.Rand.SetSeed(time.Now().Unix())
+	ctx.GameName = "roboden"
+	ctx.WindowTitle = "Roboden"
+	ctx.WindowWidth = 1920 / 2
+	ctx.WindowHeight = 1080 / 2
+
+	assets.Register(ctx)
+	controls.BindKeymap(ctx, state)
+
+	ctx.LoadGameData("save", &state.Persistent)
+	state.ReloadLanguage(ctx)
+
+	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
+
+	fmt.Println("is mobile?", state.Device.IsMobile)
+
+	if err := ge.RunGame(ctx, menus.NewMainMenuController(state)); err != nil {
+		panic(err)
+	}
+}
+
+func getDefaultSessionState() *session.State {
 	state := &session.State{
 		LevelOptions: session.LevelOptions{
 			Resources:         2,
-			CreepsDifficulty:  2,
+			NumCreepBases:     2,
+			CreepDifficulty:   1,
 			BossDifficulty:    1,
 			WorldSize:         2,
 			StartingResources: 0,
@@ -52,30 +82,17 @@ func main() {
 		Device: userdevice.GetInfo(),
 	}
 
-	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
-	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
-	flag.Parse()
+	state.Persistent.PlayerStats.TurretsUnlocked = append(state.Persistent.PlayerStats.TurretsUnlocked, gamedata.AgentGunpoint)
 
-	ctx := ge.NewContext()
-	ctx.Rand.SetSeed(time.Now().Unix())
-	ctx.GameName = "roboden"
-	ctx.WindowTitle = "Roboden"
-	ctx.WindowWidth = 1920 / 2
-	ctx.WindowHeight = 1080 / 2
-
-	assets.Register(ctx)
-	controls.BindKeymap(ctx, state)
-
-	ctx.LoadGameData("save", &state.Persistent)
-	state.ReloadLanguage(ctx)
-
-	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
-
-	fmt.Println("is mobile?", state.Device.IsMobile)
-
-	if err := ge.RunGame(ctx, menus.NewMainMenuController(state)); err != nil {
-		panic(err)
+	for _, recipe := range gamedata.Tier2agentMergeRecipes {
+		drone := recipe.Result
+		if !drone.AlwaysUnlocked {
+			continue
+		}
+		state.Persistent.PlayerStats.DronesUnlocked = append(state.Persistent.PlayerStats.DronesUnlocked, drone.Kind)
 	}
+
+	return state
 }
 
 func inferDefaultLang() string {

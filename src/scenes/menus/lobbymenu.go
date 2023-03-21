@@ -25,6 +25,7 @@ type LobbyMenuController struct {
 
 	droneButtons         []droneButton
 	pointsAllocatedLabel *widget.Text
+	difficultyLabel      *widget.Text
 
 	helpPanel         *widget.Container
 	helpLabel         *widget.Text
@@ -159,29 +160,11 @@ func (c *LobbyMenuController) initUI() {
 	rightRows.AddChild(c.createHelpPanel(uiResources))
 	rightRows.AddChild(c.createButtonsPanel(uiResources))
 
-	// for i := 0; i < 2; i++ {
-	// 	img := c.scene.LoadImage(assets.ImageGunpointAgent).Data
-	// 	// frame := img.SubImage(image.Rectangle{
-	// 	// 	Max: image.Point{X: options := &c.state.LevelOptionsonint(img.DefaultFrameWidth), Y: int(img.DefaultFrameHeight)},
-	// 	// }).(*ebiten.Image)
-	// 	frame := img
-	// 	dronesPanel.AddChild(eui.NewItemButton(uiResources, frame, func() {}))
-	// }
-
-	// rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
-
-	// rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
-	// 	c.state.LevelOptions.Tutorial = false
-	// 	c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
-	// }))
-
-	// rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
-	// 	c.back()
-	// }))
-
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
+
+	c.updateDifficultyScore(c.calcDifficultyScore())
 }
 
 func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *widget.Container {
@@ -191,8 +174,15 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 
 	options := &c.state.LevelOptions
 
+	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+
+	c.difficultyLabel = eui.NewCenteredLabel(uiResources, "Difficulty: 1000%", tinyFont)
+	panel.AddChild(c.difficultyLabel)
+
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
 		c.state.LevelOptions.Tutorial = false
+		c.state.LevelOptions.DifficultyScore = c.calcDifficultyScore()
+		c.state.LevelOptions.DronePointsAllocated = c.calcAllocatedPoints()
 		c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
 	}))
 
@@ -261,22 +251,46 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	{
 		var slider gmath.Slider
 		slider.SetBounds(0, 4)
-		slider.TrySetValue(options.CreepsDifficulty)
-		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.creeps_difficulty")+": "+strconv.Itoa(slider.Value()))
+		slider.TrySetValue(options.NumCreepBases)
+		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.num_creep_bases")+": "+strconv.Itoa(slider.Value()))
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.CreepsDifficulty = slider.Value()
-			button.Text().Label = d.Get("menu.lobby.creeps_difficulty") + ": " + strconv.Itoa(slider.Value())
+			options.NumCreepBases = slider.Value()
+			button.Text().Label = d.Get("menu.lobby.num_creep_bases") + ": " + strconv.Itoa(slider.Value())
+			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
 		tab.AddChild(button)
 	}
 
 	{
 		valueNames := []string{
-			d.Get("menu.option.very_easy"),
+			"80%",
+			"100%",
+			"120%",
+			"140%",
+			"160%",
+			"180%",
+			"200%",
+		}
+		var slider gmath.Slider
+		slider.SetBounds(0, 6)
+		slider.TrySetValue(options.CreepDifficulty)
+		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.creeps_difficulty")+": "+valueNames[slider.Value()])
+		button.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			options.CreepDifficulty = slider.Value()
+			button.Text().Label = d.Get("menu.lobby.creeps_difficulty") + ": " + valueNames[slider.Value()]
+			c.updateDifficultyScore(c.calcDifficultyScore())
+		})
+		tab.AddChild(button)
+	}
+
+	{
+		valueNames := []string{
 			d.Get("menu.option.easy"),
 			d.Get("menu.option.normal"),
 			d.Get("menu.option.hard"),
+			d.Get("menu.option.very_hard"),
 		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 3)
@@ -286,6 +300,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			slider.Inc()
 			options.BossDifficulty = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.boss_difficulty") + ": " + valueNames[slider.Value()]
+			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
 		tab.AddChild(button)
 	}
@@ -304,6 +319,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			slider.Inc()
 			options.StartingResources = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.starting_resources") + ": " + valueNames[slider.Value()]
+			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
 		tab.AddChild(button)
 	}
@@ -341,6 +357,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			slider.Inc()
 			options.Resources = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.world_resources") + ": " + valueNames[slider.Value()]
+			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
 		tab.AddChild(button)
 	}
@@ -379,13 +396,13 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	tab.AddChild(c.createBasesPanel(uiResources))
 	tab.AddChild(c.createTurretsPanel(uiResources))
 
 	label := widget.NewText(
-		widget.TextOpts.Text("Points Allocated: 99/99", normalFont, uiResources.Button.TextColors.Idle),
+		widget.TextOpts.Text("Points Allocated: 99/99", tinyFont, uiResources.Button.TextColors.Idle),
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 	)
 	c.pointsAllocatedLabel = label
@@ -398,8 +415,29 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 	return tab
 }
 
+func (c *LobbyMenuController) calcDifficultyScore() int {
+	score := 100
+	options := &c.state.LevelOptions
+
+	score += 10 - (options.Resources * 5)
+	score += (options.NumCreepBases - 2) * 15
+	if options.NumCreepBases != 0 {
+		score += (options.CreepDifficulty - 1) * 10
+	}
+	score += (options.BossDifficulty - 1) * 15
+	score -= (options.StartingResources) * 2
+
+	score += 20 - c.calcAllocatedPoints()
+
+	return score
+}
+
 func (c *LobbyMenuController) updateAllocatedPoints(allocated int) {
 	c.pointsAllocatedLabel.Label = fmt.Sprintf("Points Allocated: %d/%d", allocated, gamedata.ClassicModePoints)
+}
+
+func (c *LobbyMenuController) updateDifficultyScore(score int) {
+	c.difficultyLabel.Label = fmt.Sprintf("Difficulty: %d%%", score)
 }
 
 func (c *LobbyMenuController) calcAllocatedPoints() int {
@@ -417,9 +455,9 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 	panel := eui.NewPanel(uiResources, 0, 0)
 	c.helpPanel = panel
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
-	label := eui.NewLabel(uiResources, "", normalFont)
+	label := eui.NewLabel(uiResources, "", tinyFont)
 	label.MaxWidth = 260
 	c.helpLabel = label
 	panel.AddChild(label)
@@ -440,7 +478,7 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 		iconsContainer.AddChild(icon1)
 
 		separator := widget.NewText(
-			widget.TextOpts.Text("", normalFont, uiResources.Button.TextColors.Idle),
+			widget.TextOpts.Text("", tinyFont, uiResources.Button.TextColors.Idle),
 			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 		)
 		c.helpIconSeparator = separator
@@ -665,6 +703,9 @@ func (c *LobbyMenuController) onDroneToggled() {
 			continue
 		}
 		b.widget.SetDisabled(b.drone.PointCost > pointsLeft)
+	}
+	if c.difficultyLabel != nil {
+		c.updateDifficultyScore(c.calcDifficultyScore())
 	}
 }
 

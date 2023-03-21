@@ -399,6 +399,9 @@ func (c *Controller) victory() {
 		for _, colony := range c.world.colonies {
 			c.world.result.SurvivingDrones += colony.NumAgents()
 		}
+		c.world.result.Score = calcScore(c.world)
+		c.world.result.DifficultyScore = c.world.options.DifficultyScore
+		c.world.result.DronePointsAllocated = c.world.options.DronePointsAllocated
 		c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
 	})
 }

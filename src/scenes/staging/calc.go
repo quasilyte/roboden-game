@@ -1,9 +1,22 @@
 package staging
 
 import (
+	"math"
+
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/gamedata"
 )
+
+func calcScore(world *worldState) int {
+	score := world.options.DifficultyScore * 10
+	crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)
+	score += crystalsCollected * 3
+	multiplier := 1.0 - (0.000347222 * (world.result.TimePlayed.Seconds() / 5))
+	if multiplier < 0 {
+		multiplier = 0.001
+	}
+	return int(math.Round(float64(score) * multiplier))
+}
 
 func mergeAgents(world *worldState, x, y *colonyAgentNode) *gamedata.AgentStats {
 	list := world.tier2recipes

@@ -14,6 +14,15 @@
 ##menu.play.tutorial : Tutorial
 
 ##menu.profile.achievements : Achievements
+##menu.profile.stats : Stats
+##menu.profile.progress : Progress
+
+##menu.profile.stats.highscore : The Highest Score
+
+##menu.profile.progress.achievements : Achievements
+##menu.profile.progress.bases_unlocked : Colonies Unlocked
+##menu.profile.progress.turrets_unlocked : Turrets Unlocked
+##menu.profile.progress.drones_unlocked : Drones Unlocked
 
 ##menu.back : Back
 ##menu.more : More
@@ -83,6 +92,10 @@
 ##menu.results.drone_survivors : Drone Survivors
 ##menu.results.drones_total : Drones Total
 ##menu.results.creeps_defeated : Creeps Defeated
+##menu.results.score : Score
+##menu.results.new_achievement : New Achievement
+##menu.results.upgraded_achievement : Upgraded Achievement
+##menu.results.new_record : new record
 
 ##menu.controls.text
 [Pan Camera]

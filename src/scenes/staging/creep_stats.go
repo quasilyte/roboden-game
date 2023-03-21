@@ -27,6 +27,8 @@ type creepStats struct {
 
 	beamColor color.RGBA
 	beamWidth float64
+
+	disarmable bool
 }
 
 var turretCreepStats = &creepStats{
@@ -78,6 +80,7 @@ var wandererCreepStats = &creepStats{
 		Reload:          2.2,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
+	disarmable: true,
 }
 
 var servantCreepStats = &creepStats{
@@ -100,6 +103,7 @@ var servantCreepStats = &creepStats{
 		Reload:          3.2,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
+	disarmable: true,
 }
 
 var tankCreepStats = &creepStats{
@@ -121,7 +125,8 @@ var tankCreepStats = &creepStats{
 		FireOffset:      gmath.Vec{Y: -2},
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	size: 24,
+	size:       24,
+	disarmable: true,
 }
 
 var crawlerCreepStats = &creepStats{
@@ -144,7 +149,8 @@ var crawlerCreepStats = &creepStats{
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 		FireOffset:      gmath.Vec{Y: -2},
 	}),
-	size: 24,
+	size:       24,
+	disarmable: true,
 }
 
 var eliteCrawlerCreepStats = &creepStats{
@@ -166,7 +172,8 @@ var eliteCrawlerCreepStats = &creepStats{
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 		FireOffset:      gmath.Vec{Y: -2},
 	}),
-	size: 24,
+	size:       24,
+	disarmable: true,
 }
 
 var assaultCreepStats = &creepStats{
@@ -189,6 +196,7 @@ var assaultCreepStats = &creepStats{
 		Reload:          0.7,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
+	disarmable: true,
 }
 
 var uberBossCreepStats = &creepStats{
@@ -227,6 +235,7 @@ var stunnerCreepStats = &creepStats{
 		Reload:      2.6,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	beamColor: stunnerBeamColor,
-	beamWidth: 2,
+	beamColor:  stunnerBeamColor,
+	beamWidth:  2,
+	disarmable: true,
 }

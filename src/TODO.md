@@ -63,7 +63,6 @@ next release:
 - weather
 - random events
 
-- disarm should not work against buildings
 - does marauder disable invisible if base is moved?
 
 score calculations:

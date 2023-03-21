@@ -281,7 +281,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 
 	c.slow = gmath.ClampMax(c.slow+damage.Slow, 5)
 
-	if damage.Disarm != 0 && c.stats.kind != creepUberBoss {
+	if damage.Disarm != 0 && c.stats.disarmable {
 		if c.scene.Rand().Chance(damage.Disarm * 0.1) {
 			c.disarm = 2.5
 			c.scene.AddObject(newEffectNode(c.world.camera, c.pos, c.IsFlying(), assets.ImageIonZap))

@@ -56,6 +56,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
 	helpLabel := eui.NewLabel(uiResources, "", tinyFont)
 	helpLabel.MaxWidth = 320
@@ -91,7 +92,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 				grade = 1
 			}
 		}
-		b := eui.NewItemButton(uiResources, img, strings.Repeat(".", grade), func() {})
+		b := eui.NewItemButton(uiResources, img, smallFont, strings.Repeat(".", grade), func() {})
 		b.SetDisabled(true)
 		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
 			var lines []string

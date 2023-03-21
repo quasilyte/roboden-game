@@ -276,7 +276,7 @@ func (b *ItemButton) Toggle() {
 	}
 }
 
-func NewItemButton(res *Resources, img *ebiten.Image, label string, onclick func()) *ItemButton {
+func NewItemButton(res *Resources, img *ebiten.Image, ff font.Face, label string, onclick func()) *ItemButton {
 	container := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
 		widget.ContainerOpts.WidgetOpts(
@@ -314,7 +314,7 @@ func NewItemButton(res *Resources, img *ebiten.Image, label string, onclick func
 			),
 		)
 		labelWidget := widget.NewText(
-			widget.TextOpts.Text(label, res.ItemButton.FontFace, res.Button.TextColors.Idle),
+			widget.TextOpts.Text(label, ff, res.Button.TextColors.Idle),
 			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{

@@ -86,7 +86,7 @@ func getDefaultSessionState() *session.State {
 
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {
 		drone := recipe.Result
-		if !drone.AlwaysUnlocked {
+		if drone.ScoreCost != 0 {
 			continue
 		}
 		state.Persistent.PlayerStats.DronesUnlocked = append(state.Persistent.PlayerStats.DronesUnlocked, drone.Kind)

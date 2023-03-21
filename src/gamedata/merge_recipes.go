@@ -90,21 +90,6 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Result: CourierAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{GreenFactionTag, AgentWorker},
-		Drone2: RecipeSubject{RedFactionTag, AgentMilitia},
-		Result: MortarAgentStats,
-	},
-	{
-		Drone1: RecipeSubject{RedFactionTag, AgentMilitia},
-		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
-		Result: AntiAirAgentStats,
-	},
-	{
-		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
-		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
-		Result: PrismAgentStats,
-	},
-	{
 		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
 		Drone2: RecipeSubject{GreenFactionTag, AgentWorker},
 		Result: RechargeAgentStats,
@@ -120,9 +105,24 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Result: GeneratorAgentStats,
 	},
 	{
+		Drone1: RecipeSubject{GreenFactionTag, AgentWorker},
+		Drone2: RecipeSubject{RedFactionTag, AgentMilitia},
+		Result: MortarAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{RedFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Result: AntiAirAgentStats,
+	},
+	{
 		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
 		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
 		Result: DisintegratorAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Result: PrismAgentStats,
 	},
 }
 
@@ -213,29 +213,3 @@ type RecipeSubject struct {
 	Faction FactionTag
 	Kind    ColonyAgentKind
 }
-
-// var RecipesIndex = map[RecipeSubject][]AgentMergeRecipe{}
-
-// func init() {
-// 	factions := []FactionTag{
-// 		YellowFactionTag,
-// 		RedFactionTag,
-// 		BlueFactionTag,
-// 		GreenFactionTag,
-// 	}
-// 	kinds := []ColonyAgentKind{
-// 		AgentWorker,
-// 		AgentMilitia,
-// 	}
-// 	for _, f := range factions {
-// 		for _, k := range kinds {
-// 			subject := RecipeSubject{Kind: k, Faction: f}
-// 			for _, recipe := range Tier2agentMergeRecipeList {
-// 				if !recipe.Match1(subject) && !recipe.Match2(subject) {
-// 					continue
-// 				}
-// 				RecipesIndex[subject] = append(RecipesIndex[subject], recipe)
-// 			}
-// 		}
-// 	}
-// }

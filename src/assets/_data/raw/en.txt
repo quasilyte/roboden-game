@@ -97,6 +97,7 @@
 ##menu.results.new_achievement : New Achievement
 ##menu.results.upgraded_achievement : Upgraded Achievement
 ##menu.results.new_record : new record
+##menu.results.new_drone : Drone Unlocked
 
 ##menu.controls.text
 [Pan Camera]
@@ -287,6 +288,9 @@ can leave by pressing ESC.
 
 ##tutorial.message_last
 Good luck and good hunting.
+
+##drone.locked : Locked Drone
+##drone.score_required : Total Score Required
 
 ##drone.function : Function
 ##drone.kind.worker : worker

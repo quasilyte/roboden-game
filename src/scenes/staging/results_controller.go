@@ -63,7 +63,6 @@ func newResultsController(state *session.State, backController ge.SceneControlle
 
 func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
-	c.initUI()
 
 	stats := &c.state.Persistent.PlayerStats
 	stats.TotalPlayTime += c.results.TimePlayed
@@ -73,6 +72,8 @@ func (c *resultsController) Init(scene *ge.Scene) {
 		stats.HighestScoreDifficulty = c.results.DifficultyScore
 	}
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
+
+	c.initUI()
 }
 
 func (c *resultsController) Update(delta float64) {
@@ -80,6 +81,34 @@ func (c *resultsController) Update(delta float64) {
 		c.back()
 		return
 	}
+}
+
+func (c *resultsController) checkNewDrones() []gamedata.ColonyAgentKind {
+	if c.state.LevelOptions.Tutorial {
+		return nil
+	}
+
+	stats := &c.state.Persistent.PlayerStats
+
+	alreadyUnlocked := map[gamedata.ColonyAgentKind]struct{}{}
+	for _, kind := range stats.DronesUnlocked {
+		alreadyUnlocked[kind] = struct{}{}
+	}
+
+	var unlocked []gamedata.ColonyAgentKind
+	for _, recipe := range gamedata.Tier2agentMergeRecipes {
+		drone := recipe.Result
+		if _, ok := alreadyUnlocked[drone.Kind]; ok {
+			continue
+		}
+		if drone.ScoreCost > stats.TotalScore {
+			continue
+		}
+		unlocked = append(unlocked, drone.Kind)
+		stats.DronesUnlocked = append(stats.DronesUnlocked, drone.Kind)
+	}
+
+	return unlocked
 }
 
 func (c *resultsController) checkAchievements() ([]string, []string) {
@@ -205,6 +234,10 @@ func (c *resultsController) initUI() {
 	}
 	for _, a := range upgradedAchievements {
 		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.upgraded_achievement"), d.Get("achievement", a)))
+	}
+	newDrones := c.checkNewDrones()
+	for _, kind := range newDrones {
+		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.new_drone"), d.Get("drone", strings.ToLower(kind.String()))))
 	}
 
 	label := eui.NewCenteredLabel(uiResources, strings.Join(lines, "\n"), smallFont)

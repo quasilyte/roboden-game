@@ -39,9 +39,10 @@ type LobbyMenuController struct {
 }
 
 type droneButton struct {
-	widget *eui.ItemButton
-	drone  *gamedata.AgentStats
-	recipe gamedata.AgentMergeRecipe
+	widget    *eui.ItemButton
+	drone     *gamedata.AgentStats
+	recipe    gamedata.AgentMergeRecipe
+	available bool
 }
 
 func NewLobbyMenuController(state *session.State) *LobbyMenuController {
@@ -131,9 +132,6 @@ func (c *LobbyMenuController) prepareRecipeIcons() {
 
 func (c *LobbyMenuController) initUI() {
 	uiResources := eui.LoadResources(c.scene.Context().Loader)
-
-	// titleLabel := eui.NewLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.start_game"), normalFont)
-	// rowContainer.AddChild(titleLabel)
 
 	root := eui.NewAnchorContainer()
 
@@ -425,7 +423,7 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 		score += (options.CreepDifficulty - 1) * 10
 	}
 	score += (options.BossDifficulty - 1) * 15
-	score -= (options.StartingResources) * 2
+	score -= (options.StartingResources) * 4
 
 	score += 20 - c.calcAllocatedPoints()
 
@@ -570,7 +568,7 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 
 	for i, turret := range gamedata.TurretStatsList {
 		img := c.scene.LoadImage(turret.Image)
-		b := eui.NewItemButton(uiResources, img.Data, "", func() {})
+		b := eui.NewItemButton(uiResources, img.Data, nil, "", func() {})
 		grid.AddChild(b.Widget)
 		if i == 0 {
 			b.Toggle()
@@ -582,12 +580,62 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 	return panel
 }
 
+func (c *LobbyMenuController) droneDescriptionText(drone *gamedata.AgentStats, available bool) string {
+	d := c.scene.Dict()
+
+	if !available {
+		textLines := make([]string, 0, 4)
+		textLines = append(textLines, d.Get("drone.locked"))
+		textLines = append(textLines, "")
+		textLines = append(textLines, fmt.Sprintf("%s: %d/%d", d.Get("drone.score_required"), c.state.Persistent.PlayerStats.TotalScore, drone.ScoreCost))
+		return strings.Join(textLines, "\n")
+	}
+
+	tag := ""
+	switch {
+	case drone.CanGather && drone.CanPatrol:
+		tag = d.Get("drone", "kind", "universal")
+	case drone.CanGather:
+		tag = d.Get("drone", "kind", "worker")
+	case drone.CanPatrol:
+		tag = d.Get("drone", "kind", "military")
+	}
+	key := strings.ToLower(drone.Kind.String())
+
+	textLines := make([]string, 0, 6)
+
+	textLines = append(textLines, d.Get("drone", key)+"\n")
+	textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.function"), tag))
+	textLines = append(textLines, d.Get("drone", key, "description")+"\n")
+
+	if drone.Weapon != nil {
+		parts := make([]string, 0, 2)
+		if drone.Weapon.TargetFlags&gamedata.TargetGround != 0 {
+			p := d.Get("drone.target.ground")
+			if drone.Weapon.GroundDamageBonus != 0 {
+				p += fmt.Sprintf(" (%d%%)", int(drone.Weapon.GroundDamageBonus*100))
+			}
+			parts = append(parts, p)
+		}
+		if drone.Weapon.TargetFlags&gamedata.TargetFlying != 0 {
+			p := d.Get("drone.target.flying")
+			if drone.Weapon.FlyingDamageBonus != 0 {
+				p += fmt.Sprintf(" (%d%%)", int(drone.Weapon.FlyingDamageBonus*100))
+			}
+			parts = append(parts, p)
+		}
+		textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.target"), strings.Join(parts, ", ")))
+	}
+
+	return strings.Join(textLines, "\n")
+}
+
 func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *widget.Container {
 	dronesPanel := eui.NewPanel(uiResources, 0, 0)
 
-	d := c.scene.Dict()
-
 	options := &c.state.LevelOptions
+
+	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
 	grid := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
@@ -606,10 +654,20 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 		frame := img.Data.SubImage(image.Rectangle{
 			Max: image.Point{X: int(img.DefaultFrameWidth), Y: int(img.DefaultFrameHeight)},
 		}).(*ebiten.Image)
-		costLabel := strings.Repeat(".", recipe.Result.PointCost)
 		drone := recipe.Result
+		available := xslices.Contains(c.state.Persistent.PlayerStats.DronesUnlocked, drone.Kind)
+		costLabel := ""
+		if available {
+			costLabel = strings.Repeat(".", recipe.Result.PointCost)
+		} else {
+			painted := ebiten.NewImage(frame.Size())
+			var options ebiten.DrawImageOptions
+			options.ColorM.Scale(0.9, 0.5, 1, 0.4)
+			painted.DrawImage(frame, &options)
+			frame = painted
+		}
 		var b *eui.ItemButton
-		b = eui.NewItemButton(uiResources, frame, costLabel, func() {
+		b = eui.NewItemButton(uiResources, frame, smallFont, costLabel, func() {
 			b.Toggle()
 			c.onDroneToggled()
 			c.updateTier2Recipes()
@@ -619,52 +677,22 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 			b.Toggle()
 		}
 		c.droneButtons = append(c.droneButtons, droneButton{
-			widget: b,
-			drone:  drone,
-			recipe: recipe,
+			widget:    b,
+			drone:     drone,
+			recipe:    recipe,
+			available: available,
 		})
 		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
-			tag := ""
-			switch {
-			case drone.CanGather && drone.CanPatrol:
-				tag = d.Get("drone", "kind", "universal")
-			case drone.CanGather:
-				tag = d.Get("drone", "kind", "worker")
-			case drone.CanPatrol:
-				tag = d.Get("drone", "kind", "military")
+			c.helpLabel.Label = c.droneDescriptionText(drone, available)
+			if available {
+				c.helpIcon1.Image = c.recipeIcons[recipe.Drone1]
+				c.helpIconSeparator.Label = "+"
+				c.helpIcon2.Image = c.recipeIcons[recipe.Drone2]
+			} else {
+				c.helpIcon1.Image = nil
+				c.helpIconSeparator.Label = ""
+				c.helpIcon2.Image = nil
 			}
-			key := strings.ToLower(drone.Kind.String())
-
-			textLines := make([]string, 0, 6)
-
-			textLines = append(textLines, d.Get("drone", key)+"\n")
-			textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.function"), tag))
-			textLines = append(textLines, d.Get("drone", key, "description")+"\n")
-
-			if drone.Weapon != nil {
-				parts := make([]string, 0, 2)
-				if drone.Weapon.TargetFlags&gamedata.TargetGround != 0 {
-					p := d.Get("drone.target.ground")
-					if drone.Weapon.GroundDamageBonus != 0 {
-						p += fmt.Sprintf(" (%d%%)", int(drone.Weapon.GroundDamageBonus*100))
-					}
-					parts = append(parts, p)
-				}
-				if drone.Weapon.TargetFlags&gamedata.TargetFlying != 0 {
-					p := d.Get("drone.target.flying")
-					if drone.Weapon.FlyingDamageBonus != 0 {
-						p += fmt.Sprintf(" (%d%%)", int(drone.Weapon.FlyingDamageBonus*100))
-					}
-					parts = append(parts, p)
-				}
-				textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.target"), strings.Join(parts, ", ")))
-			}
-
-			c.helpLabel.Label = strings.Join(textLines, "\n")
-
-			c.helpIcon1.Image = c.recipeIcons[recipe.Drone1]
-			c.helpIconSeparator.Label = "+"
-			c.helpIcon2.Image = c.recipeIcons[recipe.Drone2]
 			c.helpPanel.RequestRelayout()
 		})
 	}
@@ -672,7 +700,7 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 
 	// Pad the remaining space with disabled buttons.
 	for i := len(gamedata.Tier2agentMergeRecipes); i < maxNumDrones; i++ {
-		b := eui.NewItemButton(uiResources, nil, "", func() {})
+		b := eui.NewItemButton(uiResources, nil, nil, "", func() {})
 		b.SetDisabled(true)
 		grid.AddChild(b.Widget)
 	}
@@ -702,7 +730,7 @@ func (c *LobbyMenuController) onDroneToggled() {
 		if b.widget.IsToggled() {
 			continue
 		}
-		b.widget.SetDisabled(b.drone.PointCost > pointsLeft)
+		b.widget.SetDisabled(!b.available || b.drone.PointCost > pointsLeft)
 	}
 	if c.difficultyLabel != nil {
 		c.updateDifficultyScore(c.calcDifficultyScore())

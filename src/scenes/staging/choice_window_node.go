@@ -35,6 +35,7 @@ type selectedChoice struct {
 }
 
 type choiceOptionSlot struct {
+	flipAnim   *ge.Animation
 	floppy     *ge.Sprite
 	icon       *ge.Sprite
 	labelLight *ge.Label
@@ -259,6 +260,13 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		assets.ImageFloppyBlue,
 		assets.ImageFloppyGray,
 	}
+	flipSprites := [...]resource.ImageID{
+		assets.ImageFloppyYellowFlip,
+		assets.ImageFloppyRedFlip,
+		assets.ImageFloppyGreenFlip,
+		assets.ImageFloppyBlueFlip,
+		assets.ImageFloppyGrayFlip,
+	}
 	fontColors := [...][2]color.RGBA{
 		{ge.RGB(0x99943d), ge.RGB(0x666114)},
 		{ge.RGB(0x804140), ge.RGB(0x4d1717)},
@@ -275,6 +283,12 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		floppy.Centered = false
 		floppy.Pos.Offset = offset
 		scene.AddGraphicsAbove(floppy, 1)
+
+		flipSprite := scene.NewSprite(flipSprites[i])
+		flipSprite.Centered = false
+		flipSprite.Pos.Offset = offset
+		flipSprite.Visible = false
+		scene.AddGraphicsAbove(flipSprite, 1)
 
 		offset.Y += floppy.ImageHeight() + offsetY
 
@@ -309,6 +323,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		}
 
 		choice := &choiceOptionSlot{
+			flipAnim:   ge.NewAnimation(flipSprite, -1),
 			labelDark:  darkLabel,
 			labelLight: lightLabel,
 			floppy:     floppy,
@@ -326,8 +341,6 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 
 		w.choices[i] = choice
 	}
-
-	w.startCharging(10)
 }
 
 func (w *choiceWindowNode) IsDisposed() bool {
@@ -344,6 +357,10 @@ func (w *choiceWindowNode) ForceRefresh() {
 func (w *choiceWindowNode) revealChoices() {
 	for _, o := range w.choices {
 		o.floppy.Pos.Offset.X = w.floppyOffsetX
+		o.floppy.Visible = true
+		o.labelDark.Visible = true
+		o.labelLight.Visible = true
+		o.flipAnim.Sprite().Visible = false
 		if o.icon != nil {
 			o.icon.Visible = true
 		}
@@ -387,8 +404,11 @@ func (w *choiceWindowNode) startCharging(targetValue float64) {
 		if i == w.selectedIndex {
 			continue
 		}
-		o.labelDark.Text = "?"
-		o.labelLight.Text = "?"
+		o.flipAnim.Rewind()
+		o.flipAnim.Sprite().Visible = true
+		o.floppy.Visible = false
+		o.labelDark.Visible = false
+		o.labelLight.Visible = false
 		if o.icon != nil {
 			o.icon.Visible = false
 		}
@@ -413,21 +433,13 @@ func (w *choiceWindowNode) Update(delta float64) {
 	const maxSlideOffset float64 = 144 + 8
 	for i, o := range w.choices {
 		if i == w.selectedIndex {
-			if percentage >= 0.8 {
-				o.floppy.Pos.Offset.X = math.Round(w.floppyOffsetX + maxSlideOffset*(1-(5*(percentage-0.8))))
-				if o.labelDark.Text != "?" {
-					o.labelDark.Text = "?"
-					o.labelLight.Text = "?"
-					if o.icon != nil {
-						o.icon.Visible = false
-					}
-				}
-			} else if percentage >= 0.6 {
-				o.floppy.Pos.Offset.X = math.Round(w.floppyOffsetX + maxSlideOffset*(5*(percentage-0.6)))
-			}
+			o.floppy.Pos.Offset.X = math.Round(w.floppyOffsetX + maxSlideOffset*(1.05*percentage))
 			continue
 		}
-		o.floppy.Pos.Offset.X = math.Round(w.floppyOffsetX + maxSlideOffset*(1-percentage))
+
+		if o.flipAnim.Tick(delta) {
+			o.flipAnim.Sprite().Visible = false
+		}
 	}
 }
 

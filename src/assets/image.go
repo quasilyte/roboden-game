@@ -38,11 +38,16 @@ func registerImageResources(ctx *ge.Context) {
 		ImagePriorityEvolution: {Path: "image/ui/priority_icon_evolution.png"},
 		ImagePrioritySecurity:  {Path: "image/ui/priority_icon_security.png"},
 
-		ImageFloppyYellow: {Path: "image/ui/floppy_yellow.png"},
-		ImageFloppyRed:    {Path: "image/ui/floppy_red.png"},
-		ImageFloppyGreen:  {Path: "image/ui/floppy_green.png"},
-		ImageFloppyBlue:   {Path: "image/ui/floppy_blue.png"},
-		ImageFloppyGray:   {Path: "image/ui/floppy_gray.png"},
+		ImageFloppyYellow:     {Path: "image/ui/floppy_yellow.png"},
+		ImageFloppyRed:        {Path: "image/ui/floppy_red.png"},
+		ImageFloppyGreen:      {Path: "image/ui/floppy_green.png"},
+		ImageFloppyBlue:       {Path: "image/ui/floppy_blue.png"},
+		ImageFloppyGray:       {Path: "image/ui/floppy_gray.png"},
+		ImageFloppyYellowFlip: {Path: "image/ui/floppy_yellow_flip.png", FrameWidth: 144},
+		ImageFloppyRedFlip:    {Path: "image/ui/floppy_red_flip.png", FrameWidth: 144},
+		ImageFloppyGreenFlip:  {Path: "image/ui/floppy_green_flip.png", FrameWidth: 144},
+		ImageFloppyBlueFlip:   {Path: "image/ui/floppy_blue_flip.png", FrameWidth: 144},
+		ImageFloppyGrayFlip:   {Path: "image/ui/floppy_gray_flip.png", FrameWidth: 144},
 
 		ImageActionBuildColony:    {Path: "image/ui/action_build_colony.png"},
 		ImageActionBuildTurret:    {Path: "image/ui/action_build_turret.png"},
@@ -239,6 +244,11 @@ const (
 	ImageFloppyGreen
 	ImageFloppyBlue
 	ImageFloppyGray
+	ImageFloppyYellowFlip
+	ImageFloppyRedFlip
+	ImageFloppyGreenFlip
+	ImageFloppyBlueFlip
+	ImageFloppyGrayFlip
 
 	ImageActionBuildColony
 	ImageActionBuildTurret

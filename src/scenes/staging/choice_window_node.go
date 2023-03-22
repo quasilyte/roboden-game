@@ -274,7 +274,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		floppy := scene.NewSprite(floppies[i])
 		floppy.Centered = false
 		floppy.Pos.Offset = offset
-		scene.AddGraphics(floppy)
+		scene.AddGraphicsAbove(floppy, 1)
 
 		offset.Y += floppy.ImageHeight() + offsetY
 
@@ -296,8 +296,8 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		lightLabel.Width = 86 + 2
 		lightLabel.Height = 62 + 2
 
-		scene.AddGraphics(darkLabel)
-		scene.AddGraphics(lightLabel)
+		scene.AddGraphicsAbove(darkLabel, 1)
+		scene.AddGraphicsAbove(lightLabel, 1)
 
 		var icon *ge.Sprite
 		if i == 4 {
@@ -305,7 +305,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 			icon.Centered = false
 			icon.Pos.Base = &floppy.Pos.Offset
 			icon.Pos.Offset = gmath.Vec{X: 5, Y: 26}
-			scene.AddGraphics(icon)
+			scene.AddGraphicsAbove(icon, 1)
 		}
 
 		choice := &choiceOptionSlot{

@@ -30,6 +30,8 @@ func registerImageResources(ctx *ge.Context) {
 		ImageRadarBossNear:    {Path: "image/ui/radar_boss_near.png"},
 		ImageButtonMenu:       {Path: "image/ui/menu_button.png"},
 		ImageButtonBaseToggle: {Path: "image/ui/base_toggle_button.png"},
+		ImageRightPanelLayer1: {Path: "image/ui/right_panel_layer1.png"},
+		ImageRightPanelLayer2: {Path: "image/ui/right_panel_layer2.png"},
 
 		ImageFloppyYellow: {Path: "image/ui/floppy_yellow.png"},
 		ImageFloppyRed:    {Path: "image/ui/floppy_red.png"},
@@ -201,6 +203,8 @@ const (
 	ImageRadarBossNear
 	ImageButtonMenu
 	ImageButtonBaseToggle
+	ImageRightPanelLayer1
+	ImageRightPanelLayer2
 
 	ImageSmallExplosion1
 	ImagePurpleExplosion

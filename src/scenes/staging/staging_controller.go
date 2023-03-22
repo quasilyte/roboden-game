@@ -36,6 +36,7 @@ type Controller struct {
 	selectedColony *colonyCoreNode
 	colonySelector *ge.Sprite
 	radar          *radarNode
+	rpanel         *rpanelNode
 	menuButton     *gameui.TextureButton
 	toggleButton   *gameui.TextureButton
 
@@ -188,6 +189,9 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.radar = newRadarNode(c.world)
 	scene.AddObject(c.radar)
+
+	c.rpanel = newRpanelNode(c.world)
+	scene.AddObject(c.rpanel)
 
 	scene.AddObject(c.cursor)
 
@@ -489,8 +493,7 @@ func (c *Controller) handleInput() {
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionBack) {
-		// c.onMenuButtonClicked(gsignal.Void{})
-		c.victory()
+		c.onMenuButtonClicked(gsignal.Void{})
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionToggleColony) {

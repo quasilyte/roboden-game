@@ -56,6 +56,8 @@ type battleResults struct {
 	DifficultyScore      int
 	DronePointsAllocated int
 
+	OnlyTier1Military bool
+
 	Tier3Drones []gamedata.ColonyAgentKind
 }
 
@@ -185,7 +187,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "tinyradius":
 			unlocked = c.results.RadiusIncreases == 0
 		case "t1army":
-			// TODO
+			unlocked = c.results.OnlyTier1Military
 		case "groundwin":
 			unlocked = c.results.GroundBossDefeat
 		case "turretdamage":

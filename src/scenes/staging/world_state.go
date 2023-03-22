@@ -74,6 +74,14 @@ func (w *worldState) Init() {
 		}
 	}
 
+	w.result.OnlyTier1Military = true
+	for _, recipe := range w.tier2recipes {
+		if recipe.Result.CanPatrol {
+			w.result.OnlyTier1Military = false
+			break
+		}
+	}
+
 	w.creepHealthMultiplier = 1.0 + (float64(w.options.CreepDifficulty-1) * 0.20)
 	w.bossHealthMultiplier = 1.0 + (float64(w.options.BossDifficulty-1) * 0.15)
 }

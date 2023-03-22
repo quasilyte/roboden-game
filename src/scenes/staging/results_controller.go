@@ -169,7 +169,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "victorydrag":
 			unlocked = c.results.TimePlayed.Hours() >= 2
 		case "t3engineer":
-			// TODO
+			unlocked = len(stats.Tier3DronesSeen) >= len(gamedata.Tier3agentMergeRecipes)
 		case "t3less":
 			unlocked = c.results.T3created == 0
 		case "cheapbuild10":

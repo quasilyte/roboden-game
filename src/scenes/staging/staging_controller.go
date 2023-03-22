@@ -474,8 +474,7 @@ func (c *Controller) handleInput() {
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionBack) {
-		// c.onMenuButtonClicked(gsignal.Void{})
-		c.victory()
+		c.onMenuButtonClicked(gsignal.Void{})
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionToggleColony) {

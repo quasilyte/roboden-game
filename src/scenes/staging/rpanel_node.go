@@ -111,7 +111,7 @@ func (panel *rpanelNode) UpdateMetrics() {
 	}
 
 	fullPriorityOffset := 445.0
-	for i, kv := range panel.colony.actionPriorities.Elems {
+	for i, kv := range panel.colony.priorities.Elems {
 		bar := panel.priorityBars[i]
 		bar.Pos.Offset.Y = fullPriorityOffset + ((bar.FrameHeight - 8) * (1.0 - kv.Weight))
 		icon := panel.priorityIcons[i]

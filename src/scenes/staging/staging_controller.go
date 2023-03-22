@@ -244,7 +244,9 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		}
 		c.selectedColony.factionWeights.AddWeight(choice.Faction, c.world.rand.FloatRange(0.1, 0.2))
 		for _, e := range choice.Option.effects {
-			c.selectedColony.actionPriorities.AddWeight(e.priority, e.value)
+			// Use priorities.AddWeight directly here to avoid the signal.
+			// We'll call UpdateMetrics() below ourselves.
+			c.selectedColony.priorities.AddWeight(e.priority, e.value)
 		}
 		c.rpanel.UpdateMetrics()
 		return
@@ -590,6 +592,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	if c.selectedColony != nil {
 		c.scene.Audio().PlaySound(assets.AudioBaseSelect)
 		c.selectedColony.EventDestroyed.Disconnect(c)
+		c.selectedColony.EventPrioritiesChanged.Disconnect(c)
 	}
 	c.selectedColony = colony
 	c.choices.selectedColony = colony
@@ -603,6 +606,9 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	}
 	c.selectedColony.EventDestroyed.Connect(c, func(_ *colonyCoreNode) {
 		c.selectNextColony(false)
+	})
+	c.selectedColony.EventPrioritiesChanged.Connect(c, func(_ *colonyCoreNode) {
+		c.rpanel.UpdateMetrics()
 	})
 	c.colonySelector.Pos.Base = &c.selectedColony.spritePos
 }

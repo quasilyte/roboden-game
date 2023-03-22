@@ -163,9 +163,9 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 			Pos:    c.pos,
 		})
 		core.resources = 40
-		core.actionPriorities.SetWeight(priorityResources, 0.4)
-		core.actionPriorities.SetWeight(priorityGrowth, 0.4)
-		core.actionPriorities.SetWeight(prioritySecurity, 0.2)
+		core.priorities.SetWeight(priorityResources, 0.4)
+		core.priorities.SetWeight(priorityGrowth, 0.4)
+		core.priorities.SetWeight(prioritySecurity, 0.2)
 		c.scene.AddObject(core)
 	}
 }

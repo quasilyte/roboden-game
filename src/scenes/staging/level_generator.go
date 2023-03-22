@@ -131,9 +131,9 @@ func (g *levelGenerator) createBase(pos gmath.Vec) {
 		Radius: 128,
 		Pos:    pos,
 	})
-	core.actionPriorities.SetWeight(priorityResources, 0.5)
-	core.actionPriorities.SetWeight(priorityGrowth, 0.4)
-	core.actionPriorities.SetWeight(prioritySecurity, 0.1)
+	core.priorities.SetWeight(priorityResources, 0.5)
+	core.priorities.SetWeight(priorityGrowth, 0.4)
+	core.priorities.SetWeight(prioritySecurity, 0.1)
 	g.scene.AddObject(core)
 
 	switch g.world.options.StartingResources {

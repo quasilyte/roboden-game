@@ -86,8 +86,8 @@ type colonyCoreNode struct {
 	upkeepDelay  float64
 	cloningDelay float64
 
-	actionDelay      float64
-	actionPriorities *weightContainer[colonyPriority]
+	actionDelay float64
+	priorities  *weightContainer[colonyPriority]
 
 	resourceRects []*ge.Rect
 
@@ -95,7 +95,8 @@ type colonyCoreNode struct {
 
 	factionWeights *weightContainer[gamedata.FactionTag]
 
-	EventDestroyed gsignal.Event[*colonyCoreNode]
+	EventDestroyed         gsignal.Event[*colonyCoreNode]
+	EventPrioritiesChanged gsignal.Event[*colonyCoreNode]
 }
 
 type colonyConfig struct {
@@ -113,7 +114,7 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 		maxHealth:  100,
 	}
 	c.realRadiusSqr = c.realRadius * c.realRadius
-	c.actionPriorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
+	c.priorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
 	c.factionWeights = newWeightContainer(
 		gamedata.NeutralFactionTag,
 		gamedata.YellowFactionTag,
@@ -251,7 +252,7 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec)
 
 	c.updateHealthShader()
 	if c.scene.Rand().Chance(0.7) {
-		c.actionPriorities.AddWeight(prioritySecurity, 0.02)
+		c.AddPriority(prioritySecurity, 0.02)
 	}
 }
 
@@ -274,20 +275,25 @@ func (c *colonyCoreNode) GetStoragePos() gmath.Vec {
 	return c.pos.Add(gmath.Vec{X: 1, Y: 0})
 }
 
+func (c *colonyCoreNode) AddPriority(kind colonyPriority, delta float64) {
+	c.priorities.AddWeight(kind, delta)
+	c.EventPrioritiesChanged.Emit(c)
+}
+
 func (c *colonyCoreNode) GetResourcePriority() float64 {
-	return c.actionPriorities.GetWeight(priorityResources)
+	return c.priorities.GetWeight(priorityResources)
 }
 
 func (c *colonyCoreNode) GetGrowthPriority() float64 {
-	return c.actionPriorities.GetWeight(priorityGrowth)
+	return c.priorities.GetWeight(priorityGrowth)
 }
 
 func (c *colonyCoreNode) GetEvolutionPriority() float64 {
-	return c.actionPriorities.GetWeight(priorityEvolution)
+	return c.priorities.GetWeight(priorityEvolution)
 }
 
 func (c *colonyCoreNode) GetSecurityPriority() float64 {
-	return c.actionPriorities.GetWeight(prioritySecurity)
+	return c.priorities.GetWeight(prioritySecurity)
 }
 
 func (c *colonyCoreNode) CloneAgentNode(a *colonyAgentNode) *colonyAgentNode {
@@ -515,7 +521,7 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 	upkeepPrice, upkeepValue := c.calcUpkeed()
 	c.updateUpkeepBar(upkeepValue)
 	if c.resources < upkeepPrice {
-		c.actionPriorities.AddWeight(priorityResources, 0.04)
+		c.AddPriority(priorityResources, 0.04)
 		c.resources = 0
 	} else {
 		c.resources -= upkeepPrice
@@ -597,7 +603,7 @@ func (c *colonyCoreNode) updateNormal(delta float64) {
 
 func (c *colonyCoreNode) doAction() {
 	if c.resourceShortage >= 5 {
-		c.actionPriorities.AddWeight(priorityResources, c.scene.Rand().FloatRange(0.02, 0.05))
+		c.AddPriority(priorityResources, c.scene.Rand().FloatRange(0.02, 0.05))
 		c.resourceShortage -= 5
 	}
 

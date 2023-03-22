@@ -14,6 +14,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/descriptions"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes/staging"
@@ -578,56 +579,6 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 	return panel
 }
 
-func (c *LobbyMenuController) droneDescriptionText(drone *gamedata.AgentStats, available bool) string {
-	d := c.scene.Dict()
-
-	if !available {
-		textLines := make([]string, 0, 4)
-		textLines = append(textLines, d.Get("drone.locked"))
-		textLines = append(textLines, "")
-		textLines = append(textLines, fmt.Sprintf("%s: %d/%d", d.Get("drone.score_required"), c.state.Persistent.PlayerStats.TotalScore, drone.ScoreCost))
-		return strings.Join(textLines, "\n")
-	}
-
-	tag := ""
-	switch {
-	case drone.CanGather && drone.CanPatrol:
-		tag = d.Get("drone", "kind", "universal")
-	case drone.CanGather:
-		tag = d.Get("drone", "kind", "worker")
-	case drone.CanPatrol:
-		tag = d.Get("drone", "kind", "military")
-	}
-	key := strings.ToLower(drone.Kind.String())
-
-	textLines := make([]string, 0, 6)
-
-	textLines = append(textLines, d.Get("drone", key)+"\n")
-	textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.function"), tag))
-	textLines = append(textLines, d.Get("drone", key, "description")+"\n")
-
-	if drone.Weapon != nil {
-		parts := make([]string, 0, 2)
-		if drone.Weapon.TargetFlags&gamedata.TargetGround != 0 {
-			p := d.Get("drone.target.ground")
-			if drone.Weapon.GroundDamageBonus != 0 {
-				p += fmt.Sprintf(" (%d%%)", int(drone.Weapon.GroundDamageBonus*100))
-			}
-			parts = append(parts, p)
-		}
-		if drone.Weapon.TargetFlags&gamedata.TargetFlying != 0 {
-			p := d.Get("drone.target.flying")
-			if drone.Weapon.FlyingDamageBonus != 0 {
-				p += fmt.Sprintf(" (%d%%)", int(drone.Weapon.FlyingDamageBonus*100))
-			}
-			parts = append(parts, p)
-		}
-		textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.target"), strings.Join(parts, ", ")))
-	}
-
-	return strings.Join(textLines, "\n")
-}
-
 func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *widget.Container {
 	dronesPanel := eui.NewPanel(uiResources, 0, 0)
 
@@ -678,7 +629,11 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 			available: available,
 		})
 		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
-			c.helpLabel.Label = c.droneDescriptionText(drone, available)
+			if available {
+				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, false)
+			} else {
+				c.helpLabel.Label = descriptions.LockedDroneText(c.scene.Dict(), &c.state.Persistent.PlayerStats, drone)
+			}
 			if available {
 				c.helpIcon1.Image = c.recipeIcons[recipe.Drone1]
 				c.helpIconSeparator.Label = "+"

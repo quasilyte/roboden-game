@@ -57,6 +57,10 @@ func (c *ProfileMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewProfileProgressMenuController(c.state))
 	}))
 
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.dronebook"), func() {
+		c.scene.Context().ChangeScene(NewProfileDroneCollectionMenuController(c.state))
+	}))
+
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {

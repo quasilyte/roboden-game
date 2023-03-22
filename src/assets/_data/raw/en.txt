@@ -17,6 +17,7 @@
 ##menu.profile.achievements : Achievements
 ##menu.profile.stats : Stats
 ##menu.profile.progress : Progress
+##menu.profile.dronebook : Drone Collection
 
 ##menu.profile.stats.totalscore : Total Score
 ##menu.profile.stats.highscore : The Highest Score
@@ -28,6 +29,7 @@
 ##menu.profile.progress.drones_unlocked : Tier 2 Drones Unlocked
 ##menu.profile.progress.t3drones_seen : Tier 3 Drones Discovered
 
+##menu.tier : tier
 ##menu.back : Back
 ##menu.more : More
 ##menu.lobby_back : To The Menu
@@ -292,6 +294,7 @@ can leave by pressing ESC.
 ##tutorial.message_last
 Good luck and good hunting.
 
+##drone.undiscovered : Undiscovered Drone
 ##drone.locked : Locked Drone
 ##drone.score_required : Total Score Required
 
@@ -303,6 +306,19 @@ Good luck and good hunting.
 ##drone.target : Targets
 ##drone.target.ground : ground
 ##drone.target.flying : flying
+
+##drone.worker : Worker
+##drone.worker.description
+A common worker drone.
+It can gather resources, construct and repair buildings.
+This is a model that can be produced directly from a colony.
+When combined with some other workers and scouts, it can become a tier 2 drone.
+
+##drone.militia : Scout
+##drone.militia.description
+The simplest combat drone.
+This is a model that can be produced directly from a colony.
+When combined with some other workers and scouts, it can become a tier 2 drone.
 
 ##drone.scavenger : Scavenger
 ##drone.scavenger.description
@@ -446,3 +462,30 @@ Destroy the boss in the moment when it's close to the ground.
 ##achievement.turretdamage : Turret Barrage
 ##achievement.turretdamage.description
 Deal at least 25% damage to the boss using ground turrets.
+
+##drone.trucker : Trucker
+##drone.trucker.description
+An improved version of courier drone.
+Its payload and offensive capacity are increased.
+
+##drone.stormbringer : Stormbringer
+##drone.stormbringer.description
+A worker that carries a heavy lightning cannon that inflicts EMP damage to two targets.
+Its attacks may cause the enemy to lose their ability to attack.
+It preserves the generator drone properties to decrease the upkeep.
+
+##drone.destroyer : Destroyer
+##drone.destroyer.description
+One of the most all-around powerful combat drones.
+High offense and high defense at the high upkeep cost.
+These drones can form a vanguard of the colony forces.
+
+##drone.marauder : Marauder
+##drone.marauder.description
+An improved scavanger that receives cloaking abilities.
+It attacks up to three targets and inflicts slow condition.
+
+##drone.refresher : Refresher
+##drone.refresher.description
+A combination of repair and recharger bots.
+This drone can do both repairs and energy recharging.

@@ -11,6 +11,8 @@ func registerImageResources(ctx *ge.Context) {
 	imageResources := map[resource.ImageID]resource.ImageInfo{
 		ImageAchievementImpossible: {Path: "image/achievement/impossible.png"},
 
+		ImageLock: {Path: "image/ui/lock.png"},
+
 		ImageSmallShadow:    {Path: "image/small_shadow.png"},
 		ImageMediumShadow:   {Path: "image/medium_shadow.png"},
 		ImageBigShadow:      {Path: "image/big_shadow.png"},
@@ -183,6 +185,8 @@ const (
 	ImageNone resource.ImageID = iota
 
 	ImageAchievementImpossible
+
+	ImageLock
 
 	ImageSmallShadow
 	ImageMediumShadow

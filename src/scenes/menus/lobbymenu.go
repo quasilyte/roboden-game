@@ -648,21 +648,18 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 	maxNumDrones := 8 * 3
 	for i := range gamedata.Tier2agentMergeRecipes {
 		recipe := gamedata.Tier2agentMergeRecipes[i]
-		img := c.scene.LoadImage(recipe.Result.Image)
-		frame := img.Data.SubImage(image.Rectangle{
-			Max: image.Point{X: int(img.DefaultFrameWidth), Y: int(img.DefaultFrameHeight)},
-		}).(*ebiten.Image)
 		drone := recipe.Result
 		available := xslices.Contains(c.state.Persistent.PlayerStats.DronesUnlocked, drone.Kind)
 		costLabel := ""
+		var frame *ebiten.Image
 		if available {
 			costLabel = strings.Repeat(".", recipe.Result.PointCost)
+			img := c.scene.LoadImage(recipe.Result.Image)
+			frame = img.Data.SubImage(image.Rectangle{
+				Max: image.Point{X: int(img.DefaultFrameWidth), Y: int(img.DefaultFrameHeight)},
+			}).(*ebiten.Image)
 		} else {
-			painted := ebiten.NewImage(frame.Size())
-			var options ebiten.DrawImageOptions
-			options.ColorM.Scale(0.9, 0.5, 1, 0.4)
-			painted.DrawImage(frame, &options)
-			frame = painted
+			frame = c.scene.LoadImage(assets.ImageLock).Data
 		}
 		var b *eui.ItemButton
 		b = eui.NewItemButton(uiResources, frame, smallFont, costLabel, func() {

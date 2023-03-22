@@ -168,6 +168,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			// TODO
 		case "groundwin":
 			unlocked = c.results.GroundBossDefeat
+		case "turretdamage":
+			// TODO
 		}
 
 		if !unlocked {

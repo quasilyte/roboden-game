@@ -1,10 +1,13 @@
 package menus
 
 import (
+	"fmt"
+
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/session"
@@ -46,22 +49,40 @@ func (c *PlayMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.play"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.classic"), func() {
-		c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.rush"), func() {
-		// c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.arena"), func() {
-		// c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
-	}))
-
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.tutorial"), func() {
 		c.state.LevelOptions.Tutorial = true
 		c.scene.Context().ChangeScene(staging.NewController(c.state, 0, NewMainMenuController(c.state)))
 	}))
+
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.classic"), func() {
+		c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
+	}))
+
+	{
+		toUnlock := gamedata.ArenaModeCost - c.state.Persistent.PlayerStats.TotalScore
+		label := d.Get("menu.play.arena")
+		if toUnlock > 0 {
+			label = fmt.Sprintf("%d %s", toUnlock, d.Get("menu.play.to_unlock"))
+		}
+		b := eui.NewButton(uiResources, c.scene, label, func() {
+			// c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
+		})
+		b.GetWidget().Disabled = true
+		rowContainer.AddChild(b)
+	}
+
+	{
+		toUnlock := gamedata.RushModeCost - c.state.Persistent.PlayerStats.TotalScore
+		label := d.Get("menu.play.rush")
+		if toUnlock > 0 {
+			label = fmt.Sprintf("%d %s", toUnlock, d.Get("menu.play.to_unlock"))
+		}
+		b := eui.NewButton(uiResources, c.scene, label, func() {
+			// c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
+		})
+		b.GetWidget().Disabled = toUnlock > 0
+		rowContainer.AddChild(b)
+	}
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

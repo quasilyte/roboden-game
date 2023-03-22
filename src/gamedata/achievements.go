@@ -62,4 +62,8 @@ var AchievementList = []*Achievement{
 		Name: "t3less",
 		Mode: ModeClassic,
 	},
+	{
+		Name: "turretdamage",
+		Mode: ModeClassic,
+	},
 }

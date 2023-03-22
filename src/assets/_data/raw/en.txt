@@ -12,6 +12,7 @@
 ##menu.play.rush : Rush Mode
 ##menu.play.arena : Arena Mode
 ##menu.play.tutorial : Tutorial
+##menu.play.to_unlock : points to unlock
 
 ##menu.profile.achievements : Achievements
 ##menu.profile.stats : Stats
@@ -21,6 +22,7 @@
 ##menu.profile.stats.highscore : The Highest Score
 
 ##menu.profile.progress.achievements : Achievements
+##menu.profile.progress.modes_unlocked : Game Modes Unlocked
 ##menu.profile.progress.bases_unlocked : Colonies Unlocked
 ##menu.profile.progress.turrets_unlocked : Turrets Unlocked
 ##menu.profile.progress.drones_unlocked : Drones Unlocked
@@ -408,7 +410,7 @@ Win while having a drone build that uses no more than 10 points allocated.
 
 ##achievement.hightension : High Tension
 ##achievement.hightension.description
-Win on a smallest map size possible without destroying any of the enemy bases.
+Win on the smallest map size possible without destroying any of the enemy bases.
 
 ##achievement.solobase : Solo Base Run
 ##achievement.solobase.description
@@ -439,3 +441,7 @@ In other words, you should not create any tier 2 or 3 combat units during the ga
 ##achievement.groundwin : Ground Salvo
 ##achievement.groundwin.description
 Destroy the boss in the moment when it's close to the ground.
+
+##achievement.turretdamage : Turret Barrage
+##achievement.turretdamage.description
+Deal at least 25% damage to the boss using ground turrets.

@@ -41,6 +41,7 @@ type PlayerStats struct {
 
 	TurretsUnlocked []gamedata.ColonyAgentKind
 	DronesUnlocked  []gamedata.ColonyAgentKind
+	Tier3DronesSeen []gamedata.ColonyAgentKind
 
 	TotalPlayTime          time.Duration
 	TotalScore             int

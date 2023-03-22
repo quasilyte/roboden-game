@@ -406,6 +406,7 @@ func (c *Controller) victory() {
 		return
 	}
 	c.transitionQueued = true
+
 	c.scene.DelayedCall(5.0, func() {
 		c.world.result.Victory = true
 		c.world.result.TimePlayed = time.Since(c.startTime)
@@ -415,6 +416,20 @@ func (c *Controller) victory() {
 		c.world.result.Score = calcScore(c.world)
 		c.world.result.DifficultyScore = c.world.options.DifficultyScore
 		c.world.result.DronePointsAllocated = c.world.options.DronePointsAllocated
+
+		t3set := map[gamedata.ColonyAgentKind]struct{}{}
+		for _, colony := range c.world.colonies {
+			colony.agents.Each(func(a *colonyAgentNode) {
+				if a.stats.Tier != 3 {
+					return
+				}
+				t3set[a.stats.Kind] = struct{}{}
+			})
+		}
+		for k := range t3set {
+			c.world.result.Tier3Drones = append(c.world.result.Tier3Drones, k)
+		}
+
 		c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
 	})
 }

@@ -25,7 +25,8 @@
 ##menu.profile.progress.modes_unlocked : Game Modes Unlocked
 ##menu.profile.progress.bases_unlocked : Colonies Unlocked
 ##menu.profile.progress.turrets_unlocked : Turrets Unlocked
-##menu.profile.progress.drones_unlocked : Drones Unlocked
+##menu.profile.progress.drones_unlocked : Tier 2 Drones Unlocked
+##menu.profile.progress.t3drones_seen : Tier 3 Drones Discovered
 
 ##menu.back : Back
 ##menu.more : More

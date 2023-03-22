@@ -22,6 +22,10 @@ type resultsController struct {
 	scene          *ge.Scene
 	backController ge.SceneController
 
+	newAchievements      []string
+	upgradedAchievements []string
+	newDrones            []gamedata.ColonyAgentKind
+
 	results battleResults
 }
 
@@ -51,6 +55,8 @@ type battleResults struct {
 	Score                int
 	DifficultyScore      int
 	DronePointsAllocated int
+
+	Tier3Drones []gamedata.ColonyAgentKind
 }
 
 func newResultsController(state *session.State, backController ge.SceneController, results battleResults) *resultsController {
@@ -63,17 +69,39 @@ func newResultsController(state *session.State, backController ge.SceneControlle
 
 func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
+	c.updateProgress()
+	c.initUI()
+}
+
+func (c *resultsController) updateProgress() {
+	if c.state.LevelOptions.Tutorial {
+		return
+	}
 
 	stats := &c.state.Persistent.PlayerStats
+
+	t3drones := map[gamedata.ColonyAgentKind]struct{}{}
+	for _, k := range stats.Tier3DronesSeen {
+		t3drones[k] = struct{}{}
+	}
+	for _, k := range c.results.Tier3Drones {
+		if _, ok := t3drones[k]; ok {
+			continue
+		}
+		stats.Tier3DronesSeen = append(stats.Tier3DronesSeen, k)
+	}
+
 	stats.TotalPlayTime += c.results.TimePlayed
 	stats.TotalScore += c.results.Score
 	if stats.HighestScore < c.results.Score {
 		stats.HighestScore = c.results.Score
 		stats.HighestScoreDifficulty = c.results.DifficultyScore
 	}
-	c.scene.Context().SaveGameData("save", c.state.Persistent)
 
-	c.initUI()
+	c.newAchievements, c.upgradedAchievements = c.checkAchievements()
+	c.newDrones = c.checkNewDrones()
+
+	c.scene.Context().SaveGameData("save", c.state.Persistent)
 }
 
 func (c *resultsController) Update(delta float64) {
@@ -84,10 +112,6 @@ func (c *resultsController) Update(delta float64) {
 }
 
 func (c *resultsController) checkNewDrones() []gamedata.ColonyAgentKind {
-	if c.state.LevelOptions.Tutorial {
-		return nil
-	}
-
 	stats := &c.state.Persistent.PlayerStats
 
 	alreadyUnlocked := map[gamedata.ColonyAgentKind]struct{}{}
@@ -112,10 +136,6 @@ func (c *resultsController) checkNewDrones() []gamedata.ColonyAgentKind {
 }
 
 func (c *resultsController) checkAchievements() ([]string, []string) {
-	if c.state.LevelOptions.Tutorial {
-		return nil, nil
-	}
-
 	var newAchievements []string
 	var upgradedAchievements []string
 
@@ -230,15 +250,13 @@ func (c *resultsController) initUI() {
 		}
 	}
 
-	newAchievements, upgradedAchievements := c.checkAchievements()
-	for _, a := range newAchievements {
+	for _, a := range c.newAchievements {
 		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.new_achievement"), d.Get("achievement", a)))
 	}
-	for _, a := range upgradedAchievements {
+	for _, a := range c.upgradedAchievements {
 		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.upgraded_achievement"), d.Get("achievement", a)))
 	}
-	newDrones := c.checkNewDrones()
-	for _, kind := range newDrones {
+	for _, kind := range c.newDrones {
 		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.new_drone"), d.Get("drone", strings.ToLower(kind.String()))))
 	}
 

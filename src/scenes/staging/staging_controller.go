@@ -246,6 +246,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		for _, e := range choice.Option.effects {
 			c.selectedColony.actionPriorities.AddWeight(e.priority, e.value)
 		}
+		c.rpanel.UpdateMetrics()
 		return
 	}
 
@@ -593,6 +594,8 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	c.selectedColony = colony
 	c.choices.selectedColony = colony
 	c.radar.SetBase(c.selectedColony)
+	c.rpanel.SetBase(c.selectedColony)
+	c.rpanel.UpdateMetrics()
 	if c.selectedColony == nil {
 		c.colonySelector.Visible = false
 		c.defeat()

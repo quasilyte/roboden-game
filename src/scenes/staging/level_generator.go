@@ -148,16 +148,6 @@ func (g *levelGenerator) createBase(pos gmath.Vec) {
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
-	for i := 0; i < 5; i++ {
-		a := core.NewColonyAgentNode(gamedata.RefresherAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
-		g.scene.AddObject(a)
-		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-	}
-	for i := 0; i < 5; i++ {
-		a := core.NewColonyAgentNode(gamedata.TruckerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
-		g.scene.AddObject(a)
-		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-	}
 }
 
 func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind *creepStats) int {

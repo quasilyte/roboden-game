@@ -3,6 +3,7 @@ package staging
 import (
 	"image/color"
 
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
@@ -19,7 +20,9 @@ type rpanelNode struct {
 
 	colony *colonyCoreNode
 
-	factionRects []*ge.Rect
+	factionRects  []*ge.Rect
+	priorityBars  []*ge.Sprite
+	priorityIcons []*ge.Sprite
 }
 
 func newRpanelNode(world *worldState) *rpanelNode {
@@ -55,6 +58,27 @@ func (panel *rpanelNode) Init(scene *ge.Scene) {
 		scene.AddGraphicsAbove(rect, 2)
 		panel.factionRects = append(panel.factionRects, rect)
 	}
+
+	iconImages := []resource.ImageID{
+		assets.ImagePriorityResources,
+		assets.ImagePriorityGrowth,
+		assets.ImagePriorityEvolution,
+		assets.ImagePrioritySecurity,
+	}
+	for i, iconImageID := range iconImages {
+		bar := scene.NewSprite(assets.ImagePriorityBar)
+		bar.Pos.Offset = gmath.Vec{X: 805 + ((20 + bar.FrameWidth) * float64(i))}
+		bar.Centered = false
+		scene.AddGraphicsAbove(bar, 1)
+
+		icon := scene.NewSprite(iconImageID)
+		icon.Pos.Offset = gmath.Vec{X: 805 + ((20 + bar.FrameWidth) * float64(i))}
+		icon.Centered = false
+		scene.AddGraphicsAbove(icon, 2)
+
+		panel.priorityBars = append(panel.priorityBars, bar)
+		panel.priorityIcons = append(panel.priorityIcons, icon)
+	}
 }
 
 func (panel *rpanelNode) SetBase(colony *colonyCoreNode) {
@@ -84,6 +108,14 @@ func (panel *rpanelNode) UpdateMetrics() {
 			rect.Pos.Offset.Y = height
 		}
 		height += factionHeight
+	}
+
+	fullPriorityOffset := 445.0
+	for i, kv := range panel.colony.actionPriorities.Elems {
+		bar := panel.priorityBars[i]
+		bar.Pos.Offset.Y = fullPriorityOffset + ((bar.FrameHeight - 8) * (1.0 - kv.Weight))
+		icon := panel.priorityIcons[i]
+		icon.Pos.Offset.Y = fullPriorityOffset + ((bar.FrameHeight - 8) * (1.0 - kv.Weight)) - icon.FrameHeight - 1
 	}
 }
 

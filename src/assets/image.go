@@ -24,14 +24,19 @@ func registerImageResources(ctx *ge.Context) {
 
 		ImageTutorialDialogue: {Path: "image/ui/window_tutorial.png"},
 
-		ImageRadar:            {Path: "image/ui/radar.png"},
-		ImageRadarWave:        {Path: "image/ui/radar_wave.png"},
-		ImageRadarBossFar:     {Path: "image/ui/radar_boss_far.png"},
-		ImageRadarBossNear:    {Path: "image/ui/radar_boss_near.png"},
-		ImageButtonMenu:       {Path: "image/ui/menu_button.png"},
-		ImageButtonBaseToggle: {Path: "image/ui/base_toggle_button.png"},
-		ImageRightPanelLayer1: {Path: "image/ui/right_panel_layer1.png"},
-		ImageRightPanelLayer2: {Path: "image/ui/right_panel_layer2.png"},
+		ImageRadar:             {Path: "image/ui/radar.png"},
+		ImageRadarWave:         {Path: "image/ui/radar_wave.png"},
+		ImageRadarBossFar:      {Path: "image/ui/radar_boss_far.png"},
+		ImageRadarBossNear:     {Path: "image/ui/radar_boss_near.png"},
+		ImageButtonMenu:        {Path: "image/ui/menu_button.png"},
+		ImageButtonBaseToggle:  {Path: "image/ui/base_toggle_button.png"},
+		ImageRightPanelLayer1:  {Path: "image/ui/right_panel_layer1.png"},
+		ImageRightPanelLayer2:  {Path: "image/ui/right_panel_layer2.png"},
+		ImagePriorityBar:       {Path: "image/ui/priority_bar.png"},
+		ImagePriorityResources: {Path: "image/ui/priority_icon_resources.png"},
+		ImagePriorityGrowth:    {Path: "image/ui/priority_icon_growth.png"},
+		ImagePriorityEvolution: {Path: "image/ui/priority_icon_evolution.png"},
+		ImagePrioritySecurity:  {Path: "image/ui/priority_icon_security.png"},
 
 		ImageFloppyYellow: {Path: "image/ui/floppy_yellow.png"},
 		ImageFloppyRed:    {Path: "image/ui/floppy_red.png"},
@@ -205,6 +210,11 @@ const (
 	ImageButtonBaseToggle
 	ImageRightPanelLayer1
 	ImageRightPanelLayer2
+	ImagePriorityBar
+	ImagePriorityResources
+	ImagePriorityGrowth
+	ImagePriorityEvolution
+	ImagePrioritySecurity
 
 	ImageSmallExplosion1
 	ImagePurpleExplosion

@@ -129,7 +129,6 @@ type essenceSourceNode struct {
 	resource     int
 	percengage   float64
 	recoverDelay float64
-	added        float64
 
 	rotation gmath.Rad
 	pos      gmath.Vec
@@ -180,20 +179,6 @@ func (e *essenceSourceNode) Update(delta float64) {
 	if e.recoverDelay <= 0 {
 		e.recoverDelay = e.stats.regenDelay * e.scene.Rand().FloatRange(0.75, 1.25)
 		e.resource = gmath.ClampMax(e.resource+1, e.capacity)
-		e.percengage = float64(e.resource) / float64(e.capacity)
-		e.updateShader()
-	}
-}
-
-func (e *essenceSourceNode) Add(delta float64) {
-	e.added += delta
-	changed := false
-	for e.added >= 1 {
-		e.added--
-		e.resource++
-		changed = true
-	}
-	if changed {
 		e.percengage = float64(e.resource) / float64(e.capacity)
 		e.updateShader()
 	}

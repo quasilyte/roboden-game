@@ -64,6 +64,7 @@ var specialChoicesTable = [...]choiceOption{
 		cost:    5,
 		icon:    assets.ImageActionAttack,
 	},
+
 	specialBuildColony: {
 		text:    "build_colony",
 		special: specialBuildColony,
@@ -76,6 +77,7 @@ var specialChoicesTable = [...]choiceOption{
 		cost:    10,
 		icon:    assets.ImageActionBuildTurret,
 	},
+
 	specialIncreaseRadius: {
 		text:    "increase_radius",
 		special: specialIncreaseRadius,

@@ -62,7 +62,7 @@ func (c *PlayMenuController) initUI() {
 		toUnlock := gamedata.ArenaModeCost - c.state.Persistent.PlayerStats.TotalScore
 		label := d.Get("menu.play.arena")
 		if toUnlock > 0 {
-			label = fmt.Sprintf("%d %s", toUnlock, d.Get("menu.play.to_unlock"))
+			label = fmt.Sprintf("%s: %d", d.Get("menu.play.to_unlock"), toUnlock)
 		}
 		b := eui.NewButton(uiResources, c.scene, label, func() {
 			// c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
@@ -75,7 +75,7 @@ func (c *PlayMenuController) initUI() {
 		toUnlock := gamedata.RushModeCost - c.state.Persistent.PlayerStats.TotalScore
 		label := d.Get("menu.play.rush")
 		if toUnlock > 0 {
-			label = fmt.Sprintf("%d %s", toUnlock, d.Get("menu.play.to_unlock"))
+			label = fmt.Sprintf("%s: %d", d.Get("menu.play.to_unlock"), toUnlock)
 		}
 		b := eui.NewButton(uiResources, c.scene, label, func() {
 			// c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))

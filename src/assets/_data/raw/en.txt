@@ -12,7 +12,7 @@
 ##menu.play.rush : Rush Mode
 ##menu.play.arena : Arena Mode
 ##menu.play.tutorial : Tutorial
-##menu.play.to_unlock : points to unlock
+##menu.play.to_unlock : Score To Unlock
 
 ##menu.profile.achievements : Achievements
 ##menu.profile.stats : Stats

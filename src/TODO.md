@@ -26,7 +26,6 @@ todo:
 - menu buttons focus?
 - base should check landing zone before landing
 - rework planner action delay (same action vs other action)
-- is morale damage even viable?
 - show upkeep while flying
 - maybe group resources into clusters to speedup collision checking?
 
@@ -40,10 +39,8 @@ next release:
 - better how to play
 + multi-language support
 - higher resolution
-- more input device support (gamepad, touch screen)
-- more "new game" options
-- vs mode with colonies (and less creeps)
-- unlockable content / achievements
++ more input device support (gamepad, touch screen)
++ more "new game" options
 - local pvp and coop
 - online leaderboard
 - daily run (same seed, different players, leaderboard)
@@ -62,8 +59,3 @@ next release:
 - game lore
 - weather
 - random events
-
-score calculations:
-- base score is difficulty_multiplier*10 (e.g. if difficulty is 50%, the base score is 500)
-- plus 3 points per every crystal % collected (e.g. 300 points for 100% crystals collected)
-- minus 0.000347222 multiplier per 5 seconds (-25% after 1 hour, -100% after 4 hours)

@@ -44,22 +44,26 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 	if source.stats.regenDelay != 0 && source.percengage < 0.15 {
 		return 0
 	}
+	if core.failedResource == source {
+		return 0
+	}
 	dist := core.pos.DistanceTo(source.pos)
 	maxDist := 1.5 + (core.GetResourcePriority() * 0.5)
 	if dist > core.realRadius*maxDist || source.resource == 0 {
 		return 0
 	}
-	distScore := 4.0 - gmath.ClampMax(dist/200, 4.0)
-	percentagePenalty := 0.0
-	if dist > core.realRadius*1.2 {
-		percentagePenalty += 0.6
-	}
-	multiplier := 1.0 + (source.stats.value * 0.4)
+	distScore := 8.0 - gmath.ClampMax(dist/120, 8.0)
+	multiplier := 1.0 + (source.stats.value * 0.1)
 	if source.stats.regenDelay == 0 {
 		multiplier += 0.3
 	}
-	if source.percengage < 0.2 {
+	if dist > core.realRadius*1.2 {
+		multiplier -= 0.5
+	}
+	if source.percengage <= 0.25 {
+		multiplier += 0.35
+	} else if source.percengage <= 0.5 {
 		multiplier += 0.1
 	}
-	return gmath.ClampMin((distScore+(source.percengage*3)-percentagePenalty)*multiplier, 0.01)
+	return gmath.ClampMin(distScore*multiplier, 0.01)
 }

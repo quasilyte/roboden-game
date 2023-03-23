@@ -23,7 +23,7 @@ type essenceSourceStats struct {
 var redCrystalSource = &essenceSourceStats{
 	image:       assets.ImageEssenceRedCrystalSource,
 	capacity:    gmath.MakeRange(1, 1),
-	value:       35,
+	value:       20,
 	eliteValue:  3,
 	spritesheet: true,
 	size:        32,

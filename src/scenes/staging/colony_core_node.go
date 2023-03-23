@@ -89,6 +89,9 @@ type colonyCoreNode struct {
 	actionDelay float64
 	priorities  *weightContainer[colonyPriority]
 
+	failedResource     *essenceSourceNode
+	failedResourceTick int
+
 	resourceRects []*ge.Rect
 
 	factionTagPicker *gmath.RandPicker[gamedata.FactionTag]
@@ -690,6 +693,10 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 				numAssigned++
 			}
 		})
+		if numAssigned == 0 {
+			c.failedResource = source
+			c.failedResourceTick = 0
+		}
 		return numAssigned != 0
 
 	case actionRepairTurret:

@@ -139,6 +139,13 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 }
 
 func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
+	if p.colony.failedResource != nil {
+		p.colony.failedResourceTick++
+		if p.colony.failedResourceTick > 6 {
+			p.colony.failedResource = nil
+		}
+	}
+
 	if len(p.world.essenceSources) == 0 {
 		return colonyAction{}
 	}
@@ -162,7 +169,7 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	bestScore := 0.0
 	bestRedOilScore := 0.0
 	for _, source := range p.world.essenceSources {
-		score := resourceScore(p.colony, source) * p.world.rand.FloatRange(0.8, 1.4)
+		score := resourceScore(p.colony, source) * p.world.rand.FloatRange(0.65, 1.5)
 		if source.stats == redOilSource {
 			if !p.colony.agents.hasRedMiner {
 				continue

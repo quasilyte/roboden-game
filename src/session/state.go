@@ -57,6 +57,8 @@ type Achievement struct {
 type LevelOptions struct {
 	Resources int
 
+	ExtraUI bool
+
 	NumCreepBases     int
 	CreepDifficulty   int
 	BossDifficulty    int

@@ -228,6 +228,28 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
+	options := &c.state.LevelOptions
+
+	{
+		valueNames := []string{
+			d.Get("menu.lobby.ui_immersive"),
+			d.Get("menu.lobby.ui_informative"),
+		}
+		var slider gmath.Slider
+		slider.SetBounds(0, 1)
+		if options.ExtraUI {
+			slider.TrySetValue(1)
+		}
+		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.ui_mode")+": "+valueNames[slider.Value()])
+		button.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			options.ExtraUI = slider.Value() == 1
+			button.Text().Label = d.Get("menu.lobby.ui_mode") + ": " + valueNames[slider.Value()]
+			c.updateDifficultyScore(c.calcDifficultyScore())
+		})
+		tab.AddChild(button)
+	}
+
 	return tab
 }
 
@@ -423,6 +445,10 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 	}
 	score += (options.BossDifficulty - 1) * 15
 	score -= (options.StartingResources) * 4
+
+	if !options.ExtraUI {
+		score += 5
+	}
 
 	score += 20 - c.calcAllocatedPoints()
 

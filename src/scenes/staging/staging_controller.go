@@ -190,8 +190,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.radar = newRadarNode(c.world)
 	scene.AddObject(c.radar)
 
-	c.rpanel = newRpanelNode(c.world)
-	scene.AddObject(c.rpanel)
+	if c.state.LevelOptions.ExtraUI {
+		c.rpanel = newRpanelNode(c.world)
+		scene.AddObject(c.rpanel)
+	}
 
 	scene.AddObject(c.cursor)
 
@@ -248,7 +250,9 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 			// We'll call UpdateMetrics() below ourselves.
 			c.selectedColony.priorities.AddWeight(e.priority, e.value)
 		}
-		c.rpanel.UpdateMetrics()
+		if c.rpanel != nil {
+			c.rpanel.UpdateMetrics()
+		}
 		return
 	}
 
@@ -592,13 +596,17 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	if c.selectedColony != nil {
 		c.scene.Audio().PlaySound(assets.AudioBaseSelect)
 		c.selectedColony.EventDestroyed.Disconnect(c)
-		c.selectedColony.EventPrioritiesChanged.Disconnect(c)
+		if c.rpanel != nil {
+			c.selectedColony.EventPrioritiesChanged.Disconnect(c)
+		}
 	}
 	c.selectedColony = colony
 	c.choices.selectedColony = colony
 	c.radar.SetBase(c.selectedColony)
-	c.rpanel.SetBase(c.selectedColony)
-	c.rpanel.UpdateMetrics()
+	if c.rpanel != nil {
+		c.rpanel.SetBase(c.selectedColony)
+		c.rpanel.UpdateMetrics()
+	}
 	if c.selectedColony == nil {
 		c.colonySelector.Visible = false
 		c.defeat()
@@ -607,9 +615,11 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	c.selectedColony.EventDestroyed.Connect(c, func(_ *colonyCoreNode) {
 		c.selectNextColony(false)
 	})
-	c.selectedColony.EventPrioritiesChanged.Connect(c, func(_ *colonyCoreNode) {
-		c.rpanel.UpdateMetrics()
-	})
+	if c.rpanel != nil {
+		c.selectedColony.EventPrioritiesChanged.Connect(c, func(_ *colonyCoreNode) {
+			c.rpanel.UpdateMetrics()
+		})
+	}
 	c.colonySelector.Pos.Base = &c.selectedColony.spritePos
 }
 

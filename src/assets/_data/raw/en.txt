@@ -78,6 +78,7 @@
 ##menu.credits.assets : assets
 ##menu.credits.thank_player : And thank you, dear player <3
 
+##menu.lobby.ui_mode : User Interface Mode
 ##menu.lobby.world_resources : World Resources
 ##menu.lobby.world_size : World Size
 ##menu.lobby.num_creep_bases : Creep Bases
@@ -85,6 +86,9 @@
 ##menu.lobby.boss_difficulty : Boss Power
 ##menu.lobby.starting_resources : Starting Resources
 ##menu.lobby.go : Go!
+
+##menu.lobby.ui_immersive : Minimal
+##menu.lobby.ui_informative : Informative
 
 ##menu.lobby.tab.colony : Colony
 ##menu.lobby.tab.world : World

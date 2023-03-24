@@ -19,6 +19,7 @@ const (
 
 type levelGenerator struct {
 	scene        *ge.Scene
+	rng          gmath.Rand
 	world        *worldState
 	playerSpawn  gmath.Vec
 	sectors      []gmath.Rect
@@ -32,6 +33,7 @@ func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
 		scene: scene,
 		world: world,
 	}
+	g.rng.SetSeed(world.options.Seed)
 	g.sectors = []gmath.Rect{
 		{Min: gmath.Vec{X: 0, Y: 0}, Max: gmath.Vec{X: g.world.width / 2, Y: g.world.height / 2}},
 		{Min: gmath.Vec{X: g.world.width / 2, Y: 0}, Max: gmath.Vec{X: g.world.width, Y: g.world.height / 2}},
@@ -74,8 +76,8 @@ func (g *levelGenerator) Generate() {
 
 func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
 	return gmath.Vec{
-		X: g.scene.Rand().FloatRange(sector.Min.X, sector.Max.X),
-		Y: g.scene.Rand().FloatRange(sector.Min.Y, sector.Max.Y),
+		X: g.rng.FloatRange(sector.Min.X, sector.Max.X),
+		Y: g.rng.FloatRange(sector.Min.Y, sector.Max.Y),
 	}
 }
 
@@ -144,14 +146,14 @@ func (g *levelGenerator) createBase(pos gmath.Vec) {
 	}
 
 	for i := 0; i < 5; i++ {
-		a := core.NewColonyAgentNode(gamedata.WorkerAgentStats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
+		a := core.NewColonyAgentNode(gamedata.WorkerAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }
 
 func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind *creepStats) int {
-	rand := g.scene.Rand()
+	rand := &g.rng
 	placed := 0
 	pos := correctedPos(sector, g.randomPos(sector), 128)
 	initialPos := pos
@@ -186,7 +188,7 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind
 }
 
 func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, kind *essenceSourceStats) int {
-	rand := g.scene.Rand()
+	rand := &g.rng
 	placed := 0
 	pos := correctedPos(sector, g.randomPos(sector), 196)
 	initialPos := pos
@@ -208,7 +210,7 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 }
 
 func (g *levelGenerator) placeResources(resMultiplier float64) {
-	rand := g.scene.Rand()
+	rand := &g.rng
 
 	worldSizeMultipliers := []float64{
 		0.8,
@@ -332,16 +334,16 @@ func (g *levelGenerator) placeBoss() {
 		{X: 196, Y: g.world.height - 196},
 		{X: g.world.width - 196, Y: g.world.height - 196},
 	}
-	pos := gmath.RandElem(g.world.rand, spawnLocations)
+	pos := gmath.RandElem(&g.rng, spawnLocations)
 	boss := g.world.NewCreepNode(pos, uberBossCreepStats)
-	boss.specialDelay = g.world.rand.FloatRange(3*60, 4*60)
+	boss.specialDelay = g.rng.FloatRange(3*60, 4*60)
 	g.scene.AddObject(boss)
 
 	g.world.boss = boss
 }
 
 func (g *levelGenerator) placeCreeps() {
-	rand := g.scene.Rand()
+	rand := &g.rng
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 
@@ -361,7 +363,7 @@ func (g *levelGenerator) placeCreeps() {
 }
 
 func (g *levelGenerator) placeWalls() {
-	rand := g.scene.Rand()
+	rand := &g.rng
 
 	worldSizeMultipliers := []float64{
 		0.5,
@@ -614,7 +616,7 @@ func (g *levelGenerator) placeCreepBases() {
 		// bottom border
 		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
 	}
-	gmath.Shuffle(g.scene.Rand(), borders)
+	gmath.Shuffle(&g.rng, borders)
 	numBases := g.world.options.NumCreepBases
 	for i := 0; i < numBases; i++ {
 		border := borders[i]
@@ -642,11 +644,11 @@ func (g *levelGenerator) placeCreepBases() {
 		g.placeCreepsCluster(baseRegion, 1, turretCreepStats)
 		base := g.world.NewCreepNode(basePos, baseCreepStats)
 		if i == 0 || i == 3 {
-			base.specialDelay = (9 * 60.0) * g.scene.Rand().FloatRange(0.9, 1.1)
+			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
 		} else {
 			base.specialModifier = 1.0 // Initial level base
-			base.specialDelay = g.scene.Rand().FloatRange(60, 120)
-			base.attackDelay = g.scene.Rand().FloatRange(40, 50)
+			base.specialDelay = g.rng.FloatRange(60, 120)
+			base.attackDelay = g.rng.FloatRange(40, 50)
 		}
 		g.scene.AddObject(base)
 	}

@@ -28,6 +28,8 @@ type LobbyMenuController struct {
 	pointsAllocatedLabel *widget.Text
 	difficultyLabel      *widget.Text
 
+	seedInput *widget.TextInput
+
 	helpPanel         *widget.Container
 	helpLabel         *widget.Text
 	helpIcon1         *widget.Graphic
@@ -180,6 +182,15 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		c.state.LevelOptions.Tutorial = false
 		c.state.LevelOptions.DifficultyScore = c.calcDifficultyScore()
 		c.state.LevelOptions.DronePointsAllocated = c.calcAllocatedPoints()
+		if c.seedInput.InputText != "" {
+			seed, err := strconv.ParseInt(c.seedInput.InputText, 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			c.state.LevelOptions.Seed = seed
+		} else {
+			c.state.LevelOptions.Seed = c.randomSeed()
+		}
 		c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
 	}))
 
@@ -481,7 +492,7 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	label := eui.NewLabel(uiResources, "", tinyFont)
-	label.MaxWidth = 260
+	label.MaxWidth = 310
 	c.helpLabel = label
 	panel.AddChild(label)
 
@@ -517,10 +528,12 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 	return panel
 }
 
-func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widget.Container {
-	worldSettingsPanel := eui.NewPanel(uiResources, 292, 0)
+func (c *LobbyMenuController) randomSeed() int64 {
+	return int64(c.scene.Rand().IntRange(0, 1e15-1))
+}
 
-	// options := &c.state.LevelOptions
+func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widget.Container {
+	worldSettingsPanel := eui.NewPanel(uiResources, 340, 0)
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
@@ -536,7 +549,23 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 			)),
 		)
 
-		textinput := eui.NewTextInput(uiResources, normalFont, func(s string) {})
+		textinput := eui.NewTextInput(uiResources, normalFont,
+			widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
+				if len(newInputText) > 15 {
+					return false, nil
+				}
+				onlyDigits := true
+				for _, ch := range newInputText {
+					if ch >= '0' && ch <= '9' {
+						continue
+					}
+					onlyDigits = false
+					break
+				}
+				return onlyDigits, nil
+			}))
+		textinput.InputText = strconv.FormatInt(c.randomSeed(), 10)
+		c.seedInput = textinput
 		grid.AddChild(textinput)
 		label := widget.NewLabel(
 			widget.LabelOpts.TextOpts(

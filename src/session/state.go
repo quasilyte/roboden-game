@@ -64,6 +64,8 @@ type LevelOptions struct {
 	BossDifficulty    int
 	StartingResources int
 
+	Seed int64
+
 	WorldSize int
 
 	Tutorial        bool

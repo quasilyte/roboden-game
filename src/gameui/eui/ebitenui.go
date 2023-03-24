@@ -377,7 +377,7 @@ func NewPanel(res *Resources, minWidth, minHeight int) *widget.Container {
 	)
 }
 
-func NewTextInput(res *Resources, ff font.Face, f func(s string)) *widget.TextInput {
+func NewTextInput(res *Resources, ff font.Face, opts ...widget.TextInputOpt) *widget.TextInput {
 	options := []widget.TextInputOpt{
 		// widget.TextInputOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 		// 	Stretch: true,
@@ -390,10 +390,11 @@ func NewTextInput(res *Resources, ff font.Face, f func(s string)) *widget.TextIn
 			widget.CaretOpts.Size(res.TextInput.FontFace, 2),
 		),
 		widget.TextInputOpts.AllowDuplicateSubmit(true),
-		widget.TextInputOpts.SubmitHandler(func(args *widget.TextInputChangedEventArgs) {
-			f(args.InputText)
-		}),
+		// widget.TextInputOpts.SubmitHandler(func(args *widget.TextInputChangedEventArgs) {
+		// 	f(args.InputText)
+		// }),
 	}
+	options = append(options, opts...)
 	t := widget.NewTextInput(options...)
 	return t
 }

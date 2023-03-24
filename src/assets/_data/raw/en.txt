@@ -31,6 +31,7 @@
 ##menu.profile.progress.turrets_unlocked : Turrets Unlocked
 ##menu.profile.progress.drones_unlocked : Tier 2 Drones Unlocked
 ##menu.profile.progress.t3drones_seen : Tier 3 Drones Discovered
+##menu.profile.progress.tutorials_completed : Tutorial Missions Completed
 
 ##menu.tier : tier
 ##menu.back : Back

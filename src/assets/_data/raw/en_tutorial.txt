@@ -4,6 +4,7 @@ Learning topics:
 
 > Camera controls
 > Colony movement
+> Colony priorities management
 > Resource gathering
 > Building new colonies
 

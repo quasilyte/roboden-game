@@ -523,7 +523,6 @@ func LoadResources(loader *resource.Loader) *Resources {
 		selectedIdle := nineSliceImage(loader.LoadImage(assets.ImageUIButtonSelectedIdle).Data, 12, 0)
 		selectedHover := nineSliceImage(loader.LoadImage(assets.ImageUIButtonSelectedHover).Data, 12, 0)
 		selectedPressed := nineSliceImage(loader.LoadImage(assets.ImageUIButtonSelectedPressed).Data, 12, 0)
-		selectedDisabled := nineSliceImage(loader.LoadImage(assets.ImageUIButtonSelectedDisabled).Data, 12, 0)
 		tabIdle := nineSliceImage(loader.LoadImage(assets.ImageUITabButtonIdle).Data, 12, 0)
 		tabHover := nineSliceImage(loader.LoadImage(assets.ImageUITabButtonHover).Data, 12, 0)
 		tabPressed := nineSliceImage(loader.LoadImage(assets.ImageUITabButtonPressed).Data, 12, 0)
@@ -550,10 +549,9 @@ func LoadResources(loader *resource.Loader) *Resources {
 		}
 		result.ButtonSelected = &ButtonResource{
 			Image: &widget.ButtonImage{
-				Idle:     selectedIdle,
-				Hover:    selectedHover,
-				Pressed:  selectedPressed,
-				Disabled: selectedDisabled,
+				Idle:    selectedIdle,
+				Hover:   selectedHover,
+				Pressed: selectedPressed,
 			},
 			Padding:    buttonPadding,
 			TextColors: buttonColors,

@@ -183,7 +183,6 @@ func registerImageResources(ctx *ge.Context) {
 		ImageUIButtonSelectedIdle:       {Path: "image/ebitenui/button-selected-idle.png"},
 		ImageUIButtonSelectedHover:      {Path: "image/ebitenui/button-selected-hover.png"},
 		ImageUIButtonSelectedPressed:    {Path: "image/ebitenui/button-selected-pressed.png"},
-		ImageUIButtonSelectedDisabled:   {Path: "image/ebitenui/button-selected-disabled.png"},
 		ImageUIPanelIdle:                {Path: "image/ebitenui/panel-idle.png"},
 	}
 
@@ -366,6 +365,5 @@ const (
 	ImageUIButtonSelectedIdle
 	ImageUIButtonSelectedHover
 	ImageUIButtonSelectedPressed
-	ImageUIButtonSelectedDisabled
 	ImageUIPanelIdle
 )

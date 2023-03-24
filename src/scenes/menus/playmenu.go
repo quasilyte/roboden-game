@@ -49,13 +49,13 @@ func (c *PlayMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.play"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.classic"), func() {
+		c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
+	}))
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.tutorial"), func() {
 		c.state.LevelOptions.Tutorial = true
 		c.scene.Context().ChangeScene(staging.NewController(c.state, 0, NewMainMenuController(c.state)))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.classic"), func() {
-		c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
 	}))
 
 	{

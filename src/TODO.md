@@ -58,3 +58,29 @@ next release:
 - game lore
 - weather
 - random events
+
+tech list (generic):
+- technology seal: disable tech options from the 5th action
+- increased colony movement speed (+10%), 2 levels
+- increased colony movement range (+15%), 2 levels
+- extra drone hp (+10%), 2 levels
+- increased turret hp (+40%)
+- passive hp regen for buildings
+- increased drone energy-damage resist (50%)
+- increased drone energy regen (+10%), 2 levels
+- faster (and cheaper) building construction (+33%)
+- max resource capacity increase for colonies (+20%)
+- increased colony drone count limit (+10%)
+- faster research speed (+15%)
+- higher good outcome rates when combining elites
+- higher resource gain from green and red crystals (+35%)
+- higher resource gain from iron ore (+20%)
+- higher resource gain from normal and red oil (+15%)
+tech list (drone-specific):
+- cloner: cloning is cheaper (-25%)
+- scavenger, marauder: when delivered by them, scraps give more resources (+20%)
+- crippler, marauder: +1 max targets
+- destroyer: increased damage (+10%)
+- prism: max-charged shot (4 prisms) have a high chance to inflict disarmed condition
+- couries, trucker: extra payload capacity when carrying resources between the bases
+- mortar: increased attack range (+15%)

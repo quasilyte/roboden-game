@@ -24,6 +24,8 @@ import (
 type LobbyMenuController struct {
 	state *session.State
 
+	config session.LevelConfig
+
 	droneButtons         []droneButton
 	pointsAllocatedLabel *widget.Text
 	difficultyLabel      *widget.Text
@@ -54,6 +56,9 @@ func NewLobbyMenuController(state *session.State) *LobbyMenuController {
 
 func (c *LobbyMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
+
+	c.config = c.state.LevelConfig.Clone()
+	c.config.Tutorial = nil
 
 	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
 		scene.Audio().ContinueMusic(assets.AudioMusicTrack3)
@@ -171,27 +176,26 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 
 	d := c.scene.Dict()
 
-	options := &c.state.LevelOptions
-
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	c.difficultyLabel = eui.NewCenteredLabel(uiResources, "Difficulty: 1000%", tinyFont)
 	panel.AddChild(c.difficultyLabel)
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
-		c.state.LevelOptions.Tutorial = nil
-		c.state.LevelOptions.DifficultyScore = c.calcDifficultyScore()
-		c.state.LevelOptions.DronePointsAllocated = c.calcAllocatedPoints()
+		c.config.DifficultyScore = c.calcDifficultyScore()
+		c.config.DronePointsAllocated = c.calcAllocatedPoints()
 		if c.seedInput.InputText != "" {
 			seed, err := strconv.ParseInt(c.seedInput.InputText, 10, 64)
 			if err != nil {
 				panic(err)
 			}
-			c.state.LevelOptions.Seed = seed
+			c.config.Seed = seed
 		} else {
-			c.state.LevelOptions.Seed = c.randomSeed()
+			c.config.Seed = c.randomSeed()
 		}
-		c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
+		clonedConfig := c.config.Clone()
+		c.state.LevelConfig = &clonedConfig
+		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state)))
 	}))
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
@@ -239,8 +243,6 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
-	options := &c.state.LevelOptions
-
 	{
 		valueNames := []string{
 			d.Get("menu.lobby.ui_immersive"),
@@ -248,13 +250,13 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 1)
-		if options.ExtraUI {
+		if c.config.ExtraUI {
 			slider.TrySetValue(1)
 		}
 		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.ui_mode")+": "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.ExtraUI = slider.Value() == 1
+			c.config.ExtraUI = slider.Value() == 1
 			button.Text().Label = d.Get("menu.lobby.ui_mode") + ": " + valueNames[slider.Value()]
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
@@ -266,8 +268,6 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 
 func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *widget.TabBookTab {
 	d := c.scene.Dict()
-
-	options := &c.state.LevelOptions
 
 	tab := widget.NewTabBookTab(d.Get("menu.lobby.tab.difficulty"),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -281,11 +281,11 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	{
 		var slider gmath.Slider
 		slider.SetBounds(0, 4)
-		slider.TrySetValue(options.NumCreepBases)
+		slider.TrySetValue(c.config.NumCreepBases)
 		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.num_creep_bases")+": "+strconv.Itoa(slider.Value()))
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.NumCreepBases = slider.Value()
+			c.config.NumCreepBases = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.num_creep_bases") + ": " + strconv.Itoa(slider.Value())
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
@@ -304,11 +304,11 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 6)
-		slider.TrySetValue(options.CreepDifficulty)
+		slider.TrySetValue(c.config.CreepDifficulty)
 		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.creeps_difficulty")+": "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.CreepDifficulty = slider.Value()
+			c.config.CreepDifficulty = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.creeps_difficulty") + ": " + valueNames[slider.Value()]
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
@@ -324,11 +324,11 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 3)
-		slider.TrySetValue(options.BossDifficulty)
+		slider.TrySetValue(c.config.BossDifficulty)
 		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.boss_difficulty")+": "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.BossDifficulty = slider.Value()
+			c.config.BossDifficulty = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.boss_difficulty") + ": " + valueNames[slider.Value()]
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
@@ -343,11 +343,11 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 2)
-		slider.TrySetValue(options.StartingResources)
+		slider.TrySetValue(c.config.StartingResources)
 		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.starting_resources")+": "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.StartingResources = slider.Value()
+			c.config.StartingResources = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.starting_resources") + ": " + valueNames[slider.Value()]
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
@@ -359,8 +359,6 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 
 func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget.TabBookTab {
 	d := c.scene.Dict()
-
-	options := &c.state.LevelOptions
 
 	tab := widget.NewTabBookTab(d.Get("menu.lobby.tab.world"),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -381,11 +379,11 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 4)
-		slider.TrySetValue(options.Resources)
+		slider.TrySetValue(c.config.Resources)
 		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.world_resources")+": "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.Resources = slider.Value()
+			c.config.Resources = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.world_resources") + ": " + valueNames[slider.Value()]
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
@@ -401,11 +399,11 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 		}
 		var slider gmath.Slider
 		slider.SetBounds(0, 3)
-		slider.TrySetValue(options.WorldSize)
+		slider.TrySetValue(c.config.WorldSize)
 		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.world_size")+": "+valueNames[slider.Value()])
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.WorldSize = slider.Value()
+			c.config.WorldSize = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.world_size") + ": " + valueNames[slider.Value()]
 		})
 		tab.AddChild(button)
@@ -447,17 +445,16 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 
 func (c *LobbyMenuController) calcDifficultyScore() int {
 	score := 100
-	options := &c.state.LevelOptions
 
-	score += 10 - (options.Resources * 5)
-	score += (options.NumCreepBases - 2) * 15
-	if options.NumCreepBases != 0 {
-		score += (options.CreepDifficulty - 1) * 10
+	score += 10 - (c.config.Resources * 5)
+	score += (c.config.NumCreepBases - 2) * 15
+	if c.config.NumCreepBases != 0 {
+		score += (c.config.CreepDifficulty - 1) * 10
 	}
-	score += (options.BossDifficulty - 1) * 15
-	score -= (options.StartingResources) * 4
+	score += (c.config.BossDifficulty - 1) * 15
+	score -= (c.config.StartingResources) * 4
 
-	if !options.ExtraUI {
+	if !c.config.ExtraUI {
 		score += 5
 	}
 
@@ -637,8 +634,6 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *widget.Container {
 	dronesPanel := eui.NewPanel(uiResources, 0, 0)
 
-	options := &c.state.LevelOptions
-
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
 	grid := widget.NewContainer(
@@ -674,7 +669,7 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 			c.updateTier2Recipes()
 		})
 		grid.AddChild(b.Widget)
-		if xslices.Contains(options.Tier2Recipes, recipe) {
+		if xslices.Contains(c.config.Tier2Recipes, recipe) {
 			b.Toggle()
 		}
 		c.droneButtons = append(c.droneButtons, droneButton{
@@ -716,14 +711,12 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 }
 
 func (c *LobbyMenuController) updateTier2Recipes() {
-	options := &c.state.LevelOptions
-
-	options.Tier2Recipes = options.Tier2Recipes[:0]
+	c.config.Tier2Recipes = c.config.Tier2Recipes[:0]
 	for _, b := range c.droneButtons {
 		if !b.widget.IsToggled() {
 			continue
 		}
-		options.Tier2Recipes = append(options.Tier2Recipes, b.recipe)
+		c.config.Tier2Recipes = append(c.config.Tier2Recipes, b.recipe)
 	}
 }
 

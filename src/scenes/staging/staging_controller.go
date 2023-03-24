@@ -40,9 +40,9 @@ type Controller struct {
 	menuButton     *gameui.TextureButton
 	toggleButton   *gameui.TextureButton
 
-	scene     *ge.Scene
-	world     *worldState
-	worldSize int
+	scene  *ge.Scene
+	world  *worldState
+	config session.LevelConfig
 
 	choices *choiceWindowNode
 
@@ -60,11 +60,11 @@ type Controller struct {
 	debugInfo *ge.Label
 }
 
-func NewController(state *session.State, worldSize int, back ge.SceneController) *Controller {
+func NewController(state *session.State, config session.LevelConfig, back ge.SceneController) *Controller {
 	return &Controller{
 		state:          state,
 		backController: back,
-		worldSize:      worldSize,
+		config:         config,
 	}
 }
 
@@ -101,7 +101,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	var worldSize float64
-	switch c.worldSize {
+	switch c.config.WorldSize {
 	case 0:
 		worldSize = 1856
 	case 1:
@@ -146,9 +146,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 	world := &worldState{
 		graphicsSettings: c.state.Persistent.Settings.Graphics,
 		debug:            c.state.Persistent.Settings.Debug,
-		worldSize:        c.worldSize,
 		pathgrid:         pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
-		options:          &c.state.LevelOptions,
+		config:           &c.config,
 		camera:           c.camera,
 		rand:             scene.Rand(),
 		tmpTargetSlice:   make([]projectileTarget, 0, 20),
@@ -161,7 +160,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 				Y: viewportWorld.Height,
 			},
 		},
-		tier2recipes: c.state.LevelOptions.Tier2Recipes,
+		tier2recipes: c.config.Tier2Recipes,
 	}
 	world.creepCoordinator = newCreepCoordinator(world)
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
@@ -190,7 +189,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.radar = newRadarNode(c.world)
 	scene.AddObject(c.radar)
 
-	if c.state.LevelOptions.ExtraUI {
+	if c.config.ExtraUI {
 		c.rpanel = newRpanelNode(c.world)
 		scene.AddObject(c.rpanel)
 	}
@@ -408,7 +407,7 @@ func (c *Controller) defeat() {
 	c.scene.DelayedCall(2.0, func() {
 		c.world.result.Victory = false
 		c.world.result.TimePlayed = time.Since(c.startTime)
-		c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
+		c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 	})
 }
 
@@ -425,8 +424,8 @@ func (c *Controller) victory() {
 			c.world.result.SurvivingDrones += colony.NumAgents()
 		}
 		c.world.result.Score = calcScore(c.world)
-		c.world.result.DifficultyScore = c.world.options.DifficultyScore
-		c.world.result.DronePointsAllocated = c.world.options.DronePointsAllocated
+		c.world.result.DifficultyScore = c.config.DifficultyScore
+		c.world.result.DronePointsAllocated = c.config.DronePointsAllocated
 
 		t3set := map[gamedata.ColonyAgentKind]struct{}{}
 		for _, colony := range c.world.colonies {
@@ -441,7 +440,7 @@ func (c *Controller) victory() {
 			c.world.result.Tier3Drones = append(c.world.result.Tier3Drones, k)
 		}
 
-		c.leaveScene(newResultsController(c.state, c.backController, c.world.result))
+		c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 	})
 }
 

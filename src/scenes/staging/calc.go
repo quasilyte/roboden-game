@@ -8,7 +8,7 @@ import (
 )
 
 func calcScore(world *worldState) int {
-	score := world.options.DifficultyScore * 10
+	score := world.config.DifficultyScore * 10
 	crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)
 	score += crystalsCollected * 3
 	multiplier := 1.0 - (0.000347222 * (world.result.TimePlayed.Seconds() / 5))

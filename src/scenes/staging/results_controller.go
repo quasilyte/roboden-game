@@ -17,7 +17,8 @@ import (
 )
 
 type resultsController struct {
-	state *session.State
+	state  *session.State
+	config *session.LevelConfig
 
 	scene          *ge.Scene
 	backController ge.SceneController
@@ -61,11 +62,12 @@ type battleResults struct {
 	Tier3Drones []gamedata.ColonyAgentKind
 }
 
-func newResultsController(state *session.State, backController ge.SceneController, results battleResults) *resultsController {
+func newResultsController(state *session.State, config *session.LevelConfig, backController ge.SceneController, results battleResults) *resultsController {
 	return &resultsController{
 		state:          state,
 		backController: backController,
 		results:        results,
+		config:         config,
 	}
 }
 
@@ -76,7 +78,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 }
 
 func (c *resultsController) updateProgress() {
-	if c.state.LevelOptions.Tutorial != nil || !c.results.Victory {
+	if c.config.Tutorial != nil || !c.results.Victory {
 		return
 	}
 
@@ -177,11 +179,11 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "cheapbuild10":
 			unlocked = c.results.DronePointsAllocated <= 10
 		case "hightension":
-			unlocked = c.state.LevelOptions.WorldSize == 0 && c.results.CreepBasesDestroyed == 0
+			unlocked = c.config.WorldSize == 0 && c.results.CreepBasesDestroyed == 0
 		case "solobase":
 			unlocked = c.results.ColoniesBuilt == 0
 		case "uiless":
-			unlocked = !c.state.LevelOptions.ExtraUI
+			unlocked = !c.config.ExtraUI
 		case "powerof3":
 			unlocked = !c.results.YellowFactionUsed || !c.results.RedFactionUsed || !c.results.GreenFactionUsed || !c.results.BlueFactionUsed
 		case "tinyradius":
@@ -244,7 +246,7 @@ func (c *resultsController) initUI() {
 		fmt.Sprintf("%s: %v", d.Get("menu.results.drones_total"), c.results.DronesProduced),
 		fmt.Sprintf("%s: %v", d.Get("menu.results.creeps_defeated"), c.results.CreepsDefeated),
 	}
-	if c.results.Victory && c.state.LevelOptions.Tutorial == nil {
+	if c.results.Victory && c.config.Tutorial == nil {
 		if c.results.Score > c.state.Persistent.PlayerStats.HighestScore {
 			lines = append(lines, fmt.Sprintf("%s: %v (%s)", d.Get("menu.results.score"), c.results.Score, d.Get("menu.results.new_record")))
 		} else {

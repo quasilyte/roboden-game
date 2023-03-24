@@ -46,7 +46,7 @@ func main() {
 
 func getDefaultSessionState() *session.State {
 	state := &session.State{
-		LevelOptions: session.LevelOptions{
+		LevelConfig: &session.LevelConfig{
 			ExtraUI:           true,
 			Resources:         2,
 			NumCreepBases:     2,

@@ -25,7 +25,7 @@ type State struct {
 
 	MainInput *input.Handler
 
-	LevelOptions LevelOptions
+	LevelConfig *LevelConfig
 
 	Persistent PersistentData
 }
@@ -56,7 +56,7 @@ type Achievement struct {
 	Elite bool
 }
 
-type LevelOptions struct {
+type LevelConfig struct {
 	Resources int
 
 	ExtraUI bool
@@ -75,6 +75,15 @@ type LevelOptions struct {
 
 	Tier2Recipes         []gamedata.AgentMergeRecipe
 	DronePointsAllocated int
+}
+
+func (options *LevelConfig) Clone() LevelConfig {
+	cloned := *options
+
+	cloned.Tier2Recipes = make([]gamedata.AgentMergeRecipe, len(options.Tier2Recipes))
+	copy(cloned.Tier2Recipes, options.Tier2Recipes)
+
+	return cloned
 }
 
 type TutorialData struct {

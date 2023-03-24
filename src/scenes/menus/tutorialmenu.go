@@ -16,7 +16,8 @@ import (
 )
 
 type TutorialMenuController struct {
-	state *session.State
+	state  *session.State
+	config session.LevelConfig
 
 	scene *ge.Scene
 
@@ -68,20 +69,20 @@ func (c *TutorialMenuController) initUI() {
 	helpLabel.MaxWidth = 540
 	c.helpLabel = helpLabel
 
-	options := &c.state.LevelOptions
-	if options.Tutorial == nil {
-		options.Tutorial = &session.TutorialData{}
+	c.config = c.state.LevelConfig.Clone()
+	if c.config.Tutorial == nil {
+		c.config.Tutorial = &session.TutorialData{}
 	}
 
 	{
 		var slider gmath.Slider
 		slider.SetBounds(0, 3)
-		slider.TrySetValue(options.Tutorial.ID)
+		slider.TrySetValue(c.config.Tutorial.ID)
 		button := eui.NewButtonSelected(uiResources, d.Get("tutorial.title"+strconv.Itoa(slider.Value()+1)))
 		c.helpLabel.Label = descriptionText(slider.Value())
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.Tutorial.ID = slider.Value()
+			c.config.Tutorial.ID = slider.Value()
 			button.Text().Label = d.Get("tutorial.title" + strconv.Itoa(slider.Value()+1))
 			c.helpLabel.Label = descriptionText(slider.Value())
 		})

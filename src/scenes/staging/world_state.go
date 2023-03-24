@@ -44,7 +44,7 @@ type worldState struct {
 
 	result battleResults
 
-	options *session.LevelOptions
+	config *session.LevelConfig
 
 	tmpTargetSlice []projectileTarget
 	tmpColonySlice []*colonyCoreNode
@@ -82,12 +82,12 @@ func (w *worldState) Init() {
 		}
 	}
 
-	w.creepHealthMultiplier = 1.0 + (float64(w.options.CreepDifficulty-1) * 0.20)
-	w.bossHealthMultiplier = 1.0 + (float64(w.options.BossDifficulty-1) * 0.15)
+	w.creepHealthMultiplier = 1.0 + (float64(w.config.CreepDifficulty-1) * 0.20)
+	w.bossHealthMultiplier = 1.0 + (float64(w.config.BossDifficulty-1) * 0.15)
 }
 
 func (w *worldState) IsTutorial() bool {
-	return w.options.Tutorial != nil
+	return w.config.Tutorial != nil
 }
 
 func (w *worldState) NewWallClusterNode(config wallClusterConfig) *wallClusterNode {
@@ -119,7 +119,7 @@ func (w *worldState) NumActiveCrawlers() int {
 }
 
 func (w *worldState) EliteCrawlerChance() float64 {
-	switch w.options.BossDifficulty {
+	switch w.config.BossDifficulty {
 	case 0:
 		return 0
 	case 1:
@@ -132,7 +132,7 @@ func (w *worldState) EliteCrawlerChance() float64 {
 }
 
 func (w *worldState) MaxActiveCrawlers() int {
-	switch w.options.BossDifficulty {
+	switch w.config.BossDifficulty {
 	case 0:
 		return 15
 	case 1:

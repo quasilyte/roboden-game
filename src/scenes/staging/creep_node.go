@@ -315,7 +315,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 		// Stage 1: send 3 servants. (easy and above)
 		// Stage 2: send 4 servants. (normal and above)
 		// Stage 3: send 5 servants. (hard)
-		maxStage := c.world.options.BossDifficulty
+		maxStage := c.world.config.BossDifficulty
 		if c.bossStage <= maxStage {
 			hpPercentage := c.health / c.maxHealth
 			if hpPercentage < 0.8 && c.bossStage == 0 {
@@ -481,7 +481,7 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 
 	minCrawlers := 2
 	maxCrawlers := 3
-	switch c.world.options.BossDifficulty {
+	switch c.world.config.BossDifficulty {
 	case 2:
 		maxCrawlers = 5
 	case 3:

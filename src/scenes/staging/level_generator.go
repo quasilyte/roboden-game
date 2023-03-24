@@ -33,7 +33,7 @@ func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
 		scene: scene,
 		world: world,
 	}
-	g.rng.SetSeed(world.options.Seed)
+	g.rng.SetSeed(world.config.Seed)
 	g.sectors = []gmath.Rect{
 		{Min: gmath.Vec{X: 0, Y: 0}, Max: gmath.Vec{X: g.world.width / 2, Y: g.world.height / 2}},
 		{Min: gmath.Vec{X: g.world.width / 2, Y: 0}, Max: gmath.Vec{X: g.world.width, Y: g.world.height / 2}},
@@ -67,7 +67,7 @@ func (g *levelGenerator) Generate() {
 		g.placeWalls()
 		g.placeCreepBases()
 		g.placeCreeps()
-		g.placeResources(resourceMultipliers[g.world.options.Resources])
+		g.placeResources(resourceMultipliers[g.world.config.Resources])
 		g.placeBoss()
 	}
 
@@ -138,7 +138,7 @@ func (g *levelGenerator) createBase(pos gmath.Vec) {
 	core.priorities.SetWeight(prioritySecurity, 0.1)
 	g.scene.AddObject(core)
 
-	switch g.world.options.StartingResources {
+	switch g.world.config.StartingResources {
 	case 1:
 		core.resources = maxVisualResources / 3
 	case 2:
@@ -599,7 +599,7 @@ func (g *levelGenerator) placeWalls() {
 }
 
 func (g *levelGenerator) placeCreepBases() {
-	if g.world.options.NumCreepBases == 0 {
+	if g.world.config.NumCreepBases == 0 {
 		return // Zero bases
 	}
 	// The bases are always located somewhere on the map boundary.
@@ -617,7 +617,7 @@ func (g *levelGenerator) placeCreepBases() {
 		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
 	}
 	gmath.Shuffle(&g.rng, borders)
-	numBases := g.world.options.NumCreepBases
+	numBases := g.world.config.NumCreepBases
 	for i := 0; i < numBases; i++ {
 		border := borders[i]
 		var basePos gmath.Vec

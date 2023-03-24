@@ -8,6 +8,9 @@
 ##menu.main.exit : Exit
 ##menu.main.build : Build
 
+##tutorial.reward : Score reward
+##tutorial.reward_claimed : claimed
+
 ##menu.play.classic : Classic Mode
 ##menu.play.rush : Rush Mode
 ##menu.play.arena : Arena Mode

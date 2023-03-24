@@ -20,11 +20,7 @@ type ProfileDroneCollectionMenuController struct {
 
 	scene *ge.Scene
 
-	helpPanel         *widget.Container
-	helpLabel         *widget.Text
-	helpIcon1         *widget.Graphic
-	helpIconSeparator *widget.Text
-	helpIcon2         *widget.Graphic
+	helpLabel *widget.Text
 }
 
 func NewProfileDroneCollectionMenuController(state *session.State) *ProfileDroneCollectionMenuController {
@@ -131,8 +127,6 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 	rootGrid.AddChild(rightPanel)
 
 	rowContainer.AddChild(rootGrid)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
 		c.back()

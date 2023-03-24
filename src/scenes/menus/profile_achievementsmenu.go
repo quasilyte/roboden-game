@@ -123,8 +123,6 @@ func (c *ProfileAchievementsMenuController) initUI() {
 
 	rowContainer.AddChild(rootGrid)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
-
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
 		c.back()
 	}))

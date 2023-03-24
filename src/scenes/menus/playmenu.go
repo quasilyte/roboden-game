@@ -9,7 +9,6 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
-	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/session"
 )
 
@@ -54,8 +53,9 @@ func (c *PlayMenuController) initUI() {
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.tutorial"), func() {
-		c.state.LevelOptions.Tutorial = true
-		c.scene.Context().ChangeScene(staging.NewController(c.state, 0, NewMainMenuController(c.state)))
+		// c.state.LevelOptions.Tutorial = true
+		// c.scene.Context().ChangeScene(staging.NewController(c.state, 0, NewMainMenuController(c.state)))
+		c.scene.Context().ChangeScene(NewTutorialMenuController(c.state))
 	}))
 
 	{

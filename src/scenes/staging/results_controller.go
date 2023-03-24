@@ -76,7 +76,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 }
 
 func (c *resultsController) updateProgress() {
-	if c.state.LevelOptions.Tutorial || !c.results.Victory {
+	if c.state.LevelOptions.Tutorial != nil || !c.results.Victory {
 		return
 	}
 
@@ -244,7 +244,7 @@ func (c *resultsController) initUI() {
 		fmt.Sprintf("%s: %v", d.Get("menu.results.drones_total"), c.results.DronesProduced),
 		fmt.Sprintf("%s: %v", d.Get("menu.results.creeps_defeated"), c.results.CreepsDefeated),
 	}
-	if c.results.Victory && !c.state.LevelOptions.Tutorial {
+	if c.results.Victory && c.state.LevelOptions.Tutorial == nil {
 		if c.results.Score > c.state.Persistent.PlayerStats.HighestScore {
 			lines = append(lines, fmt.Sprintf("%s: %v (%s)", d.Get("menu.results.score"), c.results.Score, d.Get("menu.results.new_record")))
 		} else {

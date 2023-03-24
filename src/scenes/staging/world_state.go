@@ -87,7 +87,7 @@ func (w *worldState) Init() {
 }
 
 func (w *worldState) IsTutorial() bool {
-	return w.options.Tutorial
+	return w.options.Tutorial != nil
 }
 
 func (w *worldState) NewWallClusterNode(config wallClusterConfig) *wallClusterNode {

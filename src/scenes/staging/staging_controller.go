@@ -216,10 +216,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 		scene.AddGraphicsAbove(c.debugInfo, 1)
 	}
 
-	if c.state.LevelOptions.Tutorial {
-		tutorial := newTutorialManager(c.state.MainInput, c.choices)
-		scene.AddObject(tutorial)
-	}
+	// if c.state.LevelOptions.Tutorial {
+	// 	tutorial := newTutorialManager(c.state.MainInput, c.choices)
+	// 	scene.AddObject(tutorial)
+	// }
 
 	scene.AddObject(c.choices)
 }

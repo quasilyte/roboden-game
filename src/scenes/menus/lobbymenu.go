@@ -179,7 +179,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 	panel.AddChild(c.difficultyLabel)
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
-		c.state.LevelOptions.Tutorial = false
+		c.state.LevelOptions.Tutorial = nil
 		c.state.LevelOptions.DifficultyScore = c.calcDifficultyScore()
 		c.state.LevelOptions.DronePointsAllocated = c.calcAllocatedPoints()
 		if c.seedInput.InputText != "" {

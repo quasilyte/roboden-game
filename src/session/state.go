@@ -43,6 +43,8 @@ type PlayerStats struct {
 	DronesUnlocked  []gamedata.ColonyAgentKind
 	Tier3DronesSeen []gamedata.ColonyAgentKind
 
+	TutorialsCompleted []int
+
 	TotalPlayTime          time.Duration
 	TotalScore             int
 	HighestScore           int
@@ -68,11 +70,15 @@ type LevelOptions struct {
 
 	WorldSize int
 
-	Tutorial        bool
+	Tutorial        *TutorialData
 	DifficultyScore int
 
 	Tier2Recipes         []gamedata.AgentMergeRecipe
 	DronePointsAllocated int
+}
+
+type TutorialData struct {
+	ID int
 }
 
 type GameSettings struct {

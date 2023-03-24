@@ -52,7 +52,6 @@ next release:
   - base race
   - vs colony
   - endless mode
-- drone rarity
 - drone pickups
 - attack, inc/dec, build base, tech, build tower
 - action reroll

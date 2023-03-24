@@ -76,7 +76,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 }
 
 func (c *resultsController) updateProgress() {
-	if c.state.LevelOptions.Tutorial {
+	if c.state.LevelOptions.Tutorial || !c.results.Victory {
 		return
 	}
 

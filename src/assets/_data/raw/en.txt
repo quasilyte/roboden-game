@@ -333,8 +333,7 @@ Most of its stats are inferior to the fighter drone, but the upkeep is lower too
 ##drone.courier : Courier
 ##drone.courier.description
 A drone that travels between colonies to improve their economy.
-This unit has a very weak slow gun for self-defense.
-Its defence is good and it recovers a bit of durability after every successfull trip.
+This unit has a simple slow-inflicting gun for self-defense. Its defence is good and it recovers a bit of durability after every successfull trip.
 
 ##drone.cloner : Cloner
 ##drone.cloner.description

@@ -65,6 +65,7 @@ type LevelConfig struct {
 
 	AttackActionAvailable      bool
 	BuildTurretActionAvailable bool
+	RadiusActionAvailable      bool
 
 	EliteResources    bool
 	EnemyBoss         bool

@@ -11,6 +11,7 @@ type TutorialData struct {
 
 	CanBuildTurrets bool
 	CanAttack       bool
+	CanChangeRadius bool
 	Boss            bool
 
 	RedCrystals   bool
@@ -27,13 +28,14 @@ var Tutorials = []*TutorialData{
 		ScoreReward:   200,
 		NumEnemyBases: 0,
 		Objective:     ObjectiveBuildBase,
-		Seed:          0xF0F1000 + 6,
+		Seed:          0xF0F1000 + 10,
 	},
 
 	{
-		ID:            1,
-		ScoreReward:   250,
-		NumEnemyBases: 0,
+		ID:              1,
+		ScoreReward:     250,
+		NumEnemyBases:   0,
+		CanChangeRadius: true,
 		Tier2Drones: []AgentMergeRecipe{
 			FindRecipe(ClonerAgentStats),
 			FindRecipe(FighterAgentStats),
@@ -45,10 +47,11 @@ var Tutorials = []*TutorialData{
 	},
 
 	{
-		ID:            2,
-		ScoreReward:   400,
-		NumEnemyBases: 1,
-		CanAttack:     true,
+		ID:              2,
+		ScoreReward:     400,
+		NumEnemyBases:   1,
+		CanAttack:       true,
+		CanChangeRadius: true,
 		Tier2Drones: []AgentMergeRecipe{
 			FindRecipe(ClonerAgentStats),
 			FindRecipe(FighterAgentStats),
@@ -61,12 +64,14 @@ var Tutorials = []*TutorialData{
 	},
 
 	{
-		ID:            3,
-		ScoreReward:   450,
-		NumEnemyBases: 1,
-		WorldSize:     1,
-		Resources:     2,
-		RedCrystals:   true,
+		ID:              3,
+		ScoreReward:     450,
+		NumEnemyBases:   1,
+		WorldSize:       1,
+		Resources:       2,
+		RedCrystals:     true,
+		CanChangeRadius: true,
+		CanAttack:       true,
 		Tier2Drones: []AgentMergeRecipe{
 			FindRecipe(ClonerAgentStats),
 			FindRecipe(FighterAgentStats),
@@ -81,13 +86,16 @@ var Tutorials = []*TutorialData{
 	},
 
 	{
-		ID:            4,
-		ScoreReward:   700,
-		WorldSize:     1,
-		Resources:     2,
-		InitialCreeps: 1,
-		RedCrystals:   true,
-		Boss:          true,
+		ID:              4,
+		ScoreReward:     700,
+		WorldSize:       1,
+		Resources:       2,
+		InitialCreeps:   1,
+		RedCrystals:     true,
+		Boss:            true,
+		CanChangeRadius: true,
+		CanAttack:       true,
+		CanBuildTurrets: true,
 		Tier2Drones: []AgentMergeRecipe{
 			FindRecipe(ClonerAgentStats),
 			FindRecipe(FighterAgentStats),

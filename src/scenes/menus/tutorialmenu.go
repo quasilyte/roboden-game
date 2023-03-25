@@ -65,7 +65,7 @@ func (c *TutorialMenuController) initUI() {
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.play.tutorial"), normalFont)
+	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.play")+" -> "+d.Get("menu.play.tutorial"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	helpLabel := eui.NewLabel(uiResources, "", tinyFont)
@@ -112,6 +112,7 @@ func (c *TutorialMenuController) initUI() {
 		c.config.EliteResources = tutorial.RedCrystals
 		c.config.AttackActionAvailable = tutorial.CanAttack
 		c.config.BuildTurretActionAvailable = tutorial.CanBuildTurrets
+		c.config.RadiusActionAvailable = tutorial.CanChangeRadius
 		c.config.EnemyBoss = tutorial.Boss
 		c.config.CreepDifficulty = 0
 		c.config.BossDifficulty = 0

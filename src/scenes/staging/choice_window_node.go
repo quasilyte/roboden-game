@@ -242,12 +242,15 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 
 	w.specialChoiceKinds = []specialChoiceKind{
 		specialBuildColony,
-		specialDecreaseRadius,
-		specialIncreaseRadius,
 	}
 
 	if w.config.AttackActionAvailable {
 		w.specialChoiceKinds = append(w.specialChoiceKinds, specialAttack)
+	}
+	if w.config.RadiusActionAvailable {
+		w.specialChoiceKinds = append(w.specialChoiceKinds,
+			specialDecreaseRadius,
+			specialIncreaseRadius)
 	}
 
 	// Now translate the special choices.
@@ -354,13 +357,6 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 
 func (w *choiceWindowNode) IsDisposed() bool {
 	return false
-}
-
-func (w *choiceWindowNode) ForceRefresh() {
-	if w.state == choiceReady {
-		return
-	}
-	w.value = w.targetValue
 }
 
 func (w *choiceWindowNode) revealChoices() {

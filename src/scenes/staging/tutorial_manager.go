@@ -4,147 +4,79 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
-	"github.com/quasilyte/roboden-game/assets"
-	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/session"
 )
+
+// This tutorial system is not very elegant.
+// Instead of having an event-based system it can subscribe to,
+// it has to query the game state and compare it with its expectations.
+// To avoid too much redundant computations, we only do that once in a while
+// with a randomized jitter.
+// Also, the tutorial objects can't describe the interactive hints
+// in a declarative way, so we'll have to hardcode every one of
+// them here in the most adhoc way possible.
+
+type tutorialRunner struct {
+	updateFunc func() bool
+}
 
 type tutorialManager struct {
 	input *input.Handler
 
 	scene *ge.Scene
 
-	dialogueWindow *ge.Sprite
-	windowRect     gmath.Rect
+	inputMode string
 
-	choiceWindow *choiceWindowNode
+	choice selectedChoice
 
-	label   *ge.Label
-	labelBg *ge.Rect
-
+	world        *worldState
+	config       *session.LevelConfig
 	tutorialStep int
-	steps        []tutorialStep
 
-	enabled bool
+	hint *tutorialHintNode
+
+	updateDelay float64
+
+	runner *tutorialRunner
 }
 
-type tutorialStep struct {
-	text string
-
-	refreshChoices bool
-}
-
-func newTutorialManager(h *input.Handler, choices *choiceWindowNode) *tutorialManager {
+func newTutorialManager(h *input.Handler, world *worldState) *tutorialManager {
 	return &tutorialManager{
-		input:        h,
-		choiceWindow: choices,
+		input:       h,
+		world:       world,
+		config:      world.config,
+		updateDelay: 2,
 	}
 }
 
 func (m *tutorialManager) Init(scene *ge.Scene) {
 	m.scene = scene
 
-	m.dialogueWindow = scene.NewSprite(assets.ImageTutorialDialogue)
-	m.dialogueWindow.Centered = false
-	m.dialogueWindow.Pos.Offset = gmath.Vec{X: 16, Y: 320 - 20}
-	scene.AddGraphics(m.dialogueWindow)
+	m.inputMode = "keyboard"
 
-	m.windowRect = gmath.Rect{
-		Min: m.dialogueWindow.AnchorPos().Resolve(),
-	}
-	m.windowRect.Max = m.windowRect.Min.Add(gmath.Vec{
-		X: m.dialogueWindow.ImageWidth(),
-		Y: m.dialogueWindow.ImageHeight(),
-	})
-
-	l := scene.NewLabel(assets.FontTiny)
-	l.ColorScale.SetColor(ge.RGB(0x9dd793))
-	l.Pos.Offset = m.dialogueWindow.Pos.Offset.Add(gmath.Vec{X: 25, Y: 20})
-	l.Width = 228 + 72
-	l.Height = 186
-	l.AlignHorizontal = ge.AlignHorizontalCenter
-	l.AlignVertical = ge.AlignVerticalCenter
-	bg := ge.NewRect(scene.Context(), l.Width+4, l.Height+12)
-	bg.Centered = false
-	bg.Pos = l.Pos.WithOffset(-2, -6)
-	bg.FillColorScale.SetColor(ge.RGB(0x080c10))
-	scene.AddGraphics(bg)
-	scene.AddGraphics(l)
-	m.label = l
-	m.labelBg = bg
-
-	m.enabled = true
-
-	d := m.scene.Dict()
-
-	m.steps = []tutorialStep{
+	runners := [...]tutorialRunner{
 		{
-			text: d.Get("tutorial.message1"),
-		},
-		{
-			text: d.Get("tutorial.message2"),
-		},
-		{
-			text: d.Get("tutorial.message3"),
+			updateFunc: m.updateTutorial1,
 		},
 
 		{
-			refreshChoices: true,
-			text:           d.Get("tutorial.message4"),
+			updateFunc: m.updateTutorial2,
 		},
 
 		{
-			text: d.Get("tutorial.message5"),
+			updateFunc: m.updateTutorial3,
 		},
 
 		{
-			text: d.Get("tutorial.message6"),
+			updateFunc: m.updateTutorial4,
 		},
 
 		{
-			text: d.Get("tutorial.message7"),
-		},
-
-		{
-			refreshChoices: true,
-			text:           d.Get("tutorial.message8"),
-		},
-
-		{
-			refreshChoices: true,
-			text:           d.Get("tutorial.message9"),
-		},
-
-		{
-			text: d.Get("tutorial.message10"),
-		},
-
-		{
-			text: d.Get("tutorial.message11"),
-		},
-
-		{
-			refreshChoices: true,
-			text:           d.Get("tutorial.message12"),
-		},
-
-		{
-			text: d.Get("tutorial.message13"),
-		},
-
-		{
-			text: d.Get("tutorial.message14"),
-		},
-
-		{
-			text: d.Get("tutorial.message15"),
-		},
-
-		{
-			text: d.Get("tutorial.message_last"),
+			updateFunc: m.updateTutorial5,
 		},
 	}
 
-	l.Text = m.steps[0].text
+	m.runner = &runners[m.config.Tutorial.ID]
 }
 
 func (m *tutorialManager) IsDisposed() bool {
@@ -152,41 +84,168 @@ func (m *tutorialManager) IsDisposed() bool {
 }
 
 func (m *tutorialManager) Update(delta float64) {
-	if !m.enabled {
+	m.updateDelay = gmath.ClampMin(m.updateDelay-delta, 0)
+	if m.updateDelay != 0 {
 		return
 	}
+	m.updateDelay = m.scene.Rand().FloatRange(1.5, 4.5)
 
-	cursor := m.choiceWindow.cursor
-	if m.tutorialStep < len(m.steps) {
-		if pos, ok := cursor.ClickPos(controls.ActionClick); ok {
-			if m.windowRect.Contains(pos) {
-				m.enabled = false
-				m.setWindowVisibility(false)
-				m.scene.Audio().PlaySound(assets.AudioClick)
-				m.scene.DelayedCall(0.25, func() {
-					m.enabled = true
-					m.openNextMessage()
-				})
+	m.choice = selectedChoice{}
+	m.runUpdateFunc()
+}
+
+func (m *tutorialManager) runUpdateFunc() {
+	if m.runner.updateFunc() {
+		m.tutorialStep++
+	}
+}
+
+func (m *tutorialManager) OnChoice(choice selectedChoice) {
+	m.choice = choice
+	m.runUpdateFunc()
+}
+
+func (m *tutorialManager) updateTutorial1() bool {
+	switch m.tutorialStep {
+	case 0:
+		s := m.scene.Dict().Get("tutorial1.your_colony")
+		targetPos := ge.Pos{Base: &m.world.colonies[0].pos}
+		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 1:
+		if m.choice.Option.special == specialChoiceMoveColony {
+			m.hint.Dispose()
+			return true
+		}
+	case 2:
+		return !m.world.colonies[0].IsFlying()
+	case 3:
+		// Explain the action cards.
+		s := m.scene.Dict().Get("tutorial1.action_cards", m.inputMode)
+		targetPos := gmath.Vec{X: 812, Y: 50}
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 4:
+		ok := (m.choice.Option.special != specialChoiceNone && m.choice.Option.special != specialChoiceMoveColony) ||
+			(m.choice.Option.special == specialChoiceNone && len(m.choice.Option.effects) != 0)
+		if ok {
+			m.hint.Dispose()
+			return true
+		}
+	case 5:
+		// Explain the resources priority.
+		s := m.scene.Dict().Get("tutorial1.resources_priority")
+		targetPos := gmath.Vec{X: 812 + (36 * 0), Y: 516}
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 6:
+		for _, effect := range m.choice.Option.effects {
+			if effect.priority == priorityResources {
+				m.hint.Dispose()
+				return true
 			}
 		}
+	case 7:
+		// Explain the growth priority.
+		s := m.scene.Dict().Get("tutorial1.growth_priority")
+		targetPos := gmath.Vec{X: 812 + (36 * 1), Y: 516}
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 8:
+		for _, effect := range m.choice.Option.effects {
+			if effect.priority == priorityGrowth {
+				m.hint.Dispose()
+				return true
+			}
+		}
+	case 9:
+		// Explain the evolution priority.
+		s := m.scene.Dict().Get("tutorial1.evolution_priority")
+		targetPos := gmath.Vec{X: 812 + (36 * 2), Y: 516}
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 10:
+		for _, effect := range m.choice.Option.effects {
+			if effect.priority == priorityEvolution {
+				m.hint.Dispose()
+				return true
+			}
+		}
+	case 11:
+		// Explain the security priority.
+		s := m.scene.Dict().Get("tutorial1.security_priority")
+		targetPos := gmath.Vec{X: 812 + (36 * 3), Y: 516}
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 12:
+		for _, effect := range m.choice.Option.effects {
+			if effect.priority == prioritySecurity {
+				m.hint.Dispose()
+				return true
+			}
+		}
+	case 13:
+		s := m.scene.Dict().Get("tutorial1.camera", m.inputMode)
+		targetPos := ge.Pos{Offset: gmath.Vec{X: 1540, Y: 420}}
+		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 14:
+		targetPos := ge.Pos{Offset: gmath.Vec{X: 1540, Y: 420}}
+		cameraCenter := m.world.camera.Offset.Add(m.world.camera.Rect.Center())
+		if targetPos.Offset.DistanceSquaredTo(cameraCenter) <= (280 * 280) {
+			m.hint.Dispose()
+			return true
+		}
+	case 15:
+		s := m.scene.Dict().Get("tutorial1.fill_resources")
+		targetPos := ge.Pos{Base: &m.world.colonies[0].pos, Offset: gmath.Vec{X: -3, Y: 10}}
+		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 16:
+		if m.world.colonies[0].resources > (maxVisualResources * 0.5) {
+			m.hint.Dispose()
+			return true
+		}
+	case 17:
+		s := m.scene.Dict().Get("tutorial1.build_action")
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, gmath.Vec{}, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 18:
+		if len(m.world.constructions) != 0 {
+			m.hint.Dispose()
+			return true
+		}
+	case 19:
+		s := m.scene.Dict().Get("tutorial1.base_construction")
+		targetPos := ge.Pos{Base: &m.world.constructions[0].pos, Offset: gmath.Vec{Y: 14}}
+		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 20:
+		if len(m.world.constructions) == 0 || m.world.constructions[0].progress >= 0.2 {
+			m.hint.Dispose()
+			return true
+		}
+	case 21:
+		s := m.scene.Dict().Get("tutorial1.finish_construction")
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, gmath.Vec{}, s)
+		m.scene.AddObject(m.hint)
+		return true
 	}
+
+	return false
 }
 
-func (m *tutorialManager) setWindowVisibility(visible bool) {
-	m.dialogueWindow.Visible = visible
-	m.label.Visible = visible
-	m.labelBg.Visible = visible
-}
-
-func (m *tutorialManager) openNextMessage() {
-	m.tutorialStep++
-	if m.tutorialStep >= len(m.steps) {
-		return
-	}
-	step := m.steps[m.tutorialStep]
-	m.label.Text = step.text
-	if step.refreshChoices {
-		m.choiceWindow.ForceRefresh()
-	}
-	m.setWindowVisibility(true)
-}
+func (m *tutorialManager) updateTutorial2() bool { return false }
+func (m *tutorialManager) updateTutorial3() bool { return false }
+func (m *tutorialManager) updateTutorial4() bool { return false }
+func (m *tutorialManager) updateTutorial5() bool { return false }

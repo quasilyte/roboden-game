@@ -12,6 +12,55 @@ Learning topics:
 > Colony priorities management
 > Resource gathering
 > Building new colonies
+##tutorial1.your_colony
+This is your colony, it's quite autonomous.
+It operates according to its priorities.
+Try moving it by using a right click
+on the destination.
+##tutorial1.action_cards.keyboard
+You can change the selected colony priorities
+by choosing one of the behavior cards.
+Try activating them. You can use a left mouse click
+on them or press a hotkey: 1-5 or Q-T.
+##tutorial1.resources_priority
+The resources priority makes your colony
+workers gather resources more often.
+Building a base requires a bunch of resources.
+Try increasing it by choosing an appropriate card.
+##tutorial1.growth_priority
+The growth priority affects drones production
+and buildings construction rate.
+Try increasing it by choosing an appropriate card.
+##tutorial1.evolution_priority
+The evolution priority is needed to make
+the tier 1 drones combine into something more powerful.
+You'll learn more about that during the next mission.
+Try increasing it by choosing an appropriate card.
+##tutorial1.security_priority
+The security priority increases the number
+of combat units your colony has.
+It also affects some combat-related behaviors.
+Try increasing it by choosing an appropriate card.
+##tutorial1.camera.keyboard
+You can pan the camera by using the arrow keys.
+The mouse scrolling works near the camera edges
+or when you're holding the middle mouse button.
+Locate the best resource stash on this map.
+##tutorial1.fill_resources
+The yellow bar on your colony
+is a resource pool.
+Try to fill it above the middle.
+##tutorial1.build_action
+When ready, build a new colony by using a
+"build new colony" grey action card.
+##tutorial1.base_construction
+A new base construction started!
+It will require some time and resources.
+Your colony should be nearby to
+complete the construction.
+##tutorial1.finish_construction
+To complete this mission, finish the
+construction of a new colony.
 
 ##tutorial.title2 : Tutorial 2 - Factions and Evolution
 ##tutorial.description2

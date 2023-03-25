@@ -56,7 +56,7 @@ type Controller struct {
 
 	camera *viewport.Camera
 
-	objectiveDisplay *objectiveDisplayNode
+	tutorialManager *tutorialManager
 
 	cursor *cursorNode
 
@@ -228,15 +228,12 @@ func (c *Controller) Init(scene *ge.Scene) {
 		scene.AddGraphicsAbove(c.debugInfo, 1)
 	}
 
-	// if c.state.LevelOptions.Tutorial {
-	// 	tutorial := newTutorialManager(c.state.MainInput, c.choices)
-	// 	scene.AddObject(tutorial)
-	// }
+	if c.world.IsTutorial() {
+		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world)
+		scene.AddObject(c.tutorialManager)
+	}
 
 	scene.AddObject(c.choices)
-
-	c.objectiveDisplay = newObjectiveDisplay(&c.config)
-	scene.AddObject(c.objectiveDisplay)
 }
 
 func (c *Controller) onMenuButtonClicked(gsignal.Void) {
@@ -248,6 +245,10 @@ func (c *Controller) onToggleButtonClicked(gsignal.Void) {
 }
 
 func (c *Controller) onChoiceSelected(choice selectedChoice) {
+	if c.tutorialManager != nil {
+		c.tutorialManager.OnChoice(choice)
+	}
+
 	if choice.Option.special == specialChoiceNone {
 		switch choice.Faction {
 		case gamedata.YellowFactionTag:

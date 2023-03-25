@@ -82,5 +82,5 @@ tech list (drone-specific):
 - crippler, marauder: +1 max targets
 - destroyer: increased damage (+10%)
 - prism: max-charged shot (4 prisms) have a high chance to inflict disarmed condition
-- couries, trucker: extra payload capacity when carrying resources between the bases
+- courier, trucker: extra payload capacity when carrying resources between the bases
 - mortar: increased attack range (+15%)

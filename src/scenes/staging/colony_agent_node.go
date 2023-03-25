@@ -1227,7 +1227,7 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 	}
 	if !a.waypoint.IsZero() {
 		if a.moveTowards(delta, a.waypoint) {
-			target.attention += 2.5
+			target.attention += 2
 			a.waypoint = gmath.Vec{}
 			buildPos := target.GetConstructPos()
 			beam := newCloningBeamNode(a.colonyCore.world.camera, false, &a.pos, buildPos)

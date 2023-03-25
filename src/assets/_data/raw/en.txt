@@ -12,7 +12,7 @@
 ##tutorial.reward_claimed : claimed
 
 ##ui.mission_objective : Mission Objective
-##objective.boss : Defeat enemy colony
+##objective.boss : Defeat the enemy colony
 
 ##menu.play.classic : Classic Mode
 ##menu.play.rush : Rush Mode
@@ -91,7 +91,7 @@
 ##menu.lobby.num_creep_bases : Creep Bases
 ##menu.lobby.creeps_difficulty : Creeps Power
 ##menu.lobby.initial_creeps : Initial Creeps Count
-##menu.lobby.boss_difficulty : Boss Power
+##menu.lobby.boss_difficulty : Enemy Colony Power
 ##menu.lobby.starting_resources : Starting Resources
 ##menu.lobby.go : Go!
 
@@ -307,11 +307,11 @@ In other words, you should not create any tier 2 or 3 combat units during the ga
 
 ##achievement.groundwin : Ground Salvo
 ##achievement.groundwin.description
-Destroy the boss in the moment when it's close to the ground.
+Destroy the enemy colony in the moment when it's close to the ground.
 
 ##achievement.turretdamage : Turret Barrage
 ##achievement.turretdamage.description
-Deal at least 25% damage to the boss using ground turrets.
+Deal at least 25% damage to the enemy colony using ground turrets.
 
 ##drone.trucker : Trucker
 ##drone.trucker.description

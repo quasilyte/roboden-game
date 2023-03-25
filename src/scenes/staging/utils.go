@@ -9,8 +9,6 @@ import (
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
-var defaultColorScale = ge.ColorScale{R: 1, G: 1, B: 1, A: 1}
-
 func randIterate[T any](rand *gmath.Rand, slice []T, f func(x T) bool) T {
 	var result T
 	if len(slice) == 0 {

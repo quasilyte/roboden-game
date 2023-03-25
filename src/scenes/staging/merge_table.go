@@ -6,17 +6,6 @@ import (
 
 type mergeTableBits uint64
 
-const (
-	mergetabYellowWorker mergeTableBits = 1 << iota
-	mergetabYellowMilitia
-	mergetabRedWorker
-	mergetabRedMilitia
-	mergetabGreenWorker
-	mergetabGreenMilitia
-	mergetabBlueWorker
-	mergetabBlueMilitia
-)
-
 type mergeTable struct {
 	flags mergeTableBits
 }

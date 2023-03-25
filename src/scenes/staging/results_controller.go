@@ -83,6 +83,8 @@ func (c *resultsController) Init(scene *ge.Scene) {
 func (c *resultsController) updateProgress() {
 	stats := &c.state.Persistent.PlayerStats
 
+	stats.TotalPlayTime += c.results.TimePlayed
+
 	if c.config.Tutorial != nil {
 		if !xslices.Contains(stats.TutorialsCompleted, c.config.Tutorial.ID) {
 			stats.TutorialsCompleted = append(stats.TutorialsCompleted, c.config.Tutorial.ID)
@@ -102,7 +104,6 @@ func (c *resultsController) updateProgress() {
 		stats.Tier3DronesSeen = append(stats.Tier3DronesSeen, k)
 	}
 
-	stats.TotalPlayTime += c.results.TimePlayed
 	stats.TotalScore += c.results.Score
 	if stats.HighestScore < c.results.Score {
 		stats.HighestScore = c.results.Score

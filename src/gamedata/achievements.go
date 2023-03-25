@@ -2,12 +2,32 @@ package gamedata
 
 type Achievement struct {
 	Name string
-	Mode string
+	Mode Mode
 }
 
+type Mode int
+
 const (
-	ModeClassic = "classic"
+	ModeClassic Mode = iota
+	ModeArena
+	ModeRush
+	ModeTutorial
 )
+
+func (m Mode) String() string {
+	switch m {
+	case ModeClassic:
+		return "classic"
+	case ModeArena:
+		return "arena"
+	case ModeRush:
+		return "rush"
+	case ModeTutorial:
+		return "tutorial"
+	default:
+		return "unknown"
+	}
+}
 
 var AchievementList = []*Achievement{
 	{

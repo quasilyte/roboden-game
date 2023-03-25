@@ -1,3 +1,8 @@
+##objective.build_base : Build a second colony
+##objective.acquire_destroyer : Create a tier 3 Destroyer class drone
+##objective.destroy_creep_bases : Destroy the enemy base
+##objective.super_elite : Acquire a super elite drone
+
 ##tutorial.title1 : Tutorial 1 - Basic Colony Operations
 ##tutorial.description1
 Learning topics:
@@ -8,8 +13,6 @@ Learning topics:
 > Resource gathering
 > Building new colonies
 
-Mission objective: build a second colony.
-
 ##tutorial.title2 : Tutorial 2 - Factions and Evolution
 ##tutorial.description2
 Learning topics:
@@ -17,8 +20,6 @@ Learning topics:
 > Faction bonuses
 > Drones evolition via merging
 > Drone special abilities
-
-Mission objective: create a tier 3 Destroyer class drone.
 
 ##tutorial.title3 : Tutorial 3 - Combat
 ##tutorial.description3
@@ -28,8 +29,6 @@ Learning topics:
 > Base defence against spawning enemies
 > Offensive actions
 
-Mission objective: destroy the enemy base.
-
 ##tutorial.title4 : Tutorial 4 - Elite Drones
 ##tutorial.description4
 Learning topics:
@@ -38,4 +37,10 @@ Learning topics:
 > Red oil gathering
 > Elite drones production
 
-Mission objective: acquire at least one super elite tier 3 drone.
+##tutorial.title5 : Tutorial 5 - Advanced Combat
+##tutorial.description5
+Learning topics:
+
+> Radar
+> Avoiding the enemy colony
+> Defeating the enemy colony

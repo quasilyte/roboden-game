@@ -37,6 +37,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImagePriorityGrowth:    {Path: "image/ui/priority_icon_growth.png"},
 		ImagePriorityEvolution: {Path: "image/ui/priority_icon_evolution.png"},
 		ImagePrioritySecurity:  {Path: "image/ui/priority_icon_security.png"},
+		ImageObjectiveDisplay:  {Path: "image/ui/objective_display.png"},
 
 		ImageFloppyYellow:     {Path: "image/ui/floppy_yellow.png"},
 		ImageFloppyRed:        {Path: "image/ui/floppy_red.png"},
@@ -219,6 +220,7 @@ const (
 	ImagePriorityGrowth
 	ImagePriorityEvolution
 	ImagePrioritySecurity
+	ImageObjectiveDisplay
 
 	ImageSmallExplosion1
 	ImagePurpleExplosion

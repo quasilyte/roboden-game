@@ -45,31 +45,19 @@ func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
 }
 
 func (g *levelGenerator) Generate() {
-	if g.world.IsTutorial() {
-		g.placePlayers()
-		g.placeSecondTutorialBase()
-		g.placeWalls()
-		g.placeResources(0.65)
-		g.placeTutorialBoss()
-		for _, colony := range g.world.colonies {
-			colony.realRadius = 96
-			colony.resources = 120
-		}
-	} else {
-		resourceMultipliers := []float64{
-			0.4,
-			0.75,
-			1, // Default
-			1.25,
-			1.6,
-		}
-		g.placePlayers()
-		g.placeWalls()
-		g.placeCreepBases()
-		g.placeCreeps()
-		g.placeResources(resourceMultipliers[g.world.config.Resources])
-		g.placeBoss()
+	resourceMultipliers := []float64{
+		0.4,
+		0.75,
+		1, // Default
+		1.25,
+		1.6,
 	}
+	g.placePlayers()
+	g.placeWalls()
+	g.placeCreepBases()
+	g.placeCreeps()
+	g.placeResources(resourceMultipliers[g.world.config.Resources])
+	g.placeBoss()
 
 	g.fillPathgrid()
 }
@@ -116,10 +104,6 @@ func (g *levelGenerator) fillPathgrid() {
 	for _, essence := range g.world.essenceSources {
 		p.MarkCell(p.PosToCoord(essence.pos))
 	}
-}
-
-func (g *levelGenerator) placeSecondTutorialBase() {
-	g.createBase(g.playerSpawn.Add(gmath.Vec{X: -256, Y: 400}))
 }
 
 func (g *levelGenerator) placePlayers() {
@@ -218,14 +202,19 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		1.0,
 		1.1,
 	}
-	multiplier := resMultiplier * worldSizeMultipliers[g.world.worldSize]
+	multiplier := resMultiplier * worldSizeMultipliers[g.world.config.WorldSize]
 	numIron := int(float64(rand.IntRange(26, 38)) * multiplier)
 	numScrap := int(float64(rand.IntRange(6, 8)) * multiplier)
 	numGold := int(float64(rand.IntRange(20, 28)) * multiplier)
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
-	numRedOil := gmath.ClampMin(int(float64(rand.IntRange(2, 3))*multiplier), 2)
-	numRedCrystals := int(float64(rand.IntRange(10, 15)) * multiplier)
+
+	numRedOil := 0
+	numRedCrystals := 0
+	if g.world.config.EliteResources {
+		numRedOil = gmath.ClampMin(int(float64(rand.IntRange(2, 3))*multiplier), 2)
+		numRedCrystals = int(float64(rand.IntRange(10, 15)) * multiplier)
+	}
 
 	g.world.numRedCrystals = numRedCrystals
 
@@ -318,16 +307,11 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	}
 }
 
-func (g *levelGenerator) placeTutorialBoss() {
-	boss := g.world.NewCreepNode(gmath.Vec{X: 256, Y: 256}, uberBossCreepStats)
-	g.scene.AddObject(boss)
-
-	boss.OnDamage(gamedata.DamageValue{Health: uberBossCreepStats.maxHealth * 0.5}, gmath.Vec{})
-
-	g.world.boss = boss
-}
-
 func (g *levelGenerator) placeBoss() {
+	if !g.world.config.EnemyBoss {
+		return
+	}
+
 	spawnLocations := []gmath.Vec{
 		{X: 196, Y: 196},
 		{X: g.world.width - 196, Y: 196},
@@ -343,18 +327,33 @@ func (g *levelGenerator) placeBoss() {
 }
 
 func (g *levelGenerator) placeCreeps() {
+	if g.world.config.InitialCreeps == 0 {
+		return
+	}
+
 	rand := &g.rng
+
+	worldSizeMultipliers := []float64{
+		0.7,
+		0.9,
+		1.1,
+		1.4,
+	}
+	multiplier := worldSizeMultipliers[g.world.config.WorldSize]
+	if g.world.config.InitialCreeps > 1 {
+		multiplier *= 2
+	}
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 
-	numTurrets := rand.IntRange(4, 5)
+	numTurrets := int(math.Round(float64(rand.IntRange(4, 5)) * multiplier))
 	for numTurrets > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
 		numTurrets -= g.placeCreepsCluster(sector, 1, turretCreepStats)
 	}
 
-	numTanks := rand.IntRange(8, 12)
+	numTanks := int(math.Round(float64(rand.IntRange(6, 10)) * multiplier))
 	for numTanks > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
@@ -371,7 +370,7 @@ func (g *levelGenerator) placeWalls() {
 		1.0,
 		1.4,
 	}
-	multiplier := worldSizeMultipliers[g.world.worldSize]
+	multiplier := worldSizeMultipliers[g.world.config.WorldSize]
 	numWallClusters := int(float64(rand.IntRange(11, 14)) * multiplier)
 
 	const (
@@ -643,7 +642,7 @@ func (g *levelGenerator) placeCreepBases() {
 		}
 		g.placeCreepsCluster(baseRegion, 1, turretCreepStats)
 		base := g.world.NewCreepNode(basePos, baseCreepStats)
-		if i == 0 || i == 3 {
+		if i == 1 || i == 3 {
 			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
 		} else {
 			base.specialModifier = 1.0 // Initial level base

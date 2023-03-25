@@ -3,6 +3,7 @@ package menus
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
@@ -12,6 +13,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/session"
 )
 
@@ -52,11 +54,12 @@ func (c *TutorialMenuController) initUI() {
 	descriptionText := func(id int) string {
 		data := gamedata.Tutorials[id]
 		description := d.Get("tutorial.description" + strconv.Itoa(id+1))
+		objective := fmt.Sprintf("%s: %s", d.Get("ui.mission_objective"), strings.ToLower(d.Get("objective", data.Objective.String())))
 		rewardText := fmt.Sprintf("%s: %d", d.Get("tutorial.reward"), data.ScoreReward)
 		if xslices.Contains(c.state.Persistent.PlayerStats.TutorialsCompleted, id) {
 			rewardText += " (" + d.Get("tutorial.reward_claimed") + ")"
 		}
-		return description + "\n" + rewardText
+		return description + "\n\n" + objective + "\n" + rewardText
 	}
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
@@ -71,18 +74,18 @@ func (c *TutorialMenuController) initUI() {
 
 	c.config = c.state.LevelConfig.Clone()
 	if c.config.Tutorial == nil {
-		c.config.Tutorial = &session.TutorialData{}
+		c.config.Tutorial = gamedata.Tutorials[0]
 	}
 
 	{
 		var slider gmath.Slider
-		slider.SetBounds(0, 3)
+		slider.SetBounds(0, len(gamedata.Tutorials)-1)
 		slider.TrySetValue(c.config.Tutorial.ID)
 		button := eui.NewButtonSelected(uiResources, d.Get("tutorial.title"+strconv.Itoa(slider.Value()+1)))
 		c.helpLabel.Label = descriptionText(slider.Value())
 		button.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			c.config.Tutorial.ID = slider.Value()
+			c.config.Tutorial = gamedata.Tutorials[slider.Value()]
 			button.Text().Label = d.Get("tutorial.title" + strconv.Itoa(slider.Value()+1))
 			c.helpLabel.Label = descriptionText(slider.Value())
 		})
@@ -94,19 +97,28 @@ func (c *TutorialMenuController) initUI() {
 	rowContainer.AddChild(panel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
-		// c.state.LevelOptions.Tutorial = nil
-		// c.state.LevelOptions.DifficultyScore = c.calcDifficultyScore()
-		// c.state.LevelOptions.DronePointsAllocated = c.calcAllocatedPoints()
-		// if c.seedInput.InputText != "" {
-		// 	seed, err := strconv.ParseInt(c.seedInput.InputText, 10, 64)
-		// 	if err != nil {
-		// 		panic(err)
-		// 	}
-		// 	c.state.LevelOptions.Seed = seed
-		// } else {
-		// 	c.state.LevelOptions.Seed = c.randomSeed()
-		// }
-		// c.scene.Context().ChangeScene(staging.NewController(c.state, options.WorldSize, NewLobbyMenuController(c.state)))
+		// Clone before overriding any extra options.
+		clonedConfig := c.config.Clone()
+		c.state.LevelConfig = &clonedConfig
+
+		tutorial := c.config.Tutorial
+		c.config.GameMode = gamedata.ModeTutorial
+		c.config.Tier2Recipes = tutorial.Tier2Drones
+		c.config.WorldSize = tutorial.WorldSize
+		c.config.Resources = tutorial.Resources
+		c.config.StartingResources = 0
+		c.config.ExtraUI = true
+		c.config.InitialCreeps = tutorial.InitialCreeps
+		c.config.EliteResources = tutorial.RedCrystals
+		c.config.AttackActionAvailable = tutorial.CanAttack
+		c.config.BuildTurretActionAvailable = tutorial.CanBuildTurrets
+		c.config.EnemyBoss = tutorial.Boss
+		c.config.CreepDifficulty = 0
+		c.config.BossDifficulty = 0
+		c.config.NumCreepBases = tutorial.NumEnemyBases
+		c.config.Seed = tutorial.Seed
+
+		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewTutorialMenuController(c.state)))
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {

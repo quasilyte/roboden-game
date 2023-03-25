@@ -51,9 +51,12 @@ type Controller struct {
 	tier3spawnDelay float64
 	tier3spawnRate  float64
 
-	transitionQueued bool
+	transitionQueued  bool
+	victoryCheckDelay float64
 
 	camera *viewport.Camera
+
+	objectiveDisplay *objectiveDisplayNode
 
 	cursor *cursorNode
 
@@ -178,16 +181,26 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.cursor = newCursorNode(c.state.MainInput, c.camera.Rect)
 
-	c.menuButton = gameui.NewTextureButton(ge.Pos{Offset: gmath.Vec{X: 76, Y: 12}}, assets.ImageButtonMenu, c.cursor)
+	menuButtonOffset := gmath.Vec{X: 76, Y: 12}
+	if !c.config.EnemyBoss {
+		menuButtonOffset.X = 58
+	}
+	c.menuButton = gameui.NewTextureButton(ge.Pos{Offset: menuButtonOffset}, assets.ImageButtonMenu, c.cursor)
 	c.menuButton.EventClicked.Connect(c, c.onMenuButtonClicked)
 	scene.AddObject(c.menuButton)
 
-	c.toggleButton = gameui.NewTextureButton(ge.Pos{Offset: gmath.Vec{X: 12, Y: 76}}, assets.ImageButtonBaseToggle, c.cursor)
+	toggleButtonOffset := gmath.Vec{X: 12, Y: 76}
+	if !c.config.EnemyBoss {
+		toggleButtonOffset.Y = 58
+	}
+	c.toggleButton = gameui.NewTextureButton(ge.Pos{Offset: toggleButtonOffset}, assets.ImageButtonBaseToggle, c.cursor)
 	c.toggleButton.EventClicked.Connect(c, c.onToggleButtonClicked)
 	scene.AddObject(c.toggleButton)
 
-	c.radar = newRadarNode(c.world)
-	scene.AddObject(c.radar)
+	if c.config.EnemyBoss {
+		c.radar = newRadarNode(c.world)
+		scene.AddObject(c.radar)
+	}
 
 	if c.config.ExtraUI {
 		c.rpanel = newRpanelNode(c.world)
@@ -200,7 +213,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		X: 960 - 232 - 16,
 		Y: 540 - 200 - 16,
 	}
-	c.choices = newChoiceWindowNode(choicesPos, c.state.MainInput, c.cursor)
+	c.choices = newChoiceWindowNode(choicesPos, &c.config, c.state.MainInput, c.cursor)
 	c.choices.EventChoiceSelected.Connect(nil, c.onChoiceSelected)
 
 	c.selectNextColony(true)
@@ -221,6 +234,9 @@ func (c *Controller) Init(scene *ge.Scene) {
 	// }
 
 	scene.AddObject(c.choices)
+
+	c.objectiveDisplay = newObjectiveDisplay(&c.config)
+	scene.AddObject(c.objectiveDisplay)
 }
 
 func (c *Controller) onMenuButtonClicked(gsignal.Void) {
@@ -417,6 +433,8 @@ func (c *Controller) victory() {
 	}
 	c.transitionQueued = true
 
+	c.scene.Audio().PlaySound(assets.AudioVictory)
+
 	c.scene.DelayedCall(5.0, func() {
 		c.world.result.Victory = true
 		c.world.result.TimePlayed = time.Since(c.startTime)
@@ -547,21 +565,77 @@ func (c *Controller) handleInput() {
 	c.choices.HandleInput()
 }
 
+func (c *Controller) checkVictory() {
+	if c.transitionQueued {
+		return
+	}
+
+	victory := false
+	switch c.config.GameMode {
+	case gamedata.ModeClassic:
+		victory = c.world.boss == nil
+
+	case gamedata.ModeTutorial:
+		switch c.config.Tutorial.Objective {
+		case gamedata.ObjectiveBuildBase:
+			victory = len(c.world.colonies) >= 2
+		case gamedata.ObjectiveAcquireDestroyer:
+			for _, colony := range c.world.colonies {
+				destroyer := colony.agents.Find(searchFighters, func(a *colonyAgentNode) bool {
+					return a.stats.Kind == gamedata.AgentDestroyer
+				})
+				if destroyer != nil {
+					victory = true
+					break
+				}
+			}
+		case gamedata.ObjectiveDestroyCreepBases:
+			numBases := 0
+			for _, creep := range c.world.creeps {
+				if creep.stats.kind == creepBase {
+					numBases++
+				}
+			}
+			victory = numBases == 0
+		case gamedata.ObjectiveAcquireSuperElite:
+			for _, colony := range c.world.colonies {
+				superElite := colony.agents.Find(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
+					return a.rank == 2
+				})
+				if superElite != nil {
+					victory = true
+					break
+				}
+			}
+		}
+	}
+
+	if victory {
+		c.victory()
+	}
+}
+
 func (c *Controller) Update(delta float64) {
 	c.musicPlayer.Update(delta)
 	c.world.Update(delta)
 
-	if c.world.boss == nil {
-		// TODO: just subscribe to a boss destruction event?
-		c.victory()
+	if !c.transitionQueued {
+		c.victoryCheckDelay = gmath.ClampMin(c.victoryCheckDelay-delta, 0)
+		if c.victoryCheckDelay == 0 {
+			c.victoryCheckDelay = c.scene.Rand().FloatRange(2.0, 3.5)
+			c.checkVictory()
+		}
 	}
 
 	c.choices.Enabled = c.selectedColony != nil &&
 		c.selectedColony.mode == colonyModeNormal
 
-	c.tier3spawnDelay = gmath.ClampMin(c.tier3spawnDelay-delta, 0)
-	if c.tier3spawnDelay == 0 {
-		c.spawnTier3Creep()
+	// TODO: move somewhere else?
+	if c.config.GameMode == gamedata.ModeClassic {
+		c.tier3spawnDelay = gmath.ClampMin(c.tier3spawnDelay-delta, 0)
+		if c.tier3spawnDelay == 0 {
+			c.spawnTier3Creep()
+		}
 	}
 
 	c.handleInput()
@@ -601,7 +675,9 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	}
 	c.selectedColony = colony
 	c.choices.selectedColony = colony
-	c.radar.SetBase(c.selectedColony)
+	if c.radar != nil {
+		c.radar.SetBase(c.selectedColony)
+	}
 	if c.rpanel != nil {
 		c.rpanel.SetBase(c.selectedColony)
 		c.rpanel.UpdateMetrics()

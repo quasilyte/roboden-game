@@ -9,6 +9,7 @@ import (
 
 func registerAudioResource(ctx *ge.Context) {
 	audioResources := map[resource.AudioID]resource.AudioInfo{
+		AudioVictory:             {Path: "audio/victory.wav", Volume: -0.05},
 		AudioError:               {Path: "audio/error.wav", Volume: -0.25},
 		AudioClick:               {Path: "audio/button_click.wav", Volume: -0.3},
 		AudioBaseSelect:          {Path: "audio/base_select.wav", Volume: -0.4},
@@ -75,6 +76,7 @@ func registerAudioResource(ctx *ge.Context) {
 const (
 	AudioNone resource.AudioID = iota
 
+	AudioVictory
 	AudioError
 	AudioClick
 	AudioBaseSelect

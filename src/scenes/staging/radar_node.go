@@ -101,7 +101,7 @@ func (r *radarNode) Update(delta float64) {
 	bossDirection := r.colony.pos.AngleToPoint(r.world.boss.pos).Normalized() + 2*math.Pi
 	if radarScanDirection.AngleDelta2(bossDirection) < 0.1 && !r.bossSpot.Visible {
 		r.bossSpot.Visible = true
-		r.bossPath.Visible = !r.world.IsTutorial()
+		r.bossPath.Visible = true
 		r.bossSpot.SetAlpha(1)
 	}
 	if !r.bossSpot.Visible {

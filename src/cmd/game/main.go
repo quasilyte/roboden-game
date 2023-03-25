@@ -47,8 +47,14 @@ func main() {
 func getDefaultSessionState() *session.State {
 	state := &session.State{
 		LevelConfig: &session.LevelConfig{
+			BuildTurretActionAvailable: true,
+			AttackActionAvailable:      true,
+
 			ExtraUI:           true,
+			EliteResources:    true,
+			EnemyBoss:         true,
 			Resources:         2,
+			InitialCreeps:     1,
 			NumCreepBases:     2,
 			CreepDifficulty:   1,
 			BossDifficulty:    1,

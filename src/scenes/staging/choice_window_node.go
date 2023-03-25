@@ -14,6 +14,7 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/session"
 )
 
 type specialChoiceKind int
@@ -194,21 +195,24 @@ type choiceWindowNode struct {
 	shuffledOptions []choiceOption
 
 	beforeSpecialShuffle int
-	canBuildBase         bool
+	buildTurret          bool
 	specialChoiceKinds   []specialChoiceKind
 	specialChoices       []choiceOption
+
+	config *session.LevelConfig
 
 	cursor *cursorNode
 
 	EventChoiceSelected gsignal.Event[selectedChoice]
 }
 
-func newChoiceWindowNode(pos gmath.Vec, h *input.Handler, cursor *cursorNode) *choiceWindowNode {
+func newChoiceWindowNode(pos gmath.Vec, config *session.LevelConfig, h *input.Handler, cursor *cursorNode) *choiceWindowNode {
 	return &choiceWindowNode{
 		pos:           pos,
 		input:         h,
 		cursor:        cursor,
 		selectedIndex: -1,
+		config:        config,
 	}
 }
 
@@ -238,9 +242,12 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 
 	w.specialChoiceKinds = []specialChoiceKind{
 		specialBuildColony,
-		specialAttack,
 		specialDecreaseRadius,
 		specialIncreaseRadius,
+	}
+
+	if w.config.AttackActionAvailable {
+		w.specialChoiceKinds = append(w.specialChoiceKinds, specialAttack)
 	}
 
 	// Now translate the special choices.
@@ -377,16 +384,16 @@ func (w *choiceWindowNode) revealChoices() {
 	}
 
 	if w.beforeSpecialShuffle == 0 {
-		w.canBuildBase = !w.canBuildBase
+		w.buildTurret = !w.buildTurret
 		gmath.Shuffle(w.scene.Rand(), w.specialChoiceKinds)
-		w.beforeSpecialShuffle = gmath.Clamp(4, 1, len(w.specialChoiceKinds))
+		w.beforeSpecialShuffle = len(w.specialChoiceKinds)
 	}
 	w.beforeSpecialShuffle--
 	specialIndex := w.beforeSpecialShuffle
 
 	specialOptionKind := w.specialChoiceKinds[specialIndex]
 	if specialOptionKind == specialBuildColony {
-		if !w.canBuildBase {
+		if w.buildTurret && w.config.BuildTurretActionAvailable {
 			specialOptionKind = specialBuildGunpoint
 		}
 	}

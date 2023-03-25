@@ -73,16 +73,23 @@ func newResultsController(state *session.State, config *session.LevelConfig, bac
 
 func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
-	c.updateProgress()
+	if c.results.Victory {
+		c.updateProgress()
+		c.scene.Context().SaveGameData("save", c.state.Persistent)
+	}
 	c.initUI()
 }
 
 func (c *resultsController) updateProgress() {
-	if c.config.Tutorial != nil || !c.results.Victory {
+	stats := &c.state.Persistent.PlayerStats
+
+	if c.config.Tutorial != nil {
+		if !xslices.Contains(stats.TutorialsCompleted, c.config.Tutorial.ID) {
+			stats.TutorialsCompleted = append(stats.TutorialsCompleted, c.config.Tutorial.ID)
+			stats.TotalScore += c.config.Tutorial.ScoreReward
+		}
 		return
 	}
-
-	stats := &c.state.Persistent.PlayerStats
 
 	t3drones := map[gamedata.ColonyAgentKind]struct{}{}
 	for _, k := range stats.Tier3DronesSeen {
@@ -104,8 +111,6 @@ func (c *resultsController) updateProgress() {
 
 	c.newAchievements, c.upgradedAchievements = c.checkAchievements()
 	c.newDrones = c.checkNewDrones()
-
-	c.scene.Context().SaveGameData("save", c.state.Persistent)
 }
 
 func (c *resultsController) Update(delta float64) {

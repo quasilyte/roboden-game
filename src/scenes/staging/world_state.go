@@ -12,8 +12,7 @@ import (
 type worldState struct {
 	rand *gmath.Rand
 
-	worldSize int
-	camera    *viewport.Camera
+	camera *viewport.Camera
 
 	essenceSources []*essenceSourceNode
 	creeps         []*creepNode

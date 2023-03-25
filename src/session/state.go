@@ -61,6 +61,14 @@ type LevelConfig struct {
 
 	ExtraUI bool
 
+	GameMode gamedata.Mode
+
+	AttackActionAvailable      bool
+	BuildTurretActionAvailable bool
+
+	EliteResources    bool
+	EnemyBoss         bool
+	InitialCreeps     int
 	NumCreepBases     int
 	CreepDifficulty   int
 	BossDifficulty    int
@@ -70,7 +78,7 @@ type LevelConfig struct {
 
 	WorldSize int
 
-	Tutorial        *TutorialData
+	Tutorial        *gamedata.TutorialData
 	DifficultyScore int
 
 	Tier2Recipes         []gamedata.AgentMergeRecipe
@@ -84,10 +92,6 @@ func (options *LevelConfig) Clone() LevelConfig {
 	copy(cloned.Tier2Recipes, options.Tier2Recipes)
 
 	return cloned
-}
-
-type TutorialData struct {
-	ID int
 }
 
 type GameSettings struct {

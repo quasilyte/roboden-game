@@ -182,6 +182,10 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 	panel.AddChild(c.difficultyLabel)
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
+		clonedConfig := c.config.Clone()
+		c.state.LevelConfig = &clonedConfig
+
+		c.config.GameMode = gamedata.ModeClassic
 		c.config.DifficultyScore = c.calcDifficultyScore()
 		c.config.DronePointsAllocated = c.calcAllocatedPoints()
 		if c.seedInput.InputText != "" {
@@ -193,8 +197,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		} else {
 			c.config.Seed = c.randomSeed()
 		}
-		clonedConfig := c.config.Clone()
-		c.state.LevelConfig = &clonedConfig
+
 		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state)))
 	}))
 
@@ -287,6 +290,25 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			slider.Inc()
 			c.config.NumCreepBases = slider.Value()
 			button.Text().Label = d.Get("menu.lobby.num_creep_bases") + ": " + strconv.Itoa(slider.Value())
+			c.updateDifficultyScore(c.calcDifficultyScore())
+		})
+		tab.AddChild(button)
+	}
+
+	{
+		valueNames := []string{
+			d.Get("menu.option.none"),
+			d.Get("menu.option.some"),
+			d.Get("menu.option.lots"),
+		}
+		var slider gmath.Slider
+		slider.SetBounds(0, 2)
+		slider.TrySetValue(c.config.InitialCreeps)
+		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.initial_creeps")+": "+valueNames[slider.Value()])
+		button.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			c.config.InitialCreeps = slider.Value()
+			button.Text().Label = d.Get("menu.lobby.initial_creeps") + ": " + valueNames[slider.Value()]
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		})
 		tab.AddChild(button)
@@ -452,6 +474,7 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 		score += (c.config.CreepDifficulty - 1) * 10
 	}
 	score += (c.config.BossDifficulty - 1) * 15
+	score += (c.config.InitialCreeps - 1) * 10
 	score -= (c.config.StartingResources) * 4
 
 	if !c.config.ExtraUI {

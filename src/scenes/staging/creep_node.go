@@ -310,7 +310,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 		}
 	}
 
-	if c.stats.kind == creepUberBoss && !c.world.IsTutorial() && c.IsFlying() {
+	if c.stats.kind == creepUberBoss && c.IsFlying() {
 		// Stage 0: send 2 servants. (very easy and above)
 		// Stage 1: send 3 servants. (easy and above)
 		// Stage 2: send 4 servants. (normal and above)
@@ -652,10 +652,6 @@ func (c *creepNode) updateServant(delta float64) {
 
 func (c *creepNode) updateUberBoss(delta float64) {
 	c.anim.Tick(delta)
-
-	if c.world.IsTutorial() {
-		return
-	}
 
 	if c.shadow != nil {
 		c.shadow.Pos.Offset.Y = c.height + 4

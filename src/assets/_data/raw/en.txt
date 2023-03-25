@@ -11,6 +11,9 @@
 ##tutorial.reward : Score reward
 ##tutorial.reward_claimed : claimed
 
+##ui.mission_objective : Mission Objective
+##objective.boss : Defeat enemy colony
+
 ##menu.play.classic : Classic Mode
 ##menu.play.rush : Rush Mode
 ##menu.play.arena : Arena Mode
@@ -87,6 +90,7 @@
 ##menu.lobby.world_size : World Size
 ##menu.lobby.num_creep_bases : Creep Bases
 ##menu.lobby.creeps_difficulty : Creeps Power
+##menu.lobby.initial_creeps : Initial Creeps Count
 ##menu.lobby.boss_difficulty : Boss Power
 ##menu.lobby.starting_resources : Starting Resources
 ##menu.lobby.go : Go!
@@ -103,8 +107,8 @@
 ##menu.results.defeat : Defeat
 ##menu.results.time_played : Time Played
 ##menu.results.resources_gathered : Resources Gathered
-##menu.results.drone_survivors : Drone Survivors
-##menu.results.drones_total : Drones Total
+##menu.results.drone_survivors : Drones Active
+##menu.results.drones_total : Drones Produced
 ##menu.results.creeps_defeated : Creeps Defeated
 ##menu.results.score : Score
 ##menu.results.new_achievement : New Achievement

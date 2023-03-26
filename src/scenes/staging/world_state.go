@@ -40,6 +40,8 @@ type worldState struct {
 
 	numRedCrystals int
 
+	selectedColony *colonyCoreNode
+
 	pathgrid *pathing.Grid
 	bfs      *pathing.GreedyBFS
 

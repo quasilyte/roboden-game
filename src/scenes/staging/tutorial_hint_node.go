@@ -15,6 +15,10 @@ type tutorialHintNode struct {
 	targetLine2 *ge.Line
 	camera      *viewport.Camera
 
+	timed         bool
+	time          float64
+	trackedObject ge.SceneObject
+
 	pos       gmath.Vec
 	targetPos ge.Pos
 	screenPos bool
@@ -84,6 +88,22 @@ func (hint *tutorialHintNode) Init(scene *ge.Scene) {
 }
 
 func (hint *tutorialHintNode) Update(delta float64) {
+	if hint.targetLine != nil && hint.trackedObject != nil && hint.trackedObject.IsDisposed() {
+		hint.targetLine.Dispose()
+		hint.targetLine2.Dispose()
+		hint.targetLine = nil
+		hint.targetLine2 = nil
+		hint.trackedObject = nil
+	}
+
+	if hint.timed {
+		hint.time = gmath.ClampMin(hint.time-delta, 0)
+		if hint.time == 0 {
+			hint.Dispose()
+			return
+		}
+	}
+
 	if hint.targetLine != nil {
 		beginPos := hint.camera.Offset.Add(hint.pos)
 		beginPos.Y++

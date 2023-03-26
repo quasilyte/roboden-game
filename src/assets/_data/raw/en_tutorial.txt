@@ -153,6 +153,55 @@ Learning topics:
 > Base defence against spawning enemies
 > Offensive actions
 > Controlling multiple bases
+##tutorial3.base_select.keyboard
+This time you start with two colonies.
+You can select a different colony by
+left-clicking it or pressing a TAB button.
+##tutorial3.base_controls
+When choosing an action card,
+it's applied to the selected colony.
+Every colony has a separate factions
+distribution and priorities.
+Try moving either of your colonies.
+##tutorial3.shared_actions
+While one of your colonies is moving, you might
+want to switch back to your other colony.
+You will find out that action cooldown is shared.
+Choose wisely.
+##tutorial3.enemy_drone
+An enemy drone is approaching your colony.
+Get ready for some combat.
+##tutorial3.locate_base
+The drone you defeated was created by an
+enemy base. These bases become more
+dangerous over time.
+Locate that base to continue.
+##tutorial3.attack_action
+You have an access to new grey action cards.
+Attack card makes your combat drones charge
+at the nearby enemy targets.
+##tutorial3.radius_action
+The radius-related actions affect
+the colony influence radius. Higher radius
+means more drones and territory,
+but it can make your formations more vulnerable.
+##tutorial3.final_goal
+To complete this mission,
+you need to destroy the enemy base.
+Apply everything you've learned so far.
+##tutorial3.hint_freighter
+You acquired a freighter!
+Freighters carry much more resources
+compared to many other drones.
+##tutorial3.hint_servobot
+You acquired a servobot!
+Every servo drone in a colony
+increases its movement speed
+as well as the max jump distance.
+##tutorial3.hint_repairbot
+You acquired a repairbot!
+As the name suggests, repairbots will
+restore the damaged drones.
 
 ##tutorial.title4 : Tutorial 4 - Elite Drones
 ##tutorial.description4

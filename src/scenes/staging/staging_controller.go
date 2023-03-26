@@ -33,7 +33,6 @@ type Controller struct {
 
 	startTime time.Time
 
-	selectedColony *colonyCoreNode
 	colonySelector *ge.Sprite
 	radar          *radarNode
 	rpanel         *rpanelNode
@@ -217,7 +216,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.choices.EventChoiceSelected.Connect(nil, c.onChoiceSelected)
 
 	c.selectNextColony(true)
-	c.camera.CenterOn(c.selectedColony.pos)
+	c.camera.CenterOn(c.world.selectedColony.pos)
 
 	scene.AddGraphics(c.camera)
 
@@ -272,11 +271,11 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		case gamedata.BlueFactionTag:
 			c.world.result.BlueFactionUsed = true
 		}
-		c.selectedColony.factionWeights.AddWeight(choice.Faction, c.world.rand.FloatRange(0.1, 0.2))
+		c.world.selectedColony.factionWeights.AddWeight(choice.Faction, c.world.rand.FloatRange(0.1, 0.2))
 		for _, e := range choice.Option.effects {
 			// Use priorities.AddWeight directly here to avoid the signal.
 			// We'll call UpdateMetrics() below ourselves.
-			c.selectedColony.priorities.AddWeight(e.priority, e.value)
+			c.world.selectedColony.priorities.AddWeight(e.priority, e.value)
 		}
 		if c.rpanel != nil {
 			c.rpanel.UpdateMetrics()
@@ -289,19 +288,19 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	case specialAttack:
 		c.launchAttack()
 	case specialChoiceMoveColony:
-		maxDist := c.selectedColony.MaxFlyDistance() * c.world.rand.FloatRange(0.9, 1.1)
+		maxDist := c.world.selectedColony.MaxFlyDistance() * c.world.rand.FloatRange(0.9, 1.1)
 		clickPos := choice.Pos
-		clickDist := c.selectedColony.pos.DistanceTo(clickPos)
+		clickDist := c.world.selectedColony.pos.DistanceTo(clickPos)
 		dist := gmath.ClampMax(clickDist, maxDist)
-		relocationVec = c.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
+		relocationVec = c.world.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
 	case specialIncreaseRadius:
 		c.world.result.RadiusIncreases++
-		c.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
-		c.selectedColony.realRadiusSqr = c.selectedColony.realRadius * c.selectedColony.realRadius
+		c.world.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
+		c.world.selectedColony.realRadiusSqr = c.world.selectedColony.realRadius * c.world.selectedColony.realRadius
 	case specialDecreaseRadius:
 		value := c.world.rand.FloatRange(30, 40)
-		c.selectedColony.realRadius = gmath.ClampMin(c.selectedColony.realRadius-value, 96)
-		c.selectedColony.realRadiusSqr = c.selectedColony.realRadius * c.selectedColony.realRadius
+		c.world.selectedColony.realRadius = gmath.ClampMin(c.world.selectedColony.realRadius-value, 96)
+		c.world.selectedColony.realRadiusSqr = c.world.selectedColony.realRadius * c.world.selectedColony.realRadius
 	case specialBuildColony, specialBuildGunpoint:
 		// TODO: use a pathing.Grid to find a free cell?
 		stats := colonyCoreConstructionStats
@@ -316,7 +315,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		}
 		direction := c.world.rand.Rad()
 		for i := 0; i < 18; i++ {
-			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.selectedColony.pos)
+			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.world.selectedColony.pos)
 			direction += (2 * math.Pi) / 17
 			constructionPos := c.pickColonyPos(nil, locationProbe, size, 4)
 			if !constructionPos.IsZero() {
@@ -328,7 +327,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	}
 
 	if !relocationVec.IsZero() {
-		c.launchRelocation(c.selectedColony, relocationVec)
+		c.launchRelocation(c.world.selectedColony, relocationVec)
 	}
 }
 
@@ -350,17 +349,17 @@ func (c *Controller) pickColonyPos(core *colonyCoreNode, pos gmath.Vec, r float6
 }
 
 func (c *Controller) launchAttack() {
-	if c.selectedColony.agents.NumAvailableFighters() == 0 {
+	if c.world.selectedColony.agents.NumAvailableFighters() == 0 {
 		return
 	}
 	closeTargets := c.world.tmpTargetSlice[:0]
-	maxDist := gmath.ClampMin(c.selectedColony.PatrolRadius()*1.85, 320)
+	maxDist := gmath.ClampMin(c.world.selectedColony.PatrolRadius()*1.85, 320)
 	maxDist *= c.world.rand.FloatRange(0.95, 1.2)
 	for _, creep := range c.world.creeps {
 		if len(closeTargets) >= 5 {
 			break
 		}
-		if creep.pos.DistanceTo(c.selectedColony.pos) > maxDist {
+		if creep.pos.DistanceTo(c.world.selectedColony.pos) > maxDist {
 			continue
 		}
 		closeTargets = append(closeTargets, creep)
@@ -368,8 +367,8 @@ func (c *Controller) launchAttack() {
 	if len(closeTargets) == 0 {
 		return
 	}
-	maxDispatched := gmath.Clamp(int(float64(c.selectedColony.agents.NumAvailableFighters())*0.6), 1, 15)
-	c.selectedColony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
+	maxDispatched := gmath.Clamp(int(float64(c.world.selectedColony.agents.NumAvailableFighters())*0.6), 1, 15)
+	c.world.selectedColony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
 		target := gmath.RandElem(c.world.rand, closeTargets)
 		kind := gamedata.TargetGround
 		if target.IsFlying() {
@@ -548,7 +547,7 @@ func (c *Controller) handleInput() {
 			var closestColony *colonyCoreNode
 			closestDist := math.MaxFloat64
 			for _, colony := range c.world.colonies {
-				if colony == c.selectedColony {
+				if colony == c.world.selectedColony {
 					continue
 				}
 				dist := colony.pos.DistanceTo(clickPos)
@@ -630,8 +629,8 @@ func (c *Controller) Update(delta float64) {
 		}
 	}
 
-	c.choices.Enabled = c.selectedColony != nil &&
-		c.selectedColony.mode == colonyModeNormal
+	c.choices.Enabled = c.world.selectedColony != nil &&
+		c.world.selectedColony.mode == colonyModeNormal
 
 	// TODO: move somewhere else?
 	if c.config.GameMode == gamedata.ModeClassic {
@@ -644,7 +643,7 @@ func (c *Controller) Update(delta float64) {
 	c.handleInput()
 
 	if c.debugInfo != nil {
-		colony := c.selectedColony
+		colony := c.world.selectedColony
 		numDrones := 0
 		droneLimit := 0
 		if colony != nil {
@@ -666,46 +665,46 @@ func (c *Controller) leaveScene(controller ge.SceneController) {
 }
 
 func (c *Controller) selectColony(colony *colonyCoreNode) {
-	if c.selectedColony == colony {
+	if c.world.selectedColony == colony {
 		return
 	}
-	if c.selectedColony != nil {
+	if c.world.selectedColony != nil {
 		c.scene.Audio().PlaySound(assets.AudioBaseSelect)
-		c.selectedColony.EventDestroyed.Disconnect(c)
+		c.world.selectedColony.EventDestroyed.Disconnect(c)
 		if c.rpanel != nil {
-			c.selectedColony.EventPrioritiesChanged.Disconnect(c)
+			c.world.selectedColony.EventPrioritiesChanged.Disconnect(c)
 		}
 	}
-	c.selectedColony = colony
+	c.world.selectedColony = colony
 	c.choices.selectedColony = colony
 	if c.radar != nil {
-		c.radar.SetBase(c.selectedColony)
+		c.radar.SetBase(c.world.selectedColony)
 	}
 	if c.rpanel != nil {
-		c.rpanel.SetBase(c.selectedColony)
+		c.rpanel.SetBase(c.world.selectedColony)
 		c.rpanel.UpdateMetrics()
 	}
-	if c.selectedColony == nil {
+	if c.world.selectedColony == nil {
 		c.colonySelector.Visible = false
 		c.defeat()
 		return
 	}
-	c.selectedColony.EventDestroyed.Connect(c, func(_ *colonyCoreNode) {
+	c.world.selectedColony.EventDestroyed.Connect(c, func(_ *colonyCoreNode) {
 		c.selectNextColony(false)
 	})
 	if c.rpanel != nil {
-		c.selectedColony.EventPrioritiesChanged.Connect(c, func(_ *colonyCoreNode) {
+		c.world.selectedColony.EventPrioritiesChanged.Connect(c, func(_ *colonyCoreNode) {
 			c.rpanel.UpdateMetrics()
 		})
 	}
-	c.colonySelector.Pos.Base = &c.selectedColony.spritePos
+	c.colonySelector.Pos.Base = &c.world.selectedColony.spritePos
 }
 
 func (c *Controller) selectNextColony(center bool) {
 	colony := c.findNextColony()
 	c.selectColony(colony)
-	if center && c.selectedColony != nil {
-		c.camera.CenterOn(c.selectedColony.pos)
+	if center && c.world.selectedColony != nil {
+		c.camera.CenterOn(c.world.selectedColony.pos)
 	}
 }
 
@@ -716,7 +715,7 @@ func (c *Controller) findNextColony() *colonyCoreNode {
 	if len(c.world.colonies) == 1 {
 		return c.world.colonies[0]
 	}
-	index := xslices.Index(c.world.colonies, c.selectedColony)
+	index := xslices.Index(c.world.colonies, c.world.selectedColony)
 	if index == len(c.world.colonies)-1 {
 		index = 0
 	} else {

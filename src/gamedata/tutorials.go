@@ -41,8 +41,6 @@ var Tutorials = []*TutorialData{
 		Tier2Drones: []AgentMergeRecipe{
 			FindRecipe(ClonerAgentStats),
 			FindRecipe(FighterAgentStats),
-			FindRecipe(FreighterAgentStats),
-			FindRecipe(ServoAgentStats),
 		},
 		Objective:    ObjectiveTrigger,
 		ObjectiveKey: "objective.acquire_destroyer",

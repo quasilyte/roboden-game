@@ -7,6 +7,7 @@ type TutorialData struct {
 	Seed int64
 
 	Tier2Drones   []AgentMergeRecipe
+	ExtraDrones   []*AgentStats
 	NumEnemyBases int
 
 	CanBuildTurrets bool
@@ -19,22 +20,23 @@ type TutorialData struct {
 	Resources     int
 	WorldSize     int
 
-	Objective GameObjective
+	SecondBase bool
+
+	Objective    GameObjective
+	ObjectiveKey string
 }
 
 var Tutorials = []*TutorialData{
 	{
-		ID:            0,
-		ScoreReward:   200,
-		NumEnemyBases: 0,
-		Objective:     ObjectiveBuildBase,
-		Seed:          0xF0F1000 + 10,
+		ID:          0,
+		ScoreReward: 200,
+		Objective:   ObjectiveBuildBase,
+		Seed:        0xF0F1000 + 10,
 	},
 
 	{
 		ID:              1,
-		ScoreReward:     250,
-		NumEnemyBases:   0,
+		ScoreReward:     300,
 		CanChangeRadius: true,
 		Tier2Drones: []AgentMergeRecipe{
 			FindRecipe(ClonerAgentStats),
@@ -42,16 +44,22 @@ var Tutorials = []*TutorialData{
 			FindRecipe(FreighterAgentStats),
 			FindRecipe(ServoAgentStats),
 		},
-		Objective: ObjectiveAcquireDestroyer,
-		Seed:      0xF0F2000 + 9,
+		Objective:    ObjectiveTrigger,
+		ObjectiveKey: "objective.acquire_destroyer",
+		Seed:         0xF0F2000 + 9,
 	},
 
 	{
 		ID:              2,
-		ScoreReward:     400,
+		ScoreReward:     350,
+		Resources:       1,
 		NumEnemyBases:   1,
 		CanAttack:       true,
 		CanChangeRadius: true,
+		SecondBase:      true,
+		ExtraDrones: []*AgentStats{
+			DestroyerAgentStats,
+		},
 		Tier2Drones: []AgentMergeRecipe{
 			FindRecipe(ClonerAgentStats),
 			FindRecipe(FighterAgentStats),
@@ -60,7 +68,7 @@ var Tutorials = []*TutorialData{
 			FindRecipe(ServoAgentStats),
 		},
 		Objective: ObjectiveDestroyCreepBases,
-		Seed:      0xF0F3000 + 0,
+		Seed:      0xF0F3000 + 1,
 	},
 
 	{

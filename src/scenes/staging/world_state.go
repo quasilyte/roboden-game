@@ -27,7 +27,9 @@ type worldState struct {
 	tier2recipes     []gamedata.AgentMergeRecipe
 	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
 
-	debug bool
+	debug            bool
+	evolutionEnabled bool
+	movementEnabled  bool
 
 	width  float64
 	height float64
@@ -50,6 +52,9 @@ type worldState struct {
 }
 
 func (w *worldState) Init() {
+	w.evolutionEnabled = true
+	w.movementEnabled = true
+
 	factions := []gamedata.FactionTag{
 		gamedata.YellowFactionTag,
 		gamedata.RedFactionTag,

@@ -54,7 +54,12 @@ func (c *TutorialMenuController) initUI() {
 	descriptionText := func(id int) string {
 		data := gamedata.Tutorials[id]
 		description := d.Get("tutorial.description" + strconv.Itoa(id+1))
-		objective := fmt.Sprintf("%s: %s", d.Get("ui.mission_objective"), strings.ToLower(d.Get("objective", data.Objective.String())))
+		var objective string
+		if data.Objective != gamedata.ObjectiveTrigger {
+			objective = fmt.Sprintf("%s: %s", d.Get("ui.mission_objective"), strings.ToLower(d.Get("objective", data.Objective.String())))
+		} else {
+			objective = fmt.Sprintf("%s: %s", d.Get("ui.mission_objective"), strings.ToLower(d.Get(data.ObjectiveKey)))
+		}
 		rewardText := fmt.Sprintf("%s: %d", d.Get("tutorial.reward"), data.ScoreReward)
 		if xslices.Contains(c.state.Persistent.PlayerStats.TutorialsCompleted, id) {
 			rewardText += " (" + d.Get("tutorial.reward_claimed") + ")"
@@ -117,6 +122,8 @@ func (c *TutorialMenuController) initUI() {
 		c.config.CreepDifficulty = 0
 		c.config.BossDifficulty = 0
 		c.config.NumCreepBases = tutorial.NumEnemyBases
+		c.config.SecondBase = tutorial.SecondBase
+		c.config.ExtraDrones = tutorial.ExtraDrones
 		c.config.Seed = tutorial.Seed
 
 		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewTutorialMenuController(c.state)))

@@ -108,10 +108,14 @@ func (g *levelGenerator) fillPathgrid() {
 
 func (g *levelGenerator) placePlayers() {
 	g.playerSpawn = g.world.rect.Center()
-	g.createBase(g.playerSpawn)
+	g.createBase(g.playerSpawn, true)
+
+	if g.world.config.SecondBase {
+		g.createBase(g.playerSpawn.Add(gmath.Vec{X: 160, Y: 96}), false)
+	}
 }
 
-func (g *levelGenerator) createBase(pos gmath.Vec) {
+func (g *levelGenerator) createBase(pos gmath.Vec, mainBase bool) {
 	core := g.world.NewColonyCoreNode(colonyConfig{
 		World:  g.world,
 		Radius: 128,
@@ -133,6 +137,13 @@ func (g *levelGenerator) createBase(pos gmath.Vec) {
 		a := core.NewColonyAgentNode(gamedata.WorkerAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	}
+	if mainBase {
+		for _, stats := range g.world.config.ExtraDrones {
+			a := core.NewColonyAgentNode(stats, core.pos.Add(g.rng.Offset(-20, 20)))
+			g.scene.AddObject(a)
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		}
 	}
 }
 

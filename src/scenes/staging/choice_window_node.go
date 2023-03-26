@@ -200,19 +200,21 @@ type choiceWindowNode struct {
 	specialChoices       []choiceOption
 
 	config *session.LevelConfig
+	world  *worldState
 
 	cursor *cursorNode
 
 	EventChoiceSelected gsignal.Event[selectedChoice]
 }
 
-func newChoiceWindowNode(pos gmath.Vec, config *session.LevelConfig, h *input.Handler, cursor *cursorNode) *choiceWindowNode {
+func newChoiceWindowNode(pos gmath.Vec, world *worldState, h *input.Handler, cursor *cursorNode) *choiceWindowNode {
 	return &choiceWindowNode{
 		pos:           pos,
 		input:         h,
 		cursor:        cursor,
 		selectedIndex: -1,
-		config:        config,
+		config:        world.config,
+		world:         world,
 	}
 }
 
@@ -463,11 +465,13 @@ func (w *choiceWindowNode) HandleInput() {
 			}
 		}
 	}
-	if pos, ok := w.cursor.ClickPos(controls.ActionMoveChoice); ok {
-		globalClickPos := pos.Add(w.selectedColony.world.camera.Offset)
-		if globalClickPos.DistanceTo(w.selectedColony.pos) > 28 {
-			w.activateMoveChoice(globalClickPos)
-			return
+	if w.world.movementEnabled {
+		if pos, ok := w.cursor.ClickPos(controls.ActionMoveChoice); ok {
+			globalClickPos := pos.Add(w.selectedColony.world.camera.Offset)
+			if globalClickPos.DistanceTo(w.selectedColony.pos) > 28 {
+				w.activateMoveChoice(globalClickPos)
+				return
+			}
 		}
 	}
 	actions := [...]input.Action{

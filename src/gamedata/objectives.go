@@ -5,9 +5,9 @@ type GameObjective int
 const (
 	ObjectiveBoss GameObjective = iota
 	ObjectiveBuildBase
-	ObjectiveAcquireDestroyer
 	ObjectiveDestroyCreepBases
 	ObjectiveAcquireSuperElite
+	ObjectiveTrigger
 )
 
 func (o GameObjective) String() string {
@@ -16,8 +16,6 @@ func (o GameObjective) String() string {
 		return "boss"
 	case ObjectiveBuildBase:
 		return "build_base"
-	case ObjectiveAcquireDestroyer:
-		return "acquire_destroyer"
 	case ObjectiveDestroyCreepBases:
 		return "destroy_creep_bases"
 	case ObjectiveAcquireSuperElite:

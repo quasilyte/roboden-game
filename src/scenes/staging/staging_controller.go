@@ -213,7 +213,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		X: 960 - 232 - 16,
 		Y: 540 - 200 - 16,
 	}
-	c.choices = newChoiceWindowNode(choicesPos, &c.config, c.state.MainInput, c.cursor)
+	c.choices = newChoiceWindowNode(choicesPos, c.world, c.state.MainInput, c.cursor)
 	c.choices.EventChoiceSelected.Connect(nil, c.onChoiceSelected)
 
 	c.selectNextColony(true)
@@ -231,9 +231,21 @@ func (c *Controller) Init(scene *ge.Scene) {
 	if c.world.IsTutorial() {
 		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world)
 		scene.AddObject(c.tutorialManager)
+		if c.rpanel != nil {
+			c.tutorialManager.EventRequestPanelUpdate.Connect(c, c.onPanelUpdateRequested)
+		}
+		c.tutorialManager.EventTriggerVictory.Connect(c, c.onVictoryTrigger)
 	}
 
 	scene.AddObject(c.choices)
+}
+
+func (c *Controller) onPanelUpdateRequested(gsignal.Void) {
+	c.rpanel.UpdateMetrics()
+}
+
+func (c *Controller) onVictoryTrigger(gsignal.Void) {
+	c.victory()
 }
 
 func (c *Controller) onMenuButtonClicked(gsignal.Void) {
@@ -580,16 +592,6 @@ func (c *Controller) checkVictory() {
 		switch c.config.Tutorial.Objective {
 		case gamedata.ObjectiveBuildBase:
 			victory = len(c.world.colonies) >= 2
-		case gamedata.ObjectiveAcquireDestroyer:
-			for _, colony := range c.world.colonies {
-				destroyer := colony.agents.Find(searchFighters, func(a *colonyAgentNode) bool {
-					return a.stats.Kind == gamedata.AgentDestroyer
-				})
-				if destroyer != nil {
-					victory = true
-					break
-				}
-			}
 		case gamedata.ObjectiveDestroyCreepBases:
 			numBases := 0
 			for _, creep := range c.world.creeps {

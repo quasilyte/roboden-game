@@ -106,6 +106,13 @@ func (hint *tutorialHintNode) Update(delta float64) {
 	}
 }
 
+func (hint *tutorialHintNode) HideLines() {
+	if hint.targetLine != nil {
+		hint.targetLine.Visible = false
+		hint.targetLine2.Visible = false
+	}
+}
+
 func (hint *tutorialHintNode) IsDisposed() bool {
 	return hint.rect.IsDisposed()
 }

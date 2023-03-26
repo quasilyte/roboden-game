@@ -39,6 +39,7 @@ type battleResults struct {
 	ResourcesGathered      float64
 	EliteResourcesGathered float64
 	DronesProduced         int
+	DronesCloned           int
 	CreepsDefeated         int
 	CreepBasesDestroyed    int
 

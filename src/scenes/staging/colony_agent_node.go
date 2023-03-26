@@ -32,6 +32,7 @@ const (
 	agentModeStandby colonyAgentMode = iota
 	agentModeAlignStandby
 	agentModeCharging
+	agentModePosing
 	agentModeForcedCharging
 	agentModeMineEssence
 	agentModeCourierFlight
@@ -430,6 +431,12 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.waypoint = gmath.Vec{}
 		return true
 
+	case agentModePosing:
+		a.mode = mode
+		a.dist = 16 // idle time
+		a.waypoint = gmath.Vec{}
+		return true
+
 	case agentModeCourierFlight:
 		colony := target.(*colonyCoreNode)
 		energyCost := gmath.ClampMax(colony.pos.DistanceTo(a.pos)*0.33, 100)
@@ -606,6 +613,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateStandby(delta)
 	case agentModeAlignStandby:
 		a.updateAlignStandby(delta)
+	case agentModePosing:
+		a.updatePosing(delta)
 	case agentModeCharging:
 		a.updateCharging(delta)
 	case agentModeForcedCharging:
@@ -1375,6 +1384,7 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 		clone := a.colonyCore.CloneAgentNode(target)
 		a.scene.AddObject(clone)
 		clone.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		a.colonyCore.world.result.DronesCloned++
 		return
 	}
 }
@@ -1487,6 +1497,14 @@ func (a *colonyAgentNode) updateCharging(delta float64) {
 	a.energy = gmath.ClampMax(a.energy+delta*3.5*a.energyRegenRate, a.maxEnergy)
 	if a.energy >= a.maxEnergy*0.5 {
 		a.energyBill = 0
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	}
+}
+
+func (a *colonyAgentNode) updatePosing(delta float64) {
+	a.dist -= delta
+	if a.dist <= 0 {
+		a.dist = 0
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }

@@ -67,6 +67,9 @@ type LevelConfig struct {
 	BuildTurretActionAvailable bool
 	RadiusActionAvailable      bool
 
+	SecondBase  bool
+	ExtraDrones []*gamedata.AgentStats
+
 	EliteResources    bool
 	EnemyBoss         bool
 	InitialCreeps     int

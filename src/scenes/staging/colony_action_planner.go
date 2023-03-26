@@ -534,7 +534,7 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 
 func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 	// Maybe find merging candidates.
-	if p.world.rand.Chance(0.85) {
+	if p.world.evolutionEnabled && p.world.rand.Chance(0.85) {
 		action := p.tryMergingAction()
 		if action.Kind != actionNone {
 			return action

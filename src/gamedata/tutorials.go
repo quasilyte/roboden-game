@@ -73,7 +73,7 @@ var Tutorials = []*TutorialData{
 
 	{
 		ID:              3,
-		ScoreReward:     450,
+		ScoreReward:     400,
 		NumEnemyBases:   1,
 		WorldSize:       1,
 		Resources:       2,
@@ -95,7 +95,7 @@ var Tutorials = []*TutorialData{
 
 	{
 		ID:              4,
-		ScoreReward:     700,
+		ScoreReward:     650,
 		WorldSize:       1,
 		Resources:       2,
 		InitialCreeps:   1,

@@ -72,9 +72,6 @@ func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
 func (g *levelGenerator) fillPathgrid() {
 	p := g.world.pathgrid
 
-	numCols, numRows := p.Size()
-	fmt.Printf("pathgrid size: cols=%d rows=%d\n", numCols, numRows)
-
 	if pathing.CellSize != wallTileSize {
 		panic("update the pathgrid build algorithm")
 	}
@@ -140,7 +137,7 @@ func (g *levelGenerator) createBase(pos gmath.Vec, mainBase bool) {
 	}
 	if mainBase {
 		for _, stats := range g.world.config.ExtraDrones {
-			a := core.NewColonyAgentNode(stats, core.pos.Add(g.rng.Offset(-20, 20)))
+			a := core.NewColonyAgentNode(stats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
 			g.scene.AddObject(a)
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		}

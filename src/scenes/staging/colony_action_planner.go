@@ -141,7 +141,7 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	if p.colony.failedResource != nil {
 		p.colony.failedResourceTick++
-		if p.colony.failedResourceTick > 6 {
+		if p.colony.failedResourceTick > 4 {
 			p.colony.failedResource = nil
 		}
 	}

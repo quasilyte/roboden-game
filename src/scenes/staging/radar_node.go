@@ -81,12 +81,16 @@ func (r *radarNode) Init(scene *ge.Scene) {
 	scene.AddGraphicsAbove(r.bossSpot, 1)
 }
 
+func (r *radarNode) setBossVisibility(visible bool) {
+	r.bossSpot.Visible = visible
+	r.bossPath.Visible = visible
+}
+
 func (r *radarNode) Update(delta float64) {
 	r.sprite.Visible = r.colony != nil
 	r.wave.Visible = r.colony != nil
 	if r.bossSpot.Visible && r.colony == nil {
-		r.bossSpot.Visible = false
-		r.bossPath.Visible = false
+		r.setBossVisibility(false)
 	}
 	if r.colony == nil {
 		return
@@ -95,13 +99,13 @@ func (r *radarNode) Update(delta float64) {
 	r.direction += gmath.Rad(delta)
 
 	if r.world.boss == nil {
+		r.setBossVisibility(false)
 		return
 	}
 	radarScanDirection := (r.direction.Normalized() + 2*math.Pi)
 	bossDirection := r.colony.pos.AngleToPoint(r.world.boss.pos).Normalized() + 2*math.Pi
 	if radarScanDirection.AngleDelta2(bossDirection) < 0.1 && !r.bossSpot.Visible {
-		r.bossSpot.Visible = true
-		r.bossPath.Visible = true
+		r.setBossVisibility(true)
 		r.bossSpot.SetAlpha(1)
 	}
 	if !r.bossSpot.Visible {
@@ -110,8 +114,7 @@ func (r *radarNode) Update(delta float64) {
 	r.bossSpot.SetAlpha(r.bossSpot.GetAlpha() - float32(delta*0.15))
 	r.bossPath.SetAlpha(r.bossSpot.GetAlpha())
 	if r.bossSpot.GetAlpha() < 0.2 {
-		r.bossSpot.Visible = false
-		r.bossPath.Visible = false
+		r.setBossVisibility(false)
 		return
 	}
 	bossDist := r.world.boss.pos.DistanceTo(r.colony.pos)

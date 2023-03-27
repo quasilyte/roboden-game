@@ -203,18 +203,61 @@ You acquired a repairbot!
 As the name suggests, repairbots will
 restore the damaged drones.
 
-##tutorial.title4 : Tutorial 4 - Elite Drones
+##tutorial.title4 : Tutorial 4 - The Final Challenge
 ##tutorial.description4
 Learning topics:
 
-> Red crystals gathering
-> Red oil gathering
+> Red crystals and oil gathering
 > Elite drones production
-
-##tutorial.title5 : Tutorial 5 - Advanced Combat
-##tutorial.description5
-Learning topics:
-
 > Radar
-> Avoiding the enemy colony
-> Defeating the enemy colony
+> Avoiding and defeating the enemy colony
+##tutorial4.locate_boss
+Welcome to your final tutorial mission.
+This time, it's as close to the actual
+classic game mode as it gets.
+There is an enemy colony on this map.
+Locate it by following the marker.
+##tutorial4.radar
+Have you noticed the radar in the
+bottom-left corner of the screen?
+It can be used to locate the enemy colony
+and predict its movement.
+##tutorial4.boss_warning
+You should never face the enemy colony
+face-to-face unless you're prepared
+for an ultimate clash.
+Use your radar to move out of its way
+if you're not ready yet to battle it.
+##tutorial4.red_crystals
+Let's utilize a new resource type.
+The red crystals allow your base
+to produce elite drones.
+Collect some to see it for yourself.
+##tutorial4.elite_drone
+This is an elite drone.
+It has most of its base stats improved.
+The red crystals are accessible, but
+they're not the best source of elites.
+##tutorial4.red_miner_request
+In order to show you a better way,
+we'll need to produce a new drone.
+Combine a yellow and red worker
+to get it.
+##tutorial4.red_miner_done
+You acquired a red miner!
+This is the only drone that can
+harvest the red oil resource.
+##tutorial4.red_oil
+To make use of that red miner,
+get closer to the red oil source.
+The red oil is superior to the red
+crystals due to its vast capacity.
+##tutorial4.final_goal
+Continue to evolve your base
+and perhaps build a second one
+if you haven't yet.
+Your end goal of this mission
+is to defeat the enemy colony!
+##tutorial4.hint_superelite
+When two elite drones combine,
+a super elite can emerge.

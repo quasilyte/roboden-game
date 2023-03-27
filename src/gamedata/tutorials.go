@@ -71,37 +71,18 @@ var Tutorials = []*TutorialData{
 
 	{
 		ID:              3,
-		ScoreReward:     400,
-		NumEnemyBases:   1,
-		WorldSize:       1,
-		Resources:       2,
-		RedCrystals:     true,
-		CanChangeRadius: true,
-		CanAttack:       true,
-		Tier2Drones: []AgentMergeRecipe{
-			FindRecipe(ClonerAgentStats),
-			FindRecipe(FighterAgentStats),
-			FindRecipe(RepairAgentStats),
-			FindRecipe(FreighterAgentStats),
-			FindRecipe(CripplerAgentStats),
-			FindRecipe(RedminerAgentStats),
-			FindRecipe(ServoAgentStats),
-		},
-		Objective: ObjectiveAcquireSuperElite,
-		Seed:      0xF0F4000 + 1,
-	},
-
-	{
-		ID:              4,
 		ScoreReward:     650,
 		WorldSize:       1,
 		Resources:       2,
 		InitialCreeps:   1,
-		RedCrystals:     true,
 		Boss:            true,
+		RedCrystals:     true,
 		CanChangeRadius: true,
 		CanAttack:       true,
 		CanBuildTurrets: true,
+		ExtraDrones: []*AgentStats{
+			ServoAgentStats,
+		},
 		Tier2Drones: []AgentMergeRecipe{
 			FindRecipe(ClonerAgentStats),
 			FindRecipe(FighterAgentStats),
@@ -112,6 +93,6 @@ var Tutorials = []*TutorialData{
 			FindRecipe(ServoAgentStats),
 		},
 		Objective: ObjectiveBoss,
-		Seed:      0xF0F5000 + 3,
+		Seed:      0xF0F5000 + 4,
 	},
 }

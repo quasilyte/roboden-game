@@ -1,6 +1,8 @@
 package staging
 
 import (
+	"math"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
@@ -36,11 +38,13 @@ type tutorialManager struct {
 	tutorialStep int
 	drone        *colonyAgentNode
 	creep        *creepNode
+	resource     *essenceSourceNode
 	stepTicks    int
 
 	explainedServoBots     bool
 	explainedRepairBots    bool
 	explainedFreighterBots bool
+	explainedSuperElites   bool
 
 	hint      *tutorialHintNode
 	timedHint *tutorialHintNode
@@ -82,10 +86,6 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 
 		{
 			updateFunc: m.updateTutorial4,
-		},
-
-		{
-			updateFunc: m.updateTutorial5,
 		},
 	}
 
@@ -665,5 +665,161 @@ func (m *tutorialManager) updateTutorial3() bool {
 	return false
 }
 
-func (m *tutorialManager) updateTutorial4() bool { return false }
-func (m *tutorialManager) updateTutorial5() bool { return false }
+func (m *tutorialManager) updateTutorial4() bool {
+	if !m.explainedSuperElites && m.timedHint == nil {
+		superElite := m.findDrone(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
+			return a.rank == 2
+		})
+		if superElite != nil {
+			m.explainDrone(superElite, "tutorial4.hint_superelite")
+			m.explainedSuperElites = true
+		}
+	}
+
+	switch m.tutorialStep {
+	case 0:
+		s := m.scene.Dict().Get("tutorial4.locate_boss")
+		targetPos := ge.Pos{Base: &m.world.boss.pos}
+		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.hint.trackedObject = m.world.boss
+		m.scene.AddObject(m.hint)
+		return true
+	case 1:
+		targetPos := ge.Pos{Base: &m.world.boss.pos}
+		cameraCenter := m.world.camera.Offset.Add(m.world.camera.Rect.Center())
+		if targetPos.Resolve().DistanceSquaredTo(cameraCenter) <= (280 * 280) {
+			return true
+		}
+	case 2:
+		s := m.scene.Dict().Get("tutorial4.radar")
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, gmath.Vec{}, s)
+		m.scene.AddObject(m.hint)
+		m.stepTicks = 6
+		return true
+	case 3:
+		return m.stepTicks == 0
+	case 4:
+		s := m.scene.Dict().Get("tutorial4.boss_warning")
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, gmath.Vec{}, s)
+		m.scene.AddObject(m.hint)
+		m.stepTicks = 6
+		return true
+	case 5:
+		return m.stepTicks == 0
+	case 6:
+		var redCrystal *essenceSourceNode
+		closestDist := math.MaxFloat64
+		for _, e := range m.world.essenceSources {
+			if e.stats != redCrystalSource {
+				continue
+
+			}
+			dist := e.pos.DistanceSquaredTo(m.world.colonies[0].pos)
+			if dist < closestDist {
+				closestDist = dist
+				redCrystal = e
+			}
+		}
+		s := m.scene.Dict().Get("tutorial4.red_crystals")
+		targetPos := ge.Pos{Base: &redCrystal.pos, Offset: gmath.Vec{Y: -4}}
+		m.resource = redCrystal
+		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.hint.trackedObject = redCrystal
+		m.scene.AddObject(m.hint)
+		return true
+	case 7:
+		return m.resource.IsDisposed()
+	case 8:
+		for _, colony := range m.world.colonies {
+			elite := colony.agents.Find(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
+				return a.rank > 0
+			})
+			if elite != nil {
+				m.drone = elite
+				return true
+			}
+		}
+	case 9:
+		s := m.scene.Dict().Get("tutorial4.elite_drone")
+		targetPos := ge.Pos{Base: &m.drone.spritePos, Offset: gmath.Vec{Y: -6}}
+		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.hint.trackedObject = m.drone
+		m.scene.AddObject(m.hint)
+		m.stepTicks = 6
+		return true
+	case 10:
+		return m.stepTicks == 0
+	case 11:
+		s := m.scene.Dict().Get("tutorial4.red_miner_request")
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, gmath.Vec{}, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 12:
+		for _, colony := range m.world.colonies {
+			redminer := colony.agents.Find(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
+				return a.stats.Kind == gamedata.AgentRedminer
+			})
+			if redminer != nil {
+				m.drone = redminer
+				return true
+			}
+		}
+	case 13:
+		s := m.scene.Dict().Get("tutorial4.red_miner_done")
+		targetPos := ge.Pos{Base: &m.drone.spritePos}
+		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.hint.trackedObject = m.drone
+		m.scene.AddObject(m.hint)
+		m.stepTicks = 6
+		return true
+	case 14:
+		return m.stepTicks == 0
+	case 15:
+		var redOil *essenceSourceNode
+		closestDist := math.MaxFloat64
+		for _, e := range m.world.essenceSources {
+			if e.stats != redOilSource {
+				continue
+
+			}
+			dist := e.pos.DistanceSquaredTo(m.world.colonies[0].pos)
+			if dist < closestDist {
+				closestDist = dist
+				redOil = e
+			}
+		}
+		s := m.scene.Dict().Get("tutorial4.red_oil")
+		targetPos := ge.Pos{Base: &redOil.pos}
+		m.resource = redOil
+		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, targetPos, s)
+		m.hint.trackedObject = redOil
+		m.scene.AddObject(m.hint)
+		m.stepTicks = 14
+		return true
+	case 16:
+		return m.stepTicks == 0 ||
+			(m.stepTicks < 8 && m.world.colonies[0].pos.DistanceSquaredTo(m.resource.pos) <= (280*280))
+	case 17:
+		s := m.scene.Dict().Get("tutorial4.final_goal")
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 14, Y: 160}, gmath.Vec{}, s)
+		m.scene.AddObject(m.hint)
+		m.stepTicks = 12
+		return true
+	case 18:
+		return m.stepTicks == 0
+	}
+
+	return false
+}
+
+func (m *tutorialManager) findDrone(flags agentSearchFlags, f func(a *colonyAgentNode) bool) *colonyAgentNode {
+	for _, colony := range m.world.colonies {
+		drone := colony.agents.Find(flags, func(a *colonyAgentNode) bool {
+			return a.rank > 0
+		})
+		if drone != nil {
+			return drone
+		}
+	}
+	return nil
+}

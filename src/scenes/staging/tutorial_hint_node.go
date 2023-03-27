@@ -113,9 +113,7 @@ func (hint *tutorialHintNode) Update(delta float64) {
 		} else {
 			endPos = hint.targetPos.Resolve()
 		}
-		if endPos.X > (hint.camera.Offset.X + hint.pos.X + hint.width/2) {
-			beginPos.X += hint.width
-		}
+		beginPos.X += hint.width
 
 		hint.targetLine.BeginPos = ge.Pos{Offset: beginPos}
 		hint.targetLine.EndPos = ge.Pos{Offset: endPos}

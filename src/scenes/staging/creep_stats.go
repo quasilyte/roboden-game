@@ -35,7 +35,7 @@ var turretCreepStats = &creepStats{
 	kind:      creepTurret,
 	image:     assets.ImageTurretCreep,
 	speed:     0,
-	maxHealth: 95,
+	maxHealth: 100,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
@@ -57,7 +57,7 @@ var baseCreepStats = &creepStats{
 	kind:      creepBase,
 	image:     assets.ImageCreepBase,
 	speed:     0,
-	maxHealth: 120,
+	maxHealth: 150,
 	size:      60,
 }
 

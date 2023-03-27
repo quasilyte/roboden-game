@@ -589,6 +589,8 @@ func (c *Controller) checkVictory() {
 
 	case gamedata.ModeTutorial:
 		switch c.config.Tutorial.Objective {
+		case gamedata.ObjectiveBoss:
+			victory = c.world.boss == nil
 		case gamedata.ObjectiveBuildBase:
 			victory = len(c.world.colonies) >= 2
 		case gamedata.ObjectiveDestroyCreepBases:

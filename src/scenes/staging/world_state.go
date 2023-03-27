@@ -88,8 +88,8 @@ func (w *worldState) Init() {
 		}
 	}
 
-	w.creepHealthMultiplier = 1.0 + (float64(w.config.CreepDifficulty-1) * 0.20)
-	w.bossHealthMultiplier = 1.0 + (float64(w.config.BossDifficulty-1) * 0.15)
+	w.creepHealthMultiplier = 0.80 + (float64(w.config.CreepDifficulty) * 0.20)
+	w.bossHealthMultiplier = 0.75 + (float64(w.config.BossDifficulty) * 0.25)
 }
 
 func (w *worldState) IsTutorial() bool {

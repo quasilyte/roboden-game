@@ -41,6 +41,9 @@ type tutorialManager struct {
 	resource     *essenceSourceNode
 	stepTicks    int
 
+	explainedResourcePool  bool
+	explainedWorker        bool
+	explainedMilitia       bool
 	explainedServoBots     bool
 	explainedRepairBots    bool
 	explainedFreighterBots bool
@@ -103,6 +106,9 @@ func (m *tutorialManager) Update(delta float64) {
 	if m.creep != nil && m.creep.IsDisposed() {
 		m.creep = nil
 	}
+	if m.timedHint != nil && m.timedHint.IsDisposed() {
+		m.timedHint = nil
+	}
 
 	m.updateDelay = gmath.ClampMin(m.updateDelay-delta, 0)
 	if m.updateDelay != 0 {
@@ -136,126 +142,162 @@ func (m *tutorialManager) OnChoice(choice selectedChoice) {
 }
 
 func (m *tutorialManager) updateTutorial1() bool {
+	if !m.explainedResourcePool && m.world.colonies[0].resources > 100 && m.timedHint == nil {
+		m.explainedResourcePool = true
+		s := m.scene.Dict().Get("tutorial1.resource_bar")
+		targetPos := ge.Pos{Base: &m.world.colonies[0].spritePos, Offset: gmath.Vec{X: -3, Y: 18}}
+		m.timedHint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 148}, targetPos, s)
+		m.timedHint.trackedObject = m.world.colonies[0]
+		m.timedHint.timed = true
+		m.timedHint.time = 18
+		m.scene.AddObject(m.timedHint)
+	}
+	if !m.explainedWorker && m.timedHint == nil && m.tutorialStep >= 19 {
+		worker := m.findDrone(searchWorkers, func(a *colonyAgentNode) bool {
+			return a.stats.Kind == gamedata.AgentWorker
+		})
+		if worker != nil {
+			m.explainDrone(worker, "tutorial1.hint_worker")
+			m.explainedWorker = true
+		}
+	}
+	if !m.explainedMilitia && m.timedHint == nil && m.tutorialStep >= 19 {
+		militia := m.findDrone(searchFighters, func(a *colonyAgentNode) bool {
+			return a.stats.Kind == gamedata.AgentMilitia
+		})
+		if militia != nil {
+			m.explainDrone(militia, "tutorial1.hint_militia")
+			m.explainedMilitia = true
+		}
+	}
+
 	switch m.tutorialStep {
 	case 0:
 		s := m.scene.Dict().Get("tutorial1.your_colony")
 		targetPos := ge.Pos{Base: &m.world.colonies[0].spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
+		m.stepTicks = 4
 		return true
 	case 1:
-		if m.choice.Option.special == specialChoiceMoveColony {
-			return true
-		}
+		return m.stepTicks == 0
 	case 2:
-		return !m.world.colonies[0].IsFlying()
-	case 3:
 		// Explain the action cards.
 		s := m.scene.Dict().Get("tutorial1.action_cards", m.inputMode)
 		targetPos := gmath.Vec{X: 812, Y: 50}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
-	case 4:
+	case 3:
 		ok := (m.choice.Option.special != specialChoiceNone && m.choice.Option.special != specialChoiceMoveColony) ||
 			(m.choice.Option.special == specialChoiceNone && len(m.choice.Option.effects) != 0)
 		if ok {
 			return true
 		}
-	case 5:
+	case 4:
 		// Explain the resources priority.
 		s := m.scene.Dict().Get("tutorial1.resources_priority")
 		targetPos := gmath.Vec{X: 812 + (36 * 0), Y: 516}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
-	case 6:
+	case 5:
 		for _, effect := range m.choice.Option.effects {
 			if effect.priority == priorityResources {
 				return true
 			}
 		}
-	case 7:
+	case 6:
 		// Explain the growth priority.
 		s := m.scene.Dict().Get("tutorial1.growth_priority")
 		targetPos := gmath.Vec{X: 812 + (36 * 1), Y: 516}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
-	case 8:
+	case 7:
 		for _, effect := range m.choice.Option.effects {
 			if effect.priority == priorityGrowth {
 				return true
 			}
 		}
-	case 9:
+	case 8:
 		// Explain the evolution priority.
 		s := m.scene.Dict().Get("tutorial1.evolution_priority")
 		targetPos := gmath.Vec{X: 812 + (36 * 2), Y: 516}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
-	case 10:
+	case 9:
 		for _, effect := range m.choice.Option.effects {
 			if effect.priority == priorityEvolution {
 				return true
 			}
 		}
-	case 11:
+	case 10:
 		// Explain the security priority.
 		s := m.scene.Dict().Get("tutorial1.security_priority")
 		targetPos := gmath.Vec{X: 812 + (36 * 3), Y: 516}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
-	case 12:
+	case 11:
 		for _, effect := range m.choice.Option.effects {
 			if effect.priority == prioritySecurity {
 				return true
 			}
 		}
-	case 13:
+	case 12:
 		s := m.scene.Dict().Get("tutorial1.camera", m.inputMode)
 		targetPos := ge.Pos{Offset: gmath.Vec{X: 1540, Y: 420}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
-	case 14:
+	case 13:
 		targetPos := ge.Pos{Offset: gmath.Vec{X: 1540, Y: 420}}
 		cameraCenter := m.world.camera.Offset.Add(m.world.camera.Rect.Center())
 		if targetPos.Resolve().DistanceSquaredTo(cameraCenter) <= (280 * 280) {
 			return true
 		}
-	case 15:
-		s := m.scene.Dict().Get("tutorial1.fill_resources")
-		targetPos := ge.Pos{Base: &m.world.colonies[0].spritePos, Offset: gmath.Vec{X: -3, Y: 10}}
-		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
+	case 14:
+		s := m.scene.Dict().Get("tutorial1.move", m.inputMode)
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
 		m.scene.AddObject(m.hint)
 		return true
-	case 16:
-		if m.world.colonies[0].resources > (maxVisualResources * 0.5) {
+	case 15:
+		if m.choice.Option.special == specialChoiceMoveColony {
 			return true
 		}
+	case 16:
+		return !m.world.colonies[0].IsFlying()
 	case 17:
-		s := m.scene.Dict().Get("tutorial1.build_action")
+		s := m.scene.Dict().Get("tutorial1.fill_resources")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
 		m.scene.AddObject(m.hint)
 		return true
 	case 18:
-		if len(m.world.constructions) != 0 {
+		if m.world.colonies[0].resources > (maxVisualResources * 0.5) {
 			return true
 		}
 	case 19:
+		s := m.scene.Dict().Get("tutorial1.build_action")
+		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
+		m.scene.AddObject(m.hint)
+		return true
+	case 20:
+		if len(m.world.constructions) != 0 {
+			return true
+		}
+	case 21:
 		s := m.scene.Dict().Get("tutorial1.base_construction")
 		targetPos := ge.Pos{Base: &m.world.constructions[0].pos, Offset: gmath.Vec{Y: 14}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
-	case 20:
+	case 22:
 		if len(m.world.constructions) == 0 || m.world.constructions[0].progress >= 0.2 {
 			return true
 		}
-	case 21:
+	case 23:
 		s := m.scene.Dict().Get("tutorial1.finish_construction")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
 		m.scene.AddObject(m.hint)
@@ -524,7 +566,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 
 func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
 	s := m.scene.Dict().Get(textKey)
-	targetPos := ge.Pos{Base: &drone.spritePos}
+	targetPos := ge.Pos{Base: &drone.spritePos, Offset: gmath.Vec{Y: -4}}
 	m.timedHint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 148}, targetPos, s)
 	m.timedHint.trackedObject = drone
 	m.timedHint.timed = true
@@ -533,10 +575,6 @@ func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
 }
 
 func (m *tutorialManager) updateTutorial3() bool {
-	if m.timedHint != nil && m.timedHint.IsDisposed() {
-		m.timedHint = nil
-	}
-
 	var freighter *colonyAgentNode
 	var servoBot *colonyAgentNode
 	var repairBot *colonyAgentNode
@@ -814,9 +852,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 
 func (m *tutorialManager) findDrone(flags agentSearchFlags, f func(a *colonyAgentNode) bool) *colonyAgentNode {
 	for _, colony := range m.world.colonies {
-		drone := colony.agents.Find(flags, func(a *colonyAgentNode) bool {
-			return a.rank > 0
-		})
+		drone := colony.agents.Find(flags, f)
 		if drone != nil {
 			return drone
 		}

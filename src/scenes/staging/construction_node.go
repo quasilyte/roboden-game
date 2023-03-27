@@ -159,7 +159,7 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 	case constructBase:
 		core := c.world.NewColonyCoreNode(colonyConfig{
 			World:  c.world,
-			Radius: 96,
+			Radius: 128,
 			Pos:    c.pos,
 		})
 		core.resources = 40

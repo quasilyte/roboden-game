@@ -15,17 +15,17 @@ Learning topics:
 ##tutorial1.your_colony
 This is your colony, it's quite autonomous.
 It operates according to its priorities.
-Try moving it by using a right click
-on the destination.
+Drones are its flesh and blood.
+They gather resources, defend it, evolve
+and circle around all the time!
 ##tutorial1.action_cards.keyboard
 You can change the selected colony priorities
-by choosing one of the behavior cards.
+by choosing one of the action cards.
 Try activating them. You can use a left mouse click
 on them or press a hotkey: 1-5 or Q-T.
 ##tutorial1.resources_priority
 The resources priority makes your colony
 workers gather resources more often.
-Building a base requires a bunch of resources.
 Try increasing it by choosing an appropriate card.
 ##tutorial1.growth_priority
 The growth priority affects drones production
@@ -45,10 +45,15 @@ Try increasing it by choosing an appropriate card.
 You can pan the camera by using the arrow keys.
 The mouse scrolling works near the camera edges
 or when you're holding the middle mouse button.
-Locate the best resource stash on this map.
+Locate a resource stash by following a marker.
+##tutorial1.move.keyboard
+In order to move, do a right mouse click
+on a destination spot.
+The colony will fly towards the spot,
+but its max jump distance is limited.
 ##tutorial1.fill_resources
-The yellow bar on your colony is a resource pool.
-Try to fill it above the middle.
+Fill your colony resource pool
+above the middle.
 Keep in mind that your colony needs
 to be close to the resources to collect them.
 ##tutorial1.build_action
@@ -62,6 +67,18 @@ complete the construction.
 ##tutorial1.finish_construction
 To complete this mission, finish the
 construction of a new colony.
+##tutorial1.resource_bar
+The yellow bar on your colony
+is a resource pool. It's full if
+all three segments are filled.
+##tutorial1.hint_worker
+This is a tier 1 worker drone.
+It performs most of the basic tasks,
+like resource gathering.
+##tutorial1.hint_militia
+This is a tier 1 combat drone,
+a scout model. It will defend the
+base against any attackers.
 
 ##tutorial.title2 : Tutorial 2 - Factions and Evolution
 ##tutorial.description2

@@ -49,7 +49,10 @@ func (r *radarNode) Init(scene *ge.Scene) {
 	r.scene = scene
 
 	r.sprite = scene.NewSprite(assets.ImageRadar)
-	r.sprite.Pos.Base = &r.pos
+	r.sprite.Pos.Offset = gmath.Vec{
+		X: 8 + r.sprite.ImageWidth()/2,
+		Y: 1080/2 - (8 + r.sprite.ImageHeight()/2),
+	}
 	scene.AddGraphicsAbove(r.sprite, 1)
 
 	r.radius = 55.0
@@ -57,10 +60,10 @@ func (r *radarNode) Init(scene *ge.Scene) {
 	r.nearDistPixels = r.radius - 1
 	r.scaleRatio = r.nearDistPixels / r.nearDist
 
-	r.pos = gmath.Vec{
-		X: 8 + r.sprite.ImageWidth()/2,
-		Y: 8 + r.sprite.ImageHeight()/2,
-	}
+	r.pos = (gmath.Vec{X: 67, Y: 83}).Add(gmath.Vec{
+		X: 8,
+		Y: 1080/2 - r.sprite.ImageHeight() - 8,
+	})
 
 	r.wave = scene.NewSprite(assets.ImageRadarWave)
 	r.wave.Pos.Base = &r.pos

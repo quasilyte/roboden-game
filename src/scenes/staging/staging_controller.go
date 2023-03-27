@@ -17,7 +17,6 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
-	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/viewport"
@@ -33,11 +32,11 @@ type Controller struct {
 
 	startTime time.Time
 
-	colonySelector *ge.Sprite
-	radar          *radarNode
-	rpanel         *rpanelNode
-	menuButton     *gameui.TextureButton
-	toggleButton   *gameui.TextureButton
+	colonySelector   *ge.Sprite
+	radar            *radarNode
+	rpanel           *rpanelNode
+	menuButtonRect   gmath.Rect
+	toggleButtonRect gmath.Rect
 
 	scene  *ge.Scene
 	world  *worldState
@@ -180,25 +179,16 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.cursor = newCursorNode(c.state.MainInput, c.camera.Rect)
 
-	menuButtonOffset := gmath.Vec{X: 76, Y: 12}
-	if !c.config.EnemyBoss {
-		menuButtonOffset.X = 58
-	}
-	c.menuButton = gameui.NewTextureButton(ge.Pos{Offset: menuButtonOffset}, assets.ImageButtonMenu, c.cursor)
-	c.menuButton.EventClicked.Connect(c, c.onMenuButtonClicked)
-	scene.AddObject(c.menuButton)
-
-	toggleButtonOffset := gmath.Vec{X: 12, Y: 76}
-	if !c.config.EnemyBoss {
-		toggleButtonOffset.Y = 58
-	}
-	c.toggleButton = gameui.NewTextureButton(ge.Pos{Offset: toggleButtonOffset}, assets.ImageButtonBaseToggle, c.cursor)
-	c.toggleButton.EventClicked.Connect(c, c.onToggleButtonClicked)
-	scene.AddObject(c.toggleButton)
-
 	if c.config.EnemyBoss {
 		c.radar = newRadarNode(c.world)
 		scene.AddObject(c.radar)
+
+		buttonSize := gmath.Vec{X: 32, Y: 36}
+		toggleButtonOffset := gmath.Vec{X: 155, Y: 491}
+		c.toggleButtonRect = gmath.Rect{Min: toggleButtonOffset, Max: toggleButtonOffset.Add(buttonSize)}
+
+		menuButtonOffset := gmath.Vec{X: 211, Y: 491}
+		c.menuButtonRect = gmath.Rect{Min: menuButtonOffset, Max: menuButtonOffset.Add(buttonSize)}
 	}
 
 	if c.config.ExtraUI {
@@ -247,11 +237,11 @@ func (c *Controller) onVictoryTrigger(gsignal.Void) {
 	c.victory()
 }
 
-func (c *Controller) onMenuButtonClicked(gsignal.Void) {
+func (c *Controller) onMenuButtonClicked() {
 	c.leaveScene(c.backController)
 }
 
-func (c *Controller) onToggleButtonClicked(gsignal.Void) {
+func (c *Controller) onToggleButtonClicked() {
 	c.selectNextColony(true)
 }
 
@@ -428,8 +418,6 @@ func (c *Controller) defeat() {
 	if c.transitionQueued {
 		return
 	}
-	c.menuButton.SetVisibility(false)
-	c.toggleButton.SetVisibility(false)
 
 	c.transitionQueued = true
 	c.scene.DelayedCall(2.0, func() {
@@ -529,17 +517,20 @@ func (c *Controller) handleInput() {
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionBack) {
-		c.onMenuButtonClicked(gsignal.Void{})
+		c.onMenuButtonClicked()
+		return
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionToggleColony) {
-		c.onToggleButtonClicked(gsignal.Void{})
+		c.onToggleButtonClicked()
+		return
 	}
 
 	handledClick := false
+	clickPos, hasClick := c.cursor.ClickPos(controls.ActionClick)
 	if len(c.world.colonies) > 1 {
-		if pos, ok := c.cursor.ClickPos(controls.ActionClick); ok {
-			clickPos := pos.Add(c.camera.Offset)
+		if hasClick {
+			clickPos := clickPos.Add(c.camera.Offset)
 			selectDist := 40.0
 			if c.state.Device.IsMobile {
 				selectDist = 80.0
@@ -568,10 +559,12 @@ func (c *Controller) handleInput() {
 	if handledClick {
 		return
 	}
-	if c.menuButton.HandleInput(controls.ActionClick) {
+	if c.menuButtonRect.Contains(clickPos) {
+		c.onMenuButtonClicked()
 		return
 	}
-	if c.toggleButton.HandleInput(controls.ActionClick) {
+	if c.toggleButtonRect.Contains(clickPos) {
+		c.onToggleButtonClicked()
 		return
 	}
 	c.choices.HandleInput()

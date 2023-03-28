@@ -48,7 +48,6 @@ type colonyCoreNode struct {
 	hatch        *ge.Sprite
 	flyingSprite *ge.Sprite
 	shadow       *ge.Sprite
-	upkeepBar    *ge.Sprite
 	evoDiode     *ge.Sprite
 
 	scene *ge.Scene
@@ -169,14 +168,6 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.evoDiode.Pos.Base = &c.spritePos
 	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
 	c.world.camera.AddSprite(c.evoDiode)
-
-	c.upkeepBar = scene.NewSprite(assets.ImageUpkeepBar)
-	c.upkeepBar.Pos.Base = &c.spritePos
-	c.upkeepBar.Pos.Offset.Y = -5
-	c.upkeepBar.Pos.Offset.X = -c.upkeepBar.ImageWidth() * 0.5
-	c.upkeepBar.Centered = false
-	c.world.camera.AddSprite(c.upkeepBar)
-	c.updateUpkeepBar(0)
 
 	if c.world.graphicsSettings.ShadowsEnabled {
 		c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
@@ -350,7 +341,6 @@ func (c *colonyCoreNode) Dispose() {
 	if c.shadow != nil {
 		c.shadow.Dispose()
 	}
-	c.upkeepBar.Dispose()
 	c.evoDiode.Dispose()
 	for _, rect := range c.resourceRects {
 		rect.Dispose()
@@ -419,12 +409,6 @@ func (c *colonyCoreNode) updateEvoDiode() {
 		offset = c.evoDiode.FrameWidth * 1
 	}
 	c.evoDiode.FrameOffset.X = offset
-}
-
-func (c *colonyCoreNode) updateUpkeepBar(upkeepValue int) {
-	upkeepValue = gmath.Clamp(upkeepValue, 0, maxUpkeepValue)
-	percentage := float64(upkeepValue) / float64(maxUpkeepValue)
-	c.upkeepBar.FrameWidth = c.upkeepBar.ImageWidth() * percentage
 }
 
 func (c *colonyCoreNode) updateResourceRects() {
@@ -521,8 +505,7 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 	}
 	c.eliteResources = gmath.ClampMax(c.eliteResources, 10)
 	c.upkeepDelay = c.scene.Rand().FloatRange(6.5, 8.5)
-	upkeepPrice, upkeepValue := c.calcUpkeed()
-	c.updateUpkeepBar(upkeepValue)
+	upkeepPrice, _ := c.calcUpkeed()
 	if c.resources < upkeepPrice {
 		c.AddPriority(priorityResources, 0.04)
 		c.resources = 0
@@ -556,7 +539,6 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.flashComponent.sprite = c.flyingSprite
 	c.sprite.Visible = false
 	c.hatch.Visible = false
-	c.upkeepBar.Visible = false
 	c.evoDiode.Visible = false
 	c.waypoint = c.pos.Sub(gmath.Vec{Y: coreFlightHeight})
 }
@@ -589,7 +571,6 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		}
 		c.sprite.Visible = true
 		c.hatch.Visible = true
-		c.upkeepBar.Visible = true
 		c.evoDiode.Visible = true
 		playSound(c.scene, c.world.camera, assets.AudioColonyLanded, c.pos)
 	}

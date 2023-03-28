@@ -44,11 +44,13 @@ var pixelsPerResourceRect = []float64{
 }
 
 type colonyCoreNode struct {
-	sprite       *ge.Sprite
-	hatch        *ge.Sprite
-	flyingSprite *ge.Sprite
-	shadow       *ge.Sprite
-	evoDiode     *ge.Sprite
+	sprite              *ge.Sprite
+	hatch               *ge.Sprite
+	flyingSprite        *ge.Sprite
+	shadow              *ge.Sprite
+	evoDiode            *ge.Sprite
+	resourceRects       []*ge.Rect
+	flyingResourceRects []*ge.Rect
 
 	scene *ge.Scene
 
@@ -90,8 +92,6 @@ type colonyCoreNode struct {
 
 	failedResource     *essenceSourceNode
 	failedResourceTick int
-
-	resourceRects []*ge.Rect
 
 	factionTagPicker *gmath.RandPicker[gamedata.FactionTag]
 
@@ -177,17 +177,27 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	}
 
 	c.resourceRects = make([]*ge.Rect, 3)
-	for i := range c.resourceRects {
-		rect := ge.NewRect(scene.Context(), 6, pixelsPerResourceRect[i])
-		rect.Centered = false
-		cscale := 0.6 + (0.2 * float64(i))
-		rect.FillColorScale.SetRGBA(uint8(float64(0xd6)*cscale), uint8(float64(0x85)*cscale), uint8(float64(0x43)*cscale), 200)
-		rect.Pos.Base = &c.spritePos
-		rect.Pos.Offset.X -= 3
-		rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
-		c.resourceRects[i] = rect
-		c.world.camera.AddGraphics(rect)
+	c.flyingResourceRects = make([]*ge.Rect, 3)
+	makeResourceRects := func(rects []*ge.Rect, above bool) {
+		for i := range rects {
+			rect := ge.NewRect(scene.Context(), 6, pixelsPerResourceRect[i])
+			rect.Centered = false
+			rect.Visible = false
+			cscale := 0.6 + (0.2 * float64(i))
+			rect.FillColorScale.SetRGBA(uint8(float64(0xd6)*cscale), uint8(float64(0x85)*cscale), uint8(float64(0x43)*cscale), 200)
+			rect.Pos.Base = &c.spritePos
+			rect.Pos.Offset.X -= 3
+			rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
+			rects[i] = rect
+			if above {
+				c.world.camera.AddGraphicsSlightlyAbove(rect)
+			} else {
+				c.world.camera.AddGraphics(rect)
+			}
+		}
 	}
+	makeResourceRects(c.resourceRects, false)
+	makeResourceRects(c.flyingResourceRects, true)
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
@@ -345,6 +355,9 @@ func (c *colonyCoreNode) Dispose() {
 	for _, rect := range c.resourceRects {
 		rect.Dispose()
 	}
+	for _, rect := range c.flyingResourceRects {
+		rect.Dispose()
+	}
 }
 
 func (c *colonyCoreNode) updateHealthShader() {
@@ -412,9 +425,16 @@ func (c *colonyCoreNode) updateEvoDiode() {
 }
 
 func (c *colonyCoreNode) updateResourceRects() {
+	var slice []*ge.Rect
+	if c.IsFlying() {
+		slice = c.flyingResourceRects
+	} else {
+		slice = c.resourceRects
+	}
+
 	const resourcesPerBlock float64 = maxVisualResources / 3
 	unallocated := c.resources
-	for i, rect := range c.resourceRects {
+	for i, rect := range slice {
 		var percentage float64
 		if unallocated >= resourcesPerBlock {
 			percentage = 1.0
@@ -540,6 +560,10 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.sprite.Visible = false
 	c.hatch.Visible = false
 	c.evoDiode.Visible = false
+	for _, rect := range c.resourceRects {
+		rect.Visible = false
+	}
+	c.updateResourceRects()
 	c.waypoint = c.pos.Sub(gmath.Vec{Y: coreFlightHeight})
 }
 
@@ -569,6 +593,10 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		if c.shadow != nil {
 			c.shadow.Visible = false
 		}
+		for _, rect := range c.flyingResourceRects {
+			rect.Visible = false
+		}
+		c.updateResourceRects()
 		c.sprite.Visible = true
 		c.hatch.Visible = true
 		c.evoDiode.Visible = true

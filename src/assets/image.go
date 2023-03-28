@@ -18,8 +18,6 @@ func registerImageResources(ctx *ge.Context) {
 		ImageBigShadow:      {Path: "image/big_shadow.png"},
 		ImageUberBossShadow: {Path: "image/uber_boss_shadow.png"},
 
-		ImageUpkeepBar: {Path: "image/upkeep_bar.png"},
-
 		ImageCursor: {Path: "image/cursor.png"},
 
 		ImageRadar:             {Path: "image/ui/radar.png"},
@@ -223,8 +221,6 @@ const (
 	ImagePurpleIonZap
 	ImageCloakWave
 	ImageServantWave
-
-	ImageUpkeepBar
 
 	ImageColonyDamageMask
 	ImageTurretDamageMask1

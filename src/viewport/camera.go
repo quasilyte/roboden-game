@@ -70,6 +70,10 @@ func (c *Camera) AddSpriteAbove(s *ge.Sprite) {
 	c.aboveObjects.AddSprite(s)
 }
 
+func (c *Camera) AddGraphicsSlightlyAbove(o cameraObject) {
+	c.slightlyAboveObjects.Add(o)
+}
+
 func (c *Camera) AddGraphicsAbove(o cameraObject) {
 	c.aboveObjects.Add(o)
 }

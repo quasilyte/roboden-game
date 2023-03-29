@@ -124,7 +124,11 @@ func registerImageResources(ctx *ge.Context) {
 		ImageCreepBase:         {Path: "image/creeps/creep_base.png", FrameWidth: 32},
 
 		ImageBackgroundTiles: {Path: "image/landscape/tiles.png"},
-		ImageMountains:       {Path: "image/landscape/mountains.png", FrameWidth: 32},
+		ImageMountainSmall:   {Path: "image/landscape/mountain_small.png", FrameWidth: 32},
+		ImageMountainMedium:  {Path: "image/landscape/mountain_medium.png", FrameWidth: 48},
+		ImageMountainBig:     {Path: "image/landscape/mountain_big.png", FrameWidth: 64},
+		ImageMountainWide:    {Path: "image/landscape/mountain_wide.png", FrameWidth: 64},
+		ImageMountainTall:    {Path: "image/landscape/mountain_tall.png", FrameWidth: 48},
 		ImageLandCrack:       {Path: "image/landscape/landcrack.png", FrameWidth: 32},
 		ImageLandCrack2:      {Path: "image/landscape/landcrack2.png", FrameWidth: 32},
 		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
@@ -302,7 +306,11 @@ const (
 	ImageTankCreep
 
 	ImageBackgroundTiles
-	ImageMountains
+	ImageMountainSmall
+	ImageMountainMedium
+	ImageMountainBig
+	ImageMountainTall
+	ImageMountainWide
 	ImageLandCrack
 	ImageLandCrack2
 	ImageLandCrack3

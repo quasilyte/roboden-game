@@ -31,12 +31,13 @@ var Tutorials = []*TutorialData{
 		ID:          0,
 		ScoreReward: 200,
 		Objective:   ObjectiveBuildBase,
-		Seed:        0xF0F1000 + 10,
+		Seed:        0xF0F1000 + 18,
 	},
 
 	{
 		ID:              1,
 		ScoreReward:     300,
+		Resources:       1,
 		CanChangeRadius: true,
 		Tier2Drones: []AgentMergeRecipe{
 			FindRecipe(ClonerAgentStats),
@@ -44,7 +45,7 @@ var Tutorials = []*TutorialData{
 		},
 		Objective:    ObjectiveTrigger,
 		ObjectiveKey: "objective.acquire_destroyer",
-		Seed:         0xF0F2000 + 9,
+		Seed:         0xF0F2000 + 8,
 	},
 
 	{
@@ -66,7 +67,7 @@ var Tutorials = []*TutorialData{
 			FindRecipe(ServoAgentStats),
 		},
 		Objective: ObjectiveDestroyCreepBases,
-		Seed:      0xF0F3000 + 1,
+		Seed:      0xF0F3000 + 2,
 	},
 
 	{

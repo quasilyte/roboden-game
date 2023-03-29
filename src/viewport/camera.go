@@ -1,6 +1,8 @@
 package viewport
 
 import (
+	"sort"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -80,6 +82,17 @@ func (c *Camera) AddGraphicsAbove(o cameraObject) {
 
 func (c *Camera) AddSpriteBelow(s *ge.Sprite) {
 	c.belowObjects.AddSprite(s)
+}
+
+func (c *Camera) SortBelowLayer() {
+	if len(c.belowObjects.objects) != 0 {
+		panic("unexpected below objects count")
+	}
+	sort.Slice(c.belowObjects.sprites, func(i, j int) bool {
+		shape1 := c.belowObjects.sprites[i].BoundsRect()
+		shape2 := c.belowObjects.sprites[j].BoundsRect()
+		return shape1.Max.Y < shape2.Max.Y
+	})
 }
 
 func (c *Camera) SetBackground(bg *ge.TiledBackground) {

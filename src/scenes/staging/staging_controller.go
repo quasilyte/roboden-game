@@ -227,6 +227,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	scene.AddObject(c.choices)
+
+	c.camera.SortBelowLayer()
 }
 
 func (c *Controller) onPanelUpdateRequested(gsignal.Void) {

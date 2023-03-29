@@ -369,6 +369,62 @@ func (g *levelGenerator) placeCreeps() {
 	}
 }
 
+func (g *levelGenerator) placeCreepBases() {
+	if g.world.config.NumCreepBases == 0 {
+		return // Zero bases
+	}
+	// The bases are always located somewhere on the map boundary.
+	// Bases can't be on the same border.
+	pad := 128.0
+	borderWidth := 440.0
+	borders := []gmath.Rect{
+		// top border
+		{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: borderWidth + pad}},
+		// right border
+		{Min: gmath.Vec{X: g.world.width - borderWidth - pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
+		// left border
+		{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: borderWidth + pad, Y: g.world.height - pad}},
+		// bottom border
+		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
+	}
+	gmath.Shuffle(&g.rng, borders)
+	numBases := g.world.config.NumCreepBases
+	for i := 0; i < numBases; i++ {
+		border := borders[i]
+		var basePos gmath.Vec
+		for round := 0; round < 32; round++ {
+			posProbe := g.randomPos(border)
+			if posIsFree(g.world, nil, posProbe, 48) {
+				basePos = posProbe
+				break
+			}
+		}
+		if basePos.IsZero() {
+			if g.world.debug {
+				fmt.Println("couldn't deploy creep base", i+1)
+			}
+			continue
+		}
+		if g.world.debug {
+			fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
+		}
+		baseRegion := gmath.Rect{
+			Min: basePos.Sub(gmath.Vec{X: 96, Y: 96}),
+			Max: basePos.Add(gmath.Vec{X: 96, Y: 96}),
+		}
+		g.placeCreepsCluster(baseRegion, 1, turretCreepStats)
+		base := g.world.NewCreepNode(basePos, baseCreepStats)
+		if i == 1 || i == 3 {
+			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
+		} else {
+			base.specialModifier = 1.0 // Initial level base
+			base.specialDelay = g.rng.FloatRange(60, 120)
+			base.attackDelay = g.rng.FloatRange(40, 50)
+		}
+		g.scene.AddObject(base)
+	}
+}
+
 func (g *levelGenerator) placeWalls() {
 	rand := &g.rng
 
@@ -379,7 +435,8 @@ func (g *levelGenerator) placeWalls() {
 		1.4,
 	}
 	multiplier := worldSizeMultipliers[g.world.config.WorldSize]
-	numWallClusters := int(float64(rand.IntRange(11, 14)) * multiplier)
+	numWallClusters := int(float64(rand.IntRange(8, 10)) * multiplier)
+	numMountains := int(float64(rand.IntRange(5, 9)) * multiplier)
 
 	const (
 		// A simple 1x1 wall tile (rect shape: true).
@@ -592,71 +649,89 @@ func (g *levelGenerator) placeWalls() {
 
 		if len(config.points) != 0 {
 			config.atlas = wallAtras{layers: landcrackAtlas}
-			switch shape {
-			case wallPit, wallLine, wallZap, wallCrossway:
-				if rand.Chance(0.45) {
-					config.atlas = wallAtras{layers: mountainsAtlas}
-				}
-			}
 			config.world = g.world
 			wall := g.world.NewWallClusterNode(config)
 			g.scene.AddObject(wall)
 		}
 	}
-}
 
-func (g *levelGenerator) placeCreepBases() {
-	if g.world.config.NumCreepBases == 0 {
-		return // Zero bases
-	}
-	// The bases are always located somewhere on the map boundary.
-	// Bases can't be on the same border.
-	pad := 128.0
-	borderWidth := 440.0
-	borders := []gmath.Rect{
-		// top border
-		{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: borderWidth + pad}},
-		// right border
-		{Min: gmath.Vec{X: g.world.width - borderWidth - pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
-		// left border
-		{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: borderWidth + pad, Y: g.world.height - pad}},
-		// bottom border
-		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
-	}
-	gmath.Shuffle(&g.rng, borders)
-	numBases := g.world.config.NumCreepBases
-	for i := 0; i < numBases; i++ {
-		border := borders[i]
-		var basePos gmath.Vec
-		for round := 0; round < 32; round++ {
-			posProbe := g.randomPos(border)
-			if posIsFree(g.world, nil, posProbe, 48) {
-				basePos = posProbe
+	chunkSizePicker := gmath.NewRandPicker[mountainKind](rand)
+	chunkSizePicker.AddOption(mountainSmall, 0.15)
+	chunkSizePicker.AddOption(mountainMedium, 0.25)
+	chunkSizePicker.AddOption(mountainBig, 0.45)
+	chunkSizePicker.AddOption(mountainWide, 0.1)
+	chunkSizePicker.AddOption(mountainTall, 0.05)
+	sideChunkSizePicker := gmath.NewRandPicker[mountainKind](rand)
+	sideChunkSizePicker.AddOption(mountainSmall, 0.45)
+	sideChunkSizePicker.AddOption(mountainMedium, 0.3)
+	sideChunkSizePicker.AddOption(mountainBig, 0.1)
+	sideChunkSizePicker.AddOption(mountainWide, 0.1)
+	sideChunkSizePicker.AddOption(mountainTall, 0.05)
+	for i := 0; i < numMountains; i++ {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+
+		var pos gmath.Vec
+		for i := 0; i < 10; i++ {
+			pos = correctedPos(sector, g.randomPos(sector), 196)
+			if posIsFree(g.world, nil, pos, 80) {
 				break
 			}
 		}
-		if basePos.IsZero() {
-			if g.world.debug {
-				fmt.Println("couldn't deploy creep base", i+1)
-			}
+		if pos.IsZero() {
 			continue
 		}
-		if g.world.debug {
-			fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
+
+		// Positions should be rounded to a tile size.
+		{
+			x := math.Floor(pos.X/wallTileSize) * wallTileSize
+			y := math.Floor(pos.Y/wallTileSize) * wallTileSize
+			pos = gmath.Vec{X: x + wallTileSize/2, Y: y + wallTileSize/2}
 		}
-		baseRegion := gmath.Rect{
-			Min: basePos.Sub(gmath.Vec{X: 96, Y: 96}),
-			Max: basePos.Add(gmath.Vec{X: 96, Y: 96}),
+
+		currentPos := pos
+		mountainLength := g.rng.IntRange(3, 10)
+		widthModifier := g.rng.Float()
+		dir := chooseRandDirection()
+		chunks := make([]wallChunk, 0, mountainLength+4)
+		for j := 0; j < mountainLength; j++ {
+			chunkSize := chunkSizePicker.Pick()
+			chunks = append(chunks, wallChunk{
+				pos:  currentPos,
+				kind: chunkSize,
+			})
+			rotateRoll := g.rng.Float()
+			if rotateRoll < 0.1 {
+				dir = rotateDirection(dir)
+			} else if rotateRoll < 0.45 {
+				extraPos := currentPos.Add(rotateDirection(dir))
+				if posIsFree(g.world, nil, extraPos, 64) {
+					chunks = append(chunks, wallChunk{
+						pos:  extraPos,
+						kind: sideChunkSizePicker.Pick(),
+					})
+				}
+			} else if rotateRoll < widthModifier {
+				parallelDir := dir
+				parallelDir.X = dir.Y
+				parallelDir.Y = dir.X
+				extraPos := currentPos.Add(parallelDir)
+				if posIsFree(g.world, nil, extraPos, 64) {
+					chunks = append(chunks, wallChunk{
+						pos:  extraPos,
+						kind: chunkSizePicker.Pick(),
+					})
+				}
+			}
+			currentPos = currentPos.Add(dir)
+			if !posIsFree(g.world, nil, currentPos, 80) {
+				break
+			}
 		}
-		g.placeCreepsCluster(baseRegion, 1, turretCreepStats)
-		base := g.world.NewCreepNode(basePos, baseCreepStats)
-		if i == 1 || i == 3 {
-			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
-		} else {
-			base.specialModifier = 1.0 // Initial level base
-			base.specialDelay = g.rng.FloatRange(60, 120)
-			base.attackDelay = g.rng.FloatRange(40, 50)
-		}
-		g.scene.AddObject(base)
+		var config wallClusterConfig
+		config.chunks = chunks
+		config.world = g.world
+		wall := g.world.NewWallClusterNode(config)
+		g.scene.AddObject(wall)
 	}
 }

@@ -248,12 +248,12 @@ func (m *tutorialManager) updateTutorial1() bool {
 		}
 	case 12:
 		s := m.scene.Dict().Get("tutorial1.camera", m.inputMode)
-		targetPos := ge.Pos{Offset: gmath.Vec{X: 1540, Y: 420}}
+		targetPos := ge.Pos{Offset: gmath.Vec{X: 340, Y: 780}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
 	case 13:
-		targetPos := ge.Pos{Offset: gmath.Vec{X: 1540, Y: 420}}
+		targetPos := ge.Pos{Offset: gmath.Vec{X: 340, Y: 780}}
 		cameraCenter := m.world.camera.Offset.Add(m.world.camera.Rect.Center())
 		if targetPos.Resolve().DistanceSquaredTo(cameraCenter) <= (280 * 280) {
 			return true

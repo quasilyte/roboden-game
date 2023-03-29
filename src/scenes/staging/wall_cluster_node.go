@@ -9,8 +9,23 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 )
 
+type mountainKind int
+
+const (
+	mountainSmall mountainKind = iota
+	mountainMedium
+	mountainBig
+	mountainWide
+	mountainTall
+)
+
 type wallAtras struct {
 	layers []wallAtlasLayer
+}
+
+type wallChunk struct {
+	pos  gmath.Vec
+	kind mountainKind
 }
 
 type wallAtlasLayer struct {
@@ -25,10 +40,6 @@ var (
 		{texture: assets.ImageLandCrack3, weight: 0.25},
 		{texture: assets.ImageLandCrack4, weight: 0.1},
 	}
-
-	mountainsAtlas = []wallAtlasLayer{
-		{texture: assets.ImageMountains, weight: 0.35},
-	}
 )
 
 type wallClusterNode struct {
@@ -39,11 +50,17 @@ type wallClusterNode struct {
 	rect      gmath.Rect
 	rectShape bool
 
+	chunks []wallChunk
+
 	points  []gmath.Vec
 	sprites []*ge.Sprite
 }
 
 type wallClusterConfig struct {
+	// Settings for image-filling walls like mountains.
+	chunks []wallChunk
+
+	// Settings for oriented walls like landcracks.
 	world  *worldState
 	atlas  wallAtras
 	points []gmath.Vec
@@ -54,34 +71,82 @@ func newWallClusterNode(config wallClusterConfig) *wallClusterNode {
 		world:  config.world,
 		atlas:  config.atlas,
 		points: config.points,
+		chunks: config.chunks,
 	}
 }
 
 func (w *wallClusterNode) IsDisposed() bool { return false }
 
 func (w *wallClusterNode) Init(scene *ge.Scene) {
-	if len(w.points) > maxWallSegments {
-		panic(fmt.Sprintf("too many segments in a wall cluster: %d", len(w.points)))
+	if len(w.chunks) == 0 {
+		w.initOriented(scene)
+	} else {
+		w.initChunks(scene)
 	}
-	if len(w.points) == 0 {
-		panic("empty wall cluster")
+}
+
+func (w *wallClusterNode) initChunks(scene *ge.Scene) {
+	w.sprites = make([]*ge.Sprite, 0, len(w.chunks))
+	w.points = make([]gmath.Vec, len(w.chunks))
+	for i, chunk := range w.chunks {
+		var texture resource.ImageID
+		numSprites := 1
+		switch chunk.kind {
+		case mountainSmall:
+			texture = assets.ImageMountainSmall
+			roll := scene.Rand().Float()
+			if roll < 0.7 {
+				numSprites = 2
+			} else if roll < 0.8 {
+				numSprites = 3
+			}
+		case mountainMedium:
+			texture = assets.ImageMountainMedium
+		case mountainBig:
+			texture = assets.ImageMountainBig
+		case mountainWide:
+			texture = assets.ImageMountainWide
+		case mountainTall:
+			texture = assets.ImageMountainTall
+			roll := scene.Rand().Float()
+			if roll < 0.4 {
+				numSprites = 2
+			}
+		default:
+			panic("unexpected chunk size")
+		}
+
+		w.points[i] = chunk.pos
+
+		for j := 0; j < numSprites; j++ {
+			s := scene.NewSprite(texture)
+			numFrames := int(s.ImageWidth() / s.FrameWidth)
+			if numFrames > 1 {
+				s.FrameOffset.X = float64(scene.Rand().IntRange(0, numFrames-1)) * s.FrameWidth
+			}
+			s.FlipHorizontal = scene.Rand().Bool()
+			s.Pos.Base = &w.points[i]
+			if numSprites == 1 {
+				s.Pos.Offset = scene.Rand().Offset(-4, 4)
+			} else {
+				s.Pos.Offset = scene.Rand().Offset(-8, 8)
+			}
+			w.sprites = append(w.sprites, s)
+		}
 	}
 
+	for _, s := range w.sprites {
+		w.world.camera.AddSpriteBelow(s)
+	}
+
+	w.initGeometryRect()
+}
+
+func (w *wallClusterNode) initGeometryRect() {
 	w.rect.Min = w.points[0]
 	w.rect.Max = w.points[0]
 
-	layerPicker := gmath.NewRandPicker[resource.ImageID](scene.Rand())
-	for _, l := range w.atlas.layers {
-		layerPicker.AddOption(l.texture, l.weight)
-	}
-
-	w.sprites = make([]*ge.Sprite, len(w.points))
-	for i, p := range w.points {
-		texture := layerPicker.Pick()
-		s := scene.NewSprite(texture)
-		s.Pos.Base = &w.points[i]
-		w.sprites[i] = s
-		w.world.camera.AddSpriteBelow(s)
+	for _, p := range w.points {
 		if p.X < w.rect.Min.X {
 			w.rect.Min.X = p.X
 		}
@@ -96,16 +161,14 @@ func (w *wallClusterNode) Init(scene *ge.Scene) {
 		}
 	}
 
-	{
-		width := int((w.rect.Max.X-w.rect.Min.X)/wallTileSize) + 1
-		height := int((w.rect.Max.Y-w.rect.Min.Y)/wallTileSize) + 1
-		areaSqr := width * height
-		innerAreaWidth := gmath.ClampMin(width-2, 0)
-		innerAreaHeight := gmath.ClampMin(height-2, 0)
-		innerAreaSqr := innerAreaWidth * innerAreaHeight
-		numPoints := len(w.points)
-		w.rectShape = numPoints+innerAreaSqr == areaSqr
-	}
+	width := int((w.rect.Max.X-w.rect.Min.X)/wallTileSize) + 1
+	height := int((w.rect.Max.Y-w.rect.Min.Y)/wallTileSize) + 1
+	areaSqr := width * height
+	innerAreaWidth := gmath.ClampMin(width-2, 0)
+	innerAreaHeight := gmath.ClampMin(height-2, 0)
+	innerAreaSqr := innerAreaWidth * innerAreaHeight
+	numPoints := len(w.points)
+	w.rectShape = numPoints+innerAreaSqr == areaSqr
 	if w.rectShape {
 		for _, p := range w.points {
 			if p.Y == w.rect.Min.Y && p.X <= w.rect.Max.X {
@@ -124,7 +187,31 @@ func (w *wallClusterNode) Init(scene *ge.Scene) {
 			break
 		}
 	}
+}
 
+func (w *wallClusterNode) initOriented(scene *ge.Scene) {
+	if len(w.points) > maxWallSegments {
+		panic(fmt.Sprintf("too many segments in a wall cluster: %d", len(w.points)))
+	}
+	if len(w.points) == 0 {
+		panic("empty wall cluster")
+	}
+
+	layerPicker := gmath.NewRandPicker[resource.ImageID](scene.Rand())
+	for _, l := range w.atlas.layers {
+		layerPicker.AddOption(l.texture, l.weight)
+	}
+
+	w.sprites = make([]*ge.Sprite, len(w.points))
+	for i := range w.points {
+		texture := layerPicker.Pick()
+		s := scene.NewSprite(texture)
+		s.Pos.Base = &w.points[i]
+		w.sprites[i] = s
+		w.world.camera.AddSpriteBelow(s)
+	}
+
+	w.initGeometryRect()
 	origin := w.rect.Min
 
 	getGridCoords := func(pos gmath.Vec) (int, int) {
@@ -177,7 +264,6 @@ func (w *wallClusterNode) Init(scene *ge.Scene) {
 }
 
 func (w *wallClusterNode) Update(delta float64) {
-
 }
 
 func (w *wallClusterNode) CollidesWith(pos gmath.Vec, r float64) bool {

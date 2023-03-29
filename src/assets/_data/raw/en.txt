@@ -26,7 +26,8 @@
 ##menu.profile.dronebook : Drone Collection
 
 ##menu.profile.stats.totalscore : Total Score
-##menu.profile.stats.highscore : The Highest Score
+##menu.profile.stats.classic_highscore : Classic Mode Highest Score
+##menu.profile.stats.arena_highscore : Arena Mode Highest Score
 
 ##menu.profile.progress.achievements : Achievements
 ##menu.profile.progress.modes_unlocked : Game Modes Unlocked

@@ -45,10 +45,14 @@ type PlayerStats struct {
 
 	TutorialsCompleted []int
 
-	TotalPlayTime          time.Duration
-	TotalScore             int
-	HighestScore           int
-	HighestScoreDifficulty int
+	TotalPlayTime time.Duration
+	TotalScore    int
+
+	HighestClassicScore           int
+	HighestClassicScoreDifficulty int
+
+	HighestArenaScore           int
+	HighestArenaScoreDifficulty int
 }
 
 type Achievement struct {

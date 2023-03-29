@@ -106,9 +106,9 @@ func (c *resultsController) updateProgress() {
 	}
 
 	stats.TotalScore += c.results.Score
-	if stats.HighestScore < c.results.Score {
-		stats.HighestScore = c.results.Score
-		stats.HighestScoreDifficulty = c.results.DifficultyScore
+	if stats.HighestClassicScore < c.results.Score {
+		stats.HighestClassicScore = c.results.Score
+		stats.HighestClassicScoreDifficulty = c.results.DifficultyScore
 	}
 
 	c.newAchievements, c.upgradedAchievements = c.checkAchievements()
@@ -254,7 +254,7 @@ func (c *resultsController) initUI() {
 		fmt.Sprintf("%s: %v", d.Get("menu.results.creeps_defeated"), c.results.CreepsDefeated),
 	}
 	if c.results.Victory && c.config.Tutorial == nil {
-		if c.results.Score > c.state.Persistent.PlayerStats.HighestScore {
+		if c.results.Score > c.state.Persistent.PlayerStats.HighestClassicScore {
 			lines = append(lines, fmt.Sprintf("%s: %v (%s)", d.Get("menu.results.score"), c.results.Score, d.Get("menu.results.new_record")))
 		} else {
 			lines = append(lines, fmt.Sprintf("%s: %v", d.Get("menu.results.score"), c.results.Score))

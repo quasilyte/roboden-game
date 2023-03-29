@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/timeutil"
@@ -60,8 +61,12 @@ func (c *ProfileStatsMenuController) initUI() {
 	lines := []string{
 		fmt.Sprintf("%s: %v", d.Get("menu.results.time_played"), timeutil.FormatDuration(d, stats.TotalPlayTime)),
 		fmt.Sprintf("%s: %v", d.Get("menu.profile.stats.totalscore"), stats.TotalScore),
-		fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.highscore"), stats.HighestScore, stats.HighestScoreDifficulty),
+		fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.classic_highscore"), stats.HighestClassicScore, stats.HighestClassicScoreDifficulty),
 	}
+	if stats.TotalScore >= gamedata.ArenaModeCost {
+		lines = append(lines, fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.arena_highscore"), stats.HighestArenaScore, stats.HighestArenaScoreDifficulty))
+	}
+
 	rowContainer.AddChild(eui.NewCenteredLabel(uiResources, strings.Join(lines, "\n"), smallFont))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

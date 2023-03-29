@@ -59,11 +59,9 @@ func (c *ProfileProgressMenuController) initUI() {
 
 	stats := c.state.Persistent.PlayerStats
 
+	modesTotal := 2
 	modesUnlocked := 1
 	if stats.TotalScore >= gamedata.ArenaModeCost {
-		modesUnlocked++
-	}
-	if stats.TotalScore >= gamedata.RushModeCost {
 		modesUnlocked++
 	}
 
@@ -73,7 +71,7 @@ func (c *ProfileProgressMenuController) initUI() {
 		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.turrets_unlocked"), len(stats.TurretsUnlocked), len(gamedata.TurretStatsList)),
 		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.drones_unlocked"), len(stats.DronesUnlocked), numDrones),
 		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.t3drones_seen"), len(stats.Tier3DronesSeen), len(gamedata.Tier3agentMergeRecipes)),
-		fmt.Sprintf("%s: %d/3", d.Get("menu.profile.progress.modes_unlocked"), modesUnlocked),
+		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.modes_unlocked"), modesUnlocked, modesTotal),
 		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.tutorials_completed"), len(stats.TutorialsCompleted), len(gamedata.Tutorials)),
 	}
 	rowContainer.AddChild(eui.NewCenteredLabel(uiResources, strings.Join(lines, "\n"), smallFont))

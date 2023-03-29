@@ -49,6 +49,7 @@ func getDefaultSessionState() *session.State {
 		LevelConfig: &session.LevelConfig{
 			BuildTurretActionAvailable: true,
 			AttackActionAvailable:      true,
+			RadiusActionAvailable:      true,
 
 			ExtraUI:           true,
 			EliteResources:    true,

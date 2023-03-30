@@ -27,10 +27,12 @@ import (
 type Controller struct {
 	state *session.State
 
-	backController    ge.SceneController
-	cameraPanDragPos  gmath.Vec
-	cameraPanSpeed    float64
-	cameraPanBoundary float64
+	backController       ge.SceneController
+	cameraPanDragPos     gmath.Vec
+	cameraPanSpeed       float64
+	cameraPanBoundary    float64
+	cameraToggleProgress float64
+	cameraToggleTarget   gmath.Vec
 
 	startTime time.Time
 
@@ -650,6 +652,15 @@ func (c *Controller) Update(delta float64) {
 	c.musicPlayer.Update(delta)
 	c.world.Update(delta)
 
+	if !c.cameraToggleTarget.IsZero() {
+		c.cameraToggleProgress = gmath.ClampMax(c.cameraToggleProgress+delta, 1)
+		c.camera.CenterOn(c.camera.CenterPos().LinearInterpolate(c.cameraToggleTarget, c.cameraToggleProgress))
+		if c.camera.CenterPos().DistanceSquaredTo(c.cameraToggleTarget) < (80 * 80) {
+			c.cameraToggleTarget = gmath.Vec{}
+			c.camera.CenterOn(c.world.selectedColony.pos)
+		}
+	}
+
 	if !c.transitionQueued {
 		c.victoryCheckDelay = gmath.ClampMin(c.victoryCheckDelay-delta, 0)
 		if c.victoryCheckDelay == 0 {
@@ -732,8 +743,9 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 func (c *Controller) selectNextColony(center bool) {
 	colony := c.findNextColony()
 	c.selectColony(colony)
-	if center && c.world.selectedColony != nil {
-		c.camera.CenterOn(c.world.selectedColony.pos)
+	if center && c.world.selectedColony != nil && c.cameraToggleTarget.IsZero() {
+		c.cameraToggleTarget = c.world.selectedColony.pos
+		c.cameraToggleProgress = 0
 	}
 }
 

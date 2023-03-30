@@ -171,6 +171,10 @@ func (c *Camera) Pan(delta gmath.Vec) {
 	c.checkBounds()
 }
 
+func (c Camera) CenterPos() gmath.Vec {
+	return c.Offset.Add(c.Rect.Center())
+}
+
 func (c *Camera) CenterOn(pos gmath.Vec) {
 	c.Offset = pos.Sub(c.Rect.Center())
 	c.checkBounds()

@@ -30,7 +30,6 @@ todo:
 
 iskander:
 - implement pause?
-- make tab smooth
 - esc for menu, not exit right away
 
 next release:

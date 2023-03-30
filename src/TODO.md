@@ -25,7 +25,6 @@ todo:
 - menu buttons focus?
 - base should check landing zone before landing
 - rework planner action delay (same action vs other action)
-- show upkeep while flying
 - maybe group resources into clusters to speedup collision checking?
 
 iskander:

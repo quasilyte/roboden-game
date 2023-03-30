@@ -71,6 +71,8 @@ type LevelConfig struct {
 	BuildTurretActionAvailable bool
 	RadiusActionAvailable      bool
 
+	FogOfWar bool
+
 	SecondBase  bool
 	ExtraDrones []*gamedata.AgentStats
 

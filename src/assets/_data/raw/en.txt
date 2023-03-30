@@ -86,6 +86,7 @@
 ##menu.credits.assets : assets
 ##menu.credits.thank_player : And thank you, dear player <3
 
+##menu.lobby.fog_of_war : For of War
 ##menu.lobby.ui_mode : User Interface Mode
 ##menu.lobby.world_resources : World Resources
 ##menu.lobby.world_size : World Size

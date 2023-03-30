@@ -27,6 +27,7 @@ type Camera struct {
 	globalRect gmath.Rect
 
 	bg                   *ge.TiledBackground
+	fogOfWar             *ebiten.Image
 	belowObjects         layer
 	objects              layer
 	slightlyAboveObjects layer
@@ -93,6 +94,10 @@ func (c *Camera) SortBelowLayer() {
 		shape2 := c.belowObjects.sprites[j].BoundsRect()
 		return shape1.Max.Y < shape2.Max.Y
 	})
+}
+
+func (c *Camera) SetFogOfWar(img *ebiten.Image) {
+	c.fogOfWar = img
 }
 
 func (c *Camera) SetBackground(bg *ge.TiledBackground) {
@@ -182,13 +187,15 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 	c.globalRect.Max = c.globalRect.Max.Add(c.Offset)
 
 	c.screen.Clear()
-	if c.bg != nil {
-		c.bg.DrawPartial(c.screen, c.globalRect)
-	}
+	c.bg.DrawPartial(c.screen, c.globalRect)
 	c.drawLayer(c.screen, &c.belowObjects)
 	c.drawLayer(c.screen, &c.objects)
 	c.drawLayer(c.screen, &c.slightlyAboveObjects)
 	c.drawLayer(c.screen, &c.aboveObjects)
+	if c.fogOfWar != nil {
+		var options ebiten.DrawImageOptions
+		c.screen.DrawImage(c.fogOfWar, &options)
+	}
 
 	var options ebiten.DrawImageOptions
 	options.GeoM.Translate(-c.Offset.X, -c.Offset.Y)

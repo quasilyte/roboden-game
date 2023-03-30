@@ -266,6 +266,26 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		tab.AddChild(button)
 	}
 
+	{
+		sliderOptions := []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		}
+		var slider gmath.Slider
+		slider.SetBounds(0, len(sliderOptions)-1)
+		if c.config.FogOfWar {
+			slider.TrySetValue(1)
+		}
+		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.fog_of_war")+": "+sliderOptions[slider.Value()])
+		button.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			c.config.FogOfWar = slider.Value() != 0
+			button.Text().Label = d.Get("menu.lobby.fog_of_war") + ": " + sliderOptions[slider.Value()]
+			c.updateDifficultyScore(c.calcDifficultyScore())
+		})
+		tab.AddChild(button)
+	}
+
 	return tab
 }
 
@@ -478,6 +498,9 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 	score -= (c.config.StartingResources) * 4
 
 	if !c.config.ExtraUI {
+		score += 5
+	}
+	if c.config.FogOfWar {
 		score += 5
 	}
 

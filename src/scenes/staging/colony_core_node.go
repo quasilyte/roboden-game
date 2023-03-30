@@ -99,6 +99,7 @@ type colonyCoreNode struct {
 
 	EventDestroyed         gsignal.Event[*colonyCoreNode]
 	EventPrioritiesChanged gsignal.Event[*colonyCoreNode]
+	EventLanded            gsignal.Event[*colonyCoreNode]
 }
 
 type colonyConfig struct {
@@ -601,6 +602,7 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.hatch.Visible = true
 		c.evoDiode.Visible = true
 		playSound(c.scene, c.world.camera, assets.AudioColonyLanded, c.pos)
+		c.EventLanded.Emit(c)
 	}
 }
 

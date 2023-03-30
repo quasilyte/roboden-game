@@ -2,6 +2,7 @@ package staging
 
 import (
 	"fmt"
+	"image/color"
 	"math"
 	"os"
 	"runtime"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/gedraw"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
@@ -55,6 +57,10 @@ type Controller struct {
 	camera *viewport.Camera
 
 	tutorialManager *tutorialManager
+
+	visionRadius float64
+	fogOfWar     *ebiten.Image
+	visionCircle *ebiten.Image
 
 	cursor *cursorNode
 
@@ -168,6 +174,12 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.world = world
 	world.Init()
 
+	c.world.EventColonyCreated.Connect(c, func(colony *colonyCoreNode) {
+		colony.EventLanded.Connect(c, func(colony *colonyCoreNode) {
+			c.updateFogOfWar(colony.pos)
+		})
+	})
+
 	bg := ge.NewTiledBackground(scene.Context())
 	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
 	c.camera.SetBackground(bg)
@@ -228,7 +240,27 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	scene.AddObject(c.choices)
 
+	if c.config.FogOfWar {
+		c.visionRadius = 500.0
+
+		c.fogOfWar = ebiten.NewImage(int(c.world.width), int(c.world.height))
+		gedraw.DrawRect(c.fogOfWar, c.world.rect, color.RGBA{A: 255})
+		c.camera.SetFogOfWar(c.fogOfWar)
+
+		c.visionCircle = ebiten.NewImage(int(c.visionRadius*2), int(c.visionRadius*2))
+		gedraw.DrawCircle(c.visionCircle, gmath.Vec{X: c.visionRadius, Y: c.visionRadius}, c.visionRadius, color.RGBA{A: 255})
+
+		c.updateFogOfWar(c.world.selectedColony.pos)
+	}
+
 	c.camera.SortBelowLayer()
+}
+
+func (c *Controller) updateFogOfWar(pos gmath.Vec) {
+	var options ebiten.DrawImageOptions
+	options.CompositeMode = ebiten.CompositeModeDestinationOut
+	options.GeoM.Translate(pos.X-c.visionRadius, pos.Y-c.visionRadius)
+	c.fogOfWar.DrawImage(c.visionCircle, &options)
 }
 
 func (c *Controller) onPanelUpdateRequested(gsignal.Void) {

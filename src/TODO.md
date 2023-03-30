@@ -6,6 +6,9 @@ todo engine:
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 - why animation affects Y axis?
 
+fixme:
+- colony tends to produce a lot of combat drones even if low on resources
+
 todo:
 - make disintegrators prefer flying targets
 - maybe make it possible for support drones to heal/recharge nearby colony drones

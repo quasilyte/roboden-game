@@ -10,7 +10,7 @@ type Mode int
 const (
 	ModeClassic Mode = iota
 	ModeArena
-	ModeRush
+
 	ModeTutorial
 )
 
@@ -20,8 +20,6 @@ func (m Mode) String() string {
 		return "classic"
 	case ModeArena:
 		return "arena"
-	case ModeRush:
-		return "rush"
 	case ModeTutorial:
 		return "tutorial"
 	default:

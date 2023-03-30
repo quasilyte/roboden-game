@@ -108,7 +108,7 @@ func (g *levelGenerator) placePlayers() {
 	g.createBase(g.playerSpawn, true)
 
 	if g.world.config.SecondBase {
-		g.createBase(g.playerSpawn.Add(gmath.Vec{X: 400, Y: 400}), false)
+		g.createBase(g.playerSpawn.Add(gmath.Vec{X: 160, Y: 96}), false)
 	}
 }
 

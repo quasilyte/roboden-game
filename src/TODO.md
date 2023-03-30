@@ -35,12 +35,11 @@ iskander:
 
 next release:
 - artifacts idea
-- better how to play
++ better how to play
 + multi-language support
 - higher resolution
 + more input device support (gamepad, touch screen)
 + more "new game" options
-- local pvp and coop
 - online leaderboard
 - daily run (same seed, different players, leaderboard)
 - different bases (colonies)
@@ -48,12 +47,8 @@ next release:
   - ground base (can't pass hard terrain)
   - tier 4 units for bases
 - game modes
-  - base race
-  - vs colony
-  - endless mode
-- drone pickups
-- attack, inc/dec, build base, tech, build tower
-- action reroll
+  - arena
++ towers
 - game lore
 - weather
 - random events

@@ -20,7 +20,6 @@ func main() {
 
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
 	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
-	extraScore := flag.Int("extra-score", 0, "add extra score points to the session")
 	flag.Parse()
 
 	ctx := ge.NewContext()
@@ -35,10 +34,6 @@ func main() {
 
 	ctx.LoadGameData("save", &state.Persistent)
 	state.ReloadLanguage(ctx)
-
-	if *extraScore != 0 {
-		state.Persistent.PlayerStats.TotalScore += *extraScore
-	}
 
 	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
 

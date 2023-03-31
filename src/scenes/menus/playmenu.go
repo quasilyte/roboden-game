@@ -49,7 +49,7 @@ func (c *PlayMenuController) initUI() {
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.classic"), func() {
-		c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
+		c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeClassic))
 	}))
 
 	{
@@ -59,24 +59,11 @@ func (c *PlayMenuController) initUI() {
 			label = fmt.Sprintf("%s: %d", d.Get("menu.play.to_unlock"), toUnlock)
 		}
 		b := eui.NewButton(uiResources, c.scene, label, func() {
-			// c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
+			c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeArena))
 		})
-		b.GetWidget().Disabled = true
+		b.GetWidget().Disabled = toUnlock > 0
 		rowContainer.AddChild(b)
 	}
-
-	// {
-	// 	toUnlock := gamedata.RushModeCost - c.state.Persistent.PlayerStats.TotalScore
-	// 	label := d.Get("menu.play.rush")
-	// 	if toUnlock > 0 {
-	// 		label = fmt.Sprintf("%s: %d", d.Get("menu.play.to_unlock"), toUnlock)
-	// 	}
-	// 	b := eui.NewButton(uiResources, c.scene, label, func() {
-	// 		// c.scene.Context().ChangeScene(NewLobbyMenuController(c.state))
-	// 	})
-	// 	b.GetWidget().Disabled = toUnlock > 0
-	// 	rowContainer.AddChild(b)
-	// }
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.tutorial"), func() {
 		c.scene.Context().ChangeScene(NewTutorialMenuController(c.state))

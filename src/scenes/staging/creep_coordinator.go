@@ -2,6 +2,7 @@ package staging
 
 import (
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 const (
@@ -21,15 +22,17 @@ type creepCoordinator struct {
 	scoutingDelay float64
 	attackDelay   float64
 	scatterDelay  float64
+	relocateDelay float64
 }
 
 func newCreepCoordinator(world *worldState) *creepCoordinator {
 	return &creepCoordinator{
-		world:        world,
-		crawlers:     make([]*creepNode, 0, 16),
-		groupSlice:   make([]*creepNode, 0, 4),
-		attackDelay:  world.rand.FloatRange(10, 30),
-		scatterDelay: world.rand.FloatRange(2*60, 3*60),
+		world:         world,
+		crawlers:      make([]*creepNode, 0, 16),
+		groupSlice:    make([]*creepNode, 0, 32),
+		attackDelay:   world.rand.FloatRange(10, 30),
+		scatterDelay:  world.rand.FloatRange(2*60, 3*60),
+		relocateDelay: world.rand.FloatRange(1*60, 3*60),
 	}
 }
 
@@ -42,6 +45,7 @@ func (c *creepCoordinator) Update(delta float64) {
 	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
 	c.scoutingDelay = gmath.ClampMin(c.scoutingDelay-delta, 0)
 	c.scatterDelay = gmath.ClampMin(c.scatterDelay-delta, 0)
+	c.relocateDelay = gmath.ClampMin(c.relocateDelay-delta, 0)
 
 	if c.attackDelay == 0 {
 		c.tryLaunchingAttack()
@@ -51,6 +55,9 @@ func (c *creepCoordinator) Update(delta float64) {
 	}
 	if c.scatterDelay == 0 {
 		c.tryLaunchingScatter()
+	}
+	if c.relocateDelay == 0 {
+		c.tryLaunchingRelocation()
 	}
 }
 
@@ -66,14 +73,48 @@ func (c *creepCoordinator) sendScout() {
 		return
 	}
 
-	c.scoutingDelay = c.world.rand.FloatRange(30.0, 50.0)
+	if c.world.config.GameMode == gamedata.ModeArena {
+		c.scoutingDelay = c.world.rand.FloatRange(20.0, 30.0)
+	} else {
+		c.scoutingDelay = c.world.rand.FloatRange(30.0, 50.0)
+	}
 
-	scoutingDist := 256 * c.world.rand.FloatRange(1, 2)
+	scoutingDist := 320 * c.world.rand.FloatRange(1, 2)
 	scoutingDest := gmath.RadToVec(c.world.rand.Rad()).Mulf(scoutingDist).Add(scout.pos)
 	scout.specialModifier = crawlerMove
 	scout.waypoint = c.world.pathgrid.AlignPos(scout.pos)
 	p := c.world.BuildPath(scout.waypoint, scoutingDest)
 	scout.path = p.Steps
+}
+
+func (c *creepCoordinator) tryLaunchingRelocation() {
+	leader := gmath.RandElem(c.world.rand, c.crawlers)
+	if leader.specialModifier != crawlerIdle {
+		c.relocateDelay = c.world.rand.FloatRange(3, 8)
+		return
+	}
+
+	group := c.collectGroup(leader, 20)
+	if len(group) < 2 {
+		c.relocateDelay = c.world.rand.FloatRange(4, 10)
+		return
+	}
+
+	if c.world.config.GameMode == gamedata.ModeArena {
+		c.relocateDelay = c.world.rand.FloatRange(25, 55)
+	} else {
+		c.relocateDelay = c.world.rand.FloatRange(60, 90)
+	}
+
+	targetPos := correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 480)
+	for _, creep := range group {
+		creepTargetPos := correctedPos(c.world.rect, targetPos.Add(c.world.rand.Offset(-96, 96)), 32)
+
+		creep.specialModifier = crawlerMove
+		p := c.world.BuildPath(creep.pos, creepTargetPos)
+		creep.path = p.Steps
+		creep.waypoint = c.world.pathgrid.AlignPos(creep.pos)
+	}
 }
 
 func (c *creepCoordinator) tryLaunchingScatter() {
@@ -83,16 +124,20 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 		return
 	}
 
-	group := c.collectGroup(leader)
+	group := c.collectGroup(leader, 10)
 	if len(group) < 2 {
 		c.scatterDelay = c.world.rand.FloatRange(8, 14)
 		return
 	}
 
-	c.scatterDelay = c.world.rand.FloatRange(70, 90)
+	if c.world.config.GameMode == gamedata.ModeArena {
+		c.scatterDelay = c.world.rand.FloatRange(55, 85)
+	} else {
+		c.scatterDelay = c.world.rand.FloatRange(70, 90)
+	}
 
 	for _, creep := range group {
-		dist := c.world.rand.FloatRange(96, 192)
+		dist := c.world.rand.FloatRange(96, 256)
 		targetPos := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(creep.pos)
 
 		creep.specialModifier = crawlerMove
@@ -116,9 +161,12 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 		maxAttackRangeSqr float64 = maxAttackRange * maxAttackRange
 	)
 
-	group := c.collectGroup(leader)
+	group := c.collectGroup(leader, cap(c.groupSlice))
 
 	attackRangeSqr := maxAttackRangeSqr * c.world.rand.FloatRange(0.8, 1.2)
+	if c.world.config.GameMode == gamedata.ModeArena {
+		attackRangeSqr *= 1.5
+	}
 
 	// Now try to find a suitable target.
 	var target *colonyCoreNode
@@ -138,8 +186,12 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 
 	// Launch the attack.
 
-	// The next action will be much later.
-	c.attackDelay = c.world.rand.FloatRange(30.0, 70.0)
+	if c.world.config.GameMode == gamedata.ModeArena {
+		c.attackDelay = c.world.rand.FloatRange(25.0, 55.0)
+	} else {
+		// The next action will be much later.
+		c.attackDelay = c.world.rand.FloatRange(30.0, 70.0)
+	}
 
 	for _, creep := range group {
 		dist := c.world.rand.FloatRange(creep.stats.weapon.AttackRange*0.5, creep.stats.weapon.AttackRange*0.8)
@@ -152,18 +204,21 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 	}
 }
 
-func (c *creepCoordinator) collectGroup(leader *creepNode) []*creepNode {
+func (c *creepCoordinator) collectGroup(leader *creepNode, maxGroupSize int) []*creepNode {
 	const (
 		maxUnitRange    float64 = 196
 		maxUnitRangeSqr float64 = maxUnitRange * maxUnitRange
 	)
 
+	if maxGroupSize > cap(c.groupSlice) {
+		maxGroupSize = cap(c.groupSlice)
+	}
 	// Try to build a group of at least 2 units.
-	maxGroupSize := c.world.rand.IntRange(2, cap(c.groupSlice))
+	groupSize := c.world.rand.IntRange(2, maxGroupSize)
 	group := c.groupSlice[:0]
 	group = append(group, leader)
 	for _, creep := range c.crawlers {
-		if len(group) >= maxGroupSize {
+		if len(group) >= groupSize {
 			break
 		}
 		if creep == leader || creep.specialModifier != crawlerIdle {

@@ -8,7 +8,7 @@ import (
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
-type tutorialHintNode struct {
+type messageNode struct {
 	rect        *ge.Rect
 	label       *ge.Label
 	targetLine  *ge.Line
@@ -23,13 +23,14 @@ type tutorialHintNode struct {
 	targetPos ge.Pos
 	screenPos bool
 
-	text   string
-	width  float64
-	height float64
+	text     string
+	width    float64
+	height   float64
+	xpadding float64
 }
 
-func newScreenTutorialHintNode(camera *viewport.Camera, pos, targetPos gmath.Vec, text string) *tutorialHintNode {
-	return &tutorialHintNode{
+func newScreenTutorialHintNode(camera *viewport.Camera, pos, targetPos gmath.Vec, text string) *messageNode {
+	return &messageNode{
 		pos:       pos,
 		targetPos: ge.Pos{Offset: targetPos},
 		text:      text,
@@ -38,8 +39,8 @@ func newScreenTutorialHintNode(camera *viewport.Camera, pos, targetPos gmath.Vec
 	}
 }
 
-func newWorldTutorialHintNode(camera *viewport.Camera, pos gmath.Vec, targetPos ge.Pos, text string) *tutorialHintNode {
-	return &tutorialHintNode{
+func newWorldTutorialHintNode(camera *viewport.Camera, pos gmath.Vec, targetPos ge.Pos, text string) *messageNode {
+	return &messageNode{
 		pos:       pos,
 		targetPos: targetPos,
 		text:      text,
@@ -47,100 +48,105 @@ func newWorldTutorialHintNode(camera *viewport.Camera, pos gmath.Vec, targetPos 
 	}
 }
 
-func (hint *tutorialHintNode) Init(scene *ge.Scene) {
+func (m *messageNode) Init(scene *ge.Scene) {
 	ff := scene.Context().Loader.LoadFont(assets.FontTiny)
-	bounds := text.BoundString(ff.Face, hint.text)
-	hint.width = float64(bounds.Dx()) + 16
-	hint.height = float64(bounds.Dy()) + 20
+	bounds := text.BoundString(ff.Face, m.text)
+	m.width = (float64(bounds.Dx()) + 16) + m.xpadding
+	m.height = (float64(bounds.Dy()) + 20)
 
-	hint.rect = ge.NewRect(scene.Context(), hint.width, hint.height)
-	hint.rect.OutlineColorScale.SetColor(ge.RGB(0x5e5a5d))
-	hint.rect.OutlineWidth = 1
-	hint.rect.FillColorScale.SetRGBA(0x13, 0x1a, 0x22, 230)
-	hint.rect.Centered = false
-	hint.rect.Pos.Offset = hint.pos
+	m.rect = ge.NewRect(scene.Context(), m.width, m.height)
+	m.rect.OutlineColorScale.SetColor(ge.RGB(0x5e5a5d))
+	m.rect.OutlineWidth = 1
+	m.rect.FillColorScale.SetRGBA(0x13, 0x1a, 0x22, 230)
+	m.rect.Centered = false
+	m.rect.Pos.Offset = m.pos
 
-	hint.label = scene.NewLabel(assets.FontTiny)
-	hint.label.AlignHorizontal = ge.AlignHorizontalCenter
-	hint.label.AlignVertical = ge.AlignVerticalCenter
-	hint.label.Width = hint.width
-	hint.label.Height = hint.height
-	hint.label.Pos.Offset = hint.pos
-	hint.label.Text = hint.text
-	hint.label.ColorScale.SetColor(ge.RGB(0x9dd793))
+	m.label = scene.NewLabel(assets.FontTiny)
+	m.label.AlignHorizontal = ge.AlignHorizontalCenter
+	m.label.AlignVertical = ge.AlignVerticalCenter
+	m.label.Width = m.width
+	m.label.Height = m.height
+	m.label.Pos.Offset = m.pos
+	m.label.Text = m.text
+	m.label.ColorScale.SetColor(ge.RGB(0x9dd793))
 
-	if !hint.targetPos.Resolve().IsZero() {
-		hint.targetLine = ge.NewLine(ge.Pos{}, ge.Pos{})
-		hint.targetLine.Width = 1
+	if !m.targetPos.Resolve().IsZero() {
+		m.targetLine = ge.NewLine(ge.Pos{}, ge.Pos{})
+		m.targetLine.Width = 1
 		var clr ge.ColorScale
 		clr.SetColor(ge.RGB(0x9dd793))
-		hint.targetLine.SetColorScale(clr)
-		hint.camera.AddGraphicsAbove(hint.targetLine)
+		m.targetLine.SetColorScale(clr)
+		m.camera.AddGraphicsAbove(m.targetLine)
 
-		hint.targetLine2 = ge.NewLine(ge.Pos{}, ge.Pos{})
-		hint.targetLine2.Width = 1
-		hint.targetLine2.SetColorScale(clr)
-		hint.camera.AddGraphicsAbove(hint.targetLine2)
+		m.targetLine2 = ge.NewLine(ge.Pos{}, ge.Pos{})
+		m.targetLine2.Width = 1
+		m.targetLine2.SetColorScale(clr)
+		m.camera.AddGraphicsAbove(m.targetLine2)
 	}
 
-	scene.AddGraphicsAbove(hint.rect, 1)
-	scene.AddGraphicsAbove(hint.label, 1)
+	scene.AddGraphicsAbove(m.rect, 1)
+	scene.AddGraphicsAbove(m.label, 1)
 }
 
-func (hint *tutorialHintNode) Update(delta float64) {
-	if hint.targetLine != nil && hint.trackedObject != nil && hint.trackedObject.IsDisposed() {
-		hint.targetLine.Dispose()
-		hint.targetLine2.Dispose()
-		hint.targetLine = nil
-		hint.targetLine2 = nil
-		hint.trackedObject = nil
+func (m *messageNode) UpdateText(s string) {
+	m.text = s
+	m.label.Text = s
+}
+
+func (m *messageNode) Update(delta float64) {
+	if m.targetLine != nil && m.trackedObject != nil && m.trackedObject.IsDisposed() {
+		m.targetLine.Dispose()
+		m.targetLine2.Dispose()
+		m.targetLine = nil
+		m.targetLine2 = nil
+		m.trackedObject = nil
 	}
 
-	if hint.timed {
-		hint.time = gmath.ClampMin(hint.time-delta, 0)
-		if hint.time == 0 {
-			hint.Dispose()
+	if m.timed {
+		m.time = gmath.ClampMin(m.time-delta, 0)
+		if m.time == 0 {
+			m.Dispose()
 			return
 		}
 	}
 
-	if hint.targetLine != nil {
-		beginPos := hint.camera.Offset.Add(hint.pos)
+	if m.targetLine != nil {
+		beginPos := m.camera.Offset.Add(m.pos)
 		beginPos.Y++
 		var endPos gmath.Vec
-		if hint.screenPos {
-			endPos = hint.camera.Offset.Add(hint.targetPos.Offset)
+		if m.screenPos {
+			endPos = m.camera.Offset.Add(m.targetPos.Offset)
 		} else {
-			endPos = hint.targetPos.Resolve()
+			endPos = m.targetPos.Resolve()
 		}
-		beginPos.X += hint.width
+		beginPos.X += m.width
 
-		hint.targetLine.BeginPos = ge.Pos{Offset: beginPos}
-		hint.targetLine.EndPos = ge.Pos{Offset: endPos}
+		m.targetLine.BeginPos = ge.Pos{Offset: beginPos}
+		m.targetLine.EndPos = ge.Pos{Offset: endPos}
 
-		beginPos.Y += hint.height - 2
-		hint.targetLine2.BeginPos = ge.Pos{Offset: beginPos}
-		hint.targetLine2.EndPos = ge.Pos{Offset: endPos}
+		beginPos.Y += m.height - 2
+		m.targetLine2.BeginPos = ge.Pos{Offset: beginPos}
+		m.targetLine2.EndPos = ge.Pos{Offset: endPos}
 	}
 }
 
-func (hint *tutorialHintNode) HideLines() {
-	if hint.targetLine != nil {
-		hint.targetLine.Visible = false
-		hint.targetLine2.Visible = false
+func (m *messageNode) HideLines() {
+	if m.targetLine != nil {
+		m.targetLine.Visible = false
+		m.targetLine2.Visible = false
 	}
 }
 
-func (hint *tutorialHintNode) IsDisposed() bool {
-	return hint.rect.IsDisposed()
+func (m *messageNode) IsDisposed() bool {
+	return m.rect.IsDisposed()
 }
 
-func (hint *tutorialHintNode) Dispose() {
-	hint.rect.Dispose()
-	hint.label.Dispose()
+func (m *messageNode) Dispose() {
+	m.rect.Dispose()
+	m.label.Dispose()
 
-	if hint.targetLine != nil {
-		hint.targetLine.Dispose()
-		hint.targetLine2.Dispose()
+	if m.targetLine != nil {
+		m.targetLine.Dispose()
+		m.targetLine2.Dispose()
 	}
 }

@@ -20,6 +20,7 @@ func main() {
 
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
 	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
+	extraScore := flag.Int("extra-score", 0, "add extra score points to the session")
 	flag.Parse()
 
 	ctx := ge.NewContext()
@@ -35,6 +36,10 @@ func main() {
 	ctx.LoadGameData("save", &state.Persistent)
 	state.ReloadLanguage(ctx)
 
+	if *extraScore != 0 {
+		state.Persistent.PlayerStats.TotalScore += *extraScore
+	}
+
 	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
 
 	fmt.Println("is mobile?", state.Device.IsMobile)
@@ -44,33 +49,40 @@ func main() {
 	}
 }
 
+func newLevelConfig(config *session.LevelConfig) *session.LevelConfig {
+	config.BuildTurretActionAvailable = true
+	config.AttackActionAvailable = true
+	config.RadiusActionAvailable = true
+
+	config.ExtraUI = true
+	config.EliteResources = true
+
+	config.Tier2Recipes = []gamedata.AgentMergeRecipe{
+		gamedata.FindRecipe(gamedata.ClonerAgentStats),
+		gamedata.FindRecipe(gamedata.FighterAgentStats),
+		gamedata.FindRecipe(gamedata.RepairAgentStats),
+		gamedata.FindRecipe(gamedata.FreighterAgentStats),
+		gamedata.FindRecipe(gamedata.CripplerAgentStats),
+		gamedata.FindRecipe(gamedata.RedminerAgentStats),
+		gamedata.FindRecipe(gamedata.ServoAgentStats),
+	}
+
+	config.Resources = 2
+	config.WorldSize = 2
+	config.CreepDifficulty = 1
+	config.BossDifficulty = 1
+
+	return config
+}
+
 func getDefaultSessionState() *session.State {
 	state := &session.State{
-		LevelConfig: &session.LevelConfig{
-			BuildTurretActionAvailable: true,
-			AttackActionAvailable:      true,
-			RadiusActionAvailable:      true,
-
-			ExtraUI:           true,
-			EliteResources:    true,
-			EnemyBoss:         true,
-			Resources:         2,
-			InitialCreeps:     1,
-			NumCreepBases:     2,
-			CreepDifficulty:   1,
-			BossDifficulty:    1,
-			WorldSize:         2,
-			StartingResources: 0,
-			Tier2Recipes: []gamedata.AgentMergeRecipe{
-				gamedata.FindRecipe(gamedata.ClonerAgentStats),
-				gamedata.FindRecipe(gamedata.FighterAgentStats),
-				gamedata.FindRecipe(gamedata.RepairAgentStats),
-				gamedata.FindRecipe(gamedata.FreighterAgentStats),
-				gamedata.FindRecipe(gamedata.CripplerAgentStats),
-				gamedata.FindRecipe(gamedata.RedminerAgentStats),
-				gamedata.FindRecipe(gamedata.ServoAgentStats),
-			},
-		},
+		ArenaLevelConfig: newLevelConfig(&session.LevelConfig{}),
+		LevelConfig: newLevelConfig(&session.LevelConfig{
+			EnemyBoss:     true,
+			InitialCreeps: 1,
+			NumCreepBases: 2,
+		}),
 		Persistent: session.PersistentData{
 			// The default settings.
 			Settings: session.GameSettings{

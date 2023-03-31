@@ -25,6 +25,7 @@ type LobbyMenuController struct {
 	state *session.State
 
 	config session.LevelConfig
+	mode   gamedata.Mode
 
 	droneButtons         []droneButton
 	pointsAllocatedLabel *widget.Text
@@ -50,14 +51,22 @@ type droneButton struct {
 	available bool
 }
 
-func NewLobbyMenuController(state *session.State) *LobbyMenuController {
-	return &LobbyMenuController{state: state}
+func NewLobbyMenuController(state *session.State, mode gamedata.Mode) *LobbyMenuController {
+	return &LobbyMenuController{
+		state: state,
+		mode:  mode,
+	}
 }
 
 func (c *LobbyMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 
-	c.config = c.state.LevelConfig.Clone()
+	switch c.mode {
+	case gamedata.ModeArena:
+		c.config = c.state.ArenaLevelConfig.Clone()
+	default:
+		c.config = c.state.LevelConfig.Clone()
+	}
 	c.config.Tutorial = nil
 
 	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
@@ -171,6 +180,16 @@ func (c *LobbyMenuController) initUI() {
 	c.updateDifficultyScore(c.calcDifficultyScore())
 }
 
+func (c *LobbyMenuController) saveConfig() {
+	clonedConfig := c.config.Clone()
+	switch c.mode {
+	case gamedata.ModeArena:
+		c.state.ArenaLevelConfig = &clonedConfig
+	default:
+		c.state.LevelConfig = &clonedConfig
+	}
+}
+
 func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *widget.Container {
 	panel := eui.NewPanel(uiResources, 0, 0)
 
@@ -182,10 +201,9 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 	panel.AddChild(c.difficultyLabel)
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
-		clonedConfig := c.config.Clone()
-		c.state.LevelConfig = &clonedConfig
+		c.saveConfig()
 
-		c.config.GameMode = gamedata.ModeClassic
+		c.config.GameMode = c.mode
 		c.config.DifficultyScore = c.calcDifficultyScore()
 		c.config.DronePointsAllocated = c.calcAllocatedPoints()
 		if c.seedInput.InputText != "" {
@@ -198,7 +216,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			c.config.Seed = c.randomSeed()
 		}
 
-		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state)))
+		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
 	}))
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
@@ -301,7 +319,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
-	{
+	if c.mode == gamedata.ModeClassic {
 		var slider gmath.Slider
 		slider.SetBounds(0, 4)
 		slider.TrySetValue(c.config.NumCreepBases)
@@ -357,7 +375,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		tab.AddChild(button)
 	}
 
-	{
+	if c.mode == gamedata.ModeClassic {
 		valueNames := []string{
 			d.Get("menu.option.easy"),
 			d.Get("menu.option.normal"),
@@ -488,11 +506,17 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 func (c *LobbyMenuController) calcDifficultyScore() int {
 	score := 100
 
+	switch c.mode {
+	case gamedata.ModeClassic:
+		if c.config.NumCreepBases != 0 {
+			score += (c.config.CreepDifficulty - 1) * 10
+		}
+	case gamedata.ModeArena:
+		score += (c.config.CreepDifficulty - 1) * 15
+	}
+
 	score += 10 - (c.config.Resources * 5)
 	score += (c.config.NumCreepBases - 2) * 15
-	if c.config.NumCreepBases != 0 {
-		score += (c.config.CreepDifficulty - 1) * 10
-	}
 	score += (c.config.BossDifficulty - 1) * 15
 	score += (c.config.InitialCreeps - 1) * 10
 	score -= (c.config.StartingResources) * 4
@@ -782,5 +806,6 @@ func (c *LobbyMenuController) onDroneToggled() {
 }
 
 func (c *LobbyMenuController) back() {
+	c.saveConfig()
 	c.scene.Context().ChangeScene(NewPlayMenuController(c.state))
 }

@@ -63,10 +63,7 @@ func (g *levelGenerator) Generate() {
 }
 
 func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
-	return gmath.Vec{
-		X: g.rng.FloatRange(sector.Min.X, sector.Max.X),
-		Y: g.rng.FloatRange(sector.Min.Y, sector.Max.Y),
-	}
+	return randomSectorPos(&g.rng, sector)
 }
 
 func (g *levelGenerator) fillPathgrid() {

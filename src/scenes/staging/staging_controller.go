@@ -64,6 +64,8 @@ type Controller struct {
 	fogOfWar     *ebiten.Image
 	visionCircle *ebiten.Image
 
+	arenaManager *arenaManager
+
 	cursor *cursorNode
 
 	debugInfo *ge.Label
@@ -176,11 +178,18 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.world = world
 	world.Init()
 
-	c.world.EventColonyCreated.Connect(c, func(colony *colonyCoreNode) {
-		colony.EventLanded.Connect(c, func(colony *colonyCoreNode) {
-			c.updateFogOfWar(colony.pos)
+	if c.config.GameMode == gamedata.ModeArena {
+		c.arenaManager = newArenaManager(world)
+		scene.AddObject(c.arenaManager)
+	}
+
+	if c.config.FogOfWar {
+		c.world.EventColonyCreated.Connect(c, func(colony *colonyCoreNode) {
+			colony.EventLanded.Connect(c, func(colony *colonyCoreNode) {
+				c.updateFogOfWar(colony.pos)
+			})
 		})
-	})
+	}
 
 	bg := ge.NewTiledBackground(scene.Context())
 	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
@@ -616,6 +625,9 @@ func (c *Controller) checkVictory() {
 	case gamedata.ModeClassic:
 		victory = c.world.boss == nil
 
+	case gamedata.ModeArena:
+		// Do nothing. This mode is endless.
+
 	case gamedata.ModeTutorial:
 		switch c.config.Tutorial.Objective {
 		case gamedata.ObjectiveBoss:
@@ -655,9 +667,9 @@ func (c *Controller) Update(delta float64) {
 	if !c.cameraToggleTarget.IsZero() {
 		c.cameraToggleProgress = gmath.ClampMax(c.cameraToggleProgress+delta, 1)
 		c.camera.CenterOn(c.camera.CenterPos().LinearInterpolate(c.cameraToggleTarget, c.cameraToggleProgress))
-		if c.camera.CenterPos().DistanceSquaredTo(c.cameraToggleTarget) < (80 * 80) {
+		if c.cameraToggleProgress >= 0.9 || c.camera.CenterPos().DistanceSquaredTo(c.cameraToggleTarget) < (80*80) {
+			c.camera.CenterOn(c.cameraToggleTarget)
 			c.cameraToggleTarget = gmath.Vec{}
-			c.camera.CenterOn(c.world.selectedColony.pos)
 		}
 	}
 
@@ -672,8 +684,8 @@ func (c *Controller) Update(delta float64) {
 	c.choices.Enabled = c.world.selectedColony != nil &&
 		c.world.selectedColony.mode == colonyModeNormal
 
-	// TODO: move somewhere else?
 	if c.config.GameMode == gamedata.ModeClassic {
+		// TODO: move somewhere else?
 		c.tier3spawnDelay = gmath.ClampMin(c.tier3spawnDelay-delta, 0)
 		if c.tier3spawnDelay == 0 {
 			c.spawnTier3Creep()
@@ -743,7 +755,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 func (c *Controller) selectNextColony(center bool) {
 	colony := c.findNextColony()
 	c.selectColony(colony)
-	if center && c.world.selectedColony != nil && c.cameraToggleTarget.IsZero() {
+	if center && c.world.selectedColony != nil {
 		c.cameraToggleTarget = c.world.selectedColony.pos
 		c.cameraToggleProgress = 0
 	}

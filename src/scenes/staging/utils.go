@@ -33,6 +33,13 @@ func randIterate[T any](rand *gmath.Rand, slice []T, f func(x T) bool) T {
 	return result
 }
 
+func randomSectorPos(rng *gmath.Rand, sector gmath.Rect) gmath.Vec {
+	return gmath.Vec{
+		X: rng.FloatRange(sector.Min.X, sector.Max.X),
+		Y: rng.FloatRange(sector.Min.Y, sector.Max.Y),
+	}
+}
+
 func posMove(pos gmath.Vec, d pathing.Direction) gmath.Vec {
 	switch d {
 	case pathing.DirRight:

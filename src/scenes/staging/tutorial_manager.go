@@ -49,8 +49,8 @@ type tutorialManager struct {
 	explainedFreighterBots bool
 	explainedSuperElites   bool
 
-	hint      *tutorialHintNode
-	timedHint *tutorialHintNode
+	hint      *messageNode
+	timedHint *messageNode
 
 	updateDelay float64
 

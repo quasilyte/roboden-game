@@ -381,6 +381,18 @@ func (c *creepNode) retreatFrom(pos gmath.Vec) {
 	c.wasAttacking = false
 }
 
+func (c *creepNode) SendTo(pos gmath.Vec) {
+	if c.IsFlying() {
+		c.setWaypoint(pos)
+		return
+	}
+
+	p := c.world.BuildPath(c.pos, pos)
+	c.path = p.Steps
+	c.waypoint = c.world.pathgrid.AlignPos(c.pos)
+	c.specialModifier = crawlerMove
+}
+
 func (c *creepNode) findTargets() []projectileTarget {
 	targets := c.world.tmpTargetSlice[:0]
 	c.world.FindColonyAgent(c.pos, c.stats.weapon.AttackRange, func(a *colonyAgentNode) bool {

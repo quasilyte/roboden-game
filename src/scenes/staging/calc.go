@@ -8,14 +8,31 @@ import (
 )
 
 func calcScore(world *worldState) int {
-	score := world.config.DifficultyScore * 10
-	crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)
-	score += crystalsCollected * 3
-	multiplier := 1.0 - (0.000347222 * (world.result.TimePlayed.Seconds() / 5))
-	if multiplier < 0 {
-		multiplier = 0.001
+	switch world.config.GameMode {
+	case gamedata.ModeArena:
+		score := world.config.DifficultyScore * 8
+		timePlayed := world.result.TimePlayed.Seconds()
+		if timePlayed < 5*60 {
+			return 0
+		}
+		timePlayed -= 5 * 60
+		baselineTime := 60.0 * 60.0
+		multiplier := timePlayed / baselineTime
+		return int(math.Round(float64(score) * multiplier))
+
+	case gamedata.ModeClassic:
+		score := world.config.DifficultyScore * 10
+		crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)
+		score += crystalsCollected * 3
+		multiplier := 1.0 - (0.000347222 * (world.result.TimePlayed.Seconds() / 5))
+		if multiplier < 0 {
+			multiplier = 0.001
+		}
+		return int(math.Round(float64(score) * multiplier))
+
+	default:
+		return 0
 	}
-	return int(math.Round(float64(score) * multiplier))
 }
 
 func mergeAgents(world *worldState, x, y *colonyAgentNode) *gamedata.AgentStats {

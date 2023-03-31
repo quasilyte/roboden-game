@@ -105,11 +105,11 @@
 ##menu.lobby.tab.difficulty : Difficulty
 ##menu.lobby.tab.extra : Extra
 
+##menu.results.the_end : The End
 ##menu.results.victory : Victory
 ##menu.results.defeat : Defeat
 ##menu.results.time_played : Time Played
 ##menu.results.resources_gathered : Resources Gathered
-##menu.results.drone_survivors : Drones Active
 ##menu.results.drones_total : Drones Produced
 ##menu.results.creeps_defeated : Creeps Defeated
 ##menu.results.score : Score

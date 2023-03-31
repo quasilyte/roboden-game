@@ -23,6 +23,7 @@ type resultsController struct {
 	scene          *ge.Scene
 	backController ge.SceneController
 
+	highScore            bool
 	newAchievements      []string
 	upgradedAchievements []string
 	newDrones            []gamedata.ColonyAgentKind
@@ -34,7 +35,6 @@ type battleResults struct {
 	Victory          bool
 	GroundBossDefeat bool
 	TimePlayed       time.Duration
-	SurvivingDrones  int
 
 	ResourcesGathered      float64
 	EliteResourcesGathered float64
@@ -74,7 +74,7 @@ func newResultsController(state *session.State, config *session.LevelConfig, bac
 
 func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
-	if c.results.Victory {
+	if c.results.Victory || c.config.GameMode == gamedata.ModeArena {
 		c.updateProgress()
 		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}
@@ -106,9 +106,19 @@ func (c *resultsController) updateProgress() {
 	}
 
 	stats.TotalScore += c.results.Score
-	if stats.HighestClassicScore < c.results.Score {
-		stats.HighestClassicScore = c.results.Score
-		stats.HighestClassicScoreDifficulty = c.results.DifficultyScore
+	switch c.config.GameMode {
+	case gamedata.ModeClassic:
+		if stats.HighestClassicScore < c.results.Score {
+			c.highScore = true
+			stats.HighestClassicScore = c.results.Score
+			stats.HighestClassicScoreDifficulty = c.results.DifficultyScore
+		}
+	case gamedata.ModeArena:
+		if stats.HighestArenaScore < c.results.Score {
+			c.highScore = true
+			stats.HighestArenaScore = c.results.Score
+			stats.HighestArenaScoreDifficulty = c.results.DifficultyScore
+		}
 	}
 
 	c.newAchievements, c.upgradedAchievements = c.checkAchievements()
@@ -237,9 +247,15 @@ func (c *resultsController) initUI() {
 
 	d := c.scene.Dict()
 
-	titleString := d.Get("menu.results.defeat")
-	if c.results.Victory {
-		titleString = d.Get("menu.results.victory") + "!"
+	var titleString string
+	if c.config.GameMode == gamedata.ModeArena {
+		titleString = d.Get("menu.results.the_end")
+	} else {
+		if c.results.Victory {
+			titleString = d.Get("menu.results.victory") + "!"
+		} else {
+			titleString = d.Get("menu.results.defeat")
+		}
 	}
 	titleLabel := eui.NewCenteredLabel(uiResources, titleString, smallFont)
 	rowContainer.AddChild(titleLabel)
@@ -249,12 +265,11 @@ func (c *resultsController) initUI() {
 	lines := []string{
 		fmt.Sprintf("%s: %v", d.Get("menu.results.time_played"), timeutil.FormatDuration(d, c.results.TimePlayed)),
 		fmt.Sprintf("%s: %v", d.Get("menu.results.resources_gathered"), int(c.results.ResourcesGathered)),
-		fmt.Sprintf("%s: %v", d.Get("menu.results.drone_survivors"), c.results.SurvivingDrones),
 		fmt.Sprintf("%s: %v", d.Get("menu.results.drones_total"), c.results.DronesProduced),
 		fmt.Sprintf("%s: %v", d.Get("menu.results.creeps_defeated"), c.results.CreepsDefeated),
 	}
-	if c.results.Victory && c.config.Tutorial == nil {
-		if c.results.Score > c.state.Persistent.PlayerStats.HighestClassicScore {
+	if c.config.GameMode == gamedata.ModeArena || c.results.Victory {
+		if c.highScore {
 			lines = append(lines, fmt.Sprintf("%s: %v (%s)", d.Get("menu.results.score"), c.results.Score, d.Get("menu.results.new_record")))
 		} else {
 			lines = append(lines, fmt.Sprintf("%s: %v", d.Get("menu.results.score"), c.results.Score))

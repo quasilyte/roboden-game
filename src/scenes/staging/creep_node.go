@@ -150,6 +150,9 @@ func (c *creepNode) Dispose() {
 
 func (c *creepNode) Destroy() {
 	c.EventDestroyed.Emit(c)
+	if c.stats.kind == creepBuilder && c.specialTarget != nil {
+		c.EventBuildingStop.Emit(gsignal.Void{})
+	}
 	c.Dispose()
 }
 
@@ -238,11 +241,11 @@ func (c *creepNode) explode() {
 			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.altSprite), true)
 		}
 
-	case creepTurret, creepBase, creepTurretConstruction:
+	case creepTurret, creepBase:
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.scene.AddObject(scraps)
-	case creepTank:
+	case creepTank, creepTurretConstruction:
 		createExplosion(c.scene, c.world.camera, false, c.pos)
 		scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 		c.scene.AddObject(scraps)

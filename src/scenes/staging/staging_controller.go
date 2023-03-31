@@ -467,9 +467,16 @@ func (c *Controller) defeat() {
 	c.transitionQueued = true
 	c.scene.DelayedCall(2.0, func() {
 		c.world.result.Victory = false
-		c.world.result.TimePlayed = time.Since(c.startTime)
+		c.prepareBattleResults()
 		c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 	})
+}
+
+func (c *Controller) prepareBattleResults() {
+	c.world.result.TimePlayed = time.Since(c.startTime)
+	c.world.result.Score = calcScore(c.world)
+	c.world.result.DifficultyScore = c.config.DifficultyScore
+	c.world.result.DronePointsAllocated = c.config.DronePointsAllocated
 }
 
 func (c *Controller) victory() {
@@ -482,13 +489,7 @@ func (c *Controller) victory() {
 
 	c.scene.DelayedCall(5.0, func() {
 		c.world.result.Victory = true
-		c.world.result.TimePlayed = time.Since(c.startTime)
-		for _, colony := range c.world.colonies {
-			c.world.result.SurvivingDrones += colony.NumAgents()
-		}
-		c.world.result.Score = calcScore(c.world)
-		c.world.result.DifficultyScore = c.config.DifficultyScore
-		c.world.result.DronePointsAllocated = c.config.DronePointsAllocated
+		c.prepareBattleResults()
 
 		t3set := map[gamedata.ColonyAgentKind]struct{}{}
 		for _, colony := range c.world.colonies {

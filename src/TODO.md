@@ -8,6 +8,7 @@ todo engine:
 
 fixme:
 - colony tends to produce a lot of combat drones even if low on resources
+- achievements should respect their game mode requirement
 
 todo:
 - make fog of war disappear dynamically?

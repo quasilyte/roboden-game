@@ -16,7 +16,9 @@ const (
 	creepPrimitiveWanderer creepKind = iota
 	creepStunner
 	creepAssault
+	creepBuilder
 	creepTurret
+	creepTurretConstruction
 	creepBase
 	creepTank
 	creepCrawler
@@ -59,7 +61,8 @@ type creepNode struct {
 
 	bossStage int
 
-	EventDestroyed gsignal.Event[*creepNode]
+	EventDestroyed    gsignal.Event[*creepNode]
+	EventBuildingStop gsignal.Event[gsignal.Void]
 }
 
 var crawlerSpawnPositions = []pathing.GridPath{
@@ -123,8 +126,13 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	} else {
 		c.maxHealth *= c.world.creepHealthMultiplier
 	}
-	if c.stats.kind == creepServant {
+	switch c.stats.kind {
+	case creepServant:
 		c.specialDelay = c.scene.Rand().FloatRange(0.5, 3)
+	case creepBuilder:
+		c.specialDelay = c.scene.Rand().FloatRange(20, 40)
+	case creepTurretConstruction:
+		c.sprite.Shader = scene.NewShader(assets.ShaderCreepTurretBuild)
 	}
 
 	c.health = c.maxHealth
@@ -167,6 +175,8 @@ func (c *creepNode) Update(delta float64) {
 	switch c.stats.kind {
 	case creepPrimitiveWanderer, creepStunner, creepAssault:
 		c.updatePrimitiveWanderer(delta)
+	case creepBuilder:
+		c.updateBuilder(delta)
 	case creepUberBoss:
 		c.updateUberBoss(delta)
 	case creepServant:
@@ -179,6 +189,8 @@ func (c *creepNode) Update(delta float64) {
 		c.updateTank(delta)
 	case creepTurret:
 		// Do nothing.
+	case creepTurretConstruction:
+		c.updateTurretConstruction(delta)
 	default:
 		panic("unexpected creep kind in update()")
 	}
@@ -226,7 +238,7 @@ func (c *creepNode) explode() {
 			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.altSprite), true)
 		}
 
-	case creepTurret, creepBase:
+	case creepTurret, creepBase, creepTurretConstruction:
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.scene.AddObject(scraps)
@@ -300,7 +312,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 		return
 	}
 
-	if damage.Morale != 0 && c.stats.kind != creepServant {
+	if damage.Morale != 0 && c.stats.kind != creepServant && c.stats.kind != creepBuilder {
 		if c.wasRetreating {
 			return
 		}
@@ -477,6 +489,50 @@ func (c *creepNode) updatePrimitiveWanderer(delta float64) {
 	c.wandererMovement(delta)
 }
 
+func (c *creepNode) updateBuilder(delta float64) {
+	c.anim.Tick(delta)
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
+	if c.specialTarget != nil {
+		// Building a turret.
+		turret := c.specialTarget.(*creepNode)
+		if turret.IsDisposed() {
+			c.specialTarget = nil
+			c.specialDelay = c.scene.Rand().FloatRange(30, 50)
+			c.EventBuildingStop.Emit(gsignal.Void{})
+			return
+		}
+		if turret.stats.kind == creepTurret {
+			// Constructed successfully.
+			c.specialTarget = nil
+			c.specialDelay = c.scene.Rand().FloatRange(70, 120)
+			c.EventBuildingStop.Emit(gsignal.Void{})
+			return
+		}
+		return
+	}
+
+	if c.waypoint.IsZero() {
+		turretPos := c.pos.Add(gmath.Vec{Y: agentFlightHeight})
+		if c.specialDelay == 0 && posIsFree(c.world, nil, turretPos, 80) {
+			// Start building a turret.
+			turret := c.world.NewCreepNode(turretPos, turretConstructionCreepStats)
+			turret.specialTarget = c
+			c.specialTarget = turret
+			c.scene.AddObject(turret)
+			lasers := newBuilderLaserNode(c.world.camera, c.pos)
+			c.EventBuildingStop.Connect(lasers, lasers.OnBuildingStop)
+			c.scene.AddObject(lasers)
+			return
+		}
+		c.waypoint = correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 400)
+	}
+
+	if c.moveTowards(delta, c.waypoint) {
+		c.waypoint = gmath.Vec{}
+	}
+}
+
 func (c *creepNode) crawlerSpawnPos() gmath.Vec {
 	return c.pos.Add(gmath.Vec{Y: agentFlightHeight - 20})
 }
@@ -537,6 +593,25 @@ func (c *creepNode) updateCrawler(delta float64) {
 			return
 		}
 	}
+}
+
+func (c *creepNode) updateTurretConstruction(delta float64) {
+	// If builder is defeated, this turret should be removed.
+	if c.specialTarget == nil || c.specialTarget.(*creepNode).IsDisposed() {
+		c.explode()
+		c.Destroy()
+	}
+
+	if c.specialModifier >= 1 {
+		turret := c.world.NewCreepNode(c.pos, turretCreepStats)
+		c.specialTarget.(*creepNode).specialTarget = turret
+		c.scene.AddObject(turret)
+		c.Destroy()
+		return
+	}
+
+	c.specialModifier += delta * 0.02
+	c.sprite.Shader.SetFloatValue("Time", c.specialModifier)
 }
 
 func (c *creepNode) updateTank(delta float64) {

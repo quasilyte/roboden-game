@@ -50,7 +50,7 @@ var turretCreepStats = &creepStats{
 		FireOffset:      gmath.Vec{Y: -8},
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	size: 38,
+	size: 40,
 }
 
 var baseCreepStats = &creepStats{
@@ -59,6 +59,14 @@ var baseCreepStats = &creepStats{
 	speed:     0,
 	maxHealth: 150,
 	size:      60,
+}
+
+var turretConstructionCreepStats = &creepStats{
+	kind:      creepTurretConstruction,
+	image:     assets.ImageTurretCreep,
+	speed:     0,
+	maxHealth: 35,
+	size:      40,
 }
 
 var wandererCreepStats = &creepStats{
@@ -197,6 +205,17 @@ var assaultCreepStats = &creepStats{
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
 	disarmable: true,
+}
+
+var builderCreepStats = &creepStats{
+	kind:        creepBuilder,
+	image:       assets.ImageBuilderCreep,
+	animSpeed:   0.1,
+	shadowImage: assets.ImageBigShadow,
+	tier:        3,
+	speed:       40,
+	maxHealth:   125,
+	// disarmable: true,
 }
 
 var uberBossCreepStats = &creepStats{

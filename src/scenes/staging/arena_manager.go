@@ -48,6 +48,7 @@ type arenaWaveGroup struct {
 type arenaWaveInfo struct {
 	groups []arenaWaveGroup
 
+	builders        bool
 	flyingAttackers bool
 	groundAttackers bool
 
@@ -98,6 +99,11 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 			stats:    assaultCreepStats,
 			cost:     15,
 			minLevel: 4,
+		},
+		{
+			stats:    builderCreepStats,
+			cost:     25,
+			minLevel: 6,
 		},
 	}
 
@@ -195,6 +201,12 @@ func (m *arenaManager) createWaveOverviewText() string {
 	buf.WriteString(d.Get("game.wave_units"))
 	buf.WriteString(": ")
 	buf.WriteString(strings.Join(unitKindParts, ", "))
+	if m.waveInfo.builders {
+		buf.WriteByte('\n')
+		buf.WriteString(d.Get("game.wave_special_units"))
+		buf.WriteString(": ")
+		buf.WriteString(d.Get("game.wave_builders"))
+	}
 
 	return buf.String()
 }
@@ -275,7 +287,7 @@ func (m *arenaManager) spawnCreeps() {
 }
 
 func (m *arenaManager) prepareWaveInfo() {
-	budget := 15 + (m.level * (10 + m.level))
+	budget := 15 + (m.level * 10)
 
 	// First decide which kind of attack we're doing.
 	attackDirectionRoll := m.world.rand.Float()
@@ -322,10 +334,15 @@ func (m *arenaManager) prepareWaveInfo() {
 				localBudget = maxGroupBudget
 			}
 			sideBudget -= localBudget
+			skipBuilders := m.world.rand.Chance(0.7)
 			for {
-				creep, budgetRemaining, ok := m.pickUnit(localBudget, creepSelection)
+				creep, budgetRemaining, ok := m.pickUnit(localBudget, creepSelection, skipBuilders)
 				if !ok {
 					break
+				}
+				if creep.kind == creepBuilder {
+					m.waveInfo.builders = true
+					skipBuilders = true
 				}
 				localBudget = budgetRemaining
 				g.units = append(g.units, creep)
@@ -337,11 +354,14 @@ func (m *arenaManager) prepareWaveInfo() {
 	m.waveInfo.groups = groups
 }
 
-func (m *arenaManager) pickUnit(budget int, selection []arenaCreepInfo) (*creepStats, int, bool) {
+func (m *arenaManager) pickUnit(budget int, selection []arenaCreepInfo, skipBuilder bool) (*creepStats, int, bool) {
 	if budget < selection[0].cost {
 		return nil, budget, false
 	}
 	creepInfo := randIterate(m.world.rand, selection, func(x arenaCreepInfo) bool {
+		if skipBuilder && x.stats.kind == creepBuilder {
+			return false
+		}
 		return x.cost <= budget && x.minLevel <= m.level
 	})
 	if creepInfo.cost != 0 && creepInfo.cost <= budget {

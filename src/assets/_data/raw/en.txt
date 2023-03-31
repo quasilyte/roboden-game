@@ -136,7 +136,9 @@
 ##game.wave : Wave
 ##game.wave_starts_in : starts in
 ##game.wave_units : Enemy units
+##game.wave_special_units : Enemy special units
 ##game.wave_direction : Attack directions
+##game.wave_builders : builders
 ##game.side.all : all
 ##game.side.east : east
 ##game.side.south : south

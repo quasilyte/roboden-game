@@ -21,6 +21,7 @@ var (
 	repairBeamColor          = ge.RGB(0x6ac037)
 	rechargerBeamColor       = ge.RGB(0x66ced6)
 	railgunBeamColor         = ge.RGB(0xbd1844)
+	builderBeamColor         = color.RGBA{R: 0xae, G: 0x4c, B: 0x78, A: 150}
 	stunnerBeamColor         = ge.RGB(0x7d21cd)
 	destroyerBeamColor       = ge.RGB(0xf58f54)
 	courierResourceBeamColor = ge.RGB(0xd2e352)

@@ -699,10 +699,15 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		toAssign += extraAssign
 		toAssign = gmath.ClampMax(toAssign, source.resource)
 		numAssigned := 0
-		c.pickWorkerUnits(toAssign, func(a *colonyAgentNode) {
+		c.agents.Find(searchWorkers|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
+			if source.stats == redOilSource && a.stats.Kind != gamedata.AgentRedminer {
+				return false
+			}
+			toAssign--
 			if a.AssignMode(agentModeMineEssence, gmath.Vec{}, source) {
 				numAssigned++
 			}
+			return toAssign <= 0
 		})
 		if numAssigned == 0 {
 			c.failedResource = source

@@ -50,6 +50,7 @@ const (
 	ProjectileExplosionMilitiaIon
 	ProjectileExplosionShocker
 	ProjectileExplosionCripplerBlaster
+	ProjectileExplosionStealthLaser
 )
 
 type TargetKind int

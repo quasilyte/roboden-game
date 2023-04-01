@@ -204,6 +204,7 @@ var stealthCrawlerCreepStats = &creepStats{
 		Reload:              3.5,
 		TargetFlags:         gamedata.TargetFlying | gamedata.TargetGround,
 		FireOffset:          gmath.Vec{Y: -2},
+		Explosion:           gamedata.ProjectileExplosionStealthLaser,
 	}),
 	size:       24,
 	disarmable: true,

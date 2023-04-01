@@ -63,6 +63,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageActionIncreaseRadius: {Path: "image/ui/action_increase_radius.png"},
 		ImageActionDecreaseRadius: {Path: "image/ui/action_decrease_radius.png"},
 
+		ImageStealthLaserExplosion:    {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
 		ImageCripplerBlasterExplosion: {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
 		ImageMilitiaIonExplosion:      {Path: "image/effects/militia_ion_explosion.png", FrameWidth: 5},
 		ImageShockerExplosion:         {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
@@ -249,6 +250,7 @@ const (
 	ImagePrioritySecurity
 	ImageObjectiveDisplay
 
+	ImageStealthLaserExplosion
 	ImageCripplerBlasterExplosion
 	ImageMilitiaIonExplosion
 	ImageShockerExplosion

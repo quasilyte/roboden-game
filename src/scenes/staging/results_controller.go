@@ -54,6 +54,7 @@ type battleResults struct {
 
 	RedCrystalsCollected int
 
+	ArenaLevel           int
 	Score                int
 	DifficultyScore      int
 	DronePointsAllocated int
@@ -274,6 +275,9 @@ func (c *resultsController) initUI() {
 		} else {
 			lines = append(lines, fmt.Sprintf("%s: %v", d.Get("menu.results.score"), c.results.Score))
 		}
+	}
+	if c.config.GameMode == gamedata.ModeArena {
+		lines = append(lines, fmt.Sprintf("%s: %d", d.Get("game.wave"), c.results.ArenaLevel))
 	}
 
 	for _, a := range c.newAchievements {

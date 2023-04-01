@@ -511,15 +511,17 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 		if c.config.NumCreepBases != 0 {
 			score += (c.config.CreepDifficulty - 1) * 10
 		}
+		score += 10 - (c.config.Resources * 5)
+		score += (c.config.NumCreepBases - 2) * 15
+		score += (c.config.BossDifficulty - 1) * 15
+		score += (c.config.InitialCreeps - 1) * 10
+		score -= c.config.StartingResources * 4
 	case gamedata.ModeArena:
+		score += 10 - (c.config.Resources * 5)
 		score += (c.config.CreepDifficulty - 1) * 15
+		score += c.config.InitialCreeps * 5
+		score -= c.config.StartingResources * 2
 	}
-
-	score += 10 - (c.config.Resources * 5)
-	score += (c.config.NumCreepBases - 2) * 15
-	score += (c.config.BossDifficulty - 1) * 15
-	score += (c.config.InitialCreeps - 1) * 10
-	score -= (c.config.StartingResources) * 4
 
 	if !c.config.ExtraUI {
 		score += 5

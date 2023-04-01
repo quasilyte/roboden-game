@@ -474,6 +474,9 @@ func (c *Controller) defeat() {
 
 func (c *Controller) prepareBattleResults() {
 	c.world.result.TimePlayed = time.Since(c.startTime)
+	if c.arenaManager != nil {
+		c.world.result.ArenaLevel = c.arenaManager.level
+	}
 	c.world.result.Score = calcScore(c.world)
 	c.world.result.DifficultyScore = c.config.DifficultyScore
 	c.world.result.DronePointsAllocated = c.config.DronePointsAllocated

@@ -214,7 +214,7 @@ var builderCreepStats = &creepStats{
 	shadowImage: assets.ImageBigShadow,
 	tier:        3,
 	speed:       40,
-	maxHealth:   125,
+	maxHealth:   140,
 	// disarmable: true,
 }
 

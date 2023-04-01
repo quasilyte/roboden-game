@@ -166,11 +166,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.energyRegenRate = 1 + a.stats.EnergyRegenRateBonus
 
 	if a.stats.Tier == 1 {
-		if a.stats.CanPatrol {
-			a.lifetime = scene.Rand().FloatRange(3*60, 6*60)
-		} else {
-			a.lifetime = scene.Rand().FloatRange(2*60, 4*60)
-		}
+		a.lifetime = scene.Rand().FloatRange(1.5*60, 3*60)
 		// If it's a neutral drone, don't hurry to recycle it.
 		// It's probably a new base and it may need drones to live for longer.
 		// If evolution priority is high, neutral drones will be recycled anyway.

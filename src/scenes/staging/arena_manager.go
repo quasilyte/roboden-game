@@ -287,7 +287,7 @@ func (m *arenaManager) spawnCreeps() {
 }
 
 func (m *arenaManager) prepareWaveInfo() {
-	budget := 15 + (m.level * 10)
+	budget := 20 + (m.level * 10)
 
 	// First decide which kind of attack we're doing.
 	attackDirectionRoll := m.world.rand.Float()
@@ -334,7 +334,7 @@ func (m *arenaManager) prepareWaveInfo() {
 				localBudget = maxGroupBudget
 			}
 			sideBudget -= localBudget
-			skipBuilders := m.world.rand.Chance(0.7)
+			skipBuilders := m.world.rand.Chance(0.65)
 			for {
 				creep, budgetRemaining, ok := m.pickUnit(localBudget, creepSelection, skipBuilders)
 				if !ok {

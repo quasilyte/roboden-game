@@ -10,10 +10,12 @@ import (
 type colonyActionPlanner struct {
 	colony *colonyCoreNode
 
-	numTier1Agents    int
-	numTier2Agents    int
-	numPatrolAgents   int
-	numGarrisonAgents int
+	numTier1WorkerAgents int
+	numTier1CombatAgents int
+	numTier1Agents       int
+	numTier2Agents       int
+	numPatrolAgents      int
+	numGarrisonAgents    int
 
 	agentCountTable [gamedata.AgentKindNum]uint8
 	mergetab        mergeTable
@@ -50,6 +52,11 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 		switch a.stats.Tier {
 		case 1:
 			p.numTier1Agents++
+			if a.stats.CanPatrol {
+				p.numTier1CombatAgents++
+			} else {
+				p.numTier1WorkerAgents++
+			}
 		case 2:
 			p.numTier2Agents++
 		}
@@ -206,19 +213,21 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 }
 
 func (p *colonyActionPlanner) combatUnitProbability() float64 {
-	if len(p.colony.agents.workers) < 2 {
+	if p.numTier1WorkerAgents < 2 {
 		return 0
 	}
-	minCombatUnits := int(p.colony.GetSecurityPriority() * 20)
-	if p.colony.GetSecurityPriority() > 0.1 && len(p.colony.agents.fighters) < minCombatUnits {
-		return 0.9
+	if p.colony.GetSecurityPriority() > 0.1 {
+		minCombatUnits := int(math.Round(p.colony.GetSecurityPriority() - 0.1*20))
+		if len(p.colony.agents.fighters) < minCombatUnits {
+			return 0.9
+		}
 	}
 	wantedCombatAgentRatio := p.colony.GetSecurityPriority() * 0.8
-	currentCombatAgentRatio := float64(len(p.colony.agents.fighters)) / float64(len(p.colony.agents.workers))
+	currentCombatAgentRatio := float64(p.numTier1CombatAgents) / float64(p.numTier1WorkerAgents)
 	if currentCombatAgentRatio < wantedCombatAgentRatio {
 		return 0.75
 	}
-	return 0.2
+	return 0.1
 }
 
 func (p *colonyActionPlanner) pickCloner() *colonyAgentNode {
@@ -356,7 +365,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 
 	softUnitLimit := p.colony.calcUnitLimit()
 	if combatUnit {
-		softUnitLimit = int(float64(softUnitLimit) * 1.3)
+		softUnitLimit = int(math.Round(float64(softUnitLimit) * 1.25))
 	}
 	if p.colony.NumAgents() > softUnitLimit {
 		return colonyAction{}

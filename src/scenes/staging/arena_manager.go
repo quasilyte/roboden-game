@@ -75,6 +75,7 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 
 	m.level = 1
 	m.waveBudget = 20
+	m.levelStartDelay = 90
 
 	m.groundCreepSelection = []arenaCreepInfo{
 		{
@@ -127,7 +128,6 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	m.mixedCreepSelection = append(m.mixedCreepSelection, m.flyingCreepSelection...)
 
 	m.infoUpdateDelay = 5
-	m.levelStartDelay = 90
 	m.prepareWaveInfo()
 	m.overviewText = m.createWaveOverviewText()
 	m.info = m.createWaveInfoMessageNode()
@@ -135,10 +135,13 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 }
 
 func (m *arenaManager) incLevel() {
+
 	m.level++
 	if m.level%5 == 0 {
-		m.waveBudget += 15
+		m.levelStartDelay = 4.0 * 60
+		m.waveBudget += 25
 	} else {
+		m.levelStartDelay = 2.5 * 60
 		m.waveBudget += 10
 	}
 }
@@ -147,7 +150,6 @@ func (m *arenaManager) Update(delta float64) {
 	m.levelStartDelay -= delta
 	if m.levelStartDelay <= 0 {
 		m.spawnCreeps()
-		m.levelStartDelay = 3 * 60
 		m.incLevel()
 		m.prepareWaveInfo()
 		m.overviewText = m.createWaveOverviewText()
@@ -231,11 +233,10 @@ func (m *arenaManager) createWaveInfoText() string {
 	buf.WriteString(d.Get("game.wave"))
 	buf.WriteByte(' ')
 	buf.WriteString(strconv.Itoa(m.level))
-	buf.WriteString(" (")
+	buf.WriteString(" ")
 	buf.WriteString(d.Get("game.wave_starts_in"))
 	buf.WriteByte(' ')
 	buf.WriteString(timeutil.FormatDuration(d, time.Duration(m.levelStartDelay*float64(time.Second))))
-	buf.WriteString(")")
 	if m.overviewText != "" {
 		buf.WriteByte('\n')
 		buf.WriteString(m.overviewText)

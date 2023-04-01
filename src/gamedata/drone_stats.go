@@ -91,7 +91,7 @@ var GunpointAgentStats = &AgentStats{
 	Image:     assets.ImageGunpointAgent,
 	Size:      SizeLarge,
 	Cost:      12,
-	Upkeep:    16,
+	Upkeep:    12,
 	MaxHealth: 100,
 	CanPatrol: true,
 	Weapon: initWeaponStats(&WeaponStats{

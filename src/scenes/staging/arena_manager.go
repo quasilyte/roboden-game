@@ -19,7 +19,8 @@ type arenaCreepInfo struct {
 }
 
 type arenaManager struct {
-	level int
+	level      int
+	waveBudget int
 
 	info            *messageNode
 	overviewText    string
@@ -57,7 +58,6 @@ type arenaWaveInfo struct {
 
 func newArenaManager(world *worldState) *arenaManager {
 	return &arenaManager{
-		level: 1,
 		world: world,
 		waveInfo: arenaWaveInfo{
 			groups: make([]arenaWaveGroup, 0, 8),
@@ -72,6 +72,9 @@ func (m *arenaManager) IsDisposed() bool {
 
 func (m *arenaManager) Init(scene *ge.Scene) {
 	m.scene = scene
+
+	m.level = 1
+	m.waveBudget = 20
 
 	m.groundCreepSelection = []arenaCreepInfo{
 		{
@@ -131,12 +134,21 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	scene.AddObject(m.info)
 }
 
+func (m *arenaManager) incLevel() {
+	m.level++
+	if m.level%5 == 0 {
+		m.waveBudget += 15
+	} else {
+		m.waveBudget += 10
+	}
+}
+
 func (m *arenaManager) Update(delta float64) {
 	m.levelStartDelay -= delta
 	if m.levelStartDelay <= 0 {
 		m.spawnCreeps()
 		m.levelStartDelay = 3 * 60
-		m.level++
+		m.incLevel()
 		m.prepareWaveInfo()
 		m.overviewText = m.createWaveOverviewText()
 		if m.info != nil {
@@ -287,7 +299,7 @@ func (m *arenaManager) spawnCreeps() {
 }
 
 func (m *arenaManager) prepareWaveInfo() {
-	budget := 20 + (m.level * 10)
+	budget := m.waveBudget
 
 	// First decide which kind of attack we're doing.
 	attackDirectionRoll := m.world.rand.Float()

@@ -1217,7 +1217,7 @@ func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 	a.dist -= delta
 	if a.dist <= 0 {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-		amountRepaired := a.scene.Rand().FloatRange(3, 5)
+		amountRepaired := a.scene.Rand().FloatRange(5, 8)
 		if a.faction == gamedata.GreenFactionTag {
 			amountRepaired *= 1.5
 		}

@@ -217,7 +217,7 @@ func (p *colonyActionPlanner) combatUnitProbability() float64 {
 		return 0
 	}
 	if p.colony.GetSecurityPriority() > 0.1 {
-		minCombatUnits := int(math.Round(p.colony.GetSecurityPriority() - 0.1*20))
+		minCombatUnits := int(math.Round((p.colony.GetSecurityPriority() - 0.1) * 20))
 		if len(p.colony.agents.fighters) < minCombatUnits {
 			return 0.9
 		}

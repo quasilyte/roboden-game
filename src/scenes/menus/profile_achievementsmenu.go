@@ -83,7 +83,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 			return a.Name == achievement.Name
 		})
 		grade := 0
-		img := c.scene.LoadImage(assets.ImageAchievementImpossible).Data
+		img := c.scene.LoadImage(achievement.Icon).Data
 		if status != nil {
 			img = c.paintIcon(img)
 			if status.Elite {
@@ -106,6 +106,10 @@ func (c *ProfileAchievementsMenuController) initUI() {
 			lines = append(lines, fmt.Sprintf("%s %s", d.Get("achievement", achievement.Name), statusText))
 			lines = append(lines, "")
 			lines = append(lines, d.Get("achievement", achievement.Name, "description"))
+			if achievement.Mode != gamedata.ModeAny {
+				lines = append(lines, "")
+				lines = append(lines, fmt.Sprintf("%s: %s", d.Get("achievement.game_mode"), d.Get("achievement.mode", achievement.Mode.String())))
+			}
 			helpLabel.Label = strings.Join(lines, "\n")
 		})
 		if status != nil {

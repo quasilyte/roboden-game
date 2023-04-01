@@ -309,7 +309,7 @@ func NewItemButton(res *Resources, img *ebiten.Image, ff font.Face, label string
 		paddingContainer := widget.NewContainer(
 			widget.ContainerOpts.Layout(
 				widget.NewAnchorLayout(widget.AnchorLayoutOpts.Padding(widget.Insets{
-					Top: 22,
+					Top: 24,
 				})),
 			),
 		)

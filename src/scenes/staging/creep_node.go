@@ -130,7 +130,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	case creepServant:
 		c.specialDelay = c.scene.Rand().FloatRange(0.5, 3)
 	case creepBuilder:
-		c.specialDelay = c.scene.Rand().FloatRange(20, 40)
+		c.specialDelay = c.scene.Rand().FloatRange(15, 30)
 	case creepTurretConstruction:
 		c.sprite.Shader = scene.NewShader(assets.ShaderCreepTurretBuild)
 	}
@@ -495,6 +495,10 @@ func (c *creepNode) updatePrimitiveWanderer(delta float64) {
 func (c *creepNode) updateBuilder(delta float64) {
 	c.anim.Tick(delta)
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
+	// It regenerates 1 health over 5 seconds (*0.2).
+	// 12 hp over minute.
+	c.health = gmath.ClampMax(c.health+(delta*0.2), c.maxHealth)
 
 	if c.specialTarget != nil {
 		// Building a turret.

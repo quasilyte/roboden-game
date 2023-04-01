@@ -8,7 +8,6 @@ todo engine:
 
 fixme:
 - colony tends to produce a lot of combat drones even if low on resources
-- achievements should respect their game mode requirement
 - colony movement is clunky, needs to be improved (don't move if can't land there)
 - stop crawlers phase through tall mountains
 

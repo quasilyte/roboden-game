@@ -15,7 +15,6 @@
 ##objective.boss : Defeat the enemy colony
 
 ##menu.play.classic : Classic Mode
-##menu.play.rush : Rush Mode
 ##menu.play.arena : Arena Mode
 ##menu.play.tutorial : Tutorial
 ##menu.play.to_unlock : Score To Unlock
@@ -268,6 +267,10 @@ The mortar drone is also quite durable itself.
 ##drone.antiair.description
 A drone with an anti-air missle launcher as a weapon.
 It's highly effective, but also quite fragile and it can't attack the ground targets.
+
+##achievement.game_mode : Game mode
+##achievement.mode.classic : classic
+##achievement.mode.arena : arena
 
 ##achievement.impossible : Impossible Difficulty
 ##achievement.impossible.description

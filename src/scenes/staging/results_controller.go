@@ -181,6 +181,11 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		if alreadyAchieved[a.Name] >= difficultyLevel {
 			continue
 		}
+		if a.Mode != gamedata.ModeAny {
+			if a.Mode != c.config.GameMode {
+				continue
+			}
+		}
 		unlocked := false
 
 		switch a.Name {

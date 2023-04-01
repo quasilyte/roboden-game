@@ -9,7 +9,20 @@ import (
 
 func registerImageResources(ctx *ge.Context) {
 	imageResources := map[resource.ImageID]resource.ImageInfo{
-		ImageAchievementImpossible: {Path: "image/achievement/impossible.png"},
+		ImageAchievementImpossible:   {Path: "image/achievement/impossible.png"},
+		ImageAchievementCheapBuild10: {Path: "image/achievement/cheapbuild10.png"},
+		ImageAchievementT3Engineer:   {Path: "image/achievement/t3engineer.png"},
+		ImageAchievementHighTension:  {Path: "image/achievement/hightension.png"},
+		ImageAchievementSoloBase:     {Path: "image/achievement/solobase.png"},
+		ImageAchievementUILess:       {Path: "image/achievement/uiless.png"},
+		ImageAchievementTinyRadius:   {Path: "image/achievement/tinyradius.png"},
+		ImageAchievementT1Army:       {Path: "image/achievement/t1army.png"},
+		ImageAchievementGroundWin:    {Path: "image/achievement/groundwin.png"},
+		ImageAchievementSpeedrunning: {Path: "image/achievement/speedrunning.png"},
+		ImageAchievementVictoryDrag:  {Path: "image/achievement/victorydrag.png"},
+		ImageAchievementT3Less:       {Path: "image/achievement/impossible.png"}, // Stub!
+		ImageAchievementTurretDamage: {Path: "image/achievement/turretdamage.png"},
+		ImageAchievementPowerOf3:     {Path: "image/achievement/powerof3.png"},
 
 		ImageLock: {Path: "image/ui/lock.png"},
 
@@ -199,6 +212,19 @@ const (
 	ImageNone resource.ImageID = iota
 
 	ImageAchievementImpossible
+	ImageAchievementCheapBuild10
+	ImageAchievementT3Engineer
+	ImageAchievementHighTension
+	ImageAchievementSoloBase
+	ImageAchievementUILess
+	ImageAchievementTinyRadius
+	ImageAchievementT1Army
+	ImageAchievementGroundWin
+	ImageAchievementSpeedrunning
+	ImageAchievementVictoryDrag
+	ImageAchievementT3Less
+	ImageAchievementTurretDamage
+	ImageAchievementPowerOf3
 
 	ImageLock
 

@@ -87,6 +87,11 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 			cost:     6,
 			minLevel: 2,
 		},
+		{
+			stats:    stealthCrawlerCreepStats,
+			cost:     7,
+			minLevel: 3,
+		},
 	}
 
 	m.flyingCreepSelection = []arenaCreepInfo{
@@ -102,12 +107,12 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		{
 			stats:    assaultCreepStats,
 			cost:     15,
-			minLevel: 4,
+			minLevel: 5,
 		},
 		{
 			stats:    builderCreepStats,
 			cost:     25,
-			minLevel: 6,
+			minLevel: 7,
 		},
 	}
 

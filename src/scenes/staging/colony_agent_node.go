@@ -905,11 +905,11 @@ func (a *colonyAgentNode) doDisintegratorAttack() {
 	target := targets[0]
 	toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
 	p := newProjectileNode(projectileConfig{
-		Camera:  a.colonyCore.world.camera,
-		Weapon:  a.stats.Weapon,
-		FromPos: &a.pos,
-		ToPos:   toPos,
-		Target:  target,
+		Camera:   a.colonyCore.world.camera,
+		Weapon:   a.stats.Weapon,
+		Attacker: a,
+		ToPos:    toPos,
+		Target:   target,
 	})
 	a.scene.AddObject(p)
 	a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
@@ -1016,6 +1016,9 @@ func (a *colonyAgentNode) findAttackTargets() []projectileTarget {
 		} else {
 			slider.Dec()
 		}
+		if c.IsCloaked() {
+			continue
+		}
 		if !a.CanAttack(c.TargetKind()) {
 			continue
 		}
@@ -1100,7 +1103,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 				p := newProjectileNode(projectileConfig{
 					Camera:    a.colonyCore.world.camera,
 					Weapon:    a.stats.Weapon,
-					FromPos:   &a.pos,
+					Attacker:  a,
 					ToPos:     toPos,
 					Target:    target,
 					FireDelay: fireDelay,
@@ -1125,7 +1128,7 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 		multiplier = 0.5
 	}
 	if a.slow > 0 {
-		multiplier *= 0.6
+		multiplier *= 0.55
 	}
 	return a.speed * multiplier
 }

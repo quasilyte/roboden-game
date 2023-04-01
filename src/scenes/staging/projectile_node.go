@@ -12,7 +12,7 @@ import (
 )
 
 type projectileNode struct {
-	fromPos   *gmath.Vec
+	attacker  projectileTarget
 	pos       gmath.Vec
 	toPos     gmath.Vec
 	target    projectileTarget
@@ -49,7 +49,7 @@ func initWeaponStats(stats *gamedata.WeaponStats) *gamedata.WeaponStats {
 type projectileConfig struct {
 	Weapon    *gamedata.WeaponStats
 	Camera    *viewport.Camera
-	FromPos   *gmath.Vec
+	Attacker  projectileTarget
 	ToPos     gmath.Vec
 	Target    projectileTarget
 	FireDelay float64
@@ -59,8 +59,8 @@ func newProjectileNode(config projectileConfig) *projectileNode {
 	p := &projectileNode{
 		camera:    config.Camera,
 		weapon:    config.Weapon,
-		fromPos:   config.FromPos,
-		pos:       config.FromPos.Add(config.Weapon.FireOffset),
+		attacker:  config.Attacker,
+		pos:       config.Attacker.GetPos().Add(config.Weapon.FireOffset),
 		toPos:     config.ToPos,
 		target:    config.Target,
 		fireDelay: config.FireDelay,
@@ -104,17 +104,32 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 			p.toPos = p.toPos.Add(scene.Rand().Offset(-28, 28))
 		}
 	}
+
+	if p.fireDelay == 0 && p.weapon.ProjectileFireSound {
+		p.playFireSound()
+	}
 }
 
 func (p *projectileNode) IsDisposed() bool { return p.sprite.IsDisposed() }
 
+func (p *projectileNode) playFireSound() {
+	playSound(p.scene, p.camera, p.weapon.AttackSound, p.pos)
+}
+
 func (p *projectileNode) Update(delta float64) {
 	if p.fireDelay > 0 {
+		if p.attacker.IsDisposed() {
+			p.Dispose()
+			return
+		}
 		p.fireDelay -= delta
 		if p.fireDelay <= 0 {
 			p.sprite.Visible = true
-			p.pos = p.fromPos.Add(p.weapon.FireOffset)
+			p.pos = p.attacker.GetPos().Add(p.weapon.FireOffset)
 			p.arcStart = p.pos
+			if p.weapon.ProjectileFireSound {
+				p.playFireSound()
+			}
 		} else {
 			return
 		}
@@ -146,8 +161,12 @@ func (p *projectileNode) Update(delta float64) {
 	p.pos = newPos
 }
 
-func (p *projectileNode) detonate() {
+func (p *projectileNode) Dispose() {
 	p.sprite.Dispose()
+}
+
+func (p *projectileNode) detonate() {
+	p.Dispose()
 	if p.target.IsDisposed() {
 		return
 	}
@@ -165,7 +184,7 @@ func (p *projectileNode) detonate() {
 		}
 		dmg.Health *= multiplier
 	}
-	p.target.OnDamage(p.weapon.Damage, *p.fromPos)
+	p.target.OnDamage(p.weapon.Damage, *p.attacker.GetPos())
 
 	explosionKind := p.weapon.Explosion
 	if explosionKind == gamedata.ProjectileExplosionNone {

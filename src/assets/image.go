@@ -127,18 +127,19 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceSource:                {Path: "image/resources/essence_source.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/resources/red_essence_source.png", FrameWidth: 32},
 
-		ImageEliteCrawlerCreep: {Path: "image/creeps/elite_crawler_creep.png", FrameWidth: 23},
-		ImageCrawlerCreep:      {Path: "image/creeps/crawler_creep.png", FrameWidth: 23},
-		ImagePrimitiveCreep:    {Path: "image/creeps/tier1_creep.png"},
-		ImageServantCreep:      {Path: "image/creeps/servant_creep.png", FrameWidth: 15},
-		ImageCreepTier2:        {Path: "image/creeps/tier2_creep.png"},
-		ImageCreepTier3:        {Path: "image/creeps/tier3_creep.png", FrameWidth: 25},
-		ImageTurretCreep:       {Path: "image/creeps/turret_creep.png"},
-		ImageTankCreep:         {Path: "image/creeps/tank_creep.png"},
-		ImageUberBoss:          {Path: "image/creeps/uber_boss.png", FrameWidth: 40},
-		ImageUberBossOpen:      {Path: "image/creeps/uber_boss_open.png"},
-		ImageCreepBase:         {Path: "image/creeps/creep_base.png", FrameWidth: 32},
-		ImageBuilderCreep:      {Path: "image/creeps/builder_creep.png", FrameWidth: 31, FrameHeight: 31},
+		ImageStealthCrawlerCreep: {Path: "image/creeps/stealth_crawler_creep.png", FrameWidth: 19},
+		ImageEliteCrawlerCreep:   {Path: "image/creeps/elite_crawler_creep.png", FrameWidth: 23},
+		ImageCrawlerCreep:        {Path: "image/creeps/crawler_creep.png", FrameWidth: 23},
+		ImagePrimitiveCreep:      {Path: "image/creeps/tier1_creep.png"},
+		ImageServantCreep:        {Path: "image/creeps/servant_creep.png", FrameWidth: 15},
+		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png"},
+		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25},
+		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png"},
+		ImageTankCreep:           {Path: "image/creeps/tank_creep.png"},
+		ImageUberBoss:            {Path: "image/creeps/uber_boss.png", FrameWidth: 40},
+		ImageUberBossOpen:        {Path: "image/creeps/uber_boss_open.png"},
+		ImageCreepBase:           {Path: "image/creeps/creep_base.png", FrameWidth: 32},
+		ImageBuilderCreep:        {Path: "image/creeps/builder_creep.png", FrameWidth: 31, FrameHeight: 31},
 
 		ImageBackgroundTiles: {Path: "image/landscape/tiles.png"},
 		ImageMountainSmall:   {Path: "image/landscape/mountain_small.png", FrameWidth: 32},
@@ -151,24 +152,25 @@ func registerImageResources(ctx *ge.Context) {
 		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
-		ImageEliteCrawlerProjectile:  {Path: "image/projectile/elite_crawler_projectile.png"},
-		ImageTankProjectile:          {Path: "image/projectile/tank_projectile.png"},
-		ImageAssaultProjectile:       {Path: "image/projectile/assault_projectile.png"},
-		ImageCripplerProjectile:      {Path: "image/projectile/crippler_projectile.png"},
-		ImageMilitiaProjectile:       {Path: "image/projectile/militia_projectile.png"},
-		ImageRepellerProjectile:      {Path: "image/projectile/repeller_projectile.png"},
-		ImageGunpointProjectile:      {Path: "image/projectile/gunpoint_projectile.png"},
-		ImageFighterProjectile:       {Path: "image/projectile/fighter_projectile.png"},
-		ImageScavengerProjectile:     {Path: "image/projectile/scavenger_projectile.png"},
-		ImageMarauderProjectile:      {Path: "image/projectile/marauder_projectile.png"},
-		ImageCourierProjectile:       {Path: "image/projectile/courier_projectile.png"},
-		ImageDisintegratorProjectile: {Path: "image/projectile/disintegrator_projectile.png"},
-		ImageServantProjectile:       {Path: "image/projectile/servant_projectile.png"},
-		ImageWandererProjectile:      {Path: "image/projectile/wanderer_projectile.png"},
-		ImageStormbringerProjectile:  {Path: "image/projectile/stormbringer_projectile.png"},
-		ImageMortarProjectile:        {Path: "image/projectile/mortar_projectile.png"},
-		ImageAntiAirMissile:          {Path: "image/projectile/aa_missile.png"},
-		ImageMissile:                 {Path: "image/projectile/missile.png"},
+		ImageStealthCrawlerProjectile: {Path: "image/projectile/stealth_crawler_projectile.png"},
+		ImageEliteCrawlerProjectile:   {Path: "image/projectile/elite_crawler_projectile.png"},
+		ImageTankProjectile:           {Path: "image/projectile/tank_projectile.png"},
+		ImageAssaultProjectile:        {Path: "image/projectile/assault_projectile.png"},
+		ImageCripplerProjectile:       {Path: "image/projectile/crippler_projectile.png"},
+		ImageMilitiaProjectile:        {Path: "image/projectile/militia_projectile.png"},
+		ImageRepellerProjectile:       {Path: "image/projectile/repeller_projectile.png"},
+		ImageGunpointProjectile:       {Path: "image/projectile/gunpoint_projectile.png"},
+		ImageFighterProjectile:        {Path: "image/projectile/fighter_projectile.png"},
+		ImageScavengerProjectile:      {Path: "image/projectile/scavenger_projectile.png"},
+		ImageMarauderProjectile:       {Path: "image/projectile/marauder_projectile.png"},
+		ImageCourierProjectile:        {Path: "image/projectile/courier_projectile.png"},
+		ImageDisintegratorProjectile:  {Path: "image/projectile/disintegrator_projectile.png"},
+		ImageServantProjectile:        {Path: "image/projectile/servant_projectile.png"},
+		ImageWandererProjectile:       {Path: "image/projectile/wanderer_projectile.png"},
+		ImageStormbringerProjectile:   {Path: "image/projectile/stormbringer_projectile.png"},
+		ImageMortarProjectile:         {Path: "image/projectile/mortar_projectile.png"},
+		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
+		ImageMissile:                  {Path: "image/projectile/missile.png"},
 
 		ImageUIButtonIdle:               {Path: "image/ebitenui/button-idle.png"},
 		ImageUIButtonHover:              {Path: "image/ebitenui/button-hover.png"},
@@ -331,6 +333,7 @@ const (
 	ImageRedEssenceSource
 	ImageCrawlerCreep
 	ImageEliteCrawlerCreep
+	ImageStealthCrawlerCreep
 	ImagePrimitiveCreep
 	ImageServantCreep
 	ImageCreepTier2
@@ -350,6 +353,7 @@ const (
 	ImageLandCrack3
 	ImageLandCrack4
 
+	ImageStealthCrawlerProjectile
 	ImageEliteCrawlerProjectile
 	ImageTankProjectile
 	ImageAssaultProjectile

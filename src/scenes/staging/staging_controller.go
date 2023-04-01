@@ -394,6 +394,9 @@ func (c *Controller) launchAttack() {
 		if len(closeTargets) >= 5 {
 			break
 		}
+		if creep.IsCloaked() {
+			continue
+		}
 		if creep.pos.DistanceTo(c.world.selectedColony.pos) > maxDist {
 			continue
 		}

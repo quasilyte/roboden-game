@@ -196,11 +196,7 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 	for _, creep := range group {
 		dist := c.world.rand.FloatRange(creep.stats.weapon.AttackRange*0.5, creep.stats.weapon.AttackRange*0.8)
 		targetPos := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(target.pos)
-
-		creep.specialModifier = crawlerMove
-		p := c.world.BuildPath(creep.pos, targetPos)
-		creep.path = p.Steps
-		creep.waypoint = c.world.pathgrid.AlignPos(creep.pos)
+		creep.SendTo(targetPos)
 	}
 }
 

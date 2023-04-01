@@ -18,6 +18,7 @@ type WeaponStats struct {
 	ProjectileImage       resource.ImageID
 	ProjectileSpeed       float64
 	ProjectileRotateSpeed float64
+	ProjectileFireSound   bool
 	ImpactArea            float64
 	ImpactAreaSqr         float64 // A precomputed ImpactArea*ImpactArea value
 	AttackRange           float64

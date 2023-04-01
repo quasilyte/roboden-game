@@ -45,6 +45,7 @@ type creepNode struct {
 	wasAttacking    bool
 	wasRetreating   bool
 	spawnedFromBase bool
+	cloaking        bool
 
 	path            pathing.GridPath
 	specialTarget   any
@@ -164,14 +165,16 @@ func (c *creepNode) Update(delta float64) {
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
 	c.disarm = gmath.ClampMin(c.disarm-delta, 0)
 	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
-	if c.attackDelay == 0 && c.stats.weapon != nil && c.disarm == 0 {
+	if c.attackDelay == 0 && c.stats.weapon != nil && c.disarm == 0 && !c.cloaking {
 		c.attackDelay = c.stats.weapon.Reload * c.scene.Rand().FloatRange(0.8, 1.2)
 		targets := c.findTargets()
 		if len(targets) != 0 {
 			for _, target := range targets {
 				c.doAttack(target)
 			}
-			playSound(c.scene, c.world.camera, c.stats.weapon.AttackSound, c.pos)
+			if !c.stats.weapon.ProjectileFireSound {
+				playSound(c.scene, c.world.camera, c.stats.weapon.AttackSound, c.pos)
+			}
 		}
 	}
 
@@ -369,13 +372,18 @@ func (c *creepNode) spawnServants(n int) {
 
 func (c *creepNode) doAttack(target projectileTarget) {
 	if c.stats.weapon.ProjectileImage != assets.ImageNone {
-		toPos := snipePos(c.stats.weapon.ProjectileSpeed, c.pos, *target.GetPos(), target.GetVelocity())
+		targetVelocity := target.GetVelocity()
 		for i := 0; i < c.stats.weapon.BurstSize; i++ {
+			burstCorrectedPos := *target.GetPos()
+			if i != 0 {
+				burstCorrectedPos = burstCorrectedPos.Add(targetVelocity.Mulf(c.stats.weapon.BurstDelay))
+			}
+			toPos := snipePos(c.stats.weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
 			fireDelay := float64(i) * c.stats.weapon.BurstDelay
 			p := newProjectileNode(projectileConfig{
 				Camera:    c.world.camera,
 				Weapon:    c.stats.weapon,
-				FromPos:   &c.pos,
+				Attacker:  c,
 				ToPos:     toPos.Add(c.scene.Rand().Offset(-4, 4)),
 				Target:    target,
 				FireDelay: fireDelay,
@@ -406,6 +414,9 @@ func (c *creepNode) SendTo(pos gmath.Vec) {
 	c.path = p.Steps
 	c.waypoint = c.world.pathgrid.AlignPos(c.pos)
 	c.specialModifier = crawlerMove
+	if c.stats == stealthCrawlerCreepStats {
+		c.doCloak()
+	}
 }
 
 func (c *creepNode) findTargets() []projectileTarget {
@@ -569,21 +580,28 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 }
 
 func (c *creepNode) updateCrawler(delta float64) {
+	if c.waypoint.IsZero() && c.cloaking {
+		c.doUncloak()
+	}
+
 	if !c.waypoint.IsZero() {
 		c.anim.Tick(delta)
 		if c.moveTowards(delta, c.waypoint) {
 			// To avoid weird cases of walking above colony core or turret,
 			// stop if there are any targets in vicinity.
-			const stopDistSqr float64 = 96 * 96
-			for _, colony := range c.world.colonies {
-				if colony.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
-					c.path = pathing.GridPath{}
-					break
-				}
-				for _, turret := range colony.turrets {
-					if turret.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
+			if c.path.HasNext() {
+				const stopDistSqr float64 = 96 * 96
+			OuterLoop:
+				for _, colony := range c.world.colonies {
+					if colony.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
 						c.path = pathing.GridPath{}
 						break
+					}
+					for _, turret := range colony.turrets {
+						if turret.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
+							c.path = pathing.GridPath{}
+							break OuterLoop
+						}
 					}
 				}
 			}
@@ -834,6 +852,21 @@ func (c *creepNode) setWaypoint(pos gmath.Vec) {
 	c.waypoint = correctedPos(c.world.rect, pos, 8)
 }
 
+func (c *creepNode) IsCloaked() bool {
+	return c.cloaking
+}
+
+func (c *creepNode) doUncloak() {
+	c.cloaking = false
+	c.sprite.SetAlpha(1)
+}
+
+func (c *creepNode) doCloak() {
+	c.cloaking = true
+	c.sprite.SetAlpha(0.2)
+	c.scene.AddObject(newEffectNode(c.world.camera, c.pos, true, assets.ImageCloakWave))
+}
+
 func (c *creepNode) movementSpeed() float64 {
 	if c.stats.kind == creepTank && c.specialDelay != 0 {
 		return 0
@@ -843,7 +876,7 @@ func (c *creepNode) movementSpeed() float64 {
 	}
 	multiplier := 1.0
 	if c.slow > 0 {
-		multiplier = 0.6
+		multiplier = 0.55
 	}
 	return c.stats.speed * multiplier
 }

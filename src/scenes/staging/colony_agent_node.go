@@ -707,7 +707,7 @@ func (a *colonyAgentNode) explode() {
 
 	playSound(a.scene, a.camera(), assets.AudioAgentDestroyed, a.pos)
 
-	if a.colonyCore.GetSecurityPriority() < 0.6 {
+	if a.colonyCore.GetSecurityPriority() < 0.4 {
 		a.colonyCore.AddPriority(prioritySecurity, 0.04)
 	}
 	if a.scene.Rand().Chance(0.6) {
@@ -828,7 +828,7 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec
 	a.slow = gmath.ClampMax(a.slow+damage.Slow, 5)
 
 	if !a.IsTurret() {
-		if a.colonyCore.GetSecurityPriority() < 0.5 && a.scene.Rand().Chance(1.0-a.colonyCore.GetSecurityPriority()) {
+		if a.colonyCore.GetSecurityPriority() < 0.3 && a.scene.Rand().Chance(1.0-a.colonyCore.GetSecurityPriority()) {
 			a.colonyCore.AddPriority(prioritySecurity, 0.01)
 		}
 	}

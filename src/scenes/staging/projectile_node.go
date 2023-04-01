@@ -171,10 +171,18 @@ func (p *projectileNode) detonate() {
 	if explosionKind == gamedata.ProjectileExplosionNone {
 		return
 	}
-	explosionPos := p.pos.Add(p.scene.Rand().Offset(-3, 3))
+	explosionPos := p.pos.Add(p.scene.Rand().Offset(-4, 4))
 	switch explosionKind {
 	case gamedata.ProjectileExplosionNormal:
 		createExplosion(p.scene, p.camera, p.target.IsFlying(), explosionPos)
+	case gamedata.ProjectileExplosionCripplerBlaster:
+		effect := newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageCripplerBlasterExplosion)
+		p.scene.AddObject(effect)
+		effect.anim.SetSecondsPerFrame(0.035)
+	case gamedata.ProjectileExplosionMilitiaIon:
+		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageMilitiaIonExplosion))
+	case gamedata.ProjectileExplosionShocker:
+		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageShockerExplosion))
 	case gamedata.ProjectilePurpleExplosion:
 		soundIndex := p.scene.Rand().IntRange(0, 2)
 		sound := assets.AudioPurpleExplosion1 + resource.AudioID(soundIndex)

@@ -46,6 +46,9 @@ const (
 	ProjectileExplosionNone ProjectileExplosionKind = iota
 	ProjectileExplosionNormal
 	ProjectilePurpleExplosion
+	ProjectileExplosionMilitiaIon
+	ProjectileExplosionShocker
+	ProjectileExplosionCripplerBlaster
 )
 
 type TargetKind int

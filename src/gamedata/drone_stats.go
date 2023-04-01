@@ -146,6 +146,7 @@ var MilitiaAgentStats = &AgentStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
+		Explosion:       ProjectileExplosionMilitiaIon,
 	}),
 }
 
@@ -370,6 +371,7 @@ var CripplerAgentStats = &AgentStats{
 		MaxTargets:      3,
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
+		Explosion:       ProjectileExplosionCripplerBlaster,
 	}),
 }
 
@@ -399,6 +401,7 @@ var StormbringerAgentStats = &AgentStats{
 		BurstSize:             4,
 		BurstDelay:            0.03,
 		TargetFlags:           TargetFlying | TargetGround,
+		Explosion:             ProjectileExplosionShocker,
 	}),
 }
 
@@ -593,6 +596,7 @@ var MarauderAgentStats = &AgentStats{
 		BurstSize:       1,
 		MaxTargets:      3,
 		TargetFlags:     TargetFlying | TargetGround,
+		Explosion:       ProjectileExplosionCripplerBlaster,
 	}),
 }
 
@@ -622,6 +626,7 @@ var RepellerAgentStats = &AgentStats{
 		MaxTargets:      2,
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
+		Explosion:       ProjectileExplosionShocker,
 	}),
 }
 

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/timeutil"
@@ -31,14 +32,23 @@ type arenaManager struct {
 
 	spawnAreas []gmath.Rect
 
-	flyingCreepSelection []arenaCreepInfo
-	groundCreepSelection []arenaCreepInfo
-	mixedCreepSelection  []arenaCreepInfo
-
 	waveInfo arenaWaveInfo
 
 	scene *ge.Scene
 	world *worldState
+
+	creepSelectionSlice      []*arenaCreepInfo
+	groupCreepSelectionSlice []*arenaCreepInfo
+	basicFlyingCreeps        []*arenaCreepInfo
+	basicGroundCreeps        []*arenaCreepInfo
+
+	crawlerCreepInfo        *arenaCreepInfo
+	eliteCrawlerCreepInfo   *arenaCreepInfo
+	stealthCrawlerCreepInfo *arenaCreepInfo
+	wandererCreepInfo       *arenaCreepInfo
+	stunnerCreepInfo        *arenaCreepInfo
+	assaultCreepInfo        *arenaCreepInfo
+	builderCreepInfo        *arenaCreepInfo
 }
 
 type arenaWaveGroup struct {
@@ -62,7 +72,9 @@ func newArenaManager(world *worldState) *arenaManager {
 		waveInfo: arenaWaveInfo{
 			groups: make([]arenaWaveGroup, 0, 8),
 		},
-		attackSides: []int{0, 1, 2, 3},
+		attackSides:              []int{0, 1, 2, 3},
+		creepSelectionSlice:      make([]*arenaCreepInfo, 0, 16),
+		groupCreepSelectionSlice: make([]*arenaCreepInfo, 0, 16),
 	}
 }
 
@@ -77,43 +89,49 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	m.waveBudget = 20
 	m.levelStartDelay = 90
 
-	m.groundCreepSelection = []arenaCreepInfo{
-		{
-			stats: crawlerCreepStats,
-			cost:  4,
-		},
-		{
-			stats:    eliteCrawlerCreepStats,
-			cost:     6,
-			minLevel: 2,
-		},
-		{
-			stats:    stealthCrawlerCreepStats,
-			cost:     7,
-			minLevel: 3,
-		},
+	m.crawlerCreepInfo = &arenaCreepInfo{
+		stats: crawlerCreepStats,
+		cost:  4,
+	}
+	m.eliteCrawlerCreepInfo = &arenaCreepInfo{
+		stats:    eliteCrawlerCreepStats,
+		cost:     6,
+		minLevel: 2,
+	}
+	m.stealthCrawlerCreepInfo = &arenaCreepInfo{
+		stats:    stealthCrawlerCreepStats,
+		cost:     7,
+		minLevel: 3,
+	}
+	m.wandererCreepInfo = &arenaCreepInfo{
+		stats: wandererCreepStats,
+		cost:  6,
+	}
+	m.stunnerCreepInfo = &arenaCreepInfo{
+		stats:    stunnerCreepStats,
+		cost:     9,
+		minLevel: 2,
+	}
+	m.assaultCreepInfo = &arenaCreepInfo{
+		stats:    assaultCreepStats,
+		cost:     15,
+		minLevel: 5,
+	}
+	m.builderCreepInfo = &arenaCreepInfo{
+		stats:    builderCreepStats,
+		cost:     25,
+		minLevel: 7,
 	}
 
-	m.flyingCreepSelection = []arenaCreepInfo{
-		{
-			stats: wandererCreepStats,
-			cost:  6,
-		},
-		{
-			stats:    stunnerCreepStats,
-			cost:     9,
-			minLevel: 2,
-		},
-		{
-			stats:    assaultCreepStats,
-			cost:     15,
-			minLevel: 5,
-		},
-		{
-			stats:    builderCreepStats,
-			cost:     25,
-			minLevel: 7,
-		},
+	m.basicFlyingCreeps = []*arenaCreepInfo{
+		m.wandererCreepInfo,
+		m.stunnerCreepInfo,
+		m.assaultCreepInfo,
+	}
+	m.basicGroundCreeps = []*arenaCreepInfo{
+		m.crawlerCreepInfo,
+		m.eliteCrawlerCreepInfo,
+		m.stealthCrawlerCreepInfo,
 	}
 
 	pad := 160.0
@@ -128,9 +146,6 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		// top border (north)
 		{Min: gmath.Vec{X: pad, Y: -offscreenPad}, Max: gmath.Vec{X: m.world.width - pad, Y: 0}},
 	}
-
-	m.mixedCreepSelection = append(m.mixedCreepSelection, m.groundCreepSelection...)
-	m.mixedCreepSelection = append(m.mixedCreepSelection, m.flyingCreepSelection...)
 
 	m.infoUpdateDelay = 5
 	m.prepareWaveInfo()
@@ -330,37 +345,45 @@ func (m *arenaManager) prepareWaveInfo() {
 	for _, side := range sides {
 		m.waveInfo.attackSides[side] = true
 		sideBudget := int(math.Round(float64(budget) * budgetMultiplier))
-		var creepSelection []arenaCreepInfo
+		creepSelection := m.creepSelectionSlice[:0]
 		selectionRoll := m.world.rand.Float()
 		switch {
 		case selectionRoll <= 0.5:
-			creepSelection = m.flyingCreepSelection
+			// Flying-only creeps.
+			creepSelection = append(creepSelection, m.basicFlyingCreeps...)
 			m.waveInfo.flyingAttackers = true
 		case selectionRoll <= 0.8:
-			creepSelection = m.groundCreepSelection
+			// Ground-only creeps.
+			creepSelection = append(creepSelection, m.basicGroundCreeps...)
 			m.waveInfo.groundAttackers = true
 		default:
-			creepSelection = m.mixedCreepSelection
+			creepSelection = append(creepSelection, m.basicFlyingCreeps...)
+			creepSelection = append(creepSelection, m.basicGroundCreeps...)
 			m.waveInfo.flyingAttackers = true
 			m.waveInfo.groundAttackers = true
 		}
+
 		const maxGroupBudget = 90
 		for sideBudget > 0 {
+			groupCreepSelection := m.groupCreepSelectionSlice[:0]
+			groupCreepSelection = append(groupCreepSelection, creepSelection...)
+			if m.world.rand.Chance(0.45) {
+				groupCreepSelection = append(groupCreepSelection, m.builderCreepInfo)
+			}
 			g := arenaWaveGroup{side: side}
 			localBudget := sideBudget
 			if localBudget > maxGroupBudget {
 				localBudget = maxGroupBudget
 			}
 			sideBudget -= localBudget
-			skipBuilders := m.world.rand.Chance(0.65)
 			for {
-				creep, budgetRemaining, ok := m.pickUnit(localBudget, creepSelection, skipBuilders)
+				creep, budgetRemaining, ok := m.pickUnit(localBudget, groupCreepSelection)
 				if !ok {
 					break
 				}
 				if creep.kind == creepBuilder {
 					m.waveInfo.builders = true
-					skipBuilders = true
+					groupCreepSelection = xslices.Remove(groupCreepSelection, m.builderCreepInfo)
 				}
 				localBudget = budgetRemaining
 				g.units = append(g.units, creep)
@@ -372,14 +395,11 @@ func (m *arenaManager) prepareWaveInfo() {
 	m.waveInfo.groups = groups
 }
 
-func (m *arenaManager) pickUnit(budget int, selection []arenaCreepInfo, skipBuilder bool) (*creepStats, int, bool) {
+func (m *arenaManager) pickUnit(budget int, selection []*arenaCreepInfo) (*creepStats, int, bool) {
 	if budget < selection[0].cost {
 		return nil, budget, false
 	}
-	creepInfo := randIterate(m.world.rand, selection, func(x arenaCreepInfo) bool {
-		if skipBuilder && x.stats.kind == creepBuilder {
-			return false
-		}
+	creepInfo := randIterate(m.world.rand, selection, func(x *arenaCreepInfo) bool {
 		return x.cost <= budget && x.minLevel <= m.level
 	})
 	if creepInfo.cost != 0 && creepInfo.cost <= budget {

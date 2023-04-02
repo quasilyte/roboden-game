@@ -9,6 +9,7 @@ todo engine:
 fixme:
 - colony movement is clunky, needs to be improved (don't move if can't land there)
 - stop crawlers phase through tall mountains
+- fix drones "folow"/"attack" actions: they're flying too far away
 
 todo:
 - add new creeps to the classic mode: stealth crawler, builders

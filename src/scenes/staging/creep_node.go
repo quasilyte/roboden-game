@@ -213,7 +213,7 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 
 func (c *creepNode) IsFlying() bool {
 	switch c.stats.kind {
-	case creepBase, creepTank, creepTurret, creepCrawler:
+	case creepBase, creepTank, creepTurret, creepTurretConstruction, creepCrawler:
 		return false
 	case creepUberBoss:
 		return !c.altSprite.Visible
@@ -597,10 +597,12 @@ func (c *creepNode) updateCrawler(delta float64) {
 						c.path = pathing.GridPath{}
 						break
 					}
-					for _, turret := range colony.turrets {
-						if turret.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
-							c.path = pathing.GridPath{}
-							break OuterLoop
+					if !c.cloaking {
+						for _, turret := range colony.turrets {
+							if turret.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
+								c.path = pathing.GridPath{}
+								break OuterLoop
+							}
 						}
 					}
 				}

@@ -1203,6 +1203,10 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 
 func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 	target := a.target.(*colonyAgentNode)
+	if target.IsDisposed() {
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		return
+	}
 	if !a.waypoint.IsZero() {
 		if a.moveTowards(delta, a.waypoint) {
 			a.waypoint = gmath.Vec{}

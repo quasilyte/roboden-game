@@ -347,6 +347,7 @@ func (m *arenaManager) prepareWaveInfo() {
 		sideBudget := int(math.Round(float64(budget) * budgetMultiplier))
 		creepSelection := m.creepSelectionSlice[:0]
 		selectionRoll := m.world.rand.Float()
+		allowFlying := true
 		switch {
 		case selectionRoll <= 0.5:
 			// Flying-only creeps.
@@ -356,20 +357,21 @@ func (m *arenaManager) prepareWaveInfo() {
 			// Ground-only creeps.
 			creepSelection = append(creepSelection, m.basicGroundCreeps...)
 			m.waveInfo.groundAttackers = true
+			allowFlying = false
 		default:
 			creepSelection = append(creepSelection, m.basicFlyingCreeps...)
 			creepSelection = append(creepSelection, m.basicGroundCreeps...)
 			m.waveInfo.flyingAttackers = true
 			m.waveInfo.groundAttackers = true
 		}
+		if allowFlying && m.world.rand.Chance(0.45) {
+			creepSelection = append(creepSelection, m.builderCreepInfo)
+		}
 
 		const maxGroupBudget = 90
 		for sideBudget > 0 {
 			groupCreepSelection := m.groupCreepSelectionSlice[:0]
 			groupCreepSelection = append(groupCreepSelection, creepSelection...)
-			if m.world.rand.Chance(0.45) {
-				groupCreepSelection = append(groupCreepSelection, m.builderCreepInfo)
-			}
 			g := arenaWaveGroup{side: side}
 			localBudget := sideBudget
 			if localBudget > maxGroupBudget {

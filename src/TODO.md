@@ -11,6 +11,7 @@ fixme:
 - stop crawlers phase through tall mountains
 
 todo:
+- check if traits like "retreating" still work
 - make fog of war disappear dynamically?
 - make disintegrators prefer flying targets
 - maybe make it possible for support drones to heal/recharge nearby colony drones

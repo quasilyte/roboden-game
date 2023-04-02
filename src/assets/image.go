@@ -130,6 +130,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceSource:                {Path: "image/resources/essence_source.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/resources/red_essence_source.png", FrameWidth: 32},
 
+		ImageHeavyCrawlerCreep:   {Path: "image/creeps/heavy_crawler_creep.png", FrameWidth: 25},
 		ImageStealthCrawlerCreep: {Path: "image/creeps/stealth_crawler_creep.png", FrameWidth: 19},
 		ImageEliteCrawlerCreep:   {Path: "image/creeps/elite_crawler_creep.png", FrameWidth: 23},
 		ImageCrawlerCreep:        {Path: "image/creeps/crawler_creep.png", FrameWidth: 23},
@@ -156,6 +157,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
+		ImageHeavyCrawlerProjectile:   {Path: "image/projectile/heavy_crawler_projectile.png"},
 		ImageStealthCrawlerProjectile: {Path: "image/projectile/stealth_crawler_projectile.png"},
 		ImageEliteCrawlerProjectile:   {Path: "image/projectile/elite_crawler_projectile.png"},
 		ImageTankProjectile:           {Path: "image/projectile/tank_projectile.png"},
@@ -340,6 +342,7 @@ const (
 	ImageRedEssenceSource
 	ImageCrawlerCreep
 	ImageEliteCrawlerCreep
+	ImageHeavyCrawlerCreep
 	ImageStealthCrawlerCreep
 	ImagePrimitiveCreep
 	ImageServantCreep
@@ -361,6 +364,7 @@ const (
 	ImageLandCrack3
 	ImageLandCrack4
 
+	ImageHeavyCrawlerProjectile
 	ImageStealthCrawlerProjectile
 	ImageEliteCrawlerProjectile
 	ImageTankProjectile

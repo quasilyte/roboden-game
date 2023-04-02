@@ -184,6 +184,31 @@ var eliteCrawlerCreepStats = &creepStats{
 	disarmable: true,
 }
 
+var heavyCrawlerCreepStats = &creepStats{
+	kind:      creepCrawler,
+	image:     assets.ImageHeavyCrawlerCreep,
+	animSpeed: 0.15,
+	speed:     30,
+	maxHealth: 42,
+	weapon: initWeaponStats(&gamedata.WeaponStats{
+		MaxTargets:      1,
+		BurstSize:       5,
+		BurstDelay:      0.1,
+		AttackSound:     assets.AudioHeavyCrawlerShot,
+		AttackRange:     185,
+		ImpactArea:      10,
+		ProjectileSpeed: 280,
+		Damage:          gamedata.DamageValue{Health: 2},
+		ProjectileImage: assets.ImageHeavyCrawlerProjectile,
+		Reload:          2.5,
+		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
+		FireOffset:      gmath.Vec{Y: -2},
+		ArcPower:        1.5,
+	}),
+	size:       24,
+	disarmable: true,
+}
+
 var stealthCrawlerCreepStats = &creepStats{
 	kind:      creepCrawler,
 	image:     assets.ImageStealthCrawlerCreep,

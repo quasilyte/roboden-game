@@ -16,6 +16,8 @@ func creepFragScore(stats *creepStats) int {
 		return 6
 	case stealthCrawlerCreepStats:
 		return 7
+	case heavyCrawlerCreepStats:
+		return 9
 
 	case wandererCreepStats:
 		return 6
@@ -107,7 +109,6 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 		return 0
 	}
 	if core.failedResource == source {
-		fmt.Println("skip failed")
 		return 0
 	}
 	dist := core.pos.DistanceTo(source.pos)

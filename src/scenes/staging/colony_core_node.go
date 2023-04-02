@@ -709,7 +709,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			}
 			return toAssign <= 0
 		})
-		if numAssigned == 0 {
+		if numAssigned == 0 && c.failedResource == nil {
 			c.failedResource = source
 			c.failedResourceTick = 0
 		}

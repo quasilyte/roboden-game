@@ -292,7 +292,7 @@ func (c *resultsController) initUI() {
 		fmt.Sprintf("%s: %v", d.Get("menu.results.drones_total"), c.results.DronesProduced),
 		fmt.Sprintf("%s: %v", d.Get("menu.results.creeps_defeated"), c.results.CreepsDefeated),
 	}
-	if c.config.GameMode == gamedata.ModeArena || c.results.Victory {
+	if (c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode) || c.results.Victory {
 		if c.highScore {
 			lines = append(lines, fmt.Sprintf("%s: %v (%s)", d.Get("menu.results.score"), c.results.Score, d.Get("menu.results.new_record")))
 		} else {

@@ -49,6 +49,7 @@ type arenaManager struct {
 	crawlerCreepInfo        *arenaCreepInfo
 	eliteCrawlerCreepInfo   *arenaCreepInfo
 	stealthCrawlerCreepInfo *arenaCreepInfo
+	heavyCrawlerCreepInfo   *arenaCreepInfo
 	wandererCreepInfo       *arenaCreepInfo
 	stunnerCreepInfo        *arenaCreepInfo
 	assaultCreepInfo        *arenaCreepInfo
@@ -114,6 +115,11 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		cost:     creepFragScore(stealthCrawlerCreepStats),
 		minLevel: 3,
 	}
+	m.heavyCrawlerCreepInfo = &arenaCreepInfo{
+		stats:    heavyCrawlerCreepStats,
+		minLevel: 8,
+		cost:     creepFragScore(heavyCrawlerCreepStats),
+	}
 
 	m.wandererCreepInfo = &arenaCreepInfo{
 		stats: wandererCreepStats,
@@ -127,7 +133,7 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	m.assaultCreepInfo = &arenaCreepInfo{
 		stats:    assaultCreepStats,
 		cost:     creepFragScore(assaultCreepStats),
-		minLevel: 5,
+		minLevel: 6,
 	}
 	m.builderCreepInfo = &arenaCreepInfo{
 		stats:    builderCreepStats,
@@ -144,6 +150,7 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		m.crawlerCreepInfo,
 		m.eliteCrawlerCreepInfo,
 		m.stealthCrawlerCreepInfo,
+		m.heavyCrawlerCreepInfo,
 	}
 
 	pad := 160.0
@@ -370,10 +377,10 @@ func (m *arenaManager) prepareWave() {
 	switch {
 	case isLastLevel:
 		m.levelStartDelay = 4.0 * 60
-		m.waveBudget += 60
+		m.waveBudget += 40
 	case m.level%5 == 0:
 		m.levelStartDelay = 4.0 * 60
-		m.waveBudget += 30
+		m.waveBudget += 20
 	case m.level == 1:
 		m.levelStartDelay = 90
 		m.waveBudget = 20
@@ -457,13 +464,13 @@ func (m *arenaManager) prepareWave() {
 	}
 
 	if m.level > 6 && (m.level%6 == 0) {
-		// wave 12 => 4
-		// wave 18 => 5
-		// wave 24 => 6
-		// wave 30 => 7
-		// wave 36 => 8
+		// wave 12 => 2
+		// wave 18 => 3
+		// wave 24 => 4
+		// wave 30 => 5
+		// wave 36 => 6
 		m.waveInfo.taskForce = true
-		numAttackers := 2 + (m.level / 6)
+		numAttackers := m.level / 6
 		g := arenaWaveGroup{side: m.attackSides[0]}
 		g.units = make([]*creepStats, numAttackers)
 		for i := range g.units {
@@ -480,7 +487,7 @@ func (m *arenaManager) prepareWave() {
 		}
 		var groupSlider gmath.Slider
 		groupSlider.SetBounds(0, len(groups)-1)
-		for i := 0; i < 6; i++ {
+		for i := 0; i < 5; i++ {
 			index := groupSlider.Value()
 			groups[index].units = append(groups[index].units, servantCreepStats)
 			groupSlider.Inc()

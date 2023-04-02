@@ -7,13 +7,11 @@ todo engine:
 - why animation affects Y axis?
 
 fixme:
-- colony tends to produce a lot of combat drones even if low on resources
 - colony movement is clunky, needs to be improved (don't move if can't land there)
 - stop crawlers phase through tall mountains
 
 todo:
 - make fog of war disappear dynamically?
-- result screen rework for arena
 - make disintegrators prefer flying targets
 - maybe make it possible for support drones to heal/recharge nearby colony drones
 - graphics options: allow disabling some optional shaders (like scrap dissolving)

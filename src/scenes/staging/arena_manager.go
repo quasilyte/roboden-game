@@ -9,6 +9,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/timeutil"
 )
@@ -22,11 +23,14 @@ type arenaCreepInfo struct {
 type arenaManager struct {
 	level      int
 	waveBudget int
+	lastLevel  int
 
 	info            *messageNode
 	overviewText    string
 	infoUpdateDelay float64
 	levelStartDelay float64
+
+	victory bool
 
 	attackSides []int
 
@@ -49,6 +53,8 @@ type arenaManager struct {
 	stunnerCreepInfo        *arenaCreepInfo
 	assaultCreepInfo        *arenaCreepInfo
 	builderCreepInfo        *arenaCreepInfo
+
+	EventVictory gsignal.Event[gsignal.Void]
 }
 
 type arenaWaveGroup struct {
@@ -59,6 +65,9 @@ type arenaWaveGroup struct {
 type arenaWaveInfo struct {
 	groups []arenaWaveGroup
 
+	isLast          bool
+	dominator       bool
+	taskForce       bool
 	builders        bool
 	flyingAttackers bool
 	groundAttackers bool
@@ -85,41 +94,44 @@ func (m *arenaManager) IsDisposed() bool {
 func (m *arenaManager) Init(scene *ge.Scene) {
 	m.scene = scene
 
+	if !m.world.config.InfiniteMode {
+		m.lastLevel = 20
+	}
+
 	m.level = 1
-	m.waveBudget = 20
-	m.levelStartDelay = 90
 
 	m.crawlerCreepInfo = &arenaCreepInfo{
 		stats: crawlerCreepStats,
-		cost:  4,
+		cost:  creepFragScore(crawlerCreepStats),
 	}
 	m.eliteCrawlerCreepInfo = &arenaCreepInfo{
 		stats:    eliteCrawlerCreepStats,
-		cost:     6,
+		cost:     creepFragScore(eliteCrawlerCreepStats),
 		minLevel: 2,
 	}
 	m.stealthCrawlerCreepInfo = &arenaCreepInfo{
 		stats:    stealthCrawlerCreepStats,
-		cost:     7,
+		cost:     creepFragScore(stealthCrawlerCreepStats),
 		minLevel: 3,
 	}
+
 	m.wandererCreepInfo = &arenaCreepInfo{
 		stats: wandererCreepStats,
-		cost:  6,
+		cost:  creepFragScore(wandererCreepStats),
 	}
 	m.stunnerCreepInfo = &arenaCreepInfo{
 		stats:    stunnerCreepStats,
-		cost:     9,
+		cost:     creepFragScore(stunnerCreepStats),
 		minLevel: 2,
 	}
 	m.assaultCreepInfo = &arenaCreepInfo{
 		stats:    assaultCreepStats,
-		cost:     15,
+		cost:     creepFragScore(assaultCreepStats),
 		minLevel: 5,
 	}
 	m.builderCreepInfo = &arenaCreepInfo{
 		stats:    builderCreepStats,
-		cost:     25,
+		cost:     creepFragScore(builderCreepStats),
 		minLevel: 7,
 	}
 
@@ -148,30 +160,28 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	}
 
 	m.infoUpdateDelay = 5
-	m.prepareWaveInfo()
+	m.prepareWave()
 	m.overviewText = m.createWaveOverviewText()
 	m.info = m.createWaveInfoMessageNode()
 	scene.AddObject(m.info)
 }
 
-func (m *arenaManager) incLevel() {
-
-	m.level++
-	if m.level%5 == 0 {
-		m.levelStartDelay = 4.0 * 60
-		m.waveBudget += 25
-	} else {
-		m.levelStartDelay = 2.5 * 60
-		m.waveBudget += 10
-	}
-}
-
 func (m *arenaManager) Update(delta float64) {
+	if m.victory {
+		return
+	}
+
 	m.levelStartDelay -= delta
 	if m.levelStartDelay <= 0 {
 		m.spawnCreeps()
-		m.incLevel()
-		m.prepareWaveInfo()
+		if !m.world.config.InfiniteMode && m.level > m.lastLevel {
+			m.victory = true
+			m.info.Dispose()
+			m.EventVictory.Emit(gsignal.Void{})
+			return
+		}
+		m.level++
+		m.prepareWave()
 		m.overviewText = m.createWaveOverviewText()
 		if m.info != nil {
 			m.info.Dispose()
@@ -195,6 +205,10 @@ func (m *arenaManager) createWaveInfoMessageNode() *messageNode {
 }
 
 func (m *arenaManager) createWaveOverviewText() string {
+	if !m.world.config.InfiniteMode && m.level > m.lastLevel {
+		return ""
+	}
+
 	d := m.scene.Dict()
 
 	var buf strings.Builder
@@ -235,11 +249,26 @@ func (m *arenaManager) createWaveOverviewText() string {
 	buf.WriteString(d.Get("game.wave_units"))
 	buf.WriteString(": ")
 	buf.WriteString(strings.Join(unitKindParts, ", "))
-	if m.waveInfo.builders {
+
+	specialParts := make([]string, 0, 2)
+	if m.waveInfo.isLast {
+		specialParts = append(specialParts, "???")
+	} else {
+		if m.waveInfo.dominator {
+			specialParts = append(specialParts, d.Get("game.wave_dominator"))
+		}
+		if m.waveInfo.taskForce {
+			specialParts = append(specialParts, d.Get("game.wave_task_force"))
+		}
+		if m.waveInfo.builders {
+			specialParts = append(specialParts, d.Get("game.wave_builders"))
+		}
+	}
+	if len(specialParts) != 0 {
 		buf.WriteByte('\n')
 		buf.WriteString(d.Get("game.wave_special_units"))
 		buf.WriteString(": ")
-		buf.WriteString(d.Get("game.wave_builders"))
+		buf.WriteString(strings.Join(specialParts, ", "))
 	}
 
 	return buf.String()
@@ -250,6 +279,14 @@ func (m *arenaManager) createWaveInfoText() string {
 
 	var buf strings.Builder
 	buf.Grow(256)
+
+	if !m.world.config.InfiniteMode && m.level > m.lastLevel {
+		buf.WriteString(d.Get("game.wave_last"))
+		buf.WriteString(": ")
+		buf.WriteString(timeutil.FormatDuration(d, time.Duration(m.levelStartDelay*float64(time.Second))))
+		return buf.String()
+	}
+
 	buf.WriteString(d.Get("game.wave"))
 	buf.WriteByte(' ')
 	buf.WriteString(strconv.Itoa(m.level))
@@ -307,6 +344,7 @@ func (m *arenaManager) spawnCreeps() {
 				creepPos = creepPos.Add(m.world.rand.Offset(-60, 60))
 			}
 			creepTargetPos := targetPos.Add(m.world.rand.Offset(-60, 60))
+			m.world.result.CreepTotalValue += creepFragScore(creepStats)
 			if spawnDelay > 0 {
 				spawner := newCreepSpawnerNode(m.world, spawnDelay, creepPos, creepTargetPos, creepStats)
 				m.scene.AddObject(spawner)
@@ -314,12 +352,36 @@ func (m *arenaManager) spawnCreeps() {
 				creep := m.world.NewCreepNode(creepPos, creepStats)
 				m.scene.AddObject(creep)
 				creep.SendTo(creepTargetPos)
+				creep.fragScore = creepFragScore(creepStats)
 			}
 		}
 	}
 }
 
-func (m *arenaManager) prepareWaveInfo() {
+func (m *arenaManager) prepareWave() {
+	if !m.world.config.InfiniteMode && m.level > m.lastLevel {
+		m.levelStartDelay = 5.0 * 60
+		m.waveInfo = arenaWaveInfo{}
+		return
+	}
+
+	isLastLevel := !m.world.config.InfiniteMode && m.level == m.lastLevel
+
+	switch {
+	case isLastLevel:
+		m.levelStartDelay = 4.0 * 60
+		m.waveBudget += 60
+	case m.level%5 == 0:
+		m.levelStartDelay = 4.0 * 60
+		m.waveBudget += 30
+	case m.level == 1:
+		m.levelStartDelay = 90
+		m.waveBudget = 20
+	default:
+		m.levelStartDelay = 2.5 * 60
+		m.waveBudget += 10
+	}
+
 	budget := m.waveBudget
 
 	// First decide which kind of attack we're doing.
@@ -392,6 +454,41 @@ func (m *arenaManager) prepareWaveInfo() {
 			}
 			groups = append(groups, g)
 		}
+	}
+
+	if m.level > 6 && (m.level%6 == 0) {
+		// wave 12 => 4
+		// wave 18 => 5
+		// wave 24 => 6
+		// wave 30 => 7
+		// wave 36 => 8
+		m.waveInfo.taskForce = true
+		numAttackers := 2 + (m.level / 6)
+		g := arenaWaveGroup{side: m.attackSides[0]}
+		g.units = make([]*creepStats, numAttackers)
+		for i := range g.units {
+			g.units[i] = servantCreepStats
+		}
+		groups = append(groups, g)
+	}
+
+	if isLastLevel {
+		// The last wave.
+		m.waveInfo.isLast = true
+		for i := 0; i < 3; i++ {
+			groups[0].units = append(groups[0].units, dominatorCreepStats)
+		}
+		var groupSlider gmath.Slider
+		groupSlider.SetBounds(0, len(groups)-1)
+		for i := 0; i < 6; i++ {
+			index := groupSlider.Value()
+			groups[index].units = append(groups[index].units, servantCreepStats)
+			groupSlider.Inc()
+		}
+	} else if m.level%5 == 0 {
+		// A mini boss wave.
+		groups[0].units = append(groups[0].units, dominatorCreepStats)
+		m.waveInfo.dominator = true
 	}
 
 	m.waveInfo.groups = groups

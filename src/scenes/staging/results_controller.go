@@ -41,7 +41,11 @@ type battleResults struct {
 	DronesProduced         int
 	DronesCloned           int
 	CreepsDefeated         int
+	CreepTotalValue        int
+	CreepFragScore         int
 	CreepBasesDestroyed    int
+
+	DominatorsSurvived int
 
 	T3created       int
 	ColoniesBuilt   int
@@ -75,7 +79,9 @@ func newResultsController(state *session.State, config *session.LevelConfig, bac
 
 func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
-	if c.results.Victory || c.config.GameMode == gamedata.ModeArena {
+	victory := c.results.Victory ||
+		(c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode)
+	if victory {
 		c.updateProgress()
 		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}
@@ -115,10 +121,18 @@ func (c *resultsController) updateProgress() {
 			stats.HighestClassicScoreDifficulty = c.results.DifficultyScore
 		}
 	case gamedata.ModeArena:
-		if stats.HighestArenaScore < c.results.Score {
-			c.highScore = true
-			stats.HighestArenaScore = c.results.Score
-			stats.HighestArenaScoreDifficulty = c.results.DifficultyScore
+		if c.config.InfiniteMode {
+			if stats.HighestInfArenaScore < c.results.Score {
+				c.highScore = true
+				stats.HighestInfArenaScore = c.results.Score
+				stats.HighestInfArenaScoreDifficulty = c.results.DifficultyScore
+			}
+		} else {
+			if stats.HighestArenaScore < c.results.Score {
+				c.highScore = true
+				stats.HighestArenaScore = c.results.Score
+				stats.HighestArenaScoreDifficulty = c.results.DifficultyScore
+			}
 		}
 	}
 
@@ -217,6 +231,11 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = c.results.GroundBossDefeat
 		case "turretdamage":
 			// TODO
+
+		case "infinite":
+			unlocked = c.config.InfiniteMode && c.results.ArenaLevel >= 35
+		case "antidominator":
+			unlocked = !c.config.InfiniteMode && c.results.DominatorsSurvived == 0
 		}
 
 		if !unlocked {
@@ -254,14 +273,13 @@ func (c *resultsController) initUI() {
 	d := c.scene.Dict()
 
 	var titleString string
-	if c.config.GameMode == gamedata.ModeArena {
+	switch {
+	case c.results.Victory:
+		titleString = d.Get("menu.results.victory") + "!"
+	case c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode:
 		titleString = d.Get("menu.results.the_end")
-	} else {
-		if c.results.Victory {
-			titleString = d.Get("menu.results.victory") + "!"
-		} else {
-			titleString = d.Get("menu.results.defeat")
-		}
+	default:
+		titleString = d.Get("menu.results.defeat")
 	}
 	titleLabel := eui.NewCenteredLabel(uiResources, titleString, smallFont)
 	rowContainer.AddChild(titleLabel)
@@ -281,7 +299,7 @@ func (c *resultsController) initUI() {
 			lines = append(lines, fmt.Sprintf("%s: %v", d.Get("menu.results.score"), c.results.Score))
 		}
 	}
-	if c.config.GameMode == gamedata.ModeArena {
+	if c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode {
 		lines = append(lines, fmt.Sprintf("%s: %d", d.Get("game.wave"), c.results.ArenaLevel))
 	}
 

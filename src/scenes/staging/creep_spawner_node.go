@@ -44,6 +44,7 @@ func (spawner *creepSpawnerNode) Update(delta float64) {
 		creep := spawner.world.NewCreepNode(spawner.pos, spawner.creepStats)
 		spawner.scene.AddObject(creep)
 		creep.SendTo(spawner.creepDest)
+		creep.fragScore = creepFragScore(spawner.creepStats)
 		return
 	}
 }

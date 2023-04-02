@@ -31,6 +31,7 @@ func registerAudioResource(ctx *ge.Context) {
 		AudioDisintegratorShot:   {Path: "audio/disintegrator_shot.wav", Volume: -0.2},
 		AudioMortarShot:          {Path: "audio/mortar_shot.wav", Volume: -0.3},
 		AudioAssaultShot:         {Path: "audio/assault_shot.wav", Volume: -0.5},
+		AudioDominatorShot:       {Path: "audio/dominator_shot.wav", Volume: -0.3},
 		AudioStormbringerShot:    {Path: "audio/stormbringer_shot.wav", Volume: -0.1},
 		AudioStunBeam:            {Path: "audio/stun_laser.wav", Volume: -0.3},
 		AudioServantShot:         {Path: "audio/servant_shot.wav", Volume: -0.35},
@@ -105,6 +106,7 @@ const (
 	AudioMilitiaShot
 	AudioStormbringerShot
 	AudioAssaultShot
+	AudioDominatorShot
 	AudioGunpointShot
 	AudioFighterBeam
 	AudioTankShot

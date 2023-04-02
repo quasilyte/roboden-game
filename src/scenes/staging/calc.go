@@ -1,23 +1,68 @@
 package staging
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
+func creepFragScore(stats *creepStats) int {
+	switch stats {
+	case crawlerCreepStats:
+		return 4
+	case eliteCrawlerCreepStats:
+		return 6
+	case stealthCrawlerCreepStats:
+		return 7
+
+	case wandererCreepStats:
+		return 6
+	case stunnerCreepStats:
+		return 9
+	case assaultCreepStats:
+		return 15
+	case builderCreepStats:
+		return 25
+
+	case turretCreepStats:
+		return 10
+
+	case servantCreepStats:
+		return 25
+	case dominatorCreepStats:
+		return 100
+
+	default:
+		return 0
+	}
+}
+
 func calcScore(world *worldState) int {
 	switch world.config.GameMode {
 	case gamedata.ModeArena:
-		score := world.config.DifficultyScore * 8
-		timePlayed := world.result.TimePlayed.Seconds()
-		if timePlayed < 5*60 {
-			return 0
+		if world.config.InfiniteMode {
+			score := world.config.DifficultyScore * 7
+			timePlayed := world.result.TimePlayed.Seconds()
+			if timePlayed < 5*60 {
+				return 0
+			}
+			timePlayed -= 5 * 60
+			baselineTime := 60.0 * 60.0
+			multiplier := timePlayed / baselineTime
+			return int(math.Round(float64(score) * multiplier))
 		}
-		timePlayed -= 5 * 60
-		baselineTime := 60.0 * 60.0
-		multiplier := timePlayed / baselineTime
+		score := world.config.DifficultyScore * 11
+		crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)
+		score += crystalsCollected * 3
+		var multiplier float64
+		if world.result.CreepFragScore != 0 {
+			multiplier = float64(world.result.CreepFragScore) / float64(world.result.CreepTotalValue)
+		}
+		fmt.Println("> creeps total value:", world.result.CreepTotalValue)
+		fmt.Println("> creeps frag score:", world.result.CreepFragScore)
+		fmt.Println("> score multiplier:", multiplier)
 		return int(math.Round(float64(score) * multiplier))
 
 	case gamedata.ModeClassic:
@@ -62,6 +107,7 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 		return 0
 	}
 	if core.failedResource == source {
+		fmt.Println("skip failed")
 		return 0
 	}
 	dist := core.pos.DistanceTo(source.pos)

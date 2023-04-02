@@ -25,8 +25,9 @@
 ##menu.profile.dronebook : Drone Collection
 
 ##menu.profile.stats.totalscore : Total Score
-##menu.profile.stats.classic_highscore : Classic Mode Highest Score
-##menu.profile.stats.arena_highscore : Arena Mode Highest Score
+##menu.profile.stats.classic_highscore : Classic Highest Score
+##menu.profile.stats.arena_highscore : Arena Highest Score
+##menu.profile.stats.inf_arena_highscore : Arena Highest Score (Inf)
 
 ##menu.profile.progress.achievements : Achievements
 ##menu.profile.progress.modes_unlocked : Game Modes Unlocked
@@ -96,6 +97,7 @@
 ##menu.lobby.starting_resources : Starting Resources
 ##menu.lobby.go : Go!
 
+##menu.lobby.infinite_mode : Infinite Mode
 ##menu.lobby.ui_immersive : Minimal
 ##menu.lobby.ui_informative : Informative
 
@@ -133,11 +135,14 @@
 \tKeyboard: escape
 
 ##game.wave : Wave
+##game.wave_last : Survive to win
 ##game.wave_starts_in : starts in
-##game.wave_units : Enemy units
-##game.wave_special_units : Enemy special units
+##game.wave_units : Unit types
+##game.wave_special_units : Special units
 ##game.wave_direction : Attack directions
-##game.wave_builders : builders
+##game.wave_builders : builder
+##game.wave_task_force : task force
+##game.wave_dominator : dominator
 ##game.side.all : all
 ##game.side.east : east
 ##game.side.south : south
@@ -329,6 +334,15 @@ Destroy the enemy colony in the moment when it's close to the ground.
 ##achievement.turretdamage : Turret Barrage
 ##achievement.turretdamage.description
 Deal at least 25% damage to the enemy colony using ground turrets.
+
+##achievement.antidominator : Anti-domination
+##achievement.antidominator.description
+Destroy all dominator class enemies before the final wave countdown reaches zero.
+
+##achievement.infinite : Infinite Battle
+##achievement.infinite.description
+Survive for at least 35 waves in infinite arena mode.
+Infinite mode is toggled in the "extra" tab inside the arena mode.
 
 ##drone.trucker : Trucker
 ##drone.trucker.description

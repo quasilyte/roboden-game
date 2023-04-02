@@ -111,5 +111,14 @@ var AchievementList = []*Achievement{
 	},
 
 	// Arena mode achievements.
-	// TODO.
+	{
+		Name: "antidominator",
+		Mode: ModeArena,
+		Icon: assets.ImageAchievementAntiDominator,
+	},
+	{
+		Name: "infinite",
+		Mode: ModeArena,
+		Icon: assets.ImageAchievementInfinite,
+	},
 }

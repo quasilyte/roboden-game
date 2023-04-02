@@ -304,6 +304,26 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		tab.AddChild(button)
 	}
 
+	if c.mode == gamedata.ModeArena {
+		sliderOptions := []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		}
+		var slider gmath.Slider
+		slider.SetBounds(0, len(sliderOptions)-1)
+		if c.config.InfiniteMode {
+			slider.TrySetValue(1)
+		}
+		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.infinite_mode")+": "+sliderOptions[slider.Value()])
+		button.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			c.config.InfiniteMode = slider.Value() != 0
+			button.Text().Label = d.Get("menu.lobby.infinite_mode") + ": " + sliderOptions[slider.Value()]
+			c.updateDifficultyScore(c.calcDifficultyScore())
+		})
+		tab.AddChild(button)
+	}
+
 	return tab
 }
 

@@ -233,6 +233,27 @@ var assaultCreepStats = &creepStats{
 	disarmable: true,
 }
 
+var dominatorCreepStats = &creepStats{
+	kind:        creepDominator,
+	image:       assets.ImageCreepDominator,
+	shadowImage: assets.ImageBigShadow,
+	tier:        3,
+	speed:       35,
+	maxHealth:   200,
+	weapon: initWeaponStats(&gamedata.WeaponStats{
+		MaxTargets:  1,
+		BurstSize:   1,
+		AttackSound: assets.AudioDominatorShot,
+		AttackRange: 265,
+		Damage:      gamedata.DamageValue{Health: 8, Morale: 4},
+		Reload:      1.65,
+		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
+	}),
+	beamColor:  dominatorBeamColorCenter,
+	beamWidth:  1,
+	disarmable: false,
+}
+
 var builderCreepStats = &creepStats{
 	kind:        creepBuilder,
 	image:       assets.ImageBuilderCreep,
@@ -256,7 +277,7 @@ var uberBossCreepStats = &creepStats{
 		BurstSize:   1,
 		AttackSound: assets.AudioRailgun,
 		AttackRange: 220,
-		Damage:      gamedata.DamageValue{Health: 8},
+		Damage:      gamedata.DamageValue{Health: 9},
 		Reload:      2.8,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),

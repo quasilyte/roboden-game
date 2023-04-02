@@ -161,6 +161,7 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 		if x.stats.kind == creepCrawler {
 			w.creepCoordinator.crawlers = xslices.Remove(w.creepCoordinator.crawlers, x)
 		}
+		w.result.CreepFragScore += x.fragScore
 		switch x.stats.kind {
 		case creepBase:
 			w.result.CreepBasesDestroyed++

@@ -65,6 +65,7 @@ func (c *ProfileStatsMenuController) initUI() {
 	}
 	if stats.TotalScore >= gamedata.ArenaModeCost {
 		lines = append(lines, fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.arena_highscore"), stats.HighestArenaScore, stats.HighestArenaScoreDifficulty))
+		lines = append(lines, fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.inf_arena_highscore"), stats.HighestInfArenaScore, stats.HighestInfArenaScoreDifficulty))
 	}
 
 	rowContainer.AddChild(eui.NewCenteredLabel(uiResources, strings.Join(lines, "\n"), smallFont))

@@ -9,20 +9,22 @@ import (
 
 func registerImageResources(ctx *ge.Context) {
 	imageResources := map[resource.ImageID]resource.ImageInfo{
-		ImageAchievementImpossible:   {Path: "image/achievement/impossible.png"},
-		ImageAchievementCheapBuild10: {Path: "image/achievement/cheapbuild10.png"},
-		ImageAchievementT3Engineer:   {Path: "image/achievement/t3engineer.png"},
-		ImageAchievementHighTension:  {Path: "image/achievement/hightension.png"},
-		ImageAchievementSoloBase:     {Path: "image/achievement/solobase.png"},
-		ImageAchievementUILess:       {Path: "image/achievement/uiless.png"},
-		ImageAchievementTinyRadius:   {Path: "image/achievement/tinyradius.png"},
-		ImageAchievementT1Army:       {Path: "image/achievement/t1army.png"},
-		ImageAchievementGroundWin:    {Path: "image/achievement/groundwin.png"},
-		ImageAchievementSpeedrunning: {Path: "image/achievement/speedrunning.png"},
-		ImageAchievementVictoryDrag:  {Path: "image/achievement/victorydrag.png"},
-		ImageAchievementT3Less:       {Path: "image/achievement/impossible.png"}, // Stub!
-		ImageAchievementTurretDamage: {Path: "image/achievement/turretdamage.png"},
-		ImageAchievementPowerOf3:     {Path: "image/achievement/powerof3.png"},
+		ImageAchievementImpossible:    {Path: "image/achievement/impossible.png"},
+		ImageAchievementCheapBuild10:  {Path: "image/achievement/cheapbuild10.png"},
+		ImageAchievementT3Engineer:    {Path: "image/achievement/t3engineer.png"},
+		ImageAchievementHighTension:   {Path: "image/achievement/hightension.png"},
+		ImageAchievementSoloBase:      {Path: "image/achievement/solobase.png"},
+		ImageAchievementUILess:        {Path: "image/achievement/uiless.png"},
+		ImageAchievementTinyRadius:    {Path: "image/achievement/tinyradius.png"},
+		ImageAchievementT1Army:        {Path: "image/achievement/t1army.png"},
+		ImageAchievementGroundWin:     {Path: "image/achievement/groundwin.png"},
+		ImageAchievementSpeedrunning:  {Path: "image/achievement/speedrunning.png"},
+		ImageAchievementVictoryDrag:   {Path: "image/achievement/victorydrag.png"},
+		ImageAchievementT3Less:        {Path: "image/achievement/impossible.png"}, // Stub!
+		ImageAchievementTurretDamage:  {Path: "image/achievement/turretdamage.png"},
+		ImageAchievementPowerOf3:      {Path: "image/achievement/powerof3.png"},
+		ImageAchievementInfinite:      {Path: "image/achievement/infinite.png"},
+		ImageAchievementAntiDominator: {Path: "image/achievement/antidominator.png"},
 
 		ImageLock: {Path: "image/ui/lock.png"},
 
@@ -135,6 +137,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageServantCreep:        {Path: "image/creeps/servant_creep.png", FrameWidth: 15},
 		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png"},
 		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25},
+		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23},
 		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png"},
 		ImageTankCreep:           {Path: "image/creeps/tank_creep.png"},
 		ImageUberBoss:            {Path: "image/creeps/uber_boss.png", FrameWidth: 40},
@@ -214,6 +217,7 @@ func registerImageResources(ctx *ge.Context) {
 const (
 	ImageNone resource.ImageID = iota
 
+	ImageAchievementAntiDominator
 	ImageAchievementImpossible
 	ImageAchievementCheapBuild10
 	ImageAchievementT3Engineer
@@ -228,6 +232,7 @@ const (
 	ImageAchievementT3Less
 	ImageAchievementTurretDamage
 	ImageAchievementPowerOf3
+	ImageAchievementInfinite
 
 	ImageLock
 
@@ -340,6 +345,7 @@ const (
 	ImageServantCreep
 	ImageCreepTier2
 	ImageCreepTier3
+	ImageCreepDominator
 	ImageTurretCreep
 	ImageTankCreep
 	ImageBuilderCreep

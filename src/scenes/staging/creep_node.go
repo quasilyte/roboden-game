@@ -16,6 +16,7 @@ const (
 	creepPrimitiveWanderer creepKind = iota
 	creepStunner
 	creepAssault
+	creepDominator
 	creepBuilder
 	creepTurret
 	creepTurretConstruction
@@ -61,6 +62,7 @@ type creepNode struct {
 	attackDelay float64
 
 	bossStage int
+	fragScore int
 
 	EventDestroyed    gsignal.Event[*creepNode]
 	EventBuildingStop gsignal.Event[gsignal.Void]
@@ -179,7 +181,7 @@ func (c *creepNode) Update(delta float64) {
 	}
 
 	switch c.stats.kind {
-	case creepPrimitiveWanderer, creepStunner, creepAssault:
+	case creepPrimitiveWanderer, creepStunner, creepAssault, creepDominator:
 		c.updatePrimitiveWanderer(delta)
 	case creepBuilder:
 		c.updateBuilder(delta)
@@ -396,6 +398,22 @@ func (c *creepNode) doAttack(target projectileTarget) {
 	beam := newBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamColor)
 	beam.width = c.stats.beamWidth
 	c.scene.AddObject(beam)
+	if c.stats.kind == creepDominator {
+		targetDir := c.pos.DirectionTo(*target.GetPos())
+		const deg90rad = 1.5708
+		vec1 := targetDir.Rotated(deg90rad).Mulf(4)
+		vec2 := targetDir.Rotated(-deg90rad).Mulf(4)
+
+		rearBeam1pos := ge.Pos{Base: &c.pos, Offset: vec1}
+		rearBeam1targetPos := ge.Pos{Base: target.GetPos(), Offset: vec2}
+		rearBeam1 := newBeamNode(c.world.camera, rearBeam1pos, rearBeam1targetPos, dominatorBeamColorRear)
+		c.scene.AddObject(rearBeam1)
+
+		rearBeam2pos := ge.Pos{Base: &c.pos, Offset: vec2}
+		rearBeam2targetPos := ge.Pos{Base: target.GetPos(), Offset: vec1}
+		rearBeam2 := newBeamNode(c.world.camera, rearBeam2pos, rearBeam2targetPos, dominatorBeamColorRear)
+		c.scene.AddObject(rearBeam2)
+	}
 	target.OnDamage(c.stats.weapon.Damage, c.pos)
 }
 
@@ -741,9 +759,8 @@ func (c *creepNode) updateServant(delta float64) {
 	target, ok := c.specialTarget.(*colonyCoreNode)
 	if !ok || target.IsDisposed() {
 		// After the initial target is gone, behave like a basic creep.
-		c.specialTarget = nil
-		c.waypoint = gmath.Vec{}
-		c.wandererMovement(delta)
+		c.specialTarget = gmath.RandElem(c.world.rand, c.world.colonies)
+		return
 	} else {
 		// Fly around the target base.
 		const maxDistSqr float64 = 196 * 196

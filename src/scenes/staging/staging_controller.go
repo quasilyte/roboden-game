@@ -181,6 +181,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	if c.config.GameMode == gamedata.ModeArena {
 		c.arenaManager = newArenaManager(world)
 		scene.AddObject(c.arenaManager)
+		c.arenaManager.EventVictory.Connect(c, c.onVictoryTrigger)
 	}
 
 	if c.config.FogOfWar {
@@ -479,6 +480,13 @@ func (c *Controller) prepareBattleResults() {
 	c.world.result.TimePlayed = time.Since(c.startTime)
 	if c.arenaManager != nil {
 		c.world.result.ArenaLevel = c.arenaManager.level
+		if !c.config.InfiniteMode {
+			for _, creep := range c.world.creeps {
+				if creep.stats == dominatorCreepStats {
+					c.world.result.DominatorsSurvived++
+				}
+			}
+		}
 	}
 	c.world.result.Score = calcScore(c.world)
 	c.world.result.DifficultyScore = c.config.DifficultyScore

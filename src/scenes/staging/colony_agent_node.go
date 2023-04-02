@@ -824,6 +824,27 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec
 		}
 	}
 
+	if damage.Morale != 0 && !a.IsTurret() {
+		switch a.mode {
+		case agentModeMineEssence:
+			fmt.Println("stop carrying")
+			a.clearCargo()
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+
+		case agentModePatrol, agentModeStandby, agentModeFollow:
+			if !a.scene.Rand().Chance(damage.Morale) {
+				break
+			}
+			effectRoll := a.scene.Rand().Float()
+			if effectRoll < 0.4 {
+				a.AssignMode(agentModePanic, gmath.Vec{}, nil)
+			} else {
+				pos := retreatPos(a.scene.Rand(), a.scene.Rand().FloatRange(80, 140), a.pos, source)
+				a.AssignMode(agentModeMove, pos, nil)
+			}
+		}
+	}
+
 	a.energy = gmath.ClampMin(a.energy-damage.Energy, 0)
 	a.slow = gmath.ClampMax(a.slow+damage.Slow, 5)
 

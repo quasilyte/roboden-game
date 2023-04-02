@@ -54,6 +54,9 @@ type PlayerStats struct {
 
 	HighestArenaScore           int
 	HighestArenaScoreDifficulty int
+
+	HighestInfArenaScore           int
+	HighestInfArenaScoreDifficulty int
 }
 
 type Achievement struct {
@@ -72,7 +75,8 @@ type LevelConfig struct {
 	BuildTurretActionAvailable bool
 	RadiusActionAvailable      bool
 
-	FogOfWar bool
+	FogOfWar     bool
+	InfiniteMode bool
 
 	SecondBase  bool
 	ExtraDrones []*gamedata.AgentStats

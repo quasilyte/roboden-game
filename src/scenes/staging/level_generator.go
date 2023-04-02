@@ -132,6 +132,11 @@ func (g *levelGenerator) createBase(pos gmath.Vec, mainBase bool) {
 		g.scene.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
+	for i := 0; i < 5; i++ {
+		a := core.NewColonyAgentNode(gamedata.MilitiaAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
+		g.scene.AddObject(a)
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	}
 	if mainBase {
 		for _, stats := range g.world.config.ExtraDrones {
 			a := core.NewColonyAgentNode(stats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))

@@ -3,6 +3,7 @@ package staging
 import (
 	"math"
 
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
@@ -601,6 +602,30 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.hatch.Visible = true
 		c.evoDiode.Visible = true
 		playSound(c.scene, c.world.camera, assets.AudioColonyLanded, c.pos)
+		c.createLandingSmokeEffect()
+	}
+}
+
+func (c *colonyCoreNode) createLandingSmokeEffect() {
+	type effectInfo struct {
+		image  resource.ImageID
+		offset gmath.Vec
+		flip   bool
+	}
+	effects := [...]effectInfo{
+		{image: assets.ImageSmokeDown, offset: gmath.Vec{Y: 36}},
+		{image: assets.ImageSmokeSideDown, offset: gmath.Vec{X: 16, Y: 34}},
+		{image: assets.ImageSmokeSideDown, offset: gmath.Vec{X: -16, Y: 34}, flip: true},
+		{image: assets.ImageSmokeSide, offset: gmath.Vec{X: 30, Y: 28}},
+		{image: assets.ImageSmokeSide, offset: gmath.Vec{X: -30, Y: 28}, flip: true},
+	}
+	for _, info := range effects {
+		sprite := c.scene.NewSprite(info.image)
+		sprite.FlipHorizontal = info.flip
+		sprite.Pos.Offset = c.pos.Add(info.offset)
+		e := newEffectNodeFromSprite(c.world.camera, false, sprite)
+		e.anim.SetAnimationSpan(0.3)
+		c.scene.AddObject(e)
 	}
 }
 

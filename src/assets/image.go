@@ -79,6 +79,9 @@ func registerImageResources(ctx *ge.Context) {
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
 		ImageCloakWave:                  {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
 		ImageServantWave:                {Path: "image/effects/servant_wave.png", FrameWidth: 64},
+		ImageSmokeDown:                  {Path: "image/effects/smoke_down.png", FrameWidth: 8},
+		ImageSmokeSideDown:              {Path: "image/effects/smoke_side_down.png", FrameWidth: 8},
+		ImageSmokeSide:                  {Path: "image/effects/smoke_side.png", FrameWidth: 15},
 
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
 		ImageColonyCoreSelector: {Path: "image/colony_core_selector.png"},
@@ -273,6 +276,9 @@ const (
 	ImagePurpleIonZap
 	ImageCloakWave
 	ImageServantWave
+	ImageSmokeDown
+	ImageSmokeSideDown
+	ImageSmokeSide
 
 	ImageColonyDamageMask
 	ImageTurretDamageMask1

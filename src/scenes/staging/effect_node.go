@@ -19,6 +19,16 @@ type effectNode struct {
 	EventCompleted gesignal.Event[gesignal.Void]
 }
 
+func newEffectNodeFromSprite(camera *viewport.Camera, above bool, sprite *ge.Sprite) *effectNode {
+	e := &effectNode{
+		camera: camera,
+		above:  above,
+		anim:   ge.NewAnimation(sprite, -1),
+	}
+	e.anim.SetSecondsPerFrame(0.05)
+	return e
+}
+
 func newEffectNode(camera *viewport.Camera, pos gmath.Vec, above bool, image resource.ImageID) *effectNode {
 	return &effectNode{
 		camera: camera,
@@ -29,16 +39,22 @@ func newEffectNode(camera *viewport.Camera, pos gmath.Vec, above bool, image res
 }
 
 func (e *effectNode) Init(scene *ge.Scene) {
-	s := scene.NewSprite(e.image)
-	s.Pos.Base = &e.pos
-	if e.above {
-		e.camera.AddSpriteAbove(s)
+	var sprite *ge.Sprite
+	if e.anim == nil {
+		sprite = scene.NewSprite(e.image)
+		sprite.Pos.Base = &e.pos
 	} else {
-		e.camera.AddSprite(s)
+		sprite = e.anim.Sprite()
 	}
-
-	e.anim = ge.NewAnimation(s, -1)
-	e.anim.SetSecondsPerFrame(0.05)
+	if e.above {
+		e.camera.AddSpriteAbove(sprite)
+	} else {
+		e.camera.AddSprite(sprite)
+	}
+	if e.anim == nil {
+		e.anim = ge.NewAnimation(sprite, -1)
+		e.anim.SetSecondsPerFrame(0.05)
+	}
 }
 
 func (e *effectNode) IsDisposed() bool {

@@ -310,6 +310,8 @@ func (m *arenaManager) createWaveInfoText() string {
 }
 
 func (m *arenaManager) spawnCreeps() {
+	m.scene.Audio().PlaySound(assets.AudioWaveStart)
+
 	for _, g := range m.waveInfo.groups {
 		sector := m.spawnAreas[g.side]
 		spawnPos := randomSectorPos(m.world.rand, sector)

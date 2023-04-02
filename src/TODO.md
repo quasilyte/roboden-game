@@ -10,6 +10,7 @@ fixme:
 - colony movement is clunky, needs to be improved (don't move if can't land there)
 - stop crawlers phase through tall mountains
 - fix drones "folow"/"attack" actions: they're flying too far away
+- sometimes marauders are in invis while idle
 
 todo:
 - next wave sound

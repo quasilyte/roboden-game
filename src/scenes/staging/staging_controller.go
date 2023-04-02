@@ -516,6 +516,9 @@ func (c *Controller) victory() {
 
 func (c *Controller) handleInput() {
 	mainInput := c.state.MainInput
+	if mainInput.ActionIsPressed(controls.ActionDebug) {
+		c.victory()
+	}
 	if !c.state.Device.IsMobile {
 		// Camera panning only makes sense on non-mobile devices
 		// where we have a keyboard/gamepad or a cursor.

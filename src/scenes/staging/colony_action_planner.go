@@ -240,8 +240,21 @@ func (p *colonyActionPlanner) pickCloner() *colonyAgentNode {
 	return cloner
 }
 
+func (p *colonyActionPlanner) maxUnitCountForCloning(stats *gamedata.AgentStats) uint8 {
+	switch stats.Tier {
+	case 1:
+		return 20
+	case 2:
+		return 10
+	case 3:
+		return 5
+	default:
+		panic("unreachable")
+	}
+}
+
 func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bool) *colonyAgentNode {
-	agentKindThreshold := uint8(gmath.Clamp(p.colony.NumAgents()/5, 5, math.MaxUint8))
+	countRatioThreshold := uint8(gmath.Clamp(p.colony.NumAgents()/5, 5, math.MaxUint8))
 	searchFlags := searchFighters | searchOnlyAvailable | searchRandomized
 	if !combat {
 		searchFlags = searchWorkers | searchOnlyAvailable | searchRandomized
@@ -259,7 +272,8 @@ func (p *colonyActionPlanner) pickUnitToClone(cloner *colonyAgentNode, combat bo
 		if agentCloningCost(p.colony, cloner, a)*1.5 > p.colony.resources {
 			return false // Not enough resources
 		}
-		if a.stats.Tier > 1 && p.agentCountTable[a.stats.Kind] > agentKindThreshold {
+		count := p.agentCountTable[a.stats.Kind]
+		if count > countRatioThreshold || count > p.maxUnitCountForCloning(a.stats) {
 			return false // Don't need more of those
 		}
 		// Try to use weighted priorities with randomization.

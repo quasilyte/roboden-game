@@ -779,9 +779,9 @@ func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
 	}
 
 	if a.stats.CanCloak && !a.IsCloaked() && a.specialDelay == 0 {
+		a.AssignMode(agentModeCloakHide, gmath.Vec{}, nil)
 		a.doCloak(a.scene.Rand().FloatRange(6, 10))
 		a.specialDelay = a.scene.Rand().FloatRange(6, 10)
-		a.AssignMode(agentModeCloakHide, gmath.Vec{}, nil)
 		return
 	}
 
@@ -978,11 +978,11 @@ func (a *colonyAgentNode) doScavenge() {
 		}
 	}
 	if bestSource != nil {
+		a.AssignMode(agentModeScavenge, gmath.Vec{}, bestSource)
 		if a.stats.Kind == gamedata.AgentMarauder && a.specialDelay == 0 {
 			a.doCloak(20)
 			a.specialDelay = 10
 		}
-		a.AssignMode(agentModeScavenge, gmath.Vec{}, bestSource)
 	}
 }
 

@@ -189,7 +189,7 @@ var heavyCrawlerCreepStats = &creepStats{
 	image:     assets.ImageHeavyCrawlerCreep,
 	animSpeed: 0.15,
 	speed:     30,
-	maxHealth: 42,
+	maxHealth: 50,
 	weapon: initWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       5,
@@ -287,7 +287,7 @@ var builderCreepStats = &creepStats{
 	shadowImage: assets.ImageBigShadow,
 	tier:        3,
 	speed:       40,
-	maxHealth:   140,
+	maxHealth:   150,
 	// disarmable: true,
 }
 

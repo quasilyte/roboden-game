@@ -180,13 +180,13 @@ func (m *arenaManager) Update(delta float64) {
 
 	m.levelStartDelay -= delta
 	if m.levelStartDelay <= 0 {
-		m.spawnCreeps()
 		if !m.world.config.InfiniteMode && m.level > m.lastLevel {
 			m.victory = true
 			m.info.Dispose()
 			m.EventVictory.Emit(gsignal.Void{})
 			return
 		}
+		m.spawnCreeps()
 		m.level++
 		m.prepareWave()
 		m.overviewText = m.createWaveOverviewText()
@@ -435,7 +435,7 @@ func (m *arenaManager) prepareWave() {
 			m.waveInfo.flyingAttackers = true
 			m.waveInfo.groundAttackers = true
 		}
-		if allowFlying && m.world.rand.Chance(0.45) {
+		if allowFlying && m.world.rand.Chance(0.6) {
 			creepSelection = append(creepSelection, m.builderCreepInfo)
 		}
 

@@ -203,6 +203,7 @@ var heavyCrawlerCreepStats = &creepStats{
 		Reload:          2.5,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 		FireOffset:      gmath.Vec{Y: -2},
+		Explosion:       gamedata.ProjectileExplosionHeavyCrawlerLaser,
 		ArcPower:        1.5,
 	}),
 	size:       24,

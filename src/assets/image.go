@@ -65,18 +65,20 @@ func registerImageResources(ctx *ge.Context) {
 		ImageActionIncreaseRadius: {Path: "image/ui/action_increase_radius.png"},
 		ImageActionDecreaseRadius: {Path: "image/ui/action_decrease_radius.png"},
 
-		ImageStealthLaserExplosion:    {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
-		ImageCripplerBlasterExplosion: {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
-		ImageMilitiaIonExplosion:      {Path: "image/effects/militia_ion_explosion.png", FrameWidth: 5},
-		ImageShockerExplosion:         {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
-		ImageSmallExplosion1:          {Path: "image/effects/small_explosion1.png", FrameWidth: 32},
-		ImagePurpleExplosion:          {Path: "image/effects/purple_explosion.png", FrameWidth: 40},
-		ImageVerticalExplosion:        {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
-		ImageBigExplosion:             {Path: "image/effects/big_explosion.png", FrameWidth: 64},
-		ImageIonZap:                   {Path: "image/effects/ion_zap.png", FrameWidth: 28},
-		ImagePurpleIonZap:             {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
-		ImageCloakWave:                {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
-		ImageServantWave:              {Path: "image/effects/servant_wave.png", FrameWidth: 64},
+		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
+		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
+		ImageMilitiaIonExplosion:        {Path: "image/effects/militia_ion_explosion.png", FrameWidth: 5},
+		ImageShockerExplosion:           {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
+		ImageFighterLaserExplosion:      {Path: "image/effects/fighter_laser_explosion.png", FrameWidth: 14},
+		ImageHeavyCrawlerLaserExplosion: {Path: "image/effects/heavy_crawler_laser_explosion.png", FrameWidth: 14},
+		ImageSmallExplosion1:            {Path: "image/effects/small_explosion1.png", FrameWidth: 32},
+		ImagePurpleExplosion:            {Path: "image/effects/purple_explosion.png", FrameWidth: 40},
+		ImageVerticalExplosion:          {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
+		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 64},
+		ImageIonZap:                     {Path: "image/effects/ion_zap.png", FrameWidth: 28},
+		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
+		ImageCloakWave:                  {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
+		ImageServantWave:                {Path: "image/effects/servant_wave.png", FrameWidth: 64},
 
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
 		ImageColonyCoreSelector: {Path: "image/colony_core_selector.png"},
@@ -261,6 +263,8 @@ const (
 	ImageCripplerBlasterExplosion
 	ImageMilitiaIonExplosion
 	ImageShockerExplosion
+	ImageFighterLaserExplosion
+	ImageHeavyCrawlerLaserExplosion
 	ImageSmallExplosion1
 	ImagePurpleExplosion
 	ImageVerticalExplosion

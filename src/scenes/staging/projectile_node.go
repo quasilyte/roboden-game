@@ -205,9 +205,13 @@ func (p *projectileNode) detonate() {
 	case gamedata.ProjectileExplosionStealthLaser:
 		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageStealthLaserExplosion))
 	case gamedata.ProjectileExplosionFighterLaser:
-		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageFighterLaserExplosion))
+		effect := newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageFighterLaserExplosion)
+		p.scene.AddObject(effect)
+		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionHeavyCrawlerLaser:
-		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageHeavyCrawlerLaserExplosion))
+		effect := newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageHeavyCrawlerLaserExplosion)
+		p.scene.AddObject(effect)
+		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionPurple:
 		soundIndex := p.scene.Rand().IntRange(0, 2)
 		sound := assets.AudioPurpleExplosion1 + resource.AudioID(soundIndex)

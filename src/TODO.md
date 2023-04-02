@@ -11,6 +11,7 @@ fixme:
 - stop crawlers phase through tall mountains
 
 todo:
+- add new creeps to the classic mode: stealth crawler, builders
 - check if traits like "retreating" still work
 - make fog of war disappear dynamically?
 - make disintegrators prefer flying targets

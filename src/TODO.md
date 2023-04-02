@@ -12,9 +12,9 @@ fixme:
 - fix drones "folow"/"attack" actions: they're flying too far away
 
 todo:
+- next wave sound
 - add new creeps to the classic mode: stealth crawler, builders
 - check if traits like "retreating" still work
-- make fog of war disappear dynamically?
 - make disintegrators prefer flying targets
 - maybe make it possible for support drones to heal/recharge nearby colony drones
 - graphics options: allow disabling some optional shaders (like scrap dissolving)

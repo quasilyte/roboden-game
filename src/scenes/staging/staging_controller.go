@@ -184,14 +184,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.arenaManager.EventVictory.Connect(c, c.onVictoryTrigger)
 	}
 
-	if c.config.FogOfWar {
-		c.world.EventColonyCreated.Connect(c, func(colony *colonyCoreNode) {
-			colony.EventLanded.Connect(c, func(colony *colonyCoreNode) {
-				c.updateFogOfWar(colony.pos)
-			})
-		})
-	}
-
 	bg := ge.NewTiledBackground(scene.Context())
 	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
 	c.camera.SetBackground(bg)
@@ -678,6 +670,15 @@ func (c *Controller) checkVictory() {
 func (c *Controller) Update(delta float64) {
 	c.musicPlayer.Update(delta)
 	c.world.Update(delta)
+
+	if c.config.FogOfWar {
+		for _, colony := range c.world.colonies {
+			if !colony.IsFlying() {
+				continue
+			}
+			c.updateFogOfWar(colony.spritePos)
+		}
+	}
 
 	if !c.cameraToggleTarget.IsZero() {
 		c.cameraToggleProgress = gmath.ClampMax(c.cameraToggleProgress+delta, 1)

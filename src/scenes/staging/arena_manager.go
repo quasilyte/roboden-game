@@ -117,7 +117,7 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	}
 	m.heavyCrawlerCreepInfo = &arenaCreepInfo{
 		stats:    heavyCrawlerCreepStats,
-		minLevel: 8,
+		minLevel: 9,
 		cost:     creepFragScore(heavyCrawlerCreepStats),
 	}
 

@@ -13,8 +13,7 @@ fixme:
 - sometimes marauders are in invis while idle
 
 todo:
-- next wave sound
-- add new creeps to the classic mode: stealth crawler, builders
+- make building construction cost more obvious and easy to balance
 - check if traits like "retreating" still work
 - make disintegrators prefer flying targets
 - maybe make it possible for support drones to heal/recharge nearby colony drones

@@ -11,6 +11,8 @@ fixme:
 - stop crawlers phase through tall mountains
 - fix drones "folow"/"attack" actions: they're flying too far away
 - sometimes marauders are in invis while idle
+- make "show fps" separate from a debug mode
+- move debug mode toggles into terminal
 
 todo:
 - make building construction cost more obvious and easy to balance

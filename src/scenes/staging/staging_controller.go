@@ -258,6 +258,22 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	c.camera.SortBelowLayer()
+
+	// {
+	// 	cols, rows := c.world.pathgrid.Size()
+	// 	for row := 0; row < rows; row++ {
+	// 		for col := 0; col < cols; col++ {
+	// 			coord := pathing.GridCoord{X: col, Y: row}
+	// 			if c.world.pathgrid.CellIsFree(coord) {
+	// 				continue
+	// 			}
+	// 			rect := ge.NewRect(scene.Context(), pathing.CellSize, pathing.CellSize)
+	// 			rect.FillColorScale.SetRGBA(200, 50, 50, 100)
+	// 			rect.Pos.Offset = c.world.pathgrid.CoordToPos(coord)
+	// 			c.camera.AddGraphics(rect)
+	// 		}
+	// 	}
+	// }
 }
 
 func (c *Controller) updateFogOfWar(pos gmath.Vec) {

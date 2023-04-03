@@ -7,6 +7,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/pathing"
 )
 
 type mountainKind int
@@ -87,7 +88,9 @@ func (w *wallClusterNode) Init(scene *ge.Scene) {
 
 func (w *wallClusterNode) initChunks(scene *ge.Scene) {
 	w.sprites = make([]*ge.Sprite, 0, len(w.chunks))
-	w.points = make([]gmath.Vec, len(w.chunks))
+	w.points = make([]gmath.Vec, len(w.chunks), len(w.chunks)+8)
+
+	pointSet := make(map[gmath.Vec]struct{}, len(w.points)+8)
 	for i, chunk := range w.chunks {
 		var texture resource.ImageID
 		numSprites := 1
@@ -116,6 +119,7 @@ func (w *wallClusterNode) initChunks(scene *ge.Scene) {
 			panic("unexpected chunk size")
 		}
 
+		pointSet[chunk.pos] = struct{}{}
 		w.points[i] = chunk.pos
 
 		for j := 0; j < numSprites; j++ {
@@ -132,6 +136,31 @@ func (w *wallClusterNode) initChunks(scene *ge.Scene) {
 				s.Pos.Offset = scene.Rand().Offset(-8, 8)
 			}
 			w.sprites = append(w.sprites, s)
+		}
+	}
+
+	pushNewPoint := func(pos gmath.Vec) {
+		if _, ok := pointSet[pos]; ok {
+			return
+		}
+		pointSet[pos] = struct{}{}
+		w.points = append(w.points, pos)
+	}
+
+	for _, chunk := range w.chunks {
+		pointSet[chunk.pos] = struct{}{}
+		switch chunk.kind {
+		case mountainBig:
+			pushNewPoint(chunk.pos.Add(gmath.Vec{Y: pathing.CellSize}))
+			pushNewPoint(chunk.pos.Add(gmath.Vec{Y: -pathing.CellSize}))
+			pushNewPoint(chunk.pos.Add(gmath.Vec{X: pathing.CellSize}))
+			pushNewPoint(chunk.pos.Add(gmath.Vec{X: -pathing.CellSize}))
+		case mountainWide:
+			pushNewPoint(chunk.pos.Add(gmath.Vec{X: pathing.CellSize}))
+			pushNewPoint(chunk.pos.Add(gmath.Vec{X: -pathing.CellSize}))
+		case mountainTall:
+			pushNewPoint(chunk.pos.Add(gmath.Vec{Y: pathing.CellSize}))
+			pushNewPoint(chunk.pos.Add(gmath.Vec{Y: -pathing.CellSize}))
 		}
 	}
 

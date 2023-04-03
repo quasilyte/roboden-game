@@ -166,7 +166,7 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind
 	if placed != 0 && rand.Chance(0.7) {
 		numScraps := rand.IntRange(1, 2)
 		for i := 0; i < numScraps; i++ {
-			scrapPos := gmath.RadToVec(rand.Rad()).Mulf(rand.FloatRange(64, 128)).Add(unitPos)
+			scrapPos := g.adjustResourcePos(gmath.RadToVec(rand.Rad()).Mulf(rand.FloatRange(64, 128)).Add(unitPos))
 			if posIsFree(g.world, nil, scrapPos, 8) {
 				source := g.world.NewEssenceSourceNode(scrapSource, scrapPos)
 				g.scene.AddObject(source)
@@ -176,12 +176,18 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind
 	return placed
 }
 
+func (g *levelGenerator) adjustResourcePos(pos gmath.Vec) gmath.Vec {
+	aligned := g.world.pathgrid.AlignPos(pos)
+	return aligned.Add(g.rng.Offset(-10, 10))
+}
+
 func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, kind *essenceSourceStats) int {
 	rand := &g.rng
 	placed := 0
 	pos := correctedPos(sector, g.randomPos(sector), 196)
 	initialPos := pos
 	for i := 0; i < maxSize; i++ {
+		pos = g.adjustResourcePos(pos)
 		if !posIsFree(g.world, nil, pos, 8) {
 			break
 		}
@@ -290,7 +296,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		if !hasResources {
 			for i := 0; i < 2; i++ {
 				for j := 0; j < 5; j++ {
-					pos := gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.pos)
+					pos := g.adjustResourcePos(gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.pos))
 					if !posIsFree(g.world, nil, pos, 14) {
 						continue
 					}

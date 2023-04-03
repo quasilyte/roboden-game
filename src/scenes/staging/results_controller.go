@@ -9,6 +9,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/contentlock"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
@@ -136,8 +137,9 @@ func (c *resultsController) updateProgress() {
 		}
 	}
 
+	contentUpdates := contentlock.Update(c.state)
 	c.newAchievements, c.upgradedAchievements = c.checkAchievements()
-	c.newDrones = c.checkNewDrones()
+	c.newDrones = contentUpdates.DronesUnlocked
 }
 
 func (c *resultsController) Update(delta float64) {
@@ -145,30 +147,6 @@ func (c *resultsController) Update(delta float64) {
 		c.back()
 		return
 	}
-}
-
-func (c *resultsController) checkNewDrones() []gamedata.ColonyAgentKind {
-	stats := &c.state.Persistent.PlayerStats
-
-	alreadyUnlocked := map[gamedata.ColonyAgentKind]struct{}{}
-	for _, kind := range stats.DronesUnlocked {
-		alreadyUnlocked[kind] = struct{}{}
-	}
-
-	var unlocked []gamedata.ColonyAgentKind
-	for _, recipe := range gamedata.Tier2agentMergeRecipes {
-		drone := recipe.Result
-		if _, ok := alreadyUnlocked[drone.Kind]; ok {
-			continue
-		}
-		if drone.ScoreCost > stats.TotalScore {
-			continue
-		}
-		unlocked = append(unlocked, drone.Kind)
-		stats.DronesUnlocked = append(stats.DronesUnlocked, drone.Kind)
-	}
-
-	return unlocked
 }
 
 func (c *resultsController) checkAchievements() ([]string, []string) {

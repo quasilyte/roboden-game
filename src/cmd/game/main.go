@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/ge"
 
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/contentlock"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/scenes/menus"
@@ -78,23 +79,8 @@ func getDefaultSessionState() *session.State {
 			InitialCreeps: 1,
 			NumCreepBases: 2,
 		}),
-		Persistent: session.PersistentData{
-			// The default settings.
-			Settings: session.GameSettings{
-				EffectsVolumeLevel: 2,
-				MusicVolumeLevel:   2,
-				ScrollingSpeed:     2,
-				EdgeScrollRange:    2,
-				Debug:              false,
-				Lang:               inferDefaultLang(),
-				Graphics: session.GraphicsSettings{
-					ShadowsEnabled:    true,
-					AllShadersEnabled: true,
-					FullscreenEnabled: true,
-				},
-			},
-		},
-		Device: userdevice.GetInfo(),
+		Persistent: contentlock.GetDefaultData(),
+		Device:     userdevice.GetInfo(),
 	}
 
 	state.Persistent.PlayerStats.TurretsUnlocked = append(state.Persistent.PlayerStats.TurretsUnlocked, gamedata.AgentGunpoint)
@@ -108,22 +94,4 @@ func getDefaultSessionState() *session.State {
 	}
 
 	return state
-}
-
-func inferDefaultLang() string {
-	languages := ge.InferLanguages()
-	defaultLanguage := "en"
-	selectedLanguage := ""
-	for _, l := range languages {
-		switch l {
-		case "en", "ru":
-			if selectedLanguage != defaultLanguage {
-				selectedLanguage = l
-			}
-		}
-	}
-	if selectedLanguage == "" {
-		selectedLanguage = defaultLanguage
-	}
-	return selectedLanguage
 }

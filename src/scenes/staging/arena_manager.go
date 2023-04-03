@@ -1,6 +1,7 @@
 package staging
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -379,10 +380,13 @@ func (m *arenaManager) prepareWave() {
 	switch {
 	case isLastLevel:
 		m.levelStartDelay = 4.0 * 60
-		m.waveBudget += 40
+		m.waveBudget += 100
 	case m.level%5 == 0:
 		m.levelStartDelay = 4.0 * 60
 		m.waveBudget += 20
+		if !m.world.config.InfiniteMode {
+			m.waveBudget += m.level
+		}
 	case m.level == 1:
 		m.levelStartDelay = 90
 		m.waveBudget = 20
@@ -392,6 +396,7 @@ func (m *arenaManager) prepareWave() {
 	}
 
 	budget := m.waveBudget
+	fmt.Printf("wave %d budget is %d\n", m.level, budget)
 
 	// First decide which kind of attack we're doing.
 	attackDirectionRoll := m.world.rand.Float()
@@ -439,7 +444,7 @@ func (m *arenaManager) prepareWave() {
 			creepSelection = append(creepSelection, m.builderCreepInfo)
 		}
 
-		const maxGroupBudget = 90
+		const maxGroupBudget = 100
 		for sideBudget > 0 {
 			groupCreepSelection := m.groupCreepSelectionSlice[:0]
 			groupCreepSelection = append(groupCreepSelection, creepSelection...)
@@ -484,19 +489,27 @@ func (m *arenaManager) prepareWave() {
 	if isLastLevel {
 		// The last wave.
 		m.waveInfo.isLast = true
-		for i := 0; i < 3; i++ {
+		for i := 0; i < 4; i++ {
 			groups[0].units = append(groups[0].units, dominatorCreepStats)
 		}
 		var groupSlider gmath.Slider
 		groupSlider.SetBounds(0, len(groups)-1)
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 6; i++ {
 			index := groupSlider.Value()
 			groups[index].units = append(groups[index].units, servantCreepStats)
 			groupSlider.Inc()
 		}
 	} else if m.level%5 == 0 {
 		// A mini boss wave.
-		groups[0].units = append(groups[0].units, dominatorCreepStats)
+		// 5 => 1 boss
+		// 10 => 2 bosses
+		// 15 => 3 bosses
+		// ...
+		numBosses := m.level / 5
+		for i := 0; i < numBosses; i++ {
+			groupIndex := gmath.RandIndex(m.world.rand, groups)
+			groups[groupIndex].units = append(groups[groupIndex].units, dominatorCreepStats)
+		}
 		m.waveInfo.dominator = true
 	}
 

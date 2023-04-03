@@ -327,7 +327,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		return
 	}
 
-	var relocationVec gmath.Vec
+	var relocationPos gmath.Vec
 	switch choice.Option.special {
 	case specialAttack:
 		c.launchAttack()
@@ -336,7 +336,9 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		clickPos := choice.Pos
 		clickDist := c.world.selectedColony.pos.DistanceTo(clickPos)
 		dist := gmath.ClampMax(clickDist, maxDist)
-		relocationVec = c.world.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
+		relocationVec := c.world.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
+		relocationPos = relocationVec.Add(c.world.selectedColony.pos)
+		c.launchRelocation(c.world.selectedColony, dist, maxDist, relocationPos)
 	case specialIncreaseRadius:
 		c.world.result.RadiusIncreases++
 		c.world.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
@@ -368,10 +370,6 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 				break
 			}
 		}
-	}
-
-	if !relocationVec.IsZero() {
-		c.launchRelocation(c.world.selectedColony, relocationVec)
 	}
 }
 
@@ -430,19 +428,40 @@ func (c *Controller) launchAttack() {
 	})
 }
 
-func (c *Controller) launchRelocation(core *colonyCoreNode, vec gmath.Vec) {
-	r := 48.0
-	for i := 0; i < 4; i++ {
-		probe := core.pos.Add(vec)
-		relocationPoint := c.pickColonyPos(core, probe, r, 5)
-		if !relocationPoint.IsZero() {
-			core.doRelocation(relocationPoint)
-			return
+func (c *Controller) launchRelocation(core *colonyCoreNode, dist, maxDist float64, dst gmath.Vec) {
+	dstDir := dst.DirectionTo(core.pos)
+	var relocationPoint gmath.Vec
+OuterLoop:
+	for _, step := range [3]float64{-32.0, 32.0, -16.0} {
+		currentDist := dist
+		currentPos := dst
+		for {
+			if posIsFree(c.world, core, currentPos, 48) {
+				relocationPoint = currentPos
+				break OuterLoop
+			}
+			leftPos := dstDir.Rotated(-0.2).Mulf(currentDist).Add(core.pos)
+			if posIsFree(c.world, core, leftPos, 48) {
+				relocationPoint = leftPos
+				break OuterLoop
+			}
+			rightPos := dstDir.Rotated(0.2).Mulf(currentDist).Add(core.pos)
+			if posIsFree(c.world, core, rightPos, 48) {
+				relocationPoint = rightPos
+				break OuterLoop
+			}
+			currentDist += step
+			if currentDist < 0 || currentDist > maxDist || currentPos.DistanceSquaredTo(core.pos) < 32 {
+				break
+			}
+			currentPos = dstDir.Mulf(currentDist).Add(core.pos)
 		}
-		r -= 2
-		vec = vec.Mulf(0.85)
 	}
-	core.doRelocation(core.pos)
+	if !relocationPoint.IsZero() {
+		core.doRelocation(roundedPos(relocationPoint))
+	} else {
+		c.scene.Audio().PlaySound(assets.AudioError)
+	}
 }
 
 func (c *Controller) spawnTier3Creep() {

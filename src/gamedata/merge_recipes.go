@@ -60,9 +60,9 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Result: RepairAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
+		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
 		Drone2: RecipeSubject{GreenFactionTag, AgentWorker},
-		Result: FreighterAgentStats,
+		Result: RechargeAgentStats,
 	},
 	{
 		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
@@ -90,9 +90,9 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Result: CourierAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
+		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
 		Drone2: RecipeSubject{GreenFactionTag, AgentWorker},
-		Result: RechargeAgentStats,
+		Result: FreighterAgentStats,
 	},
 	{
 		Drone1: RecipeSubject{RedFactionTag, AgentWorker},

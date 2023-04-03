@@ -56,6 +56,13 @@ func posMove(pos gmath.Vec, d pathing.Direction) gmath.Vec {
 }
 
 func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, radius float64) bool {
+	wallCheckRadius := radius + 24
+	for _, wall := range world.walls {
+		if wall.CollidesWith(pos, wallCheckRadius) {
+			return false
+		}
+	}
+
 	for _, source := range world.essenceSources {
 		if source.pos.DistanceTo(pos) < (radius + source.stats.size) {
 			return false
@@ -82,12 +89,6 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 	}
 	for _, creep := range world.creeps {
 		if creep.stats.shadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+creep.stats.size) {
-			return false
-		}
-	}
-	wallCheckRadius := radius + 24
-	for _, wall := range world.walls {
-		if wall.CollidesWith(pos, wallCheckRadius) {
 			return false
 		}
 	}

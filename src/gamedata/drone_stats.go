@@ -95,7 +95,7 @@ var GunpointAgentStats = &AgentStats{
 	MaxHealth: 100,
 	CanPatrol: true,
 	Weapon: initWeaponStats(&WeaponStats{
-		AttackRange:     275,
+		AttackRange:     280,
 		Reload:          2.1,
 		AttackSound:     assets.AudioGunpointShot,
 		ProjectileImage: assets.ImageGunpointProjectile,

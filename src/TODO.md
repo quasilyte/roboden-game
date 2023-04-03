@@ -7,7 +7,6 @@ todo engine:
 - why animation affects Y axis?
 
 fixme:
-- colony movement is clunky, needs to be improved (don't move if can't land there)
 - fix drones "folow"/"attack" actions: they're flying too far away
 - sometimes marauders are in invis while idle
 - make "show fps" separate from a debug mode

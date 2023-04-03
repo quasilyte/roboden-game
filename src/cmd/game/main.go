@@ -57,8 +57,8 @@ func newLevelConfig(config *session.LevelConfig) *session.LevelConfig {
 		gamedata.FindRecipe(gamedata.ClonerAgentStats),
 		gamedata.FindRecipe(gamedata.FighterAgentStats),
 		gamedata.FindRecipe(gamedata.RepairAgentStats),
-		gamedata.FindRecipe(gamedata.FreighterAgentStats),
 		gamedata.FindRecipe(gamedata.CripplerAgentStats),
+		gamedata.FindRecipe(gamedata.RechargeAgentStats),
 		gamedata.FindRecipe(gamedata.RedminerAgentStats),
 		gamedata.FindRecipe(gamedata.ServoAgentStats),
 	}

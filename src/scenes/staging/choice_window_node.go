@@ -519,12 +519,11 @@ func (w *choiceWindowNode) activateChoice(i int) {
 		Option:  w.choices[i].option,
 	}
 
-	delayRoll := w.scene.Rand().FloatRange(0.8, 1.2)
 	if i == 4 {
 		// Special action selected.
-		w.startCharging(w.choices[i].option.cost * delayRoll)
+		w.startCharging(w.choices[i].option.cost)
 	} else {
-		w.startCharging(10.0 * delayRoll)
+		w.startCharging(10.0)
 	}
 
 	w.scene.Audio().PlaySound(assets.AudioChoiceMade)

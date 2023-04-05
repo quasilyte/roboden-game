@@ -248,7 +248,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		}
 	case 12:
 		s := m.scene.Dict().Get("tutorial1.camera", m.inputMode)
-		targetPos := ge.Pos{Offset: gmath.Vec{X: 340, Y: 780}}
+		targetPos := ge.Pos{Offset: gmath.Vec{X: 1160, Y: 530}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true

@@ -387,13 +387,13 @@ func (m *arenaManager) prepareWave() {
 		m.waveBudget += 120
 	case m.level%5 == 0:
 		m.levelStartDelay = 4.0 * 60
-		m.waveBudget += 20
+		m.waveBudget += 25
 		if !m.world.config.InfiniteMode {
 			m.waveBudget += 2 * m.level
 		}
 	case m.level == 1:
 		m.levelStartDelay = 90
-		m.waveBudget = 20
+		m.waveBudget = 25
 	default:
 		m.levelStartDelay = 2.5 * 60
 		m.waveBudget += 10

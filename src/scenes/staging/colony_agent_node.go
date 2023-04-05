@@ -1551,6 +1551,9 @@ func (a *colonyAgentNode) updateMineEssence(delta float64) {
 	if a.moveTowards(delta, a.waypoint) {
 		source := a.target.(*essenceSourceNode)
 		if source.IsDisposed() {
+			if a.IsCloaked() {
+				a.doUncloak()
+			}
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		} else {
 			a.AssignMode(agentModePickup, gmath.Vec{}, nil)

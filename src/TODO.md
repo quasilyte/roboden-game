@@ -12,7 +12,6 @@ fixme:
 - make "show fps" separate from a debug mode
 - move debug mode toggles into terminal
 - don't play sounds from the fog of war
-- fire offset for creeps is ignored now
 
 todo:
 - lose all evo points when moving a base?

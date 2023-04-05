@@ -31,7 +31,7 @@ var Tutorials = []*TutorialData{
 		ID:          0,
 		ScoreReward: 200,
 		Objective:   ObjectiveBuildBase,
-		Seed:        0xF0F1000 + 18,
+		Seed:        0xF0F1000 + 7,
 	},
 
 	{

@@ -94,7 +94,7 @@ var GunpointAgentStats = &AgentStats{
 	Upkeep:    12,
 	MaxHealth: 100,
 	CanPatrol: true,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     280,
 		Reload:          2.1,
 		AttackSound:     assets.AudioGunpointShot,
@@ -135,7 +135,7 @@ var MilitiaAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       75,
 	MaxHealth:   12,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     130,
 		Reload:          2.5,
 		AttackSound:     assets.AudioMilitiaShot,
@@ -163,7 +163,7 @@ var TruckerAgentStats = &AgentStats{
 	Speed:                75,
 	MaxHealth:            40,
 	EnergyRegenRateBonus: 0.5,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:           160,
 		Reload:                3,
 		AttackSound:           assets.AudioCourierShot,
@@ -192,7 +192,7 @@ var CourierAgentStats = &AgentStats{
 	MaxPayload:  1,
 	Speed:       80,
 	MaxHealth:   30,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:           140,
 		Reload:                3.2,
 		AttackSound:           assets.AudioCourierShot,
@@ -360,7 +360,7 @@ var CripplerAgentStats = &AgentStats{
 	CanCloak:    true,
 	Speed:       65,
 	MaxHealth:   18,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     255,
 		Reload:          2.7,
 		AttackSound:     assets.AudioCripplerShot,
@@ -388,7 +388,7 @@ var StormbringerAgentStats = &AgentStats{
 	Speed:                100,
 	MaxHealth:            40,
 	EnergyRegenRateBonus: 1,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:           170,
 		Reload:                2.6,
 		AttackSound:           assets.AudioStormbringerShot,
@@ -418,7 +418,7 @@ var PrismAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       70,
 	MaxHealth:   28,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     200,
 		Reload:          3.7,
 		AttackSound:     assets.AudioPrismShot,
@@ -444,7 +444,7 @@ var FighterAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       90,
 	MaxHealth:   28,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     180,
 		Reload:          1.9,
 		AttackSound:     assets.AudioFighterBeam,
@@ -474,7 +474,7 @@ var ScavengerAgentStats = &AgentStats{
 	MaxHealth:     22,
 	SupportReload: 16,
 	MaxPayload:    2,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     160,
 		Reload:          2.5,
 		AttackSound:     assets.AudioScavengerShot,
@@ -502,7 +502,7 @@ var AntiAirAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       80,
 	MaxHealth:   20,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     250,
 		Reload:          2.4,
 		AttackSound:     assets.AudioAntiAirMissiles,
@@ -515,6 +515,7 @@ var AntiAirAgentStats = &AgentStats{
 		BurstDelay:      0.1,
 		Explosion:       ProjectileExplosionNormal,
 		ArcPower:        2,
+		Accuracy:        0.95,
 		TargetFlags:     TargetFlying,
 		FireOffset:      gmath.Vec{Y: -8},
 	}),
@@ -533,7 +534,7 @@ var MortarAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       70,
 	MaxHealth:   30,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     370,
 		Reload:          3.3,
 		AttackSound:     assets.AudioMortarShot,
@@ -545,6 +546,7 @@ var MortarAgentStats = &AgentStats{
 		BurstSize:       1,
 		Explosion:       ProjectileExplosionNormal,
 		ArcPower:        2.5,
+		Accuracy:        0.9,
 		TargetFlags:     TargetGround,
 		RoundProjectile: true,
 	}),
@@ -561,7 +563,7 @@ var DestroyerAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       85,
 	MaxHealth:   45,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange: 210,
 		Reload:      1.8,
 		AttackSound: assets.AudioDestroyerBeam,
@@ -586,7 +588,7 @@ var MarauderAgentStats = &AgentStats{
 	SupportReload: 14,
 	MaxHealth:     30,
 	MaxPayload:    3,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     255,
 		Reload:          2.3,
 		ProjectileImage: assets.ImageMarauderProjectile,
@@ -616,7 +618,7 @@ var RepellerAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       105,
 	MaxHealth:   22,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     160,
 		Reload:          2.2,
 		AttackSound:     assets.AudioRepellerBeam,
@@ -647,7 +649,7 @@ var DisintegratorAgentStats = &AgentStats{
 	Speed:         80,
 	MaxHealth:     20,
 	SupportReload: 12,
-	Weapon: initWeaponStats(&WeaponStats{
+	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:           220,
 		AttackSound:           assets.AudioDisintegratorShot,
 		ProjectileImage:       assets.ImageDisintegratorProjectile,

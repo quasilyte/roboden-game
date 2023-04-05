@@ -41,18 +41,14 @@ type projectileTarget interface {
 	IsFlying() bool
 }
 
-func initWeaponStats(stats *gamedata.WeaponStats) *gamedata.WeaponStats {
-	stats.ImpactAreaSqr = stats.ImpactArea * stats.ImpactArea
-	return stats
-}
-
 type projectileConfig struct {
-	Weapon    *gamedata.WeaponStats
-	Camera    *viewport.Camera
-	Attacker  projectileTarget
-	ToPos     gmath.Vec
-	Target    projectileTarget
-	FireDelay float64
+	Weapon     *gamedata.WeaponStats
+	Camera     *viewport.Camera
+	Attacker   projectileTarget
+	ToPos      gmath.Vec
+	Target     projectileTarget
+	FireDelay  float64
+	FireOffset gmath.Vec
 }
 
 func newProjectileNode(config projectileConfig) *projectileNode {
@@ -60,16 +56,22 @@ func newProjectileNode(config projectileConfig) *projectileNode {
 		camera:    config.Camera,
 		weapon:    config.Weapon,
 		attacker:  config.Attacker,
-		pos:       config.Attacker.GetPos().Add(config.Weapon.FireOffset),
+		pos:       config.Attacker.GetPos().Add(config.Weapon.FireOffset).Add(config.FireOffset),
 		toPos:     config.ToPos,
 		target:    config.Target,
 		fireDelay: config.FireDelay,
 	}
 	if p.weapon.ArcPower != 0 {
+		arcPower := p.weapon.ArcPower
+		speed := p.weapon.ProjectileSpeed
+		if config.ToPos.Y >= p.pos.Y {
+			arcPower *= 0.3
+			speed *= 1.5
+		}
 		dist := p.pos.DistanceTo(p.toPos)
-		t := dist / p.weapon.ProjectileSpeed
+		t := dist / speed
 		p.arcProgressionScaling = 1.0 / t
-		power := gmath.Vec{Y: dist * p.weapon.ArcPower}
+		power := gmath.Vec{Y: dist * arcPower}
 		p.arcFrom = p.pos.Add(power)
 		p.arcTo = p.toPos.Add(power)
 		p.arcStart = p.pos
@@ -89,19 +91,21 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 	p.sprite = scene.NewSprite(p.weapon.ProjectileImage)
 	p.sprite.Pos.Base = &p.pos
 	p.sprite.Rotation = &p.rotation
-	if p.fireDelay > 0 {
-		p.sprite.Visible = false
-	}
 	p.camera.AddSpriteAbove(p.sprite)
 
-	if p.arcProgressionScaling != 0 {
-		missChance := 0.1
-		if p.target.IsFlying() {
-			missChance = 0.4
-		}
-		if scene.Rand().Chance(missChance) {
-			// Most likely will be a miss.
-			p.toPos = p.toPos.Add(scene.Rand().Offset(-28, 28))
+	p.sprite.Visible = false
+
+	if p.weapon.Accuracy != 1.0 {
+		missChance := 1.0 - p.weapon.Accuracy
+		if missChance != 0 && scene.Rand().Chance(missChance) {
+			dist := p.pos.DistanceTo(p.toPos)
+			// 100 => 25
+			// 200 => 50
+			// 400 => 100
+			offsetValue := gmath.Clamp(dist*0.25, 24, 140)
+			p.toPos = p.toPos.Add(scene.Rand().Offset(-offsetValue, offsetValue))
+		} else if p.arcProgressionScaling != 0 {
+			p.toPos = p.toPos.Add(scene.Rand().Offset(-8, 8))
 		}
 	}
 
@@ -146,6 +150,7 @@ func (p *projectileNode) Update(delta float64) {
 		if p.weapon.ProjectileRotateSpeed != 0 {
 			p.rotation += gmath.Rad(delta * p.weapon.ProjectileRotateSpeed)
 		}
+		p.sprite.Visible = true
 		return
 	}
 
@@ -159,33 +164,14 @@ func (p *projectileNode) Update(delta float64) {
 		p.rotation = p.pos.AngleToPoint(newPos)
 	}
 	p.pos = newPos
+	p.sprite.Visible = true
 }
 
 func (p *projectileNode) Dispose() {
 	p.sprite.Dispose()
 }
 
-func (p *projectileNode) detonate() {
-	p.Dispose()
-	if p.target.IsDisposed() {
-		return
-	}
-	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > p.weapon.ImpactAreaSqr {
-		return
-	}
-
-	dmg := p.weapon.Damage
-	if dmg.Health != 0 {
-		var multiplier float64
-		if p.target.IsFlying() {
-			multiplier = p.weapon.FlyingTargetDamageMult
-		} else {
-			multiplier = p.weapon.GroundTargetDamageMult
-		}
-		dmg.Health *= multiplier
-	}
-	p.target.OnDamage(p.weapon.Damage, *p.attacker.GetPos())
-
+func (p *projectileNode) createExplosion() {
 	explosionKind := p.weapon.Explosion
 	if explosionKind == gamedata.ProjectileExplosionNone {
 		return
@@ -194,6 +180,8 @@ func (p *projectileNode) detonate() {
 	switch explosionKind {
 	case gamedata.ProjectileExplosionNormal:
 		createExplosion(p.scene, p.camera, p.target.IsFlying(), explosionPos)
+	case gamedata.ProjectileExplosionBigVertical:
+		createBigVerticalExplosion(p.scene, p.camera, explosionPos)
 	case gamedata.ProjectileExplosionCripplerBlaster:
 		effect := newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageCripplerBlasterExplosion)
 		p.scene.AddObject(effect)
@@ -218,4 +206,30 @@ func (p *projectileNode) detonate() {
 		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImagePurpleExplosion))
 		playSound(p.scene, p.camera, sound, explosionPos)
 	}
+}
+
+func (p *projectileNode) detonate() {
+	p.Dispose()
+	if p.target.IsDisposed() {
+		return
+	}
+	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > p.weapon.ImpactAreaSqr {
+		if p.weapon.AlwaysExplodes {
+			p.createExplosion()
+		}
+		return
+	}
+
+	dmg := p.weapon.Damage
+	if dmg.Health != 0 {
+		var multiplier float64
+		if p.target.IsFlying() {
+			multiplier = p.weapon.FlyingTargetDamageMult
+		} else {
+			multiplier = p.weapon.GroundTargetDamageMult
+		}
+		dmg.Health *= multiplier
+	}
+	p.target.OnDamage(p.weapon.Damage, *p.attacker.GetPos())
+	p.createExplosion()
 }

@@ -69,6 +69,7 @@ type arenaWaveInfo struct {
 
 	isLast          bool
 	dominator       bool
+	howitzer        bool
 	taskForce       bool
 	builders        bool
 	flyingAttackers bool
@@ -262,6 +263,9 @@ func (m *arenaManager) createWaveOverviewText() string {
 	if m.waveInfo.isLast {
 		specialParts = append(specialParts, "???")
 	} else {
+		if m.waveInfo.howitzer {
+			specialParts = append(specialParts, d.Get("game.wave_howitzer"))
+		}
 		if m.waveInfo.dominator {
 			specialParts = append(specialParts, d.Get("game.wave_dominator"))
 		}
@@ -380,12 +384,12 @@ func (m *arenaManager) prepareWave() {
 	switch {
 	case isLastLevel:
 		m.levelStartDelay = 4.0 * 60
-		m.waveBudget += 100
+		m.waveBudget += 120
 	case m.level%5 == 0:
 		m.levelStartDelay = 4.0 * 60
 		m.waveBudget += 20
 		if !m.world.config.InfiniteMode {
-			m.waveBudget += m.level
+			m.waveBudget += 2 * m.level
 		}
 	case m.level == 1:
 		m.levelStartDelay = 90
@@ -471,13 +475,13 @@ func (m *arenaManager) prepareWave() {
 	}
 
 	if m.level > 6 && (m.level%6 == 0) {
-		// wave 12 => 2
-		// wave 18 => 3
-		// wave 24 => 4
-		// wave 30 => 5
-		// wave 36 => 6
+		// wave 12 => 3
+		// wave 18 => 4
+		// wave 24 => 5
+		// wave 30 => 6
+		// wave 36 => 7
 		m.waveInfo.taskForce = true
-		numAttackers := m.level / 6
+		numAttackers := 1 + (m.level / 6)
 		g := arenaWaveGroup{side: m.attackSides[0]}
 		g.units = make([]*creepStats, numAttackers)
 		for i := range g.units {
@@ -489,12 +493,16 @@ func (m *arenaManager) prepareWave() {
 	if isLastLevel {
 		// The last wave.
 		m.waveInfo.isLast = true
-		for i := 0; i < 4; i++ {
+		for i := 0; i < 3; i++ {
 			groups[0].units = append(groups[0].units, dominatorCreepStats)
+		}
+		for i := 0; i < 2; i++ {
+			index := gmath.RandIndex(m.world.rand, groups)
+			groups[index].units = append(groups[index].units, howitzerCreepStats)
 		}
 		var groupSlider gmath.Slider
 		groupSlider.SetBounds(0, len(groups)-1)
-		for i := 0; i < 6; i++ {
+		for i := 0; i < 7; i++ {
 			index := groupSlider.Value()
 			groups[index].units = append(groups[index].units, servantCreepStats)
 			groupSlider.Inc()
@@ -508,9 +516,14 @@ func (m *arenaManager) prepareWave() {
 		numBosses := m.level / 5
 		for i := 0; i < numBosses; i++ {
 			groupIndex := gmath.RandIndex(m.world.rand, groups)
-			groups[groupIndex].units = append(groups[groupIndex].units, dominatorCreepStats)
+			if m.world.rand.Bool() {
+				groups[groupIndex].units = append(groups[groupIndex].units, howitzerCreepStats)
+				m.waveInfo.howitzer = true
+			} else {
+				groups[groupIndex].units = append(groups[groupIndex].units, dominatorCreepStats)
+				m.waveInfo.dominator = true
+			}
 		}
-		m.waveInfo.dominator = true
 	}
 
 	m.waveInfo.groups = groups

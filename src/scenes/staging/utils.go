@@ -144,6 +144,11 @@ func playExplosionSound(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec)
 	playSound(scene, camera, explosionSound, pos)
 }
 
+func createBigVerticalExplosion(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
+	scene.AddObject(newEffectNode(camera, pos, false, assets.ImageBigVerticalExplosion))
+	playExplosionSound(scene, camera, pos)
+}
+
 func createExplosion(scene *ge.Scene, camera *viewport.Camera, above bool, pos gmath.Vec) {
 	createMuteExplosion(scene, camera, above, pos)
 	playExplosionSound(scene, camera, pos)

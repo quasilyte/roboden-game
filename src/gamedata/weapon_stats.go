@@ -25,12 +25,14 @@ type WeaponStats struct {
 	AttackRangeSqr        float64 // A precomputed AttackRange*AttackRange value
 	Damage                DamageValue
 	Explosion             ProjectileExplosionKind
+	AlwaysExplodes        bool
 	BurstSize             int
 	BurstDelay            float64
 	Reload                float64
 	AttackSound           resource.AudioID
 	FireOffset            gmath.Vec
 	ArcPower              float64
+	Accuracy              float64
 	TargetFlags           TargetKind
 
 	GroundDamageBonus      float64
@@ -46,6 +48,7 @@ type ProjectileExplosionKind int
 const (
 	ProjectileExplosionNone ProjectileExplosionKind = iota
 	ProjectileExplosionNormal
+	ProjectileExplosionBigVertical
 	ProjectileExplosionPurple
 	ProjectileExplosionHeavyCrawlerLaser
 	ProjectileExplosionFighterLaser
@@ -62,7 +65,10 @@ const (
 	TargetGround
 )
 
-func initWeaponStats(stats *WeaponStats) *WeaponStats {
+func InitWeaponStats(stats *WeaponStats) *WeaponStats {
+	if stats.Accuracy == 0 {
+		stats.Accuracy = 1.0
+	}
 	stats.ImpactAreaSqr = stats.ImpactArea * stats.ImpactArea
 	stats.AttackRangeSqr = stats.AttackRange * stats.AttackRange
 	stats.FlyingTargetDamageMult = 1 + stats.FlyingDamageBonus

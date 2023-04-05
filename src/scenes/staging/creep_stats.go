@@ -23,20 +23,22 @@ type creepStats struct {
 
 	maxHealth float64
 
-	weapon *gamedata.WeaponStats
+	weapon        *gamedata.WeaponStats
+	specialWeapon *gamedata.WeaponStats
 
 	beamColor color.RGBA
 	beamWidth float64
 
-	disarmable bool
+	disarmable    bool
+	canBeRepelled bool
 }
 
 var turretCreepStats = &creepStats{
 	kind:      creepTurret,
 	image:     assets.ImageTurretCreep,
 	speed:     0,
-	maxHealth: 100,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	maxHealth: 120,
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		AttackSound:     assets.AudioMissile,
@@ -50,23 +52,29 @@ var turretCreepStats = &creepStats{
 		FireOffset:      gmath.Vec{Y: -8},
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	size: 40,
+	size:          40,
+	canBeRepelled: false,
+	disarmable:    false,
 }
 
 var baseCreepStats = &creepStats{
-	kind:      creepBase,
-	image:     assets.ImageCreepBase,
-	speed:     0,
-	maxHealth: 150,
-	size:      60,
+	kind:          creepBase,
+	image:         assets.ImageCreepBase,
+	speed:         0,
+	maxHealth:     170,
+	size:          60,
+	disarmable:    false,
+	canBeRepelled: false,
 }
 
 var turretConstructionCreepStats = &creepStats{
-	kind:      creepTurretConstruction,
-	image:     assets.ImageTurretCreep,
-	speed:     0,
-	maxHealth: 35,
-	size:      40,
+	kind:          creepTurretConstruction,
+	image:         assets.ImageTurretCreep,
+	speed:         0,
+	maxHealth:     35,
+	size:          40,
+	disarmable:    false,
+	canBeRepelled: false,
 }
 
 var wandererCreepStats = &creepStats{
@@ -76,7 +84,7 @@ var wandererCreepStats = &creepStats{
 	tier:        1,
 	speed:       40,
 	maxHealth:   14,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		AttackSound:     assets.AudioWandererBeam,
@@ -88,7 +96,8 @@ var wandererCreepStats = &creepStats{
 		Reload:          2.2,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	disarmable: true,
+	disarmable:    true,
+	canBeRepelled: true,
 }
 
 var servantCreepStats = &creepStats{
@@ -99,7 +108,7 @@ var servantCreepStats = &creepStats{
 	speed:       70,
 	maxHealth:   55,
 	animSpeed:   0.15,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		AttackSound:     assets.AudioServantShot,
@@ -111,7 +120,8 @@ var servantCreepStats = &creepStats{
 		Reload:          3.2,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	disarmable: true,
+	disarmable:    true,
+	canBeRepelled: false,
 }
 
 var tankCreepStats = &creepStats{
@@ -119,7 +129,7 @@ var tankCreepStats = &creepStats{
 	image:     assets.ImageTankCreep,
 	speed:     6,
 	maxHealth: 18,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       3,
 		BurstDelay:      0.12,
@@ -133,8 +143,9 @@ var tankCreepStats = &creepStats{
 		FireOffset:      gmath.Vec{Y: -2},
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	size:       24,
-	disarmable: true,
+	size:          24,
+	disarmable:    true,
+	canBeRepelled: false,
 }
 
 var crawlerCreepStats = &creepStats{
@@ -143,7 +154,7 @@ var crawlerCreepStats = &creepStats{
 	animSpeed: 0.09,
 	speed:     44,
 	maxHealth: 18,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       2,
 		BurstDelay:      0.12,
@@ -157,8 +168,9 @@ var crawlerCreepStats = &creepStats{
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 		FireOffset:      gmath.Vec{Y: -2},
 	}),
-	size:       24,
-	disarmable: true,
+	size:          24,
+	disarmable:    true,
+	canBeRepelled: false,
 }
 
 var eliteCrawlerCreepStats = &creepStats{
@@ -167,7 +179,7 @@ var eliteCrawlerCreepStats = &creepStats{
 	animSpeed: 0.09,
 	speed:     40,
 	maxHealth: 28,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      2,
 		BurstSize:       1,
 		AttackSound:     assets.AudioEliteCrawlerShot,
@@ -180,8 +192,9 @@ var eliteCrawlerCreepStats = &creepStats{
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 		FireOffset:      gmath.Vec{Y: -2},
 	}),
-	size:       24,
-	disarmable: true,
+	size:          24,
+	disarmable:    true,
+	canBeRepelled: false,
 }
 
 var heavyCrawlerCreepStats = &creepStats{
@@ -190,7 +203,7 @@ var heavyCrawlerCreepStats = &creepStats{
 	animSpeed: 0.15,
 	speed:     30,
 	maxHealth: 50,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       5,
 		BurstDelay:      0.1,
@@ -205,9 +218,55 @@ var heavyCrawlerCreepStats = &creepStats{
 		FireOffset:      gmath.Vec{Y: -2},
 		Explosion:       gamedata.ProjectileExplosionHeavyCrawlerLaser,
 		ArcPower:        1.5,
+		Accuracy:        0.85,
 	}),
-	size:       24,
-	disarmable: true,
+	size:          24,
+	disarmable:    true,
+	canBeRepelled: false,
+}
+
+var howitzerCreepStats = &creepStats{
+	kind:      creepHowitzer,
+	image:     assets.ImageHowitzerCreep,
+	animSpeed: 0.2,
+	speed:     10,
+	maxHealth: 280,
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
+		MaxTargets:          3,
+		BurstSize:           4,
+		BurstDelay:          0.2,
+		Accuracy:            0.7,
+		AttackSound:         assets.AudioHowitzerLaserShot,
+		AttackRange:         300,
+		ImpactArea:          14,
+		ProjectileSpeed:     480,
+		Damage:              gamedata.DamageValue{Health: 2},
+		ProjectileImage:     assets.ImageHowitzerLaserProjectile,
+		Reload:              1.5,
+		TargetFlags:         gamedata.TargetFlying,
+		FireOffset:          gmath.Vec{Y: -2},
+		ProjectileFireSound: true,
+	}),
+	specialWeapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
+		MaxTargets:          1,
+		BurstSize:           1,
+		AttackSound:         assets.AudioHowitzerShot,
+		AttackRange:         800,
+		ImpactArea:          26,
+		ProjectileSpeed:     150,
+		Damage:              gamedata.DamageValue{Health: 20},
+		ProjectileImage:     assets.ImageHowitzerProjectile,
+		Reload:              10,
+		TargetFlags:         gamedata.TargetGround,
+		Explosion:           gamedata.ProjectileExplosionBigVertical,
+		AlwaysExplodes:      true,
+		ArcPower:            3,
+		Accuracy:            0.4,
+		ProjectileFireSound: true,
+	}),
+	size:          32,
+	disarmable:    false,
+	canBeRepelled: false,
 }
 
 var stealthCrawlerCreepStats = &creepStats{
@@ -216,7 +275,7 @@ var stealthCrawlerCreepStats = &creepStats{
 	animSpeed: 0.09,
 	speed:     50,
 	maxHealth: 25,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:          1,
 		BurstSize:           3,
 		BurstDelay:          0.4,
@@ -232,8 +291,9 @@ var stealthCrawlerCreepStats = &creepStats{
 		FireOffset:          gmath.Vec{Y: -2},
 		Explosion:           gamedata.ProjectileExplosionStealthLaser,
 	}),
-	size:       24,
-	disarmable: true,
+	size:          24,
+	disarmable:    true,
+	canBeRepelled: false,
 }
 
 var assaultCreepStats = &creepStats{
@@ -244,7 +304,7 @@ var assaultCreepStats = &creepStats{
 	tier:        3,
 	speed:       30,
 	maxHealth:   80,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
 		AttackSound:     assets.AudioAssaultShot,
@@ -256,7 +316,8 @@ var assaultCreepStats = &creepStats{
 		Reload:          0.7,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	disarmable: true,
+	disarmable:    true,
+	canBeRepelled: true,
 }
 
 var dominatorCreepStats = &creepStats{
@@ -266,7 +327,7 @@ var dominatorCreepStats = &creepStats{
 	tier:        3,
 	speed:       35,
 	maxHealth:   200,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:  1,
 		BurstSize:   1,
 		AttackSound: assets.AudioDominatorShot,
@@ -275,20 +336,22 @@ var dominatorCreepStats = &creepStats{
 		Reload:      1.65,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	beamColor:  dominatorBeamColorCenter,
-	beamWidth:  1,
-	disarmable: false,
+	beamColor:     dominatorBeamColorCenter,
+	beamWidth:     1,
+	disarmable:    false,
+	canBeRepelled: false,
 }
 
 var builderCreepStats = &creepStats{
-	kind:        creepBuilder,
-	image:       assets.ImageBuilderCreep,
-	animSpeed:   0.1,
-	shadowImage: assets.ImageBigShadow,
-	tier:        3,
-	speed:       40,
-	maxHealth:   150,
-	// disarmable: true,
+	kind:          creepBuilder,
+	image:         assets.ImageBuilderCreep,
+	animSpeed:     0.1,
+	shadowImage:   assets.ImageBigShadow,
+	tier:          3,
+	speed:         40,
+	maxHealth:     150,
+	canBeRepelled: false,
+	disarmable:    false,
 }
 
 var uberBossCreepStats = &creepStats{
@@ -298,7 +361,7 @@ var uberBossCreepStats = &creepStats{
 	shadowImage: assets.ImageUberBossShadow,
 	speed:       10,
 	maxHealth:   600,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:  5,
 		BurstSize:   1,
 		AttackSound: assets.AudioRailgun,
@@ -307,8 +370,10 @@ var uberBossCreepStats = &creepStats{
 		Reload:      2.8,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	beamColor: railgunBeamColor,
-	beamWidth: 3,
+	beamColor:     railgunBeamColor,
+	beamWidth:     3,
+	disarmable:    false,
+	canBeRepelled: false,
 }
 
 var stunnerCreepStats = &creepStats{
@@ -318,7 +383,7 @@ var stunnerCreepStats = &creepStats{
 	tier:        2,
 	speed:       55,
 	maxHealth:   35,
-	weapon: initWeaponStats(&gamedata.WeaponStats{
+	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:  3,
 		BurstSize:   1,
 		AttackSound: assets.AudioStunBeam,
@@ -327,7 +392,8 @@ var stunnerCreepStats = &creepStats{
 		Reload:      2.6,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	beamColor:  stunnerBeamColor,
-	beamWidth:  2,
-	disarmable: true,
+	beamColor:     stunnerBeamColor,
+	beamWidth:     2,
+	disarmable:    true,
+	canBeRepelled: true,
 }

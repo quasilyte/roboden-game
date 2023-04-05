@@ -35,6 +35,8 @@ func creepFragScore(stats *creepStats) int {
 		return 25
 	case dominatorCreepStats:
 		return 100
+	case howitzerCreepStats:
+		return 100
 
 	default:
 		return 0

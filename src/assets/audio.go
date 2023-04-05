@@ -28,12 +28,14 @@ func registerAudioResource(ctx *ge.Context) {
 		AudioMilitiaShot:         {Path: "audio/militia_shot.wav", Volume: -0.3},
 		AudioCripplerShot:        {Path: "audio/crippler_shot.wav", Volume: -0.3},
 		AudioScavengerShot:       {Path: "audio/scavenger_shot.wav", Volume: -0.3},
-		AudioCourierShot:         {Path: "audio/courier_shot.wav", Volume: -0.2},
+		AudioCourierShot:         {Path: "audio/courier_shot.wav", Volume: -0.15},
 		AudioDisintegratorShot:   {Path: "audio/disintegrator_shot.wav", Volume: -0.2},
 		AudioMortarShot:          {Path: "audio/mortar_shot.wav", Volume: -0.3},
 		AudioAssaultShot:         {Path: "audio/assault_shot.wav", Volume: -0.5},
-		AudioDominatorShot:       {Path: "audio/dominator_shot.wav", Volume: -0.3},
-		AudioStormbringerShot:    {Path: "audio/stormbringer_shot.wav", Volume: -0.1},
+		AudioDominatorShot:       {Path: "audio/dominator_shot.wav", Volume: -0.25},
+		AudioHowitzerShot:        {Path: "audio/howitzer_shot.wav", Volume: 0.15},
+		AudioHowitzerLaserShot:   {Path: "audio/howitzer_laser_shot.wav", Volume: -0.25},
+		AudioStormbringerShot:    {Path: "audio/stormbringer_shot.wav", Volume: -0.15},
 		AudioStunBeam:            {Path: "audio/stun_laser.wav", Volume: -0.3},
 		AudioServantShot:         {Path: "audio/servant_shot.wav", Volume: -0.35},
 		AudioServantWave:         {Path: "audio/servant_wave.wav", Volume: -0.25},
@@ -43,12 +45,12 @@ func registerAudioResource(ctx *ge.Context) {
 		AudioDestroyerBeam:       {Path: "audio/destroyer_beam.wav", Volume: -0.3},
 		AudioStealth:             {Path: "audio/stealth.wav", Volume: -0.25},
 		AudioMarauderShot:        {Path: "audio/marauder_shot.wav", Volume: -0.35},
-		AudioPrismShot:           {Path: "audio/prism_shot.wav", Volume: -0.35},
+		AudioPrismShot:           {Path: "audio/prism_shot.wav", Volume: -0.4},
 		AudioRailgun:             {Path: "audio/railgun.wav", Volume: -0.3},
 		AudioAntiAirMissiles:     {Path: "audio/aa_missiles.wav", Volume: -0.35},
 		AudioMissile:             {Path: "audio/missile.wav", Volume: -0.3},
 		AudioTankShot:            {Path: "audio/tank_shot.wav", Volume: -0.3},
-		AudioHeavyCrawlerShot:    {Path: "audio/heavy_crawler_shot.wav", Volume: -0.3},
+		AudioHeavyCrawlerShot:    {Path: "audio/heavy_crawler_shot.wav", Volume: -0.25},
 		AudioEliteCrawlerShot:    {Path: "audio/elite_crawler_shot.wav", Volume: -0.3},
 		AudioStealthCrawlerShot:  {Path: "audio/stealth_crawler_shot.wav", Volume: -0.3},
 		AudioCloning1:            {Path: "audio/cloning1.wav", Volume: -0.3},
@@ -110,6 +112,8 @@ const (
 	AudioStormbringerShot
 	AudioAssaultShot
 	AudioDominatorShot
+	AudioHowitzerShot
+	AudioHowitzerLaserShot
 	AudioGunpointShot
 	AudioFighterBeam
 	AudioTankShot

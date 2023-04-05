@@ -147,6 +147,7 @@
 ##game.wave_builders : builder
 ##game.wave_task_force : task force
 ##game.wave_dominator : dominator
+##game.wave_howitzer : howitzer
 ##game.side.all : all
 ##game.side.east : east
 ##game.side.south : south

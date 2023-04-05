@@ -11,8 +11,12 @@ fixme:
 - sometimes marauders are in invis while idle
 - make "show fps" separate from a debug mode
 - move debug mode toggles into terminal
+- don't play sounds from the fog of war
+- fire offset for creeps is ignored now
 
 todo:
+- lose all evo points when moving a base?
+- play error sound if can't build turret or colony
 - make building construction cost more obvious and easy to balance
 - check if traits like "retreating" still work
 - make disintegrators prefer flying targets

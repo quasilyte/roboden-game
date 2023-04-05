@@ -1,6 +1,8 @@
 package staging
 
 import (
+	"math"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
@@ -23,8 +25,17 @@ const (
 	creepBase
 	creepTank
 	creepCrawler
+	creepHowitzer
 	creepServant
 	creepUberBoss
+)
+
+const (
+	howitzerIdle = iota
+	howitzerMove
+	howitzerPreparing
+	howitzerReady
+	howitzerFoldTurret
 )
 
 type creepNode struct {
@@ -42,6 +53,7 @@ type creepNode struct {
 
 	spawnPos        gmath.Vec
 	pos             gmath.Vec
+	spritePos       gmath.Vec
 	waypoint        gmath.Vec
 	wasAttacking    bool
 	wasRetreating   bool
@@ -91,7 +103,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	c.maxHealth = c.stats.maxHealth
 
 	c.sprite = scene.NewSprite(c.stats.image)
-	c.sprite.Pos.Base = &c.pos
+	c.sprite.Pos.Base = &c.spritePos
 	if c.stats.shadowImage != assets.ImageNone {
 		c.world.camera.AddSpriteAbove(c.sprite)
 	} else {
@@ -101,7 +113,12 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.sprite.FlipHorizontal = scene.Rand().Bool()
 	}
 	if c.stats.animSpeed != 0 {
-		c.anim = ge.NewRepeatedAnimation(c.sprite, -1)
+		if c.stats.kind == creepHowitzer {
+			// 4 frames for the walk, 1 frame is for the "ready" state.
+			c.anim = ge.NewRepeatedAnimation(c.sprite, 4)
+		} else {
+			c.anim = ge.NewRepeatedAnimation(c.sprite, -1)
+		}
 		c.anim.Tick(scene.Rand().FloatRange(0, 0.7))
 		c.anim.SetSecondsPerFrame(c.stats.animSpeed)
 	}
@@ -111,7 +128,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	if c.stats.shadowImage != assets.ImageNone && c.world.graphicsSettings.ShadowsEnabled {
 		c.shadow = scene.NewSprite(c.stats.shadowImage)
-		c.shadow.Pos.Base = &c.pos
+		c.shadow.Pos.Base = &c.spritePos
 		c.world.camera.AddSprite(c.shadow)
 		c.shadow.Pos.Offset.Y = c.height
 		c.shadow.SetAlpha(0.5)
@@ -123,11 +140,18 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	if c.stats.kind == creepUberBoss {
 		c.altSprite = scene.NewSprite(assets.ImageUberBossOpen)
 		c.altSprite.Visible = false
-		c.altSprite.Pos.Base = &c.pos
+		c.altSprite.Pos.Base = &c.spritePos
 		c.world.camera.AddSprite(c.altSprite)
 		c.maxHealth *= c.world.bossHealthMultiplier
 	} else {
 		c.maxHealth *= c.world.creepHealthMultiplier
+		if c.stats.kind == creepHowitzer {
+			c.altSprite = scene.NewSprite(assets.ImageHowitzerPreparing)
+			c.altSprite.Visible = false
+			c.altSprite.Pos.Base = &c.spritePos
+			c.altSprite.Pos.Offset.Y = -3
+			c.world.camera.AddSprite(c.altSprite)
+		}
 	}
 	switch c.stats.kind {
 	case creepServant:
@@ -136,6 +160,12 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.specialDelay = c.scene.Rand().FloatRange(15, 30)
 	case creepTurretConstruction:
 		c.sprite.Shader = scene.NewShader(assets.ShaderCreepTurretBuild)
+	case creepHowitzer:
+		pos := ge.Pos{Base: &c.spritePos, Offset: gmath.Vec{Y: -10}}
+		trunk := newHowitzerTrunkNode(c.world.camera, pos)
+		c.specialTarget = trunk
+		c.scene.AddObject(trunk)
+		trunk.SetVisibility(false)
 	}
 
 	c.health = c.maxHealth
@@ -148,6 +178,11 @@ func (c *creepNode) Dispose() {
 	}
 	if c.altSprite != nil {
 		c.altSprite.Dispose()
+	}
+
+	if c.stats.kind == creepHowitzer {
+		trunk := c.specialTarget.(*howitzerTrunkNode)
+		trunk.Dispose()
 	}
 }
 
@@ -163,6 +198,10 @@ func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 
 func (c *creepNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
+
+	// FIXME: this should be fixed in the ge package.
+	c.spritePos.X = math.Round(c.pos.X)
+	c.spritePos.Y = math.Round(c.pos.Y)
 
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
 	c.disarm = gmath.ClampMin(c.disarm-delta, 0)
@@ -193,6 +232,8 @@ func (c *creepNode) Update(delta float64) {
 		c.updateCreepBase(delta)
 	case creepCrawler:
 		c.updateCrawler(delta)
+	case creepHowitzer:
+		c.updateHowitzer(delta)
 	case creepTank:
 		c.updateTank(delta)
 	case creepTurret:
@@ -215,12 +256,12 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 
 func (c *creepNode) IsFlying() bool {
 	switch c.stats.kind {
-	case creepBase, creepTank, creepTurret, creepTurretConstruction, creepCrawler:
+	case creepBase, creepTank, creepTurret, creepTurretConstruction, creepCrawler, creepHowitzer:
 		return false
 	case creepUberBoss:
 		return !c.altSprite.Visible
 	default:
-		return c.health > 0
+		return true
 	}
 }
 
@@ -246,7 +287,7 @@ func (c *creepNode) explode() {
 			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.altSprite), true)
 		}
 
-	case creepTurret, creepBase:
+	case creepTurret, creepBase, creepHowitzer:
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.scene.AddObject(scraps)
@@ -320,7 +361,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 		return
 	}
 
-	if damage.Morale != 0 && c.stats.kind != creepServant && c.stats.kind != creepBuilder {
+	if damage.Morale != 0 && c.stats.canBeRepelled && c.stats.kind != creepServant && c.stats.kind != creepBuilder {
 		if c.wasRetreating {
 			return
 		}
@@ -431,7 +472,13 @@ func (c *creepNode) SendTo(pos gmath.Vec) {
 	p := c.world.BuildPath(c.pos, pos)
 	c.path = p.Steps
 	c.waypoint = c.world.pathgrid.AlignPos(c.pos)
-	c.specialModifier = crawlerMove
+	switch c.stats.kind {
+	case creepCrawler:
+		c.specialModifier = crawlerMove
+	case creepHowitzer:
+		c.specialModifier = howitzerMove
+	}
+
 	if c.stats == stealthCrawlerCreepStats {
 		c.doCloak()
 	}
@@ -450,6 +497,10 @@ func (c *creepNode) findTargets() []projectileTarget {
 	if len(targets) >= c.stats.weapon.MaxTargets {
 		return targets
 	}
+	if c.stats.weapon.TargetFlags&gamedata.TargetGround == 0 {
+		return targets
+	}
+
 	for _, colony := range c.world.constructions {
 		if len(targets) >= c.stats.weapon.MaxTargets {
 			return targets
@@ -597,6 +648,148 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 	return true
 }
 
+func (c *creepNode) isNearEnemyBase(dist float64) bool {
+	distSqr := dist * dist
+	for _, colony := range c.world.colonies {
+		if colony.pos.DistanceSquaredTo(c.pos) < distSqr {
+			return true
+		}
+		if !c.cloaking {
+			for _, turret := range colony.turrets {
+				if turret.pos.DistanceSquaredTo(c.pos) < distSqr {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func (c *creepNode) findHowitzerTarget(rangeMultiplier float64) projectileTarget {
+	const minAttackRangeSqe float64 = 160 * 160
+	var target projectileTarget
+	maxAttackRangeSqr := rangeMultiplier * c.stats.specialWeapon.AttackRangeSqr
+	randIterate(c.world.rand, c.world.colonies, func(colony *colonyCoreNode) bool {
+		if !colony.IsFlying() {
+			distSqr := colony.pos.DistanceSquaredTo(c.pos)
+			canAttack := distSqr > minAttackRangeSqe && distSqr < maxAttackRangeSqr
+			if canAttack {
+				target = colony
+				return true
+			}
+		}
+		turretTarget := randIterate(c.world.rand, colony.turrets, func(turret *colonyAgentNode) bool {
+			distSqr := turret.pos.DistanceSquaredTo(c.pos)
+			return distSqr > minAttackRangeSqe && distSqr < maxAttackRangeSqr
+		})
+		if turretTarget != nil {
+			target = turretTarget
+			return true
+		}
+		return false
+	})
+	return target
+}
+
+func (c *creepNode) updateHowitzer(delta float64) {
+	if !c.waypoint.IsZero() {
+		c.anim.Tick(delta)
+		if c.moveTowards(delta, c.waypoint) {
+			if c.path.HasNext() {
+				if c.isNearEnemyBase(c.stats.specialWeapon.AttackRange * 0.8) {
+					c.path = pathing.GridPath{}
+				}
+			}
+			if c.path.HasNext() {
+				d := c.path.Next()
+				aligned := c.world.pathgrid.AlignPos(c.pos)
+				c.waypoint = posMove(aligned, d).Add(c.world.rand.Offset(-4, 4))
+				return
+			}
+			c.specialDelay = 0
+			c.specialModifier = howitzerIdle
+			c.waypoint = gmath.Vec{}
+			return
+		}
+	}
+
+	if c.specialModifier == howitzerReady {
+		c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+		if c.specialDelay == 0 {
+			target := c.findHowitzerTarget(1.0)
+			c.specialDelay = c.stats.specialWeapon.Reload * c.world.rand.FloatRange(0.8, 1.2)
+			if target != nil && c.world.rand.Chance(0.9) {
+				targetPos := *target.GetPos()
+				dir := c.pos.AngleToPoint(targetPos).Normalized()
+				trunk := c.specialTarget.(*howitzerTrunkNode)
+				fireOffset := trunk.SetRotation(dir)
+				p := newProjectileNode(projectileConfig{
+					Camera:     c.world.camera,
+					Weapon:     c.stats.specialWeapon,
+					Attacker:   c,
+					ToPos:      targetPos,
+					Target:     target,
+					FireOffset: fireOffset,
+				})
+				c.scene.AddObject(p)
+			} else if c.world.rand.Chance(0.3) {
+				c.specialModifier = howitzerFoldTurret
+				c.sprite.Visible = false
+				c.altSprite.Visible = true
+				c.anim.Mode = ge.AnimationBackward
+				c.anim.SetSprite(c.altSprite, -1)
+				c.anim.Rewind()
+				trunk := c.specialTarget.(*howitzerTrunkNode)
+				trunk.SetVisibility(false)
+			}
+		}
+		return
+	}
+
+	if c.specialModifier == howitzerFoldTurret {
+		if c.anim.Tick(delta) {
+			c.specialDelay = c.world.rand.FloatRange(3, 10)
+			c.specialModifier = howitzerIdle
+			c.altSprite.Visible = false
+			c.sprite.Visible = true
+			c.anim.Mode = ge.AnimationForward
+			c.anim.SetSprite(c.sprite, 4)
+			c.anim.Rewind()
+		}
+		return
+	}
+
+	if c.specialModifier == howitzerPreparing {
+		if c.anim.Tick(delta) {
+			c.specialModifier = howitzerReady
+			c.specialDelay = c.world.rand.FloatRange(2, 5)
+			c.sprite.Visible = true
+			c.sprite.FrameOffset.X = float64(c.sprite.FrameWidth) * 4
+			c.altSprite.Visible = false
+			trunk := c.specialTarget.(*howitzerTrunkNode)
+			trunk.SetVisibility(true)
+			trunk.SetRotation(math.Pi + (math.Pi * 0.5))
+		}
+		return
+	}
+
+	if c.specialModifier == howitzerIdle {
+		hasTargets := c.findHowitzerTarget(1.1) != nil
+		if c.specialDelay == 0 && (hasTargets || c.world.rand.Chance(0.25)) {
+			c.specialModifier = howitzerPreparing
+			c.anim.SetSprite(c.altSprite, -1)
+			c.anim.Rewind()
+			c.sprite.Visible = false
+			c.altSprite.Visible = true
+		} else {
+			dist := c.world.rand.FloatRange(96, 256)
+			dst := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(c.pos)
+			c.SendTo(dst)
+		}
+		return
+	}
+}
+
 func (c *creepNode) updateCrawler(delta float64) {
 	if c.waypoint.IsZero() && c.cloaking {
 		c.doUncloak()
@@ -608,31 +801,16 @@ func (c *creepNode) updateCrawler(delta float64) {
 			// To avoid weird cases of walking above colony core or turret,
 			// stop if there are any targets in vicinity.
 			if c.path.HasNext() {
-				const stopDistSqr float64 = 96 * 96
-			OuterLoop:
-				for _, colony := range c.world.colonies {
-					if colony.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
-						c.path = pathing.GridPath{}
-						break
-					}
-					if !c.cloaking {
-						for _, turret := range colony.turrets {
-							if turret.pos.DistanceSquaredTo(c.pos) < stopDistSqr {
-								c.path = pathing.GridPath{}
-								break OuterLoop
-							}
-						}
-					}
+				if c.isNearEnemyBase(96) {
+					c.path = pathing.GridPath{}
 				}
 			}
-
 			if c.path.HasNext() {
 				d := c.path.Next()
 				aligned := c.world.pathgrid.AlignPos(c.pos)
 				c.waypoint = posMove(aligned, d).Add(c.world.rand.Offset(-4, 4))
 				return
 			}
-
 			c.specialModifier = crawlerIdle
 			c.waypoint = gmath.Vec{}
 			return

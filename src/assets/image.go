@@ -74,6 +74,7 @@ func registerImageResources(ctx *ge.Context) {
 		ImageSmallExplosion1:            {Path: "image/effects/small_explosion1.png", FrameWidth: 32},
 		ImagePurpleExplosion:            {Path: "image/effects/purple_explosion.png", FrameWidth: 40},
 		ImageVerticalExplosion:          {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
+		ImageBigVerticalExplosion:       {Path: "image/effects/big_vertical_explosion.png", FrameWidth: 38},
 		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 64},
 		ImageIonZap:                     {Path: "image/effects/ion_zap.png", FrameWidth: 28},
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
@@ -135,6 +136,9 @@ func registerImageResources(ctx *ge.Context) {
 		ImageEssenceSource:                {Path: "image/resources/essence_source.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/resources/red_essence_source.png", FrameWidth: 32},
 
+		ImageHowitzerCreep:       {Path: "image/creeps/howitzer_creep.png", FrameWidth: 37},
+		ImageHowitzerPreparing:   {Path: "image/creeps/howitzer_preparing.png", FrameWidth: 37},
+		ImageHowitzerTrunk:       {Path: "image/creeps/howitzer_trunk.png", FrameWidth: 23},
 		ImageHeavyCrawlerCreep:   {Path: "image/creeps/heavy_crawler_creep.png", FrameWidth: 25},
 		ImageStealthCrawlerCreep: {Path: "image/creeps/stealth_crawler_creep.png", FrameWidth: 19},
 		ImageEliteCrawlerCreep:   {Path: "image/creeps/elite_crawler_creep.png", FrameWidth: 23},
@@ -180,6 +184,8 @@ func registerImageResources(ctx *ge.Context) {
 		ImageWandererProjectile:       {Path: "image/projectile/wanderer_projectile.png"},
 		ImageStormbringerProjectile:   {Path: "image/projectile/stormbringer_projectile.png"},
 		ImageMortarProjectile:         {Path: "image/projectile/mortar_projectile.png"},
+		ImageHowitzerProjectile:       {Path: "image/projectile/howitzer_projectile.png"},
+		ImageHowitzerLaserProjectile:  {Path: "image/projectile/howitzer_laser_projectile.png"},
 		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                  {Path: "image/projectile/missile.png"},
 
@@ -271,6 +277,7 @@ const (
 	ImageSmallExplosion1
 	ImagePurpleExplosion
 	ImageVerticalExplosion
+	ImageBigVerticalExplosion
 	ImageBigExplosion
 	ImageIonZap
 	ImagePurpleIonZap
@@ -353,6 +360,9 @@ const (
 	ImageCrawlerCreep
 	ImageEliteCrawlerCreep
 	ImageHeavyCrawlerCreep
+	ImageHowitzerCreep
+	ImageHowitzerPreparing
+	ImageHowitzerTrunk
 	ImageStealthCrawlerCreep
 	ImagePrimitiveCreep
 	ImageServantCreep
@@ -392,6 +402,8 @@ const (
 	ImageServantProjectile
 	ImageStormbringerProjectile
 	ImageMortarProjectile
+	ImageHowitzerProjectile
+	ImageHowitzerLaserProjectile
 	ImageAntiAirMissile
 	ImageMissile
 

@@ -499,8 +499,7 @@ func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
 		Option: choiceOption{special: specialChoiceMoveColony},
 		Pos:    pos,
 	}
-	delayRoll := w.scene.Rand().FloatRange(0.8, 1.2)
-	w.startCharging(8.0 * delayRoll)
+	w.startCharging(8.0)
 	w.scene.Audio().PlaySound(assets.AudioChoiceMade)
 	w.EventChoiceSelected.Emit(choice)
 }

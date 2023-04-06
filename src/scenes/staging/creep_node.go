@@ -834,27 +834,6 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	c.sprite.Shader.SetFloatValue("Time", c.specialModifier)
 }
 
-func (c *creepNode) updateTank(delta float64) {
-	if c.waypoint.IsZero() {
-		if c.pos != c.spawnPos {
-			c.waypoint = c.spawnPos
-			c.specialDelay = c.scene.Rand().FloatRange(1, 4)
-		} else {
-			offset := gmath.Vec{
-				X: c.scene.Rand().FloatRange(-40, 40),
-				Y: c.scene.Rand().FloatRange(-4, 4),
-			}
-			c.waypoint = c.spawnPos.Add(offset)
-		}
-	}
-
-	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
-
-	if c.moveTowards(delta, c.waypoint) {
-		c.waypoint = gmath.Vec{}
-	}
-}
-
 func (c *creepNode) updateCreepBase(delta float64) {
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 	if c.specialDelay == 0 && c.specialModifier < 15 {

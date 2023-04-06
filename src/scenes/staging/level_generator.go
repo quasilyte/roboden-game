@@ -141,7 +141,7 @@ func (g *levelGenerator) createBase(pos gmath.Vec, mainBase bool) {
 	}
 }
 
-func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind *creepStats) int {
+func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stats *creepStats) int {
 	rand := &g.rng
 	placed := 0
 	pos := correctedPos(sector, g.randomPos(sector), 128)
@@ -151,7 +151,10 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, kind
 		if !posIsFree(g.world, nil, pos, 24) || pos.DistanceTo(g.playerSpawn) < 520 {
 			break
 		}
-		creep := g.world.NewCreepNode(pos, kind)
+		creep := g.world.NewCreepNode(pos, stats)
+		if stats.kind == creepCrawler {
+			creep.specialModifier = crawlerGuard
+		}
 		g.scene.AddObject(creep)
 		unitPos = pos
 		direction := gmath.RadToVec(rand.Rad()).Mulf(32)
@@ -364,11 +367,25 @@ func (g *levelGenerator) placeCreeps() {
 		numTurrets -= g.placeCreepsCluster(sector, 1, turretCreepStats)
 	}
 
-	numTanks := int(math.Round(float64(rand.IntRange(6, 10)) * multiplier))
-	for numTanks > 0 {
+	numCrawlers := int(math.Round(float64(rand.IntRange(8, 12)) * multiplier))
+	for numCrawlers > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numTanks -= g.placeCreepsCluster(sector, 1, tankCreepStats)
+		stats := crawlerCreepStats
+		if g.rng.Chance(0.4) {
+			stats = heavyCrawlerCreepStats
+		}
+		numCrawlers -= g.placeCreepsCluster(sector, 1, stats)
+	}
+
+	numHowitzers := 0
+	if g.world.config.InitialCreeps > 1 {
+		numHowitzers = 1
+	}
+	for numHowitzers > 0 {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numHowitzers -= g.placeCreepsCluster(sector, 1, howitzerCreepStats)
 	}
 }
 

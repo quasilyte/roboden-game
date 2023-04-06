@@ -124,30 +124,6 @@ var servantCreepStats = &creepStats{
 	canBeRepelled: false,
 }
 
-var tankCreepStats = &creepStats{
-	kind:      creepTank,
-	image:     assets.ImageTankCreep,
-	speed:     6,
-	maxHealth: 18,
-	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
-		MaxTargets:      1,
-		BurstSize:       3,
-		BurstDelay:      0.12,
-		AttackSound:     assets.AudioTankShot,
-		AttackRange:     110,
-		ImpactArea:      10,
-		ProjectileSpeed: 350,
-		Damage:          gamedata.DamageValue{Health: 1},
-		ProjectileImage: assets.ImageTankProjectile,
-		Reload:          2.2,
-		FireOffset:      gmath.Vec{Y: -2},
-		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
-	}),
-	size:          24,
-	disarmable:    true,
-	canBeRepelled: false,
-}
-
 var crawlerCreepStats = &creepStats{
 	kind:      creepCrawler,
 	image:     assets.ImageCrawlerCreep,

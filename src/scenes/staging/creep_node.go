@@ -23,7 +23,6 @@ const (
 	creepTurret
 	creepTurretConstruction
 	creepBase
-	creepTank
 	creepCrawler
 	creepHowitzer
 	creepServant
@@ -108,9 +107,6 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.world.camera.AddSpriteAbove(c.sprite)
 	} else {
 		c.world.camera.AddSprite(c.sprite)
-	}
-	if c.stats.kind == creepTank {
-		c.sprite.FlipHorizontal = scene.Rand().Bool()
 	}
 	if c.stats.animSpeed != 0 {
 		if c.stats.kind == creepHowitzer {
@@ -234,8 +230,6 @@ func (c *creepNode) Update(delta float64) {
 		c.updateCrawler(delta)
 	case creepHowitzer:
 		c.updateHowitzer(delta)
-	case creepTank:
-		c.updateTank(delta)
 	case creepTurret:
 		// Do nothing.
 	case creepTurretConstruction:
@@ -256,7 +250,7 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 
 func (c *creepNode) IsFlying() bool {
 	switch c.stats.kind {
-	case creepBase, creepTank, creepTurret, creepTurretConstruction, creepCrawler, creepHowitzer:
+	case creepBase, creepTurret, creepTurretConstruction, creepCrawler, creepHowitzer:
 		return false
 	case creepUberBoss:
 		return !c.altSprite.Visible
@@ -291,7 +285,7 @@ func (c *creepNode) explode() {
 		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.scene.AddObject(scraps)
-	case creepTank, creepTurretConstruction:
+	case creepTurretConstruction:
 		createExplosion(c.scene, c.world.camera, false, c.pos)
 		scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 		c.scene.AddObject(scraps)
@@ -351,6 +345,9 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 	}
 
 	if c.stats.kind == creepCrawler {
+		if c.specialModifier == crawlerGuard {
+			c.specialModifier = crawlerIdle
+		}
 		if c.specialModifier == crawlerIdle && (c.pos.DistanceTo(source) > c.stats.weapon.AttackRange*0.8) && c.world.rand.Chance(0.45) {
 			followPos := c.pos.MoveTowards(source, 64*c.world.rand.FloatRange(0.8, 1.4))
 			p := c.world.BuildPath(c.pos, followPos)
@@ -1065,9 +1062,6 @@ func (c *creepNode) doCloak() {
 }
 
 func (c *creepNode) movementSpeed() float64 {
-	if c.stats.kind == creepTank && c.specialDelay != 0 {
-		return 0
-	}
 	if c.spawnedFromBase && c.height == 0 {
 		return c.stats.speed * 0.5
 	}

@@ -11,6 +11,7 @@ const (
 	crawlerIdle = iota
 	// Move is a state of running towards a target.
 	crawlerMove
+	crawlerGuard
 )
 
 type creepCoordinator struct {

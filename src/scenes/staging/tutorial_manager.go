@@ -253,7 +253,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		m.scene.AddObject(m.hint)
 		return true
 	case 13:
-		targetPos := ge.Pos{Offset: gmath.Vec{X: 340, Y: 780}}
+		targetPos := ge.Pos{Offset: gmath.Vec{X: 1160, Y: 530}}
 		cameraCenter := m.world.camera.Offset.Add(m.world.camera.Rect.Center())
 		if targetPos.Resolve().DistanceSquaredTo(cameraCenter) <= (280 * 280) {
 			return true

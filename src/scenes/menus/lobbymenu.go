@@ -415,6 +415,26 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		tab.AddChild(button)
 	}
 
+	if c.mode == gamedata.ModeArena {
+		valueNames := []string{
+			"75%",
+			"100%",
+			"125%",
+			"150%",
+		}
+		var slider gmath.Slider
+		slider.SetBounds(0, 3)
+		slider.TrySetValue(c.config.ArenaProgression)
+		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.arena_progression")+": "+valueNames[slider.Value()])
+		button.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			c.config.ArenaProgression = slider.Value()
+			button.Text().Label = d.Get("menu.lobby.arena_progression") + ": " + valueNames[slider.Value()]
+			c.updateDifficultyScore(c.calcDifficultyScore())
+		})
+		tab.AddChild(button)
+	}
+
 	{
 		valueNames := []string{
 			d.Get("menu.option.none"),
@@ -530,6 +550,8 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 	case gamedata.ModeClassic:
 		if c.config.NumCreepBases != 0 {
 			score += (c.config.CreepDifficulty - 1) * 10
+		} else {
+			score += (c.config.CreepDifficulty - 1) * 5
 		}
 		score += 10 - (c.config.Resources * 5)
 		score += (c.config.NumCreepBases - 2) * 15
@@ -540,6 +562,7 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 		score += 10 - (c.config.Resources * 5)
 		score += (c.config.CreepDifficulty - 1) * 15
 		score += c.config.InitialCreeps * 5
+		score += (c.config.ArenaProgression - 1) * 15
 		score -= c.config.StartingResources * 2
 	}
 

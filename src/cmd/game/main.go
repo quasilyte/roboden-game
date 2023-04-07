@@ -73,7 +73,9 @@ func newLevelConfig(config *session.LevelConfig) *session.LevelConfig {
 
 func getDefaultSessionState() *session.State {
 	state := &session.State{
-		ArenaLevelConfig: newLevelConfig(&session.LevelConfig{}),
+		ArenaLevelConfig: newLevelConfig(&session.LevelConfig{
+			ArenaProgression: 1,
+		}),
 		LevelConfig: newLevelConfig(&session.LevelConfig{
 			EnemyBoss:     true,
 			InitialCreeps: 1,

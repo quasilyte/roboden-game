@@ -96,6 +96,7 @@
 ##menu.lobby.world_size : World Size
 ##menu.lobby.num_creep_bases : Creep Bases
 ##menu.lobby.creeps_difficulty : Creeps Power
+##menu.lobby.arena_progression : Wave Difficulty Progression
 ##menu.lobby.initial_creeps : Initial Creeps Count
 ##menu.lobby.boss_difficulty : Enemy Colony Power
 ##menu.lobby.starting_resources : Starting Resources

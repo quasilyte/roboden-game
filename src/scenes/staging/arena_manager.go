@@ -26,10 +26,11 @@ type arenaManager struct {
 	waveBudget int
 	lastLevel  int
 
-	info            *messageNode
-	overviewText    string
-	infoUpdateDelay float64
-	levelStartDelay float64
+	info                 *messageNode
+	overviewText         string
+	infoUpdateDelay      float64
+	levelStartDelay      float64
+	budgetStepMultiplier float64
 
 	victory bool
 
@@ -168,6 +169,7 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		{Min: gmath.Vec{X: pad, Y: -offscreenPad}, Max: gmath.Vec{X: m.world.width - pad, Y: 0}},
 	}
 
+	m.budgetStepMultiplier = 0.75 + (float64(m.world.config.ArenaProgression) * 0.25)
 	m.infoUpdateDelay = 5
 	m.prepareWave()
 	m.overviewText = m.createWaveOverviewText()
@@ -381,23 +383,25 @@ func (m *arenaManager) prepareWave() {
 
 	isLastLevel := !m.world.config.InfiniteMode && m.level == m.lastLevel
 
+	budgetStep := 0
 	switch {
 	case isLastLevel:
 		m.levelStartDelay = 4.0 * 60
-		m.waveBudget += 120
+		budgetStep = 120
 	case m.level%5 == 0:
 		m.levelStartDelay = 4.0 * 60
-		m.waveBudget += 25
+		budgetStep = 25
 		if !m.world.config.InfiniteMode {
-			m.waveBudget += 2 * m.level
+			budgetStep += 2 * m.level
 		}
 	case m.level == 1:
 		m.levelStartDelay = 90
 		m.waveBudget = 25
 	default:
 		m.levelStartDelay = 2.5 * 60
-		m.waveBudget += 10
+		budgetStep = 10
 	}
+	m.waveBudget += int(math.Round(float64(budgetStep) * m.budgetStepMultiplier))
 
 	budget := m.waveBudget
 	fmt.Printf("wave %d budget is %d\n", m.level, budget)

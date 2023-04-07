@@ -87,6 +87,7 @@ type LevelConfig struct {
 	NumCreepBases     int
 	CreepDifficulty   int
 	BossDifficulty    int
+	ArenaProgression  int
 	StartingResources int
 
 	Seed int64

@@ -55,14 +55,14 @@ func (c *OptionsExtraMenuController) initUI() {
 		}
 		var slider gmath.Slider
 		slider.SetBounds(0, len(sliderOptions)-1)
-		if options.Debug {
+		if options.ShowFPS {
 			slider.TrySetValue(1)
 		}
-		debugButton := eui.NewButtonSelected(uiResources, d.Get("menu.options.debug")+": "+sliderOptions[slider.Value()])
+		debugButton := eui.NewButtonSelected(uiResources, d.Get("menu.options.show_fps")+": "+sliderOptions[slider.Value()])
 		debugButton.ClickedEvent.AddHandler(func(args interface{}) {
 			slider.Inc()
-			options.Debug = slider.Value() != 0
-			debugButton.Text().Label = d.Get("menu.options.debug") + ": " + sliderOptions[slider.Value()]
+			options.ShowFPS = slider.Value() != 0
+			debugButton.Text().Label = d.Get("menu.options.show_fps") + ": " + sliderOptions[slider.Value()]
 		})
 		rowContainer.AddChild(debugButton)
 	}

@@ -420,12 +420,12 @@ func (g *levelGenerator) placeCreepBases() {
 			}
 		}
 		if basePos.IsZero() {
-			if g.world.debug {
+			if g.world.debugLogs {
 				fmt.Println("couldn't deploy creep base", i+1)
 			}
 			continue
 		}
-		if g.world.debug {
+		if g.world.debugLogs {
 			fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
 		}
 		baseRegion := gmath.Rect{

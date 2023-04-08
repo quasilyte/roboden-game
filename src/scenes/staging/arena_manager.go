@@ -199,7 +199,7 @@ func (m *arenaManager) Update(delta float64) {
 
 func (m *arenaManager) createWaveInfoMessageNode() *messageNode {
 	s := m.createWaveInfoText()
-	message := newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
+	message := newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 32}, gmath.Vec{}, s)
 	message.xpadding = 20
 	return message
 }

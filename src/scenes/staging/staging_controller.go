@@ -162,9 +162,9 @@ func (c *Controller) Init(scene *ge.Scene) {
 		rootScene:        scene,
 		nodeRunner:       c.nodeRunner,
 		graphicsSettings: c.state.Persistent.Settings.Graphics,
-		debug:            c.state.Persistent.Settings.Debug,
 		pathgrid:         pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
 		config:           &c.config,
+		debugLogs:        c.state.Persistent.Settings.DebugLogs,
 		camera:           c.camera,
 		rand:             scene.Rand(),
 		tmpTargetSlice:   make([]projectileTarget, 0, 20),
@@ -236,13 +236,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	scene.AddGraphics(c.camera)
 
-	if c.state.Persistent.Settings.Debug {
-		c.debugInfo = scene.NewLabel(assets.FontSmall)
-		c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
-		c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
-		scene.AddGraphicsAbove(c.debugInfo, 1)
-	}
-
 	if c.world.IsTutorial() {
 		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world)
 		c.nodeRunner.AddObject(c.tutorialManager)
@@ -265,6 +258,13 @@ func (c *Controller) Init(scene *ge.Scene) {
 		gedraw.DrawCircle(c.visionCircle, gmath.Vec{X: c.visionRadius, Y: c.visionRadius}, c.visionRadius, color.RGBA{A: 255})
 
 		c.updateFogOfWar(c.world.selectedColony.pos)
+	}
+
+	if c.state.Persistent.Settings.ShowFPS {
+		c.debugInfo = scene.NewLabel(assets.FontSmall)
+		c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
+		c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
+		scene.AddGraphicsAbove(c.debugInfo, 1)
 	}
 
 	c.camera.SortBelowLayer()
@@ -741,18 +741,8 @@ func (c *Controller) Update(delta float64) {
 	c.handleInput()
 
 	if c.debugInfo != nil {
-		colony := c.world.selectedColony
-		numDrones := 0
-		droneLimit := 0
-		if colony != nil {
-			numDrones = colony.NumAgents()
-			droneLimit = colony.calcUnitLimit()
-		}
-		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f Drones: %d/%d",
-			ebiten.ActualFPS(),
-			numDrones, droneLimit)
+		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f", ebiten.ActualFPS())
 	}
-
 }
 
 func (c *Controller) IsDisposed() bool { return false }

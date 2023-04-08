@@ -31,7 +31,7 @@ type worldState struct {
 	tier2recipes     []gamedata.AgentMergeRecipe
 	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
 
-	debug            bool
+	debugLogs        bool
 	evolutionEnabled bool
 	movementEnabled  bool
 

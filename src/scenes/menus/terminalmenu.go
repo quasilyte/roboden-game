@@ -125,6 +125,10 @@ func (c *TerminalMenu) initUI() {
 			handler: c.onCheatAddScore,
 			hidden:  true,
 		},
+		{
+			key:     "debug.logs",
+			handler: c.onDebugLogs,
+		},
 	}
 
 	textinput := eui.NewTextInput(uiResources, normalFont,
@@ -261,4 +265,20 @@ func (c *TerminalMenu) onCheatAddScore(ctx *terminalCommandContext) (string, err
 	c.state.Persistent.PlayerStats.TotalScore += args.amount
 	contentlock.Update(c.state)
 	return fmt.Sprintf("Added %d to the total score.", args.amount), nil
+}
+
+func (c *TerminalMenu) onDebugLogs(ctx *terminalCommandContext) (string, error) {
+	type argsType struct {
+		enable bool
+	}
+	if ctx.parsedArgs == nil {
+		args := &argsType{}
+		ctx.parsedArgs = args
+		ctx.fs.BoolVar(&args.enable, "enable", false, "whether to enable the debug logs")
+		return "", nil
+	}
+	args := ctx.parsedArgs.(*argsType)
+	oldValue := c.state.Persistent.Settings.DebugLogs
+	c.state.Persistent.Settings.DebugLogs = args.enable
+	return fmt.Sprintf("Set debug.logs to %v (was %v)", args.enable, oldValue), nil
 }

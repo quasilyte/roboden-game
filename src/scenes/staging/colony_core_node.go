@@ -603,6 +603,27 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.evoDiode.Visible = true
 		playSound(c.world, assets.AudioColonyLanded, c.pos)
 		c.createLandingSmokeEffect()
+		c.crushCrawlers()
+	}
+}
+
+func (c *colonyCoreNode) crushCrawlers() {
+	const crushRangeSqr = 24.0 * 24.0
+	const explodeRangeSqr = 38.0 * 38.0
+	crushPos := c.pos.Add(gmath.Vec{Y: 4})
+	for _, creep := range c.world.creeps {
+		if creep.stats.kind != creepCrawler {
+			continue
+		}
+		distSqr := creep.pos.DistanceSquaredTo(crushPos)
+		if distSqr <= crushRangeSqr {
+			creep.Destroy()
+			continue
+		}
+		if distSqr <= explodeRangeSqr {
+			creep.OnDamage(gamedata.DamageValue{Health: 1000}, c.pos)
+			continue
+		}
 	}
 }
 

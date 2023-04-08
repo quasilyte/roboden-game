@@ -439,6 +439,7 @@ func (c *Controller) launchAttack() {
 }
 
 func (c *Controller) launchRelocation(core *colonyCoreNode, dist, maxDist float64, dst gmath.Vec) {
+	const posCheckFlags = collisionSkipSmallCrawlers
 	dstDir := dst.DirectionTo(core.pos)
 	var relocationPoint gmath.Vec
 OuterLoop:
@@ -446,17 +447,17 @@ OuterLoop:
 		currentDist := dist
 		currentPos := dst
 		for {
-			if posIsFree(c.world, core, currentPos, 48) {
+			if posIsFreeWithFlags(c.world, core, currentPos, 48, posCheckFlags) {
 				relocationPoint = currentPos
 				break OuterLoop
 			}
 			leftPos := dstDir.Rotated(-0.2).Mulf(currentDist).Add(core.pos)
-			if posIsFree(c.world, core, leftPos, 48) {
+			if posIsFreeWithFlags(c.world, core, leftPos, 48, posCheckFlags) {
 				relocationPoint = leftPos
 				break OuterLoop
 			}
 			rightPos := dstDir.Rotated(0.2).Mulf(currentDist).Add(core.pos)
-			if posIsFree(c.world, core, rightPos, 48) {
+			if posIsFreeWithFlags(c.world, core, rightPos, 48, posCheckFlags) {
 				relocationPoint = rightPos
 				break OuterLoop
 			}

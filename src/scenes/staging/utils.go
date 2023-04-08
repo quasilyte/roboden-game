@@ -54,7 +54,17 @@ func posMove(pos gmath.Vec, d pathing.Direction) gmath.Vec {
 	}
 }
 
+type collisionFlags int
+
+const (
+	collisionSkipSmallCrawlers collisionFlags = 1 << iota
+)
+
 func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, radius float64) bool {
+	return posIsFreeWithFlags(world, skipColony, pos, radius, 0)
+}
+
+func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, radius float64, flags collisionFlags) bool {
 	wallCheckRadius := radius + 24
 	for _, wall := range world.walls {
 		if wall.CollidesWith(pos, wallCheckRadius) {
@@ -86,11 +96,17 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 			return false
 		}
 	}
+
+	skipSmall := flags&collisionSkipSmallCrawlers != 0
 	for _, creep := range world.creeps {
+		if skipSmall && creep.stats.kind == creepCrawler {
+			continue
+		}
 		if creep.stats.shadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+creep.stats.size) {
 			return false
 		}
 	}
+
 	return true
 }
 

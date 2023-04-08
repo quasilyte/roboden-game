@@ -118,7 +118,7 @@ func (g *levelGenerator) createBase(pos gmath.Vec, mainBase bool) {
 	core.priorities.SetWeight(priorityResources, 0.5)
 	core.priorities.SetWeight(priorityGrowth, 0.4)
 	core.priorities.SetWeight(prioritySecurity, 0.1)
-	g.scene.AddObject(core)
+	g.world.nodeRunner.AddObject(core)
 
 	switch g.world.config.StartingResources {
 	case 1:
@@ -129,13 +129,13 @@ func (g *levelGenerator) createBase(pos gmath.Vec, mainBase bool) {
 
 	for i := 0; i < 5; i++ {
 		a := core.NewColonyAgentNode(gamedata.WorkerAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
-		g.scene.AddObject(a)
+		g.world.nodeRunner.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 	if mainBase {
 		for _, stats := range g.world.config.ExtraDrones {
 			a := core.NewColonyAgentNode(stats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
-			g.scene.AddObject(a)
+			g.world.nodeRunner.AddObject(a)
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		}
 	}
@@ -155,7 +155,7 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stat
 		if stats.kind == creepCrawler {
 			creep.specialModifier = crawlerGuard
 		}
-		g.scene.AddObject(creep)
+		g.world.nodeRunner.AddObject(creep)
 		unitPos = pos
 		direction := gmath.RadToVec(rand.Rad()).Mulf(32)
 		if rand.Bool() {
@@ -172,7 +172,7 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stat
 			scrapPos := g.adjustResourcePos(gmath.RadToVec(rand.Rad()).Mulf(rand.FloatRange(64, 128)).Add(unitPos))
 			if posIsFree(g.world, nil, scrapPos, 8) {
 				source := g.world.NewEssenceSourceNode(scrapSource, scrapPos)
-				g.scene.AddObject(source)
+				g.world.nodeRunner.AddObject(source)
 			}
 		}
 	}
@@ -317,7 +317,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		return g.pendingResources[i].pos.Y < g.pendingResources[j].pos.Y
 	})
 	for _, source := range g.pendingResources {
-		g.scene.AddObject(source)
+		g.world.nodeRunner.AddObject(source)
 	}
 }
 
@@ -335,7 +335,7 @@ func (g *levelGenerator) placeBoss() {
 	pos := gmath.RandElem(&g.rng, spawnLocations)
 	boss := g.world.NewCreepNode(pos, uberBossCreepStats)
 	boss.specialDelay = g.rng.FloatRange(3*60, 4*60)
-	g.scene.AddObject(boss)
+	g.world.nodeRunner.AddObject(boss)
 
 	g.world.boss = boss
 }
@@ -441,7 +441,7 @@ func (g *levelGenerator) placeCreepBases() {
 			base.specialDelay = g.rng.FloatRange(60, 120)
 			base.attackDelay = g.rng.FloatRange(40, 50)
 		}
-		g.scene.AddObject(base)
+		g.world.nodeRunner.AddObject(base)
 	}
 }
 

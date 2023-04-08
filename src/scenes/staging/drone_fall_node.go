@@ -8,7 +8,6 @@ import (
 
 type droneFallNode struct {
 	world *worldState
-	scene *ge.Scene
 
 	image        resource.ImageID
 	shadowImage  resource.ImageID
@@ -37,8 +36,6 @@ func newDroneFallNode(world *worldState, scraps *essenceSourceStats, image, shad
 }
 
 func (d *droneFallNode) Init(scene *ge.Scene) {
-	d.scene = scene
-
 	d.sprite = scene.NewSprite(d.image)
 	d.sprite.Pos.Base = &d.pos
 	d.sprite.Rotation = &d.rotation
@@ -61,12 +58,12 @@ func (d *droneFallNode) Destroy() {
 		d.shadow.Dispose()
 	}
 
-	createAreaExplosion(d.scene, d.world.camera, spriteRect(d.pos, d.sprite), true)
+	createAreaExplosion(d.world, spriteRect(d.pos, d.sprite), true)
 
 	essenceSpawnPos := d.pos.Add(gmath.Vec{Y: 6})
 	if d.scraps != nil && posIsFree(d.world, nil, essenceSpawnPos, 48) {
 		essence := d.world.NewEssenceSourceNode(d.scraps, essenceSpawnPos)
-		d.scene.AddObject(essence)
+		d.world.nodeRunner.AddObject(essence)
 	}
 }
 
@@ -82,7 +79,7 @@ func (d *droneFallNode) Update(delta float64) {
 	}
 
 	d.pos.Y += delta * fallSpeed
-	d.pos.X += d.scene.Rand().FloatRange(-6, 6) * delta
+	d.pos.X += d.world.rand.FloatRange(-6, 6) * delta
 
 	d.rotation += gmath.Rad(delta * 2)
 

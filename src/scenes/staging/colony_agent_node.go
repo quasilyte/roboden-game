@@ -257,7 +257,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	} else {
 		a.camera().AddSprite(a.sprite)
 		// Turret damage is an optional shader.
-		if a.colonyCore.world.graphicsSettings.AllShadersEnabled {
+		if a.world().graphicsSettings.AllShadersEnabled {
 			a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 			a.sprite.Shader.SetFloatValue("HP", 1.0)
 			damageTexture := gmath.RandElem(scene.Rand(), turretDamageTextureList)
@@ -277,7 +277,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.camera().AddSpriteAbove(a.diode)
 	}
 
-	if !a.IsTurret() && a.colonyCore.world.graphicsSettings.ShadowsEnabled {
+	if !a.IsTurret() && a.world().graphicsSettings.ShadowsEnabled {
 		shadowImage := assets.ImageSmallShadow
 		switch a.stats.Size {
 		case gamedata.SizeMedium:
@@ -693,19 +693,19 @@ func (a *colonyAgentNode) doUncloak() {
 func (a *colonyAgentNode) doCloak(d float64) {
 	a.cloaking = d
 	a.sprite.SetAlpha(0.2)
-	a.scene.AddObject(newEffectNode(a.camera(), a.pos, true, assets.ImageCloakWave))
-	playSound(a.scene, a.camera(), assets.AudioStealth, a.pos)
+	a.world().nodeRunner.AddObject(newEffectNode(a.camera(), a.pos, true, assets.ImageCloakWave))
+	playSound(a.world(), assets.AudioStealth, a.pos)
 }
 
 func (a *colonyAgentNode) explode() {
 	if a.IsTurret() {
-		createAreaExplosion(a.scene, a.camera(), spriteRect(a.pos, a.sprite), true)
-		scraps := a.colonyCore.world.NewEssenceSourceNode(scrapSource, a.pos.Add(gmath.Vec{Y: 2}))
-		a.scene.AddObject(scraps)
+		createAreaExplosion(a.world(), spriteRect(a.pos, a.sprite), true)
+		scraps := a.world().NewEssenceSourceNode(scrapSource, a.pos.Add(gmath.Vec{Y: 2}))
+		a.world().nodeRunner.AddObject(scraps)
 		return
 	}
 
-	playSound(a.scene, a.camera(), assets.AudioAgentDestroyed, a.pos)
+	playSound(a.world(), assets.AudioAgentDestroyed, a.pos)
 
 	if a.colonyCore.GetSecurityPriority() < 0.4 {
 		a.colonyCore.AddPriority(prioritySecurity, 0.04)
@@ -716,7 +716,7 @@ func (a *colonyAgentNode) explode() {
 
 	roll := a.scene.Rand().Float()
 	if roll < 0.3 {
-		createExplosion(a.scene, a.camera(), true, a.pos)
+		createExplosion(a.world(), true, a.pos)
 	} else {
 		var scraps *essenceSourceStats
 		if roll > 0.6 {
@@ -731,9 +731,9 @@ func (a *colonyAgentNode) explode() {
 			shadowImg = a.shadow.ImageID()
 		}
 
-		fall := newDroneFallNode(a.colonyCore.world, scraps, a.stats.Image, shadowImg, a.pos, a.height)
+		fall := newDroneFallNode(a.world(), scraps, a.stats.Image, shadowImg, a.pos, a.height)
 		fall.FrameOffsetY = float64(a.rank) * a.sprite.FrameHeight
-		a.scene.AddObject(fall)
+		a.world().nodeRunner.AddObject(fall)
 	}
 }
 
@@ -926,16 +926,16 @@ func (a *colonyAgentNode) doDisintegratorAttack() {
 	target := targets[0]
 	toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
 	p := newProjectileNode(projectileConfig{
-		Camera:   a.colonyCore.world.camera,
+		World:    a.world(),
 		Weapon:   a.stats.Weapon,
 		Attacker: a,
 		ToPos:    toPos,
 		Target:   target,
 	})
-	a.scene.AddObject(p)
+	a.world().nodeRunner.AddObject(p)
 	a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
-	playSound(a.scene, a.camera(), a.stats.Weapon.AttackSound, a.pos)
-	a.scene.AddObject(newEffectNode(a.camera(), a.pos, true, assets.ImagePurpleIonZap))
+	playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
+	a.world().nodeRunner.AddObject(newEffectNode(a.camera(), a.pos, true, assets.ImagePurpleIonZap))
 	a.specialDelay = a.scene.Rand().FloatRange(9, 12)
 }
 
@@ -960,7 +960,7 @@ func (a *colonyAgentNode) doScavenge() {
 
 	var bestSource *essenceSourceNode
 	bestScore := 0.0
-	for _, source := range a.colonyCore.world.essenceSources {
+	for _, source := range a.world().essenceSources {
 		switch source.stats {
 		case smallScrapCreepSource, scrapCreepSource, bigScrapCreepSource, smallScrapSource, scrapSource:
 			// OK
@@ -997,8 +997,8 @@ func (a *colonyAgentNode) doRecharge() {
 		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, rechargerBeamColor)
 		beam.width = 2
 		target.energy = gmath.ClampMax(target.energy+rechargerEnergyRecorery, target.maxEnergy)
-		a.scene.AddObject(beam)
-		playSound(a.scene, a.camera(), assets.AudioRechargerBeam, a.pos)
+		a.world().nodeRunner.AddObject(beam)
+		playSound(a.world(), assets.AudioRechargerBeam, a.pos)
 	}
 }
 
@@ -1012,17 +1012,17 @@ func (a *colonyAgentNode) doRepair() {
 		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, repairBeamColor)
 		beam.width = 2
 		target.health = gmath.ClampMax(target.health+3, target.maxHealth)
-		a.scene.AddObject(beam)
-		playSound(a.scene, a.camera(), assets.AudioRepairBeam, a.pos)
+		a.world().nodeRunner.AddObject(beam)
+		playSound(a.world(), assets.AudioRepairBeam, a.pos)
 	}
 }
 
 func (a *colonyAgentNode) findAttackTargets() []projectileTarget {
-	creeps := a.colonyCore.world.creeps
+	creeps := a.world().creeps
 	if len(creeps) == 0 {
 		return nil
 	}
-	targets := a.colonyCore.world.tmpTargetSlice[:0]
+	targets := a.world().tmpTargetSlice[:0]
 	inc := a.scene.Rand().Bool()
 	var slider gmath.Slider
 	slider.SetBounds(0, len(creeps)-1)
@@ -1082,7 +1082,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			pos2 := ge.Pos{Base: target.GetPos(), Offset: targetOffset}
 			beam := newBeamNode(a.camera(), pos1, pos2, destroyerBeamColor)
 			beam.width = 2
-			a.scene.AddObject(beam)
+			a.world().nodeRunner.AddObject(beam)
 			offset = offset.Add(offsetStep)
 			targetOffset = targetOffset.Add(targetOffsetStep)
 		}
@@ -1104,7 +1104,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			ally.attackDelay += float64(numReflections) * 0.3
 			beam := newBeamNode(a.camera(), ge.Pos{Base: pos}, ge.Pos{Base: &ally.pos}, prismBeamColors[numReflections])
 			beam.width = width
-			a.scene.AddObject(beam)
+			a.world().nodeRunner.AddObject(beam)
 			numReflections++
 			damage.Health++
 			width++
@@ -1113,7 +1113,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		})
 		beam := newBeamNode(a.camera(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
 		beam.width = width
-		a.scene.AddObject(beam)
+		a.world().nodeRunner.AddObject(beam)
 		target.OnDamage(damage, a.pos)
 
 	default:
@@ -1122,19 +1122,19 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			for i := 0; i < a.stats.Weapon.BurstSize; i++ {
 				fireDelay := float64(i) * a.stats.Weapon.BurstDelay
 				p := newProjectileNode(projectileConfig{
-					Camera:    a.colonyCore.world.camera,
+					World:     a.world(),
 					Weapon:    a.stats.Weapon,
 					Attacker:  a,
 					ToPos:     toPos,
 					Target:    target,
 					FireDelay: fireDelay,
 				})
-				a.scene.AddObject(p)
+				a.world().nodeRunner.AddObject(p)
 			}
 		}
 	}
 
-	playSound(a.scene, a.camera(), a.stats.Weapon.AttackSound, a.pos)
+	playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
 }
 
 func (a *colonyAgentNode) movementSpeed() float64 {
@@ -1207,9 +1207,9 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 				Base:   &a.colonyCore.pos,
 				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-18, 18)},
 			}
-			beam := newCloningBeamNode(a.colonyCore.world.camera, false, &a.pos, buildPos)
+			beam := newCloningBeamNode(a.world(), false, &a.pos, buildPos)
 			a.cloningBeam = beam
-			a.scene.AddObject(beam)
+			a.world().nodeRunner.AddObject(beam)
 			return
 		}
 		return
@@ -1235,9 +1235,9 @@ func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 				Base:   &target.pos,
 				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-10, 10)},
 			}
-			beam := newCloningBeamNode(a.colonyCore.world.camera, false, &a.pos, buildPos)
+			beam := newCloningBeamNode(a.world(), false, &a.pos, buildPos)
 			a.cloningBeam = beam
-			a.scene.AddObject(beam)
+			a.world().nodeRunner.AddObject(beam)
 			return
 		}
 		return
@@ -1268,9 +1268,9 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 			target.attention += 2
 			a.waypoint = gmath.Vec{}
 			buildPos := target.GetConstructPos()
-			beam := newCloningBeamNode(a.colonyCore.world.camera, false, &a.pos, buildPos)
+			beam := newCloningBeamNode(a.world(), false, &a.pos, buildPos)
 			a.cloningBeam = beam
-			a.scene.AddObject(beam)
+			a.world().nodeRunner.AddObject(beam)
 			return
 		}
 		return
@@ -1300,7 +1300,7 @@ func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
 		if a.rank != 0 {
 			a.colonyCore.eliteResources += float64(a.rank)
 		}
-		playSound(a.scene, a.camera(), assets.AudioAgentRecycled, a.pos)
+		playSound(a.world(), assets.AudioAgentRecycled, a.pos)
 		a.Destroy()
 	}
 }
@@ -1328,9 +1328,9 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		return
 	}
 	if a.cloningBeam == nil {
-		beam := newCloningBeamNode(a.colonyCore.world.camera, true, &a.pos, ge.Pos{Base: &target.pos})
+		beam := newCloningBeamNode(a.world(), true, &a.pos, ge.Pos{Base: &target.pos})
 		a.cloningBeam = beam
-		a.scene.AddObject(beam)
+		a.world().nodeRunner.AddObject(beam)
 	}
 	a.dist -= delta
 	if a.pos.DistanceTo(target.pos) > 10 {
@@ -1342,7 +1342,7 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 	if a.dist <= 0 {
 		a.cloningBeam.Dispose()
 		a.cloningBeam = nil
-		newStats := mergeAgents(a.colonyCore.world, a, target)
+		newStats := mergeAgents(a.world(), a, target)
 		if newStats == nil {
 			panic(fmt.Sprintf("empty merge result for %s %s + %s %s", a.faction, a.stats.Kind, target.faction, target.stats.Kind))
 		}
@@ -1377,7 +1377,7 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 			}
 		}
 		newAgent.faction = newFaction
-		a.scene.AddObject(newAgent)
+		a.world().nodeRunner.AddObject(newAgent)
 		newAgent.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		target.Destroy()
 		a.Destroy()
@@ -1397,9 +1397,9 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 	if !a.waypoint.IsZero() {
 		if a.moveTowards(delta, a.waypoint) {
 			a.waypoint = gmath.Vec{}
-			beam := newCloningBeamNode(a.colonyCore.world.camera, false, &a.pos, ge.Pos{Base: &target.pos})
+			beam := newCloningBeamNode(a.world(), false, &a.pos, ge.Pos{Base: &target.pos})
 			a.cloningBeam = beam
-			a.scene.AddObject(beam)
+			a.world().nodeRunner.AddObject(beam)
 			return
 		}
 		return
@@ -1411,9 +1411,9 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		target.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		clone := a.colonyCore.CloneAgentNode(target)
-		a.scene.AddObject(clone)
+		a.world().nodeRunner.AddObject(clone)
 		clone.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-		a.colonyCore.world.result.DronesCloned++
+		a.world().result.DronesCloned++
 		return
 	}
 }
@@ -1441,7 +1441,7 @@ func (a *colonyAgentNode) updatePanic(delta float64) {
 			return
 		}
 		waypoint := a.pos.Add(a.scene.Rand().Offset(-32, 32))
-		a.waypoint = correctedPos(a.colonyCore.world.rect, waypoint, 64)
+		a.waypoint = correctedPos(a.world().rect, waypoint, 64)
 	}
 }
 
@@ -1464,8 +1464,8 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 			}
 			beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, courierResourceBeamColor)
 			beam.width = 2
-			a.scene.AddObject(beam)
-			playSound(a.scene, a.camera(), assets.AudioCourierResourceBeam, a.pos)
+			a.world().nodeRunner.AddObject(beam)
+			playSound(a.world(), assets.AudioCourierResourceBeam, a.pos)
 			// Now go back and bring some resources.
 			a.payload = a.maxPayload()
 			a.cargoValue = float64(a.payload) * 2
@@ -1596,18 +1596,22 @@ func (a *colonyAgentNode) updateReturn(delta float64) {
 		}
 		if a.payload != 0 {
 			a.colonyCore.resources += a.cargoValue
-			a.colonyCore.world.result.ResourcesGathered += a.cargoValue
+			a.world().result.ResourcesGathered += a.cargoValue
 			a.colonyCore.eliteResources += a.cargoEliteValue
-			a.colonyCore.world.result.EliteResourcesGathered = a.cargoEliteValue
+			a.world().result.EliteResourcesGathered = a.cargoEliteValue
 			a.clearCargo()
-			playSound(a.scene, a.camera(), assets.AudioEssenceCollected, a.pos)
+			playSound(a.world(), assets.AudioEssenceCollected, a.pos)
 		}
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }
 
 func (a *colonyAgentNode) camera() *viewport.Camera {
-	return a.colonyCore.world.camera
+	return a.world().camera
+}
+
+func (a *colonyAgentNode) world() *worldState {
+	return a.colonyCore.world
 }
 
 func (a *colonyAgentNode) hasTrait(t agentTraitBits) bool {

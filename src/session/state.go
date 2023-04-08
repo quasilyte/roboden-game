@@ -89,6 +89,7 @@ type LevelConfig struct {
 	BossDifficulty    int
 	ArenaProgression  int
 	StartingResources int
+	GameSpeed         int
 
 	Seed int64
 

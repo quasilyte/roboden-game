@@ -324,6 +324,24 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		tab.AddChild(button)
 	}
 
+	{
+		valueNames := []string{
+			"x1",
+			"x1.2",
+			"x1.5",
+		}
+		var slider gmath.Slider
+		slider.SetBounds(0, 2)
+		slider.TrySetValue(c.config.GameSpeed)
+		button := eui.NewButtonSelected(uiResources, d.Get("menu.lobby.game_speed")+": "+valueNames[slider.Value()])
+		button.ClickedEvent.AddHandler(func(args interface{}) {
+			slider.Inc()
+			c.config.GameSpeed = slider.Value()
+			button.Text().Label = d.Get("menu.lobby.game_speed") + ": " + valueNames[slider.Value()]
+		})
+		tab.AddChild(button)
+	}
+
 	return tab
 }
 

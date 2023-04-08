@@ -8,7 +8,6 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
-	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type projectileNode struct {
@@ -18,6 +17,7 @@ type projectileNode struct {
 	target    projectileTarget
 	fireDelay float64
 	weapon    *gamedata.WeaponStats
+	world     *worldState
 
 	rotation gmath.Rad
 
@@ -27,9 +27,6 @@ type projectileNode struct {
 	arcFrom               gmath.Vec
 	arcTo                 gmath.Vec
 
-	scene *ge.Scene
-
-	camera *viewport.Camera
 	sprite *ge.Sprite
 }
 
@@ -43,7 +40,7 @@ type projectileTarget interface {
 
 type projectileConfig struct {
 	Weapon     *gamedata.WeaponStats
-	Camera     *viewport.Camera
+	World      *worldState
 	Attacker   projectileTarget
 	ToPos      gmath.Vec
 	Target     projectileTarget
@@ -53,13 +50,13 @@ type projectileConfig struct {
 
 func newProjectileNode(config projectileConfig) *projectileNode {
 	p := &projectileNode{
-		camera:    config.Camera,
 		weapon:    config.Weapon,
 		attacker:  config.Attacker,
 		pos:       config.Attacker.GetPos().Add(config.Weapon.FireOffset).Add(config.FireOffset),
 		toPos:     config.ToPos,
 		target:    config.Target,
 		fireDelay: config.FireDelay,
+		world:     config.World,
 	}
 	if p.weapon.ArcPower != 0 {
 		arcPower := p.weapon.ArcPower
@@ -81,7 +78,6 @@ func newProjectileNode(config projectileConfig) *projectileNode {
 }
 
 func (p *projectileNode) Init(scene *ge.Scene) {
-	p.scene = scene
 	if p.weapon.ProjectileRotateSpeed == 0 {
 		p.rotation = p.pos.AngleToPoint(p.toPos)
 	} else {
@@ -91,7 +87,7 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 	p.sprite = scene.NewSprite(p.weapon.ProjectileImage)
 	p.sprite.Pos.Base = &p.pos
 	p.sprite.Rotation = &p.rotation
-	p.camera.AddSpriteAbove(p.sprite)
+	p.world.camera.AddSpriteAbove(p.sprite)
 
 	p.sprite.Visible = false
 
@@ -117,7 +113,7 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 func (p *projectileNode) IsDisposed() bool { return p.sprite.IsDisposed() }
 
 func (p *projectileNode) playFireSound() {
-	playSound(p.scene, p.camera, p.weapon.AttackSound, p.pos)
+	playSound(p.world, p.weapon.AttackSound, p.pos)
 }
 
 func (p *projectileNode) Update(delta float64) {
@@ -176,35 +172,35 @@ func (p *projectileNode) createExplosion() {
 	if explosionKind == gamedata.ProjectileExplosionNone {
 		return
 	}
-	explosionPos := p.pos.Add(p.scene.Rand().Offset(-4, 4))
+	explosionPos := p.pos.Add(p.world.rand.Offset(-4, 4))
 	switch explosionKind {
 	case gamedata.ProjectileExplosionNormal:
-		createExplosion(p.scene, p.camera, p.target.IsFlying(), explosionPos)
+		createExplosion(p.world, p.target.IsFlying(), explosionPos)
 	case gamedata.ProjectileExplosionBigVertical:
-		createBigVerticalExplosion(p.scene, p.camera, explosionPos)
+		createBigVerticalExplosion(p.world, explosionPos)
 	case gamedata.ProjectileExplosionCripplerBlaster:
-		effect := newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageCripplerBlasterExplosion)
-		p.scene.AddObject(effect)
+		effect := newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageCripplerBlasterExplosion)
+		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionMilitiaIon:
-		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageMilitiaIonExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageMilitiaIonExplosion))
 	case gamedata.ProjectileExplosionShocker:
-		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageShockerExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageShockerExplosion))
 	case gamedata.ProjectileExplosionStealthLaser:
-		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageStealthLaserExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageStealthLaserExplosion))
 	case gamedata.ProjectileExplosionFighterLaser:
-		effect := newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageFighterLaserExplosion)
-		p.scene.AddObject(effect)
+		effect := newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageFighterLaserExplosion)
+		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionHeavyCrawlerLaser:
-		effect := newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImageHeavyCrawlerLaserExplosion)
-		p.scene.AddObject(effect)
+		effect := newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageHeavyCrawlerLaserExplosion)
+		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionPurple:
-		soundIndex := p.scene.Rand().IntRange(0, 2)
+		soundIndex := p.world.rand.IntRange(0, 2)
 		sound := assets.AudioPurpleExplosion1 + resource.AudioID(soundIndex)
-		p.scene.AddObject(newEffectNode(p.camera, explosionPos, p.target.IsFlying(), assets.ImagePurpleExplosion))
-		playSound(p.scene, p.camera, sound, explosionPos)
+		p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImagePurpleExplosion))
+		playSound(p.world, sound, explosionPos)
 	}
 }
 

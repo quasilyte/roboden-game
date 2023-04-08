@@ -160,7 +160,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		pos := ge.Pos{Base: &c.spritePos, Offset: gmath.Vec{Y: -10}}
 		trunk := newHowitzerTrunkNode(c.world.camera, pos)
 		c.specialTarget = trunk
-		c.scene.AddObject(trunk)
+		c.world.nodeRunner.AddObject(trunk)
 		trunk.SetVisibility(false)
 	}
 
@@ -210,7 +210,7 @@ func (c *creepNode) Update(delta float64) {
 				c.doAttack(target)
 			}
 			if !c.stats.weapon.ProjectileFireSound {
-				playSound(c.scene, c.world.camera, c.stats.weapon.AttackSound, c.pos)
+				playSound(c.world, c.stats.weapon.AttackSound, c.pos)
 			}
 		}
 	}
@@ -276,29 +276,29 @@ func (c *creepNode) explode() {
 			}
 
 			fall := newDroneFallNode(c.world, nil, c.stats.image, shadowImg, c.pos, c.height)
-			c.scene.AddObject(fall)
+			c.world.nodeRunner.AddObject(fall)
 		} else {
-			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.altSprite), true)
+			createAreaExplosion(c.world, spriteRect(c.pos, c.altSprite), true)
 		}
 
 	case creepTurret, creepBase, creepHowitzer:
-		createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
+		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
-		c.scene.AddObject(scraps)
+		c.world.nodeRunner.AddObject(scraps)
 	case creepTurretConstruction:
-		createExplosion(c.scene, c.world.camera, false, c.pos)
+		createExplosion(c.world, false, c.pos)
 		scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
-		c.scene.AddObject(scraps)
+		c.world.nodeRunner.AddObject(scraps)
 	case creepCrawler:
-		createExplosion(c.scene, c.world.camera, false, c.pos)
+		createExplosion(c.world, false, c.pos)
 		if c.world.rand.Chance(0.3) {
 			scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
-			c.scene.AddObject(scraps)
+			c.world.nodeRunner.AddObject(scraps)
 		}
 	default:
 		roll := c.scene.Rand().Float()
 		if roll < 0.3 {
-			createExplosion(c.scene, c.world.camera, true, c.pos)
+			createExplosion(c.world, true, c.pos)
 		} else {
 			var scraps *essenceSourceStats
 			if roll > 0.65 {
@@ -317,7 +317,7 @@ func (c *creepNode) explode() {
 			}
 
 			fall := newDroneFallNode(c.world, scraps, c.stats.image, shadowImg, c.pos, agentFlightHeight)
-			c.scene.AddObject(fall)
+			c.world.nodeRunner.AddObject(fall)
 		}
 	}
 }
@@ -339,8 +339,8 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 	if damage.Disarm != 0 && c.stats.disarmable {
 		if c.scene.Rand().Chance(damage.Disarm * 0.1) {
 			c.disarm = 2.5
-			c.scene.AddObject(newEffectNode(c.world.camera, c.pos, c.IsFlying(), assets.ImageIonZap))
-			playIonExplosionSound(c.scene, c.world.camera, c.pos)
+			c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, c.IsFlying(), assets.ImageIonZap))
+			playIonExplosionSound(c.world, c.pos)
 		}
 	}
 
@@ -405,7 +405,7 @@ func (c *creepNode) spawnServants(n int) {
 	for i := 0; i < n; i++ {
 		dir := gmath.RadToVec(angle)
 		spawn := newServantSpawnerNode(c.world, c.pos, dir, c.world.colonies[0])
-		c.scene.AddObject(spawn)
+		c.world.nodeRunner.AddObject(spawn)
 		angle += angleStep
 	}
 }
@@ -421,21 +421,21 @@ func (c *creepNode) doAttack(target projectileTarget) {
 			toPos := snipePos(c.stats.weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
 			fireDelay := float64(i) * c.stats.weapon.BurstDelay
 			p := newProjectileNode(projectileConfig{
-				Camera:    c.world.camera,
+				World:     c.world,
 				Weapon:    c.stats.weapon,
 				Attacker:  c,
 				ToPos:     toPos.Add(c.scene.Rand().Offset(-4, 4)),
 				Target:    target,
 				FireDelay: fireDelay,
 			})
-			c.scene.AddObject(p)
+			c.world.nodeRunner.AddObject(p)
 		}
 		return
 	}
 
 	beam := newBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamColor)
 	beam.width = c.stats.beamWidth
-	c.scene.AddObject(beam)
+	c.world.nodeRunner.AddObject(beam)
 	if c.stats.kind == creepDominator {
 		targetDir := c.pos.DirectionTo(*target.GetPos())
 		const deg90rad = 1.5708
@@ -445,12 +445,12 @@ func (c *creepNode) doAttack(target projectileTarget) {
 		rearBeam1pos := ge.Pos{Base: &c.pos, Offset: vec1}
 		rearBeam1targetPos := ge.Pos{Base: target.GetPos(), Offset: vec2}
 		rearBeam1 := newBeamNode(c.world.camera, rearBeam1pos, rearBeam1targetPos, dominatorBeamColorRear)
-		c.scene.AddObject(rearBeam1)
+		c.world.nodeRunner.AddObject(rearBeam1)
 
 		rearBeam2pos := ge.Pos{Base: &c.pos, Offset: vec2}
 		rearBeam2targetPos := ge.Pos{Base: target.GetPos(), Offset: vec1}
 		rearBeam2 := newBeamNode(c.world.camera, rearBeam2pos, rearBeam2targetPos, dominatorBeamColorRear)
-		c.scene.AddObject(rearBeam2)
+		c.world.nodeRunner.AddObject(rearBeam2)
 	}
 	target.OnDamage(c.stats.weapon.Damage, c.pos)
 }
@@ -603,10 +603,10 @@ func (c *creepNode) updateBuilder(delta float64) {
 			turret := c.world.NewCreepNode(turretPos, turretConstructionCreepStats)
 			turret.specialTarget = c
 			c.specialTarget = turret
-			c.scene.AddObject(turret)
+			c.world.nodeRunner.AddObject(turret)
 			lasers := newBuilderLaserNode(c.world.camera, c.pos)
 			c.EventBuildingStop.Connect(lasers, lasers.OnBuildingStop)
-			c.scene.AddObject(lasers)
+			c.world.nodeRunner.AddObject(lasers)
 			return
 		}
 		c.waypoint = correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 400)
@@ -721,14 +721,14 @@ func (c *creepNode) updateHowitzer(delta float64) {
 				trunk := c.specialTarget.(*howitzerTrunkNode)
 				fireOffset := trunk.SetRotation(dir)
 				p := newProjectileNode(projectileConfig{
-					Camera:     c.world.camera,
+					World:      c.world,
 					Weapon:     c.stats.specialWeapon,
 					Attacker:   c,
 					ToPos:      targetPos,
 					Target:     target,
 					FireOffset: fireOffset,
 				})
-				c.scene.AddObject(p)
+				c.world.nodeRunner.AddObject(p)
 			} else if c.world.rand.Chance(0.3) {
 				c.specialModifier = howitzerFoldTurret
 				c.sprite.Visible = false
@@ -825,7 +825,7 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	if c.specialModifier >= 1 {
 		turret := c.world.NewCreepNode(c.pos, turretCreepStats)
 		c.specialTarget.(*creepNode).specialTarget = turret
-		c.scene.AddObject(turret)
+		c.world.nodeRunner.AddObject(turret)
 		c.Destroy()
 		return
 	}
@@ -902,7 +902,7 @@ func (c *creepNode) updateCreepBase(delta float64) {
 		creep := c.world.NewCreepNode(spawnPos, stats)
 		creep.waypoint = waypoint
 		creep.spawnedFromBase = true
-		c.scene.AddObject(creep)
+		c.world.nodeRunner.AddObject(creep)
 		creep.height = 0
 	}
 }
@@ -930,8 +930,8 @@ func (c *creepNode) updateServant(delta float64) {
 	if c.specialDelay == 0 && c.disarm == 0 {
 		c.specialDelay = c.scene.Rand().FloatRange(4, 6)
 		wave := newServantWaveNode(c.world, c.pos)
-		c.scene.AddObject(wave)
-		playSound(c.scene, c.world.camera, assets.AudioServantWave, c.pos)
+		c.world.nodeRunner.AddObject(wave)
+		playSound(c.world, assets.AudioServantWave, c.pos)
 	}
 }
 
@@ -986,7 +986,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 				crawler := c.world.NewCreepNode(spawnPos, crawlerStats)
 				crawler.path = crawlerSpawnPositions[int(c.specialModifier-1)]
 				crawler.waypoint = crawler.pos
-				c.scene.AddObject(crawler)
+				c.world.nodeRunner.AddObject(crawler)
 			}
 		}
 		if c.specialModifier == 0 {
@@ -1037,7 +1037,7 @@ func (c *creepNode) doUncloak() {
 func (c *creepNode) doCloak() {
 	c.cloaking = true
 	c.sprite.SetAlpha(0.2)
-	c.scene.AddObject(newEffectNode(c.world.camera, c.pos, true, assets.ImageCloakWave))
+	c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, true, assets.ImageCloakWave))
 }
 
 func (c *creepNode) movementSpeed() float64 {

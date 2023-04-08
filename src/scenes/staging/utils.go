@@ -6,7 +6,6 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/pathing"
-	"github.com/quasilyte/roboden-game/viewport"
 )
 
 func randIterate[T any](rand *gmath.Rand, slice []T, f func(x T) bool) T {
@@ -95,7 +94,7 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 	return true
 }
 
-func createAreaExplosion(scene *ge.Scene, camera *viewport.Camera, rect gmath.Rect, allowVertical bool) {
+func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool) {
 	// FIXME: Rect.Center() does not work properly in gmath.
 	center := gmath.Vec{
 		X: rect.Max.X - rect.Width()*0.5,
@@ -103,55 +102,55 @@ func createAreaExplosion(scene *ge.Scene, camera *viewport.Camera, rect gmath.Re
 	}
 	size := rect.Width() * rect.Height()
 	minExplosions := gmath.ClampMin(size/120.0, 1)
-	numExplosions := scene.Rand().IntRange(int(minExplosions), int(minExplosions*1.3))
+	numExplosions := world.rand.IntRange(int(minExplosions), int(minExplosions*1.3))
 	above := !allowVertical
 	for numExplosions > 0 {
 		offset := gmath.Vec{
-			X: scene.Rand().FloatRange(-rect.Width()*0.4, rect.Width()*0.4),
-			Y: scene.Rand().FloatRange(-rect.Height()*0.4, rect.Height()*0.4),
+			X: world.rand.FloatRange(-rect.Width()*0.4, rect.Width()*0.4),
+			Y: world.rand.FloatRange(-rect.Height()*0.4, rect.Height()*0.4),
 		}
-		if numExplosions >= 4 && scene.Rand().Chance(0.4) {
+		if numExplosions >= 4 && world.rand.Chance(0.4) {
 			numExplosions -= 4
-			scene.AddObject(newEffectNode(camera, center.Add(offset), above, assets.ImageBigExplosion))
+			world.nodeRunner.AddObject(newEffectNode(world.camera, center.Add(offset), above, assets.ImageBigExplosion))
 		} else {
 			numExplosions--
-			if allowVertical && scene.Rand().Chance(0.4) {
-				effect := newEffectNode(camera, center.Add(offset), above, assets.ImageVerticalExplosion)
-				scene.AddObject(effect)
+			if allowVertical && world.rand.Chance(0.4) {
+				effect := newEffectNode(world.camera, center.Add(offset), above, assets.ImageVerticalExplosion)
+				world.nodeRunner.AddObject(effect)
 				effect.anim.SetSecondsPerFrame(0.035)
 			} else {
-				createMuteExplosion(scene, camera, above, center.Add(offset))
+				createMuteExplosion(world, above, center.Add(offset))
 			}
 		}
 	}
-	playExplosionSound(scene, camera, center)
+	playExplosionSound(world, center)
 }
 
-func createMuteExplosion(scene *ge.Scene, camera *viewport.Camera, above bool, pos gmath.Vec) {
-	explosion := newEffectNode(camera, pos, above, assets.ImageSmallExplosion1)
-	scene.AddObject(explosion)
+func createMuteExplosion(world *worldState, above bool, pos gmath.Vec) {
+	explosion := newEffectNode(world.camera, pos, above, assets.ImageSmallExplosion1)
+	world.nodeRunner.AddObject(explosion)
 }
 
-func playIonExplosionSound(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
-	explosionSoundIndex := scene.Rand().IntRange(0, 1)
+func playIonExplosionSound(world *worldState, pos gmath.Vec) {
+	explosionSoundIndex := world.rand.IntRange(0, 1)
 	explosionSound := resource.AudioID(int(assets.AudioIonZap1) + explosionSoundIndex)
-	playSound(scene, camera, explosionSound, pos)
+	playSound(world, explosionSound, pos)
 }
 
-func playExplosionSound(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
-	explosionSoundIndex := scene.Rand().IntRange(0, 4)
+func playExplosionSound(world *worldState, pos gmath.Vec) {
+	explosionSoundIndex := world.rand.IntRange(0, 4)
 	explosionSound := resource.AudioID(int(assets.AudioExplosion1) + explosionSoundIndex)
-	playSound(scene, camera, explosionSound, pos)
+	playSound(world, explosionSound, pos)
 }
 
-func createBigVerticalExplosion(scene *ge.Scene, camera *viewport.Camera, pos gmath.Vec) {
-	scene.AddObject(newEffectNode(camera, pos, false, assets.ImageBigVerticalExplosion))
-	playExplosionSound(scene, camera, pos)
+func createBigVerticalExplosion(world *worldState, pos gmath.Vec) {
+	world.nodeRunner.AddObject(newEffectNode(world.camera, pos, false, assets.ImageBigVerticalExplosion))
+	playExplosionSound(world, pos)
 }
 
-func createExplosion(scene *ge.Scene, camera *viewport.Camera, above bool, pos gmath.Vec) {
-	createMuteExplosion(scene, camera, above, pos)
-	playExplosionSound(scene, camera, pos)
+func createExplosion(world *worldState, above bool, pos gmath.Vec) {
+	createMuteExplosion(world, above, pos)
+	playExplosionSound(world, pos)
 }
 
 func spriteRect(pos gmath.Vec, sprite *ge.Sprite) gmath.Rect {
@@ -202,8 +201,8 @@ func retreatPos(rand *gmath.Rand, dist float64, objectPos, threatPos gmath.Vec) 
 	return objectPos.MoveInDirection(dist, direction)
 }
 
-func playSound(scene *ge.Scene, camera *viewport.Camera, id resource.AudioID, pos gmath.Vec) {
-	if camera.ContainsPos(pos) {
-		scene.Audio().PlaySound(id)
+func playSound(world *worldState, id resource.AudioID, pos gmath.Vec) {
+	if world.camera.ContainsPos(pos) {
+		world.rootScene.Audio().PlaySound(id)
 	}
 }

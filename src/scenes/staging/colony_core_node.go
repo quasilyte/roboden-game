@@ -241,7 +241,7 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec)
 	c.health -= damage.Health
 	if c.health < 0 {
 		if c.height == 0 {
-			createAreaExplosion(c.scene, c.world.camera, spriteRect(c.pos, c.sprite), true)
+			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
 		} else {
 			shadowImg := assets.ImageNone
 			if c.shadow != nil {
@@ -249,7 +249,7 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec)
 			}
 
 			fall := newDroneFallNode(c.world, nil, c.sprite.ImageID(), shadowImg, c.pos, c.height)
-			c.scene.AddObject(fall)
+			c.world.nodeRunner.AddObject(fall)
 		}
 		c.Destroy()
 		return
@@ -601,7 +601,7 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.sprite.Visible = true
 		c.hatch.Visible = true
 		c.evoDiode.Visible = true
-		playSound(c.scene, c.world.camera, assets.AudioColonyLanded, c.pos)
+		playSound(c.world, assets.AudioColonyLanded, c.pos)
 		c.createLandingSmokeEffect()
 	}
 }
@@ -625,7 +625,7 @@ func (c *colonyCoreNode) createLandingSmokeEffect() {
 		sprite.Pos.Offset = c.pos.Add(info.offset)
 		e := newEffectNodeFromSprite(c.world.camera, false, sprite)
 		e.anim.SetAnimationSpan(0.3)
-		c.scene.AddObject(e)
+		c.world.nodeRunner.AddObject(e)
 	}
 }
 
@@ -689,12 +689,12 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		if connectedWorker != nil {
 			beam := newBeamNode(c.world.camera, c.evoDiode.Pos, ge.Pos{Base: &connectedWorker.pos}, evoBeamColor)
 			beam.width = 2
-			c.scene.AddObject(beam)
+			c.world.nodeRunner.AddObject(beam)
 		}
 		if connectedFighter != nil {
 			beam := newBeamNode(c.world.camera, c.evoDiode.Pos, ge.Pos{Base: &connectedFighter.pos}, evoBeamColor)
 			beam.width = 2
-			c.scene.AddObject(beam)
+			c.world.nodeRunner.AddObject(beam)
 		}
 		c.evoPoints = gmath.ClampMax(c.evoPoints+evoGain, maxEvoPoints)
 		c.updateEvoDiode()
@@ -795,10 +795,10 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			a.rank = 1
 		}
 		a.height = 0
-		c.scene.AddObject(a)
+		c.world.nodeRunner.AddObject(a)
 		c.resources -= a.stats.Cost
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)
-		playSound(c.scene, c.world.camera, assets.AudioAgentProduced, c.pos)
+		playSound(c.world, assets.AudioAgentProduced, c.pos)
 		c.openHatchTime = 1.5
 		return true
 

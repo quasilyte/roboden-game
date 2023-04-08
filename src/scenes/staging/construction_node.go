@@ -44,7 +44,6 @@ type constructionNode struct {
 	stats *constructionStats
 
 	world *worldState
-	scene *ge.Scene
 
 	progress float64
 
@@ -67,8 +66,6 @@ func newConstructionNode(world *worldState, pos gmath.Vec, stats *constructionSt
 }
 
 func (c *constructionNode) Init(scene *ge.Scene) {
-	c.scene = scene
-
 	c.sprite = scene.NewSprite(c.stats.Image)
 	c.sprite.Pos.Base = &c.pos
 	switch c.stats.Kind {
@@ -98,7 +95,7 @@ func (c *constructionNode) GetConstructPos() ge.Pos {
 	xdelta := c.sprite.ImageWidth() * 0.3
 	return ge.Pos{
 		Base:   &c.constructPosBase,
-		Offset: gmath.Vec{X: c.scene.Rand().FloatRange(-xdelta, xdelta)},
+		Offset: gmath.Vec{X: c.world.rand.FloatRange(-xdelta, xdelta)},
 	}
 }
 
@@ -117,13 +114,13 @@ func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source gmath.Ve
 			Min: c.constructPosBase.Sub(gmath.Vec{X: xdelta, Y: 8}),
 			Max: c.constructPosBase.Add(gmath.Vec{X: xdelta, Y: 8}),
 		}
-		createAreaExplosion(c.scene, c.world.camera, rect, true)
+		createAreaExplosion(c.world, rect, true)
 		c.Destroy()
 		return
 	}
-	explosionOffset := c.scene.Rand().FloatRange(-xdelta, xdelta)
-	explosionPos := c.constructPosBase.Add(gmath.Vec{X: explosionOffset, Y: c.scene.Rand().FloatRange(0, 4)})
-	createExplosion(c.scene, c.world.camera, false, explosionPos)
+	explosionOffset := c.world.rand.FloatRange(-xdelta, xdelta)
+	explosionPos := c.constructPosBase.Add(gmath.Vec{X: explosionOffset, Y: c.world.rand.FloatRange(0, 4)})
+	createExplosion(c.world, false, explosionPos)
 	c.sprite.Shader.SetFloatValue("Time", c.progress)
 }
 
@@ -153,7 +150,7 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 	case constructGunpoint:
 		turret := newColonyAgentNode(builder, gamedata.GunpointAgentStats, c.pos)
 		builder.AcceptTurret(turret)
-		c.scene.AddObject(turret)
+		c.world.nodeRunner.AddObject(turret)
 		turret.mode = agentModeGuardForever
 
 	case constructBase:
@@ -166,6 +163,6 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 		core.priorities.SetWeight(priorityResources, 0.4)
 		core.priorities.SetWeight(priorityGrowth, 0.4)
 		core.priorities.SetWeight(prioritySecurity, 0.2)
-		c.scene.AddObject(core)
+		c.world.nodeRunner.AddObject(core)
 	}
 }

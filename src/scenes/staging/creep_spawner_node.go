@@ -42,7 +42,7 @@ func (spawner *creepSpawnerNode) Update(delta float64) {
 	if spawner.delay <= 0 {
 		spawner.disposed = true
 		creep := spawner.world.NewCreepNode(spawner.pos, spawner.creepStats)
-		spawner.scene.AddObject(creep)
+		spawner.world.nodeRunner.AddObject(creep)
 		creep.SendTo(spawner.creepDest)
 		creep.fragScore = creepFragScore(spawner.creepStats)
 		return

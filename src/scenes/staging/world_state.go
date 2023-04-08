@@ -1,6 +1,7 @@
 package staging
 
 import (
+	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -11,6 +12,9 @@ import (
 
 type worldState struct {
 	rand *gmath.Rand
+
+	rootScene  *ge.Scene
+	nodeRunner *nodeRunner
 
 	camera *viewport.Camera
 

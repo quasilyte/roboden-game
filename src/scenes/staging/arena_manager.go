@@ -174,7 +174,7 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	m.prepareWave()
 	m.overviewText = m.createWaveOverviewText()
 	m.info = m.createWaveInfoMessageNode()
-	scene.AddObject(m.info)
+	m.world.nodeRunner.AddObject(m.info)
 }
 
 func (m *arenaManager) Update(delta float64) {
@@ -198,7 +198,7 @@ func (m *arenaManager) Update(delta float64) {
 			m.info.Dispose()
 		}
 		m.info = m.createWaveInfoMessageNode()
-		m.scene.AddObject(m.info)
+		m.world.nodeRunner.AddObject(m.info)
 	}
 
 	m.infoUpdateDelay -= delta
@@ -363,10 +363,10 @@ func (m *arenaManager) spawnCreeps() {
 			m.world.result.CreepTotalValue += creepFragScore(creepStats)
 			if spawnDelay > 0 {
 				spawner := newCreepSpawnerNode(m.world, spawnDelay, creepPos, creepTargetPos, creepStats)
-				m.scene.AddObject(spawner)
+				m.world.nodeRunner.AddObject(spawner)
 			} else {
 				creep := m.world.NewCreepNode(creepPos, creepStats)
-				m.scene.AddObject(creep)
+				m.world.nodeRunner.AddObject(creep)
 				creep.SendTo(creepTargetPos)
 				creep.fragScore = creepFragScore(creepStats)
 			}

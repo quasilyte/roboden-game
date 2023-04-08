@@ -65,6 +65,7 @@ type Controller struct {
 	visionCircle *ebiten.Image
 
 	arenaManager *arenaManager
+	nodeRunner   *nodeRunner
 
 	cursor *cursorNode
 
@@ -154,7 +155,19 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.cameraPanSpeed = float64(c.state.Persistent.Settings.ScrollingSpeed+1) * 4
 	}
 
+	gameSpeed := 1.0
+	switch c.config.GameSpeed {
+	case 1:
+		gameSpeed = 1.2
+	case 2:
+		gameSpeed = 1.5
+	}
+	c.nodeRunner = newNodeRunner(gameSpeed)
+	scene.AddObject(c.nodeRunner)
+
 	world := &worldState{
+		rootScene:        scene,
+		nodeRunner:       c.nodeRunner,
 		graphicsSettings: c.state.Persistent.Settings.Graphics,
 		debug:            c.state.Persistent.Settings.Debug,
 		pathgrid:         pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
@@ -180,7 +193,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	if c.config.GameMode == gamedata.ModeArena {
 		c.arenaManager = newArenaManager(world)
-		scene.AddObject(c.arenaManager)
+		c.nodeRunner.AddObject(c.arenaManager)
 		c.arenaManager.EventVictory.Connect(c, c.onVictoryTrigger)
 	}
 
@@ -197,7 +210,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	if c.config.EnemyBoss {
 		c.radar = newRadarNode(c.world)
-		scene.AddObject(c.radar)
+		c.nodeRunner.AddObject(c.radar)
 
 		buttonSize := gmath.Vec{X: 32, Y: 36}
 		toggleButtonOffset := gmath.Vec{X: 155, Y: 491}
@@ -235,14 +248,14 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	if c.world.IsTutorial() {
 		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world)
-		scene.AddObject(c.tutorialManager)
+		c.nodeRunner.AddObject(c.tutorialManager)
 		if c.rpanel != nil {
 			c.tutorialManager.EventRequestPanelUpdate.Connect(c, c.onPanelUpdateRequested)
 		}
 		c.tutorialManager.EventTriggerVictory.Connect(c, c.onVictoryTrigger)
 	}
 
-	scene.AddObject(c.choices)
+	c.nodeRunner.AddObject(c.choices)
 
 	if c.config.FogOfWar {
 		c.visionRadius = 500.0
@@ -366,7 +379,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 			constructionPos := c.pickColonyPos(nil, locationProbe, size, 4)
 			if !constructionPos.IsZero() {
 				construction := c.world.NewConstructionNode(constructionPos, stats)
-				c.scene.AddObject(construction)
+				c.nodeRunner.AddObject(construction)
 				break
 			}
 		}
@@ -487,7 +500,7 @@ func (c *Controller) spawnTier3Creep() {
 	}
 	spawnPos = roundedPos(spawnPos)
 	creep := c.world.NewCreepNode(spawnPos, assaultCreepStats)
-	c.scene.AddObject(creep)
+	c.nodeRunner.AddObject(creep)
 }
 
 func (c *Controller) defeat() {
@@ -605,6 +618,11 @@ func (c *Controller) handleInput() {
 
 	if mainInput.ActionIsJustPressed(controls.ActionBack) {
 		c.onMenuButtonClicked()
+		return
+	}
+
+	if mainInput.ActionIsJustPressed(controls.ActionPause) {
+		c.nodeRunner.SetPaused(!c.nodeRunner.IsPaused())
 		return
 	}
 

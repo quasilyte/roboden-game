@@ -13,7 +13,6 @@ type servantSpawnerNode struct {
 	target          *colonyCoreNode
 	sprite          *ge.Sprite
 	rotation        gmath.Rad
-	scene           *ge.Scene
 	pos             gmath.Vec
 	dir             gmath.Vec
 	world           *worldState
@@ -33,8 +32,6 @@ func (n *servantSpawnerNode) IsDisposed() bool {
 }
 
 func (n *servantSpawnerNode) Init(scene *ge.Scene) {
-	n.scene = scene
-
 	n.rotateClockwise = scene.Rand().Bool()
 
 	n.sprite = scene.NewSprite(assets.ImageServantCreep)
@@ -46,7 +43,7 @@ func (n *servantSpawnerNode) Init(scene *ge.Scene) {
 func (n *servantSpawnerNode) spawn() {
 	creep := n.world.NewCreepNode(n.pos, servantCreepStats)
 	creep.specialTarget = n.target
-	n.scene.AddObject(creep)
+	n.world.nodeRunner.AddObject(creep)
 	n.sprite.Dispose()
 }
 

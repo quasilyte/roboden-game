@@ -150,7 +150,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		m.timedHint.trackedObject = m.world.colonies[0]
 		m.timedHint.timed = true
 		m.timedHint.time = 18
-		m.scene.AddObject(m.timedHint)
+		m.world.nodeRunner.AddObject(m.timedHint)
 	}
 	if !m.explainedWorker && m.timedHint == nil && m.tutorialStep >= 19 {
 		worker := m.findDrone(searchWorkers, func(a *colonyAgentNode) bool {
@@ -176,7 +176,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		s := m.scene.Dict().Get("tutorial1.your_colony")
 		targetPos := ge.Pos{Base: &m.world.colonies[0].spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 4
 		return true
 	case 1:
@@ -186,7 +186,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		s := m.scene.Dict().Get("tutorial1.action_cards", m.inputMode)
 		targetPos := gmath.Vec{X: 812, Y: 50}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 3:
 		ok := (m.choice.Option.special != specialChoiceNone && m.choice.Option.special != specialChoiceMoveColony) ||
@@ -199,7 +199,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		s := m.scene.Dict().Get("tutorial1.resources_priority")
 		targetPos := gmath.Vec{X: 812 + (36 * 0), Y: 516}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 5:
 		for _, effect := range m.choice.Option.effects {
@@ -212,7 +212,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		s := m.scene.Dict().Get("tutorial1.growth_priority")
 		targetPos := gmath.Vec{X: 812 + (36 * 1), Y: 516}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 7:
 		for _, effect := range m.choice.Option.effects {
@@ -225,7 +225,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		s := m.scene.Dict().Get("tutorial1.evolution_priority")
 		targetPos := gmath.Vec{X: 812 + (36 * 2), Y: 516}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 9:
 		for _, effect := range m.choice.Option.effects {
@@ -238,7 +238,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		s := m.scene.Dict().Get("tutorial1.security_priority")
 		targetPos := gmath.Vec{X: 812 + (36 * 3), Y: 516}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 11:
 		for _, effect := range m.choice.Option.effects {
@@ -250,7 +250,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		s := m.scene.Dict().Get("tutorial1.camera", m.inputMode)
 		targetPos := ge.Pos{Offset: gmath.Vec{X: 1160, Y: 530}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 13:
 		targetPos := ge.Pos{Offset: gmath.Vec{X: 1160, Y: 530}}
@@ -261,7 +261,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 	case 14:
 		s := m.scene.Dict().Get("tutorial1.move", m.inputMode)
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 15:
 		if m.choice.Option.special == specialChoiceMoveColony {
@@ -272,7 +272,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 	case 17:
 		s := m.scene.Dict().Get("tutorial1.fill_resources")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 18:
 		if m.world.colonies[0].resources > (maxVisualResources * 0.5) {
@@ -281,7 +281,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 	case 19:
 		s := m.scene.Dict().Get("tutorial1.build_action")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 20:
 		if len(m.world.constructions) != 0 {
@@ -291,7 +291,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		s := m.scene.Dict().Get("tutorial1.base_construction")
 		targetPos := ge.Pos{Base: &m.world.constructions[0].pos, Offset: gmath.Vec{Y: 14}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 22:
 		if len(m.world.constructions) == 0 || m.world.constructions[0].progress >= 0.2 {
@@ -300,7 +300,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 	case 23:
 		s := m.scene.Dict().Get("tutorial1.finish_construction")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	}
 
@@ -314,7 +314,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		s := m.scene.Dict().Get("tutorial2.factions_first_choice")
 		targetPos := gmath.Vec{X: 812, Y: 224}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 1:
 		if m.choice.Option.text != "" && m.choice.Faction != gamedata.GreenFactionTag {
@@ -325,7 +325,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		s := m.scene.Dict().Get("tutorial2.factions_second_choice")
 		targetPos := gmath.Vec{X: 956, Y: 340}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 3:
 		if m.choice.Option.special == specialChoiceNone && len(m.choice.Option.effects) != 0 {
@@ -347,7 +347,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		targetPos := ge.Pos{Base: &m.drone.spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 5
 		return true
 	case 6:
@@ -355,7 +355,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 	case 7:
 		s := m.scene.Dict().Get("tutorial2.yellow_faction")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 3
 		return true
 	case 8:
@@ -377,7 +377,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		targetPos := ge.Pos{Base: &m.drone.spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 7
 		return true
 	case 10:
@@ -399,7 +399,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		targetPos := ge.Pos{Base: &m.drone.spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 7
 		return true
 	case 12:
@@ -421,7 +421,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		targetPos := ge.Pos{Base: &m.drone.spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 7
 		return true
 	case 14:
@@ -444,7 +444,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		targetPos := ge.Pos{Base: &m.drone.spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 7
 		return true
 	case 16:
@@ -452,7 +452,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 	case 17:
 		s := m.scene.Dict().Get("tutorial2.recycle_drones")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 5
 		for _, colony := range m.world.colonies {
 			colony.factionWeights.SetWeight(gamedata.YellowFactionTag, 0)
@@ -475,7 +475,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		m.world.movementEnabled = true
 		s := m.scene.Dict().Get("tutorial2.request_cloner")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 6
 		return true
 	case 20:
@@ -497,7 +497,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		targetPos := ge.Pos{Base: &m.drone.spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 5
 		return true
 	case 22:
@@ -505,7 +505,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 	case 23:
 		s := m.scene.Dict().Get("tutorial2.tier3_intro")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 5
 		return true
 	case 24:
@@ -513,7 +513,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 	case 25:
 		s := m.scene.Dict().Get("tutorial2.request_destroyer")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 5
 		return true
 	case 26:
@@ -532,7 +532,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		s := m.scene.Dict().Get("tutorial2.evo_points")
 		targetPos := ge.Pos{Base: &m.world.colonies[0].spritePos, Offset: gmath.Vec{X: -19, Y: -30}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 28:
 		return m.world.colonies[0].evoPoints >= blueEvoThreshold
@@ -551,7 +551,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		targetPos := ge.Pos{Base: &m.drone.spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 4
 		return true
 	case 31:
@@ -571,7 +571,7 @@ func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
 	m.timedHint.trackedObject = drone
 	m.timedHint.timed = true
 	m.timedHint.time = 20
-	m.scene.AddObject(m.timedHint)
+	m.world.nodeRunner.AddObject(m.timedHint)
 }
 
 func (m *tutorialManager) updateTutorial3() bool {
@@ -609,14 +609,14 @@ func (m *tutorialManager) updateTutorial3() bool {
 		s := m.scene.Dict().Get("tutorial3.base_select", m.inputMode)
 		targetPos := ge.Pos{Base: &m.world.colonies[1].spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 1:
 		return m.world.selectedColony != m.world.colonies[0]
 	case 2:
 		s := m.scene.Dict().Get("tutorial3.base_controls")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 3:
 		if m.choice.Option.special == specialChoiceMoveColony {
@@ -625,7 +625,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 	case 4:
 		s := m.scene.Dict().Get("tutorial3.shared_actions")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 6
 		return true
 	case 5:
@@ -645,7 +645,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 		targetPos := ge.Pos{Base: &m.creep.pos, Offset: gmath.Vec{Y: -4}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.creep
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 8:
 		return m.creep == nil
@@ -663,7 +663,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 		targetPos := ge.Pos{Base: &m.creep.pos, Offset: gmath.Vec{Y: 14}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.creep
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 10:
 		if m.creep == nil {
@@ -677,7 +677,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 	case 11:
 		s := m.scene.Dict().Get("tutorial3.attack_action")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 6
 		return true
 	case 12:
@@ -685,7 +685,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 	case 13:
 		s := m.scene.Dict().Get("tutorial3.radius_action")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 6
 		return true
 	case 14:
@@ -693,7 +693,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 	case 15:
 		s := m.scene.Dict().Get("tutorial3.final_goal")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 12
 		return true
 	case 16:
@@ -720,7 +720,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 		targetPos := ge.Pos{Base: &m.world.boss.pos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.world.boss
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 1:
 		targetPos := ge.Pos{Base: &m.world.boss.pos}
@@ -731,7 +731,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 	case 2:
 		s := m.scene.Dict().Get("tutorial4.radar")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 6
 		return true
 	case 3:
@@ -739,7 +739,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 	case 4:
 		s := m.scene.Dict().Get("tutorial4.boss_warning")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 6
 		return true
 	case 5:
@@ -763,7 +763,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 		m.resource = redCrystal
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = redCrystal
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 7:
 		return m.resource.IsDisposed()
@@ -782,7 +782,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 		targetPos := ge.Pos{Base: &m.drone.spritePos, Offset: gmath.Vec{Y: -6}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 6
 		return true
 	case 10:
@@ -790,7 +790,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 	case 11:
 		s := m.scene.Dict().Get("tutorial4.red_miner_request")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		return true
 	case 12:
 		for _, colony := range m.world.colonies {
@@ -807,7 +807,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 		targetPos := ge.Pos{Base: &m.drone.spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 6
 		return true
 	case 14:
@@ -831,7 +831,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 		m.resource = redOil
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, targetPos, s)
 		m.hint.trackedObject = redOil
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 14
 		return true
 	case 16:
@@ -840,7 +840,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 	case 17:
 		s := m.scene.Dict().Get("tutorial4.final_goal")
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 16}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
+		m.world.nodeRunner.AddObject(m.hint)
 		m.stepTicks = 12
 		return true
 	case 18:

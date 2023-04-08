@@ -50,9 +50,6 @@ type Controller struct {
 
 	musicPlayer *musicPlayer
 
-	tier3spawnDelay float64
-	tier3spawnRate  float64
-
 	transitionQueued  bool
 	victoryCheckDelay float64
 
@@ -130,10 +127,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 	c.camera = viewport.NewCamera(viewportWorld, 1920/2, 1080/2)
 
-	// Start launching tier3 creeps after ~15 minutes.
-	c.tier3spawnDelay = scene.Rand().FloatRange(14*60.0, 16*60.0)
-	c.tier3spawnRate = 1.0
-
 	if c.state.Device.IsMobile {
 		switch c.state.Persistent.Settings.ScrollingSpeed {
 		case 0:
@@ -191,10 +184,14 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.world = world
 	world.Init()
 
-	if c.config.GameMode == gamedata.ModeArena {
+	switch c.config.GameMode {
+	case gamedata.ModeArena:
 		c.arenaManager = newArenaManager(world)
 		c.nodeRunner.AddObject(c.arenaManager)
 		c.arenaManager.EventVictory.Connect(c, c.onVictoryTrigger)
+	case gamedata.ModeClassic:
+		classicManager := newClassicManager(world)
+		c.nodeRunner.AddObject(classicManager)
 	}
 
 	bg := ge.NewTiledBackground(scene.Context())
@@ -477,32 +474,6 @@ OuterLoop:
 	}
 }
 
-func (c *Controller) spawnTier3Creep() {
-	// TODO: move to a creep coordinator?
-
-	c.tier3spawnRate = gmath.ClampMin(c.tier3spawnRate-0.025, 0.4)
-	c.tier3spawnDelay = c.scene.Rand().FloatRange(55, 80) * c.tier3spawnRate
-
-	var spawnPos gmath.Vec
-	roll := c.scene.Rand().Float()
-	if roll < 0.25 {
-		spawnPos.X = c.world.width - 4
-		spawnPos.Y = c.scene.Rand().FloatRange(0, c.world.height)
-	} else if roll < 0.5 {
-		spawnPos.X = c.scene.Rand().FloatRange(0, c.world.width)
-		spawnPos.Y = c.world.height - 4
-	} else if roll < 0.75 {
-		spawnPos.X = 4
-		spawnPos.Y = c.scene.Rand().FloatRange(0, c.world.height)
-	} else {
-		spawnPos.X = c.scene.Rand().FloatRange(0, c.world.width)
-		spawnPos.Y = 4
-	}
-	spawnPos = roundedPos(spawnPos)
-	creep := c.world.NewCreepNode(spawnPos, assaultCreepStats)
-	c.nodeRunner.AddObject(creep)
-}
-
 func (c *Controller) defeat() {
 	if c.transitionQueued {
 		return
@@ -752,14 +723,6 @@ func (c *Controller) Update(delta float64) {
 
 	c.choices.Enabled = c.world.selectedColony != nil &&
 		c.world.selectedColony.mode == colonyModeNormal
-
-	if c.config.GameMode == gamedata.ModeClassic {
-		// TODO: move somewhere else?
-		c.tier3spawnDelay = gmath.ClampMin(c.tier3spawnDelay-delta, 0)
-		if c.tier3spawnDelay == 0 {
-			c.spawnTier3Creep()
-		}
-	}
 
 	c.handleInput()
 

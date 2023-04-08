@@ -156,18 +156,7 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		m.heavyCrawlerCreepInfo,
 	}
 
-	pad := 160.0
-	offscreenPad := 160.0
-	m.spawnAreas = []gmath.Rect{
-		// right border (east)
-		{Min: gmath.Vec{X: m.world.width, Y: pad}, Max: gmath.Vec{X: m.world.width + offscreenPad, Y: m.world.height - pad}},
-		// bottom border (south)
-		{Min: gmath.Vec{X: pad, Y: m.world.height}, Max: gmath.Vec{X: m.world.width - pad, Y: m.world.height + offscreenPad}},
-		// left border (west)
-		{Min: gmath.Vec{X: -offscreenPad, Y: pad}, Max: gmath.Vec{X: 0, Y: m.world.height - pad}},
-		// top border (north)
-		{Min: gmath.Vec{X: pad, Y: -offscreenPad}, Max: gmath.Vec{X: m.world.width - pad, Y: 0}},
-	}
+	m.spawnAreas = creepSpawnAreas(m.world)
 
 	m.budgetStepMultiplier = 0.75 + (float64(m.world.config.ArenaProgression) * 0.25)
 	m.infoUpdateDelay = 5
@@ -327,33 +316,8 @@ func (m *arenaManager) spawnCreeps() {
 			creepPos := spawnPos
 			spawnDelay := 0.0
 			if creepStats.shadowImage == assets.ImageNone {
-				attemptPos := creepPos.Add(m.world.rand.Offset(-60, 60))
-				// Ground unit.
-				// Spawn them really close to the map edge.
-				deployed := false
-				for i := 0; i < 4; i++ {
-					if attemptPos.X <= 0 {
-						spawnDelay = (-attemptPos.X) / creepStats.speed
-						attemptPos.X = 1
-					} else if attemptPos.X >= m.world.width {
-						spawnDelay = (attemptPos.X - m.world.width) / creepStats.speed
-						attemptPos.X = m.world.width - 1
-					}
-					if attemptPos.Y <= 0 {
-						spawnDelay = (-attemptPos.Y) / creepStats.speed
-						attemptPos.Y = 1
-					} else if attemptPos.Y >= m.world.height {
-						spawnDelay = (attemptPos.Y - m.world.height) / creepStats.speed
-						attemptPos.Y = m.world.height - 1
-					}
-					coord := m.world.pathgrid.PosToCoord(attemptPos)
-					if m.world.pathgrid.CellIsFree(coord) {
-						deployed = true
-						creepPos = attemptPos
-						break
-					}
-				}
-				if !deployed {
+				creepPos, spawnDelay = groundCreepSpawnPos(m.world, creepPos, creepStats)
+				if creepPos.IsZero() {
 					continue
 				}
 			} else {

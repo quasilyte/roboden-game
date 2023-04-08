@@ -981,7 +981,11 @@ func (c *creepNode) updateUberBoss(delta float64) {
 				crawlerStats := crawlerCreepStats
 				eliteChance := c.world.EliteCrawlerChance()
 				if c.world.rand.Chance(eliteChance) {
-					crawlerStats = eliteCrawlerCreepStats
+					if c.world.rand.Chance(0.3) {
+						crawlerStats = heavyCrawlerCreepStats
+					} else {
+						crawlerStats = eliteCrawlerCreepStats
+					}
 				}
 				crawler := c.world.NewCreepNode(spawnPos, crawlerStats)
 				crawler.path = crawlerSpawnPositions[int(c.specialModifier-1)]

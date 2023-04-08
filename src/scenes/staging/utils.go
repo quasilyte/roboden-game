@@ -201,6 +201,49 @@ func retreatPos(rand *gmath.Rand, dist float64, objectPos, threatPos gmath.Vec) 
 	return objectPos.MoveInDirection(dist, direction)
 }
 
+func creepSpawnAreas(world *worldState) []gmath.Rect {
+	pad := 160.0
+	offscreenPad := 160.0
+	return []gmath.Rect{
+		// right border (east)
+		{Min: gmath.Vec{X: world.width, Y: pad}, Max: gmath.Vec{X: world.width + offscreenPad, Y: world.height - pad}},
+		// bottom border (south)
+		{Min: gmath.Vec{X: pad, Y: world.height}, Max: gmath.Vec{X: world.width - pad, Y: world.height + offscreenPad}},
+		// left border (west)
+		{Min: gmath.Vec{X: -offscreenPad, Y: pad}, Max: gmath.Vec{X: 0, Y: world.height - pad}},
+		// top border (north)
+		{Min: gmath.Vec{X: pad, Y: -offscreenPad}, Max: gmath.Vec{X: world.width - pad, Y: 0}},
+	}
+}
+
+func groundCreepSpawnPos(world *worldState, pos gmath.Vec, stats *creepStats) (gmath.Vec, float64) {
+	creepPos := pos
+	spawnDelay := 0.0
+	attemptPos := creepPos.Add(world.rand.Offset(-60, 60))
+	for i := 0; i < 4; i++ {
+		if attemptPos.X <= 0 {
+			spawnDelay = (-attemptPos.X) / stats.speed
+			attemptPos.X = 1
+		} else if attemptPos.X >= world.width {
+			spawnDelay = (attemptPos.X - world.width) / stats.speed
+			attemptPos.X = world.width - 1
+		}
+		if attemptPos.Y <= 0 {
+			spawnDelay = (-attemptPos.Y) / stats.speed
+			attemptPos.Y = 1
+		} else if attemptPos.Y >= world.height {
+			spawnDelay = (attemptPos.Y - world.height) / stats.speed
+			attemptPos.Y = world.height - 1
+		}
+		coord := world.pathgrid.PosToCoord(attemptPos)
+		if world.pathgrid.CellIsFree(coord) {
+			creepPos = attemptPos
+			break
+		}
+	}
+	return creepPos, spawnDelay
+}
+
 func playSound(world *worldState, id resource.AudioID, pos gmath.Vec) {
 	if world.camera.ContainsPos(pos) {
 		world.rootScene.Audio().PlaySound(id)

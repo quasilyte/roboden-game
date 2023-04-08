@@ -309,11 +309,7 @@ func (c *Controller) onToggleButtonClicked() {
 	c.selectNextColony(true)
 }
 
-func (c *Controller) onChoiceSelected(choice selectedChoice) {
-	if c.tutorialManager != nil {
-		c.tutorialManager.OnChoice(choice)
-	}
-
+func (c *Controller) executeAction(choice selectedChoice) bool {
 	if choice.Option.special == specialChoiceNone {
 		switch choice.Faction {
 		case gamedata.YellowFactionTag:
@@ -334,13 +330,14 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		if c.rpanel != nil {
 			c.rpanel.UpdateMetrics()
 		}
-		return
+		return true
 	}
 
 	var relocationPos gmath.Vec
 	switch choice.Option.special {
 	case specialAttack:
 		c.launchAttack()
+		return true
 	case specialChoiceMoveColony:
 		maxDist := c.world.selectedColony.MaxFlyDistance() * c.world.rand.FloatRange(0.9, 1.1)
 		clickPos := choice.Pos
@@ -348,15 +345,17 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 		dist := gmath.ClampMax(clickDist, maxDist)
 		relocationVec := c.world.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
 		relocationPos = relocationVec.Add(c.world.selectedColony.pos)
-		c.launchRelocation(c.world.selectedColony, dist, maxDist, relocationPos)
+		return c.launchRelocation(c.world.selectedColony, dist, maxDist, relocationPos)
 	case specialIncreaseRadius:
 		c.world.result.RadiusIncreases++
 		c.world.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
 		c.world.selectedColony.realRadiusSqr = c.world.selectedColony.realRadius * c.world.selectedColony.realRadius
+		return true
 	case specialDecreaseRadius:
 		value := c.world.rand.FloatRange(30, 40)
 		c.world.selectedColony.realRadius = gmath.ClampMin(c.world.selectedColony.realRadius-value, 96)
 		c.world.selectedColony.realRadiusSqr = c.world.selectedColony.realRadius * c.world.selectedColony.realRadius
+		return true
 	case specialBuildColony, specialBuildGunpoint:
 		// TODO: use a pathing.Grid to find a free cell?
 		stats := colonyCoreConstructionStats
@@ -377,9 +376,23 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 			if !constructionPos.IsZero() {
 				construction := c.world.NewConstructionNode(constructionPos, stats)
 				c.nodeRunner.AddObject(construction)
-				break
+				return true
 			}
 		}
+	}
+
+	return false
+}
+
+func (c *Controller) onChoiceSelected(choice selectedChoice) {
+	if c.tutorialManager != nil {
+		c.tutorialManager.OnChoice(choice)
+	}
+
+	if c.executeAction(choice) {
+		c.scene.Audio().PlaySound(assets.AudioChoiceMade)
+	} else {
+		c.scene.Audio().PlaySound(assets.AudioError)
 	}
 }
 
@@ -438,7 +451,7 @@ func (c *Controller) launchAttack() {
 	})
 }
 
-func (c *Controller) launchRelocation(core *colonyCoreNode, dist, maxDist float64, dst gmath.Vec) {
+func (c *Controller) launchRelocation(core *colonyCoreNode, dist, maxDist float64, dst gmath.Vec) bool {
 	const posCheckFlags = collisionSkipSmallCrawlers
 	dstDir := dst.DirectionTo(core.pos)
 	var relocationPoint gmath.Vec
@@ -470,9 +483,9 @@ OuterLoop:
 	}
 	if !relocationPoint.IsZero() {
 		core.doRelocation(roundedPos(relocationPoint))
-	} else {
-		c.scene.Audio().PlaySound(assets.AudioError)
+		return true
 	}
+	return false
 }
 
 func (c *Controller) defeat() {

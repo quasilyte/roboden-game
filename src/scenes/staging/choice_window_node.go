@@ -500,7 +500,6 @@ func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
 		Pos:    pos,
 	}
 	w.startCharging(8.0)
-	w.scene.Audio().PlaySound(assets.AudioChoiceMade)
 	w.EventChoiceSelected.Emit(choice)
 }
 
@@ -525,8 +524,6 @@ func (w *choiceWindowNode) activateChoice(i int) {
 	} else {
 		w.startCharging(10.0)
 	}
-
-	w.scene.Audio().PlaySound(assets.AudioChoiceMade)
 
 	w.EventChoiceSelected.Emit(choice)
 }

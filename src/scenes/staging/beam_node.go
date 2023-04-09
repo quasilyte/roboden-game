@@ -4,26 +4,26 @@ import (
 	"image/color"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/roboden-game/viewport"
+	"github.com/quasilyte/roboden-game/assets"
 )
 
 type beamNode struct {
-	from   ge.Pos
-	to     ge.Pos
-	camera *viewport.Camera
+	from  ge.Pos
+	to    ge.Pos
+	world *worldState
 
-	color color.RGBA
-	width float64
-	line  *ge.Line
+	color      color.RGBA
+	width      float64
+	line       *ge.Line
+	opaqueTime float64
 
-	texture *ge.Texture
-	texLine *ge.TextureLine
+	texture        *ge.Texture
+	beamSlideSpeed float64
+	shaderTime     float64
+	texLine        *ge.TextureLine
 }
 
 var (
-	repairBeamColor          = ge.RGB(0x6ac037)
-	rechargerBeamColor       = ge.RGB(0x66ced6)
-	railgunBeamColor         = ge.RGB(0xbd1844)
 	dominatorBeamColorCenter = ge.RGB(0x7a51f2)
 	dominatorBeamColorRear   = ge.RGB(0x5433c3)
 	builderBeamColor         = color.RGBA{R: 0xae, G: 0x4c, B: 0x78, A: 150}
@@ -43,22 +43,24 @@ var prismBeamColors = []color.RGBA{
 	prismBeamColor4,
 }
 
-func newBeamNode(camera *viewport.Camera, from, to ge.Pos, clr color.RGBA) *beamNode {
+func newBeamNode(world *worldState, from, to ge.Pos, clr color.RGBA) *beamNode {
 	return &beamNode{
-		camera: camera,
-		from:   from,
-		to:     to,
-		width:  1,
-		color:  clr,
+		world: world,
+		from:  from,
+		to:    to,
+		width: 1,
+		color: clr,
 	}
 }
 
-func newTextureBeamNode(camera *viewport.Camera, from, to ge.Pos, texture *ge.Texture) *beamNode {
+func newTextureBeamNode(world *worldState, from, to ge.Pos, texture *ge.Texture, beamSlideSpeed float64, opaqueTime float64) *beamNode {
 	return &beamNode{
-		camera:  camera,
-		from:    from,
-		to:      to,
-		texture: texture,
+		world:          world,
+		from:           from,
+		to:             to,
+		texture:        texture,
+		beamSlideSpeed: beamSlideSpeed,
+		opaqueTime:     opaqueTime,
 	}
 }
 
@@ -69,11 +71,14 @@ func (b *beamNode) Init(scene *ge.Scene) {
 		c.SetColor(b.color)
 		b.line.SetColorScale(c)
 		b.line.Width = b.width
-		b.camera.AddGraphicsAbove(b.line)
+		b.world.camera.AddGraphicsAbove(b.line)
 	} else {
 		b.texLine = ge.NewTextureLine(scene.Context(), b.from, b.to)
 		b.texLine.SetTexture(b.texture)
-		b.camera.AddGraphicsAbove(b.texLine)
+		if b.beamSlideSpeed != 0 && b.world.graphicsSettings.AllShadersEnabled {
+			b.texLine.Shader = scene.NewShader(assets.ShaderSlideX)
+		}
+		b.world.camera.AddGraphicsAbove(b.texLine)
 	}
 }
 
@@ -85,6 +90,15 @@ func (b *beamNode) IsDisposed() bool {
 }
 
 func (b *beamNode) Update(delta float64) {
+	if b.texLine != nil && !b.texLine.Shader.IsNil() {
+		b.shaderTime += delta * b.beamSlideSpeed
+		b.texLine.Shader.SetFloatValue("Time", b.shaderTime)
+	}
+	if b.opaqueTime > 0 {
+		b.opaqueTime -= delta
+		return
+	}
+
 	if b.texture == nil {
 		if b.line.GetAlpha() < 0.1 {
 			b.line.Dispose()

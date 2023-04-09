@@ -22,7 +22,8 @@ func registerShaderResources(ctx *ge.Context) {
 }
 
 const (
-	ShaderDissolve resource.ShaderID = iota
+	ShaderNone resource.ShaderID = iota
+	ShaderDissolve
 	ShaderColonyBuild
 	ShaderTurretBuild
 	ShaderColonyDamage

@@ -1,7 +1,10 @@
 package gamedata
 
 import (
+	"image/color"
+
 	resource "github.com/quasilyte/ebitengine-resource"
+	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 )
@@ -75,11 +78,18 @@ type AgentStats struct {
 	MaxPayload int
 
 	DiodeOffset float64
+	FireOffset  float64
 
 	SupportReload float64
 	SupportRange  float64
 
 	Weapon *WeaponStats
+
+	BeamWidth      float64
+	BeamColor      color.RGBA
+	BeamSlideSpeed float64
+	BeamOpaqueTime float64
+	BeamTexture    *ge.Texture
 }
 
 var TurretStatsList = []*AgentStats{
@@ -258,21 +268,24 @@ var ClonerAgentStats = &AgentStats{
 }
 
 var RepairAgentStats = &AgentStats{
-	ScoreCost:     0,
-	Kind:          AgentRepair,
-	Image:         assets.ImageRepairAgent,
-	Size:          SizeMedium,
-	DiodeOffset:   5,
-	Tier:          2,
-	PointCost:     4,
-	Cost:          26,
-	Upkeep:        7,
-	CanGather:     true,
-	MaxPayload:    1,
-	Speed:         100,
-	MaxHealth:     18,
-	SupportReload: 8.0,
-	SupportRange:  450,
+	ScoreCost:      0,
+	Kind:           AgentRepair,
+	Image:          assets.ImageRepairAgent,
+	Size:           SizeMedium,
+	DiodeOffset:    5,
+	FireOffset:     -2,
+	Tier:           2,
+	PointCost:      4,
+	Cost:           26,
+	Upkeep:         7,
+	CanGather:      true,
+	MaxPayload:     1,
+	Speed:          100,
+	MaxHealth:      18,
+	SupportReload:  8.0,
+	SupportRange:   450,
+	BeamOpaqueTime: 0.2,
+	BeamSlideSpeed: 0.6,
 }
 
 var RechargeAgentStats = &AgentStats{
@@ -292,6 +305,8 @@ var RechargeAgentStats = &AgentStats{
 	EnergyRegenRateBonus: 0.2,
 	SupportReload:        7,
 	SupportRange:         400,
+	BeamOpaqueTime:       0.2,
+	BeamSlideSpeed:       0.8,
 }
 
 var RefresherAgentStats = &AgentStats{

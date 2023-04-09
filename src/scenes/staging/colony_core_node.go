@@ -708,12 +708,12 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			return false
 		})
 		if connectedWorker != nil {
-			beam := newBeamNode(c.world.camera, c.evoDiode.Pos, ge.Pos{Base: &connectedWorker.pos}, evoBeamColor)
+			beam := newBeamNode(c.world, c.evoDiode.Pos, ge.Pos{Base: &connectedWorker.pos}, evoBeamColor)
 			beam.width = 2
 			c.world.nodeRunner.AddObject(beam)
 		}
 		if connectedFighter != nil {
-			beam := newBeamNode(c.world.camera, c.evoDiode.Pos, ge.Pos{Base: &connectedFighter.pos}, evoBeamColor)
+			beam := newBeamNode(c.world, c.evoDiode.Pos, ge.Pos{Base: &connectedFighter.pos}, evoBeamColor)
 			beam.width = 2
 			c.world.nodeRunner.AddObject(beam)
 		}

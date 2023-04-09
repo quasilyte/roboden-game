@@ -8,6 +8,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 )
@@ -24,6 +25,7 @@ func NewMainMenuController(state *session.State) *MainMenuController {
 
 func (c *MainMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
+	c.initTextures()
 
 	scene.Audio().SetGroupVolume(assets.SoundGroupMusic,
 		assets.VolumeMultiplier(c.state.Persistent.Settings.MusicVolumeLevel))
@@ -38,6 +40,14 @@ func (c *MainMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *MainMenuController) Update(delta float64) {
+}
+
+func (c *MainMenuController) initTextures() {
+	if gamedata.RepairAgentStats.BeamTexture != nil {
+		return
+	}
+	gamedata.RepairAgentStats.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageRepairLine), gamedata.RepairAgentStats.SupportRange)
+	gamedata.RechargeAgentStats.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageRechargerLine), gamedata.RechargeAgentStats.SupportRange)
 }
 
 func (c *MainMenuController) initUI() {

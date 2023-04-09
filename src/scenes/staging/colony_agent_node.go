@@ -293,6 +293,8 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.anim = ge.NewRepeatedAnimation(a.sprite, -1)
 	a.anim.Tick(scene.Rand().FloatRange(0, 0.7))
 	a.anim.SetOffsetY(float64(a.rank) * a.sprite.FrameHeight)
+
+	a.supportDelay = scene.Rand().FloatRange(0.8, 2)
 }
 
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
@@ -994,12 +996,21 @@ func (a *colonyAgentNode) doRecharge() {
 			x.pos.DistanceTo(a.pos) < gamedata.RechargeAgentStats.SupportRange
 	})
 	if target != nil {
-		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, rechargerBeamColor)
-		beam.width = 2
 		target.energy = gmath.ClampMax(target.energy+rechargerEnergyRecorery, target.maxEnergy)
-		a.world().nodeRunner.AddObject(beam)
+		a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RechargeAgentStats))
 		playSound(a.world(), assets.AudioRechargerBeam, a.pos)
 	}
+}
+
+func (a *colonyAgentNode) createBeam(target projectileTarget, beamStats *gamedata.AgentStats) *beamNode {
+	from := ge.Pos{Base: &a.pos, Offset: gmath.Vec{Y: a.stats.FireOffset}}
+	to := ge.Pos{Base: target.GetPos(), Offset: gmath.Vec{Y: -2}}
+	if beamStats.BeamTexture == nil {
+		beam := newBeamNode(a.world(), from, to, beamStats.BeamColor)
+		beam.width = beamStats.BeamWidth
+		return beam
+	}
+	return newTextureBeamNode(a.world(), from, to, beamStats.BeamTexture, beamStats.BeamSlideSpeed, beamStats.BeamOpaqueTime)
 }
 
 func (a *colonyAgentNode) doRepair() {
@@ -1009,10 +1020,8 @@ func (a *colonyAgentNode) doRepair() {
 			x.pos.DistanceTo(a.pos) < gamedata.RepairAgentStats.SupportRange
 	})
 	if target != nil {
-		beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, repairBeamColor)
-		beam.width = 2
+		a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RepairAgentStats))
 		target.health = gmath.ClampMax(target.health+3, target.maxHealth)
-		a.world().nodeRunner.AddObject(beam)
 		playSound(a.world(), assets.AudioRepairBeam, a.pos)
 	}
 }
@@ -1080,7 +1089,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		for i := 0; i < 2; i++ {
 			pos1 := ge.Pos{Base: &a.pos, Offset: offset}
 			pos2 := ge.Pos{Base: target.GetPos(), Offset: targetOffset}
-			beam := newBeamNode(a.camera(), pos1, pos2, destroyerBeamColor)
+			beam := newBeamNode(a.world(), pos1, pos2, destroyerBeamColor)
 			beam.width = 2
 			a.world().nodeRunner.AddObject(beam)
 			offset = offset.Add(offsetStep)
@@ -1102,7 +1111,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 				return false
 			}
 			ally.attackDelay += float64(numReflections) * 0.3
-			beam := newBeamNode(a.camera(), ge.Pos{Base: pos}, ge.Pos{Base: &ally.pos}, prismBeamColors[numReflections])
+			beam := newBeamNode(a.world(), ge.Pos{Base: pos}, ge.Pos{Base: &ally.pos}, prismBeamColors[numReflections])
 			beam.width = width
 			a.world().nodeRunner.AddObject(beam)
 			numReflections++
@@ -1111,7 +1120,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			pos = &ally.pos
 			return numReflections >= 3
 		})
-		beam := newBeamNode(a.camera(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
+		beam := newBeamNode(a.world(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
 		beam.width = width
 		a.world().nodeRunner.AddObject(beam)
 		target.OnDamage(damage, a.pos)
@@ -1462,7 +1471,7 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 				target.resources += a.cargoValue
 				a.clearCargo()
 			}
-			beam := newBeamNode(a.camera(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, courierResourceBeamColor)
+			beam := newBeamNode(a.world(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, courierResourceBeamColor)
 			beam.width = 2
 			a.world().nodeRunner.AddObject(beam)
 			playSound(a.world(), assets.AudioCourierResourceBeam, a.pos)

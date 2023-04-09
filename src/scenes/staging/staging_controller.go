@@ -79,6 +79,7 @@ func NewController(state *session.State, config session.LevelConfig, back ge.Sce
 
 func (c *Controller) initTextures() {
 	stunnerCreepStats.beamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageStunnerLine), stunnerCreepStats.weapon.AttackRange)
+	uberBossCreepStats.beamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageBossLaserLine), uberBossCreepStats.weapon.AttackRange)
 }
 
 func (c *Controller) Init(scene *ge.Scene) {

@@ -434,11 +434,11 @@ func (c *creepNode) doAttack(target projectileTarget) {
 	}
 
 	if c.stats.beamTexture == nil {
-		beam := newBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamColor)
+		beam := newBeamNode(c.world, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamColor)
 		beam.width = c.stats.beamWidth
 		c.world.nodeRunner.AddObject(beam)
 	} else {
-		beam := newTextureBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamTexture)
+		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamTexture, c.stats.beamSlideSpeed, c.stats.beamOpaqueTime)
 		c.world.nodeRunner.AddObject(beam)
 	}
 
@@ -450,12 +450,12 @@ func (c *creepNode) doAttack(target projectileTarget) {
 
 		rearBeam1pos := ge.Pos{Base: &c.pos, Offset: vec1}
 		rearBeam1targetPos := ge.Pos{Base: target.GetPos(), Offset: vec2}
-		rearBeam1 := newBeamNode(c.world.camera, rearBeam1pos, rearBeam1targetPos, dominatorBeamColorRear)
+		rearBeam1 := newBeamNode(c.world, rearBeam1pos, rearBeam1targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam1)
 
 		rearBeam2pos := ge.Pos{Base: &c.pos, Offset: vec2}
 		rearBeam2targetPos := ge.Pos{Base: target.GetPos(), Offset: vec1}
-		rearBeam2 := newBeamNode(c.world.camera, rearBeam2pos, rearBeam2targetPos, dominatorBeamColorRear)
+		rearBeam2 := newBeamNode(c.world, rearBeam2pos, rearBeam2targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam2)
 	}
 

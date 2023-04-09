@@ -27,9 +27,11 @@ type creepStats struct {
 	weapon        *gamedata.WeaponStats
 	specialWeapon *gamedata.WeaponStats
 
-	beamColor   color.RGBA
-	beamWidth   float64
-	beamTexture *ge.Texture
+	beamColor      color.RGBA
+	beamWidth      float64
+	beamSlideSpeed float64
+	beamOpaqueTime float64
+	beamTexture    *ge.Texture
 
 	disarmable    bool
 	canBeRepelled bool
@@ -348,10 +350,9 @@ var uberBossCreepStats = &creepStats{
 		Reload:      2.8,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	beamColor:     railgunBeamColor,
-	beamWidth:     3,
-	disarmable:    false,
-	canBeRepelled: false,
+	beamSlideSpeed: 2,
+	disarmable:     false,
+	canBeRepelled:  false,
 }
 
 var stunnerCreepStats = &creepStats{
@@ -370,7 +371,7 @@ var stunnerCreepStats = &creepStats{
 		Reload:      2.6,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	beamWidth:     2,
-	disarmable:    true,
-	canBeRepelled: true,
+	beamSlideSpeed: 0.8,
+	disarmable:     true,
+	canBeRepelled:  true,
 }

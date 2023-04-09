@@ -188,6 +188,8 @@ func registerImageResources(ctx *ge.Context) {
 		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                  {Path: "image/projectile/missile.png"},
 
+		ImageStunnerLine: {Path: "image/lines/stunner_line.png"},
+
 		ImageUIButtonIdle:               {Path: "image/ebitenui/button-idle.png"},
 		ImageUIButtonHover:              {Path: "image/ebitenui/button-hover.png"},
 		ImageUIButtonPressed:            {Path: "image/ebitenui/button-pressed.png"},
@@ -404,6 +406,8 @@ const (
 	ImageHowitzerLaserProjectile
 	ImageAntiAirMissile
 	ImageMissile
+
+	ImageStunnerLine
 
 	ImageUIButtonIdle
 	ImageUIButtonHover

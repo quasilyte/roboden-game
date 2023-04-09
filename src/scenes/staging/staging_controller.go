@@ -77,10 +77,16 @@ func NewController(state *session.State, config session.LevelConfig, back ge.Sce
 	}
 }
 
+func (c *Controller) initTextures() {
+	stunnerCreepStats.beamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageStunnerLine), stunnerCreepStats.weapon.AttackRange)
+}
+
 func (c *Controller) Init(scene *ge.Scene) {
 	c.startTime = time.Now()
 
 	c.scene = scene
+
+	c.initTextures()
 
 	c.musicPlayer = newMusicPlayer(scene)
 	c.musicPlayer.Start()

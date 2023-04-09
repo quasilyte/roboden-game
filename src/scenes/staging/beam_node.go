@@ -10,11 +10,14 @@ import (
 type beamNode struct {
 	from   ge.Pos
 	to     ge.Pos
-	color  color.RGBA
-	width  float64
 	camera *viewport.Camera
 
-	line *ge.Line
+	color color.RGBA
+	width float64
+	line  *ge.Line
+
+	texture *ge.Texture
+	texLine *ge.TextureLine
 }
 
 var (
@@ -24,7 +27,6 @@ var (
 	dominatorBeamColorCenter = ge.RGB(0x7a51f2)
 	dominatorBeamColorRear   = ge.RGB(0x5433c3)
 	builderBeamColor         = color.RGBA{R: 0xae, G: 0x4c, B: 0x78, A: 150}
-	stunnerBeamColor         = ge.RGB(0x7d21cd)
 	destroyerBeamColor       = ge.RGB(0xf58f54)
 	courierResourceBeamColor = ge.RGB(0xd2e352)
 	prismBeamColor1          = ge.RGB(0x529eb8)
@@ -41,31 +43,60 @@ var prismBeamColors = []color.RGBA{
 	prismBeamColor4,
 }
 
-func newBeamNode(camera *viewport.Camera, from, to ge.Pos, c color.RGBA) *beamNode {
+func newBeamNode(camera *viewport.Camera, from, to ge.Pos, clr color.RGBA) *beamNode {
 	return &beamNode{
 		camera: camera,
 		from:   from,
 		to:     to,
-		color:  c,
 		width:  1,
+		color:  clr,
+	}
+}
+
+func newTextureBeamNode(camera *viewport.Camera, from, to ge.Pos, texture *ge.Texture) *beamNode {
+	return &beamNode{
+		camera:  camera,
+		from:    from,
+		to:      to,
+		texture: texture,
 	}
 }
 
 func (b *beamNode) Init(scene *ge.Scene) {
-	b.line = ge.NewLine(b.from, b.to)
-	var c ge.ColorScale
-	c.SetColor(b.color)
-	b.line.SetColorScale(c)
-	b.line.Width = b.width
-	b.camera.AddGraphicsAbove(b.line)
+	if b.texture == nil {
+		b.line = ge.NewLine(b.from, b.to)
+		var c ge.ColorScale
+		c.SetColor(b.color)
+		b.line.SetColorScale(c)
+		b.line.Width = b.width
+		b.camera.AddGraphicsAbove(b.line)
+	} else {
+		b.texLine = ge.NewTextureLine(scene.Context(), b.from, b.to)
+		b.texLine.SetTexture(b.texture)
+		b.camera.AddGraphicsAbove(b.texLine)
+	}
 }
 
-func (b *beamNode) IsDisposed() bool { return b.line.IsDisposed() }
+func (b *beamNode) IsDisposed() bool {
+	if b.texture == nil {
+		return b.line.IsDisposed()
+	}
+	return b.texLine.IsDisposed()
+}
 
 func (b *beamNode) Update(delta float64) {
-	if b.line.GetAlpha() < 0.1 {
-		b.line.Dispose()
+	if b.texture == nil {
+		if b.line.GetAlpha() < 0.1 {
+			b.line.Dispose()
+			return
+		}
+		b.line.SetAlpha(b.line.GetAlpha() - float32(delta*4))
 		return
 	}
-	b.line.SetAlpha(b.line.GetAlpha() - float32(delta*4))
+
+	if b.texLine.GetAlpha() < 0.1 {
+		b.texLine.Dispose()
+		return
+	}
+	b.texLine.SetAlpha(b.texLine.GetAlpha() - float32(delta*4))
 }

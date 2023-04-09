@@ -433,9 +433,15 @@ func (c *creepNode) doAttack(target projectileTarget) {
 		return
 	}
 
-	beam := newBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamColor)
-	beam.width = c.stats.beamWidth
-	c.world.nodeRunner.AddObject(beam)
+	if c.stats.beamTexture == nil {
+		beam := newBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamColor)
+		beam.width = c.stats.beamWidth
+		c.world.nodeRunner.AddObject(beam)
+	} else {
+		beam := newTextureBeamNode(c.world.camera, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamTexture)
+		c.world.nodeRunner.AddObject(beam)
+	}
+
 	if c.stats.kind == creepDominator {
 		targetDir := c.pos.DirectionTo(*target.GetPos())
 		const deg90rad = 1.5708
@@ -452,6 +458,7 @@ func (c *creepNode) doAttack(target projectileTarget) {
 		rearBeam2 := newBeamNode(c.world.camera, rearBeam2pos, rearBeam2targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam2)
 	}
+
 	target.OnDamage(c.stats.weapon.Damage, c.pos)
 }
 

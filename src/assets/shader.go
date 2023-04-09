@@ -13,6 +13,7 @@ func registerShaderResources(ctx *ge.Context) {
 		ShaderTurretBuild:      {Path: "shader/turret_build.go"},
 		ShaderColonyDamage:     {Path: "shader/colony_damage.go"},
 		ShaderCreepTurretBuild: {Path: "shader/creep_turret_build.go"},
+		ShaderSlideX:           {Path: "shader/slide_x.go"},
 	}
 	for id, res := range shaderResources {
 		ctx.Loader.ShaderRegistry.Set(id, res)
@@ -26,4 +27,5 @@ const (
 	ShaderTurretBuild
 	ShaderColonyDamage
 	ShaderCreepTurretBuild
+	ShaderSlideX
 )

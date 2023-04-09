@@ -4,6 +4,7 @@ import (
 	"image/color"
 
 	resource "github.com/quasilyte/ebitengine-resource"
+	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -26,8 +27,9 @@ type creepStats struct {
 	weapon        *gamedata.WeaponStats
 	specialWeapon *gamedata.WeaponStats
 
-	beamColor color.RGBA
-	beamWidth float64
+	beamColor   color.RGBA
+	beamWidth   float64
+	beamTexture *ge.Texture
 
 	disarmable    bool
 	canBeRepelled bool
@@ -368,7 +370,6 @@ var stunnerCreepStats = &creepStats{
 		Reload:      2.6,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),
-	beamColor:     stunnerBeamColor,
 	beamWidth:     2,
 	disarmable:    true,
 	canBeRepelled: true,

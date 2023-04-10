@@ -23,6 +23,11 @@ You can change the selected colony priorities
 by choosing one of the action cards.
 Try activating them. You can use a left mouse click
 on them or press a hotkey: 1-5 or Q-T.
+##tutorial1.action_cards.gamepad
+You can change the selected colony priorities
+by choosing one of the action cards.
+To activate a card, press Y, B, A or X.
+The card icons resemble the associated button.
 ##tutorial1.resources_priority
 The resources priority makes your colony
 workers gather resources more often.
@@ -42,13 +47,24 @@ of combat units your colony has.
 It also affects some combat-related behaviors.
 Try increasing it by choosing an appropriate card.
 ##tutorial1.camera.keyboard
-You can pan the camera by using the arrow keys.
+You can pan the camera by using arrow keys.
 The mouse scrolling works near the camera edges
 or when you're holding the middle mouse button.
+Locate a resource stash by following a marker.
+##tutorial1.camera.gamepad
+You can pan the camera by using D-pad buttons.
+Alternatively, the left joystick should work too.
 Locate a resource stash by following a marker.
 ##tutorial1.move.keyboard
 In order to move, do a right mouse click
 on a destination spot.
+The colony will fly towards the spot,
+but its max jump distance is limited.
+##tutorial1.move.gamepad
+When using a gamepad, you will need to
+use a virtual cursor that is controlled
+by the right joystick. Select a destination
+point and click the right joystick button.
 The colony will fly towards the spot,
 but its max jump distance is limited.
 ##tutorial1.fill_resources
@@ -174,6 +190,11 @@ Learning topics:
 This time you start with two colonies.
 You can select a different colony by
 left-clicking it or pressing a TAB button.
+##tutorial3.base_select.gamepad
+This time you start with two colonies.
+You can select a different colony by
+clicking on it with your virtual cursor
+or by pressing R1.
 ##tutorial3.base_controls
 When choosing an action card,
 it's applied to the selected colony.

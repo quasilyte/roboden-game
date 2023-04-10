@@ -41,23 +41,28 @@ func (c *ControlsMenuController) initUI() {
 	d := c.scene.Dict()
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
 	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.keyboard"), func() {
+		c.scene.Context().ChangeScene(NewControlsKeyboardMenuController(c.state))
+	}))
+
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.gamepad"), func() {
+		c.scene.Context().ChangeScene(NewControlsGamepadMenuController(c.state))
+	}))
+
+	touchButton := eui.NewButton(uiResources, c.scene, d.Get("menu.controls.touch"), func() {
+	})
+	touchButton.GetWidget().Disabled = true
+	rowContainer.AddChild(touchButton)
+
+	rowContainer.AddChild(eui.NewCenteredLabel(uiResources, d.Get("menu.controls.notice"), normalFont))
+
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	controlsText := d.Get("menu.controls.text")
-
-	normalContainer := eui.NewAnchorContainer()
-	label := eui.NewLabel(uiResources, controlsText, smallFont)
-	normalContainer.AddChild(label)
-	rowContainer.AddChild(normalContainer)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
 

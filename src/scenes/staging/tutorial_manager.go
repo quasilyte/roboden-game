@@ -73,6 +73,9 @@ func (m *tutorialManager) Init(scene *ge.Scene) {
 	m.scene = scene
 
 	m.inputMode = "keyboard"
+	if m.input.GamepadConnected() {
+		m.inputMode = "gamepad"
+	}
 
 	runners := [...]tutorialRunner{
 		{
@@ -149,7 +152,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		m.timedHint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 164}, targetPos, s)
 		m.timedHint.trackedObject = m.world.colonies[0]
 		m.timedHint.timed = true
-		m.timedHint.time = 18
+		m.timedHint.time = 20
 		m.world.nodeRunner.AddObject(m.timedHint)
 	}
 	if !m.explainedWorker && m.timedHint == nil && m.tutorialStep >= 19 {
@@ -177,7 +180,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		targetPos := ge.Pos{Base: &m.world.colonies[0].spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 32}, targetPos, s)
 		m.world.nodeRunner.AddObject(m.hint)
-		m.stepTicks = 4
+		m.stepTicks = 5
 		return true
 	case 1:
 		return m.stepTicks == 0

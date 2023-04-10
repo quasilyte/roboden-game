@@ -125,20 +125,39 @@
 ##menu.results.new_record : new record
 ##menu.results.new_drone : Drone Unlocked
 
-##menu.controls.text
+##menu.controls.keyboard : Keyboard & Mouse
+##menu.controls.gamepad : Gamepad
+##menu.controls.touch : Touchscreen
+##menu.controls.notice : Controls remapping coming soon!
+
+##menu.controls.keyboard.text
 [Pan Camera]
 \tMouse: middle button + move, edge scroll
 \tKeyboard: arrow keys
 [Move Colony]
-\tMouse: right mouse button click on the destination
+\tMouse: RMB click on the destination
 [Select Colony]
-\tMouse: left mouse button click on the colony
-\tKeyboard: tab to switch between the colonies
-[Choice Select]
-\tMouse: left mouse button click on the option
-\tKeyboard: 1, 2, 3, 4, 5, q, w, e, r, t
+\tMouse: LMB click on the colony
+\tKeyboard: TAB to switch between colonies
+[Action Card Select]
+\tMouse: LMB click on the card
+\tKeyboard: 1, 2, 3, 4, 5, Q, W, E, R, T
 [Exit/Back]
-\tKeyboard: escape
+\tKeyboard: ESC
+
+##menu.controls.gamepad.text
+[Pan Camera]
+\tD-pad keys or left joystick
+[Move Colony]
+\tRight joystick click on the destination
+[Select Colony]
+\tRight joystick click on the colony
+\tL1 to switch between colonies
+[Action Card Select]
+\tRight joystick click on the card
+\tY, B, A, X buttons for color cards, R1 for grey card
+[Exit/Back]
+\tBACK or SELECT button
 
 ##game.wave : Wave
 ##game.wave_last : Survive to win

@@ -19,6 +19,7 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/viewport"
@@ -64,7 +65,7 @@ type Controller struct {
 	arenaManager *arenaManager
 	nodeRunner   *nodeRunner
 
-	cursor *cursorNode
+	cursor *gameui.CursorNode
 
 	debugInfo *ge.Label
 }
@@ -210,7 +211,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
 	c.camera.AddSpriteBelow(c.colonySelector)
 
-	c.cursor = newCursorNode(c.state.MainInput, c.camera.Rect)
+	c.cursor = gameui.NewCursorNode(c.state.MainInput, c.camera.Rect)
 
 	if c.config.EnemyBoss {
 		c.radar = newRadarNode(c.world)
@@ -228,8 +229,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.rpanel = newRpanelNode(c.world)
 		scene.AddObject(c.rpanel)
 	}
-
-	scene.AddObject(c.cursor)
 
 	choicesPos := gmath.Vec{
 		X: 960 - 232 - 16,
@@ -291,6 +290,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 	// 		}
 	// 	}
 	// }
+
+	scene.AddObject(c.cursor)
 }
 
 func (c *Controller) updateFogOfWar(pos gmath.Vec) {

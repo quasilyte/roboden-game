@@ -9,12 +9,15 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 )
 
 type MainMenuController struct {
 	state *session.State
+
+	cursor *gameui.CursorNode
 
 	scene *ge.Scene
 }
@@ -26,6 +29,9 @@ func NewMainMenuController(state *session.State) *MainMenuController {
 func (c *MainMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 	c.initTextures()
+
+	c.cursor = gameui.NewCursorNode(c.state.MainInput, scene.Context().WindowRect())
+	scene.AddObject(c.cursor)
 
 	scene.Audio().SetGroupVolume(assets.SoundGroupMusic,
 		assets.VolumeMultiplier(c.state.Persistent.Settings.MusicVolumeLevel))

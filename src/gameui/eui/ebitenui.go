@@ -90,7 +90,9 @@ func NewSceneObject(root *widget.Container) *SceneObject {
 
 func (o *SceneObject) IsDisposed() bool { return false }
 
-func (o *SceneObject) Init(scene *ge.Scene) {}
+func (o *SceneObject) Init(scene *ge.Scene) {
+	// o.ui.DisableDefaultFocus = true
+}
 
 func (o *SceneObject) Update(delta float64) {
 	o.ui.Update()

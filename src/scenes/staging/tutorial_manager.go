@@ -29,8 +29,6 @@ type tutorialManager struct {
 
 	scene *ge.Scene
 
-	inputMode string
-
 	choice selectedChoice
 
 	world        *worldState
@@ -71,11 +69,6 @@ func newTutorialManager(h *input.Handler, world *worldState) *tutorialManager {
 
 func (m *tutorialManager) Init(scene *ge.Scene) {
 	m.scene = scene
-
-	m.inputMode = "keyboard"
-	if m.input.GamepadConnected() {
-		m.inputMode = "gamepad"
-	}
 
 	runners := [...]tutorialRunner{
 		{
@@ -186,7 +179,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 		return m.stepTicks == 0
 	case 2:
 		// Explain the action cards.
-		s := m.scene.Dict().Get("tutorial1.action_cards", m.inputMode)
+		s := m.scene.Dict().Get("tutorial1.action_cards", m.world.inputMode)
 		targetPos := gmath.Vec{X: 812, Y: 50}
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 32}, targetPos, s)
 		m.world.nodeRunner.AddObject(m.hint)
@@ -250,7 +243,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 			}
 		}
 	case 12:
-		s := m.scene.Dict().Get("tutorial1.camera", m.inputMode)
+		s := m.scene.Dict().Get("tutorial1.camera", m.world.inputMode)
 		targetPos := ge.Pos{Offset: gmath.Vec{X: 1160, Y: 530}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 32}, targetPos, s)
 		m.world.nodeRunner.AddObject(m.hint)
@@ -262,7 +255,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 			return true
 		}
 	case 14:
-		s := m.scene.Dict().Get("tutorial1.move", m.inputMode)
+		s := m.scene.Dict().Get("tutorial1.move", m.world.inputMode)
 		m.hint = newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 32}, gmath.Vec{}, s)
 		m.world.nodeRunner.AddObject(m.hint)
 		return true
@@ -609,7 +602,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 
 	switch m.tutorialStep {
 	case 0:
-		s := m.scene.Dict().Get("tutorial3.base_select", m.inputMode)
+		s := m.scene.Dict().Get("tutorial3.base_select", m.world.inputMode)
 		targetPos := ge.Pos{Base: &m.world.colonies[1].spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 32}, targetPos, s)
 		m.world.nodeRunner.AddObject(m.hint)

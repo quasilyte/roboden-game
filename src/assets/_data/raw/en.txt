@@ -142,6 +142,8 @@
 [Action Card Select]
 \tMouse: LMB click on the card
 \tKeyboard: 1, 2, 3, 4, 5, Q, W, E, R, T
+[Pause]
+\tKeyboard: SPACE toggles the pause
 [Exit/Back]
 \tKeyboard: ESC
 
@@ -156,8 +158,17 @@
 [Action Card Select]
 \tRight joystick click on the card
 \tY, B, A, X buttons for color cards, R1 for grey card
+[Pause]
+\tSTART toggles the pause
 [Exit/Back]
 \tBACK or SELECT button
+
+##game.exit.notice.keyboard
+Press the button again to quit.
+To resume the game, press SPACE.
+##game.exit.notice.gamepad
+Press the button again to quit.
+To resume the game, press START.
 
 ##game.wave : Wave
 ##game.wave_last : Survive to win

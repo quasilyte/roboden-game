@@ -55,6 +55,8 @@ type worldState struct {
 
 	tmpTargetSlice []projectileTarget
 	tmpColonySlice []*colonyCoreNode
+
+	inputMode string
 }
 
 func (w *worldState) Init() {

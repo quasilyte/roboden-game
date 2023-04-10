@@ -48,6 +48,12 @@ func newWorldTutorialHintNode(camera *viewport.Camera, pos gmath.Vec, targetPos 
 	}
 }
 
+func (m *messageNode) SetPos(pos gmath.Vec) {
+	m.pos = pos
+	m.rect.Pos.Offset = m.pos
+	m.label.Pos.Offset = m.pos
+}
+
 func (m *messageNode) Init(scene *ge.Scene) {
 	ff := scene.Context().Loader.LoadFont(assets.FontTiny)
 	bounds := text.BoundString(ff.Face, m.text)

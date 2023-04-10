@@ -40,7 +40,7 @@ type Controller struct {
 	colonySelector   *ge.Sprite
 	radar            *radarNode
 	rpanel           *rpanelNode
-	menuButtonRect   gmath.Rect
+	exitButtonRect   gmath.Rect
 	toggleButtonRect gmath.Rect
 
 	scene  *ge.Scene
@@ -51,6 +51,7 @@ type Controller struct {
 
 	musicPlayer *musicPlayer
 
+	exitNotice        *messageNode
 	transitionQueued  bool
 	victoryCheckDelay float64
 
@@ -187,6 +188,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 		},
 		tier2recipes: c.config.Tier2Recipes,
 	}
+	world.inputMode = "keyboard"
+	if c.state.MainInput.GamepadConnected() {
+		world.inputMode = "gamepad"
+	}
 	world.creepCoordinator = newCreepCoordinator(world)
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
 	c.world = world
@@ -221,8 +226,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 		toggleButtonOffset := gmath.Vec{X: 155, Y: 491}
 		c.toggleButtonRect = gmath.Rect{Min: toggleButtonOffset, Max: toggleButtonOffset.Add(buttonSize)}
 
-		menuButtonOffset := gmath.Vec{X: 211, Y: 491}
-		c.menuButtonRect = gmath.Rect{Min: menuButtonOffset, Max: menuButtonOffset.Add(buttonSize)}
+		exitButtonOffset := gmath.Vec{X: 211, Y: 491}
+		c.exitButtonRect = gmath.Rect{Min: exitButtonOffset, Max: exitButtonOffset.Add(buttonSize)}
 	}
 
 	if c.config.ExtraUI {
@@ -309,8 +314,19 @@ func (c *Controller) onVictoryTrigger(gsignal.Void) {
 	c.victory()
 }
 
-func (c *Controller) onMenuButtonClicked() {
-	c.leaveScene(c.backController)
+func (c *Controller) onExitButtonClicked() {
+	if c.exitNotice != nil {
+		c.leaveScene(c.backController)
+		return
+	}
+
+	d := c.scene.Dict()
+	c.nodeRunner.SetPaused(true)
+	c.exitNotice = newScreenTutorialHintNode(c.camera, gmath.Vec{}, gmath.Vec{}, d.Get("game.exit.notice", c.world.inputMode))
+	c.scene.AddObject(c.exitNotice)
+	noticeSize := gmath.Vec{X: c.exitNotice.width, Y: c.exitNotice.height}
+	noticeCenterPos := c.camera.Rect.Center().Sub(noticeSize.Mulf(0.5))
+	c.exitNotice.SetPos(noticeCenterPos)
 }
 
 func (c *Controller) onToggleButtonClicked() {
@@ -610,7 +626,7 @@ func (c *Controller) handleInput() {
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionBack) {
-		c.onMenuButtonClicked()
+		c.onExitButtonClicked()
 		return
 	}
 
@@ -657,8 +673,8 @@ func (c *Controller) handleInput() {
 	if handledClick {
 		return
 	}
-	if c.menuButtonRect.Contains(clickPos) {
-		c.onMenuButtonClicked()
+	if c.exitButtonRect.Contains(clickPos) {
+		c.onExitButtonClicked()
 		return
 	}
 	if c.toggleButtonRect.Contains(clickPos) {
@@ -715,6 +731,22 @@ func (c *Controller) checkVictory() {
 
 func (c *Controller) Update(delta float64) {
 	c.musicPlayer.Update(delta)
+
+	if c.exitNotice != nil {
+		if c.state.MainInput.ActionIsJustPressed(controls.ActionPause) {
+			c.nodeRunner.SetPaused(false)
+			c.exitNotice.Dispose()
+			c.exitNotice = nil
+		}
+		clickPos, hasClick := c.cursor.ClickPos(controls.ActionClick)
+		exitPressed := (hasClick && c.exitButtonRect.Contains(clickPos)) ||
+			c.state.MainInput.ActionIsJustPressed(controls.ActionBack)
+		if exitPressed {
+			c.onExitButtonClicked()
+		}
+		return
+	}
+
 	c.world.Update(delta)
 
 	if c.config.FogOfWar {

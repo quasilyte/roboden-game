@@ -218,15 +218,29 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.cursor = gameui.NewCursorNode(c.state.MainInput, c.camera.Rect)
 
+	buttonSize := gmath.Vec{X: 32, Y: 36}
 	if c.config.EnemyBoss {
 		c.radar = newRadarNode(c.world)
 		c.nodeRunner.AddObject(c.radar)
 
-		buttonSize := gmath.Vec{X: 32, Y: 36}
 		toggleButtonOffset := gmath.Vec{X: 155, Y: 491}
 		c.toggleButtonRect = gmath.Rect{Min: toggleButtonOffset, Max: toggleButtonOffset.Add(buttonSize)}
 
 		exitButtonOffset := gmath.Vec{X: 211, Y: 491}
+		c.exitButtonRect = gmath.Rect{Min: exitButtonOffset, Max: exitButtonOffset.Add(buttonSize)}
+	} else {
+		buttonsImage := scene.NewSprite(assets.ImageRadarlessButtons)
+		buttonsImage.Centered = false
+		scene.AddGraphicsAbove(buttonsImage, 1)
+		buttonsImage.Pos.Offset = gmath.Vec{
+			X: 8,
+			Y: c.camera.Rect.Height() - buttonsImage.ImageHeight() - 8,
+		}
+
+		toggleButtonOffset := (gmath.Vec{X: 13, Y: 23}).Add(buttonsImage.Pos.Offset)
+		c.toggleButtonRect = gmath.Rect{Min: toggleButtonOffset, Max: toggleButtonOffset.Add(buttonSize)}
+
+		exitButtonOffset := (gmath.Vec{X: 69, Y: 23}).Add(buttonsImage.Pos.Offset)
 		c.exitButtonRect = gmath.Rect{Min: exitButtonOffset, Max: exitButtonOffset.Add(buttonSize)}
 	}
 

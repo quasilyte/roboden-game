@@ -5,6 +5,7 @@ todo engine:
 - need to round the positions due to rendering issues (round them in Sprite?)
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 - why animation affects Y axis?
+- add Midpoint to gmath
 
 fixme:
 - fix drones "folow"/"attack" actions: they're flying too far away

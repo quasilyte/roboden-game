@@ -66,6 +66,7 @@ const (
 	traitCounterClocwiseOrbiting
 	traitWorkaholic
 	traitDoOrDie
+	traitAdventurer
 	traitLowHPBerserk
 	traitLowHPRetreat
 	traitLowHPRecycle
@@ -191,6 +192,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 			counterClockwiseBits uint64 = chance12 << (0 * chance12bits)
 			workaholicBits       uint64 = chance12 << (1 * chance12bits)
 			doOrDieBits          uint64 = chance12 << (2 * chance12bits)
+			adventurerBits       uint64 = chance12 << (3 * chance12bits)
 		)
 		traitBitChance12Roll := scene.Rand().Uint64()
 		if traitBitChance12Roll&counterClockwiseBits == counterClockwiseBits {
@@ -202,6 +204,10 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		if traitBitChance12Roll&doOrDieBits == doOrDieBits {
 			a.traits |= traitDoOrDie
 		}
+		if traitBitChance12Roll&adventurerBits == adventurerBits {
+			a.traits |= traitAdventurer
+		}
+		a.traits |= traitAdventurer
 
 		if scene.Rand().Chance(0.4) {
 			a.traits |= traitNeverStop
@@ -398,7 +404,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		}
 		a.dist = a.scene.Rand().FloatRange(40, maxDist)
 		a.waypoint = a.orbitingWaypoint()
-		a.waypointsLeft = a.scene.Rand().IntRange(30, 60)
+		a.waypointsLeft = 0
 		return true
 
 	case agentModeFollow, agentModeAttack:
@@ -407,14 +413,14 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.target = target
 		a.waypoint = a.followWaypoint(target.(*creepNode).pos)
 		if isPatrol {
-			a.waypointsLeft = a.scene.Rand().IntRange(5, 7)
+			a.waypointsLeft = a.scene.Rand().IntRange(4, 6)
 		} else {
-			a.waypointsLeft = a.scene.Rand().IntRange(7, 9)
+			a.waypointsLeft = a.scene.Rand().IntRange(6, 8)
 		}
 		if mode == agentModeAttack {
 			a.waypointsLeft += 5
 			if a.hasTrait(traitDoOrDie) {
-				a.waypointsLeft += 5
+				a.waypointsLeft += 15
 			}
 		}
 		return true
@@ -552,11 +558,11 @@ func (a *colonyAgentNode) orbitingWaypoint() gmath.Vec {
 	} else {
 		direction = a.pos.DirectionTo(a.colonyCore.pos)
 	}
-	dir := gmath.Rad(0.4)
+	angle := gmath.Rad(0.4)
 	if a.hasTrait(traitCounterClocwiseOrbiting) {
-		dir = -0.4
+		angle = -0.4
 	}
-	return direction.Rotated(dir).Mulf(a.dist).Add(a.colonyCore.pos)
+	return direction.Rotated(angle).Mulf(a.dist).Add(a.colonyCore.pos)
 }
 
 func (a *colonyAgentNode) Update(delta float64) {
@@ -829,7 +835,6 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec
 	if damage.Morale != 0 && !a.IsTurret() {
 		switch a.mode {
 		case agentModeMineEssence:
-			fmt.Println("stop carrying")
 			a.clearCargo()
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 
@@ -1427,9 +1432,20 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) getCloserWaypoint(targetPos gmath.Vec, preferredDist float64) gmath.Vec {
+	currentDist := a.pos.DistanceTo(targetPos)
+	if currentDist <= preferredDist {
+		return a.pos.Add(a.scene.Rand().Offset(-40, 40))
+	}
+	const maxMoveDist float64 = 96.0
+	dist := maxMoveDist * a.scene.Rand().FloatRange(0.8, 1.2)
+	result := targetPos.DirectionTo(a.pos).Mulf(dist).Add(a.pos).Add(a.scene.Rand().Offset(-28, 28))
+	return result
+}
+
 func (a *colonyAgentNode) followWaypoint(targetPos gmath.Vec) gmath.Vec {
 	preferredDist := gmath.ClampMin(a.stats.Weapon.AttackRange*0.6, 80)
-	return a.pos.DirectionTo(targetPos).Mulf(preferredDist).Add(targetPos).Add(a.scene.Rand().Offset(-52, 52))
+	return a.getCloserWaypoint(targetPos, preferredDist)
 }
 
 func (a *colonyAgentNode) updateMove(delta float64) {
@@ -1516,6 +1532,21 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 			return
 		}
 		a.waypoint = a.orbitingWaypoint()
+		if a.hasTrait(traitAdventurer) {
+			a.waypointsLeft++
+			if a.waypointsLeft > 10 {
+				a.waypointsLeft = 0
+				traitRoll := a.scene.Rand().Float()
+				if a.hasTrait(traitAdventurer) && traitRoll <= 0.4 {
+					pos := a.pos.Add(a.scene.Rand().Offset(-100, 100))
+					a.AssignMode(agentModeMove, pos, nil)
+					// Add some energy to compensate for this unproductive behavior.
+					a.energy = gmath.ClampMax(a.energy+5, a.maxEnergy)
+					a.energyBill = gmath.ClampMin(a.energyBill-5, 0)
+					return
+				}
+			}
+		}
 		if !a.hasTrait(traitNeverStop) && a.energy < 40 && a.scene.Rand().Chance(0.2) {
 			a.AssignMode(agentModeCharging, gmath.Vec{}, nil)
 			return

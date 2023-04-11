@@ -10,6 +10,7 @@ import (
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/userdevice"
 	"golang.org/x/image/font"
 )
 
@@ -27,6 +28,8 @@ type Resources struct {
 	TextInput      *TextInputResource
 	ButtonSelected *ButtonResource
 	Panel          *PanelResource
+
+	mobile bool
 }
 
 type TextInputResource struct {
@@ -401,8 +404,10 @@ func NewTextInput(res *Resources, ff font.Face, opts ...widget.TextInputOpt) *wi
 	return t
 }
 
-func LoadResources(loader *resource.Loader) *Resources {
-	result := &Resources{}
+func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
+	result := &Resources{
+		mobile: device.IsMobile,
+	}
 
 	newNineSlice := func(img *ebiten.Image, centerWidth, centerHeight int) *image.NineSlice {
 		w, h := img.Size()

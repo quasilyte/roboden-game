@@ -12,6 +12,7 @@ import (
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/userdevice"
 )
 
@@ -29,6 +30,8 @@ type State struct {
 	ArenaLevelConfig *LevelConfig
 
 	Persistent PersistentData
+
+	Resources Resources
 }
 
 type PersistentData struct {
@@ -109,6 +112,10 @@ func (options *LevelConfig) Clone() LevelConfig {
 	copy(cloned.Tier2Recipes, options.Tier2Recipes)
 
 	return cloned
+}
+
+type Resources struct {
+	UI *eui.Resources
 }
 
 type GameSettings struct {

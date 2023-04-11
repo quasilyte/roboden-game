@@ -40,7 +40,7 @@ func (c *ProfileDroneCollectionMenuController) Update(delta float64) {
 }
 
 func (c *ProfileDroneCollectionMenuController) initUI() {
-	uiResources := eui.LoadResources(c.scene.Context().Loader)
+	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
 	rowContainer := eui.NewRowLayoutContainer(10, nil)

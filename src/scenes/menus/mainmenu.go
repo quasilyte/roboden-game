@@ -54,10 +54,12 @@ func (c *MainMenuController) initTextures() {
 	}
 	gamedata.RepairAgentStats.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageRepairLine), gamedata.RepairAgentStats.SupportRange)
 	gamedata.RechargeAgentStats.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageRechargerLine), gamedata.RechargeAgentStats.SupportRange)
+
+	c.state.Resources.UI = eui.LoadResources(c.state.Device, c.scene.Context().Loader)
 }
 
 func (c *MainMenuController) initUI() {
-	uiResources := eui.LoadResources(c.scene.Context().Loader)
+	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
 	rowContainer := eui.NewRowLayoutContainer(10, nil)

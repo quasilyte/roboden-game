@@ -240,7 +240,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 }
 
 func (c *resultsController) initUI() {
-	uiResources := eui.LoadResources(c.scene.Context().Loader)
+	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
 	rowContainer := eui.NewRowLayoutContainer(10, nil)

@@ -35,7 +35,7 @@ func (c *PlayMenuController) Update(delta float64) {
 }
 
 func (c *PlayMenuController) initUI() {
-	uiResources := eui.LoadResources(c.scene.Context().Loader)
+	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
 	rowContainer := eui.NewRowLayoutContainer(10, nil)

@@ -146,7 +146,7 @@ func (c *LobbyMenuController) prepareRecipeIcons() {
 }
 
 func (c *LobbyMenuController) initUI() {
-	uiResources := eui.LoadResources(c.scene.Context().Loader)
+	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
 

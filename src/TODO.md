@@ -13,8 +13,10 @@ fixme:
 - make "show fps" separate from a debug mode
 - move debug mode toggles into terminal
 - don't play sounds from the fog of war
+- make "adventurer" trait more rare
 
 todo:
+- check if all victory conditions play a chime
 - lose all evo points when moving a base?
 - play error sound if can't build turret or colony
 - make building construction cost more obvious and easy to balance

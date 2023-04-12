@@ -917,6 +917,10 @@ func (c *creepNode) updateCreepBase(delta float64) {
 func (c *creepNode) updateServant(delta float64) {
 	c.anim.Tick(delta)
 
+	if c.specialTarget == nil && len(c.world.colonies) == 0 {
+		return
+	}
+
 	target, ok := c.specialTarget.(*colonyCoreNode)
 	if !ok || target.IsDisposed() {
 		// After the initial target is gone, behave like a basic creep.

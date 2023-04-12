@@ -812,7 +812,7 @@ func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
 	}
 }
 
-func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 	a.health -= damage.Health
 
 	if a.health < 0 {
@@ -822,7 +822,7 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec
 	}
 
 	if a.health <= (a.maxHealth * 0.33) {
-		a.onLowHealthDamage(source)
+		a.onLowHealthDamage(*source.GetPos())
 	}
 
 	if damage.Health != 0 {
@@ -846,7 +846,7 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec
 			if effectRoll < 0.4 {
 				a.AssignMode(agentModePanic, gmath.Vec{}, nil)
 			} else {
-				pos := retreatPos(a.scene.Rand(), a.scene.Rand().FloatRange(80, 140), a.pos, source)
+				pos := retreatPos(a.scene.Rand(), a.scene.Rand().FloatRange(80, 140), a.pos, *source.GetPos())
 				a.AssignMode(agentModeMove, pos, nil)
 			}
 		}
@@ -1100,7 +1100,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			offset = offset.Add(offsetStep)
 			targetOffset = targetOffset.Add(targetOffsetStep)
 		}
-		target.OnDamage(a.stats.Weapon.Damage, a.pos)
+		target.OnDamage(a.stats.Weapon.Damage, a)
 
 	case gamedata.AgentPrism:
 		target := targets[0]
@@ -1128,7 +1128,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		beam := newBeamNode(a.world(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
 		beam.width = width
 		a.world().nodeRunner.AddObject(beam)
-		target.OnDamage(damage, a.pos)
+		target.OnDamage(damage, a)
 
 	default:
 		for _, target := range targets {

@@ -53,6 +53,9 @@ type battleResults struct {
 	ColoniesBuilt   int
 	RadiusIncreases int
 
+	EnemyColonyDamage            float64
+	EnemyColonyDamageFromTurrets float64
+
 	YellowFactionUsed bool
 	RedFactionUsed    bool
 	GreenFactionUsed  bool
@@ -212,7 +215,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "groundwin":
 			unlocked = c.results.GroundBossDefeat
 		case "turretdamage":
-			// TODO
+			unlocked = c.results.EnemyColonyDamageFromTurrets >= (c.results.EnemyColonyDamage * 0.25)
 
 		case "infinite":
 			unlocked = c.config.InfiniteMode && c.results.ArenaLevel >= 35

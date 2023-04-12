@@ -232,7 +232,7 @@ func (c *colonyCoreNode) OnHeal(amount float64) {
 	c.updateHealthShader()
 }
 
-func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 	if damage.Health != 0 {
 		c.flashComponent.flash = 0.2
 		c.hatchFlashComponent.flash = 0.2
@@ -263,10 +263,10 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec)
 
 func (c *colonyCoreNode) Destroy() {
 	c.agents.Each(func(a *colonyAgentNode) {
-		a.OnDamage(gamedata.DamageValue{Health: 1000}, gmath.Vec{})
+		a.OnDamage(gamedata.DamageValue{Health: 1000}, c)
 	})
 	for _, turret := range c.turrets {
-		turret.OnDamage(gamedata.DamageValue{Health: 1000}, gmath.Vec{})
+		turret.OnDamage(gamedata.DamageValue{Health: 1000}, c)
 	}
 	c.EventDestroyed.Emit(c)
 	c.Dispose()
@@ -622,7 +622,7 @@ func (c *colonyCoreNode) crushCrawlers() {
 			continue
 		}
 		if distSqr <= explodeRangeSqr {
-			creep.OnDamage(gamedata.DamageValue{Health: 1000}, c.pos)
+			creep.OnDamage(gamedata.DamageValue{Health: 1000}, c)
 			c.world.result.CreepsStomped++
 			continue
 		}

@@ -106,7 +106,7 @@ func (c *constructionNode) Destroy() {
 
 func (c *constructionNode) IsFlying() bool { return false }
 
-func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 	c.progress -= damage.Health * c.stats.DamageModifier
 	xdelta := c.sprite.ImageWidth() * 0.3
 	if c.progress < 0 {

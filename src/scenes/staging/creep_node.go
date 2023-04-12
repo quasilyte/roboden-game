@@ -322,7 +322,7 @@ func (c *creepNode) explode() {
 	}
 }
 
-func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
+func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 	if damage.Health != 0 {
 		c.flashComponent.flash = 0.2
 	}
@@ -348,8 +348,8 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 		if c.specialModifier == crawlerGuard {
 			c.specialModifier = crawlerIdle
 		}
-		if c.specialModifier == crawlerIdle && (c.pos.DistanceTo(source) > c.stats.weapon.AttackRange*0.8) && c.world.rand.Chance(0.45) {
-			followPos := c.pos.MoveTowards(source, 64*c.world.rand.FloatRange(0.8, 1.4))
+		if c.specialModifier == crawlerIdle && (c.pos.DistanceTo(*source.GetPos()) > c.stats.weapon.AttackRange*0.8) && c.world.rand.Chance(0.45) {
+			followPos := c.pos.MoveTowards(*source.GetPos(), 64*c.world.rand.FloatRange(0.8, 1.4))
 			p := c.world.BuildPath(c.pos, followPos)
 			c.specialModifier = crawlerMove
 			c.path = p.Steps
@@ -364,33 +364,40 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source gmath.Vec) {
 		}
 		if c.scene.Rand().Chance(damage.Morale * 0.15) {
 			c.wasAttacking = true
-			c.retreatFrom(source)
+			c.retreatFrom(*source.GetPos())
 		}
 	}
 
-	if c.stats.kind == creepUberBoss && c.IsFlying() {
-		// Stage 0: send 2 servants. (very easy and above)
-		// Stage 1: send 3 servants. (easy and above)
-		// Stage 2: send 4 servants. (normal and above)
-		// Stage 3: send 5 servants. (hard)
-		maxStage := c.world.config.BossDifficulty
-		if c.bossStage <= maxStage {
-			hpPercentage := c.health / c.maxHealth
-			if hpPercentage < 0.8 && c.bossStage == 0 {
-				c.spawnServants(2)
-				c.bossStage++
-			}
-			if hpPercentage < 0.6 && c.bossStage == 1 {
-				c.spawnServants(3)
-				c.bossStage++
-			}
-			if hpPercentage < 0.4 && c.bossStage == 2 {
-				c.spawnServants(4)
-				c.bossStage++
-			}
-			if hpPercentage < 0.2 && c.bossStage == 3 {
-				c.spawnServants(5)
-				c.bossStage++
+	if c.stats.kind == creepUberBoss {
+		if a, ok := source.(*colonyAgentNode); ok && a.IsTurret() {
+			c.world.result.EnemyColonyDamageFromTurrets += damage.Health
+		} else {
+			c.world.result.EnemyColonyDamage += damage.Health
+		}
+		if c.IsFlying() {
+			// Stage 0: send 2 servants. (very easy and above)
+			// Stage 1: send 3 servants. (easy and above)
+			// Stage 2: send 4 servants. (normal and above)
+			// Stage 3: send 5 servants. (hard)
+			maxStage := c.world.config.BossDifficulty
+			if c.bossStage <= maxStage {
+				hpPercentage := c.health / c.maxHealth
+				if hpPercentage < 0.8 && c.bossStage == 0 {
+					c.spawnServants(2)
+					c.bossStage++
+				}
+				if hpPercentage < 0.6 && c.bossStage == 1 {
+					c.spawnServants(3)
+					c.bossStage++
+				}
+				if hpPercentage < 0.4 && c.bossStage == 2 {
+					c.spawnServants(4)
+					c.bossStage++
+				}
+				if hpPercentage < 0.2 && c.bossStage == 3 {
+					c.spawnServants(5)
+					c.bossStage++
+				}
 			}
 		}
 	}
@@ -459,7 +466,7 @@ func (c *creepNode) doAttack(target targetable) {
 		c.world.nodeRunner.AddObject(rearBeam2)
 	}
 
-	target.OnDamage(c.stats.weapon.Damage, c.pos)
+	target.OnDamage(c.stats.weapon.Damage, c)
 }
 
 func (c *creepNode) retreatFrom(pos gmath.Vec) {
@@ -940,7 +947,7 @@ func (c *creepNode) updateServant(delta float64) {
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 	if c.specialDelay == 0 && c.disarm == 0 {
 		c.specialDelay = c.scene.Rand().FloatRange(4, 6)
-		wave := newServantWaveNode(c.world, c.pos)
+		wave := newServantWaveNode(c)
 		c.world.nodeRunner.AddObject(wave)
 		playSound(c.world, assets.AudioServantWave, c.pos)
 	}

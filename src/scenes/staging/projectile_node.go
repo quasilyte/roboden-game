@@ -33,7 +33,7 @@ type projectileNode struct {
 type targetable interface {
 	GetPos() *gmath.Vec
 	GetVelocity() gmath.Vec
-	OnDamage(damage gamedata.DamageValue, source gmath.Vec)
+	OnDamage(damage gamedata.DamageValue, source targetable)
 	IsDisposed() bool
 	IsFlying() bool
 }
@@ -226,6 +226,6 @@ func (p *projectileNode) detonate() {
 		}
 		dmg.Health *= multiplier
 	}
-	p.target.OnDamage(p.weapon.Damage, *p.attacker.GetPos())
+	p.target.OnDamage(p.weapon.Damage, p.attacker)
 	p.createExplosion()
 }

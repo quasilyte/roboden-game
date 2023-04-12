@@ -46,7 +46,7 @@ func (c *CreditsMenuController) initUI() {
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.credits"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.credits"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -71,7 +71,7 @@ func (c *CreditsMenuController) initUI() {
 	}
 
 	normalContainer := eui.NewAnchorContainer()
-	label := eui.NewLabel(uiResources, strings.Join(lines, "\n"), smallFont)
+	label := eui.NewLabel(strings.Join(lines, "\n"), smallFont)
 	normalContainer.AddChild(label)
 	rowContainer.AddChild(normalContainer)
 

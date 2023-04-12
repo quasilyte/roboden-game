@@ -48,10 +48,10 @@ func (c *ProfileStatsMenuController) initUI() {
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
-	helpLabel := eui.NewLabel(uiResources, "", tinyFont)
+	helpLabel := eui.NewLabel("", tinyFont)
 	helpLabel.MaxWidth = 340
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.stats"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.stats"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -68,7 +68,7 @@ func (c *ProfileStatsMenuController) initUI() {
 		lines = append(lines, fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.inf_arena_highscore"), stats.HighestInfArenaScore, stats.HighestInfArenaScoreDifficulty))
 	}
 
-	rowContainer.AddChild(eui.NewCenteredLabel(uiResources, strings.Join(lines, "\n"), smallFont))
+	rowContainer.AddChild(eui.NewCenteredLabel(strings.Join(lines, "\n"), smallFont))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

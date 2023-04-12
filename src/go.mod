@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/ebitenui/ebitenui v0.3.4
 	github.com/hajimehoshi/ebiten/v2 v2.4.16
-	github.com/quasilyte/ebitengine-resource v0.5.1-0.20230301215552-afd21c3065ff
+	github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e
 	github.com/quasilyte/ge v0.0.0-20230411075212-d3f05d52f310
 	github.com/quasilyte/gmath v0.0.0-20230330100913-3c961c5497a9
 	github.com/quasilyte/gsignal v0.0.0-20230130114532-ff67b4bb9e15
@@ -20,6 +20,7 @@ require (
 	github.com/jezek/xgb v1.1.0 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
+	github.com/quasilyte/ebitengine-input v0.8.1-0.20230411075137-592d2e960952 // indirect
 	golang.org/x/exp v0.0.0-20221023144134-a1e5550cf13e // indirect
 	golang.org/x/exp/shiny v0.0.0-20230213192124-5e25df0256eb // indirect
 	golang.org/x/mobile v0.0.0-20221110043201-43a038452099 // indirect

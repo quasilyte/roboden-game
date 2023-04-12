@@ -46,7 +46,7 @@ func (c *ExtraCreditsMenuController) initUI() {
 
 	d := c.scene.Context().Dict
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.credits")+" -> "+d.Get("menu.more"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.credits")+" -> "+d.Get("menu.more"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -58,15 +58,15 @@ func (c *ExtraCreditsMenuController) initUI() {
 	}
 
 	normalContainer := eui.NewAnchorContainer()
-	label := eui.NewLabel(uiResources, strings.Join(lines, "\n"), smallFont)
+	label := eui.NewLabel(strings.Join(lines, "\n"), smallFont)
 	normalContainer.AddChild(label)
 	rowContainer.AddChild(normalContainer)
 
-	rowContainer.AddChild(eui.NewCenteredLabel(uiResources, d.Get("menu.credits.thank_player"), bigFont))
+	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.credits.thank_player"), bigFont))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	rowContainer.AddChild(eui.NewCenteredLabel(uiResources, "Made with Ebitengine", smallFont))
+	rowContainer.AddChild(eui.NewCenteredLabel("Made with Ebitengine", smallFont))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
 		c.back()

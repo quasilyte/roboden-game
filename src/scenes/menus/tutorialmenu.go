@@ -70,10 +70,10 @@ func (c *TutorialMenuController) initUI() {
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.play")+" -> "+d.Get("menu.play.tutorial"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.play")+" -> "+d.Get("menu.play.tutorial"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
-	helpLabel := eui.NewLabel(uiResources, "", tinyFont)
+	helpLabel := eui.NewLabel("", tinyFont)
 	helpLabel.MaxWidth = 540
 	c.helpLabel = helpLabel
 

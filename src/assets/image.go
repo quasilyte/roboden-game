@@ -1,13 +1,15 @@
 package assets
 
 import (
+	"runtime"
+
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 
 	_ "image/png"
 )
 
-func registerImageResources(ctx *ge.Context) {
+func RegisterImageResources(ctx *ge.Context, progress *float64) {
 	imageResources := map[resource.ImageID]resource.ImageInfo{
 		ImageAchievementImpossible:    {Path: "image/achievement/impossible.png"},
 		ImageAchievementCheapBuild10:  {Path: "image/achievement/cheapbuild10.png"},
@@ -226,9 +228,15 @@ func registerImageResources(ctx *ge.Context) {
 		ImageUIPanelIdle:                {Path: "image/ebitenui/panel-idle.png"},
 	}
 
+	singleThread := runtime.GOMAXPROCS(-1) == 1
+	progressPerItem := 1.0 / float64(len(imageResources))
 	for id, res := range imageResources {
 		ctx.Loader.ImageRegistry.Set(id, res)
 		ctx.Loader.LoadImage(id)
+		*progress += progressPerItem
+		if singleThread {
+			runtime.Gosched()
+		}
 	}
 }
 

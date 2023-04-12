@@ -19,8 +19,10 @@ import (
 func main() {
 	state := getDefaultSessionState()
 
+	var gameDataFolder string
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
 	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
+	flag.StringVar(&gameDataFolder, "data", "", "a game data folder path")
 	flag.Parse()
 
 	ctx := ge.NewContext()
@@ -30,7 +32,12 @@ func main() {
 	ctx.WindowWidth = 1920 / 2
 	ctx.WindowHeight = 1080 / 2
 
-	assets.Register(ctx)
+	if gameDataFolder == "" {
+		gameDataFolder = "roboden_data"
+	}
+
+	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)
+	assets.RegisterRawResources(ctx)
 	controls.BindKeymap(ctx, state)
 
 	ctx.LoadGameData("save", &state.Persistent)
@@ -40,7 +47,7 @@ func main() {
 
 	fmt.Println("is mobile?", state.Device.IsMobile)
 
-	if err := ge.RunGame(ctx, menus.NewMainMenuController(state)); err != nil {
+	if err := ge.RunGame(ctx, menus.NewBootloadController(state)); err != nil {
 		panic(err)
 	}
 }

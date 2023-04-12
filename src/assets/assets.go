@@ -3,6 +3,8 @@ package assets
 import (
 	"embed"
 	"io"
+	"path/filepath"
+	"strings"
 
 	"github.com/quasilyte/ge"
 )
@@ -31,20 +33,21 @@ func VolumeMultiplier(level int) float64 {
 	}
 }
 
-func Register(ctx *ge.Context) {
-	ctx.Loader.OpenAssetFunc = func(path string) io.ReadCloser {
+func MakeOpenAssetFunc(ctx *ge.Context, gamedataFolder string) func(path string) io.ReadCloser {
+	return func(path string) io.ReadCloser {
+		if strings.HasPrefix(path, "$") {
+			f, err := openfile(filepath.Join(gamedataFolder, path[len("$"):]))
+			if err != nil {
+				ctx.OnCriticalError(err)
+			}
+			return f
+		}
 		f, err := gameAssets.Open("_data/" + path)
 		if err != nil {
 			ctx.OnCriticalError(err)
 		}
 		return f
 	}
-
-	registerImageResources(ctx)
-	registerAudioResource(ctx)
-	registerShaderResources(ctx)
-	registerFontResources(ctx)
-	registerRawResources(ctx)
 }
 
 //go:embed all:_data

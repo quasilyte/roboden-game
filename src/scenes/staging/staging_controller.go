@@ -795,7 +795,7 @@ func (c *Controller) Update(delta float64) {
 	c.handleInput()
 
 	if c.debugInfo != nil {
-		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f", ebiten.ActualFPS())
+		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f TPS: %.0f", ebiten.ActualFPS(), ebiten.ActualTPS())
 	}
 }
 

@@ -1,5 +1,14 @@
 ##game.title : Roboden
 
+##boot.wasm : Web build needs to download assets, it can take a while
+##boot.title : Starting Roboden, please wait
+##boot.load_ui : Loading UI resources
+##boot.load_images : Loading image resources
+##boot.load_audio : Loading audio resources
+##boot.load_music : Loading music
+##boot.load_shaders : Compiling shaders
+##boot.load_extra : Initializing game data
+
 ##menu.main.title : Main Menu
 ##menu.main.play : Play
 ##menu.main.profile : Stats & Achievements

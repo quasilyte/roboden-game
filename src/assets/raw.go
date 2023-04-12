@@ -7,7 +7,7 @@ import (
 	_ "image/png"
 )
 
-func registerRawResources(ctx *ge.Context) {
+func RegisterRawResources(ctx *ge.Context) {
 	rawResources := map[resource.RawID]resource.RawInfo{
 		RawTilesJSON:      {Path: "raw/tiles.json"},
 		RawDictEn:         {Path: "raw/en.txt"},

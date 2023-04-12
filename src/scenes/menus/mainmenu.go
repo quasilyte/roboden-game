@@ -8,7 +8,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
-	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
@@ -28,7 +27,6 @@ func NewMainMenuController(state *session.State) *MainMenuController {
 
 func (c *MainMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
-	c.initTextures()
 
 	c.cursor = gameui.NewCursorNode(c.state.MainInput, scene.Context().WindowRect())
 	scene.AddObject(c.cursor)
@@ -48,16 +46,6 @@ func (c *MainMenuController) Init(scene *ge.Scene) {
 func (c *MainMenuController) Update(delta float64) {
 }
 
-func (c *MainMenuController) initTextures() {
-	if gamedata.RepairAgentStats.BeamTexture != nil {
-		return
-	}
-	gamedata.RepairAgentStats.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageRepairLine), gamedata.RepairAgentStats.SupportRange)
-	gamedata.RechargeAgentStats.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageRechargerLine), gamedata.RechargeAgentStats.SupportRange)
-
-	c.state.Resources.UI = eui.LoadResources(c.state.Device, c.scene.Context().Loader)
-}
-
 func (c *MainMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
@@ -70,7 +58,7 @@ func (c *MainMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("game.title"), bigFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("game.title"), bigFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -99,7 +87,7 @@ func (c *MainMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	buildVersionLabel := eui.NewCenteredLabel(uiResources, fmt.Sprintf("%s %d (alpha testing)", d.Get("menu.main.build"), buildNumber), smallFont)
+	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d (alpha testing)", d.Get("menu.main.build"), buildNumber), smallFont)
 	rowContainer.AddChild(buildVersionLabel)
 
 	uiObject := eui.NewSceneObject(root)

@@ -190,7 +190,7 @@ func NewSeparator(ld interface{}) widget.PreferredSizeLocateableWidget {
 	return c
 }
 
-func NewCenteredLabel(res *Resources, text string, ff font.Face) *widget.Text {
+func NewCenteredLabel(text string, ff font.Face) *widget.Text {
 	return widget.NewText(
 		// widget.LabelOpts.TextOpts(widget.TextOpts.WidgetOpts(
 		// 	widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
@@ -205,11 +205,11 @@ func NewCenteredLabel(res *Resources, text string, ff font.Face) *widget.Text {
 			}),
 		),
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
-		widget.TextOpts.Text(text, ff, res.Button.TextColors.Idle),
+		widget.TextOpts.Text(text, ff, normalTextColor),
 	)
 }
 
-func NewLabel(res *Resources, text string, ff font.Face) *widget.Text {
+func NewLabel(text string, ff font.Face) *widget.Text {
 	return widget.NewText(
 		// widget.LabelOpts.TextOpts(widget.TextOpts.WidgetOpts(
 		// 	widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
@@ -218,7 +218,7 @@ func NewLabel(res *Resources, text string, ff font.Face) *widget.Text {
 		// 		VerticalPosition:   widget.AnchorLayoutPositionCenter,
 		// 	}),
 		// )),
-		widget.TextOpts.Text(text, ff, res.Button.TextColors.Idle),
+		widget.TextOpts.Text(text, ff, normalTextColor),
 	)
 }
 

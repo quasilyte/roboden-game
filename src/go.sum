@@ -34,10 +34,14 @@ github.com/jfreymuth/vorbis v1.0.2/go.mod h1:DoftRo4AznKnShRl1GxiTFCseHr4zR9BN3T
 github.com/matryer/is v1.4.0 h1:sosSmIWwkYITGrxZ25ULNDeKiMNzFSr4V/eqBQP0PeE=
 github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8/go.mod h1:HKlIX3XHQyzLZPlr7++PzdhaXEj94dEiJgZDTsxEqUI=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+github.com/quasilyte/ebitengine-input v0.8.1-0.20230411075137-592d2e960952 h1:8kaS61F5KOP8USV3TrqY+VZPEpBLoctNFWtqct1OiWs=
+github.com/quasilyte/ebitengine-input v0.8.1-0.20230411075137-592d2e960952/go.mod h1:tWf/T629SpFyv2bsXFtCbuGVnkpSo66ahqjhcYZgtSg=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230215192522-62a61a4ab6b8 h1:pboonUte8ELejyq83hP1zH0sfvcwRsYgX2OWJC9fSHU=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230215192522-62a61a4ab6b8/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230301215552-afd21c3065ff h1:bj5GPthnwdc0kya97m/JmL613RBkzpZm1mWeGcdVK2I=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230301215552-afd21c3065ff/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
+github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e h1:P56RXrUSBSZY0OvMTu9yxIGjlZSo6O87H+Hm29Hvb/M=
+github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
 github.com/quasilyte/ge v0.0.0-20230223113009-a0a72d25d268 h1:BGRK8jfQSP3/I1AuvWBZj3OTaPdiORow8GTqAa0Dz5Y=
 github.com/quasilyte/ge v0.0.0-20230223113009-a0a72d25d268/go.mod h1:F/8nwhUzsOGThfVy5sNR1vyy4xQUKfGEqY9LCYUfZWM=
 github.com/quasilyte/ge v0.0.0-20230227191812-2548d9044fb8 h1:fqkpgHOFN6PJ10Hp8vopEG5idzJZoFdz3/T8mT86ZPc=

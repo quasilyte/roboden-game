@@ -259,7 +259,7 @@ func (c *resultsController) initUI() {
 	default:
 		titleString = d.Get("menu.results.defeat")
 	}
-	titleLabel := eui.NewCenteredLabel(uiResources, titleString, smallFont)
+	titleLabel := eui.NewCenteredLabel(titleString, smallFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -293,7 +293,7 @@ func (c *resultsController) initUI() {
 		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.new_drone"), d.Get("drone", strings.ToLower(kind.String()))))
 	}
 
-	label := eui.NewCenteredLabel(uiResources, strings.Join(lines, "\n"), smallFont)
+	label := eui.NewCenteredLabel(strings.Join(lines, "\n"), smallFont)
 	rowContainer.AddChild(label)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

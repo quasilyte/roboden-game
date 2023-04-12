@@ -45,7 +45,7 @@ func (c *PlayMenuController) initUI() {
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.play"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.play"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.classic"), func() {

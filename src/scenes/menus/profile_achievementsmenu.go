@@ -18,6 +18,10 @@ import (
 type ProfileAchievementsMenuController struct {
 	state *session.State
 
+	descriptions []string
+	buttons      []widget.HasWidget
+	helpLabel    *widget.Text
+
 	scene *ge.Scene
 }
 
@@ -31,6 +35,20 @@ func (c *ProfileAchievementsMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *ProfileAchievementsMenuController) Update(delta float64) {
+	// if info, ok := c.state.MainInput.JustPressedActionInfo(controls.ActionInfoTap); ok {
+	// 	for i, b := range c.buttons {
+	// 		rect := b.GetWidget().Rect
+	// 		frect := gmath.Rect{
+	// 			Min: gmath.Vec{X: float64(rect.Min.X), Y: float64(rect.Min.Y)},
+	// 			Max: gmath.Vec{X: float64(rect.Max.X), Y: float64(rect.Max.Y)},
+	// 		}
+	// 		if frect.Contains(info.Pos) {
+	// 			c.helpLabel.Label = c.descriptions[i]
+	// 			break
+	// 		}
+	// 	}
+	// }
+
 	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
@@ -58,10 +76,11 @@ func (c *ProfileAchievementsMenuController) initUI() {
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	helpLabel := eui.NewLabel(uiResources, "", tinyFont)
+	helpLabel := eui.NewLabel("", tinyFont)
 	helpLabel.MaxWidth = 320
+	c.helpLabel = helpLabel
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.achievements"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.achievements"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rootGrid := widget.NewContainer(
@@ -94,7 +113,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 		}
 		b := eui.NewItemButton(uiResources, img, smallFont, strings.Repeat(".", grade), func() {})
 		b.SetDisabled(true)
-		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+		c.descriptions = append(c.descriptions, (func() string {
 			var lines []string
 			statusText := "(not achived yet)"
 			switch grade {
@@ -110,12 +129,17 @@ func (c *ProfileAchievementsMenuController) initUI() {
 				lines = append(lines, "")
 				lines = append(lines, fmt.Sprintf("%s: %s", d.Get("achievement.game_mode"), d.Get("achievement.mode", achievement.Mode.String())))
 			}
-			helpLabel.Label = strings.Join(lines, "\n")
+			return strings.Join(lines, "\n")
+		})())
+		desc := c.descriptions[i]
+		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+			helpLabel.Label = desc
 		})
 		if status != nil {
 			b.Toggle()
 		}
 		leftGrid.AddChild(b.Widget)
+		c.buttons = append(c.buttons, b.Widget)
 	}
 	leftPanel.AddChild(leftGrid)
 

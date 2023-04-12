@@ -197,7 +197,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
-	c.difficultyLabel = eui.NewCenteredLabel(uiResources, "Difficulty: 1000%", tinyFont)
+	c.difficultyLabel = eui.NewCenteredLabel("Difficulty: 1000%", tinyFont)
 	panel.AddChild(c.difficultyLabel)
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
@@ -621,7 +621,7 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
-	label := eui.NewLabel(uiResources, "", tinyFont)
+	label := eui.NewLabel("", tinyFont)
 	label.MaxWidth = 310
 	c.helpLabel = label
 	panel.AddChild(label)

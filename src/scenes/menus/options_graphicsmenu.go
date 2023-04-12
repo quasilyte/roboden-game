@@ -44,7 +44,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 
 	d := c.scene.Dict()
-	titleLabel := eui.NewLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.graphics"), normalFont)
+	titleLabel := eui.NewLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.graphics"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings

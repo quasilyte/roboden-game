@@ -52,11 +52,11 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	helpLabel := eui.NewLabel(uiResources, "", tinyFont)
+	helpLabel := eui.NewLabel("", tinyFont)
 	helpLabel.MaxWidth = 340
 	c.helpLabel = helpLabel
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.dronebook"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.dronebook"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	stats := &c.state.Persistent.PlayerStats

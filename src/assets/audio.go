@@ -1,81 +1,108 @@
 package assets
 
 import (
+	"runtime"
+
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 
 	_ "image/png"
 )
 
-func registerAudioResource(ctx *ge.Context) {
+func RegisterMusicResource(ctx *ge.Context, progress *float64) {
 	audioResources := map[resource.AudioID]resource.AudioInfo{
-		AudioVictory:             {Path: "audio/victory.wav", Volume: -0.05},
-		AudioWaveStart:           {Path: "audio/wave_start.wav", Volume: 0},
-		AudioError:               {Path: "audio/error.wav", Volume: -0.25},
-		AudioClick:               {Path: "audio/button_click.wav", Volume: -0.3},
-		AudioBaseSelect:          {Path: "audio/base_select.wav", Volume: -0.4},
-		AudioChoiceMade:          {Path: "audio/choice_made.wav", Volume: -0.45},
-		AudioChoiceReady:         {Path: "audio/choice_ready.wav", Volume: -0.55},
-		AudioColonyLanded:        {Path: "audio/colony_landed.wav", Volume: -0.2},
-		AudioEssenceCollected:    {Path: "audio/essence_collected.wav", Volume: -0.55},
-		AudioCourierResourceBeam: {Path: "audio/courier_resource_beam.wav", Volume: -0.3},
-		AudioAgentProduced:       {Path: "audio/agent_produced.wav", Volume: -0.25},
-		AudioAgentRecycled:       {Path: "audio/agent_recycled.wav", Volume: -0.3},
-		AudioAgentDestroyed:      {Path: "audio/agent_destroyed.wav", Volume: -0.25},
-		AudioFighterBeam:         {Path: "audio/fighter_beam.wav", Volume: -0.35},
-		AudioGunpointShot:        {Path: "audio/gunpoint_shot.wav", Volume: -0.3},
-		AudioWandererBeam:        {Path: "audio/wanderer_beam.wav", Volume: -0.3},
-		AudioMilitiaShot:         {Path: "audio/militia_shot.wav", Volume: -0.3},
-		AudioCripplerShot:        {Path: "audio/crippler_shot.wav", Volume: -0.3},
-		AudioScavengerShot:       {Path: "audio/scavenger_shot.wav", Volume: -0.3},
-		AudioCourierShot:         {Path: "audio/courier_shot.wav", Volume: -0.15},
-		AudioDisintegratorShot:   {Path: "audio/disintegrator_shot.wav", Volume: -0.2},
-		AudioMortarShot:          {Path: "audio/mortar_shot.wav", Volume: -0.3},
-		AudioAssaultShot:         {Path: "audio/assault_shot.wav", Volume: -0.5},
-		AudioDominatorShot:       {Path: "audio/dominator_shot.wav", Volume: -0.25},
-		AudioHowitzerShot:        {Path: "audio/howitzer_shot.wav", Volume: 0.15},
-		AudioHowitzerLaserShot:   {Path: "audio/howitzer_laser_shot.wav", Volume: -0.25},
-		AudioStormbringerShot:    {Path: "audio/stormbringer_shot.wav", Volume: -0.15},
-		AudioStunBeam:            {Path: "audio/stun_laser.wav", Volume: -0.3},
-		AudioServantShot:         {Path: "audio/servant_shot.wav", Volume: -0.35},
-		AudioServantWave:         {Path: "audio/servant_wave.wav", Volume: -0.25},
-		AudioRechargerBeam:       {Path: "audio/recharger_beam.wav", Volume: -0.4},
-		AudioRepairBeam:          {Path: "audio/repair_beam.wav", Volume: -0.25},
-		AudioRepellerBeam:        {Path: "audio/repeller_beam.wav", Volume: -0.3},
-		AudioDestroyerBeam:       {Path: "audio/destroyer_beam.wav", Volume: -0.3},
-		AudioStealth:             {Path: "audio/stealth.wav", Volume: -0.25},
-		AudioMarauderShot:        {Path: "audio/marauder_shot.wav", Volume: -0.35},
-		AudioPrismShot:           {Path: "audio/prism_shot.wav", Volume: -0.4},
-		AudioRailgun:             {Path: "audio/railgun.wav", Volume: -0.3},
-		AudioAntiAirMissiles:     {Path: "audio/aa_missiles.wav", Volume: -0.4},
-		AudioMissile:             {Path: "audio/missile.wav", Volume: -0.3},
-		AudioTankShot:            {Path: "audio/tank_shot.wav", Volume: -0.3},
-		AudioHeavyCrawlerShot:    {Path: "audio/heavy_crawler_shot.wav", Volume: -0.25},
-		AudioEliteCrawlerShot:    {Path: "audio/elite_crawler_shot.wav", Volume: -0.3},
-		AudioStealthCrawlerShot:  {Path: "audio/stealth_crawler_shot.wav", Volume: -0.3},
-		AudioCloning1:            {Path: "audio/cloning1.wav", Volume: -0.3},
-		AudioCloning2:            {Path: "audio/cloning2.wav", Volume: -0.3},
-		AudioMerging1:            {Path: "audio/merging1.wav", Volume: -0.45},
-		AudioMerging2:            {Path: "audio/merging2.wav", Volume: -0.45},
-		AudioIonZap1:             {Path: "audio/ion_zap1.wav", Volume: -0.4},
-		AudioIonZap2:             {Path: "audio/ion_zap2.wav", Volume: -0.4},
-		AudioPurpleExplosion1:    {Path: "audio/purple_explosion1.wav", Volume: -0.4},
-		AudioPurpleExplosion2:    {Path: "audio/purple_explosion2.wav", Volume: -0.4},
-		AudioPurpleExplosion3:    {Path: "audio/purple_explosion3.wav", Volume: -0.4},
-		AudioExplosion1:          {Path: "audio/explosion1.wav", Volume: -0.4},
-		AudioExplosion2:          {Path: "audio/explosion2.wav", Volume: -0.4},
-		AudioExplosion3:          {Path: "audio/explosion3.wav", Volume: -0.4},
-		AudioExplosion4:          {Path: "audio/explosion4.wav", Volume: -0.4},
-		AudioExplosion5:          {Path: "audio/explosion5.wav", Volume: -0.4},
-
-		AudioMusicTrack1: {Path: "audio/music/deadly_windmills.ogg", Volume: -0.3, Group: SoundGroupMusic},
-		AudioMusicTrack2: {Path: "audio/music/war_path.ogg", Volume: -0.3, Group: SoundGroupMusic},
-		AudioMusicTrack3: {Path: "audio/music/crush.ogg", Volume: -0.3, Group: SoundGroupMusic},
+		AudioMusicTrack1: {Path: "$music/deadly_windmills.ogg", Volume: -0.3, Group: SoundGroupMusic},
+		AudioMusicTrack2: {Path: "$music/war_path.ogg", Volume: -0.3, Group: SoundGroupMusic},
+		AudioMusicTrack3: {Path: "$music/crush.ogg", Volume: -0.3, Group: SoundGroupMusic},
 	}
 
+	singleThread := runtime.GOMAXPROCS(-1) == 1
+	progressPerItem := 1.0 / float64(len(audioResources))
 	for id, res := range audioResources {
 		ctx.Loader.AudioRegistry.Set(id, res)
 		ctx.Loader.LoadAudio(id)
+		if progress != nil {
+			*progress += progressPerItem
+		}
+		if singleThread {
+			runtime.Gosched()
+		}
+	}
+}
+
+func RegisterAudioResource(ctx *ge.Context, progress *float64) {
+	audioResources := map[resource.AudioID]resource.AudioInfo{
+		AudioVictory:             {Path: "$sfx/victory.wav", Volume: -0.05},
+		AudioWaveStart:           {Path: "$sfx/wave_start.wav", Volume: 0},
+		AudioError:               {Path: "$sfx/error.wav", Volume: -0.25},
+		AudioClick:               {Path: "$sfx/button_click.wav", Volume: -0.3},
+		AudioBaseSelect:          {Path: "$sfx/base_select.wav", Volume: -0.4},
+		AudioChoiceMade:          {Path: "$sfx/choice_made.wav", Volume: -0.45},
+		AudioChoiceReady:         {Path: "$sfx/choice_ready.wav", Volume: -0.55},
+		AudioColonyLanded:        {Path: "$sfx/colony_landed.wav", Volume: -0.2},
+		AudioEssenceCollected:    {Path: "$sfx/essence_collected.wav", Volume: -0.55},
+		AudioCourierResourceBeam: {Path: "$sfx/courier_resource_beam.wav", Volume: -0.3},
+		AudioAgentProduced:       {Path: "$sfx/agent_produced.wav", Volume: -0.25},
+		AudioAgentRecycled:       {Path: "$sfx/agent_recycled.wav", Volume: -0.3},
+		AudioAgentDestroyed:      {Path: "$sfx/agent_destroyed.wav", Volume: -0.25},
+		AudioFighterBeam:         {Path: "$sfx/fighter_beam.wav", Volume: -0.35},
+		AudioGunpointShot:        {Path: "$sfx/gunpoint_shot.wav", Volume: -0.3},
+		AudioWandererBeam:        {Path: "$sfx/wanderer_beam.wav", Volume: -0.3},
+		AudioMilitiaShot:         {Path: "$sfx/militia_shot.wav", Volume: -0.3},
+		AudioCripplerShot:        {Path: "$sfx/crippler_shot.wav", Volume: -0.3},
+		AudioScavengerShot:       {Path: "$sfx/scavenger_shot.wav", Volume: -0.3},
+		AudioCourierShot:         {Path: "$sfx/courier_shot.wav", Volume: -0.15},
+		AudioDisintegratorShot:   {Path: "$sfx/disintegrator_shot.wav", Volume: -0.2},
+		AudioMortarShot:          {Path: "$sfx/mortar_shot.wav", Volume: -0.3},
+		AudioAssaultShot:         {Path: "$sfx/assault_shot.wav", Volume: -0.5},
+		AudioDominatorShot:       {Path: "$sfx/dominator_shot.wav", Volume: -0.25},
+		AudioHowitzerShot:        {Path: "$sfx/howitzer_shot.wav", Volume: 0.15},
+		AudioHowitzerLaserShot:   {Path: "$sfx/howitzer_laser_shot.wav", Volume: -0.25},
+		AudioStormbringerShot:    {Path: "$sfx/stormbringer_shot.wav", Volume: -0.15},
+		AudioStunBeam:            {Path: "$sfx/stun_laser.wav", Volume: -0.3},
+		AudioServantShot:         {Path: "$sfx/servant_shot.wav", Volume: -0.35},
+		AudioServantWave:         {Path: "$sfx/servant_wave.wav", Volume: -0.25},
+		AudioRechargerBeam:       {Path: "$sfx/recharger_beam.wav", Volume: -0.4},
+		AudioRepairBeam:          {Path: "$sfx/repair_beam.wav", Volume: -0.25},
+		AudioRepellerBeam:        {Path: "$sfx/repeller_beam.wav", Volume: -0.3},
+		AudioDestroyerBeam:       {Path: "$sfx/destroyer_beam.wav", Volume: -0.3},
+		AudioStealth:             {Path: "$sfx/stealth.wav", Volume: -0.25},
+		AudioMarauderShot:        {Path: "$sfx/marauder_shot.wav", Volume: -0.35},
+		AudioPrismShot:           {Path: "$sfx/prism_shot.wav", Volume: -0.4},
+		AudioRailgun:             {Path: "$sfx/railgun.wav", Volume: -0.3},
+		AudioAntiAirMissiles:     {Path: "$sfx/aa_missiles.wav", Volume: -0.4},
+		AudioMissile:             {Path: "$sfx/missile.wav", Volume: -0.3},
+		AudioTankShot:            {Path: "$sfx/tank_shot.wav", Volume: -0.3},
+		AudioHeavyCrawlerShot:    {Path: "$sfx/heavy_crawler_shot.wav", Volume: -0.25},
+		AudioEliteCrawlerShot:    {Path: "$sfx/elite_crawler_shot.wav", Volume: -0.3},
+		AudioStealthCrawlerShot:  {Path: "$sfx/stealth_crawler_shot.wav", Volume: -0.3},
+		AudioCloning1:            {Path: "$sfx/cloning1.wav", Volume: -0.3},
+		AudioCloning2:            {Path: "$sfx/cloning2.wav", Volume: -0.3},
+		AudioMerging1:            {Path: "$sfx/merging1.wav", Volume: -0.45},
+		AudioMerging2:            {Path: "$sfx/merging2.wav", Volume: -0.45},
+		AudioIonZap1:             {Path: "$sfx/ion_zap1.wav", Volume: -0.4},
+		AudioIonZap2:             {Path: "$sfx/ion_zap2.wav", Volume: -0.4},
+		AudioPurpleExplosion1:    {Path: "$sfx/purple_explosion1.wav", Volume: -0.4},
+		AudioPurpleExplosion2:    {Path: "$sfx/purple_explosion2.wav", Volume: -0.4},
+		AudioPurpleExplosion3:    {Path: "$sfx/purple_explosion3.wav", Volume: -0.4},
+		AudioExplosion1:          {Path: "$sfx/explosion1.wav", Volume: -0.4},
+		AudioExplosion2:          {Path: "$sfx/explosion2.wav", Volume: -0.4},
+		AudioExplosion3:          {Path: "$sfx/explosion3.wav", Volume: -0.4},
+		AudioExplosion4:          {Path: "$sfx/explosion4.wav", Volume: -0.4},
+		AudioExplosion5:          {Path: "$sfx/explosion5.wav", Volume: -0.4},
+	}
+
+	singleThread := runtime.GOMAXPROCS(-1) == 1
+	progressPerItem := 1.0 / float64(len(audioResources))
+	for id, res := range audioResources {
+		ctx.Loader.AudioRegistry.Set(id, res)
+		ctx.Loader.LoadAudio(id)
+		if progress != nil {
+			*progress += progressPerItem
+		}
+		if singleThread {
+			runtime.Gosched()
+		}
 	}
 }
 

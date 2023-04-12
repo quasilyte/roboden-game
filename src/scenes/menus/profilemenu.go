@@ -42,7 +42,7 @@ func (c *ProfileMenuController) initUI() {
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 
-	titleLabel := eui.NewCenteredLabel(uiResources, d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.achievements"), func() {

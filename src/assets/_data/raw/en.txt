@@ -323,6 +323,10 @@ It's highly effective, but also quite fragile and it can't attack the ground tar
 ##achievement.mode.classic : classic
 ##achievement.mode.arena : arena
 
+##achievement.trample : Stompy
+##achievement.trample.description
+Crush at least 1 enemy ground robot by landing your colony on it.
+
 ##achievement.impossible : Impossible Difficulty
 ##achievement.impossible.description
 Win while having a difficulty set to more than 200%.

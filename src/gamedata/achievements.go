@@ -42,6 +42,11 @@ var AchievementList = []*Achievement{
 		Mode: ModeAny,
 		Icon: assets.ImageAchievementT3Engineer,
 	},
+	{
+		Name: "trample",
+		Mode: ModeAny,
+		Icon: assets.ImageAchievementTrample,
+	},
 
 	// Classic mode achievements.
 	{

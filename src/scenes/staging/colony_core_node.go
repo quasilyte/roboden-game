@@ -617,11 +617,13 @@ func (c *colonyCoreNode) crushCrawlers() {
 		}
 		distSqr := creep.pos.DistanceSquaredTo(crushPos)
 		if distSqr <= crushRangeSqr {
-			creep.Destroy()
+			creep.Destroy() // Defeat without an explosion
+			c.world.result.CreepsStomped++
 			continue
 		}
 		if distSqr <= explodeRangeSqr {
 			creep.OnDamage(gamedata.DamageValue{Health: 1000}, c.pos)
+			c.world.result.CreepsStomped++
 			continue
 		}
 	}

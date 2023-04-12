@@ -42,6 +42,7 @@ type battleResults struct {
 	DronesProduced         int
 	DronesCloned           int
 	CreepsDefeated         int
+	CreepsStomped          int
 	CreepTotalValue        int
 	CreepFragScore         int
 	CreepBasesDestroyed    int
@@ -181,14 +182,17 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		unlocked := false
 
 		switch a.Name {
+		case "t3engineer":
+			unlocked = len(stats.Tier3DronesSeen) >= len(gamedata.Tier3agentMergeRecipes)
+		case "trample":
+			unlocked = c.results.CreepsStomped != 0
+
 		case "impossible":
 			unlocked = c.results.DifficultyScore > 200
 		case "speedrunning":
 			unlocked = c.results.TimePlayed.Minutes() < 10
 		case "victorydrag":
 			unlocked = c.results.TimePlayed.Hours() >= 2
-		case "t3engineer":
-			unlocked = len(stats.Tier3DronesSeen) >= len(gamedata.Tier3agentMergeRecipes)
 		case "t3less":
 			unlocked = c.results.T3created == 0
 		case "cheapbuild10":

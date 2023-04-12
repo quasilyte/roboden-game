@@ -53,7 +53,7 @@ type worldState struct {
 
 	config *session.LevelConfig
 
-	tmpTargetSlice []projectileTarget
+	tmpTargetSlice []targetable
 	tmpColonySlice []*colonyCoreNode
 
 	inputMode string

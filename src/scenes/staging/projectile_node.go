@@ -11,10 +11,10 @@ import (
 )
 
 type projectileNode struct {
-	attacker  projectileTarget
+	attacker  targetable
 	pos       gmath.Vec
 	toPos     gmath.Vec
-	target    projectileTarget
+	target    targetable
 	fireDelay float64
 	weapon    *gamedata.WeaponStats
 	world     *worldState
@@ -30,7 +30,7 @@ type projectileNode struct {
 	sprite *ge.Sprite
 }
 
-type projectileTarget interface {
+type targetable interface {
 	GetPos() *gmath.Vec
 	GetVelocity() gmath.Vec
 	OnDamage(damage gamedata.DamageValue, source gmath.Vec)
@@ -41,9 +41,9 @@ type projectileTarget interface {
 type projectileConfig struct {
 	Weapon     *gamedata.WeaponStats
 	World      *worldState
-	Attacker   projectileTarget
+	Attacker   targetable
 	ToPos      gmath.Vec
-	Target     projectileTarget
+	Target     targetable
 	FireDelay  float64
 	FireOffset gmath.Vec
 }

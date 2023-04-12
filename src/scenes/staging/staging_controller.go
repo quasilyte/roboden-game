@@ -176,7 +176,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		debugLogs:        c.state.Persistent.Settings.DebugLogs,
 		camera:           c.camera,
 		rand:             scene.Rand(),
-		tmpTargetSlice:   make([]projectileTarget, 0, 20),
+		tmpTargetSlice:   make([]targetable, 0, 20),
 		tmpColonySlice:   make([]*colonyCoreNode, 0, 4),
 		width:            viewportWorld.Width,
 		height:           viewportWorld.Height,

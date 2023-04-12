@@ -1007,7 +1007,7 @@ func (a *colonyAgentNode) doRecharge() {
 	}
 }
 
-func (a *colonyAgentNode) createBeam(target projectileTarget, beamStats *gamedata.AgentStats) *beamNode {
+func (a *colonyAgentNode) createBeam(target targetable, beamStats *gamedata.AgentStats) *beamNode {
 	from := ge.Pos{Base: &a.pos, Offset: gmath.Vec{Y: a.stats.FireOffset}}
 	to := ge.Pos{Base: target.GetPos(), Offset: gmath.Vec{Y: -2}}
 	if beamStats.BeamTexture == nil {
@@ -1031,7 +1031,7 @@ func (a *colonyAgentNode) doRepair() {
 	}
 }
 
-func (a *colonyAgentNode) findAttackTargets() []projectileTarget {
+func (a *colonyAgentNode) findAttackTargets() []targetable {
 	creeps := a.world().creeps
 	if len(creeps) == 0 {
 		return nil

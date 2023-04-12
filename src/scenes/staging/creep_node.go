@@ -410,7 +410,7 @@ func (c *creepNode) spawnServants(n int) {
 	}
 }
 
-func (c *creepNode) doAttack(target projectileTarget) {
+func (c *creepNode) doAttack(target targetable) {
 	if c.stats.weapon.ProjectileImage != assets.ImageNone {
 		targetVelocity := target.GetVelocity()
 		for i := 0; i < c.stats.weapon.BurstSize; i++ {
@@ -488,7 +488,7 @@ func (c *creepNode) SendTo(pos gmath.Vec) {
 	}
 }
 
-func (c *creepNode) findTargets() []projectileTarget {
+func (c *creepNode) findTargets() []targetable {
 	targets := c.world.tmpTargetSlice[:0]
 	c.world.FindColonyAgent(c.pos, c.stats.weapon.AttackRange, func(a *colonyAgentNode) bool {
 		targets = append(targets, a)
@@ -669,9 +669,9 @@ func (c *creepNode) isNearEnemyBase(dist float64) bool {
 	return false
 }
 
-func (c *creepNode) findHowitzerTarget(rangeMultiplier float64) projectileTarget {
+func (c *creepNode) findHowitzerTarget(rangeMultiplier float64) targetable {
 	const minAttackRangeSqe float64 = 160 * 160
-	var target projectileTarget
+	var target targetable
 	maxAttackRangeSqr := rangeMultiplier * c.stats.specialWeapon.AttackRangeSqr
 	randIterate(c.world.rand, c.world.colonies, func(colony *colonyCoreNode) bool {
 		if !colony.IsFlying() {

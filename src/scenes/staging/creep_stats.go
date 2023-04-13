@@ -71,6 +71,26 @@ var baseCreepStats = &creepStats{
 	canBeRepelled: false,
 }
 
+var crawlerBaseCreepStats = &creepStats{
+	kind:          creepCrawlerBase,
+	image:         assets.ImageCrawlerCreepBase,
+	speed:         0,
+	maxHealth:     140,
+	size:          60,
+	disarmable:    false,
+	canBeRepelled: false,
+}
+
+var crawlerBaseConstructionCreepStats = &creepStats{
+	kind:          creepCrawlerBaseConstruction,
+	image:         assets.ImageCrawlerCreepBase,
+	speed:         0,
+	maxHealth:     35,
+	size:          40,
+	disarmable:    false,
+	canBeRepelled: false,
+}
+
 var turretConstructionCreepStats = &creepStats{
 	kind:          creepTurretConstruction,
 	image:         assets.ImageTurretCreep,

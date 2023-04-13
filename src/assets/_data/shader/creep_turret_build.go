@@ -36,7 +36,7 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	initialY := 2.0
 	offsetY := 4.0 * Time
 
-	dist := distance(actualPixPos, vec2(8, initialY-offsetY))
+	dist := distance(actualPixPos, vec2(12, initialY-offsetY))
 	if dist > (30.0 * (1.4 - Time)) {
 		return v
 	}

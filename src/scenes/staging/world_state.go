@@ -148,11 +148,11 @@ func (w *worldState) MaxActiveCrawlers() int {
 	case 0:
 		return 15
 	case 1:
-		return 20
+		return 25
 	case 2:
-		return 30
-	default:
 		return 40
+	default:
+		return 60
 	}
 }
 

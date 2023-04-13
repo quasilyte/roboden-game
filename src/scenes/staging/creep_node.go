@@ -22,7 +22,9 @@ const (
 	creepBuilder
 	creepTurret
 	creepTurretConstruction
+	creepCrawlerBaseConstruction
 	creepBase
+	creepCrawlerBase
 	creepCrawler
 	creepHowitzer
 	creepServant
@@ -156,8 +158,10 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	case creepServant:
 		c.specialDelay = c.scene.Rand().FloatRange(0.5, 3)
 	case creepBuilder:
-		c.specialDelay = c.scene.Rand().FloatRange(15, 30)
-	case creepTurretConstruction:
+		// c.specialDelay = c.scene.Rand().FloatRange(15, 30)
+	case creepCrawlerBase:
+		c.attackDelay = c.scene.Rand().FloatRange(5, 10)
+	case creepTurretConstruction, creepCrawlerBaseConstruction:
 		c.sprite.Shader = scene.NewShader(assets.ShaderCreepTurretBuild)
 	case creepHowitzer:
 		pos := ge.Pos{Base: &c.spritePos, Offset: gmath.Vec{Y: -10}}
@@ -206,7 +210,7 @@ func (c *creepNode) Update(delta float64) {
 	c.aggro = gmath.ClampMin(c.aggro-delta, 0)
 	c.disarm = gmath.ClampMin(c.disarm-delta, 0)
 	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
-	if c.attackDelay == 0 && c.stats.weapon != nil && c.disarm == 0 && !c.cloaking {
+	if c.stats.weapon != nil && c.attackDelay == 0 && c.disarm == 0 && !c.cloaking {
 		c.attackDelay = c.stats.weapon.Reload * c.scene.Rand().FloatRange(0.8, 1.2)
 		targets := c.findTargets()
 		if len(targets) != 0 {
@@ -230,13 +234,15 @@ func (c *creepNode) Update(delta float64) {
 		c.updateServant(delta)
 	case creepBase:
 		c.updateCreepBase(delta)
+	case creepCrawlerBase:
+		c.updateCreepCrawlerBase(delta)
 	case creepCrawler:
 		c.updateCrawler(delta)
 	case creepHowitzer:
 		c.updateHowitzer(delta)
 	case creepTurret:
 		// Do nothing.
-	case creepTurretConstruction:
+	case creepTurretConstruction, creepCrawlerBaseConstruction:
 		c.updateTurretConstruction(delta)
 	default:
 		panic("unexpected creep kind in update()")
@@ -254,7 +260,7 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 
 func (c *creepNode) IsFlying() bool {
 	switch c.stats.kind {
-	case creepBase, creepTurret, creepTurretConstruction, creepCrawler, creepHowitzer:
+	case creepBase, creepCrawlerBase, creepTurret, creepTurretConstruction, creepCrawler, creepHowitzer:
 		return false
 	case creepUberBoss:
 		return !c.altSprite.Visible
@@ -285,7 +291,7 @@ func (c *creepNode) explode() {
 			createAreaExplosion(c.world, spriteRect(c.pos, c.altSprite), true)
 		}
 
-	case creepTurret, creepBase, creepHowitzer:
+	case creepTurret, creepBase, creepCrawlerBase, creepHowitzer:
 		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.world.nodeRunner.AddObject(scraps)
@@ -614,7 +620,7 @@ func (c *creepNode) updateBuilder(delta float64) {
 	c.health = gmath.ClampMax(c.health+(delta*0.2), c.maxHealth)
 
 	if c.specialTarget != nil {
-		// Building a turret.
+		// Building in progress.
 		turret := c.specialTarget.(*creepNode)
 		if turret.IsDisposed() {
 			c.specialTarget = nil
@@ -622,7 +628,7 @@ func (c *creepNode) updateBuilder(delta float64) {
 			c.EventBuildingStop.Emit(gsignal.Void{})
 			return
 		}
-		if turret.stats.kind == creepTurret {
+		if turret.stats.kind == creepTurret || turret.stats.kind == creepCrawlerBase {
 			// Constructed successfully.
 			c.specialTarget = nil
 			c.specialDelay = c.scene.Rand().FloatRange(70, 120)
@@ -635,8 +641,12 @@ func (c *creepNode) updateBuilder(delta float64) {
 	if c.waypoint.IsZero() {
 		turretPos := c.pos.Add(gmath.Vec{Y: agentFlightHeight})
 		if c.specialDelay == 0 && posIsFree(c.world, nil, turretPos, 80) {
-			// Start building a turret.
-			turret := c.world.NewCreepNode(turretPos, turretConstructionCreepStats)
+			// Start building.
+			buildingStats := turretConstructionCreepStats
+			if c.scene.Rand().Chance(0.35) {
+				buildingStats = crawlerBaseConstructionCreepStats
+			}
+			turret := c.world.NewCreepNode(turretPos, buildingStats)
 			turret.specialTarget = c
 			c.specialTarget = turret
 			c.world.nodeRunner.AddObject(turret)
@@ -859,15 +869,50 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	}
 
 	if c.specialModifier >= 1 {
-		turret := c.world.NewCreepNode(c.pos, turretCreepStats)
-		c.specialTarget.(*creepNode).specialTarget = turret
-		c.world.nodeRunner.AddObject(turret)
+		resultStats := turretCreepStats
+		if c.stats.kind == creepCrawlerBaseConstruction {
+			resultStats = crawlerBaseCreepStats
+		}
+		result := c.world.NewCreepNode(c.pos, resultStats)
+		c.specialTarget.(*creepNode).specialTarget = result
+		c.world.nodeRunner.AddObject(result)
 		c.Destroy()
 		return
 	}
 
 	c.specialModifier += delta * 0.02
 	c.sprite.Shader.SetFloatValue("Time", c.specialModifier)
+}
+
+func (c *creepNode) updateCreepCrawlerBase(delta float64) {
+	if c.attackDelay != 0 {
+		return
+	}
+	const maxUnits = 10
+	if c.specialModifier > maxUnits {
+		return
+	}
+
+	spawnPos := c.pos.Add(gmath.Vec{Y: 16})
+	dstOffset := gmath.Vec{
+		X: c.scene.Rand().FloatRange(-128, 128),
+		Y: c.scene.Rand().FloatRange(-80, 80),
+	}
+	dstPos := spawnPos.Add(gmath.Vec{Y: 96}).Add(dstOffset)
+	if !posIsFreeWithFlags(c.world, nil, dstPos, 8, collisionSkipSmallCrawlers) {
+		c.attackDelay = c.scene.Rand().FloatRange(2, 5)
+		return
+	}
+	c.attackDelay = c.scene.Rand().FloatRange(25, 55)
+	c.specialModifier++
+
+	crawler := c.world.NewCreepNode(spawnPos, crawlerCreepStats)
+	crawler.SendTo(dstPos)
+	crawler.waypoint = crawler.pos
+	c.world.nodeRunner.AddObject(crawler)
+	crawler.EventDestroyed.Connect(c, func(arg *creepNode) {
+		c.specialModifier--
+	})
 }
 
 func (c *creepNode) updateCreepBase(delta float64) {

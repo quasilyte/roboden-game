@@ -311,18 +311,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 	// }
 
 	scene.AddObject(c.cursor)
-
-	{
-		for i := 0; i < 3; i++ {
-			creep := c.world.NewCreepNode(c.world.selectedColony.pos.Add(gmath.Vec{X: 100, Y: 200}), wandererCreepStats)
-			c.nodeRunner.AddObject(creep)
-		}
-
-		turret := newColonyAgentNode(c.world.selectedColony, gamedata.BeamTowerAgentStats, c.world.selectedColony.pos.Add(gmath.Vec{X: 60, Y: 40}))
-		// turret := newColonyAgentNode(c.world.selectedColony, gamedata.GunpointAgentStats, c.world.selectedColony.pos.Add(gmath.Vec{X: 60, Y: 40}))
-		c.world.selectedColony.AcceptTurret(turret)
-		c.nodeRunner.AddObject(turret)
-	}
 }
 
 func (c *Controller) updateFogOfWar(pos gmath.Vec) {

@@ -13,13 +13,14 @@ type constructionKind int
 
 const (
 	constructBase constructionKind = iota
-	constructGunpoint
+	constructTurret
 )
 
 type constructionStats struct {
 	ConstructionSpeed float64
 	DamageModifier    float64
 	Kind              constructionKind
+	TurretStats       *gamedata.AgentStats
 	Image             resource.ImageID
 }
 
@@ -33,8 +34,17 @@ var colonyCoreConstructionStats = &constructionStats{
 var gunpointConstructionStats = &constructionStats{
 	ConstructionSpeed: 0.04,
 	DamageModifier:    0.03,
-	Kind:              constructGunpoint,
+	Kind:              constructTurret,
+	TurretStats:       gamedata.GunpointAgentStats,
 	Image:             assets.ImageGunpointAgent,
+}
+
+var beamTowerConstructionStats = &constructionStats{
+	ConstructionSpeed: 0.03,
+	DamageModifier:    0.04,
+	Kind:              constructTurret,
+	TurretStats:       gamedata.BeamTowerAgentStats,
+	Image:             assets.ImageBeamtowerAgent,
 }
 
 type constructionNode struct {
@@ -71,7 +81,7 @@ func (c *constructionNode) Init(scene *ge.Scene) {
 	switch c.stats.Kind {
 	case constructBase:
 		c.sprite.Shader = scene.NewShader(assets.ShaderColonyBuild)
-	case constructGunpoint:
+	case constructTurret:
 		c.sprite.Shader = scene.NewShader(assets.ShaderTurretBuild)
 	}
 	c.world.camera.AddSpriteBelow(c.sprite)
@@ -147,8 +157,8 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 	c.EventDestroyed.Emit(c)
 
 	switch c.stats.Kind {
-	case constructGunpoint:
-		turret := newColonyAgentNode(builder, gamedata.GunpointAgentStats, c.pos)
+	case constructTurret:
+		turret := newColonyAgentNode(builder, c.stats.TurretStats, c.pos)
 		builder.AcceptTurret(turret)
 		c.world.nodeRunner.AddObject(turret)
 		turret.mode = agentModeGuardForever

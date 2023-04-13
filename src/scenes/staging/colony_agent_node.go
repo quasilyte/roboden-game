@@ -266,6 +266,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		if a.world().graphicsSettings.AllShadersEnabled {
 			a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 			a.sprite.Shader.SetFloatValue("HP", 1.0)
+			a.sprite.Shader.Enabled = false
 			damageTexture := gmath.RandElem(scene.Rand(), turretDamageTextureList)
 			a.sprite.Shader.Texture1 = scene.LoadImage(damageTexture)
 		}
@@ -306,7 +307,12 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
 
 func (a *colonyAgentNode) IsTurret() bool {
-	return a.stats.Kind == gamedata.AgentGunpoint
+	switch a.stats.Kind {
+	case gamedata.AgentGunpoint, gamedata.AgentBeamTower:
+		return true
+	default:
+		return false
+	}
 }
 
 func (a *colonyAgentNode) applyRankBonuses() {
@@ -1132,18 +1138,31 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 
 	default:
 		for _, target := range targets {
-			toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
-			for i := 0; i < a.stats.Weapon.BurstSize; i++ {
-				fireDelay := float64(i) * a.stats.Weapon.BurstDelay
-				p := newProjectileNode(projectileConfig{
-					World:     a.world(),
-					Weapon:    a.stats.Weapon,
-					Attacker:  a,
-					ToPos:     toPos,
-					Target:    target,
-					FireDelay: fireDelay,
-				})
-				a.world().nodeRunner.AddObject(p)
+			if a.stats.Weapon.ProjectileSpeed != 0 {
+				toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
+				for i := 0; i < a.stats.Weapon.BurstSize; i++ {
+					fireDelay := float64(i) * a.stats.Weapon.BurstDelay
+					p := newProjectileNode(projectileConfig{
+						World:     a.world(),
+						Weapon:    a.stats.Weapon,
+						Attacker:  a,
+						ToPos:     toPos,
+						Target:    target,
+						FireDelay: fireDelay,
+					})
+					a.world().nodeRunner.AddObject(p)
+				}
+			} else {
+				// TODO: this code is duplited with creep node.
+				if a.stats.BeamTexture == nil {
+					beam := newBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamColor)
+					beam.width = a.stats.BeamWidth
+					a.world().nodeRunner.AddObject(beam)
+				} else {
+					beam := newTextureBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamTexture, a.stats.BeamSlideSpeed, a.stats.BeamOpaqueTime)
+					a.world().nodeRunner.AddObject(beam)
+				}
+				target.OnDamage(a.stats.Weapon.Damage, a)
 			}
 		}
 	}

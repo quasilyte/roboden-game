@@ -33,7 +33,7 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	actualTexPos := vec2(texCoord.x-originTexPos.x, texCoord.y-originTexPos.y)
 	actualPixPos := actualTexPos * pixSize
 
-	initialY := 2.0
+	initialY := 4.0
 	offsetY := 4.0 * Time
 
 	dist := distance(actualPixPos, vec2(16, initialY-offsetY))

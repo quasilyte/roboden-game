@@ -42,6 +42,7 @@ const (
 	AgentGenerator
 	AgentMortar
 	AgentAntiAir
+	AgentDefender
 
 	// Tier3
 	AgentRefresher
@@ -53,6 +54,7 @@ const (
 
 	// Buildings (not real agents/drones)
 	AgentGunpoint
+	AgentBeamTower
 )
 
 type AgentStats struct {
@@ -94,19 +96,18 @@ type AgentStats struct {
 
 var TurretStatsList = []*AgentStats{
 	GunpointAgentStats,
+	BeamTowerAgentStats,
 }
 
 var GunpointAgentStats = &AgentStats{
 	Kind:      AgentGunpoint,
 	Image:     assets.ImageGunpointAgent,
 	Size:      SizeLarge,
-	Cost:      12,
 	Upkeep:    12,
 	MaxHealth: 100,
-	CanPatrol: true,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     280,
-		Reload:          2.1,
+		Reload:          2,
 		AttackSound:     assets.AudioGunpointShot,
 		ProjectileImage: assets.ImageGunpointProjectile,
 		ImpactArea:      10,
@@ -116,8 +117,29 @@ var GunpointAgentStats = &AgentStats{
 		BurstSize:       3,
 		BurstDelay:      0.1,
 		TargetFlags:     TargetGround,
-		FireOffset:      gmath.Vec{Y: 4},
+		FireOffset:      gmath.Vec{Y: 6},
 	}),
+}
+
+var BeamTowerAgentStats = &AgentStats{
+	ScoreCost: BeamTowerTurretCost,
+	Kind:      AgentBeamTower,
+	Image:     assets.ImageBeamtowerAgent,
+	Size:      SizeLarge,
+	Upkeep:    14,
+	MaxHealth: 50,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange: 340,
+		Reload:      3.1,
+		AttackSound: assets.AudioBeamTowerShot,
+		Damage:      DamageValue{Health: 15},
+		MaxTargets:  1,
+		BurstSize:   1,
+		TargetFlags: TargetFlying,
+		FireOffset:  gmath.Vec{Y: -16},
+	}),
+	BeamOpaqueTime: 0.1,
+	BeamSlideSpeed: 2,
 }
 
 var WorkerAgentStats = &AgentStats{
@@ -189,7 +211,6 @@ var TruckerAgentStats = &AgentStats{
 }
 
 var CourierAgentStats = &AgentStats{
-	ScoreCost:   0,
 	Kind:        AgentCourier,
 	Image:       assets.ImageCourierAgent,
 	Size:        SizeMedium,
@@ -218,7 +239,6 @@ var CourierAgentStats = &AgentStats{
 }
 
 var RedminerAgentStats = &AgentStats{
-	ScoreCost:            0,
 	Kind:                 AgentRedminer,
 	Image:                assets.ImageRedminerAgent,
 	Size:                 SizeMedium,
@@ -235,7 +255,6 @@ var RedminerAgentStats = &AgentStats{
 }
 
 var GeneratorAgentStats = &AgentStats{
-	ScoreCost:            0,
 	Kind:                 AgentGenerator,
 	Image:                assets.ImageGeneratorAgent,
 	Size:                 SizeMedium,
@@ -252,7 +271,6 @@ var GeneratorAgentStats = &AgentStats{
 }
 
 var ClonerAgentStats = &AgentStats{
-	ScoreCost:   0,
 	Kind:        AgentCloner,
 	Image:       assets.ImageClonerAgent,
 	Size:        SizeMedium,
@@ -268,7 +286,6 @@ var ClonerAgentStats = &AgentStats{
 }
 
 var RepairAgentStats = &AgentStats{
-	ScoreCost:      0,
 	Kind:           AgentRepair,
 	Image:          assets.ImageRepairAgent,
 	Size:           SizeMedium,
@@ -289,7 +306,6 @@ var RepairAgentStats = &AgentStats{
 }
 
 var RechargeAgentStats = &AgentStats{
-	ScoreCost:            0,
 	Kind:                 AgentRecharger,
 	Image:                assets.ImageRechargerAgent,
 	Size:                 SizeMedium,
@@ -327,7 +343,6 @@ var RefresherAgentStats = &AgentStats{
 }
 
 var ServoAgentStats = &AgentStats{
-	ScoreCost:     0,
 	Kind:          AgentServo,
 	Image:         assets.ImageServoAgent,
 	Size:          SizeMedium,
@@ -345,7 +360,6 @@ var ServoAgentStats = &AgentStats{
 }
 
 var FreighterAgentStats = &AgentStats{
-	ScoreCost:            0,
 	Kind:                 AgentFreighter,
 	Image:                assets.ImageFreighterAgent,
 	Size:                 SizeMedium,
@@ -362,7 +376,6 @@ var FreighterAgentStats = &AgentStats{
 }
 
 var CripplerAgentStats = &AgentStats{
-	ScoreCost:   0,
 	Kind:        AgentCrippler,
 	Image:       assets.ImageCripplerAgent,
 	Size:        SizeMedium,
@@ -421,7 +434,7 @@ var StormbringerAgentStats = &AgentStats{
 }
 
 var PrismAgentStats = &AgentStats{
-	ScoreCost:   2500,
+	ScoreCost:   PrismDroneCost,
 	Kind:        AgentPrism,
 	Image:       assets.ImagePrismAgent,
 	Size:        SizeMedium,
@@ -447,7 +460,6 @@ var PrismAgentStats = &AgentStats{
 }
 
 var FighterAgentStats = &AgentStats{
-	ScoreCost:   0,
 	Kind:        AgentFighter,
 	Image:       assets.ImageFighterAgent,
 	Size:        SizeMedium,
@@ -474,8 +486,34 @@ var FighterAgentStats = &AgentStats{
 	}),
 }
 
+var DefenderAgentStats = &AgentStats{
+	ScoreCost:   DefenderDroneCost,
+	Kind:        AgentDefender,
+	Image:       assets.ImageDefenderAgent,
+	Size:        SizeMedium,
+	DiodeOffset: -1,
+	Tier:        2,
+	PointCost:   3,
+	Cost:        20,
+	Upkeep:      5,
+	CanPatrol:   true,
+	Speed:       60,
+	MaxHealth:   35,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange: 240,
+		Reload:      3.5,
+		AttackSound: assets.AudioDefenderShot,
+		Damage:      DamageValue{Health: 3, Aggro: 0.8},
+		Explosion:   ProjectileExplosionFighterLaser,
+		MaxTargets:  2,
+		BurstSize:   1,
+		TargetFlags: TargetFlying | TargetGround,
+	}),
+	BeamOpaqueTime: 0.1,
+	BeamSlideSpeed: -1.6,
+}
+
 var ScavengerAgentStats = &AgentStats{
-	ScoreCost:     0,
 	Kind:          AgentScavenger,
 	Image:         assets.ImageScavengerAgent,
 	Size:          SizeMedium,
@@ -505,7 +543,7 @@ var ScavengerAgentStats = &AgentStats{
 }
 
 var AntiAirAgentStats = &AgentStats{
-	ScoreCost:   1000,
+	ScoreCost:   AntiAirDroneCost,
 	Kind:        AgentAntiAir,
 	Image:       assets.ImageAntiAirAgent,
 	Size:        SizeMedium,
@@ -537,7 +575,7 @@ var AntiAirAgentStats = &AgentStats{
 }
 
 var MortarAgentStats = &AgentStats{
-	ScoreCost:   900,
+	ScoreCost:   MortarDroneCost,
 	Kind:        AgentMortar,
 	Image:       assets.ImageMortarAgent,
 	Size:        SizeMedium,
@@ -619,7 +657,6 @@ var MarauderAgentStats = &AgentStats{
 }
 
 var RepellerAgentStats = &AgentStats{
-	ScoreCost:   0,
 	Kind:        AgentRepeller,
 	Image:       assets.ImageRepellerAgent,
 	Size:        SizeMedium,
@@ -649,7 +686,7 @@ var RepellerAgentStats = &AgentStats{
 }
 
 var DisintegratorAgentStats = &AgentStats{
-	ScoreCost:     2000,
+	ScoreCost:     DisintegratorDroneCost,
 	Kind:          AgentDisintegrator,
 	Image:         assets.ImageDisintegratorAgent,
 	Size:          SizeMedium,

@@ -98,6 +98,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageColonyCoreShadow:   {Path: "image/colony_core_shadow.png"},
 
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
+		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
 		ImageWorkerAgent:        {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
 		ImageMilitiaAgent:       {Path: "image/drones/militia_agent.png", FrameWidth: 11, FrameHeight: 13},
 		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 13},
@@ -115,6 +116,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageRechargerAgent:     {Path: "image/drones/recharger_agent.png", FrameWidth: 17, FrameHeight: 20},
 		ImageRefresherAgent:     {Path: "image/drones/refresher_agent.png", FrameWidth: 23, FrameHeight: 22},
 		ImageFighterAgent:       {Path: "image/drones/fighter_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImageDefenderAgent:      {Path: "image/drones/defender_agent.png", FrameWidth: 17, FrameHeight: 16},
 		ImagePrismAgent:         {Path: "image/drones/prism_agent.png", FrameWidth: 15, FrameHeight: 15},
 		ImageDestroyerAgent:     {Path: "image/drones/destroyer_agent.png", FrameWidth: 33, FrameHeight: 24},
 		ImageRepellerAgent:      {Path: "image/drones/repeller_agent.png", FrameWidth: 15, FrameHeight: 13},
@@ -197,6 +199,8 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageBossLaserLine: {Path: "image/lines/boss_laser_line.png"},
 		ImageRepairLine:    {Path: "image/lines/repair_line.png"},
 		ImageRechargerLine: {Path: "image/lines/recharger_line.png"},
+		ImageDefenderLine:  {Path: "image/lines/defender_line.png"},
+		ImageLightningLine: {Path: "image/lines/lightning.png"},
 
 		ImageUIButtonIdle:               {Path: "image/ebitenui/button-idle.png"},
 		ImageUIButtonHover:              {Path: "image/ebitenui/button-hover.png"},
@@ -341,6 +345,7 @@ const (
 	ImageColonyCoreDiode
 	ImageColonyCoreShadow
 	ImageGunpointAgent
+	ImageBeamtowerAgent
 	ImageWorkerAgent
 	ImageGeneratorAgent
 	ImageMilitiaAgent
@@ -357,6 +362,7 @@ const (
 	ImageRechargerAgent
 	ImageRefresherAgent
 	ImageFighterAgent
+	ImageDefenderAgent
 	ImageDestroyerAgent
 	ImageCripplerAgent
 	ImageMortarAgent
@@ -428,6 +434,8 @@ const (
 	ImageStunnerLine
 	ImageRepairLine
 	ImageRechargerLine
+	ImageDefenderLine
+	ImageLightningLine
 
 	ImageUIButtonIdle
 	ImageUIButtonHover

@@ -28,6 +28,7 @@ type resultsController struct {
 	newAchievements      []string
 	upgradedAchievements []string
 	newDrones            []gamedata.ColonyAgentKind
+	newTurrets           []gamedata.ColonyAgentKind
 
 	results battleResults
 }
@@ -144,6 +145,7 @@ func (c *resultsController) updateProgress() {
 	contentUpdates := contentlock.Update(c.state)
 	c.newAchievements, c.upgradedAchievements = c.checkAchievements()
 	c.newDrones = contentUpdates.DronesUnlocked
+	c.newTurrets = contentUpdates.TurretsUnlocked
 }
 
 func (c *resultsController) Update(delta float64) {
@@ -298,6 +300,9 @@ func (c *resultsController) initUI() {
 	}
 	for _, kind := range c.newDrones {
 		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.new_drone"), d.Get("drone", strings.ToLower(kind.String()))))
+	}
+	for _, kind := range c.newTurrets {
+		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.new_turret"), d.Get("turret", strings.ToLower(kind.String()))))
 	}
 
 	label := eui.NewCenteredLabel(strings.Join(lines, "\n"), smallFont)

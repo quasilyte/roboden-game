@@ -102,6 +102,7 @@ type LevelConfig struct {
 	DifficultyScore int
 
 	Tier2Recipes         []gamedata.AgentMergeRecipe
+	TurretDesign         *gamedata.AgentStats
 	DronePointsAllocated int
 }
 

@@ -50,6 +50,8 @@ type creepNode struct {
 	world *worldState
 	stats *creepStats
 
+	aggroTarget targetable
+
 	spawnPos        gmath.Vec
 	pos             gmath.Vec
 	spritePos       gmath.Vec
@@ -64,6 +66,7 @@ type creepNode struct {
 	specialDelay    float64
 	specialModifier float64
 
+	aggro     float64
 	disarm    float64
 	slow      float64
 	health    float64
@@ -200,6 +203,7 @@ func (c *creepNode) Update(delta float64) {
 	c.spritePos.Y = math.Round(c.pos.Y)
 
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
+	c.aggro = gmath.ClampMin(c.aggro-delta, 0)
 	c.disarm = gmath.ClampMin(c.disarm-delta, 0)
 	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
 	if c.attackDelay == 0 && c.stats.weapon != nil && c.disarm == 0 && !c.cloaking {
@@ -332,6 +336,13 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		c.explode()
 		c.Destroy()
 		return
+	}
+
+	if damage.Aggro != 0 {
+		if c.scene.Rand().Chance(damage.Aggro) {
+			c.aggroTarget = source
+			c.aggro = 3.0
+		}
 	}
 
 	c.slow = gmath.ClampMax(c.slow+damage.Slow, 5)
@@ -497,6 +508,17 @@ func (c *creepNode) SendTo(pos gmath.Vec) {
 
 func (c *creepNode) findTargets() []targetable {
 	targets := c.world.tmpTargetSlice[:0]
+	if c.aggro > 0 && c.aggroTarget != nil {
+		if c.aggroTarget.IsDisposed() || c.pos.DistanceSquaredTo(*c.aggroTarget.GetPos()) > c.stats.weapon.AttackRangeSqr {
+			c.aggroTarget = nil
+		} else {
+			targets = append(targets, c.aggroTarget)
+			if len(targets) >= c.stats.weapon.MaxTargets {
+				return targets
+			}
+		}
+	}
+
 	c.world.FindColonyAgent(c.pos, c.stats.weapon.AttackRange, func(a *colonyAgentNode) bool {
 		targets = append(targets, a)
 		return len(targets) >= c.stats.weapon.MaxTargets

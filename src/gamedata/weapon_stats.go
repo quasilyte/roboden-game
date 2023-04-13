@@ -11,6 +11,7 @@ type DamageValue struct {
 	Disarm float64
 	Energy float64
 	Slow   float64
+	Aggro  float64
 }
 
 type WeaponStats struct {

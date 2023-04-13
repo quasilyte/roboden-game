@@ -105,6 +105,8 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, progress *float64) {
 	}{
 		{gamedata.RepairAgentStats, assets.ImageRepairLine, gamedata.RepairAgentStats.SupportRange},
 		{gamedata.RechargeAgentStats, assets.ImageRechargerLine, gamedata.RepairAgentStats.SupportRange},
+		{gamedata.BeamTowerAgentStats, assets.ImageLightningLine, gamedata.BeamTowerAgentStats.Weapon.AttackRange},
+		{gamedata.DefenderAgentStats, assets.ImageDefenderLine, gamedata.DefenderAgentStats.Weapon.AttackRange},
 	}
 
 	progressPerItem := 1.0 / float64(len(steps))

@@ -44,7 +44,8 @@ func inferDefaultLang() string {
 }
 
 type Result struct {
-	DronesUnlocked []gamedata.ColonyAgentKind
+	DronesUnlocked  []gamedata.ColonyAgentKind
+	TurretsUnlocked []gamedata.ColonyAgentKind
 }
 
 func Update(state *session.State) *Result {
@@ -56,6 +57,10 @@ func Update(state *session.State) *Result {
 	for _, kind := range stats.DronesUnlocked {
 		alreadyUnlocked[kind] = struct{}{}
 	}
+	for _, kind := range stats.TurretsUnlocked {
+		alreadyUnlocked[kind] = struct{}{}
+	}
+
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {
 		drone := recipe.Result
 		if _, ok := alreadyUnlocked[drone.Kind]; ok {
@@ -66,6 +71,16 @@ func Update(state *session.State) *Result {
 		}
 		result.DronesUnlocked = append(result.DronesUnlocked, drone.Kind)
 		stats.DronesUnlocked = append(stats.DronesUnlocked, drone.Kind)
+	}
+	for _, turret := range gamedata.TurretStatsList {
+		if _, ok := alreadyUnlocked[turret.Kind]; ok {
+			continue
+		}
+		if turret.ScoreCost > stats.TotalScore {
+			continue
+		}
+		result.TurretsUnlocked = append(result.TurretsUnlocked, turret.Kind)
+		stats.TurretsUnlocked = append(stats.TurretsUnlocked, turret.Kind)
 	}
 
 	return result

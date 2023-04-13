@@ -133,6 +133,7 @@
 ##menu.results.upgraded_achievement : Upgraded Achievement
 ##menu.results.new_record : new record
 ##menu.results.new_drone : Drone Unlocked
+##menu.results.new_turret : Turret Unlocked
 
 ##menu.controls.keyboard : Keyboard & Mouse
 ##menu.controls.gamepad : Gamepad
@@ -211,6 +212,7 @@ To resume the game, press START.
 
 ##drone.undiscovered : Undiscovered Drone
 ##drone.locked : Locked Drone
+##turret.locked : Locked Turret
 ##drone.score_required : Total Score Required
 
 ##drone.function : Function
@@ -276,6 +278,11 @@ A single hit from that weapon causes massive damage, but the firing rate is very
 ##drone.fighter.description
 An all-around good combat drone.
 It has good range, damage as well as above average durability.
+
+##drone.defender : Defender
+##drone.defender.description
+A combat drone that attacks up to two targets and forces them to attack itself.
+In comparison with a fighter, it has lower firepower and slower speed, but the attack range and defense is higher.
 
 ##drone.prism : Prism
 ##drone.prism.description
@@ -397,6 +404,18 @@ Infinite mode is toggled in the "extra" tab inside the arena mode.
 ##achievement.darkness : Darkness
 ##achievement.darkness.description
 Complete a non-infinite arena match with fog of war enabled and no more than 1/3 of it explored.
+
+##turret.gunpoint : Bunker
+##turret.gunpoint.description
+A sturdy defense that is fast and cheap to build.
+A couple of these can stop an army of enemy ground units.
+It's vulnerable against enemy flying units.
+
+##turret.beamtower : Beam Tower
+##turret.beamtower.description
+A highly destructive long-range energy weapon platform.
+It lacks the durability of a bunker and it's harder to build.
+It's vulnerable against enemy ground units.
 
 ##drone.trucker : Trucker
 ##drone.trucker.description

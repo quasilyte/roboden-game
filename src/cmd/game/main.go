@@ -69,6 +69,7 @@ func newLevelConfig(config *session.LevelConfig) *session.LevelConfig {
 		gamedata.FindRecipe(gamedata.RedminerAgentStats),
 		gamedata.FindRecipe(gamedata.ServoAgentStats),
 	}
+	config.TurretDesign = gamedata.GunpointAgentStats
 
 	config.Resources = 2
 	config.WorldSize = 2
@@ -92,14 +93,19 @@ func getDefaultSessionState() *session.State {
 		Device:     userdevice.GetInfo(),
 	}
 
-	state.Persistent.PlayerStats.TurretsUnlocked = append(state.Persistent.PlayerStats.TurretsUnlocked, gamedata.AgentGunpoint)
-
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {
 		drone := recipe.Result
 		if drone.ScoreCost != 0 {
 			continue
 		}
 		state.Persistent.PlayerStats.DronesUnlocked = append(state.Persistent.PlayerStats.DronesUnlocked, drone.Kind)
+	}
+
+	for _, turret := range gamedata.TurretStatsList {
+		if turret.ScoreCost != 0 {
+			continue
+		}
+		state.Persistent.PlayerStats.TurretsUnlocked = append(state.Persistent.PlayerStats.TurretsUnlocked, turret.Kind)
 	}
 
 	return state

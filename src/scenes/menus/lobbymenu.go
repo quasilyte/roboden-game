@@ -28,6 +28,7 @@ type LobbyMenuController struct {
 	mode   gamedata.Mode
 
 	droneButtons         []droneButton
+	turretButtons        []droneButton
 	pointsAllocatedLabel *widget.Text
 	difficultyLabel      *widget.Text
 
@@ -750,11 +751,40 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 			widget.GridLayoutOpts.Columns(6),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 
-	for i, turret := range gamedata.TurretStatsList {
-		img := c.scene.LoadImage(turret.Image)
-		b := eui.NewItemButton(uiResources, img.Data, nil, "", func() {})
+	for i := range gamedata.TurretStatsList {
+		turret := gamedata.TurretStatsList[i]
+		available := xslices.Contains(c.state.Persistent.PlayerStats.TurretsUnlocked, turret.Kind)
+		var img *ebiten.Image
+		if available {
+			img = c.scene.LoadImage(turret.Image).Data
+		} else {
+			img = c.scene.LoadImage(assets.ImageLock).Data
+		}
+		var b *eui.ItemButton
+		b = eui.NewItemButton(uiResources, img, nil, "", func() {
+			if c.config.TurretDesign != turret {
+				b.Toggle()
+				c.onTurretToggled(turret)
+			}
+		})
+		b.SetDisabled(!available)
+		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+			if available {
+				c.helpLabel.Label = descriptions.TurretText(c.scene.Dict(), turret)
+			} else {
+				c.helpLabel.Label = descriptions.LockedTurretText(c.scene.Dict(), &c.state.Persistent.PlayerStats, turret)
+			}
+			c.helpIcon1.Image = nil
+			c.helpIconSeparator.Label = ""
+			c.helpIcon2.Image = nil
+			c.helpPanel.RequestRelayout()
+		})
+		c.turretButtons = append(c.turretButtons, droneButton{
+			widget: b,
+			drone:  turret,
+		})
 		grid.AddChild(b.Widget)
-		if i == 0 {
+		if c.config.TurretDesign == turret {
 			b.Toggle()
 		}
 	}
@@ -850,6 +880,16 @@ func (c *LobbyMenuController) updateTier2Recipes() {
 			continue
 		}
 		c.config.Tier2Recipes = append(c.config.Tier2Recipes, b.recipe)
+	}
+}
+
+func (c *LobbyMenuController) onTurretToggled(selectedTurret *gamedata.AgentStats) {
+	c.config.TurretDesign = selectedTurret
+	for _, b := range c.turretButtons {
+		toggle := (b.drone != selectedTurret && b.widget.IsToggled())
+		if toggle {
+			b.widget.Toggle()
+		}
 	}
 }
 

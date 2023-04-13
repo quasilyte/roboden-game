@@ -5,9 +5,9 @@ import "fmt"
 // Merge usage:
 //
 // yellow worker ++++
-// yellow militia ++++
+// yellow militia +++++
 // red worker +++++
-// red militia +++
+// red militia ++++
 // green worker ++++
 // green militia ++++
 // blue worker ++++
@@ -30,6 +30,7 @@ import "fmt"
 // scavenger: red worker + yellow militia
 // courier: red worker + green militia
 // disintegrator: yellow worker + blue militia
+// defender: yellow militia + red militia
 //
 // Unused:
 // yellow worker + red militia
@@ -41,7 +42,6 @@ import "fmt"
 // blue worker + red militia
 // blue worker + green militia
 // blue worker + yellow militia
-// yellow militia + red militia
 // green militia + blue militia
 var Tier2agentMergeRecipes = []AgentMergeRecipe{
 	{
@@ -123,6 +123,11 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
 		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
 		Result: PrismAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{RedFactionTag, AgentMilitia},
+		Result: DefenderAgentStats,
 	},
 }
 

@@ -207,7 +207,6 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		if traitBitChance12Roll&adventurerBits == adventurerBits {
 			a.traits |= traitAdventurer
 		}
-		a.traits |= traitAdventurer
 
 		if scene.Rand().Chance(0.4) {
 			a.traits |= traitNeverStop

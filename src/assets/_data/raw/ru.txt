@@ -1,14 +1,52 @@
 ##game.title : Рободен
 
-##menu.main.title : Главное Меню
-##menu.main.start_game : Начать Игру
-##menu.main.tutorial : Обучение
+##boot.wasm : Веб-версия скачивает ресурсы, это займёт какое-то время
+##boot.title : Запускаем Рободен, пожалуйста подождите
+##boot.load_ui : Загружаем интерфейс
+##boot.load_images : Загружаем графические ресурсы
+##boot.load_audio : Загружаем звуки
+##boot.load_music : Загружаем музыку
+##boot.load_shaders : Компилируем шейдеры
+##boot.load_extra : Инициализируем данные
+
+##menu.main.title : Главное меню
+##menu.main.play : Играть
+##menu.main.profile : Статистика & Достижения
 ##menu.main.settings : Настройки
-##menu.main.controls : Управление
 ##menu.main.credits : Авторы
 ##menu.main.exit : Выход
 ##menu.main.build : Версия
 
+##tutorial.reward : Награда
+##tutorial.reward_claimed : получено
+
+##ui.mission_objective : Условие прохождения
+##objective.boss : Уничтожить вражескую колонию
+
+##menu.play.classic : Классический режим
+##menu.play.arena : Режим арены
+##menu.play.tutorial : Обучение
+##menu.play.to_unlock : Очков До Разблокировки
+
+##menu.profile.achievements : Достижения
+##menu.profile.stats : Статистика
+##menu.profile.progress : Прогресс
+##menu.profile.dronebook : Коллекция Дронов
+
+##menu.profile.stats.totalscore : Суммарное количество очков
+##menu.profile.stats.classic_highscore : Рекорд в классическом режиме
+##menu.profile.stats.arena_highscore : Рекорд в арене
+##menu.profile.stats.inf_arena_highscore : Рекорд в бесконечной арене
+
+##menu.profile.progress.achievements : Достижений получено
+##menu.profile.progress.modes_unlocked : Режимов игры открыто
+##menu.profile.progress.bases_unlocked : Колоний открыто
+##menu.profile.progress.turrets_unlocked : Турелей открыто
+##menu.profile.progress.drones_unlocked : Дронов второго тира открыто
+##menu.profile.progress.t3drones_seen : Дронов третьего тира открыто
+##menu.profile.progress.tutorials_completed : Пройдено обучающих миссий
+
+##menu.tier : тир
 ##menu.back : Назад
 ##menu.more : Ещё
 ##menu.lobby_back : Назад в Меню
@@ -17,6 +55,11 @@
 ##menu.options.graphics : Графика
 ##menu.options.camera : Камера
 ##menu.options.extra : Дополнительно
+##menu.options.controls : Управление
+
+##menu.terminal : Терминал
+##menu.terminal.command_output_label : Вывод Команды
+##menu.terminal.placeholder : введите команду
 
 ##menu.option.on : вкл
 ##menu.option.off : выкл
@@ -29,23 +72,24 @@
 
 ##menu.option.none : никаких
 ##menu.option.some : немного
-##menu.option.full : много
+##menu.option.lots : много
 ##menu.option.mandatory : только необходимые
 ##menu.option.all : все
 
 ##menu.option.very_easy : очень легко
 ##menu.option.easy : легко
 ##menu.option.hard : сложно
+##menu.option.very_hard : очень сложно
 
 ##menu.option.very_small : крохотный
 ##menu.option.small : небольшой
 ##menu.option.big : большой
 
-##menu.options.effects_volume : Громкость Эффектов
-##menu.options.music_volume : Громкость Музыки
-##menu.options.scroll_speed : Скорость Скроллинга
-##menu.options.edge_scroll_range : Ширина Границы Прокрутки
-##menu.options.debug : Режим Отладки
+##menu.options.effects_volume : Громкость эффектов
+##menu.options.music_volume : Громкость музыки
+##menu.options.scroll_speed : Скорость скроллинга
+##menu.options.edge_scroll_range : Ширина границы прокрутки
+##menu.options.show_fps : Отображать FPS
 
 ##menu.options.graphics.shadows : Тени
 ##menu.options.graphics.shaders : Шейдеры
@@ -55,40 +99,100 @@
 ##menu.credits.assets : ассеты
 ##menu.credits.thank_player : И тебе спасибо, дорогой игрок <3
 
-##menu.lobby.world_resources : Ресурсы Мира
-##menu.lobby.world_size : Размер Мира
-##menu.lobby.creeps_difficulty : Кол-во Баз Противника
-##menu.lobby.boss_difficulty : Сила Босса
-##menu.lobby.starting_resources : Стартовые Ресурсы
+##menu.lobby.points_allocated : Кредитов использовано
+##menu.lobby.game_seed : Сид игры
+
+##menu.lobby.game_speed : Скорость игры
+##menu.lobby.fog_of_war : Туман войны
+##menu.lobby.ui_mode : Графический интерфейс
+##menu.lobby.world_resources : Ресурсы мира
+##menu.lobby.world_size : Размер мира
+##menu.lobby.num_creep_bases : Кол-во баз противника
+##menu.lobby.creeps_difficulty : Сила юнитов противника
+##menu.lobby.arena_progression : Прогрессия сложности
+##menu.lobby.initial_creeps : Начальное количество противников
+##menu.lobby.boss_difficulty : Сила вражеской колонии
+##menu.lobby.starting_resources : Стартовые ресурсы
 ##menu.lobby.go : Вперёд!
+
+##menu.lobby.infinite_mode : Бесконечный режим
+##menu.lobby.ui_immersive : минимальный
+##menu.lobby.ui_informative : информативный
 
 ##menu.lobby.tab.colony : Колония
 ##menu.lobby.tab.world : Мир
 ##menu.lobby.tab.difficulty : Сложность
 ##menu.lobby.tab.extra : Доп
 
+##menu.results.the_end : Конец
 ##menu.results.victory : Победа
 ##menu.results.defeat : Поражение
 ##menu.results.time_played : Длительность
-##menu.results.resources_gathered : Ресурсов Собрано
-##menu.results.drone_survivors : Дронов Выжило
-##menu.results.drones_total : Дронов Создано
-##menu.results.creeps_defeated : Врагов Уничтожено
+##menu.results.resources_gathered : Ресурсов собрано
+##menu.results.drones_total : Дронов создано
+##menu.results.creeps_defeated : Врагов уничтожено
+##menu.results.score : Очки
+##menu.results.new_achievement : Получено достижение
+##menu.results.upgraded_achievement : Получено элитное достижение
+##menu.results.new_record : новый рекорд
+##menu.results.new_drone : Дрон разблокирован
+##menu.results.new_turret : Турель разблокирована
 
-##menu.controls.text
+##menu.controls.keyboard : Клавиатура & Мышь
+##menu.controls.gamepad : Геймпад
+##menu.controls.touch : Тачскрин
+##menu.controls.notice : Изменение схемы управления уже в разработке!
+
+##menu.controls.keyboard.text
 [Управление Камерой]
-\tМышь: колёсико + перемещение, скролл у края экрана
-\tКлавиатура: стрелочки
+\tКолёсико + перемещение, скролл у края экрана, стрелочки на клавиатуре
 [Перемещение Колонии]
-\tМышь: правый клик по месту назначения
+\tПравый клик по месту назначения
 [Выбор Колонии]
-\tМышь: левый клик по колонии
-\tКлавиатуре: tab для переключения между колониями
+\tЛевый клик по колонии или TAB для переключения между колониями
 [Выбор Действия]
-\tМышь: левый клик по опции
-\tКлавиатура: 1, 2, 3, 4, 5, й, ц, у, к, е
+\tЛевый клик по карточке или кнопки 1-5, Q-T на клавиатуре
+[Пауза]
+\tКлавиша ПРОБЕЛ для переключения паузы
 [Выход/Назад]
-\tКлавиатура: escape
+\tКлавиша ESC
+
+##menu.controls.gamepad.text
+[Управление Камерой]
+\tКнопки D-pad или левый стик
+[Перемещение Колонии]
+\tКлик правым стиком по месту назначения
+[Выбор Колонии]
+\tКлик правым стиком по колонии или L1 для переключения между колониями
+[Выбор Действия]
+\tКлик правым стиком по карточке или кнопки Y, B, A, X и R1
+[Пауза]
+\tSTART включает и выключает паузу
+[Выход/Назад]
+\tКнопки BACK и SELECT
+
+##game.exit.notice.keyboard
+Нажмите ещё раз, чтобы выйти.
+Чтобы продолжить игру, нажмите ПРОБЕЛ.
+##game.exit.notice.gamepad
+Нажмите ещё раз, чтобы выйти.
+Чтобы продолжить игру, нажмите START.
+
+##game.wave : Волна
+##game.wave_last : Продержитесь, чтобы победить
+##game.wave_starts_in : стартует через
+##game.wave_units : Типы юнитов
+##game.wave_special_units : Особые юниты
+##game.wave_direction : Направления атаки
+##game.wave_builders : строитель
+##game.wave_task_force : ударный отряд
+##game.wave_dominator : доминатор
+##game.wave_howitzer : гаубица
+##game.side.all : со всех сторон
+##game.side.east : восток
+##game.side.south : юг
+##game.side.west : запад
+##game.side.north : север
 
 ##game.value.hour : ч
 ##game.value.minute : м
@@ -103,178 +207,3 @@
 ##game.choice.build_gunpoint : Построить турель
 ##game.choice.increase_radius : Увеличить радиус
 ##game.choice.decrease_radius : Уменьшить радиус
-
-##tutorial.message1
-Добро пожаловать в обучение!
-
-Чтобы перейти к следующему
-сообщению, кликните по этому окну.
-
-##tutorial.message2
-Отлично!
-
-Игровой мир больше, чем
-умещается в обзоре камеры.
-
-Попробуй переместить камеру:
-передвинь курсор к краю экрана.
-
-Можно двигать камеру через стрелочки
-или зажав колёсико на мышке.
-
-##tutorial.message3
-Твоя вторая база расположена в
-юго-западном направлении от
-начальной локации.
-
-Нажми на TAB чтобы быстро
-переключиться между колониями.
-В случае единственной колонии
-эта кнопка центрирует экран на ней.
-
-Левый клик по колонии тоже сработает.
-
-##tutorial.message4
-Чтобы переместить колонию,
-сделай правый клик по назначанию.
-
-Учти, что у колонии ограниченная
-дальность перемещения за одну фазу.
-
-Попробуй передвинуть какую-нибудь
-из твоих колоний.
-
-##tutorial.message5
-Потеря всех колоний - поражение.
-
-Уничтожение босса - победу.
-
-В правом верхнем углу ты можешь
-найти детектор босса. Попробуй
-отыскать его на этой карте.
-
-##tutorial.message6
-Твои колонии были активны всё
-это время.
-
-Каждая база имеет своих дронов:
-рабочих и военных.
-
-Рабочие строят, добывают ресурсы
-и клонируют других дронов.
-Военные защищают базу и являются
-инструментом победы над боссом.
-
-##tutorial.message7
-Колонии не могут жить без ресурсов,
-они нужны для производства дронов.
-
-Уровень ресурсов колонии показан
-жёлтой шкалой посередине базы.
-Возможно, он сейчас пуст.
-
-Рабочие добывают ресурсы близ
-радиуса влияния колонии.
-
-##tutorial.message8
-Кроме движения есть также выборы
-действий и приоритетов.
-
-И движение, и выбор действия,
-привязаны к одной фазе хода,
-которой требуется время на
-перезарядку после активации.
-
-##tutorial.message9
-Попробуй выбрать какие-нибудь
-варианты из правого нижнего угла.
-
-Сделать это можно левым кликом
-по нужной опции, либо нажав на
-горячую клавишу: 1-5 и Й-Е.
-
-Выбор действий один на все колонии,
-а эффект применяется к выбранной.
-
-##tutorial.message10
-Каждый выбор делает две вещи:
-меняет приоритеты базы (текст) и
-распределение фракций (цвет).
-
-Приоритеты воздействуют на то, как
-действует колония: что она делает
-и как часто.
-
-Фракции влияют на соотношение
-цветов дронов внутри колонии.
-
-##tutorial.message11
-Не обязательно выбирать новые
-приоритеты каждую фазу.
-Колония достаточно автономна.
-
-Выбор какого-то приоритета или
-действия не всегда ведёт к
-мгновенным переменам.
-
-##tutorial.message12
-Список действий в фазе случаен.
-
-Ресурсы: добыча ресурсов.
-Рост: численность дронов.
-Эволюция: слияние дронов.
-Войска: количество военных дронов.
-
-Увеличение одного приоритета всегда
-ведёт к уменьшению остальных.
-
-##tutorial.message13
-Пятое действие - особенное.
-
-Обычно, это наиболее прямое
-вмешательство, которое может
-иметь моментальный эффект.
-
-Оно не влияет на фракции.
-Оно не меняет приоритеты колоний.
-
-##tutorial.message14
-Вложи несколько очков в фракции
-и эволюцию. Попробуй получить
-дронов второго уровня.
-
-Не забывай и про добычу ресурсов.
-
-Если ресурсы закончились, найди
-новое место и перемести колонию.
-
-##tutorial.message15
-Теперь ты знаком с основами игры.
-
-Настало время экспериментировать и
-познавать тонкости самостоятельно.
-
-Ты можешь завершить это обучение
-победой, если побежишь босса.
-Либо ты можешь выйти, нажав ESC.
-
-##tutorial.message_last
-Удачи и хорошей охоты.
-
-##drone.function : Функция
-##drone.kind.worker : рабочий
-##drone.kind.military : военный
-##drone.kind.universal : универсальный
-
-##drone.freighter : Грузовой
-##drone.redminer : Алый Рудокоп
-##drone.crippler : Охотник
-##drone.fighter : Боец
-##drone.prism : Призма
-##drone.servo : Ускоритель
-##drone.repeller : Отпугиватель
-##drone.repair : Ремонтник
-##drone.recharger : Заряжатель
-##drone.generator : Генератор
-##drone.mortar : Мортира
-##drone.antiair : Ракетчик

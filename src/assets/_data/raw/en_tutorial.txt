@@ -38,12 +38,12 @@ and buildings construction rate.
 Try increasing it by choosing an appropriate card.
 ##tutorial1.evolution_priority
 The evolution priority is needed to make
-the tier 1 drones combine into something more powerful.
+tier 1 drones combine into something more powerful.
 You'll learn more about that during the next mission.
 Try increasing it by choosing an appropriate card.
 ##tutorial1.security_priority
 The security priority increases the number
-of combat units your colony has.
+of combat units your colony wants to have.
 It also affects some combat-related behaviors.
 Try increasing it by choosing an appropriate card.
 ##tutorial1.camera.keyboard

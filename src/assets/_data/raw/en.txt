@@ -85,10 +85,10 @@
 ##menu.option.small : small
 ##menu.option.big : big
 
-##menu.options.effects_volume : Effects Volume
-##menu.options.music_volume : Music Volume
-##menu.options.scroll_speed : Scroll Speed
-##menu.options.edge_scroll_range : Edge Scroll Range
+##menu.options.effects_volume : Effects volume
+##menu.options.music_volume : Music volume
+##menu.options.scroll_speed : Scroll speed
+##menu.options.edge_scroll_range : Edge scroll range
 ##menu.options.show_fps : Show FPS
 
 ##menu.options.graphics.shadows : Shadows
@@ -99,22 +99,25 @@
 ##menu.credits.assets : assets
 ##menu.credits.thank_player : And thank you, dear player <3
 
-##menu.lobby.game_speed : Game Speed
-##menu.lobby.fog_of_war : Fog of War
-##menu.lobby.ui_mode : User Interface Mode
-##menu.lobby.world_resources : World Resources
-##menu.lobby.world_size : World Size
-##menu.lobby.num_creep_bases : Creep Bases
-##menu.lobby.creeps_difficulty : Creeps Power
-##menu.lobby.arena_progression : Wave Difficulty Progression
-##menu.lobby.initial_creeps : Initial Creeps Count
-##menu.lobby.boss_difficulty : Enemy Colony Power
-##menu.lobby.starting_resources : Starting Resources
+##menu.lobby.points_allocated : Points allocated
+##menu.lobby.game_seed : Game seed
+
+##menu.lobby.game_speed : Game speed
+##menu.lobby.fog_of_war : Fog of war
+##menu.lobby.ui_mode : User interface mode
+##menu.lobby.world_resources : World resources
+##menu.lobby.world_size : World size
+##menu.lobby.num_creep_bases : Creep bases
+##menu.lobby.creeps_difficulty : Creeps power
+##menu.lobby.arena_progression : Wave difficulty progression
+##menu.lobby.initial_creeps : Initial creeps count
+##menu.lobby.boss_difficulty : Enemy colony power
+##menu.lobby.starting_resources : Starting resources
 ##menu.lobby.go : Go!
 
-##menu.lobby.infinite_mode : Infinite Mode
-##menu.lobby.ui_immersive : Minimal
-##menu.lobby.ui_informative : Informative
+##menu.lobby.infinite_mode : Infinite mode
+##menu.lobby.ui_immersive : minimal
+##menu.lobby.ui_informative : informative
 
 ##menu.lobby.tab.colony : Colony
 ##menu.lobby.tab.world : World
@@ -142,20 +145,17 @@
 
 ##menu.controls.keyboard.text
 [Pan Camera]
-\tMouse: middle button + move, edge scroll
-\tKeyboard: arrow keys
+\tMiddle mouse button + move, edge scroll or arrow keys
 [Move Colony]
-\tMouse: RMB click on the destination
+\tRMB click on the destination
 [Select Colony]
-\tMouse: LMB click on the colony
-\tKeyboard: TAB to switch between colonies
+\tLMB click on the colony or TAB to switch between colonies
 [Action Card Select]
-\tMouse: LMB click on the card
-\tKeyboard: 1, 2, 3, 4, 5, Q, W, E, R, T
+\tLMB click on the card or press 1-5, Q-T on a keyboard
 [Pause]
-\tKeyboard: SPACE toggles the pause
+\tSPACE button toggles the pause
 [Exit/Back]
-\tKeyboard: ESC
+\tESC button
 
 ##menu.controls.gamepad.text
 [Pan Camera]
@@ -163,11 +163,9 @@
 [Move Colony]
 \tRight joystick click on the destination
 [Select Colony]
-\tRight joystick click on the colony
-\tL1 to switch between colonies
+\tRight joystick click on the colony or L1 to switch between colonies
 [Action Card Select]
-\tRight joystick click on the card
-\tY, B, A, X buttons for color cards, R1 for grey card
+\tRight joystick click on the card or Y, B, A, X and R1 buttons
 [Pause]
 \tSTART toggles the pause
 [Exit/Back]
@@ -209,237 +207,3 @@ To resume the game, press START.
 ##game.choice.build_gunpoint : Build turret
 ##game.choice.increase_radius : Increase radius
 ##game.choice.decrease_radius : Decrease radius
-
-##drone.undiscovered : Undiscovered Drone
-##drone.locked : Locked Drone
-##turret.locked : Locked Turret
-##drone.score_required : Total Score Required
-
-##drone.function : Function
-##drone.kind.worker : worker
-##drone.kind.military : military
-##drone.kind.universal : universal
-
-##drone.target : Targets
-##drone.target.ground : ground
-##drone.target.flying : flying
-
-##drone.worker : Worker
-##drone.worker.description
-A common worker drone.
-It can gather resources, construct and repair buildings.
-This is a model that can be produced directly from a colony.
-When combined with some other workers and scouts, it can become a tier 2 drone.
-
-##drone.militia : Scout
-##drone.militia.description
-The simplest combat drone.
-This is a model that can be produced directly from a colony.
-When combined with some other workers and scouts, it can become a tier 2 drone.
-
-##drone.scavenger : Scavenger
-##drone.scavenger.description
-A light combat drone that can harvest nearby scraps.
-This drone can't perform any real worker-related tasks.
-Most of its stats are inferior to the fighter drone, but the upkeep is lower too.
-
-##drone.courier : Courier
-##drone.courier.description
-A drone that travels between colonies to improve their economy.
-This unit has a simple slow-inflicting gun for self-defense. Its defence is good and it recovers a bit of durability after every successfull trip.
-
-##drone.cloner : Cloner
-##drone.cloner.description
-A unique drone that can clone any non-elite drone.
-Cloning drones requires less resources than normal production.
-
-##drone.freighter : Freighter
-##drone.freighter.description
-A drone with extra carrying capacity.
-This worker will collect more resources per flight than any other drone model.
-
-##drone.redminer : Red Miner
-##drone.redminer.description
-A drone that can harvest a special magma resource.
-A magma resource makes elite drones production possible.
-
-##drone.crippler : Hunter
-##drone.crippler.description
-A light combat drone that attacks up to three targets on above average distance.
-The affected targets will lose some of their speed.
-When low on health, this unit can cloak itself to avoid fatal damage.
-
-##drone.disintegrator : Disintegrator
-##drone.disintegrator.description
-A worker drone that carries an overly powerful disintegrator cannon for emergency situations.
-A single hit from that weapon causes massive damage, but the firing rate is very low; it also consumes lots of energy.
-
-##drone.fighter : Fighter
-##drone.fighter.description
-An all-around good combat drone.
-It has good range, damage as well as above average durability.
-
-##drone.defender : Defender
-##drone.defender.description
-A combat drone that attacks up to two targets and forces them to attack itself.
-In comparison with a fighter, it has lower firepower and slower speed, but the attack range and defense is higher.
-
-##drone.prism : Prism
-##drone.prism.description
-An expensive, but capable combat drone those attacks become even stronger when combined with other drones of the same type.
-
-##drone.servo : Servobot
-##drone.servo.description
-A support drone that improves the colony mobility.
-The colony will travel longer distances at higher speed.
-This effect can be stacked.
-
-##drone.repeller : Shocker
-##drone.repeller.description
-A worker that mounts a light EMP-cannon that can attack up to two targets.
-Its attacks may cause the enemy to lose their ability to attack.
-
-##drone.repair : Repairbot
-##drone.repair.description
-A drone that can fix the damaged allies.
-It can't repair itself, so having multiple repair bots is advised.
-
-##drone.recharger : Recharger
-##drone.recharger.description
-A unit that recovers some of the allied drones energy.
-This makes the colony perform more efficiently in general.
-A recharger can't targets itself.
-
-##drone.generator : Generator
-##drone.generator.description
-A worker drone that reduces the colony upkeep value.
-This effect can be stacked multiple times.
-
-##drone.mortar : Mortar
-##drone.mortar.description
-A drone with a very long range ground-only attack.
-Its attacks are precise enough to hit both stationary and moving targets from afar.
-The mortar drone is also quite durable itself.
-
-##drone.antiair : Missilebot
-##drone.antiair.description
-A drone with an anti-air missle launcher as a weapon.
-It's highly effective, but also quite fragile and it can't attack the ground targets.
-
-##achievement.game_mode : Game mode
-##achievement.mode.classic : classic
-##achievement.mode.arena : arena
-
-##achievement.trample : Stompy
-##achievement.trample.description
-Crush at least 1 enemy ground robot by landing your colony on it.
-
-##achievement.impossible : Impossible Difficulty
-##achievement.impossible.description
-Win while having a difficulty set to more than 200%.
-
-##achievement.speedrunning : Speedrunning
-##achievement.speedrunning.description
-Achieve a victory under 10 minutes.
-
-##achievement.t3engineer : T3 Engineering
-##achievement.t3engineer.description
-Discover all tier 3 drones.
-
-##achievement.t3less : T3-free
-##achievement.t3less.description
-Achieve a victory without creating a single tier 3 drone.
-
-##achievement.cheapbuild10 : Small Deck
-##achievement.cheapbuild10.description
-Win while having a drone build that uses no more than 10 points allocated.
-
-##achievement.hightension : High Tension
-##achievement.hightension.description
-Win on the smallest map size possible without destroying any of the enemy bases.
-
-##achievement.solobase : Solo Base Run
-##achievement.solobase.description
-Win without building any bases.
-
-##achievement.uiless : Minimal UI
-##achievement.uiless.description
-Win while having the extra graphical user interface turned off.
-
-##achievement.powerof3 : A Power of Three
-##achievement.powerof3.description
-Win a battle without using one of the four factions.
-In other words, you can use only three factions during the battle.
-
-##achievement.victorydrag : Dragged Victory
-##achievement.victorydrag.description
-Win a battle that was going for no less than 2 hours.
-
-##achievement.tinyradius : Sealed Radius
-##achievement.tinyradius.description
-Clear the level without ever increasing the influence radius.
-
-##achievement.t1army : T1 Army
-##achievement.t1army.description
-Clear the level without having only tier 1 combat units.
-In other words, you should not create any tier 2 or 3 combat units during the game to get this achievement.
-
-##achievement.groundwin : Ground Salvo
-##achievement.groundwin.description
-Destroy the enemy colony in the moment when it's close to the ground.
-
-##achievement.turretdamage : Turret Barrage
-##achievement.turretdamage.description
-Deal at least 25% damage to the enemy colony using ground turrets.
-
-##achievement.antidominator : Anti-domination
-##achievement.antidominator.description
-Destroy all dominator class enemies before the final wave countdown reaches zero.
-
-##achievement.infinite : Infinite Battle
-##achievement.infinite.description
-Survive for at least 35 waves in infinite arena mode.
-Infinite mode is toggled in the "extra" tab inside the arena mode.
-
-##achievement.darkness : Darkness
-##achievement.darkness.description
-Complete a non-infinite arena match with fog of war enabled and no more than 1/3 of it explored.
-
-##turret.gunpoint : Bunker
-##turret.gunpoint.description
-A sturdy defense that is fast and cheap to build.
-A couple of these can stop an army of enemy ground units.
-It's vulnerable against enemy flying units.
-
-##turret.beamtower : Beam Tower
-##turret.beamtower.description
-A highly destructive long-range energy weapon platform.
-It lacks the durability of a bunker and it's harder to build.
-It's vulnerable against enemy ground units.
-
-##drone.trucker : Trucker
-##drone.trucker.description
-An improved version of courier drone.
-Its payload and offensive capacity are increased.
-
-##drone.stormbringer : Stormbringer
-##drone.stormbringer.description
-A worker that carries a heavy lightning cannon that inflicts EMP damage to two targets.
-Its attacks may cause the enemy to lose their ability to attack.
-It preserves the generator drone properties to decrease the upkeep.
-
-##drone.destroyer : Destroyer
-##drone.destroyer.description
-One of the most all-around powerful combat drones.
-High offense and high defense at the high upkeep cost.
-These drones can form a vanguard of the colony forces.
-
-##drone.marauder : Marauder
-##drone.marauder.description
-An improved scavanger that receives cloaking abilities.
-It attacks up to three targets and inflicts slow condition.
-
-##drone.refresher : Refresher
-##drone.refresher.description
-A combination of repair and recharger bots.
-This drone can do both repairs and energy recharging.

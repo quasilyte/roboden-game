@@ -154,5 +154,11 @@ func (state *State) ReloadLanguage(ctx *ge.Context) {
 	if err := dict.Load("", ctx.Loader.LoadRaw(id+1).Data); err != nil {
 		panic(err)
 	}
+	if err := dict.Load("", ctx.Loader.LoadRaw(id+2).Data); err != nil {
+		panic(err)
+	}
+	if err := dict.Load("", ctx.Loader.LoadRaw(id+3).Data); err != nil {
+		panic(err)
+	}
 	ctx.Dict = dict
 }

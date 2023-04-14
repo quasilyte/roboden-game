@@ -103,19 +103,72 @@
 ##menu.lobby.game_seed : Game seed
 
 ##menu.lobby.game_speed : Game speed
+##menu.lobby.game_speed.description
+The game speed multiplier.
+x1.5 means the game will run 50% faster.
+In other words, 10 minutes of the actual gameplay will progress the game time by 15 minutes.
+
 ##menu.lobby.fog_of_war : Fog of war
+##menu.lobby.fog_of_war.description
+This options toggles the fog of war.
+If turned on, you won't have an entire map revealed from the start.
+
 ##menu.lobby.ui_mode : User interface mode
+##menu.lobby.ui_mode.description
+Whether to show extra graphical user interface elements or not.
+It's easier to play with them, but it's more immersive otherwise.
+
 ##menu.lobby.world_resources : World resources
+##menu.lobby.world_resources.description
+The number of resources the generated world has.
+Fewer resources mean it will be hard to play a long battle.
+
 ##menu.lobby.world_size : World size
+##menu.lobby.world_size.description
+The generated world size.
+It's usually harder to play on a smaller map.
+
 ##menu.lobby.num_creep_bases : Creep bases
+##menu.lobby.num_creep_bases.description
+The number of drone-producing bases the enemy has.
+These bases produce more and more units over time,
+but they can't be replaced after being destroyed.
+
 ##menu.lobby.creeps_difficulty : Creeps power
+##menu.lobby.creeps_difficulty.description
+The enemy units' power multiplier.
+It mostly affects the amount of durability enemy units have.
+
 ##menu.lobby.arena_progression : Wave difficulty progression
+##menu.lobby.arena_progression.description
+This option defines the difficulty progression speed.
+Every wave is harder than the previous one and this
+option controls by how much.
+
 ##menu.lobby.initial_creeps : Initial creeps count
+##menu.lobby.initial_creeps.description
+How many enemy units will be placed on the map from the very beginning.
+This option affects how easy the early game exploration will be.
+
 ##menu.lobby.boss_difficulty : Enemy colony power
+##menu.lobby.boss_difficulty.description
+The enemy colony's power level.
+It affects the number of units it will produce and how hard it will be to defeat it in battle.
+
 ##menu.lobby.starting_resources : Starting resources
+##menu.lobby.starting_resources.description
+This defines whether your initial colony will have any starting resources.
+Some builds can benefit from the early game advantage.
+
 ##menu.lobby.go : Go!
 
 ##menu.lobby.infinite_mode : Infinite mode
+##menu.lobby.infinite_mode.description
+Whether you want to play an infinite arena mode.
+In the normal arena, you win after the special wave 20.
+In the infinite mode, there is no wave limit.
+Survive for longer to get higher scores.
+
 ##menu.lobby.ui_immersive : minimal
 ##menu.lobby.ui_informative : informative
 

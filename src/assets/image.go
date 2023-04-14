@@ -22,7 +22,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageAchievementGroundWin:     {Path: "image/achievement/groundwin.png"},
 		ImageAchievementSpeedrunning:  {Path: "image/achievement/speedrunning.png"},
 		ImageAchievementVictoryDrag:   {Path: "image/achievement/victorydrag.png"},
-		ImageAchievementT3Less:        {Path: "image/achievement/impossible.png"}, // Stub!
+		ImageAchievementT3Less:        {Path: "image/achievement/t3less.png"},
 		ImageAchievementTurretDamage:  {Path: "image/achievement/turretdamage.png"},
 		ImageAchievementPowerOf3:      {Path: "image/achievement/powerof3.png"},
 		ImageAchievementInfinite:      {Path: "image/achievement/infinite.png"},

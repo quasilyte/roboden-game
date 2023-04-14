@@ -4,10 +4,10 @@
 ##turret.locked : Locked Turret
 ##drone.score_required : Total Score Required
 
-##drone.function : Функция
-##drone.kind.worker : рабочий
-##drone.kind.military : военный
-##drone.kind.universal : универсальный
+##drone.function : Function
+##drone.kind.worker : worker
+##drone.kind.military : combat
+##drone.kind.universal : universal
 
 ##drone.target : Targets
 ##drone.target.ground : ground

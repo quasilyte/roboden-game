@@ -28,7 +28,6 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageAchievementInfinite:      {Path: "image/achievement/infinite.png"},
 		ImageAchievementAntiDominator: {Path: "image/achievement/antidominator.png"},
 		ImageAchievementTrample:       {Path: "image/achievement/trample.png"},
-		ImageAchievementDarkness:      {Path: "image/achievement/darkness.png"},
 
 		ImageLock: {Path: "image/ui/lock.png"},
 
@@ -252,7 +251,6 @@ const (
 
 	ImageAchievementAntiDominator
 	ImageAchievementTrample
-	ImageAchievementDarkness
 	ImageAchievementImpossible
 	ImageAchievementCheapBuild10
 	ImageAchievementT3Engineer

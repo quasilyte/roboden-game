@@ -78,8 +78,3 @@ Achieve a victory without creating a single tier 3 drone.
 ##achievement.infinite.description
 Переживи как минимум 35 вол в бесконечном режиме арены.
 Бесконечный режим включается во вкладке "доп" на экране настроек режима арены.
-
-##achievement.darkness : Тьма
-##achievement.darkness.description
-Закончи режим арены с победой и включенным туманом войны, при этом не исследуя более 1/3 карты.
-Туман войны включается во вкладке "доп".

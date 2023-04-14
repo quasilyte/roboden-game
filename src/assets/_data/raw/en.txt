@@ -194,7 +194,7 @@ Survive for longer to get higher scores.
 ##menu.controls.keyboard : Keyboard & Mouse
 ##menu.controls.gamepad : Gamepad
 ##menu.controls.touch : Touchscreen
-##menu.controls.notice : Controls remapping coming soon!
+##menu.controls.notice : Controls remapping is coming soon!
 
 ##menu.controls.keyboard.text
 [Pan Camera]

@@ -126,9 +126,4 @@ var AchievementList = []*Achievement{
 		Mode: ModeArena,
 		Icon: assets.ImageAchievementInfinite,
 	},
-	{
-		Name: "darkness",
-		Mode: ModeArena,
-		Icon: assets.ImageAchievementDarkness,
-	},
 }

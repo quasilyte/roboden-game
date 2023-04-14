@@ -203,7 +203,9 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "cheapbuild10":
 			unlocked = c.results.DronePointsAllocated <= 10
 		case "hightension":
-			unlocked = c.config.WorldSize == 0 && c.results.CreepBasesDestroyed == 0
+			unlocked = c.config.WorldSize == 0 &&
+				c.config.NumCreepBases != 0 &&
+				c.results.CreepBasesDestroyed == 0
 		case "solobase":
 			unlocked = c.results.ColoniesBuilt == 0
 		case "uiless":

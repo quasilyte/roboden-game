@@ -598,11 +598,11 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 }
 
 func (c *LobbyMenuController) updateAllocatedPoints(allocated int) {
-	c.pointsAllocatedLabel.Label = fmt.Sprintf("Points Allocated: %d/%d", allocated, gamedata.ClassicModePoints)
+	c.pointsAllocatedLabel.Label = fmt.Sprintf("%s: %d/%d", c.scene.Dict().Get("menu.lobby.points_allocated"), allocated, gamedata.ClassicModePoints)
 }
 
 func (c *LobbyMenuController) updateDifficultyScore(score int) {
-	c.difficultyLabel.Label = fmt.Sprintf("Difficulty: %d%%", score)
+	c.difficultyLabel.Label = fmt.Sprintf("%s: %d%%", c.scene.Dict().Get("menu.lobby.tab.difficulty"), score)
 }
 
 func (c *LobbyMenuController) calcAllocatedPoints() int {
@@ -668,6 +668,8 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
+	d := c.scene.Dict()
+
 	{
 		grid := widget.NewContainer(
 			widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
@@ -702,7 +704,7 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 			widget.LabelOpts.TextOpts(
 				widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 			),
-			widget.LabelOpts.Text("Game Seed", normalFont, &widget.LabelColor{
+			widget.LabelOpts.Text(d.Get("menu.lobby.game_seed"), normalFont, &widget.LabelColor{
 				Idle:     uiResources.Button.TextColors.Idle,
 				Disabled: uiResources.Button.TextColors.Disabled,
 			}),

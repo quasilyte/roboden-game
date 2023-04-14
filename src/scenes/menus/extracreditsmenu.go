@@ -68,7 +68,7 @@ func (c *ExtraCreditsMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewCenteredLabel("Made with Ebitengine", smallFont))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
 

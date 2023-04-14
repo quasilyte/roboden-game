@@ -1581,8 +1581,8 @@ func (a *colonyAgentNode) updateCloakHide(delta float64) {
 }
 
 func (a *colonyAgentNode) updateCharging(delta float64) {
-	a.energy = gmath.ClampMax(a.energy+delta*3.5*a.energyRegenRate, a.maxEnergy)
-	if a.energy >= a.maxEnergy*0.5 {
+	a.energy = gmath.ClampMax(a.energy+delta*4*a.energyRegenRate, a.maxEnergy)
+	if a.energy >= a.maxEnergy*0.55 {
 		a.energyBill = 0
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}

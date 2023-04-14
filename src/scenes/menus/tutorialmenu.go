@@ -129,7 +129,7 @@ func (c *TutorialMenuController) initUI() {
 		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewTutorialMenuController(c.state)))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
 

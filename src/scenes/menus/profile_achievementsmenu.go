@@ -115,14 +115,14 @@ func (c *ProfileAchievementsMenuController) initUI() {
 		b.SetDisabled(true)
 		c.descriptions = append(c.descriptions, (func() string {
 			var lines []string
-			statusText := "(not achived yet)"
+			statusText := d.Get("achievement.grade.none")
 			switch grade {
 			case 1:
-				statusText = "(normal grade)"
+				statusText = d.Get("achievement.grade.normal")
 			case 2:
-				statusText = "(elite grade)"
+				statusText = d.Get("achievement.grade.elite")
 			}
-			lines = append(lines, fmt.Sprintf("%s %s", d.Get("achievement", achievement.Name), statusText))
+			lines = append(lines, fmt.Sprintf("%s (%s)", d.Get("achievement", achievement.Name), statusText))
 			lines = append(lines, "")
 			lines = append(lines, d.Get("achievement", achievement.Name, "description"))
 			if achievement.Mode != gamedata.ModeAny {
@@ -151,7 +151,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 
 	rowContainer.AddChild(rootGrid)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
 

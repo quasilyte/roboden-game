@@ -128,7 +128,7 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 
 	rowContainer.AddChild(rootGrid)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, "Back", func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
 

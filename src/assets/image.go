@@ -31,10 +31,11 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 
 		ImageLock: {Path: "image/ui/lock.png"},
 
-		ImageSmallShadow:    {Path: "image/small_shadow.png"},
-		ImageMediumShadow:   {Path: "image/medium_shadow.png"},
-		ImageBigShadow:      {Path: "image/big_shadow.png"},
-		ImageUberBossShadow: {Path: "image/uber_boss_shadow.png"},
+		ImageSmallShadow:      {Path: "image/shadows/small_shadow.png"},
+		ImageMediumShadow:     {Path: "image/shadows/medium_shadow.png"},
+		ImageBigShadow:        {Path: "image/shadows/big_shadow.png"},
+		ImageUberBossShadow:   {Path: "image/shadows/uber_boss_shadow.png"},
+		ImageColonyCoreShadow: {Path: "image/shadows/colony_core_shadow.png"},
 
 		ImageCursor: {Path: "image/cursor.png"},
 
@@ -94,7 +95,6 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageColonyCoreFlying:   {Path: "image/colony_core_flying.png"},
 		ImageColonyCoreHatch:    {Path: "image/colony_core_hatch.png"},
 		ImageColonyCoreDiode:    {Path: "image/colony_core_diode.png", FrameWidth: 4},
-		ImageColonyCoreShadow:   {Path: "image/colony_core_shadow.png"},
 
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
@@ -123,11 +123,11 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageRedminerAgent:      {Path: "image/drones/redminer_agent.png", FrameWidth: 13, FrameHeight: 18},
 		ImageGeneratorAgent:     {Path: "image/drones/generator_agent.png", FrameWidth: 15, FrameHeight: 17},
 
-		ImageColonyDamageMask:  {Path: "image/colony_damage_mask.png"},
-		ImageTurretDamageMask1: {Path: "image/turret_damage_mask1.png"},
-		ImageTurretDamageMask2: {Path: "image/turret_damage_mask2.png"},
-		ImageTurretDamageMask3: {Path: "image/turret_damage_mask3.png"},
-		ImageTurretDamageMask4: {Path: "image/turret_damage_mask4.png"},
+		ImageColonyDamageMask:  {Path: "image/shaders/colony_damage_mask.png"},
+		ImageTurretDamageMask1: {Path: "image/shaders/turret_damage_mask1.png"},
+		ImageTurretDamageMask2: {Path: "image/shaders/turret_damage_mask2.png"},
+		ImageTurretDamageMask3: {Path: "image/shaders/turret_damage_mask3.png"},
+		ImageTurretDamageMask4: {Path: "image/shaders/turret_damage_mask4.png"},
 
 		ImageEssenceSourceDissolveMask:    {Path: "image/resources/essence_source_dissolve_mask.png"},
 		ImageEssenceRedCrystalSource:      {Path: "image/resources/red_crystal.png"},

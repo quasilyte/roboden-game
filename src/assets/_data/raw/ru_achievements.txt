@@ -16,7 +16,7 @@
 
 ##achievement.speedrunning : Спидран
 ##achievement.speedrunning.description
-Достигни победы менее чем за 10 минут.
+Достигни победы менее чем за 15 минут.
 
 ##achievement.t3engineer : Поймай Их Всех
 ##achievement.t3engineer.description

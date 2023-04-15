@@ -249,7 +249,7 @@ func (c *creepNode) Update(delta float64) {
 	}
 }
 
-func (c *creepNode) GetPos() *gmath.Vec { return &c.pos }
+func (c *creepNode) GetPos() *gmath.Vec { return &c.spritePos }
 
 func (c *creepNode) GetVelocity() gmath.Vec {
 	if c.waypoint.IsZero() {
@@ -458,11 +458,11 @@ func (c *creepNode) doAttack(target targetable) {
 	}
 
 	if c.stats.beamTexture == nil {
-		beam := newBeamNode(c.world, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamColor)
+		beam := newBeamNode(c.world, ge.Pos{Base: &c.spritePos}, ge.Pos{Base: target.GetPos()}, c.stats.beamColor)
 		beam.width = c.stats.beamWidth
 		c.world.nodeRunner.AddObject(beam)
 	} else {
-		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.beamTexture, c.stats.beamSlideSpeed, c.stats.beamOpaqueTime)
+		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.spritePos}, ge.Pos{Base: target.GetPos()}, c.stats.beamTexture, c.stats.beamSlideSpeed, c.stats.beamOpaqueTime)
 		c.world.nodeRunner.AddObject(beam)
 	}
 
@@ -472,12 +472,12 @@ func (c *creepNode) doAttack(target targetable) {
 		vec1 := targetDir.Rotated(deg90rad).Mulf(4)
 		vec2 := targetDir.Rotated(-deg90rad).Mulf(4)
 
-		rearBeam1pos := ge.Pos{Base: &c.pos, Offset: vec1}
+		rearBeam1pos := ge.Pos{Base: &c.spritePos, Offset: vec1}
 		rearBeam1targetPos := ge.Pos{Base: target.GetPos(), Offset: vec2}
 		rearBeam1 := newBeamNode(c.world, rearBeam1pos, rearBeam1targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam1)
 
-		rearBeam2pos := ge.Pos{Base: &c.pos, Offset: vec2}
+		rearBeam2pos := ge.Pos{Base: &c.spritePos, Offset: vec2}
 		rearBeam2targetPos := ge.Pos{Base: target.GetPos(), Offset: vec1}
 		rearBeam2 := newBeamNode(c.world, rearBeam2pos, rearBeam2targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam2)
@@ -1024,7 +1024,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 	c.anim.Tick(delta)
 
 	if c.shadow != nil {
-		c.shadow.Pos.Offset.Y = c.height + 4
+		c.shadow.Pos.Offset.Y = math.Round(c.height + 4)
 		newShadowAlpha := float32(1.0 - ((c.height / agentFlightHeight) * 0.5))
 		c.shadow.SetAlpha(newShadowAlpha)
 	}
@@ -1032,6 +1032,8 @@ func (c *creepNode) updateUberBoss(delta float64) {
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 	if c.specialDelay == 0 && c.specialModifier == 0 {
 		if c.maybeSpawnCrawlers() {
+			c.pos.X = math.Round(c.pos.X)
+			c.pos.Y = math.Round(c.pos.Y)
 			// Time until the first crawler is spawned.
 			c.specialDelay = c.scene.Rand().FloatRange(7, 10)
 		} else {
@@ -1093,6 +1095,8 @@ func (c *creepNode) updateUberBoss(delta float64) {
 		c.pos.Y -= delta * 5
 		if c.height >= agentFlightHeight {
 			c.height = agentFlightHeight
+			c.pos.X = math.Round(c.pos.X)
+			c.pos.Y = math.Round(c.pos.Y)
 		}
 		return
 	}

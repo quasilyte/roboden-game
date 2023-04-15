@@ -195,7 +195,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "impossible":
 			unlocked = c.results.DifficultyScore > 200
 		case "speedrunning":
-			unlocked = c.results.TimePlayed.Minutes() < 10
+			unlocked = c.results.TimePlayed.Minutes() < 15
 		case "victorydrag":
 			unlocked = c.results.TimePlayed.Hours() >= 2
 		case "t3less":

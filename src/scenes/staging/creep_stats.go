@@ -230,7 +230,7 @@ var howitzerCreepStats = &creepStats{
 	image:     assets.ImageHowitzerCreep,
 	animSpeed: 0.2,
 	speed:     10,
-	maxHealth: 280,
+	maxHealth: 340,
 	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:          3,
 		BurstSize:           4,

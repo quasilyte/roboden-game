@@ -16,7 +16,7 @@ Win while having a difficulty set to more than 200%.
 
 ##achievement.speedrunning : Speedrunning
 ##achievement.speedrunning.description
-Achieve a victory under 10 minutes.
+Achieve a victory under 15 minutes.
 
 ##achievement.t3engineer : Gotta Catch 'Em All
 ##achievement.t3engineer.description

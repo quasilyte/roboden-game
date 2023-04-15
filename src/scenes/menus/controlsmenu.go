@@ -41,6 +41,7 @@ func (c *ControlsMenuController) initUI() {
 	d := c.scene.Dict()
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
+	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls"), normalFont)
 	rowContainer.AddChild(titleLabel)
@@ -58,7 +59,7 @@ func (c *ControlsMenuController) initUI() {
 	touchButton.GetWidget().Disabled = true
 	rowContainer.AddChild(touchButton)
 
-	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.controls.notice"), normalFont))
+	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.controls.notice"), smallFont))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

@@ -23,8 +23,8 @@
 ##ui.mission_objective : Условие прохождения
 ##objective.boss : Уничтожить вражескую колонию
 
-##menu.play.classic : Классический режим
-##menu.play.arena : Режим арены
+##menu.play.classic : Классический Режим
+##menu.play.arena : Режим Арены
 ##menu.play.tutorial : Обучение
 ##menu.play.to_unlock : Очков До Разблокировки
 

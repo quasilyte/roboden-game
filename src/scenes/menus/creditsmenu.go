@@ -61,7 +61,7 @@ func (c *CreditsMenuController) initUI() {
 
 	lines := []string{
 		"[" + d.Get("menu.credits.crew") + "]",
-		"    quasilyte (Iskander senpai) - coding, game design, sfx, testing",
+		"    quasilyte (Iskander senpai) - mashing on the keyboard",
 		"    shooQrow (Oleg) - graphics, co-game design, testing",
 		"    " + strings.Join(testers, ", ") + " - testing",
 		"[" + d.Get("menu.credits.assets") + "]",

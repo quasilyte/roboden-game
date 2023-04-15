@@ -329,7 +329,7 @@ var RefresherAgentStats = &AgentStats{
 	Kind:                 AgentRefresher,
 	Image:                assets.ImageRefresherAgent,
 	Size:                 SizeLarge,
-	DiodeOffset:          6,
+	DiodeOffset:          -4,
 	Tier:                 3,
 	Cost:                 50,
 	Upkeep:               14,

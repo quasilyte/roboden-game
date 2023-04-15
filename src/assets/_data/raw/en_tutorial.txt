@@ -1,7 +1,6 @@
 ##objective.build_base : Build a second colony
 ##objective.acquire_destroyer : Create a tier 3 Destroyer class drone
 ##objective.destroy_creep_bases : Destroy the enemy base
-##objective.super_elite : Acquire a super elite drone
 
 ##tutorial.title1 : Tutorial 1 - Basic Colony Operations
 ##tutorial.description1

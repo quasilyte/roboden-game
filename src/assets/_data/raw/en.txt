@@ -58,7 +58,7 @@
 ##menu.options.controls : Controls
 
 ##menu.terminal : Terminal
-##menu.terminal.command_output_label : Command Output
+##menu.terminal.command_output_label : Command output
 ##menu.terminal.placeholder : type commands in here
 
 ##menu.option.on : on

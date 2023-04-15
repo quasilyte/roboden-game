@@ -58,7 +58,7 @@
 ##menu.options.controls : Управление
 
 ##menu.terminal : Терминал
-##menu.terminal.command_output_label : Вывод Команды
+##menu.terminal.command_output_label : Вывод команды
 ##menu.terminal.placeholder : введите команду
 
 ##menu.option.on : вкл

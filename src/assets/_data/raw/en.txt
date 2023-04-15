@@ -20,7 +20,7 @@
 ##tutorial.reward : Score reward
 ##tutorial.reward_claimed : claimed
 
-##ui.mission_objective : Mission Objective
+##ui.mission_objective : Mission objective
 ##objective.boss : Defeat the enemy colony
 
 ##menu.play.classic : Classic Mode

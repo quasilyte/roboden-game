@@ -611,6 +611,14 @@ func (c *creepNode) updatePrimitiveWanderer(delta float64) {
 	c.wandererMovement(delta)
 }
 
+func (c *creepNode) canBuildHere(pos gmath.Vec) bool {
+	const pad float64 = 196
+	if pos.X < pad || pos.Y < pad || pos.X > (c.world.width-pad) || pos.Y > (c.world.height-pad) {
+		return false
+	}
+	return posIsFree(c.world, nil, pos, 80)
+}
+
 func (c *creepNode) updateBuilder(delta float64) {
 	c.anim.Tick(delta)
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
@@ -640,7 +648,7 @@ func (c *creepNode) updateBuilder(delta float64) {
 
 	if c.waypoint.IsZero() {
 		turretPos := c.pos.Add(gmath.Vec{Y: agentFlightHeight})
-		if c.specialDelay == 0 && posIsFree(c.world, nil, turretPos, 80) {
+		if c.specialDelay == 0 && c.canBuildHere(turretPos) {
 			// Start building.
 			buildingStats := turretConstructionCreepStats
 			if c.scene.Rand().Chance(0.35) {

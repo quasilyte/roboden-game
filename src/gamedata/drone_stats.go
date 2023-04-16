@@ -129,7 +129,7 @@ var BeamTowerAgentStats = &AgentStats{
 	Upkeep:    14,
 	MaxHealth: 50,
 	Weapon: InitWeaponStats(&WeaponStats{
-		AttackRange: 340,
+		AttackRange: 360,
 		Reload:      3.1,
 		AttackSound: assets.AudioBeamTowerShot,
 		Damage:      DamageValue{Health: 15},
@@ -495,7 +495,7 @@ var DefenderAgentStats = &AgentStats{
 	Tier:        2,
 	PointCost:   3,
 	Cost:        20,
-	Upkeep:      5,
+	Upkeep:      4,
 	CanPatrol:   true,
 	Speed:       55,
 	MaxHealth:   35,

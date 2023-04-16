@@ -55,7 +55,7 @@ Achieve a victory without creating a single tier 3 drone.
 
 ##achievement.tinyradius : Запечатанный Радиус
 ##achievement.tinyradius.description
-Выиграй битву ни разу не выбирая действие "увеличить радиус".
+Выиграй битву ни разу не выбирая дискету "увеличить радиус".
 
 ##achievement.t1army : Армия Скаутов
 ##achievement.t1army.description

@@ -359,7 +359,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		case gamedata.BlueFactionTag:
 			c.world.result.BlueFactionUsed = true
 		}
-		c.world.selectedColony.factionWeights.AddWeight(choice.Faction, c.world.rand.FloatRange(0.1, 0.2))
+		c.world.selectedColony.factionWeights.AddWeight(choice.Faction, c.world.rand.FloatRange(0.15, 0.25))
 		for _, e := range choice.Option.effects {
 			// Use priorities.AddWeight directly here to avoid the signal.
 			// We'll call UpdateMetrics() below ourselves.

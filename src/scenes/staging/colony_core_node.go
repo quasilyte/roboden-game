@@ -38,20 +38,14 @@ var colonyResourceRectOffsets = []float64{
 	-1,
 }
 
-var pixelsPerResourceRect = []float64{
-	4,
-	5,
-	6,
-}
-
 type colonyCoreNode struct {
 	sprite              *ge.Sprite
 	hatch               *ge.Sprite
 	flyingSprite        *ge.Sprite
 	shadow              *ge.Sprite
 	evoDiode            *ge.Sprite
-	resourceRects       []*ge.Rect
-	flyingResourceRects []*ge.Rect
+	resourceRects       []*ge.Sprite
+	flyingResourceRects []*ge.Sprite
 
 	scene *ge.Scene
 
@@ -177,23 +171,21 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.world.camera.AddSprite(c.shadow)
 	}
 
-	c.resourceRects = make([]*ge.Rect, 3)
-	c.flyingResourceRects = make([]*ge.Rect, 3)
-	makeResourceRects := func(rects []*ge.Rect, above bool) {
+	c.resourceRects = make([]*ge.Sprite, 3)
+	c.flyingResourceRects = make([]*ge.Sprite, 3)
+	makeResourceRects := func(rects []*ge.Sprite, above bool) {
 		for i := range rects {
-			rect := ge.NewRect(scene.Context(), 6, pixelsPerResourceRect[i])
+			rect := scene.NewSprite(assets.ImageColonyResourceBar1 + resource.ImageID(i))
 			rect.Centered = false
 			rect.Visible = false
-			cscale := 0.6 + (0.2 * float64(i))
-			rect.FillColorScale.SetRGBA(uint8(float64(0xd6)*cscale), uint8(float64(0x85)*cscale), uint8(float64(0x43)*cscale), 200)
 			rect.Pos.Base = &c.spritePos
 			rect.Pos.Offset.X -= 3
 			rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
 			rects[i] = rect
 			if above {
-				c.world.camera.AddGraphicsSlightlyAbove(rect)
+				c.world.camera.AddSpriteSlightlyAbove(rect)
 			} else {
-				c.world.camera.AddGraphics(rect)
+				c.world.camera.AddSprite(rect)
 			}
 		}
 	}
@@ -426,7 +418,7 @@ func (c *colonyCoreNode) updateEvoDiode() {
 }
 
 func (c *colonyCoreNode) updateResourceRects() {
-	var slice []*ge.Rect
+	var slice []*ge.Sprite
 	if c.IsFlying() {
 		slice = c.flyingResourceRects
 	} else {
@@ -445,10 +437,11 @@ func (c *colonyCoreNode) updateResourceRects() {
 			percentage = unallocated / resourcesPerBlock
 		}
 		unallocated -= resourcesPerBlock
-		pixels := pixelsPerResourceRect[i]
-		rect.Height = percentage * pixels
-		rect.Pos.Offset.Y = colonyResourceRectOffsets[i] + (pixels - rect.Height)
-		rect.Visible = rect.Height >= 1
+		pixels := rect.FrameHeight
+		height := math.Round(percentage * pixels)
+		rect.FrameTrimTop = pixels - height
+		rect.Pos.Offset.Y = colonyResourceRectOffsets[i] + (pixels - height)
+		rect.Visible = percentage != 0
 	}
 }
 

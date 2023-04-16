@@ -637,6 +637,11 @@ func (m *tutorialManager) updateTutorial3() bool {
 			}
 		}
 	case 7:
+		if m.creep.IsDisposed() {
+			m.tutorialStep = 6
+			m.creep = nil
+			return false
+		}
 		s := m.scene.Dict().Get("tutorial3.enemy_drone")
 		targetPos := ge.Pos{Base: &m.creep.pos, Offset: gmath.Vec{Y: -4}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 32}, targetPos, s)

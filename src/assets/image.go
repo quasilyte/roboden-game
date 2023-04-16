@@ -90,6 +90,9 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageSmokeSide:                  {Path: "image/effects/smoke_side.png", FrameWidth: 15},
 
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
+		ImageColonyResourceBar1: {Path: "image/colony_resource_bar1.png"},
+		ImageColonyResourceBar2: {Path: "image/colony_resource_bar2.png"},
+		ImageColonyResourceBar3: {Path: "image/colony_resource_bar3.png"},
 		ImageColonyCoreSelector: {Path: "image/colony_core_selector.png"},
 		ImageColonyCore:         {Path: "image/colony_core.png"},
 		ImageColonyCoreFlying:   {Path: "image/colony_core_flying.png"},
@@ -337,6 +340,9 @@ const (
 	ImageUberBossOpen
 	ImageUberBossShadow
 	ImageCreepBase
+	ImageColonyResourceBar1
+	ImageColonyResourceBar2
+	ImageColonyResourceBar3
 	ImageColonyCoreSelector
 	ImageColonyCore
 	ImageColonyCoreFlying

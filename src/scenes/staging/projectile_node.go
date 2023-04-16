@@ -19,6 +19,8 @@ type projectileNode struct {
 	weapon    *gamedata.WeaponStats
 	world     *worldState
 
+	trailCounter float64
+
 	rotation gmath.Rad
 
 	arcProgressionScaling float64
@@ -136,6 +138,17 @@ func (p *projectileNode) Update(delta float64) {
 	}
 
 	travelled := p.weapon.ProjectileSpeed * delta
+
+	if p.weapon.TrailEffect != gamedata.ProjectileTrailNone {
+		p.trailCounter -= delta
+		switch p.weapon.TrailEffect {
+		case gamedata.ProjectileTrailSmoke:
+			if p.trailCounter <= 0 {
+				p.trailCounter = p.world.rand.FloatRange(0.1, 0.3)
+				p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, p.pos, true, assets.ImageProjectileSmoke))
+			}
+		}
+	}
 
 	if p.arcProgressionScaling == 0 {
 		if p.pos.DistanceTo(p.toPos) <= travelled {

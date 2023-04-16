@@ -567,6 +567,7 @@ var AntiAirAgentStats = &AgentStats{
 		BurstSize:       4,
 		BurstDelay:      0.1,
 		Explosion:       ProjectileExplosionNormal,
+		TrailEffect:     ProjectileTrailSmoke,
 		ArcPower:        2,
 		Accuracy:        0.95,
 		TargetFlags:     TargetFlying,

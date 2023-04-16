@@ -26,6 +26,7 @@ type WeaponStats struct {
 	AttackRangeSqr        float64 // A precomputed AttackRange*AttackRange value
 	Damage                DamageValue
 	Explosion             ProjectileExplosionKind
+	TrailEffect           ProjectileTrailEffect
 	AlwaysExplodes        bool
 	BurstSize             int
 	BurstDelay            float64
@@ -43,6 +44,13 @@ type WeaponStats struct {
 
 	RoundProjectile bool
 }
+
+type ProjectileTrailEffect int
+
+const (
+	ProjectileTrailNone ProjectileTrailEffect = iota
+	ProjectileTrailSmoke
+)
 
 type ProjectileExplosionKind int
 

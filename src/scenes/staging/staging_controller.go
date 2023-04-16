@@ -37,7 +37,9 @@ type Controller struct {
 
 	startTime time.Time
 
-	colonySelector   *ge.Sprite
+	colonySelector       *ge.Sprite
+	flyingColonySelector *ge.Sprite
+
 	radar            *radarNode
 	rpanel           *rpanelNode
 	exitButtonRect   gmath.Rect
@@ -215,6 +217,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
 	c.camera.AddSpriteBelow(c.colonySelector)
+	c.flyingColonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
+	c.camera.AddSpriteSlightlyAbove(c.flyingColonySelector)
 
 	c.cursor = gameui.NewCursorNode(c.state.MainInput, c.camera.Rect)
 
@@ -749,6 +753,12 @@ func (c *Controller) checkVictory() {
 func (c *Controller) Update(delta float64) {
 	c.musicPlayer.Update(delta)
 
+	if c.world.selectedColony != nil {
+		flying := c.world.selectedColony.IsFlying()
+		c.colonySelector.Visible = !flying
+		c.flyingColonySelector.Visible = flying
+	}
+
 	if c.exitNotice != nil {
 		if c.state.MainInput.ActionIsJustPressed(controls.ActionPause) {
 			c.nodeRunner.SetPaused(false)
@@ -831,6 +841,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	}
 	if c.world.selectedColony == nil {
 		c.colonySelector.Visible = false
+		c.flyingColonySelector.Visible = false
 		c.defeat()
 		return
 	}
@@ -843,6 +854,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 		})
 	}
 	c.colonySelector.Pos.Base = &c.world.selectedColony.spritePos
+	c.flyingColonySelector.Pos.Base = &c.world.selectedColony.spritePos
 }
 
 func (c *Controller) selectNextColony(center bool) {

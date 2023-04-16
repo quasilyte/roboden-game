@@ -455,9 +455,7 @@ func (w *choiceWindowNode) HandleInput() {
 	if w.selectedColony == nil {
 		return
 	}
-	if w.state != choiceReady {
-		return
-	}
+
 	if pos, ok := w.cursor.ClickPos(controls.ActionClick); ok {
 		for i, choice := range w.choices {
 			if choice.rect.Contains(pos) {
@@ -491,7 +489,7 @@ func (w *choiceWindowNode) HandleInput() {
 }
 
 func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
-	if !w.Enabled {
+	if !w.Enabled || w.state != choiceReady {
 		w.scene.Audio().PlaySound(assets.AudioError)
 		return
 	}
@@ -505,7 +503,7 @@ func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
 }
 
 func (w *choiceWindowNode) activateChoice(i int) {
-	if !w.Enabled {
+	if !w.Enabled || w.state != choiceReady {
 		w.scene.Audio().PlaySound(assets.AudioError)
 		return
 	}

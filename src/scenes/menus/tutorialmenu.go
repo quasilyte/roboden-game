@@ -82,6 +82,10 @@ func (c *TutorialMenuController) initUI() {
 		c.config.Tutorial = gamedata.Tutorials[0]
 	}
 
+	panel := eui.NewPanel(uiResources, 560, 220)
+	panel.AddChild(helpLabel)
+	rowContainer.AddChild(panel)
+
 	{
 		var slider gmath.Slider
 		slider.SetBounds(0, len(gamedata.Tutorials)-1)
@@ -96,10 +100,6 @@ func (c *TutorialMenuController) initUI() {
 		})
 		rowContainer.AddChild(button)
 	}
-
-	panel := eui.NewPanel(uiResources, 560, 220)
-	panel.AddChild(helpLabel)
-	rowContainer.AddChild(panel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
 		// Clone before overriding any extra options.

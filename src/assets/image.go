@@ -70,6 +70,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageActionIncreaseRadius: {Path: "image/ui/action_increase_radius.png"},
 		ImageActionDecreaseRadius: {Path: "image/ui/action_decrease_radius.png"},
 
+		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
 		ImageMilitiaIonExplosion:        {Path: "image/effects/militia_ion_explosion.png", FrameWidth: 5},
@@ -292,6 +293,7 @@ const (
 	ImagePrioritySecurity
 	ImageObjectiveDisplay
 
+	ImageProjectileSmoke
 	ImageStealthLaserExplosion
 	ImageCripplerBlasterExplosion
 	ImageMilitiaIonExplosion

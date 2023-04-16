@@ -1,8 +1,8 @@
 
-##drone.undiscovered : Undiscovered Drone
-##drone.locked : Locked Drone
-##turret.locked : Locked Turret
-##drone.score_required : Total Score Required
+##drone.undiscovered : Undiscovered drone
+##drone.locked : Locked drone
+##turret.locked : Locked rurret
+##drone.score_required : Total score required
 
 ##drone.function : Function
 ##drone.kind.worker : worker

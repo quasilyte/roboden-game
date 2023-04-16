@@ -1,8 +1,8 @@
 
-##drone.undiscovered : Неизвестный Дрон
-##drone.locked : Закрытый Дрон
-##turret.locked : Закрытая Турель
-##drone.score_required : Требуемые Победные Очки
+##drone.undiscovered : Неизвестный дрон
+##drone.locked : Закрытый дрон
+##turret.locked : Закрытая турель
+##drone.score_required : Требуемые победные очки
 
 ##drone.function : Функция
 ##drone.kind.worker : рабочий

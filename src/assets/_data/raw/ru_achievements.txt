@@ -1,6 +1,6 @@
-##achievement.game_mode : Game mode
-##achievement.mode.classic : classic
-##achievement.mode.arena : arena
+##achievement.game_mode : Режим игры
+##achievement.mode.classic : классический
+##achievement.mode.arena : арена
 
 ##achievement.grade.none : не достигнуто
 ##achievement.grade.normal : серебро

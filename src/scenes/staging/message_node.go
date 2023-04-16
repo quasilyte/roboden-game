@@ -15,8 +15,6 @@ type messageNode struct {
 	targetLine2 *ge.Line
 	camera      *viewport.Camera
 
-	timed         bool
-	time          float64
 	trackedObject ge.SceneObject
 
 	pos       gmath.Vec
@@ -106,14 +104,6 @@ func (m *messageNode) Update(delta float64) {
 		m.targetLine = nil
 		m.targetLine2 = nil
 		m.trackedObject = nil
-	}
-
-	if m.timed {
-		m.time = gmath.ClampMin(m.time-delta, 0)
-		if m.time == 0 {
-			m.Dispose()
-			return
-		}
 	}
 
 	if m.targetLine != nil {

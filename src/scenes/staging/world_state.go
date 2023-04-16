@@ -4,6 +4,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/session"
@@ -57,6 +58,8 @@ type worldState struct {
 	tmpColonySlice []*colonyCoreNode
 
 	inputMode string
+
+	EventColonyCreated gsignal.Event[*colonyCoreNode]
 }
 
 func (w *worldState) Init() {
@@ -114,6 +117,7 @@ func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
 		w.colonies = xslices.Remove(w.colonies, x)
 	})
 	w.colonies = append(w.colonies, n)
+	w.EventColonyCreated.Emit(n)
 	return n
 }
 

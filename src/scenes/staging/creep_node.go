@@ -1006,8 +1006,11 @@ func (c *creepNode) updateServant(delta float64) {
 	}
 
 	target, ok := c.specialTarget.(*colonyCoreNode)
-	if !ok || target.IsDisposed() {
-		// After the initial target is gone, behave like a basic creep.
+	if !ok || target == nil || target.IsDisposed() {
+		if len(c.world.colonies) == 0 {
+			c.specialTarget = nil
+			return
+		}
 		c.specialTarget = gmath.RandElem(c.world.rand, c.world.colonies)
 		return
 	} else {

@@ -60,6 +60,7 @@ type Controller struct {
 	camera *viewport.Camera
 
 	tutorialManager *tutorialManager
+	messageManager  *messageManager
 
 	visionRadius float64
 	fogOfWar     *ebiten.Image
@@ -199,6 +200,23 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.world = world
 	world.Init()
 
+	c.messageManager = newMessageManager(c.world)
+
+	c.world.EventColonyCreated.Connect(c, func(colony *colonyCoreNode) {
+		colony.EventUnderAttack.Connect(c, func(colony *colonyCoreNode) {
+			center := c.camera.Offset.Add(c.camera.Rect.Center())
+			if center.DistanceTo(colony.pos) < 250 {
+				return
+			}
+			c.messageManager.AddMessage(queuedMessageInfo{
+				text:          scene.Dict().Get("game.notice.base_under_attack"),
+				trackedObject: colony,
+				timer:         10,
+				targetPos:     ge.Pos{Base: colony.GetPos()},
+			})
+		})
+	})
+
 	switch c.config.GameMode {
 	case gamedata.ModeArena:
 		c.arenaManager = newArenaManager(world)
@@ -266,7 +284,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	scene.AddGraphics(c.camera)
 
 	if c.world.IsTutorial() {
-		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world)
+		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world, c.messageManager)
 		c.nodeRunner.AddObject(c.tutorialManager)
 		if c.rpanel != nil {
 			c.tutorialManager.EventRequestPanelUpdate.Connect(c, c.onPanelUpdateRequested)
@@ -752,6 +770,7 @@ func (c *Controller) checkVictory() {
 
 func (c *Controller) Update(delta float64) {
 	c.musicPlayer.Update(delta)
+	c.messageManager.Update(delta)
 
 	if c.world.selectedColony != nil {
 		flying := c.world.selectedColony.IsFlying()

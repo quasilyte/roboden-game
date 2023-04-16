@@ -29,6 +29,8 @@ type tutorialManager struct {
 
 	scene *ge.Scene
 
+	messageManager *messageManager
+
 	choice selectedChoice
 
 	world        *worldState
@@ -47,8 +49,7 @@ type tutorialManager struct {
 	explainedFreighterBots bool
 	explainedSuperElites   bool
 
-	hint      *messageNode
-	timedHint *messageNode
+	hint *messageNode
 
 	updateDelay float64
 
@@ -58,12 +59,13 @@ type tutorialManager struct {
 	EventTriggerVictory     gsignal.Event[gsignal.Void]
 }
 
-func newTutorialManager(h *input.Handler, world *worldState) *tutorialManager {
+func newTutorialManager(h *input.Handler, world *worldState, messageManager *messageManager) *tutorialManager {
 	return &tutorialManager{
-		input:       h,
-		world:       world,
-		config:      world.config,
-		updateDelay: 2,
+		input:          h,
+		world:          world,
+		config:         world.config,
+		updateDelay:    2,
+		messageManager: messageManager,
 	}
 }
 
@@ -102,9 +104,6 @@ func (m *tutorialManager) Update(delta float64) {
 	if m.creep != nil && m.creep.IsDisposed() {
 		m.creep = nil
 	}
-	if m.timedHint != nil && m.timedHint.IsDisposed() {
-		m.timedHint = nil
-	}
 
 	m.updateDelay = gmath.ClampMin(m.updateDelay-delta, 0)
 	if m.updateDelay != 0 {
@@ -138,17 +137,16 @@ func (m *tutorialManager) OnChoice(choice selectedChoice) {
 }
 
 func (m *tutorialManager) updateTutorial1() bool {
-	if !m.explainedResourcePool && m.world.colonies[0].resources > 100 && m.timedHint == nil {
+	if !m.explainedResourcePool && m.world.colonies[0].resources > 100 {
 		m.explainedResourcePool = true
-		s := m.scene.Dict().Get("tutorial1.resource_bar")
-		targetPos := ge.Pos{Base: &m.world.colonies[0].spritePos, Offset: gmath.Vec{X: -3, Y: 18}}
-		m.timedHint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 164}, targetPos, s)
-		m.timedHint.trackedObject = m.world.colonies[0]
-		m.timedHint.timed = true
-		m.timedHint.time = 20
-		m.scene.AddObject(m.timedHint)
+		m.messageManager.AddMessage(queuedMessageInfo{
+			targetPos:     ge.Pos{Base: &m.world.colonies[0].spritePos, Offset: gmath.Vec{X: -3, Y: 18}},
+			trackedObject: m.world.colonies[0],
+			text:          m.scene.Dict().Get("tutorial1.resource_bar"),
+			timer:         20,
+		})
 	}
-	if !m.explainedWorker && m.timedHint == nil && m.tutorialStep >= 19 {
+	if !m.explainedWorker && m.tutorialStep >= 19 {
 		worker := m.findDrone(searchWorkers, func(a *colonyAgentNode) bool {
 			return a.stats.Kind == gamedata.AgentWorker
 		})
@@ -157,7 +155,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 			m.explainedWorker = true
 		}
 	}
-	if !m.explainedMilitia && m.timedHint == nil && m.tutorialStep >= 19 {
+	if !m.explainedMilitia && m.tutorialStep >= 19 {
 		militia := m.findDrone(searchFighters, func(a *colonyAgentNode) bool {
 			return a.stats.Kind == gamedata.AgentMilitia
 		})
@@ -561,13 +559,12 @@ func (m *tutorialManager) updateTutorial2() bool {
 }
 
 func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
-	s := m.scene.Dict().Get(textKey)
-	targetPos := ge.Pos{Base: &drone.spritePos, Offset: gmath.Vec{Y: -4}}
-	m.timedHint = newWorldTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 164}, targetPos, s)
-	m.timedHint.trackedObject = drone
-	m.timedHint.timed = true
-	m.timedHint.time = 20
-	m.scene.AddObject(m.timedHint)
+	m.messageManager.AddMessage(queuedMessageInfo{
+		targetPos:     ge.Pos{Base: &drone.spritePos, Offset: gmath.Vec{Y: -4}},
+		text:          m.scene.Dict().Get(textKey),
+		trackedObject: drone,
+		timer:         20,
+	})
 }
 
 func (m *tutorialManager) updateTutorial3() bool {
@@ -587,15 +584,15 @@ func (m *tutorialManager) updateTutorial3() bool {
 			return false
 		})
 	}
-	if freighter != nil && !m.explainedFreighterBots && m.timedHint == nil {
+	if freighter != nil && !m.explainedFreighterBots {
 		m.explainDrone(freighter, "tutorial3.hint_freighter")
 		m.explainedFreighterBots = true
 	}
-	if servoBot != nil && !m.explainedServoBots && m.timedHint == nil {
+	if servoBot != nil && !m.explainedServoBots {
 		m.explainDrone(servoBot, "tutorial3.hint_servobot")
 		m.explainedServoBots = true
 	}
-	if repairBot != nil && !m.explainedRepairBots && m.timedHint == nil {
+	if repairBot != nil && !m.explainedRepairBots {
 		m.explainDrone(repairBot, "tutorial3.hint_repairbot")
 		m.explainedRepairBots = true
 	}
@@ -705,7 +702,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 }
 
 func (m *tutorialManager) updateTutorial4() bool {
-	if !m.explainedSuperElites && m.timedHint == nil {
+	if !m.explainedSuperElites {
 		superElite := m.findDrone(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
 			return a.rank == 2
 		})

@@ -58,6 +58,8 @@ type colonyCoreNode struct {
 	maxHealth float64
 	health    float64
 
+	heavyDamageWarningCooldown float64
+
 	mode colonyCoreMode
 
 	waypoint        gmath.Vec
@@ -92,6 +94,7 @@ type colonyCoreNode struct {
 
 	factionWeights *weightContainer[gamedata.FactionTag]
 
+	EventUnderAttack       gsignal.Event[*colonyCoreNode]
 	EventDestroyed         gsignal.Event[*colonyCoreNode]
 	EventPrioritiesChanged gsignal.Event[*colonyCoreNode]
 }
@@ -228,6 +231,10 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable
 	if damage.Health != 0 {
 		c.flashComponent.flash = 0.2
 		c.hatchFlashComponent.flash = 0.2
+		if c.heavyDamageWarningCooldown == 0 && c.health <= c.maxHealth*0.7 {
+			c.heavyDamageWarningCooldown = 45
+			c.EventUnderAttack.Emit(c)
+		}
 	}
 
 	c.health -= damage.Health
@@ -375,6 +382,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 	c.updateResourceRects()
 
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
+	c.heavyDamageWarningCooldown = gmath.ClampMin(c.heavyDamageWarningCooldown-delta, 0)
 
 	if c.shadow != nil && c.shadow.Visible {
 		c.shadow.Pos.Offset.Y = c.height + 4

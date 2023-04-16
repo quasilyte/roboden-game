@@ -224,6 +224,9 @@ Survive for longer to get higher scores.
 [Exit/Back]
 \tBACK or SELECT button
 
+##game.notice.base_under_attack
+Your colony is under attack!
+
 ##game.exit.notice.keyboard
 Press the button again to quit.
 To resume the game, press SPACE.

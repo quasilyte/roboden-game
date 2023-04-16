@@ -260,7 +260,9 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 
 func (c *creepNode) IsFlying() bool {
 	switch c.stats.kind {
-	case creepBase, creepCrawlerBase, creepTurret, creepTurretConstruction, creepCrawler, creepHowitzer:
+	case creepCrawler, creepHowitzer:
+		return false
+	case creepBase, creepTurret, creepCrawlerBase, creepTurretConstruction, creepCrawlerBaseConstruction:
 		return false
 	case creepUberBoss:
 		return !c.altSprite.Visible
@@ -295,7 +297,7 @@ func (c *creepNode) explode() {
 		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
 		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
 		c.world.nodeRunner.AddObject(scraps)
-	case creepTurretConstruction:
+	case creepTurretConstruction, creepCrawlerBaseConstruction:
 		createExplosion(c.world, false, c.pos)
 		scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 		c.world.nodeRunner.AddObject(scraps)

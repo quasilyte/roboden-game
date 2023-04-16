@@ -203,10 +203,6 @@ func correctedPos(sector gmath.Rect, pos gmath.Vec, pad float64) gmath.Vec {
 	return pos
 }
 
-func midpoint(a, b gmath.Vec) gmath.Vec {
-	return a.Add(b).Mulf(0.5)
-}
-
 func snipePos(projectileSpeed float64, fireFrom, targetPos, targetVelocity gmath.Vec) gmath.Vec {
 	if targetVelocity.IsZero() || projectileSpeed == 0 {
 		return targetPos

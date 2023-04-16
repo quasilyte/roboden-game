@@ -139,7 +139,7 @@ var BeamTowerAgentStats = &AgentStats{
 		FireOffset:  gmath.Vec{Y: -16},
 	}),
 	BeamOpaqueTime: 0.1,
-	BeamSlideSpeed: 2,
+	BeamSlideSpeed: 0.4,
 }
 
 var WorkerAgentStats = &AgentStats{

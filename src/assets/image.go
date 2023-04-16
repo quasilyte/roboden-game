@@ -200,7 +200,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageRepairLine:    {Path: "image/lines/repair_line.png"},
 		ImageRechargerLine: {Path: "image/lines/recharger_line.png"},
 		ImageDefenderLine:  {Path: "image/lines/defender_line.png"},
-		ImageLightningLine: {Path: "image/lines/lightning.png"},
+		ImageBeamtowerLine: {Path: "image/lines/beamtower_line.png"},
 
 		ImageUIButtonIdle:               {Path: "image/ebitenui/button-idle.png"},
 		ImageUIButtonHover:              {Path: "image/ebitenui/button-hover.png"},
@@ -435,7 +435,7 @@ const (
 	ImageRepairLine
 	ImageRechargerLine
 	ImageDefenderLine
-	ImageLightningLine
+	ImageBeamtowerLine
 
 	ImageUIButtonIdle
 	ImageUIButtonHover

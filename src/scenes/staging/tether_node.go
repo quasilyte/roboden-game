@@ -1,0 +1,93 @@
+package staging
+
+import (
+	"github.com/quasilyte/ge"
+	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
+)
+
+type tetherNode struct {
+	world *worldState
+
+	source *colonyAgentNode
+	target targetable
+
+	line *ge.TextureLine
+
+	shaderTime float64
+	lifespan   float64
+}
+
+func newTetherNode(world *worldState, source *colonyAgentNode, target targetable) *tetherNode {
+	return &tetherNode{
+		world:    world,
+		target:   target,
+		source:   source,
+		lifespan: 8,
+	}
+}
+
+func (tether *tetherNode) Init(scene *ge.Scene) {
+	begin := ge.Pos{Base: tether.source.GetPos(), Offset: gmath.Vec{Y: -8}}
+	end := ge.Pos{Base: tether.target.GetPos()}
+	tether.line = ge.NewTextureLine(scene.Context(), begin, end)
+	tether.line.SetTexture(gamedata.TetherBeaconAgentStats.BeamTexture)
+	if tether.world.graphicsSettings.AllShadersEnabled {
+		tether.line.Shader = scene.NewShader(assets.ShaderSlideX)
+	}
+	tether.world.camera.AddGraphics(tether.line)
+}
+
+func (tether *tetherNode) IsDisposed() bool {
+	return tether.line.IsDisposed()
+}
+
+func (tether *tetherNode) dispose() {
+	switch target := tether.target.(type) {
+	case *colonyCoreNode:
+		target.tether--
+	case *colonyAgentNode:
+		target.tether = false
+	}
+	tether.lifespan = 0
+	tether.line.Dispose()
+}
+
+func (tether *tetherNode) Update(delta float64) {
+	if !tether.line.Shader.IsNil() {
+		tether.shaderTime += delta * gamedata.TetherBeaconAgentStats.BeamSlideSpeed
+		tether.line.Shader.SetFloatValue("Time", tether.shaderTime)
+	}
+
+	if tether.target != nil && tether.target.IsDisposed() {
+		tether.dispose()
+		return
+	}
+	if tether.source != nil && tether.source.IsDisposed() {
+		tether.dispose()
+		return
+	}
+
+	if colony, ok := tether.target.(*colonyCoreNode); ok {
+		if !colony.IsFlying() {
+			tether.dispose()
+			return
+		}
+	}
+
+	tether.lifespan -= delta
+	beamRange := gamedata.TetherBeaconAgentStats.SupportRange
+	distSqr := tether.source.pos.DistanceSquaredTo(*tether.target.GetPos())
+	if distSqr > (beamRange * beamRange) {
+		tether.lifespan -= delta * 3
+	}
+	if distSqr > (beamRange*beamRange)*1.25 {
+		tether.dispose()
+		return
+	}
+	if tether.lifespan <= 0 {
+		tether.dispose()
+		return
+	}
+}

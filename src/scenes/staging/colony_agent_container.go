@@ -101,10 +101,6 @@ func (c *colonyAgentContainer) Update() {
 		}
 	}
 
-	if c.servoNum > 10 {
-		c.servoNum = 10
-	}
-
 	for _, a := range c.fighters {
 		if a.mode == agentModePatrol || a.mode == agentModeStandby {
 			if a.stats.CanGather {

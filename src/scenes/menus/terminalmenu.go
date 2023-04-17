@@ -241,6 +241,7 @@ func (c *TerminalMenu) onSaveDelete(ctx *terminalCommandContext) (string, error)
 	c.state.Persistent = contentlock.GetDefaultData()
 	contentlock.Update(c.state)
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
+	c.state.ReloadLanguage(c.scene.Context())
 	return "The save data is cleared.", nil
 }
 

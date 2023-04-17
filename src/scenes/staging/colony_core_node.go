@@ -58,6 +58,8 @@ type colonyCoreNode struct {
 	maxHealth float64
 	health    float64
 
+	tether int
+
 	heavyDamageWarningCooldown float64
 
 	mode colonyCoreMode
@@ -201,7 +203,7 @@ func (c *colonyCoreNode) IsFlying() bool {
 }
 
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
-	return 200 + (float64(c.agents.servoNum) * 30.0)
+	return gmath.ClampMax(280+float64(c.agents.servoNum*20.0), 500)
 }
 
 func (c *colonyCoreNode) PatrolRadius() float64 {
@@ -407,9 +409,11 @@ func (c *colonyCoreNode) Update(delta float64) {
 func (c *colonyCoreNode) movementSpeed() float64 {
 	switch c.mode {
 	case colonyModeTakeoff, colonyModeLanding:
-		return 12 + float64(c.agents.servoNum)
+		speed := 12 + float64(c.agents.servoNum) + float64(c.tether*5)
+		return gmath.ClampMax(speed, 25)
 	case colonyModeRelocating:
-		return 18.0 + (float64(c.agents.servoNum) * 3)
+		speed := 18.0 + float64(c.agents.servoNum*3) + float64(c.tether*15)
+		return gmath.ClampMax(speed, 50)
 	default:
 		return 0
 	}

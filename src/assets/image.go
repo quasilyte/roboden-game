@@ -102,6 +102,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
+		ImageTetherBeaconAgent:  {Path: "image/drones/tether_beacon_agent.png"},
 		ImageWorkerAgent:        {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
 		ImageMilitiaAgent:       {Path: "image/drones/militia_agent.png", FrameWidth: 11, FrameHeight: 13},
 		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 13},
@@ -205,6 +206,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageRechargerLine: {Path: "image/lines/recharger_line.png"},
 		ImageDefenderLine:  {Path: "image/lines/defender_line.png"},
 		ImageBeamtowerLine: {Path: "image/lines/beamtower_line.png"},
+		ImageTetherLine:    {Path: "image/lines/tether_line.png"},
 
 		ImageUIButtonIdle:               {Path: "image/ebitenui/button-idle.png"},
 		ImageUIButtonHover:              {Path: "image/ebitenui/button-hover.png"},
@@ -353,6 +355,7 @@ const (
 	ImageColonyCoreShadow
 	ImageGunpointAgent
 	ImageBeamtowerAgent
+	ImageTetherBeaconAgent
 	ImageWorkerAgent
 	ImageGeneratorAgent
 	ImageMilitiaAgent
@@ -444,6 +447,7 @@ const (
 	ImageRechargerLine
 	ImageDefenderLine
 	ImageBeamtowerLine
+	ImageTetherLine
 
 	ImageUIButtonIdle
 	ImageUIButtonHover

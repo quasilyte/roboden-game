@@ -54,6 +54,7 @@ const (
 
 	// Buildings (not real agents/drones)
 	AgentGunpoint
+	AgentTetherBeacon
 	AgentBeamTower
 )
 
@@ -96,6 +97,7 @@ type AgentStats struct {
 
 var TurretStatsList = []*AgentStats{
 	GunpointAgentStats,
+	TetherBeaconAgentStats,
 	BeamTowerAgentStats,
 }
 
@@ -139,6 +141,17 @@ var BeamTowerAgentStats = &AgentStats{
 		FireOffset:  gmath.Vec{Y: -16},
 	}),
 	BeamOpaqueTime: 0.1,
+	BeamSlideSpeed: 0.4,
+}
+
+var TetherBeaconAgentStats = &AgentStats{
+	Kind:           AgentTetherBeacon,
+	Image:          assets.ImageTetherBeaconAgent,
+	Size:           SizeLarge,
+	Upkeep:         15,
+	MaxHealth:      70,
+	SupportReload:  10,
+	SupportRange:   300,
 	BeamSlideSpeed: 0.4,
 }
 

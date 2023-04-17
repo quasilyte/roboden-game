@@ -431,8 +431,11 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		size := 40.0
 		if choice.Option.special == specialBuildGunpoint {
 			stats = gunpointConstructionStats
-			if c.config.TurretDesign == gamedata.BeamTowerAgentStats {
+			switch c.config.TurretDesign {
+			case gamedata.BeamTowerAgentStats:
 				stats = beamTowerConstructionStats
+			case gamedata.TetherBeaconAgentStats:
+				stats = tetherBeaconConstructionStats
 			}
 			dist = 48.0
 			size = 32.0

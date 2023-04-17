@@ -154,3 +154,8 @@ It's vulnerable against enemy flying units.
 A highly destructive long-range energy weapon platform.
 It lacks the durability of a bunker and it's harder to build.
 It's vulnerable against enemy ground units.
+
+##turret.tetherbeacon : Navigation Beacon
+##turret.tetherbeacon.description
+An utility building that doesn't attack. A beacon increases the speed of nearby units.
+When a colony passes by, it boosts its speed too. This building is an alternative to a servobot bonus.

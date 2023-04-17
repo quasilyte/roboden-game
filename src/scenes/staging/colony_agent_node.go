@@ -121,6 +121,7 @@ type colonyAgentNode struct {
 	slow            float64
 	lifetime        float64
 
+	tether  bool
 	resting bool
 	speed   float64
 
@@ -307,7 +308,7 @@ func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
 
 func (a *colonyAgentNode) IsTurret() bool {
 	switch a.stats.Kind {
-	case gamedata.AgentGunpoint, gamedata.AgentBeamTower:
+	case gamedata.AgentGunpoint, gamedata.AgentBeamTower, gamedata.AgentTetherBeacon:
 		return true
 	default:
 		return false
@@ -450,6 +451,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModeCourierFlight:
 		colony := target.(*colonyCoreNode)
 		energyCost := gmath.ClampMax(colony.pos.DistanceTo(a.pos)*0.33, 100)
+		if a.tether {
+			energyCost *= 0.5
+		}
 		if a.stats.Kind == gamedata.AgentTrucker {
 			// Truckers consume 20% less energy for flights.
 			energyCost *= 0.8
@@ -463,6 +467,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModeScavenge:
 		source := target.(*essenceSourceNode)
 		energyCost := source.pos.DistanceTo(a.pos) * 0.33
+		if a.tether {
+			energyCost *= 0.5
+		}
 		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
@@ -488,6 +495,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			return false
 		}
 		energyCost := source.pos.DistanceTo(a.pos) * 0.5
+		if a.tether {
+			energyCost *= 0.5
+		}
 		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
@@ -879,7 +889,7 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 
 func (a *colonyAgentNode) processSupport(delta float64) {
 	switch a.stats.Kind {
-	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher, gamedata.AgentScavenger, gamedata.AgentMarauder, gamedata.AgentDisintegrator:
+	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher, gamedata.AgentScavenger, gamedata.AgentMarauder, gamedata.AgentDisintegrator, gamedata.AgentTetherBeacon:
 		// OK
 	default:
 		return
@@ -911,10 +921,46 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 		// Reload depends on the target being there or not.
 		setDelay = false
 		a.doDisintegratorAttack()
+	case gamedata.AgentTetherBeacon:
+		setDelay = false
+		a.doTether()
 	}
 	if setDelay {
 		a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
 	}
+}
+
+func (a *colonyAgentNode) doTether() {
+	maxRangeSqr := a.stats.SupportRange * a.stats.SupportRange
+	colonyTarget := randIterate(a.scene.Rand(), a.world().colonies, func(colony *colonyCoreNode) bool {
+		if !colony.IsFlying() {
+			return false
+		}
+		return colony.pos.DistanceSquaredTo(a.pos) <= maxRangeSqr
+	})
+	if colonyTarget != nil {
+		colonyTarget.tether++
+		a.world().nodeRunner.AddObject(newTetherNode(a.world(), a, colonyTarget))
+		playSound(a.world(), assets.AudioTetherShot, a.pos)
+		a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.95, 1.35)
+		return
+	}
+
+	agentTarget := a.colonyCore.agents.Find(searchWorkers, func(x *colonyAgentNode) bool {
+		if x.tether {
+			return false
+		}
+		return x.pos.DistanceSquaredTo(a.pos) <= maxRangeSqr
+	})
+	if agentTarget != nil {
+		agentTarget.tether = true
+		a.world().nodeRunner.AddObject(newTetherNode(a.world(), a, agentTarget))
+		playSound(a.world(), assets.AudioTetherShot, a.pos)
+		a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.95, 1.35)
+		return
+	}
+
+	a.supportDelay = a.scene.Rand().FloatRange(0.5, 2)
 }
 
 func (a *colonyAgentNode) doDisintegratorAttack() {
@@ -1171,11 +1217,14 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 }
 
 func (a *colonyAgentNode) movementSpeed() float64 {
+	var baseSpeed float64
 	switch a.mode {
 	case agentModeTakeoff, agentModeRecycleLanding:
 		return 30
 	case agentModePickup, agentModeResourceTakeoff, agentModeAlignStandby:
-		return agentPickupSpeed
+		baseSpeed = agentPickupSpeed
+	default:
+		baseSpeed = a.speed
 	}
 	multiplier := 1.0
 	if a.resting {
@@ -1184,7 +1233,10 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 	if a.slow > 0 {
 		multiplier *= 0.55
 	}
-	return a.speed * multiplier
+	if a.tether {
+		multiplier *= 2.0
+	}
+	return baseSpeed * multiplier
 }
 
 func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {

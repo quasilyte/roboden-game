@@ -59,9 +59,8 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 
 		ActionDebug: {input.KeyBackquote},
 
-		ActionBack: {input.KeyEscape, input.KeyGamepadBack},
-
-		ActionPause: {input.KeySpace},
+		ActionBack:  {input.KeyEscape, input.KeyGamepadBack},
+		ActionPause: {input.KeySpace, input.KeyGamepadStart},
 
 		ActionMenuFocusRight: {input.KeyRight, input.KeyGamepadRight},
 		ActionMenuFocusDown:  {input.KeyDown, input.KeyGamepadDown},

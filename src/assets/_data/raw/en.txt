@@ -197,32 +197,22 @@ Survive for longer to get higher scores.
 ##menu.controls.notice : Controls remapping is coming soon!
 
 ##menu.controls.keyboard.text
-[Pan Camera]
-\tMiddle mouse button + move, edge scroll or arrow keys
-[Move Colony]
-\tRMB click on the destination
-[Select Colony]
-\tLMB click on the colony or TAB to switch between colonies
-[Action Card Select]
-\tLMB click on the card or press 1-5, Q-T on a keyboard
-[Pause]
-\tSPACE button toggles the pause
-[Exit/Back]
-\tESC button
+Pan camera | Middle mouse button + move, edge scroll or arrow keys
+Move colony | RMB click on the destination
+Select colony | LMB click on the colony or TAB to switch between colonies
+Action card select | LMB click on the card or press 1-5, Q-T on a keyboard
+Pause | SPACE button toggles the pause
+Toggle evolution sheet | ALT button
+Exit/Back | ESC button
 
 ##menu.controls.gamepad.text
-[Pan Camera]
-\tD-pad keys or left joystick
-[Move Colony]
-\tRight joystick click on the destination
-[Select Colony]
-\tRight joystick click on the colony or L1 to switch between colonies
-[Action Card Select]
-\tRight joystick click on the card or Y, B, A, X and R1 buttons
-[Pause]
-\tSTART toggles the pause
-[Exit/Back]
-\tBACK or SELECT button
+Pan camera | D-pad keys or left stick
+Move colony | Right stick click on the destination
+Select colony | Right stick click on the colony or L1 to switch between colonies
+Action card select | Right stick click on the card or Y, B, A, X and R1 buttons
+Pause | START toggles the pause
+Toggle evolution sheet | R2 button
+Exit/Back | BACK or SELECT button
 
 ##game.notice.base_under_attack
 Your colony is under attack!

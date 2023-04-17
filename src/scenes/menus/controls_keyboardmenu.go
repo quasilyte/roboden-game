@@ -1,6 +1,8 @@
 package menus
 
 import (
+	"strings"
+
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
@@ -41,7 +43,7 @@ func (c *ControlsKeyboardMenuController) initUI() {
 	d := c.scene.Dict()
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.keyboard"), normalFont)
 	rowContainer.AddChild(titleLabel)
@@ -49,11 +51,24 @@ func (c *ControlsKeyboardMenuController) initUI() {
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	controlsText := d.Get("menu.controls.keyboard.text")
+	grid := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			StretchHorizontal: true,
+			StretchVertical:   true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(2),
+			widget.GridLayoutOpts.Spacing(24, 4))))
 
-	normalContainer := eui.NewAnchorContainer()
-	label := eui.NewLabel(controlsText, smallFont)
-	normalContainer.AddChild(label)
-	rowContainer.AddChild(normalContainer)
+	for _, line := range strings.Split(controlsText, "\n") {
+		left, right, _ := strings.Cut(line, " | ")
+		leftLabel := eui.NewLabel(left, smallFont)
+		grid.AddChild(leftLabel)
+		rightLabel := eui.NewLabel(right, smallFont)
+		grid.AddChild(rightLabel)
+	}
+	rowContainer.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

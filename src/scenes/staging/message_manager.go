@@ -54,7 +54,7 @@ func (m *messageManager) nextMessage() {
 
 	m.messageTimer = 0
 	m.messageTimeLimit = info.timer
-	messagePos := gmath.Vec{X: 16, Y: 164}
+	messagePos := gmath.Vec{X: 16, Y: 202}
 	if info.targetPos.Base != nil {
 		m.message = newWorldTutorialHintNode(m.world.camera, messagePos, info.targetPos, info.text)
 	} else {

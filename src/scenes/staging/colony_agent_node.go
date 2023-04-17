@@ -382,6 +382,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			a.cloningBeam.Dispose()
 			a.cloningBeam = nil
 		}
+		a.sprite.SetColorScale(ge.ColorScale{R: 1, G: 1, B: 1, A: 1})
 		a.mode = mode
 		a.waypoint = a.pos.Sub(gmath.Vec{Y: agentFlightHeight - a.height})
 		return true

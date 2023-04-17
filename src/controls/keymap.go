@@ -26,6 +26,8 @@ const (
 
 	ActionToggleColony
 
+	ActionShowRecipes
+
 	ActionClick
 
 	ActionBack
@@ -52,6 +54,8 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 		ActionPanDrag:  {input.KeyTouchDrag},
 
 		ActionToggleColony: {input.KeyTab, input.KeyGamepadL1},
+
+		ActionShowRecipes: {input.KeyAlt, input.KeyGamepadR2},
 
 		ActionDebug: {input.KeyBackquote},
 

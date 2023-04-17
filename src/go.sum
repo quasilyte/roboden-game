@@ -44,6 +44,8 @@ github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8/go.mod h1:HKlIX3XHQyzL
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/quasilyte/ebitengine-input v0.8.1-0.20230411075137-592d2e960952 h1:8kaS61F5KOP8USV3TrqY+VZPEpBLoctNFWtqct1OiWs=
 github.com/quasilyte/ebitengine-input v0.8.1-0.20230411075137-592d2e960952/go.mod h1:tWf/T629SpFyv2bsXFtCbuGVnkpSo66ahqjhcYZgtSg=
+github.com/quasilyte/ebitengine-input v0.8.1-0.20230417093951-921a83abfdcc h1:D1Uifn/wsfSp8IP+chorgDVgKZkmCXtpXvWw/ERGPO0=
+github.com/quasilyte/ebitengine-input v0.8.1-0.20230417093951-921a83abfdcc/go.mod h1:tWf/T629SpFyv2bsXFtCbuGVnkpSo66ahqjhcYZgtSg=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230215192522-62a61a4ab6b8 h1:pboonUte8ELejyq83hP1zH0sfvcwRsYgX2OWJC9fSHU=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230215192522-62a61a4ab6b8/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230301215552-afd21c3065ff h1:bj5GPthnwdc0kya97m/JmL613RBkzpZm1mWeGcdVK2I=
@@ -100,6 +102,8 @@ github.com/quasilyte/ge v0.0.0-20230414181054-59e34851b792 h1:EnjYyuoHGeYLUN5RA8
 github.com/quasilyte/ge v0.0.0-20230414181054-59e34851b792/go.mod h1:HuyUX4gBD9k82FHckEi4x9Tul0FK3KuERDbytWQhagI=
 github.com/quasilyte/ge v0.0.0-20230414181310-0e51d4bef767 h1:2B6ntwisOqRnwLScinmhJKV6CtUot2rHHZure70kSEU=
 github.com/quasilyte/ge v0.0.0-20230414181310-0e51d4bef767/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
+github.com/quasilyte/ge v0.0.0-20230417094241-48252e286ad2 h1:Y2rAVnvR3kFWK61WKmlwBZ/dGAi1sJ/FQ/ktpJG0BsQ=
+github.com/quasilyte/ge v0.0.0-20230417094241-48252e286ad2/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
 github.com/quasilyte/gmath v0.0.0-20221217210116-fba37a2e15c7 h1:mvIS9aGirkzuYmHHNWAP6sLRoA5VFaIzMoFdPmqgPdY=
 github.com/quasilyte/gmath v0.0.0-20221217210116-fba37a2e15c7/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gmath v0.0.0-20230301114146-53cf1cfcdcd5 h1:ySf/HgUnnlWjX1GaMF1JC9RtsSd9NhUZZddNkozCqSI=

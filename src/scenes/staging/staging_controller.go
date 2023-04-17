@@ -61,6 +61,7 @@ type Controller struct {
 
 	tutorialManager *tutorialManager
 	messageManager  *messageManager
+	recipeTab       *recipeTabNode
 
 	visionRadius float64
 	fogOfWar     *ebiten.Image
@@ -333,6 +334,13 @@ func (c *Controller) Init(scene *ge.Scene) {
 	// }
 
 	scene.AddObject(c.cursor)
+
+	{
+		c.recipeTab = newRecipeTabNode(c.world)
+		c.recipeTab.Visible = false
+		scene.AddGraphics(c.recipeTab)
+		scene.AddObject(c.recipeTab)
+	}
 }
 
 func (c *Controller) updateFogOfWar(pos gmath.Vec) {
@@ -612,6 +620,11 @@ func (c *Controller) victory() {
 
 func (c *Controller) handleInput() {
 	mainInput := c.state.MainInput
+
+	if mainInput.ActionIsJustPressed(controls.ActionShowRecipes) {
+		c.recipeTab.Visible = !c.recipeTab.Visible
+	}
+
 	if !c.state.Device.IsMobile {
 		// Camera panning only makes sense on non-mobile devices
 		// where we have a keyboard/gamepad or a cursor.

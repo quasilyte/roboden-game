@@ -2,6 +2,7 @@ package staging
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -260,7 +261,8 @@ func (c *resultsController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
+	smallFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	d := c.scene.Dict()
 
@@ -273,45 +275,61 @@ func (c *resultsController) initUI() {
 	default:
 		titleString = d.Get("menu.results.defeat")
 	}
-	titleLabel := eui.NewCenteredLabel(titleString, smallFont)
+	titleLabel := eui.NewCenteredLabel(titleString, normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	lines := []string{
-		fmt.Sprintf("%s: %v", d.Get("menu.results.time_played"), timeutil.FormatDuration(d, c.results.TimePlayed)),
-		fmt.Sprintf("%s: %v", d.Get("menu.results.resources_gathered"), int(c.results.ResourcesGathered)),
-		fmt.Sprintf("%s: %v", d.Get("menu.results.drones_total"), c.results.DronesProduced),
-		fmt.Sprintf("%s: %v", d.Get("menu.results.creeps_defeated"), c.results.CreepsDefeated),
+	grid := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			StretchHorizontal: true,
+			StretchVertical:   true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(2),
+			widget.GridLayoutOpts.Spacing(24, 4))))
+
+	itoa := strconv.Itoa
+
+	lines := [][2]string{
+		{d.Get("menu.results.time_played"), timeutil.FormatDuration(d, c.results.TimePlayed)},
+		{d.Get("menu.results.resources_gathered"), itoa(int(c.results.ResourcesGathered))},
+		{d.Get("menu.results.drones_total"), itoa(c.results.DronesProduced)},
+		{d.Get("menu.results.creeps_defeated"), itoa(c.results.CreepsDefeated)},
 	}
 	if c.config.GameMode != gamedata.ModeTutorial {
 		if (c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode) || c.results.Victory {
 			if c.highScore {
-				lines = append(lines, fmt.Sprintf("%s: %v (%s)", d.Get("menu.results.score"), c.results.Score, d.Get("menu.results.new_record")))
+				lines = append(lines, [2]string{d.Get("menu.results.score"), fmt.Sprintf("%v (%s)", c.results.Score, d.Get("menu.results.new_record"))})
 			} else {
-				lines = append(lines, fmt.Sprintf("%s: %v", d.Get("menu.results.score"), c.results.Score))
+				lines = append(lines, [2]string{d.Get("menu.results.score"), itoa(c.results.Score)})
 			}
 		}
 	}
 	if c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode {
-		lines = append(lines, fmt.Sprintf("%s: %d", d.Get("game.wave"), c.results.ArenaLevel))
+		lines = append(lines, [2]string{d.Get("game.wave"), itoa(c.results.ArenaLevel)})
 	}
 
 	for _, a := range c.newAchievements {
-		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.new_achievement"), d.Get("achievement", a)))
+		lines = append(lines, [2]string{d.Get("menu.results.new_achievement"), d.Get("achievement", a)})
 	}
 	for _, a := range c.upgradedAchievements {
-		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.upgraded_achievement"), d.Get("achievement", a)))
+		lines = append(lines, [2]string{d.Get("menu.results.upgraded_achievement"), d.Get("achievement", a)})
 	}
 	for _, kind := range c.newDrones {
-		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.new_drone"), d.Get("drone", strings.ToLower(kind.String()))))
+		lines = append(lines, [2]string{d.Get("menu.results.new_drone"), d.Get("drone", strings.ToLower(kind.String()))})
 	}
 	for _, kind := range c.newTurrets {
-		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.new_turret"), d.Get("turret", strings.ToLower(kind.String()))))
+		lines = append(lines, [2]string{d.Get("menu.results.new_turret"), d.Get("turret", strings.ToLower(kind.String()))})
 	}
 
-	label := eui.NewCenteredLabel(strings.Join(lines, "\n"), smallFont)
-	rowContainer.AddChild(label)
+	for _, pair := range lines {
+		grid.AddChild(eui.NewLabel(pair[0], smallFont))
+		grid.AddChild(eui.NewLabel(pair[1], smallFont))
+	}
+
+	rowContainer.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

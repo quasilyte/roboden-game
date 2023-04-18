@@ -61,7 +61,7 @@ When low on health, this unit can cloak itself to avoid fatal damage.
 ##drone.disintegrator : Disintegrator
 ##drone.disintegrator.description
 A worker drone that carries an overly powerful disintegrator cannon for emergency situations.
-A single hit from that weapon causes massive damage, but the firing rate is very low; it also consumes lots of energy.
+A single hit from that weapon causes great damage, but the firing rate is very low; it also consumes lots of energy.
 
 ##drone.fighter : Fighter
 ##drone.fighter.description

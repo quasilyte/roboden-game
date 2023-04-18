@@ -151,7 +151,7 @@ var TetherBeaconAgentStats = &AgentStats{
 	Upkeep:         8,
 	MaxHealth:      70,
 	SupportReload:  10,
-	SupportRange:   300,
+	SupportRange:   375,
 	BeamSlideSpeed: 0.4,
 }
 

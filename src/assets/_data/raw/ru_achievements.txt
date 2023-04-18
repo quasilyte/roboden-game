@@ -78,3 +78,8 @@ Achieve a victory without creating a single tier 3 drone.
 ##achievement.infinite.description
 Переживи как минимум 35 вол в бесконечном режиме арены.
 Бесконечный режим включается во вкладке "доп" на экране настроек режима арены.
+
+##achievement.nopeeking : Не Подглядывать
+##achievement.nopeeking.description
+Победите в игре ни разу не открывая таблицы эволюции.
+Иначе говоря, не нажимайте ALT (на клавиатуре) или R2 (на геймпаде) на протяжении всего матча.

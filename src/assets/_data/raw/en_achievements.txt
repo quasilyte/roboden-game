@@ -78,3 +78,8 @@ Destroy all dominator class enemies before the final wave countdown reaches zero
 ##achievement.infinite.description
 Survive for at least 35 waves in infinite arena mode.
 The infinite mode is toggled in "extra" tab inside the arena mode.
+
+##achievement.nopeeking : No Peeking
+##achievement.nopeeking.description
+Win a game without looking at the evolution tab even once.
+In other words, don't press ALT (on keyboard) or R2 (on gamepad) during the entire match.

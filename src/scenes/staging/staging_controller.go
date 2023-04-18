@@ -443,9 +443,9 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 			c.world.result.ColoniesBuilt++
 		}
 		direction := c.world.rand.Rad()
-		for i := 0; i < 18; i++ {
+		for i := 0; i < 22; i++ {
 			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.world.selectedColony.pos)
-			direction += (2 * math.Pi) / 17
+			direction += (2 * math.Pi) / 22
 			constructionPos := c.pickColonyPos(nil, locationProbe, size, 4)
 			if !constructionPos.IsZero() {
 				construction := c.world.NewConstructionNode(constructionPos, stats)
@@ -626,6 +626,7 @@ func (c *Controller) handleInput() {
 
 	if mainInput.ActionIsJustPressed(controls.ActionShowRecipes) {
 		c.recipeTab.Visible = !c.recipeTab.Visible
+		c.world.result.OpenedEvolutionTab = true
 	}
 
 	if !c.state.Device.IsMobile {

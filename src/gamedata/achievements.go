@@ -47,6 +47,11 @@ var AchievementList = []*Achievement{
 		Mode: ModeAny,
 		Icon: assets.ImageAchievementTrample,
 	},
+	{
+		Name: "nopeeking",
+		Mode: ModeAny,
+		Icon: assets.ImageAchievementNoPeeking,
+	},
 
 	// Classic mode achievements.
 	{

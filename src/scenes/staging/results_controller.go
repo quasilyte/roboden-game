@@ -58,10 +58,11 @@ type battleResults struct {
 	EnemyColonyDamage            float64
 	EnemyColonyDamageFromTurrets float64
 
-	YellowFactionUsed bool
-	RedFactionUsed    bool
-	GreenFactionUsed  bool
-	BlueFactionUsed   bool
+	YellowFactionUsed  bool
+	RedFactionUsed     bool
+	GreenFactionUsed   bool
+	BlueFactionUsed    bool
+	OpenedEvolutionTab bool
 
 	RedCrystalsCollected int
 
@@ -195,6 +196,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = len(stats.Tier3DronesSeen) >= len(gamedata.Tier3agentMergeRecipes)
 		case "trample":
 			unlocked = c.results.CreepsStomped != 0
+		case "nopeeking":
+			unlocked = !c.results.OpenedEvolutionTab
 
 		case "impossible":
 			unlocked = c.results.DifficultyScore > 200

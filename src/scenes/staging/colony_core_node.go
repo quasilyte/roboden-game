@@ -728,7 +728,14 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			beam.width = 2
 			c.world.nodeRunner.AddObject(beam)
 		}
-		c.evoPoints = gmath.ClampMax(c.evoPoints+evoGain, maxEvoPoints)
+		// Initial colony radius is 128, minimal radius is 96.
+		// Every increase radius action adds ~30 to the radius.
+		// * 100 radius => 1.5 (max)
+		// * 200 radius => 1.0
+		// * 300 radius => 0.5
+		// * 400 radius => 0.1 (min)
+		evoGainMultiplier := gmath.Clamp(2.0-(c.realRadius/200), 0.1, 1.5)
+		c.evoPoints = gmath.ClampMax(c.evoPoints+(evoGain*evoGainMultiplier), maxEvoPoints)
 		c.updateEvoDiode()
 		return true
 

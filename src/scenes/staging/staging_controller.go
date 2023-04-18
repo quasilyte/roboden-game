@@ -420,7 +420,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		c.world.selectedColony.realRadiusSqr = c.world.selectedColony.realRadius * c.world.selectedColony.realRadius
 		return true
 	case specialDecreaseRadius:
-		value := c.world.rand.FloatRange(30, 40)
+		value := c.world.rand.FloatRange(40, 60)
 		c.world.selectedColony.realRadius = gmath.ClampMin(c.world.selectedColony.realRadius-value, 96)
 		c.world.selectedColony.realRadiusSqr = c.world.selectedColony.realRadius * c.world.selectedColony.realRadius
 		return true

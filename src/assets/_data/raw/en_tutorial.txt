@@ -228,6 +228,7 @@ The radius-related actions affect
 the colony influence radius. Higher radius
 means more drones and territory,
 but it can make your formations more vulnerable.
+Lower radius also makes evolution faster.
 ##tutorial3.final_goal
 To complete this mission,
 you need to destroy the enemy base.

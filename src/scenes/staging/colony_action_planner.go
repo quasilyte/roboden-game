@@ -613,11 +613,16 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 	}
 
 	if p.numTier2Agents > 0 {
-		evoPointsChance := gmath.Clamp(p.colony.GetEvolutionPriority()-0.1, 0, 0.6)
+		// evolution=10% => ~2.5%
+		// evolution=20% => ~10%
+		// evolution=40% => ~25%
+		// evolution=60% => ~40%
+		// evolution=75% => ~50%
+		evoPointsChance := gmath.Clamp((p.colony.GetEvolutionPriority()*0.7)-0.05, 0, 0.5)
 		if p.world.rand.Chance(evoPointsChance) {
 			return colonyAction{
 				Kind:     actionGenerateEvo,
-				TimeCost: 0.3,
+				TimeCost: 0.4,
 			}
 		}
 	}

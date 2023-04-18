@@ -1607,7 +1607,7 @@ func (a *colonyAgentNode) getCloserWaypoint(targetPos gmath.Vec, spread, preferr
 }
 
 func (a *colonyAgentNode) followWaypoint(targetPos gmath.Vec) gmath.Vec {
-	rng := a.stats.Weapon.AttackRange * 0.6
+	rng := a.stats.Weapon.AttackRange * 0.8
 	preferredDist := gmath.ClampMin(rng, 80)
 	return a.getCloserWaypoint(targetPos, rng, preferredDist)
 }

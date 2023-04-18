@@ -22,8 +22,8 @@ type specialChoiceKind int
 
 const (
 	specialChoiceNone specialChoiceKind = iota
-	specialDecreaseRadius
 	specialIncreaseRadius
+	specialDecreaseRadius
 	specialBuildGunpoint
 	specialBuildColony
 	specialAttack
@@ -197,6 +197,7 @@ type choiceWindowNode struct {
 
 	beforeSpecialShuffle int
 	buildTurret          bool
+	increaseRadius       bool
 	specialChoiceKinds   []specialChoiceKind
 	specialChoices       []choiceOption
 
@@ -251,9 +252,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		w.specialChoiceKinds = append(w.specialChoiceKinds, specialAttack)
 	}
 	if w.config.RadiusActionAvailable {
-		w.specialChoiceKinds = append(w.specialChoiceKinds,
-			specialDecreaseRadius,
-			specialIncreaseRadius)
+		w.specialChoiceKinds = append(w.specialChoiceKinds, specialDecreaseRadius)
 	}
 
 	// Now translate the special choices.
@@ -384,6 +383,7 @@ func (w *choiceWindowNode) revealChoices() {
 
 	if w.beforeSpecialShuffle == 0 {
 		w.buildTurret = !w.buildTurret
+		w.increaseRadius = !w.increaseRadius
 		gmath.Shuffle(w.scene.Rand(), w.specialChoiceKinds)
 		w.beforeSpecialShuffle = len(w.specialChoiceKinds)
 	}
@@ -391,9 +391,14 @@ func (w *choiceWindowNode) revealChoices() {
 	specialIndex := w.beforeSpecialShuffle
 
 	specialOptionKind := w.specialChoiceKinds[specialIndex]
-	if specialOptionKind == specialBuildColony {
+	switch specialOptionKind {
+	case specialBuildColony:
 		if w.buildTurret && w.config.BuildTurretActionAvailable {
 			specialOptionKind = specialBuildGunpoint
+		}
+	case specialDecreaseRadius:
+		if w.increaseRadius {
+			specialOptionKind = specialIncreaseRadius
 		}
 	}
 	specialOption := w.specialChoices[specialOptionKind]

@@ -1257,14 +1257,18 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 	return baseSpeed * multiplier
 }
 
-func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {
-	travelled := a.movementSpeed() * delta
+func (a *colonyAgentNode) moveTowardsWithSpeed(delta, speed float64, pos gmath.Vec) bool {
+	travelled := speed * delta
 	if a.pos.DistanceTo(pos) <= travelled {
 		a.pos = pos
 		return true
 	}
 	a.pos = a.pos.MoveTowards(pos, travelled)
 	return false
+}
+
+func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {
+	return a.moveTowardsWithSpeed(delta, a.movementSpeed(), pos)
 }
 
 func (a *colonyAgentNode) updatePatrol(delta float64) {
@@ -1606,8 +1610,9 @@ func (a *colonyAgentNode) updateFollow(delta float64) {
 }
 
 func (a *colonyAgentNode) updateAlignStandby(delta float64) {
-	a.height += delta * agentPickupSpeed
-	if a.moveTowards(delta, a.waypoint) {
+	speed := a.movementSpeed()
+	a.height += delta * speed
+	if a.moveTowardsWithSpeed(delta, speed, a.waypoint) {
 		a.height = agentFlightHeight
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
@@ -1691,8 +1696,9 @@ func (a *colonyAgentNode) updateMineEssence(delta float64) {
 }
 
 func (a *colonyAgentNode) updatePickup(delta float64) {
-	a.height -= delta * agentPickupSpeed
-	if a.moveTowards(delta, a.waypoint) {
+	speed := a.movementSpeed()
+	a.height -= delta * speed
+	if a.moveTowardsWithSpeed(delta, speed, a.waypoint) {
 		a.height = 0
 		a.mode = agentModeResourceTakeoff
 		a.waypoint = a.pos.Sub(gmath.Vec{Y: agentFlightHeight})
@@ -1705,8 +1711,9 @@ func (a *colonyAgentNode) updatePickup(delta float64) {
 }
 
 func (a *colonyAgentNode) updateResourceTakeoff(delta float64) {
-	a.height += delta * agentPickupSpeed
-	if a.moveTowards(delta, a.waypoint) {
+	speed := a.movementSpeed()
+	a.height += delta * speed
+	if a.moveTowardsWithSpeed(delta, speed, a.waypoint) {
 		a.height = agentFlightHeight
 		a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
 	}

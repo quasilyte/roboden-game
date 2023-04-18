@@ -319,7 +319,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
-		b := c.newOptionButton(&c.config.InitialCreeps, 2, "menu.lobby.initial_creeps", []string{
+		b := c.newOptionButton(&c.config.InitialCreeps, -1, "menu.lobby.initial_creeps", []string{
 			d.Get("menu.option.none"),
 			d.Get("menu.option.some"),
 			d.Get("menu.option.lots"),
@@ -328,7 +328,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
-		b := c.newOptionButton(&c.config.CreepDifficulty, 6, "menu.lobby.creeps_difficulty", []string{
+		b := c.newOptionButton(&c.config.CreepDifficulty, -1, "menu.lobby.creeps_difficulty", []string{
 			"90%",
 			"100%",
 			"110%",
@@ -336,6 +336,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"130%",
 			"140%",
 			"150%",
+			"160%",
 		})
 		tab.AddChild(b)
 	}
@@ -352,10 +353,12 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 
 	if c.mode == gamedata.ModeArena {
 		b := c.newOptionButton(&c.config.ArenaProgression, -1, "menu.lobby.arena_progression", []string{
-			"75%",
+			"80%",
 			"100%",
-			"125%",
-			"150%",
+			"120%",
+			"140%",
+			"160%",
+			"180%",
 		})
 		tab.AddChild(b)
 	}
@@ -513,7 +516,7 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 		score += 10 - (c.config.Resources * 5)
 		score += (c.config.CreepDifficulty - 1) * 15
 		score += c.config.InitialCreeps * 5
-		score += (c.config.ArenaProgression - 1) * 15
+		score += (c.config.ArenaProgression - 1) * 10
 		score -= c.config.StartingResources * 2
 	}
 

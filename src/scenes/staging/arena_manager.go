@@ -158,7 +158,7 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 
 	m.spawnAreas = creepSpawnAreas(m.world)
 
-	m.budgetStepMultiplier = 0.75 + (float64(m.world.config.ArenaProgression) * 0.25)
+	m.budgetStepMultiplier = 0.80 + (float64(m.world.config.ArenaProgression) * 0.2)
 	m.infoUpdateDelay = 5
 	m.prepareWave()
 	m.overviewText = m.createWaveOverviewText()

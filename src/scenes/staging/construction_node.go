@@ -48,8 +48,8 @@ var beamTowerConstructionStats = &constructionStats{
 }
 
 var tetherBeaconConstructionStats = &constructionStats{
-	ConstructionSpeed: 0.025,
-	DamageModifier:    0.04,
+	ConstructionSpeed: 0.04,
+	DamageModifier:    0.03,
 	Kind:              constructTurret,
 	TurretStats:       gamedata.TetherBeaconAgentStats,
 	Image:             assets.ImageTetherBeaconAgent,

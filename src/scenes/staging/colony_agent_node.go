@@ -54,7 +54,6 @@ const (
 	agentModeRecycleReturn
 	agentModeRecycleLanding
 	agentModeMerging
-	agentModeMergeTransform
 	agentModeBuildBuilding
 	agentModeGuardForever
 )
@@ -946,12 +945,31 @@ func (a *colonyAgentNode) doTether() {
 		return
 	}
 
-	agentTarget := a.colonyCore.agents.Find(searchWorkers, func(x *colonyAgentNode) bool {
+	var agentCandidate *colonyAgentNode
+	agentTarget := a.colonyCore.agents.Find(searchWorkers|searchRandomized, func(x *colonyAgentNode) bool {
 		if x.tether {
 			return false
 		}
-		return x.pos.DistanceSquaredTo(a.pos) <= maxRangeSqr
+		if x.pos.DistanceSquaredTo(a.pos) > maxRangeSqr {
+			return false
+		}
+		switch x.mode {
+		case agentModeCharging, agentModeForcedCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging:
+			// Modes that are never targeted.
+			return false
+		}
+		agentCandidate = x
+		switch x.mode {
+		case agentModeMineEssence, agentModeReturn, agentModeCourierFlight:
+			// The best modes to be hastened.
+			return true
+		default:
+			return false
+		}
 	})
+	if agentTarget == nil && agentCandidate != nil {
+		agentTarget = agentCandidate
+	}
 	if agentTarget != nil {
 		agentTarget.tether = true
 		a.world().nodeRunner.AddObject(newTetherNode(a.world(), a, agentTarget))

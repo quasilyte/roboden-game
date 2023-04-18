@@ -148,7 +148,7 @@ var TetherBeaconAgentStats = &AgentStats{
 	Kind:           AgentTetherBeacon,
 	Image:          assets.ImageTetherBeaconAgent,
 	Size:           SizeLarge,
-	Upkeep:         15,
+	Upkeep:         8,
 	MaxHealth:      70,
 	SupportReload:  10,
 	SupportRange:   300,

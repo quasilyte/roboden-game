@@ -39,6 +39,16 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 	diode := scene.LoadImage(assets.ImageFactionDiode).Data
 	diodeSize := diode.Bounds().Size()
 
+	extraOffsets := [...]float64{
+		gamedata.AgentGenerator:     -3,
+		gamedata.AgentRedminer:      -2,
+		gamedata.AgentDisintegrator: -1,
+		gamedata.AgentRepeller:      -1,
+		gamedata.AgentRepair:        -1,
+		gamedata.AgentCloner:        -1,
+		gamedata.AgentCrippler:      -1,
+	}
+
 	drawDrone := func(dst *ebiten.Image, stats *gamedata.AgentStats, faction gamedata.FactionTag, cellWidth, offsetX, offsetY float64) {
 		halfWidth := cellWidth * 0.5
 		droneImage := scene.LoadImage(stats.Image)
@@ -46,6 +56,9 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 		frameSize := droneFrame.Bounds().Size()
 		var drawOptions ebiten.DrawImageOptions
 		drawOptions.GeoM.Translate(offsetX, offsetY)
+		if int(stats.Kind) < len(extraOffsets) {
+			drawOptions.GeoM.Translate(0, extraOffsets[stats.Kind])
+		}
 		drawOptions.GeoM.Translate(halfWidth-(float64(frameSize.X)*0.5), 15-(float64(frameSize.Y)*0.5))
 		dst.DrawImage(droneFrame, &drawOptions)
 		if faction != gamedata.NeutralFactionTag {

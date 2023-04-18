@@ -482,7 +482,7 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 		upkeepTotal += turret.stats.Upkeep
 	}
 	upkeepDecrease = gmath.ClampMax(upkeepDecrease, 10)
-	upkeepTotal = gmath.ClampMin(upkeepTotal-(upkeepDecrease*15), 0)
+	upkeepTotal = gmath.ClampMin(upkeepTotal-(upkeepDecrease*20), 0)
 	if resourcesPriority := c.GetResourcePriority(); resourcesPriority > 0.2 {
 		// <=20 -> 0%
 		// 40%  -> 20%

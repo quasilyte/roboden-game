@@ -60,9 +60,17 @@ func (tether *tetherNode) Update(delta float64) {
 		tether.line.Shader.SetFloatValue("Time", tether.shaderTime)
 	}
 
-	if tether.target != nil && tether.target.IsDisposed() {
-		tether.dispose()
-		return
+	if tether.target != nil {
+		if tether.target.IsDisposed() {
+			tether.dispose()
+			return
+		}
+		if drone, ok := tether.target.(*colonyAgentNode); ok && drone.stats.Kind == gamedata.AgentKamikaze {
+			if drone.mode == agentModeKamikazeAttack {
+				tether.dispose()
+				return
+			}
+		}
 	}
 	if tether.source != nil && tether.source.IsDisposed() {
 		tether.dispose()

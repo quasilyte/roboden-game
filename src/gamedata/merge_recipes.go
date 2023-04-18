@@ -10,8 +10,8 @@ import "fmt"
 // red scout ++++
 // green worker ++++
 // green scout ++++
-// blue worker ++++
-// blue scout ++++
+// blue worker +++++
+// blue scout +++++
 //
 // Used:
 // mortar: green worker + red scout
@@ -31,6 +31,7 @@ import "fmt"
 // courier: red worker + green scout
 // disintegrator: yellow worker + blue scout
 // defender: yellow scout + red scout
+// kamikaze: blue worker + blue scout [! a non-standard combination]
 //
 // Unused:
 // yellow worker + red scout
@@ -128,6 +129,11 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Drone1: RecipeSubject{YellowFactionTag, AgentScout},
 		Drone2: RecipeSubject{RedFactionTag, AgentScout},
 		Result: DefenderAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
+		Drone2: RecipeSubject{BlueFactionTag, AgentScout},
+		Result: KamikazeAgentStats,
 	},
 }
 

@@ -56,6 +56,7 @@ const (
 	agentModeMerging
 	agentModeBuildBuilding
 	agentModeGuardForever
+	agentModeKamikazeAttack
 )
 
 type agentTraitBits uint64
@@ -561,6 +562,12 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.target = target
 		a.waypoint = gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(construction.pos)
 		return true
+
+	case agentModeKamikazeAttack:
+		a.waypoint = gmath.Vec{}
+		a.mode = mode
+		a.target = target
+		return true
 	}
 
 	return false
@@ -676,6 +683,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRepairBase(delta)
 	case agentModeRepairTurret:
 		a.updateRepairTurret(delta)
+	case agentModeKamikazeAttack:
+		a.updateKamikazeAttack(delta)
 	case agentModeGuardForever:
 		// Just chill.
 	}
@@ -780,14 +789,26 @@ func (a *colonyAgentNode) updateHealthShader() {
 }
 
 func (a *colonyAgentNode) CanAttack(mask gamedata.TargetKind) bool {
-	return a.stats.Weapon.TargetFlags&mask != 0
+	return a.stats.Weapon != nil && a.stats.Weapon.TargetFlags&mask != 0
 }
 
 func (a *colonyAgentNode) IsCloaked() bool {
 	return a.cloaking > 0
 }
 
-func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
+func (a *colonyAgentNode) onLowHealthDamage(source targetable) {
+	if a.stats.Kind == gamedata.AgentKamikaze && source.IsFlying() {
+		switch a.mode {
+		case agentModePatrol, agentModeStandby, agentModeMineEssence, agentModeReturn, agentModeFollow:
+			if creep, ok := source.(*creepNode); ok {
+				a.health = gmath.ClampMax(a.health+10, a.maxHealth)
+				a.dist = 0.1 + a.scene.Rand().FloatRange(0.05, 0.25)
+				a.AssignMode(agentModeKamikazeAttack, gmath.Vec{}, creep)
+				return
+			}
+		}
+	}
+
 	// Don't do anything weird when colony is being relocated.
 	if a.colonyCore.mode != colonyModeNormal {
 		return
@@ -811,7 +832,7 @@ func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
 	switch {
 	case a.hasTrait(traitLowHPBerserk):
 		// Berserks go straight into the danger when low on health.
-		a.AssignMode(agentModeMove, source.Add(a.scene.Rand().Offset(-20, 20)), nil)
+		a.AssignMode(agentModeMove, source.GetPos().Add(a.scene.Rand().Offset(-20, 20)), nil)
 	case a.hasTrait(traitLowHPRecycle):
 		// Recycle agents may go to recycle themselves on low health.
 		if a.scene.Rand().Chance(0.8) {
@@ -819,7 +840,7 @@ func (a *colonyAgentNode) onLowHealthDamage(source gmath.Vec) {
 		}
 	case a.hasTrait(traitLowHPRetreat):
 		// Agents with retreat trait will try to fly away from a threat on low health.
-		pos := retreatPos(a.scene.Rand(), a.scene.Rand().FloatRange(80, 140), a.pos, source)
+		pos := retreatPos(a.scene.Rand(), a.scene.Rand().FloatRange(80, 140), a.pos, *source.GetPos())
 		a.AssignMode(agentModeMove, pos, nil)
 	case a.hasTrait(traitLowHPPanic):
 		// Agents with panic trait will stop what they're doing and fly like crazy.
@@ -836,15 +857,24 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 		return
 	}
 
-	if a.health <= (a.maxHealth * 0.33) {
-		a.onLowHealthDamage(*source.GetPos())
+	if !a.IsTurret() {
+		if a.colonyCore.GetSecurityPriority() < 0.3 && a.scene.Rand().Chance(1.0-a.colonyCore.GetSecurityPriority()) {
+			a.colonyCore.AddPriority(prioritySecurity, 0.01)
+		}
 	}
+
+	a.energy = gmath.ClampMin(a.energy-damage.Energy, 0)
+	a.slow = gmath.ClampMax(a.slow+damage.Slow, 5)
 
 	if damage.Health != 0 {
 		a.flashComponent.flash = 0.2
 		if a.IsTurret() {
 			a.updateHealthShader()
 		}
+	}
+
+	if a.health <= (a.maxHealth*0.33) || a.health <= damage.Health {
+		a.onLowHealthDamage(source)
 	}
 
 	if damage.Morale != 0 && !a.IsTurret() {
@@ -864,15 +894,6 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 				pos := retreatPos(a.scene.Rand(), a.scene.Rand().FloatRange(80, 140), a.pos, *source.GetPos())
 				a.AssignMode(agentModeMove, pos, nil)
 			}
-		}
-	}
-
-	a.energy = gmath.ClampMin(a.energy-damage.Energy, 0)
-	a.slow = gmath.ClampMax(a.slow+damage.Slow, 5)
-
-	if !a.IsTurret() {
-		if a.colonyCore.GetSecurityPriority() < 0.3 && a.scene.Rand().Chance(1.0-a.colonyCore.GetSecurityPriority()) {
-			a.colonyCore.AddPriority(prioritySecurity, 0.01)
 		}
 	}
 }
@@ -954,7 +975,7 @@ func (a *colonyAgentNode) doTether() {
 			return false
 		}
 		switch x.mode {
-		case agentModeCharging, agentModeForcedCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging:
+		case agentModeKamikazeAttack, agentModeCharging, agentModeForcedCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging:
 			// Modes that are never targeted.
 			return false
 		}
@@ -1067,6 +1088,7 @@ func (a *colonyAgentNode) doRecharge() {
 	const rechargerEnergyRecorery float64 = 25.0
 	target := a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized, func(x *colonyAgentNode) bool {
 		return x != a &&
+			x.mode != agentModeKamikazeAttack &&
 			(x.energy+rechargerEnergyRecorery) < x.maxEnergy &&
 			x.pos.DistanceTo(a.pos) < gamedata.RechargeAgentStats.SupportRange
 	})
@@ -1091,6 +1113,7 @@ func (a *colonyAgentNode) createBeam(target targetable, beamStats *gamedata.Agen
 func (a *colonyAgentNode) doRepair() {
 	target := a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized, func(x *colonyAgentNode) bool {
 		return x != a &&
+			x.mode != agentModeKamikazeAttack &&
 			x.health < x.maxHealth &&
 			x.pos.DistanceTo(a.pos) < gamedata.RepairAgentStats.SupportRange
 	})
@@ -1237,6 +1260,8 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 func (a *colonyAgentNode) movementSpeed() float64 {
 	var baseSpeed float64
 	switch a.mode {
+	case agentModeKamikazeAttack:
+		return 2 * a.speed
 	case agentModeTakeoff, agentModeRecycleLanding:
 		return 30
 	case agentModePickup, agentModeResourceTakeoff, agentModeAlignStandby:
@@ -1325,6 +1350,51 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 	if a.dist <= 0 {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		a.colonyCore.OnHeal(a.scene.Rand().FloatRange(3, 5))
+		return
+	}
+}
+
+func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
+	creep := a.target.(*creepNode)
+
+	if creep.IsDisposed() {
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		return
+	}
+
+	if a.dist > 0 {
+		a.dist -= delta
+		if a.dist <= 0 {
+			a.dist = -1
+			playSound(a.world(), assets.AudioKamizakeAttack, a.pos)
+		}
+	}
+
+	if a.waypoint.IsZero() {
+		a.waypoint = a.getCloserWaypoint(creep.pos, 4, 16)
+	}
+
+	const explosionRangeSqr float64 = 34 * 34
+	const explosionDamage float64 = 30.0
+	if a.moveTowards(delta, a.waypoint) {
+		if a.pos.DistanceSquaredTo(creep.pos) > explosionRangeSqr {
+			a.waypoint = gmath.Vec{}
+			return
+		}
+		a.world().nodeRunner.AddObject(newEffectNode(a.world().camera, a.pos, true, assets.ImageBigVerticalExplosion))
+		playExplosionSound(a.world(), a.pos)
+		creep.OnDamage(gamedata.DamageValue{Health: explosionDamage}, a)
+		for _, otherCreep := range a.world().creeps {
+			if !otherCreep.IsFlying() || otherCreep == creep {
+				continue
+			}
+			distSqr := otherCreep.pos.DistanceSquaredTo(a.pos)
+			if distSqr > explosionRangeSqr {
+				continue
+			}
+			otherCreep.OnDamage(gamedata.DamageValue{Health: explosionDamage * 0.5}, a)
+		}
+		a.Destroy()
 		return
 	}
 }
@@ -1525,20 +1595,21 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 	}
 }
 
-func (a *colonyAgentNode) getCloserWaypoint(targetPos gmath.Vec, preferredDist float64) gmath.Vec {
+func (a *colonyAgentNode) getCloserWaypoint(targetPos gmath.Vec, spread, preferredDist float64) gmath.Vec {
 	currentDist := a.pos.DistanceTo(targetPos)
 	if currentDist <= preferredDist {
-		return a.pos.Add(a.scene.Rand().Offset(-40, 40))
+		return targetPos.Add(a.scene.Rand().Offset(-spread, spread))
 	}
 	const maxMoveDist float64 = 96.0
-	dist := maxMoveDist * a.scene.Rand().FloatRange(0.8, 1.2)
+	dist := gmath.ClampMax(maxMoveDist*a.scene.Rand().FloatRange(0.8, 1.2), gmath.ClampMin(currentDist-preferredDist, maxMoveDist*0.25))
 	result := targetPos.DirectionTo(a.pos).Mulf(dist).Add(a.pos).Add(a.scene.Rand().Offset(-28, 28))
 	return result
 }
 
 func (a *colonyAgentNode) followWaypoint(targetPos gmath.Vec) gmath.Vec {
-	preferredDist := gmath.ClampMin(a.stats.Weapon.AttackRange*0.6, 80)
-	return a.getCloserWaypoint(targetPos, preferredDist)
+	rng := a.stats.Weapon.AttackRange * 0.6
+	preferredDist := gmath.ClampMin(rng, 80)
+	return a.getCloserWaypoint(targetPos, rng, preferredDist)
 }
 
 func (a *colonyAgentNode) updateMove(delta float64) {

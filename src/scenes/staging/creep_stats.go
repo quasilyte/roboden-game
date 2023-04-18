@@ -210,7 +210,7 @@ var heavyCrawlerCreepStats = &creepStats{
 		BurstDelay:      0.1,
 		AttackSound:     assets.AudioHeavyCrawlerShot,
 		AttackRange:     220,
-		ImpactArea:      10,
+		ImpactArea:      12,
 		ProjectileSpeed: 280,
 		Damage:          gamedata.DamageValue{Health: 2},
 		ProjectileImage: assets.ImageHeavyCrawlerProjectile,

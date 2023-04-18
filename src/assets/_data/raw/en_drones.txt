@@ -159,3 +159,9 @@ It's vulnerable against enemy ground units.
 ##turret.tetherbeacon.description
 An utility building that doesn't attack. A beacon increases the speed of nearby units.
 When a colony passes by, it boosts its speed too. This building is an alternative to a servobot bonus.
+
+##drone.kamikaze : Divine Wind
+##drone.kamikaze.description
+A light and cheap worker drone.
+When heavily damaged, it can rush into the attacker, exploding itself while causing massive damage.
+Its evolution recipe makes it easy to mass-produce these.

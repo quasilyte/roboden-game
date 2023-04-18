@@ -53,6 +53,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioWandererBeam:        {Path: "$sfx/wanderer_beam.wav", Volume: -0.3},
 		AudioScoutShot:           {Path: "$sfx/scout_shot.wav", Volume: -0.3},
 		AudioCripplerShot:        {Path: "$sfx/crippler_shot.wav", Volume: -0.3},
+		AudioKamizakeAttack:      {Path: "$sfx/kamikaze_attack.wav", Volume: 0.2},
 		AudioScavengerShot:       {Path: "$sfx/scavenger_shot.wav", Volume: -0.3},
 		AudioCourierShot:         {Path: "$sfx/courier_shot.wav", Volume: 0},
 		AudioDisintegratorShot:   {Path: "$sfx/disintegrator_shot.wav", Volume: -0.2},
@@ -70,7 +71,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioRepellerBeam:        {Path: "$sfx/repeller_beam.wav", Volume: -0.35},
 		AudioDestroyerBeam:       {Path: "$sfx/destroyer_beam.wav", Volume: -0.3},
 		AudioStealth:             {Path: "$sfx/stealth.wav", Volume: -0.25},
-		AudioMarauderShot:        {Path: "$sfx/marauder_shot.wav", Volume: -0.35},
+		AudioMarauderShot:        {Path: "$sfx/marauder_shot.wav", Volume: -0.4},
 		AudioPrismShot:           {Path: "$sfx/prism_shot.wav", Volume: -0.4},
 		AudioRailgun:             {Path: "$sfx/railgun.wav", Volume: -0.3},
 		AudioAntiAirMissiles:     {Path: "$sfx/aa_missiles.wav", Volume: -0.4},
@@ -133,6 +134,7 @@ const (
 	AudioRepairBeam
 	AudioMortarShot
 	AudioCripplerShot
+	AudioKamizakeAttack
 	AudioScavengerShot
 	AudioCourierShot
 	AudioDisintegratorShot

@@ -45,6 +45,7 @@ const (
 	AgentMortar
 	AgentAntiAir
 	AgentDefender
+	AgentKamikaze
 
 	// Tier3
 	AgentRefresher
@@ -620,7 +621,7 @@ var MortarAgentStats = &AgentStats{
 		ProjectileImage: assets.ImageMortarProjectile,
 		ImpactArea:      18,
 		ProjectileSpeed: 180,
-		Damage:          DamageValue{Health: 10},
+		Damage:          DamageValue{Health: 13},
 		MaxTargets:      1,
 		BurstSize:       1,
 		Explosion:       ProjectileExplosionNormal,
@@ -709,6 +710,23 @@ var RepellerAgentStats = &AgentStats{
 		TargetFlags:     TargetFlying | TargetGround,
 		Explosion:       ProjectileExplosionShocker,
 	}),
+}
+
+var KamikazeAgentStats = &AgentStats{
+	ScoreCost:   KamikazeDroneCost,
+	Kind:        AgentKamikaze,
+	Image:       assets.ImageKamikazeAgent,
+	Size:        SizeMedium,
+	DiodeOffset: 4,
+	Tier:        2,
+	PointCost:   2,
+	Cost:        14,
+	Upkeep:      4,
+	CanGather:   true,
+	MaxPayload:  1,
+	CanPatrol:   true,
+	Speed:       100,
+	MaxHealth:   20,
 }
 
 var DisintegratorAgentStats = &AgentStats{

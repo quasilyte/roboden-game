@@ -121,6 +121,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageRefresherAgent:     {Path: "image/drones/refresher_agent.png", FrameWidth: 31, FrameHeight: 21},
 		ImageFighterAgent:       {Path: "image/drones/fighter_agent.png", FrameWidth: 15, FrameHeight: 15},
 		ImageDefenderAgent:      {Path: "image/drones/defender_agent.png", FrameWidth: 17, FrameHeight: 16},
+		ImageKamikazeAgent:      {Path: "image/drones/kamikaze_agent.png", FrameWidth: 15, FrameHeight: 12},
 		ImagePrismAgent:         {Path: "image/drones/prism_agent.png", FrameWidth: 15, FrameHeight: 15},
 		ImageDestroyerAgent:     {Path: "image/drones/destroyer_agent.png", FrameWidth: 33, FrameHeight: 24},
 		ImageRepellerAgent:      {Path: "image/drones/repeller_agent.png", FrameWidth: 15, FrameHeight: 13},
@@ -373,6 +374,7 @@ const (
 	ImageRefresherAgent
 	ImageFighterAgent
 	ImageDefenderAgent
+	ImageKamikazeAgent
 	ImageDestroyerAgent
 	ImageCripplerAgent
 	ImageMortarAgent

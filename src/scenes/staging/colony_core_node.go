@@ -544,6 +544,9 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.relocationPoint = pos
 
 	c.agents.Each(func(a *colonyAgentNode) {
+		if a.mode == agentModeKamikazeAttack {
+			return
+		}
 		a.clearCargo()
 		if a.IsCloaked() {
 			a.doUncloak()

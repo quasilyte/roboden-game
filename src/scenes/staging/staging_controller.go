@@ -212,7 +212,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 			c.messageManager.AddMessage(queuedMessageInfo{
 				text:          scene.Dict().Get("game.notice.base_under_attack"),
 				trackedObject: colony,
-				timer:         10,
+				timer:         5,
 				targetPos:     ge.Pos{Base: colony.GetPos()},
 			})
 		})

@@ -104,9 +104,9 @@ func (c *LobbyMenuController) prepareRecipeIcons() {
 		Max: image.Point{X: int(workerImage.DefaultFrameWidth), Y: int(workerImage.DefaultFrameHeight)},
 	}).(*ebiten.Image)
 
-	militiaImage := c.scene.LoadImage(assets.ImageMilitiaAgent)
-	militiaFrame := militiaImage.Data.SubImage(image.Rectangle{
-		Max: image.Point{X: int(militiaImage.DefaultFrameWidth), Y: int(militiaImage.DefaultFrameHeight)},
+	scoutImage := c.scene.LoadImage(assets.ImageScoutAgent)
+	scoutFrame := scoutImage.Data.SubImage(image.Rectangle{
+		Max: image.Point{X: int(scoutImage.DefaultFrameWidth), Y: int(scoutImage.DefaultFrameHeight)},
 	}).(*ebiten.Image)
 
 	diode := c.scene.LoadImage(assets.ImageFactionDiode).Data
@@ -125,9 +125,9 @@ func (c *LobbyMenuController) prepareRecipeIcons() {
 
 			diodeOffset := gamedata.WorkerAgentStats.DiodeOffset + 1
 			droneFrame := workerFrame
-			if s.Kind == gamedata.AgentMilitia {
-				droneFrame = militiaFrame
-				diodeOffset = gamedata.MilitiaAgentStats.DiodeOffset + 2
+			if s.Kind == gamedata.AgentScout {
+				droneFrame = scoutFrame
+				diodeOffset = gamedata.ScoutAgentStats.DiodeOffset + 2
 			}
 			frameSize := droneFrame.Bounds().Size()
 			img := ebiten.NewImage(32, 32)
@@ -329,13 +329,13 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 
 	{
 		b := c.newOptionButton(&c.config.CreepDifficulty, 6, "menu.lobby.creeps_difficulty", []string{
-			"80%",
+			"90%",
 			"100%",
+			"110%",
 			"120%",
+			"130%",
 			"140%",
-			"160%",
-			"180%",
-			"200%",
+			"150%",
 		})
 		tab.AddChild(b)
 	}
@@ -695,7 +695,7 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 
 	for i := range gamedata.TurretStatsList {
 		turret := gamedata.TurretStatsList[i]
-		available := xslices.Contains(c.state.Persistent.PlayerStats.TurretsUnlocked, turret.Kind)
+		available := xslices.Contains(c.state.Persistent.PlayerStats.TurretsUnlocked, turret.Kind.String())
 		var img *ebiten.Image
 		if available {
 			img = c.scene.LoadImage(turret.Image).Data
@@ -753,7 +753,7 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 	for i := range gamedata.Tier2agentMergeRecipes {
 		recipe := gamedata.Tier2agentMergeRecipes[i]
 		drone := recipe.Result
-		available := xslices.Contains(c.state.Persistent.PlayerStats.DronesUnlocked, drone.Kind)
+		available := xslices.Contains(c.state.Persistent.PlayerStats.DronesUnlocked, drone.Kind.String())
 		costLabel := ""
 		var frame *ebiten.Image
 		if available {

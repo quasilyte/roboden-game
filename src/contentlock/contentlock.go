@@ -54,11 +54,11 @@ func Update(state *session.State) *Result {
 	stats := &state.Persistent.PlayerStats
 
 	alreadyUnlocked := map[gamedata.ColonyAgentKind]struct{}{}
-	for _, kind := range stats.DronesUnlocked {
-		alreadyUnlocked[kind] = struct{}{}
+	for _, name := range stats.DronesUnlocked {
+		alreadyUnlocked[gamedata.DroneKindByName[name]] = struct{}{}
 	}
-	for _, kind := range stats.TurretsUnlocked {
-		alreadyUnlocked[kind] = struct{}{}
+	for _, name := range stats.TurretsUnlocked {
+		alreadyUnlocked[gamedata.DroneKindByName[name]] = struct{}{}
 	}
 
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {
@@ -70,7 +70,7 @@ func Update(state *session.State) *Result {
 			continue
 		}
 		result.DronesUnlocked = append(result.DronesUnlocked, drone.Kind)
-		stats.DronesUnlocked = append(stats.DronesUnlocked, drone.Kind)
+		stats.DronesUnlocked = append(stats.DronesUnlocked, drone.Kind.String())
 	}
 	for _, turret := range gamedata.TurretStatsList {
 		if _, ok := alreadyUnlocked[turret.Kind]; ok {
@@ -80,7 +80,7 @@ func Update(state *session.State) *Result {
 			continue
 		}
 		result.TurretsUnlocked = append(result.TurretsUnlocked, turret.Kind)
-		stats.TurretsUnlocked = append(stats.TurretsUnlocked, turret.Kind)
+		stats.TurretsUnlocked = append(stats.TurretsUnlocked, turret.Kind.String())
 	}
 
 	return result

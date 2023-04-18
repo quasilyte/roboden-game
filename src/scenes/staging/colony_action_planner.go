@@ -399,7 +399,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 
 	stats := gamedata.WorkerAgentStats
 	if combatUnit {
-		stats = gamedata.MilitiaAgentStats
+		stats = gamedata.ScoutAgentStats
 	}
 	if p.colony.resources >= stats.Cost {
 		return colonyAction{
@@ -583,7 +583,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 				return false
 			}
 			switch a.stats.Kind {
-			case gamedata.AgentWorker, gamedata.AgentMilitia:
+			case gamedata.AgentWorker, gamedata.AgentScout:
 				// OK
 			default:
 				return false

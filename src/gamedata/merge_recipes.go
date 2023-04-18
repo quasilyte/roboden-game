@@ -5,58 +5,58 @@ import "fmt"
 // Merge usage:
 //
 // yellow worker ++++
-// yellow militia +++++
+// yellow scout +++++
 // red worker +++++
-// red militia ++++
+// red scout ++++
 // green worker ++++
-// green militia ++++
+// green scout ++++
 // blue worker ++++
-// blue militia ++++
+// blue scout ++++
 //
 // Used:
-// mortar: green worker + red militia
-// antiair: red militia + blue militia
+// mortar: green worker + red scout
+// antiair: red scout + blue scout
 // recharger: green worker + blue worker
 // freighter: yellow worker + green worker
 // redminer: yellow worker + red worker
-// fighter: red militia + green militia
+// fighter: red scout + green scout
 // servo: yellow worker + blue worker
-// crippler: yellow militia + green militia
+// crippler: yellow scout + green scout
 // repeller: red worker + blue worker
-// generator: green worker + yellow militia
-// repair: blue worker + green militia
-// prism: yellow militia + blue militia
-// cloner: red worker + blue militia
-// scavenger: red worker + yellow militia
-// courier: red worker + green militia
-// disintegrator: yellow worker + blue militia
-// defender: yellow militia + red militia
+// generator: green worker + yellow scout
+// repair: blue worker + green scout
+// prism: yellow scout + blue scout
+// cloner: red worker + blue scout
+// scavenger: red worker + yellow scout
+// courier: red worker + green scout
+// disintegrator: yellow worker + blue scout
+// defender: yellow scout + red scout
 //
 // Unused:
-// yellow worker + red militia
-// yellow worker + green militia
+// yellow worker + red scout
+// yellow worker + green scout
 // red worker + green worker
-// red worker + green militia
-// red worker + yellow militia
-// green worker + blue militia
-// blue worker + red militia
-// blue worker + green militia
-// blue worker + yellow militia
-// green militia + blue militia
+// red worker + green scout
+// red worker + yellow scout
+// green worker + blue scout
+// blue worker + red scout
+// blue worker + green scout
+// blue worker + yellow scout
+// green scout + blue scout
 var Tier2agentMergeRecipes = []AgentMergeRecipe{
 	{
 		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
-		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{BlueFactionTag, AgentScout},
 		Result: ClonerAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{RedFactionTag, AgentMilitia},
-		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Drone1: RecipeSubject{RedFactionTag, AgentScout},
+		Drone2: RecipeSubject{GreenFactionTag, AgentScout},
 		Result: FighterAgentStats,
 	},
 	{
 		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
-		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{GreenFactionTag, AgentScout},
 		Result: RepairAgentStats,
 	},
 	{
@@ -65,8 +65,8 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Result: RechargeAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
-		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Drone1: RecipeSubject{YellowFactionTag, AgentScout},
+		Drone2: RecipeSubject{GreenFactionTag, AgentScout},
 		Result: CripplerAgentStats,
 	},
 	{
@@ -81,12 +81,12 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 	},
 	{
 		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
-		Drone2: RecipeSubject{YellowFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{YellowFactionTag, AgentScout},
 		Result: ScavengerAgentStats,
 	},
 	{
 		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
-		Drone2: RecipeSubject{GreenFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{GreenFactionTag, AgentScout},
 		Result: CourierAgentStats,
 	},
 	{
@@ -101,32 +101,32 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 	},
 	{
 		Drone1: RecipeSubject{GreenFactionTag, AgentWorker},
-		Drone2: RecipeSubject{YellowFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{YellowFactionTag, AgentScout},
 		Result: GeneratorAgentStats,
 	},
 	{
 		Drone1: RecipeSubject{GreenFactionTag, AgentWorker},
-		Drone2: RecipeSubject{RedFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{RedFactionTag, AgentScout},
 		Result: MortarAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{RedFactionTag, AgentMilitia},
-		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Drone1: RecipeSubject{RedFactionTag, AgentScout},
+		Drone2: RecipeSubject{BlueFactionTag, AgentScout},
 		Result: AntiAirAgentStats,
 	},
 	{
 		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
-		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Drone2: RecipeSubject{BlueFactionTag, AgentScout},
 		Result: DisintegratorAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
-		Drone2: RecipeSubject{BlueFactionTag, AgentMilitia},
+		Drone1: RecipeSubject{YellowFactionTag, AgentScout},
+		Drone2: RecipeSubject{BlueFactionTag, AgentScout},
 		Result: PrismAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{YellowFactionTag, AgentMilitia},
-		Drone2: RecipeSubject{RedFactionTag, AgentMilitia},
+		Drone1: RecipeSubject{YellowFactionTag, AgentScout},
+		Drone2: RecipeSubject{RedFactionTag, AgentScout},
 		Result: DefenderAgentStats,
 	},
 }

@@ -195,8 +195,8 @@ func (p *projectileNode) createExplosion() {
 		effect := newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageCripplerBlasterExplosion)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
-	case gamedata.ProjectileExplosionMilitiaIon:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageMilitiaIonExplosion))
+	case gamedata.ProjectileExplosionScoutIon:
+		p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageScoutIonExplosion))
 	case gamedata.ProjectileExplosionShocker:
 		p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageShockerExplosion))
 	case gamedata.ProjectileExplosionStealthLaser:

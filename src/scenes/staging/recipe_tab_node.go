@@ -74,8 +74,8 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 		if kind == gamedata.AgentWorker {
 			return gamedata.WorkerAgentStats
 		}
-		if kind == gamedata.AgentMilitia {
-			return gamedata.MilitiaAgentStats
+		if kind == gamedata.AgentScout {
+			return gamedata.ScoutAgentStats
 		}
 		for _, recipe := range tab.world.config.Tier2Recipes {
 			if recipe.Result.Kind == kind {

@@ -40,7 +40,11 @@ func main() {
 	assets.RegisterRawResources(ctx)
 	controls.BindKeymap(ctx, state)
 
-	ctx.LoadGameData("save", &state.Persistent)
+	if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
+		fmt.Printf("can't load game data: %v", err)
+		state.Persistent = contentlock.GetDefaultData()
+		ctx.SaveGameData("save", state.Persistent)
+	}
 	state.ReloadLanguage(ctx)
 
 	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
@@ -98,14 +102,14 @@ func getDefaultSessionState() *session.State {
 		if drone.ScoreCost != 0 {
 			continue
 		}
-		state.Persistent.PlayerStats.DronesUnlocked = append(state.Persistent.PlayerStats.DronesUnlocked, drone.Kind)
+		state.Persistent.PlayerStats.DronesUnlocked = append(state.Persistent.PlayerStats.DronesUnlocked, drone.Kind.String())
 	}
 
 	for _, turret := range gamedata.TurretStatsList {
 		if turret.ScoreCost != 0 {
 			continue
 		}
-		state.Persistent.PlayerStats.TurretsUnlocked = append(state.Persistent.PlayerStats.TurretsUnlocked, turret.Kind)
+		state.Persistent.PlayerStats.TurretsUnlocked = append(state.Persistent.PlayerStats.TurretsUnlocked, turret.Kind.String())
 	}
 
 	return state

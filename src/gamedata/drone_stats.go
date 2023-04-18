@@ -21,8 +21,10 @@ const (
 type ColonyAgentKind uint8
 
 const (
-	AgentWorker ColonyAgentKind = iota
-	AgentMilitia
+	agentFirst ColonyAgentKind = iota
+
+	AgentWorker
+	AgentScout
 
 	// Tier2
 	AgentFreighter
@@ -56,7 +58,17 @@ const (
 	AgentGunpoint
 	AgentTetherBeacon
 	AgentBeamTower
+
+	agentLast
 )
+
+var DroneKindByName = map[string]ColonyAgentKind{}
+
+func init() {
+	for k := ColonyAgentKind(agentFirst); k < agentLast; k++ {
+		DroneKindByName[k.String()] = k
+	}
+}
 
 type AgentStats struct {
 	Kind      ColonyAgentKind
@@ -169,9 +181,9 @@ var WorkerAgentStats = &AgentStats{
 	MaxHealth:   12,
 }
 
-var MilitiaAgentStats = &AgentStats{
-	Kind:        AgentMilitia,
-	Image:       assets.ImageMilitiaAgent,
+var ScoutAgentStats = &AgentStats{
+	Kind:        AgentScout,
+	Image:       assets.ImageScoutAgent,
 	Size:        SizeSmall,
 	DiodeOffset: 5,
 	Tier:        1,
@@ -183,15 +195,15 @@ var MilitiaAgentStats = &AgentStats{
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     130,
 		Reload:          2.5,
-		AttackSound:     assets.AudioMilitiaShot,
-		ProjectileImage: assets.ImageMilitiaProjectile,
+		AttackSound:     assets.AudioScoutShot,
+		ProjectileImage: assets.ImageScoutProjectile,
 		ImpactArea:      10,
 		ProjectileSpeed: 180,
 		Damage:          DamageValue{Health: 2, Disarm: 2},
 		MaxTargets:      1,
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
-		Explosion:       ProjectileExplosionMilitiaIon,
+		Explosion:       ProjectileExplosionScoutIon,
 	}),
 }
 

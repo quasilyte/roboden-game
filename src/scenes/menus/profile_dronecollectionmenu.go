@@ -84,7 +84,7 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 		}).(*ebiten.Image)
 	}
 	var drones []*gamedata.AgentStats
-	drones = append(drones, gamedata.WorkerAgentStats, gamedata.MilitiaAgentStats)
+	drones = append(drones, gamedata.WorkerAgentStats, gamedata.ScoutAgentStats)
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {
 		drones = append(drones, recipe.Result)
 	}
@@ -94,9 +94,9 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 	droneIsUnlocked := func(d *gamedata.AgentStats) bool {
 		switch d.Tier {
 		case 2:
-			return xslices.Contains(stats.DronesUnlocked, d.Kind)
+			return xslices.Contains(stats.DronesUnlocked, d.Kind.String())
 		case 3:
-			return xslices.Contains(stats.Tier3DronesSeen, d.Kind)
+			return xslices.Contains(stats.Tier3DronesSeen, d.Kind.String())
 		default:
 			return true
 		}

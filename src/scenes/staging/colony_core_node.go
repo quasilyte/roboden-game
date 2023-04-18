@@ -494,25 +494,25 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 	var resourcePrice float64
 	switch {
 	case upkeepTotal <= 30:
-		// 15 workers or ~7 militia
+		// 15 workers or ~7 scouts
 		resourcePrice = 0
 	case upkeepTotal <= 45:
-		// ~22 workers or ~11 militia
+		// ~22 workers or ~11 scouts
 		resourcePrice = 1
 	case upkeepTotal <= 70:
-		// 35 workers or ~17 militia
+		// 35 workers or ~17 scouts
 		resourcePrice = 2.0
 	case upkeepTotal <= 95:
-		// ~47 workers or ~23 militia
+		// ~47 workers or ~23 scouts
 		resourcePrice = 3.0
 	case upkeepTotal <= 120:
-		// ~60 workers or 30 militia
+		// ~60 workers or 30 scouts
 		resourcePrice = 5.0
 	case upkeepTotal <= 150:
-		// 75 workers or ~37 militia
+		// 75 workers or ~37 scouts
 		resourcePrice = 7
 	case upkeepTotal <= 215:
-		// ~107 workers or ~53 militia
+		// ~107 workers or ~53 scouts
 		resourcePrice = 9
 	case upkeepTotal <= 300:
 		resourcePrice = 12

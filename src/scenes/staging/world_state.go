@@ -74,7 +74,7 @@ func (w *worldState) Init() {
 	}
 	kinds := []gamedata.ColonyAgentKind{
 		gamedata.AgentWorker,
-		gamedata.AgentMilitia,
+		gamedata.AgentScout,
 	}
 	w.tier2recipeIndex = make(map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe)
 	for _, f := range factions {
@@ -97,7 +97,7 @@ func (w *worldState) Init() {
 		}
 	}
 
-	w.creepHealthMultiplier = 0.80 + (float64(w.config.CreepDifficulty) * 0.20)
+	w.creepHealthMultiplier = 0.90 + (float64(w.config.CreepDifficulty) * 0.10)
 	w.bossHealthMultiplier = 0.75 + (float64(w.config.BossDifficulty) * 0.25)
 }
 

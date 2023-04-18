@@ -43,7 +43,7 @@ type tutorialManager struct {
 
 	explainedResourcePool  bool
 	explainedWorker        bool
-	explainedMilitia       bool
+	explainedScout         bool
 	explainedServoBots     bool
 	explainedRepairBots    bool
 	explainedFreighterBots bool
@@ -155,13 +155,13 @@ func (m *tutorialManager) updateTutorial1() bool {
 			m.explainedWorker = true
 		}
 	}
-	if !m.explainedMilitia && m.tutorialStep >= 19 {
-		militia := m.findDrone(searchFighters, func(a *colonyAgentNode) bool {
-			return a.stats.Kind == gamedata.AgentMilitia
+	if !m.explainedScout && m.tutorialStep >= 19 {
+		scout := m.findDrone(searchFighters, func(a *colonyAgentNode) bool {
+			return a.stats.Kind == gamedata.AgentScout
 		})
-		if militia != nil {
-			m.explainDrone(militia, "tutorial1.hint_militia")
-			m.explainedMilitia = true
+		if scout != nil {
+			m.explainDrone(scout, "tutorial1.hint_scout")
+			m.explainedScout = true
 		}
 	}
 

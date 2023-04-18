@@ -90,7 +90,7 @@ all three segments are filled.
 This is a tier 1 worker drone.
 It performs most of the basic tasks,
 like resource gathering.
-##tutorial1.hint_militia
+##tutorial1.hint_scout
 This is a tier 1 combat drone,
 a scout model. It will defend the
 base against any attackers.

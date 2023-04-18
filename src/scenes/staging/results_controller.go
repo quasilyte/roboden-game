@@ -111,14 +111,14 @@ func (c *resultsController) updateProgress() {
 	}
 
 	t3drones := map[gamedata.ColonyAgentKind]struct{}{}
-	for _, k := range stats.Tier3DronesSeen {
-		t3drones[k] = struct{}{}
+	for _, name := range stats.Tier3DronesSeen {
+		t3drones[gamedata.DroneKindByName[name]] = struct{}{}
 	}
 	for _, k := range c.results.Tier3Drones {
 		if _, ok := t3drones[k]; ok {
 			continue
 		}
-		stats.Tier3DronesSeen = append(stats.Tier3DronesSeen, k)
+		stats.Tier3DronesSeen = append(stats.Tier3DronesSeen, k.String())
 	}
 
 	stats.TotalScore += c.results.Score

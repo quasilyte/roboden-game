@@ -20,8 +20,8 @@ It can gather resources, construct and repair buildings.
 This is a model that can be produced directly from a colony.
 When combined with some other workers and scouts, it can become a tier 2 drone.
 
-##drone.militia : Scout
-##drone.militia.description
+##drone.scout : Scout
+##drone.scout.description
 The simplest combat drone.
 This is a model that can be produced directly from a colony.
 When combined with some other workers and scouts, it can become a tier 2 drone.

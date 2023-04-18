@@ -43,9 +43,9 @@ type PersistentData struct {
 type PlayerStats struct {
 	Achievements []Achievement
 
-	TurretsUnlocked []gamedata.ColonyAgentKind
-	DronesUnlocked  []gamedata.ColonyAgentKind
-	Tier3DronesSeen []gamedata.ColonyAgentKind
+	TurretsUnlocked []string
+	DronesUnlocked  []string
+	Tier3DronesSeen []string
 
 	TutorialsCompleted []int
 

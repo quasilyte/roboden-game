@@ -8,39 +8,41 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[AgentWorker-0]
-	_ = x[AgentMilitia-1]
-	_ = x[AgentFreighter-2]
-	_ = x[AgentRedminer-3]
-	_ = x[AgentCrippler-4]
-	_ = x[AgentFighter-5]
-	_ = x[AgentScavenger-6]
-	_ = x[AgentCourier-7]
-	_ = x[AgentTrucker-8]
-	_ = x[AgentPrism-9]
-	_ = x[AgentServo-10]
-	_ = x[AgentRepeller-11]
-	_ = x[AgentDisintegrator-12]
-	_ = x[AgentRepair-13]
-	_ = x[AgentCloner-14]
-	_ = x[AgentRecharger-15]
-	_ = x[AgentGenerator-16]
-	_ = x[AgentMortar-17]
-	_ = x[AgentAntiAir-18]
-	_ = x[AgentDefender-19]
-	_ = x[AgentRefresher-20]
-	_ = x[AgentStormbringer-21]
-	_ = x[AgentDestroyer-22]
-	_ = x[AgentMarauder-23]
-	_ = x[AgentKindNum-24]
-	_ = x[AgentGunpoint-25]
-	_ = x[AgentTetherBeacon-26]
-	_ = x[AgentBeamTower-27]
+	_ = x[agentFirst-0]
+	_ = x[AgentWorker-1]
+	_ = x[AgentScout-2]
+	_ = x[AgentFreighter-3]
+	_ = x[AgentRedminer-4]
+	_ = x[AgentCrippler-5]
+	_ = x[AgentFighter-6]
+	_ = x[AgentScavenger-7]
+	_ = x[AgentCourier-8]
+	_ = x[AgentTrucker-9]
+	_ = x[AgentPrism-10]
+	_ = x[AgentServo-11]
+	_ = x[AgentRepeller-12]
+	_ = x[AgentDisintegrator-13]
+	_ = x[AgentRepair-14]
+	_ = x[AgentCloner-15]
+	_ = x[AgentRecharger-16]
+	_ = x[AgentGenerator-17]
+	_ = x[AgentMortar-18]
+	_ = x[AgentAntiAir-19]
+	_ = x[AgentDefender-20]
+	_ = x[AgentRefresher-21]
+	_ = x[AgentStormbringer-22]
+	_ = x[AgentDestroyer-23]
+	_ = x[AgentMarauder-24]
+	_ = x[AgentKindNum-25]
+	_ = x[AgentGunpoint-26]
+	_ = x[AgentTetherBeacon-27]
+	_ = x[AgentBeamTower-28]
+	_ = x[agentLast-29]
 }
 
-const _ColonyAgentKind_name = "WorkerMilitiaFreighterRedminerCripplerFighterScavengerCourierTruckerPrismServoRepellerDisintegratorRepairClonerRechargerGeneratorMortarAntiAirDefenderRefresherStormbringerDestroyerMarauderKindNumGunpointTetherBeaconBeamTower"
+const _ColonyAgentKind_name = "agentFirstWorkerScoutFreighterRedminerCripplerFighterScavengerCourierTruckerPrismServoRepellerDisintegratorRepairClonerRechargerGeneratorMortarAntiAirDefenderRefresherStormbringerDestroyerMarauderKindNumGunpointTetherBeaconBeamToweragentLast"
 
-var _ColonyAgentKind_index = [...]uint8{0, 6, 13, 22, 30, 38, 45, 54, 61, 68, 73, 78, 86, 99, 105, 111, 120, 129, 135, 142, 150, 159, 171, 180, 188, 195, 203, 215, 224}
+var _ColonyAgentKind_index = [...]uint8{0, 10, 16, 21, 30, 38, 46, 53, 62, 69, 76, 81, 86, 94, 107, 113, 119, 128, 137, 143, 150, 158, 167, 179, 188, 196, 203, 211, 223, 232, 241}
 
 func (i ColonyAgentKind) String() string {
 	if i >= ColonyAgentKind(len(_ColonyAgentKind_index)-1) {

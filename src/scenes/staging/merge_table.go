@@ -22,7 +22,7 @@ func (t *mergeTable) Update(units *colonyAgentContainer) {
 
 func (t *mergeTable) droneToBit(faction gamedata.FactionTag, kind gamedata.ColonyAgentKind) mergeTableBits {
 	bitpos := uint64(faction-1) * 2
-	if kind == gamedata.AgentMilitia {
+	if kind == gamedata.AgentScout {
 		bitpos++
 	}
 	return 1 << bitpos

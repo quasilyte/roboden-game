@@ -73,7 +73,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
-		ImageMilitiaIonExplosion:        {Path: "image/effects/militia_ion_explosion.png", FrameWidth: 5},
+		ImageScoutIonExplosion:          {Path: "image/effects/scout_ion_explosion.png", FrameWidth: 5},
 		ImageShockerExplosion:           {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
 		ImageFighterLaserExplosion:      {Path: "image/effects/fighter_laser_explosion.png", FrameWidth: 14},
 		ImageHeavyCrawlerLaserExplosion: {Path: "image/effects/heavy_crawler_laser_explosion.png", FrameWidth: 14},
@@ -104,7 +104,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
 		ImageTetherBeaconAgent:  {Path: "image/drones/tether_beacon_agent.png"},
 		ImageWorkerAgent:        {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
-		ImageMilitiaAgent:       {Path: "image/drones/militia_agent.png", FrameWidth: 11, FrameHeight: 13},
+		ImageScoutAgent:         {Path: "image/drones/scout_agent.png", FrameWidth: 11, FrameHeight: 13},
 		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 13},
 		ImageScavengerAgent:     {Path: "image/drones/scavenger_agent.png", FrameWidth: 15, FrameHeight: 12},
 		ImageCourierAgent:       {Path: "image/drones/courier_agent.png", FrameWidth: 15, FrameHeight: 15},
@@ -183,7 +183,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageTankProjectile:           {Path: "image/projectile/tank_projectile.png"},
 		ImageAssaultProjectile:        {Path: "image/projectile/assault_projectile.png"},
 		ImageCripplerProjectile:       {Path: "image/projectile/crippler_projectile.png"},
-		ImageMilitiaProjectile:        {Path: "image/projectile/militia_projectile.png"},
+		ImageScoutProjectile:          {Path: "image/projectile/scout_projectile.png"},
 		ImageRepellerProjectile:       {Path: "image/projectile/repeller_projectile.png"},
 		ImageGunpointProjectile:       {Path: "image/projectile/gunpoint_projectile.png"},
 		ImageFighterProjectile:        {Path: "image/projectile/fighter_projectile.png"},
@@ -298,7 +298,7 @@ const (
 	ImageProjectileSmoke
 	ImageStealthLaserExplosion
 	ImageCripplerBlasterExplosion
-	ImageMilitiaIonExplosion
+	ImageScoutIonExplosion
 	ImageShockerExplosion
 	ImageFighterLaserExplosion
 	ImageHeavyCrawlerLaserExplosion
@@ -358,7 +358,7 @@ const (
 	ImageTetherBeaconAgent
 	ImageWorkerAgent
 	ImageGeneratorAgent
-	ImageMilitiaAgent
+	ImageScoutAgent
 	ImageClonerAgent
 	ImageScavengerAgent
 	ImageCourierAgent
@@ -424,7 +424,7 @@ const (
 	ImageTankProjectile
 	ImageAssaultProjectile
 	ImageCripplerProjectile
-	ImageMilitiaProjectile
+	ImageScoutProjectile
 	ImageRepellerProjectile
 	ImageGunpointProjectile
 	ImageFighterProjectile

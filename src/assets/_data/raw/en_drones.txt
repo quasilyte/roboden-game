@@ -93,6 +93,7 @@ Its attacks may cause the enemy to lose their ability to attack.
 ##drone.repair.description
 A drone that can fix the damaged allies.
 It can't repair itself, so having multiple repair bots is advised.
+Repair drones have a very high upkeep cost.
 
 ##drone.recharger : Recharger
 ##drone.recharger.description

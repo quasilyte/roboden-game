@@ -1657,7 +1657,7 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 			playSound(a.world(), assets.AudioCourierResourceBeam, a.pos)
 			// Now go back and bring some resources.
 			a.payload = a.maxPayload()
-			a.cargoValue = float64(a.payload) * 2
+			a.cargoValue = float64(a.payload) * 3
 			a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
 			// Get a minor repair+recharge.
 			a.health = gmath.ClampMax(a.health+5, a.maxHealth)

@@ -17,23 +17,23 @@ func _() {
 	_ = x[AgentFighter-6]
 	_ = x[AgentScavenger-7]
 	_ = x[AgentCourier-8]
-	_ = x[AgentTrucker-9]
-	_ = x[AgentPrism-10]
-	_ = x[AgentServo-11]
-	_ = x[AgentRepeller-12]
-	_ = x[AgentDisintegrator-13]
-	_ = x[AgentRepair-14]
-	_ = x[AgentCloner-15]
-	_ = x[AgentRecharger-16]
-	_ = x[AgentGenerator-17]
-	_ = x[AgentMortar-18]
-	_ = x[AgentAntiAir-19]
-	_ = x[AgentDefender-20]
-	_ = x[AgentKamikaze-21]
-	_ = x[AgentRefresher-22]
-	_ = x[AgentStormbringer-23]
-	_ = x[AgentDestroyer-24]
-	_ = x[AgentMarauder-25]
+	_ = x[AgentPrism-9]
+	_ = x[AgentServo-10]
+	_ = x[AgentRepeller-11]
+	_ = x[AgentDisintegrator-12]
+	_ = x[AgentRepair-13]
+	_ = x[AgentCloner-14]
+	_ = x[AgentRecharger-15]
+	_ = x[AgentGenerator-16]
+	_ = x[AgentMortar-17]
+	_ = x[AgentAntiAir-18]
+	_ = x[AgentDefender-19]
+	_ = x[AgentKamikaze-20]
+	_ = x[AgentRefresher-21]
+	_ = x[AgentStormbringer-22]
+	_ = x[AgentDestroyer-23]
+	_ = x[AgentMarauder-24]
+	_ = x[AgentTrucker-25]
 	_ = x[AgentKindNum-26]
 	_ = x[AgentGunpoint-27]
 	_ = x[AgentTetherBeacon-28]
@@ -41,9 +41,9 @@ func _() {
 	_ = x[agentLast-30]
 }
 
-const _ColonyAgentKind_name = "agentFirstWorkerScoutFreighterRedminerCripplerFighterScavengerCourierTruckerPrismServoRepellerDisintegratorRepairClonerRechargerGeneratorMortarAntiAirDefenderKamikazeRefresherStormbringerDestroyerMarauderKindNumGunpointTetherBeaconBeamToweragentLast"
+const _ColonyAgentKind_name = "agentFirstWorkerScoutFreighterRedminerCripplerFighterScavengerCourierPrismServoRepellerDisintegratorRepairClonerRechargerGeneratorMortarAntiAirDefenderKamikazeRefresherStormbringerDestroyerMarauderTruckerKindNumGunpointTetherBeaconBeamToweragentLast"
 
-var _ColonyAgentKind_index = [...]uint8{0, 10, 16, 21, 30, 38, 46, 53, 62, 69, 76, 81, 86, 94, 107, 113, 119, 128, 137, 143, 150, 158, 166, 175, 187, 196, 204, 211, 219, 231, 240, 249}
+var _ColonyAgentKind_index = [...]uint8{0, 10, 16, 21, 30, 38, 46, 53, 62, 69, 74, 79, 87, 100, 106, 112, 121, 130, 136, 143, 151, 159, 168, 180, 189, 197, 204, 211, 219, 231, 240, 249}
 
 func (i ColonyAgentKind) String() string {
 	if i >= ColonyAgentKind(len(_ColonyAgentKind_index)-1) {

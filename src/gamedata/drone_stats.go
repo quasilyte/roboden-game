@@ -33,7 +33,6 @@ const (
 	AgentFighter
 	AgentScavenger
 	AgentCourier
-	AgentTrucker
 	AgentPrism
 	AgentServo
 	AgentRepeller
@@ -52,6 +51,7 @@ const (
 	AgentStormbringer
 	AgentDestroyer
 	AgentMarauder
+	AgentTrucker
 
 	AgentKindNum
 

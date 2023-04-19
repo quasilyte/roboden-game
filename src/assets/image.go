@@ -85,6 +85,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 64},
 		ImageIonZap:                     {Path: "image/effects/ion_zap.png", FrameWidth: 28},
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
+		ImageGreenZap:                   {Path: "image/effects/green_zap.png", FrameWidth: 14},
 		ImageCloakWave:                  {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
 		ImageServantWave:                {Path: "image/effects/servant_wave.png", FrameWidth: 64},
 		ImageSmokeDown:                  {Path: "image/effects/smoke_down.png", FrameWidth: 8},
@@ -119,7 +120,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageAntiAirAgent:       {Path: "image/drones/antiair_agent.png", FrameWidth: 17, FrameHeight: 19},
 		ImageServoAgent:         {Path: "image/drones/servo_agent.png", FrameWidth: 15, FrameHeight: 22},
 		ImageRechargerAgent:     {Path: "image/drones/recharger_agent.png", FrameWidth: 17, FrameHeight: 20},
-		ImageRefresherAgent:     {Path: "image/drones/refresher_agent.png", FrameWidth: 31, FrameHeight: 21},
+		ImageGuardianAgent:      {Path: "image/drones/guardian_agent.png", FrameWidth: 31, FrameHeight: 21},
 		ImageFighterAgent:       {Path: "image/drones/fighter_agent.png", FrameWidth: 15, FrameHeight: 15},
 		ImageDefenderAgent:      {Path: "image/drones/defender_agent.png", FrameWidth: 17, FrameHeight: 16},
 		ImageKamikazeAgent:      {Path: "image/drones/kamikaze_agent.png", FrameWidth: 15, FrameHeight: 12},
@@ -129,6 +130,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageFreighterAgent:     {Path: "image/drones/freighter_agent.png", FrameWidth: 17, FrameHeight: 16},
 		ImageRedminerAgent:      {Path: "image/drones/redminer_agent.png", FrameWidth: 13, FrameHeight: 18},
 		ImageGeneratorAgent:     {Path: "image/drones/generator_agent.png", FrameWidth: 15, FrameHeight: 17},
+		ImageSkirmisherAgent:    {Path: "image/drones/skirmisher_agent.png", FrameWidth: 19, FrameHeight: 12},
 
 		ImageColonyDamageMask:  {Path: "image/shaders/colony_damage_mask.png"},
 		ImageTurretDamageMask1: {Path: "image/shaders/turret_damage_mask1.png"},
@@ -179,6 +181,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
+		ImageSkirmisherProjectile:     {Path: "image/projectile/skirmisher_projectile.png"},
 		ImageHeavyCrawlerProjectile:   {Path: "image/projectile/heavy_crawler_projectile.png"},
 		ImageStealthCrawlerProjectile: {Path: "image/projectile/stealth_crawler_projectile.png"},
 		ImageEliteCrawlerProjectile:   {Path: "image/projectile/elite_crawler_projectile.png"},
@@ -312,6 +315,7 @@ const (
 	ImageBigExplosion
 	ImageIonZap
 	ImagePurpleIonZap
+	ImageGreenZap
 	ImageCloakWave
 	ImageServantWave
 	ImageSmokeDown
@@ -361,6 +365,7 @@ const (
 	ImageTetherBeaconAgent
 	ImageWorkerAgent
 	ImageGeneratorAgent
+	ImageSkirmisherAgent
 	ImageScoutAgent
 	ImageClonerAgent
 	ImageScavengerAgent
@@ -373,7 +378,7 @@ const (
 	ImagePrismAgent
 	ImageRepairAgent
 	ImageRechargerAgent
-	ImageRefresherAgent
+	ImageGuardianAgent
 	ImageFighterAgent
 	ImageDefenderAgent
 	ImageKamikazeAgent
@@ -422,6 +427,7 @@ const (
 	ImageLandCrack3
 	ImageLandCrack4
 
+	ImageSkirmisherProjectile
 	ImageHeavyCrawlerProjectile
 	ImageStealthCrawlerProjectile
 	ImageEliteCrawlerProjectile

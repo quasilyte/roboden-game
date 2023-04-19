@@ -9,6 +9,7 @@ const (
 	PrismDroneCost         int = 3000
 	DefenderDroneCost      int = 4000
 	KamikazeDroneCost      int = 5000
+	SkirmisherDroneCost    int = 6000
 
 	BeamTowerTurretCost int = 2500
 )

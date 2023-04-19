@@ -45,7 +45,8 @@ func main() {
 		state.Persistent = contentlock.GetDefaultData()
 		contentlock.Update(state)
 		ctx.SaveGameData("save", state.Persistent)
-		state.ReloadLanguage(ctx)
+	} else {
+		contentlock.Update(state)
 	}
 	state.ReloadLanguage(ctx)
 

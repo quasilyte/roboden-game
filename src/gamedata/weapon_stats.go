@@ -29,6 +29,7 @@ type WeaponStats struct {
 	TrailEffect           ProjectileTrailEffect
 	AlwaysExplodes        bool
 	BurstSize             int
+	AttacksPerBurst       int
 	BurstDelay            float64
 	Reload                float64
 	AttackSound           resource.AudioID
@@ -43,6 +44,7 @@ type WeaponStats struct {
 	FlyingTargetDamageMult float64
 
 	RoundProjectile bool
+	RandArc         bool
 }
 
 type ProjectileTrailEffect int
@@ -65,6 +67,7 @@ const (
 	ProjectileExplosionShocker
 	ProjectileExplosionCripplerBlaster
 	ProjectileExplosionStealthLaser
+	ProjectileExplosionGreenZap
 )
 
 type TargetKind int
@@ -77,6 +80,9 @@ const (
 func InitWeaponStats(stats *WeaponStats) *WeaponStats {
 	if stats.Accuracy == 0 {
 		stats.Accuracy = 1.0
+	}
+	if stats.AttacksPerBurst == 0 {
+		stats.AttacksPerBurst = 1
 	}
 	stats.ImpactAreaSqr = stats.ImpactArea * stats.ImpactArea
 	stats.AttackRangeSqr = stats.AttackRange * stats.AttackRange

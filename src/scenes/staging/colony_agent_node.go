@@ -909,7 +909,7 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 
 func (a *colonyAgentNode) processSupport(delta float64) {
 	switch a.stats.Kind {
-	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentRefresher, gamedata.AgentScavenger, gamedata.AgentMarauder, gamedata.AgentDisintegrator, gamedata.AgentTetherBeacon:
+	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentScavenger, gamedata.AgentMarauder, gamedata.AgentDisintegrator, gamedata.AgentTetherBeacon:
 		// OK
 	default:
 		return
@@ -918,20 +918,12 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 	a.supportDelay = gmath.ClampMin(a.supportDelay-(delta*a.reloadRate), 0)
 
 	if a.supportDelay != 0 {
-		if a.stats.Kind == gamedata.AgentRefresher {
-			a.attackDelay = gmath.ClampMin(a.attackDelay-(delta*a.reloadRate), 0)
-			if a.attackDelay != 0 {
-				return
-			}
-			a.attackDelay = gamedata.RepairAgentStats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
-			a.doRepair()
-		}
 		return
 	}
 
 	setDelay := true
 	switch a.stats.Kind {
-	case gamedata.AgentRecharger, gamedata.AgentRefresher:
+	case gamedata.AgentRecharger:
 		a.doRecharge()
 	case gamedata.AgentRepair:
 		a.doRepair()
@@ -1227,17 +1219,22 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		for _, target := range targets {
 			if a.stats.Weapon.ProjectileSpeed != 0 {
 				toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
-				for i := 0; i < a.stats.Weapon.BurstSize; i++ {
-					fireDelay := float64(i) * a.stats.Weapon.BurstDelay
-					p := newProjectileNode(projectileConfig{
-						World:     a.world(),
-						Weapon:    a.stats.Weapon,
-						Attacker:  a,
-						ToPos:     toPos,
-						Target:    target,
-						FireDelay: fireDelay,
-					})
-					a.world().nodeRunner.AddObject(p)
+				j := 0
+				attacksPerBurst := a.stats.Weapon.AttacksPerBurst
+				for i := 0; i < a.stats.Weapon.BurstSize; i += attacksPerBurst {
+					for i := 0; i < attacksPerBurst; i++ {
+						fireDelay := float64(j) * a.stats.Weapon.BurstDelay
+						p := newProjectileNode(projectileConfig{
+							World:     a.world(),
+							Weapon:    a.stats.Weapon,
+							Attacker:  a,
+							ToPos:     toPos,
+							Target:    target,
+							FireDelay: fireDelay,
+						})
+						a.world().nodeRunner.AddObject(p)
+					}
+					j++
 				}
 			} else {
 				// TODO: this code is duplited with creep node.
@@ -1690,6 +1687,10 @@ func (a *colonyAgentNode) updateAlignStandby(delta float64) {
 }
 
 func (a *colonyAgentNode) updateStandby(delta float64) {
+	if a.stats.SelfRepair != 0 {
+		a.health = gmath.ClampMax(a.health+(delta*a.stats.SelfRepair), a.maxHealth)
+	}
+
 	a.energy = gmath.ClampMax(a.energy+delta*0.5*a.energyRegenRate, a.maxEnergy)
 	if a.moveTowards(delta, a.waypoint) {
 		if a.stats.Tier == 1 && a.lifetime < 0 && a.colonyCore.mode == colonyModeNormal {

@@ -9,9 +9,9 @@ import "fmt"
 // red worker +++++
 // red scout ++++
 // green worker ++++
-// green scout ++++
+// green scout +++++
 // blue worker +++++
-// blue scout +++++
+// blue scout ++++++
 //
 // Used:
 // mortar: green worker + red scout
@@ -32,6 +32,7 @@ import "fmt"
 // disintegrator: yellow worker + blue scout
 // defender: yellow scout + red scout
 // kamikaze: blue worker + blue scout [! a non-standard combination]
+// skirmisher: green scout + blue scout
 //
 // Unused:
 // yellow worker + red scout
@@ -43,7 +44,6 @@ import "fmt"
 // blue worker + red scout
 // blue worker + green scout
 // blue worker + yellow scout
-// green scout + blue scout
 var Tier2agentMergeRecipes = []AgentMergeRecipe{
 	{
 		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
@@ -135,6 +135,11 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Drone2: RecipeSubject{BlueFactionTag, AgentScout},
 		Result: KamikazeAgentStats,
 	},
+	{
+		Drone1: RecipeSubject{GreenFactionTag, AgentScout},
+		Drone2: RecipeSubject{BlueFactionTag, AgentScout},
+		Result: SkirmisherAgentStats,
+	},
 }
 
 var Tier3agentMergeRecipes = []AgentMergeRecipe{
@@ -163,10 +168,10 @@ var Tier3agentMergeRecipes = []AgentMergeRecipe{
 		Result:  MarauderAgentStats,
 	},
 	{
-		Drone1:  RecipeSubject{Kind: AgentRecharger},
-		Drone2:  RecipeSubject{Kind: AgentRepair},
-		EvoCost: 7,
-		Result:  RefresherAgentStats,
+		Drone1:  RecipeSubject{Kind: AgentSkirmisher},
+		Drone2:  RecipeSubject{Kind: AgentDefender},
+		EvoCost: 8,
+		Result:  GuardianAgentStats,
 	},
 }
 

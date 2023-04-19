@@ -45,9 +45,10 @@ const (
 	AgentAntiAir
 	AgentDefender
 	AgentKamikaze
+	AgentSkirmisher
 
 	// Tier3
-	AgentRefresher
+	AgentGuardian
 	AgentStormbringer
 	AgentDestroyer
 	AgentMarauder
@@ -92,6 +93,8 @@ type AgentStats struct {
 	CanPatrol  bool
 	CanCloak   bool
 	MaxPayload int
+
+	SelfRepair float64
 
 	DiodeOffset float64
 	FireOffset  float64
@@ -351,21 +354,29 @@ var RechargeAgentStats = &AgentStats{
 	BeamSlideSpeed:       0.8,
 }
 
-var RefresherAgentStats = &AgentStats{
-	Kind:                 AgentRefresher,
-	Image:                assets.ImageRefresherAgent,
-	Size:                 SizeLarge,
-	DiodeOffset:          -4,
-	Tier:                 3,
-	Cost:                 50,
-	Upkeep:               14,
-	CanGather:            true,
-	MaxPayload:           1,
-	Speed:                100,
-	MaxHealth:            30,
-	EnergyRegenRateBonus: 0.2,
-	SupportReload:        RechargeAgentStats.SupportReload,
-	SupportRange:         RechargeAgentStats.SupportRange,
+var GuardianAgentStats = &AgentStats{
+	Kind:        AgentGuardian,
+	Image:       assets.ImageGuardianAgent,
+	Size:        SizeLarge,
+	DiodeOffset: -4,
+	Tier:        3,
+	Cost:        50,
+	Upkeep:      16,
+	CanPatrol:   true,
+	Speed:       55,
+	MaxHealth:   50,
+	SelfRepair:  0.75,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange: 260,
+		Reload:      3.2,
+		AttackSound: assets.AudioDefenderShot,
+		Damage:      DamageValue{Health: 3, Aggro: 0.9},
+		MaxTargets:  2,
+		BurstSize:   1,
+		TargetFlags: TargetFlying | TargetGround,
+	}),
+	BeamOpaqueTime: 0.1,
+	BeamSlideSpeed: -1.6,
 }
 
 var ServoAgentStats = &AgentStats{
@@ -498,17 +509,51 @@ var FighterAgentStats = &AgentStats{
 	Speed:       90,
 	MaxHealth:   28,
 	Weapon: InitWeaponStats(&WeaponStats{
-		AttackRange:     180,
+		AttackRange:     195,
 		Reload:          1.9,
 		AttackSound:     assets.AudioFighterBeam,
 		ProjectileImage: assets.ImageFighterProjectile,
 		ImpactArea:      10,
-		ProjectileSpeed: 220,
+		ProjectileSpeed: 250,
 		Damage:          DamageValue{Health: 4},
 		Explosion:       ProjectileExplosionFighterLaser,
 		MaxTargets:      1,
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
+	}),
+}
+
+var SkirmisherAgentStats = &AgentStats{
+	ScoreCost:   SkirmisherDroneCost,
+	Kind:        AgentSkirmisher,
+	Image:       assets.ImageSkirmisherAgent,
+	Size:        SizeMedium,
+	DiodeOffset: 1,
+	Tier:        2,
+	PointCost:   3,
+	Cost:        25,
+	Upkeep:      8,
+	CanPatrol:   true,
+	Speed:       80,
+	MaxHealth:   20,
+	SelfRepair:  0.5,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange:       180,
+		Reload:            2,
+		AttackSound:       assets.AudioSkirmisherShot,
+		ProjectileImage:   assets.ImageSkirmisherProjectile,
+		ImpactArea:        15,
+		ProjectileSpeed:   340,
+		Damage:            DamageValue{Health: 2},
+		Explosion:         ProjectileExplosionGreenZap,
+		MaxTargets:        1,
+		BurstSize:         1,
+		AttacksPerBurst:   4,
+		BurstDelay:        0.3,
+		TargetFlags:       TargetFlying | TargetGround,
+		FlyingDamageBonus: -0.5,
+		ArcPower:          1.2,
+		RandArc:           true,
 	}),
 }
 
@@ -530,7 +575,6 @@ var DefenderAgentStats = &AgentStats{
 		Reload:      3.5,
 		AttackSound: assets.AudioDefenderShot,
 		Damage:      DamageValue{Health: 3, Aggro: 0.8},
-		Explosion:   ProjectileExplosionFighterLaser,
 		MaxTargets:  2,
 		BurstSize:   1,
 		TargetFlags: TargetFlying | TargetGround,
@@ -752,7 +796,7 @@ var DisintegratorAgentStats = &AgentStats{
 		ImpactArea:            18,
 		ProjectileSpeed:       210,
 		ProjectileRotateSpeed: 26,
-		Damage:                DamageValue{Health: 12},
+		Damage:                DamageValue{Health: 14},
 		MaxTargets:            1,
 		BurstSize:             1,
 		Explosion:             ProjectileExplosionPurple,

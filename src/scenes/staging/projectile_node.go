@@ -60,27 +60,52 @@ func newProjectileNode(config projectileConfig) *projectileNode {
 		fireDelay: config.FireDelay,
 		world:     config.World,
 	}
+	return p
+}
+
+func (p *projectileNode) Init(scene *ge.Scene) {
 	if p.weapon.ArcPower != 0 {
+		inversed := p.weapon.RandArc && scene.Rand().Bool()
+
 		arcPower := p.weapon.ArcPower
+		if p.weapon.RandArc {
+			arcPower *= scene.Rand().FloatRange(0.9, 1.5)
+		}
+
 		speed := p.weapon.ProjectileSpeed
-		if config.ToPos.Y >= p.pos.Y {
-			arcPower *= 0.3
-			speed *= 1.5
+		if p.weapon.RandArc {
+			p.rotation = p.pos.AngleToPoint(p.toPos)
+			p.rotation += gmath.Rad(scene.Rand().FloatRange(-0.5, 0.5))
+			p.pos = p.pos.MoveInDirection(14, p.rotation)
+			speed *= scene.Rand().FloatRange(0.85, 1.25)
+		} else {
+			p.rotation = -math.Pi / 2
+		}
+
+		if inversed {
+			if p.toPos.Y <= p.pos.Y {
+				arcPower *= 0.3
+				speed *= 1.5
+			}
+		} else {
+			if p.toPos.Y >= p.pos.Y {
+				arcPower *= 0.3
+				speed *= 1.5
+			}
 		}
 		dist := p.pos.DistanceTo(p.toPos)
 		t := dist / speed
 		p.arcProgressionScaling = 1.0 / t
 		power := gmath.Vec{Y: dist * arcPower}
-		p.arcFrom = p.pos.Add(power)
-		p.arcTo = p.toPos.Add(power)
+		if inversed {
+			p.arcFrom = p.pos.Sub(power)
+			p.arcTo = p.toPos.Sub(power)
+		} else {
+			p.arcFrom = p.pos.Add(power)
+			p.arcTo = p.toPos.Add(power)
+		}
 		p.arcStart = p.pos
-		p.rotation = -math.Pi / 2
-	}
-	return p
-}
-
-func (p *projectileNode) Init(scene *ge.Scene) {
-	if p.weapon.ProjectileRotateSpeed == 0 {
+	} else if p.weapon.ProjectileRotateSpeed == 0 {
 		p.rotation = p.pos.AngleToPoint(p.toPos)
 	} else {
 		p.rotation = scene.Rand().Rad()
@@ -195,6 +220,10 @@ func (p *projectileNode) createExplosion() {
 		effect := newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageCripplerBlasterExplosion)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
+	case gamedata.ProjectileExplosionGreenZap:
+		effect := newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageGreenZap)
+		p.world.nodeRunner.AddObject(effect)
+		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionScoutIon:
 		p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImageScoutIonExplosion))
 	case gamedata.ProjectileExplosionShocker:
@@ -239,6 +268,6 @@ func (p *projectileNode) detonate() {
 		}
 		dmg.Health *= multiplier
 	}
-	p.target.OnDamage(p.weapon.Damage, p.attacker)
+	p.target.OnDamage(dmg, p.attacker)
 	p.createExplosion()
 }

@@ -139,10 +139,10 @@ These drones can form a vanguard of the colony forces.
 An improved scavanger that receives cloaking abilities.
 It attacks up to three targets and inflicts slow condition.
 
-##drone.refresher : Refresher
-##drone.refresher.description
-A combination of repair and recharger bots.
-This drone can do both repairs and energy recharging.
+##drone.guardian : Guardian
+##drone.guardian.description
+A defender that has self-repair capabilities.
+It has lower offensive capabilities than skirmisher, although its survivability is improved.
 
 ##turret.gunpoint : Bunker
 ##turret.gunpoint.description
@@ -166,3 +166,9 @@ When a colony passes by, it boosts its speed too. This building is an alternativ
 A light and cheap worker drone.
 When heavily damaged, it can rush into the attacker, exploding itself while causing massive damage.
 Its evolution recipe makes it easy to mass-produce these.
+
+##drone.skirmisher : Skirmisher
+##drone.skirmisher.description
+A high-technology combat unit with good burst damage on mid distances.
+As a downside, its weapon are only half effective against flying targets.
+Skirmisher slowly repairs itself when out of combat.

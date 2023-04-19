@@ -104,6 +104,7 @@ type colonyAgentNode struct {
 	cargoValue      float64
 	cargoEliteValue float64
 	reloadRate      float64
+	healthRegen     float64
 
 	height float64
 
@@ -166,6 +167,7 @@ func (a *colonyAgentNode) Clone() *colonyAgentNode {
 func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.scene = scene
 	a.energyRegenRate = 1 + a.stats.EnergyRegenRateBonus
+	a.healthRegen = a.stats.SelfRepair
 
 	if a.stats.Tier == 1 {
 		a.lifetime = scene.Rand().FloatRange(1.5*60, 3*60)
@@ -327,6 +329,7 @@ func (a *colonyAgentNode) applyRankBonuses() {
 		a.maxEnergy *= 1.4
 		a.energyRegenRate += 0.1
 		a.reloadRate = 1.3 // +30% attack/special reload speed
+		a.healthRegen += 0.25
 
 	case 2:
 		// A super elite unit.
@@ -335,6 +338,7 @@ func (a *colonyAgentNode) applyRankBonuses() {
 		a.maxEnergy *= 2.0
 		a.energyRegenRate += 0.3
 		a.reloadRate = 1.6 // +60% attack/special reload speed
+		a.healthRegen += 0.5
 	}
 }
 
@@ -1687,8 +1691,9 @@ func (a *colonyAgentNode) updateAlignStandby(delta float64) {
 }
 
 func (a *colonyAgentNode) updateStandby(delta float64) {
-	if a.stats.SelfRepair != 0 {
-		a.health = gmath.ClampMax(a.health+(delta*a.stats.SelfRepair), a.maxHealth)
+	if a.healthRegen != 0 {
+		fmt.Println(a.healthRegen)
+		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
 	}
 
 	a.energy = gmath.ClampMax(a.energy+delta*0.5*a.energyRegenRate, a.maxEnergy)

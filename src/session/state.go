@@ -37,6 +37,9 @@ type State struct {
 type PersistentData struct {
 	Settings GameSettings
 
+	SeenClassicMode bool
+	SeenArenaMode   bool
+
 	PlayerStats PlayerStats
 }
 

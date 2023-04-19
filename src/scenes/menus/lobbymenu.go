@@ -217,7 +217,20 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			c.config.Seed = c.randomSeed()
 		}
 
-		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
+		var seenFlag *bool
+		switch c.mode {
+		case gamedata.ModeClassic:
+			seenFlag = &c.state.Persistent.SeenClassicMode
+		case gamedata.ModeArena:
+			seenFlag = &c.state.Persistent.SeenArenaMode
+		}
+		if !*seenFlag {
+			*seenFlag = true
+			c.scene.Context().SaveGameData("save", c.state.Persistent)
+			c.scene.Context().ChangeScene(NewHintScreen(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
+		} else {
+			c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
+		}
 	}))
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
@@ -558,7 +571,7 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	label := eui.NewLabel("", tinyFont)
-	label.MaxWidth = 310
+	label.MaxWidth = 320
 	c.helpLabel = label
 	panel.AddChild(label)
 

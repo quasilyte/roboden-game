@@ -214,6 +214,22 @@ Pause | START toggles the pause
 Toggle evolution sheet | R2 button
 Exit/Back | BACK or SELECT button
 
+##menu.overview.classic
+>> In Classic game mode, you need to defeat the enemy colony.
+
+>> The enemy has several drone factories; destroy them to decrease the number of attackers.
+
+>> The opposing colony is powerful, make sure you're strong enough before confronting it.
+
+>> Collect resources, increase the influence radius, build colonies.
+
+##menu.overview.arena
+>> In Arena game mode, you need to survive the attacks that come in waves.
+
+>> There are 20 waves in total, unless the infinite mode is turned on.
+
+>> Do not attack large groups of enemies: let them spread a little.
+
 ##game.notice.base_under_attack
 Your colony is under attack!
 

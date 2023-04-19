@@ -43,7 +43,9 @@ func main() {
 	if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
 		fmt.Printf("can't load game data: %v", err)
 		state.Persistent = contentlock.GetDefaultData()
+		contentlock.Update(state)
 		ctx.SaveGameData("save", state.Persistent)
+		state.ReloadLanguage(ctx)
 	}
 	state.ReloadLanguage(ctx)
 

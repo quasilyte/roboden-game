@@ -31,7 +31,7 @@ If you're playing a browser version of the game, please use Chrome or some other
 ```bash
 git clone https://github.com/quasilyte/roboden-game.git
 cd roboden-game/src
-go run ./cmd/game
+go run ./cmd/game --data ../roboden_data
 ```
 
 > You will need a [go](https://go.dev/) 1.18+ toolchain in order to build this game.
@@ -46,7 +46,7 @@ $ sudo apt install libc6-dev libglu1-mesa-dev libgl1-mesa-dev libxcursor-dev lib
 If you want to build a game for a different platform, use Go cross-compilation:
 
 ```bash
-GOOS=windows go build -o ../bin/roboden.exe ./cmd/game
+GOOS=windows go build -o ../bin/roboden.exe ./cmd/game --data ../roboden_data
 ```
 
 #### Build for web(wasm):
@@ -56,7 +56,7 @@ cd src/
 make wasm
 ```
 
-After that you can open index.html in browser.
+After that you can open `index.html` in browser.
 
 #### This game is tested on these targets:
 

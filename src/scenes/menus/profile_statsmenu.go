@@ -2,7 +2,6 @@ package menus
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
@@ -58,17 +57,22 @@ func (c *ProfileStatsMenuController) initUI() {
 
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 	stats := c.state.Persistent.PlayerStats
-	lines := []string{
-		fmt.Sprintf("%s: %v", d.Get("menu.results.time_played"), timeutil.FormatDuration(d, stats.TotalPlayTime)),
-		fmt.Sprintf("%s: %v", d.Get("menu.profile.stats.totalscore"), stats.TotalScore),
-		fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.classic_highscore"), stats.HighestClassicScore, stats.HighestClassicScoreDifficulty),
+
+	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4))
+	lines := [][2]string{
+		{d.Get("menu.results.time_played"), fmt.Sprintf("%v", timeutil.FormatDuration(d, stats.TotalPlayTime))},
+		{d.Get("menu.profile.stats.totalscore"), fmt.Sprintf("%v", stats.TotalScore)},
+		{d.Get("menu.profile.stats.classic_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestClassicScore, stats.HighestClassicScoreDifficulty)},
 	}
 	if stats.TotalScore >= gamedata.ArenaModeCost {
-		lines = append(lines, fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.arena_highscore"), stats.HighestArenaScore, stats.HighestArenaScoreDifficulty))
-		lines = append(lines, fmt.Sprintf("%s: %v (%d%%)", d.Get("menu.profile.stats.inf_arena_highscore"), stats.HighestInfArenaScore, stats.HighestInfArenaScoreDifficulty))
+		lines = append(lines, [2]string{d.Get("menu.profile.stats.arena_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestArenaScore, stats.HighestArenaScoreDifficulty)})
+		lines = append(lines, [2]string{d.Get("menu.profile.stats.inf_arena_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestInfArenaScore, stats.HighestInfArenaScoreDifficulty)})
 	}
-
-	rowContainer.AddChild(eui.NewCenteredLabel(strings.Join(lines, "\n"), smallFont))
+	for _, pair := range lines {
+		grid.AddChild(eui.NewLabel(pair[0], smallFont))
+		grid.AddChild(eui.NewLabel(pair[1], smallFont))
+	}
+	rowContainer.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

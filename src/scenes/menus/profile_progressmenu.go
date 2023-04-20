@@ -2,7 +2,6 @@ package menus
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
@@ -66,15 +65,21 @@ func (c *ProfileProgressMenuController) initUI() {
 	}
 
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
-	lines := []string{
-		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.achievements"), len(stats.Achievements), len(gamedata.AchievementList)),
-		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.turrets_unlocked"), len(stats.TurretsUnlocked), len(gamedata.TurretStatsList)),
-		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.drones_unlocked"), len(stats.DronesUnlocked), numDrones),
-		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.t3drones_seen"), len(stats.Tier3DronesSeen), len(gamedata.Tier3agentMergeRecipes)),
-		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.modes_unlocked"), modesUnlocked, modesTotal),
-		fmt.Sprintf("%s: %d/%d", d.Get("menu.profile.progress.tutorials_completed"), len(stats.TutorialsCompleted), len(gamedata.Tutorials)),
+
+	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4))
+	lines := [][2]string{
+		{d.Get("menu.profile.progress.achievements"), fmt.Sprintf("%d/%d", len(stats.Achievements), len(gamedata.AchievementList))},
+		{d.Get("menu.profile.progress.turrets_unlocked"), fmt.Sprintf("%d/%d", len(stats.TurretsUnlocked), len(gamedata.TurretStatsList))},
+		{d.Get("menu.profile.progress.drones_unlocked"), fmt.Sprintf("%d/%d", len(stats.DronesUnlocked), numDrones)},
+		{d.Get("menu.profile.progress.t3drones_seen"), fmt.Sprintf("%d/%d", len(stats.Tier3DronesSeen), len(gamedata.Tier3agentMergeRecipes))},
+		{d.Get("menu.profile.progress.modes_unlocked"), fmt.Sprintf("%d/%d", modesUnlocked, modesTotal)},
+		{d.Get("menu.profile.progress.tutorials_completed"), fmt.Sprintf("%d/%d", len(stats.TutorialsCompleted), len(gamedata.Tutorials))},
 	}
-	rowContainer.AddChild(eui.NewCenteredLabel(strings.Join(lines, "\n"), smallFont))
+	for _, pair := range lines {
+		grid.AddChild(eui.NewLabel(pair[0], smallFont))
+		grid.AddChild(eui.NewLabel(pair[1], smallFont))
+	}
+	rowContainer.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

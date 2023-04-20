@@ -283,15 +283,7 @@ func (c *resultsController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	grid := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-			StretchHorizontal: true,
-			StretchVertical:   true,
-		})),
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(2),
-			widget.GridLayoutOpts.Spacing(24, 4))))
+	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4))
 
 	itoa := strconv.Itoa
 

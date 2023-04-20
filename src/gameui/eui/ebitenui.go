@@ -124,6 +124,19 @@ func NewPageContentContainer() *widget.Container {
 		)))
 }
 
+func NewGridContainer(columns int, opts ...widget.GridLayoutOpt) *widget.Container {
+	containerOpts := []widget.GridLayoutOpt{
+		widget.GridLayoutOpts.Columns(columns),
+	}
+	containerOpts = append(containerOpts, opts...)
+	return widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			StretchHorizontal: true,
+			StretchVertical:   true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(containerOpts...)))
+}
+
 func NewHorizontalContainer() *widget.Container {
 	return widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
@@ -150,17 +163,11 @@ func NewRowLayoutContainer(spacing int, rowscale []bool) *widget.Container {
 			StretchVertical:   true,
 		})),
 		widget.ContainerOpts.WidgetOpts(
-			// instruct the container's anchor layout to center the button both horizontally and vertically
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,
 				VerticalPosition:   widget.AnchorLayoutPositionCenter,
 			}),
-			// widget.WidgetOpts.MinSize(256, 32),
 		),
-		// widget.ContainerOpts.Layout(widget.NewRowLayout(
-		// 	widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-		// 	widget.RowLayoutOpts.Spacing(10),
-		// )),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
 			widget.GridLayoutOpts.Stretch([]bool{true}, rowscale),
@@ -192,13 +199,6 @@ func NewSeparator(ld interface{}) widget.PreferredSizeLocateableWidget {
 
 func NewCenteredLabel(text string, ff font.Face) *widget.Text {
 	return widget.NewText(
-		// widget.LabelOpts.TextOpts(widget.TextOpts.WidgetOpts(
-		// 	widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-		// 		// Position:           widget.RowLayoutPositionCenter,
-		// 		HorizontalPosition: widget.AnchorLayoutPositionCenter,
-		// 		VerticalPosition:   widget.AnchorLayoutPositionCenter,
-		// 	}),
-		// )),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Stretch: true,
@@ -211,13 +211,6 @@ func NewCenteredLabel(text string, ff font.Face) *widget.Text {
 
 func NewLabel(text string, ff font.Face) *widget.Text {
 	return widget.NewText(
-		// widget.LabelOpts.TextOpts(widget.TextOpts.WidgetOpts(
-		// 	widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-		// 		// Position:           widget.RowLayoutPositionCenter,
-		// 		HorizontalPosition: widget.AnchorLayoutPositionCenter,
-		// 		VerticalPosition:   widget.AnchorLayoutPositionCenter,
-		// 	}),
-		// )),
 		widget.TextOpts.Text(text, ff, normalTextColor),
 	)
 }

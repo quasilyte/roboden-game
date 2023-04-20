@@ -35,8 +35,6 @@ type Controller struct {
 	cameraToggleProgress float64
 	cameraToggleTarget   gmath.Vec
 
-	startTime time.Time
-
 	colonySelector       *ge.Sprite
 	flyingColonySelector *ge.Sprite
 
@@ -89,8 +87,6 @@ func (c *Controller) initTextures() {
 }
 
 func (c *Controller) Init(scene *ge.Scene) {
-	c.startTime = time.Now()
-
 	c.scene = scene
 
 	c.initTextures()
@@ -576,7 +572,7 @@ func (c *Controller) defeat() {
 }
 
 func (c *Controller) prepareBattleResults() {
-	c.world.result.TimePlayed = time.Since(c.startTime)
+	c.world.result.TimePlayed = time.Second * time.Duration(c.nodeRunner.timePlayed)
 	if c.arenaManager != nil {
 		c.world.result.ArenaLevel = c.arenaManager.level
 		if !c.config.InfiniteMode {

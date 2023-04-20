@@ -11,6 +11,8 @@ type nodeRunner struct {
 
 	scene *ge.Scene
 
+	timePlayed float64
+
 	objects      []ge.SceneObject
 	addedObjects []ge.SceneObject
 }
@@ -48,6 +50,7 @@ func (r *nodeRunner) Update(delta float64) {
 	}
 
 	computedDelta := delta * r.speedMultiplier
+	r.timePlayed += computedDelta
 
 	liveObjects := r.objects[:0]
 	for _, o := range r.objects {

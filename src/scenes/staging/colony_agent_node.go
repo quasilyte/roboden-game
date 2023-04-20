@@ -1692,7 +1692,6 @@ func (a *colonyAgentNode) updateAlignStandby(delta float64) {
 
 func (a *colonyAgentNode) updateStandby(delta float64) {
 	if a.healthRegen != 0 {
-		fmt.Println(a.healthRegen)
 		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
 	}
 

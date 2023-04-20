@@ -167,6 +167,7 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	e.capacity = scene.Rand().IntRange(e.stats.capacity.Min, e.stats.capacity.Max)
 	e.resource = e.capacity
 	e.percengage = 1.0
+	e.updateShader()
 }
 
 func (e *essenceSourceNode) IsDisposed() bool { return e.sprite.IsDisposed() }

@@ -35,6 +35,7 @@ func (tether *tetherNode) Init(scene *ge.Scene) {
 	tether.line.SetTexture(gamedata.TetherBeaconAgentStats.BeamTexture)
 	if tether.world.graphicsSettings.AllShadersEnabled {
 		tether.line.Shader = scene.NewShader(assets.ShaderSlideX)
+		tether.line.Shader.SetFloatValue("Time", 0)
 	}
 	tether.world.camera.AddGraphics(tether.line)
 }

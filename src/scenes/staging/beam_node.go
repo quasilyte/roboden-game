@@ -77,6 +77,7 @@ func (b *beamNode) Init(scene *ge.Scene) {
 		b.texLine.SetTexture(b.texture)
 		if b.beamSlideSpeed != 0 && b.world.graphicsSettings.AllShadersEnabled {
 			b.texLine.Shader = scene.NewShader(assets.ShaderSlideX)
+			b.texLine.Shader.SetFloatValue("Time", 0)
 		}
 		b.world.camera.AddGraphicsAbove(b.texLine)
 	}

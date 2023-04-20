@@ -158,11 +158,12 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	case creepServant:
 		c.specialDelay = c.scene.Rand().FloatRange(0.5, 3)
 	case creepBuilder:
-		// c.specialDelay = c.scene.Rand().FloatRange(15, 30)
+		c.specialDelay = c.scene.Rand().FloatRange(15, 30)
 	case creepCrawlerBase:
 		c.attackDelay = c.scene.Rand().FloatRange(5, 10)
 	case creepTurretConstruction, creepCrawlerBaseConstruction:
 		c.sprite.Shader = scene.NewShader(assets.ShaderCreepTurretBuild)
+		c.sprite.Shader.SetFloatValue("Time", 0)
 	case creepHowitzer:
 		pos := ge.Pos{Base: &c.spritePos, Offset: gmath.Vec{Y: -10}}
 		trunk := newHowitzerTrunkNode(c.world.camera, pos)

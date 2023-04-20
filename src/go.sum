@@ -43,6 +43,8 @@ github.com/quasilyte/ge v0.0.0-20230418013539-9e5a4122a5d8 h1:XlRMfJ5Q8xTyZ9itsw
 github.com/quasilyte/ge v0.0.0-20230418013539-9e5a4122a5d8/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
 github.com/quasilyte/ge v0.0.0-20230420151112-0055a673fca1 h1:9ENPnjmDnEnXWqMrWECgXX5l2vawOHv6RmSoONma4wI=
 github.com/quasilyte/ge v0.0.0-20230420151112-0055a673fca1/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
+github.com/quasilyte/ge v0.0.0-20230420161031-938921b0b3fd h1:KuD0NCrkeGpzYz/vZWh5s/Eq5nz7wGsEPJblXrTztWc=
+github.com/quasilyte/ge v0.0.0-20230420161031-938921b0b3fd/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
 github.com/quasilyte/gmath v0.0.0-20230330100913-3c961c5497a9 h1:rjdY/+AuT9o/1p9wfd9MMViq6dpzL7Ch0CFf6Zm+8Z0=
 github.com/quasilyte/gmath v0.0.0-20230330100913-3c961c5497a9/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gsignal v0.0.0-20230130114532-ff67b4bb9e15 h1:7JgEJ6KA+VQtt+Bbx2MpV4LttBOJTLH4ehB/R3DfijM=

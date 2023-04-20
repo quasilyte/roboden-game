@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/quasilyte/ge"
@@ -33,7 +35,14 @@ func main() {
 	ctx.WindowHeight = 1080 / 2
 
 	if gameDataFolder == "" {
-		gameDataFolder = "roboden_data"
+		gameLocation, err := os.Executable()
+		if err != nil {
+			fmt.Printf("error getting executable path: %v\n", err)
+			gameLocation = os.Args[0]
+		}
+		gameLocation = filepath.Dir(gameLocation)
+		fmt.Printf("game location: %q\n", gameLocation)
+		gameDataFolder = filepath.Join(gameLocation, "roboden_data")
 	}
 
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)

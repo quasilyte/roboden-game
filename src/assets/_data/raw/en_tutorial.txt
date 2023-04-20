@@ -6,11 +6,11 @@
 ##tutorial.description1
 Learning topics:
 
-> Camera controls
-> Colony movement
-> Colony priorities management
-> Resource gathering
-> Building new colonies
+>> Camera controls
+>> Colony movement
+>> Colony priorities management
+>> Resource gathering
+>> Building new colonies
 ##tutorial1.your_colony
 This is your colony, it's quite autonomous.
 It operates according to its priorities.
@@ -99,9 +99,9 @@ base against any attackers.
 ##tutorial.description2
 Learning topics:
 
-> Faction bonuses
-> Drones evolition via merging
-> Drone special abilities
+>> Faction bonuses
+>> Drones evolition via merging
+>> Drone special abilities
 ##tutorial2.factions_first_choice
 The first four action cards have an
 additional feature we were ignoring previously.
@@ -187,10 +187,10 @@ using it in your next tutorial mission.
 ##tutorial.description3
 Learning topics:
 
-> Building security drones army
-> Base defence against spawning enemies
-> Offensive actions
-> Controlling multiple bases
+>> Building security drones army
+>> Base defence against spawning enemies
+>> Offensive actions
+>> Controlling multiple bases
 ##tutorial3.base_select.keyboard
 This time you start with two colonies.
 You can select a different colony by
@@ -251,10 +251,10 @@ restore the damaged drones.
 ##tutorial.description4
 Learning topics:
 
-> Red crystals and oil gathering
-> Elite drones production
-> Radar
-> Avoiding and defeating the enemy colony
+>> Red crystals and oil gathering
+>> Elite drones production
+>> Radar
+>> Avoiding and defeating the enemy colony
 ##tutorial4.locate_boss
 Welcome to your final tutorial mission.
 This time, it's as close to the actual

@@ -17,6 +17,15 @@
 ##menu.main.exit : Exit
 ##menu.main.build : Build
 
+##menu.save : Save
+##menu.set_user_name : Change Player Name
+##menu.user_name : Player Name
+##menu.user_name_rules
+* Only English letters, digits and spaces are allowed
+* Has to contain at least one non-space character
+* No longer than 32 characters
+* Empty username => can't submit scores
+
 ##tutorial.reward : Score reward
 ##tutorial.reward_claimed : claimed
 

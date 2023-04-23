@@ -40,6 +40,8 @@ type PersistentData struct {
 	SeenClassicMode bool
 	SeenArenaMode   bool
 
+	PlayerName string
+
 	PlayerStats PlayerStats
 }
 

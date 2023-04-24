@@ -87,6 +87,7 @@ func (c *Controller) initTextures() {
 }
 
 func (c *Controller) Init(scene *ge.Scene) {
+	scene.Context().Rand.SetSeed(c.config.Seed * 21917)
 	c.scene = scene
 
 	c.initTextures()

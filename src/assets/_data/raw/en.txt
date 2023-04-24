@@ -16,7 +16,15 @@
 ##menu.main.credits : Credits
 ##menu.main.exit : Exit
 ##menu.main.build : Build
+##menu.main.leaderboard : Leaderboard
 
+##menu.leaderboard.fetch_error : Can't load leaderboard
+##menu.leaderboard.classic : Classic
+##menu.leaderboard.arena : Arena
+##menu.leaderboard.inf_arena : Infinite Arena
+##menu.leaderboard.season : Season
+
+##menu.publish_score : Publish Score (online leaderboard)
 ##menu.save : Save
 ##menu.set_user_name : Change Player Name
 ##menu.user_name : Player Name
@@ -45,7 +53,7 @@
 ##menu.profile.stats.totalscore : Total Score
 ##menu.profile.stats.classic_highscore : Classic Highest Score
 ##menu.profile.stats.arena_highscore : Arena Highest Score
-##menu.profile.stats.inf_arena_highscore : Arena Highest Score (Inf)
+##menu.profile.stats.inf_arena_highscore : Infinite Arena Highest Score
 
 ##menu.profile.progress.achievements : Achievements
 ##menu.profile.progress.modes_unlocked : Game Modes Unlocked

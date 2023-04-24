@@ -283,7 +283,8 @@ func (c *resultsController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4))
+	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
+		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
 
 	itoa := strconv.Itoa
 
@@ -327,6 +328,12 @@ func (c *resultsController) initUI() {
 	rowContainer.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+
+	if c.config.Tutorial == nil && c.highScore {
+		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.publish_score"), func() {
+			// c.back()
+		}))
+	}
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby_back"), func() {
 		c.back()

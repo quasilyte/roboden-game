@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/quasilyte/ge"
@@ -25,6 +26,7 @@ func main() {
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
 	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
 	flag.StringVar(&gameDataFolder, "data", "", "a game data folder path")
+	flag.StringVar(&state.ServerAddress, "server", "127.0.0.1:8080", "leaderboard server address")
 	flag.Parse()
 
 	ctx := ge.NewContext()
@@ -35,14 +37,18 @@ func main() {
 	ctx.WindowHeight = 1080 / 2
 
 	if gameDataFolder == "" {
-		gameLocation, err := os.Executable()
-		if err != nil {
-			fmt.Printf("error getting executable path: %v\n", err)
-			gameLocation = os.Args[0]
+		if runtime.GOARCH == "wasm" {
+			gameDataFolder = "roboden_data"
+		} else {
+			gameLocation, err := os.Executable()
+			if err != nil {
+				fmt.Printf("error getting executable path: %v\n", err)
+				gameLocation = os.Args[0]
+			}
+			gameLocation = filepath.Dir(gameLocation)
+			fmt.Printf("game location: %q\n", gameLocation)
+			gameDataFolder = filepath.Join(gameLocation, "roboden_data")
 		}
-		gameLocation = filepath.Dir(gameLocation)
-		fmt.Printf("game location: %q\n", gameLocation)
-		gameDataFolder = filepath.Join(gameLocation, "roboden_data")
 	}
 
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)

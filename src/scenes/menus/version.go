@@ -1,5 +1,8 @@
 package menus
 
+// Season 0: build 11+
+const seasonNumber = 0
+
 // Version 2
 // - Added min movement radius to avoid accidental clicks
 // - Fixed mismatching sprite size
@@ -94,4 +97,7 @@ package menus
 //
 // # Version 8
 // So many things happened, but I forgot to write them down.
-const buildNumber int = 10
+//
+// # Version 11
+// * Added online leaderboard to the game
+const buildNumber int = 11

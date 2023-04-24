@@ -51,7 +51,8 @@ func (c *ControlsGamepadMenuController) initUI() {
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	controlsText := d.Get("menu.controls.gamepad.text")
-	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4))
+	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
+		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
 
 	for _, line := range strings.Split(controlsText, "\n") {
 		left, right, _ := strings.Cut(line, " | ")

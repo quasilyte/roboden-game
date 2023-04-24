@@ -66,7 +66,8 @@ func (c *ProfileProgressMenuController) initUI() {
 
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
-	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4))
+	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
+		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
 	lines := [][2]string{
 		{d.Get("menu.profile.progress.achievements"), fmt.Sprintf("%d/%d", len(stats.Achievements), len(gamedata.AchievementList))},
 		{d.Get("menu.profile.progress.turrets_unlocked"), fmt.Sprintf("%d/%d", len(stats.TurretsUnlocked), len(gamedata.TurretStatsList))},

@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	normalTextColor    = ge.RGB(0x9dd793)
-	caretColor         = ge.RGB(0xe7c34b)
+	NormalTextColor    = ge.RGB(0x9dd793)
+	CaretColor         = ge.RGB(0xe7c34b)
 	disabledCaretColor = ge.RGB(0x766326)
 )
 
@@ -205,14 +205,18 @@ func NewCenteredLabel(text string, ff font.Face) *widget.Text {
 			}),
 		),
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
-		widget.TextOpts.Text(text, ff, normalTextColor),
+		widget.TextOpts.Text(text, ff, NormalTextColor),
+	)
+}
+
+func NewColoredLabel(text string, ff font.Face, clr color.RGBA) *widget.Text {
+	return widget.NewText(
+		widget.TextOpts.Text(text, ff, clr),
 	)
 }
 
 func NewLabel(text string, ff font.Face) *widget.Text {
-	return widget.NewText(
-		widget.TextOpts.Text(text, ff, normalTextColor),
-	)
+	return NewColoredLabel(text, ff, NormalTextColor)
 }
 
 func NewBigItemButton(res *Resources, img *ebiten.Image, onclick func()) *ItemButton {
@@ -426,9 +430,9 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			},
 			FontFace: ff,
 			TextColors: &widget.TextInputColor{
-				Idle:          normalTextColor,
-				Disabled:      normalTextColor,
-				Caret:         caretColor,
+				Idle:          NormalTextColor,
+				Disabled:      NormalTextColor,
+				Caret:         CaretColor,
 				DisabledCaret: disabledCaretColor,
 			},
 		}
@@ -475,7 +479,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 				Disabled: altDisabled,
 			},
 			Padding:  buttonPadding,
-			Color:    normalTextColor,
+			Color:    NormalTextColor,
 			AltColor: ge.RGB(0x000000),
 			FontFace: ff,
 		}
@@ -509,7 +513,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 				Disabled: altDisabled,
 			},
 			Padding:  buttonPadding,
-			Color:    normalTextColor,
+			Color:    NormalTextColor,
 			AltColor: ge.RGB(0x000000),
 			FontFace: ff,
 		}
@@ -532,7 +536,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			Right: 30,
 		}
 		buttonColors := &widget.ButtonTextColor{
-			Idle:     normalTextColor,
+			Idle:     NormalTextColor,
 			Disabled: ge.RGB(0x5a7a91),
 		}
 		ff := loader.LoadFont(assets.FontSmall).Face

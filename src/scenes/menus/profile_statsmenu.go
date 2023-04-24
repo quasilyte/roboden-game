@@ -58,7 +58,8 @@ func (c *ProfileStatsMenuController) initUI() {
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 	stats := c.state.Persistent.PlayerStats
 
-	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4))
+	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
+		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
 	lines := [][2]string{
 		{d.Get("menu.results.time_played"), fmt.Sprintf("%v", timeutil.FormatDuration(d, stats.TotalPlayTime))},
 		{d.Get("menu.profile.stats.totalscore"), fmt.Sprintf("%v", stats.TotalScore)},

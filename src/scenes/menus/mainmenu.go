@@ -71,6 +71,10 @@ func (c *MainMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewProfileMenuController(c.state))
 	}))
 
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.leaderboard"), func() {
+		c.scene.Context().ChangeScene(NewLeaderboardMenuController(c.state))
+	}))
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.settings"), func() {
 		c.scene.Context().ChangeScene(NewOptionsController(c.state))
 	}))

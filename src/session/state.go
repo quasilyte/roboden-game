@@ -22,6 +22,8 @@ type State struct {
 	MemProfile       string
 	MemProfileWriter io.WriteCloser
 
+	ServerAddress string
+
 	Device userdevice.Info
 
 	MainInput *input.Handler

@@ -26,10 +26,13 @@ func main() {
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
 	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
 	flag.StringVar(&gameDataFolder, "data", "", "a game data folder path")
+	flag.BoolVar(&state.Simulation, "simulation", false, "whether to run game in simulation-only mode")
 	flag.StringVar(&state.ServerAddress, "server", "127.0.0.1:8080", "leaderboard server address")
 	flag.Parse()
 
-	ctx := ge.NewContext()
+	ctx := ge.NewContext(ge.ContextConfig{
+		Mute: state.Simulation,
+	})
 	ctx.Rand.SetSeed(time.Now().Unix())
 	ctx.GameName = "roboden"
 	ctx.WindowTitle = "Roboden"
@@ -82,14 +85,14 @@ func newLevelConfig(config *session.LevelConfig) *session.LevelConfig {
 	config.ExtraUI = true
 	config.EliteResources = true
 
-	config.Tier2Recipes = []gamedata.AgentMergeRecipe{
-		gamedata.FindRecipe(gamedata.ClonerAgentStats),
-		gamedata.FindRecipe(gamedata.FighterAgentStats),
-		gamedata.FindRecipe(gamedata.RepairAgentStats),
-		gamedata.FindRecipe(gamedata.CripplerAgentStats),
-		gamedata.FindRecipe(gamedata.RechargeAgentStats),
-		gamedata.FindRecipe(gamedata.RedminerAgentStats),
-		gamedata.FindRecipe(gamedata.ServoAgentStats),
+	config.Tier2Recipes = []string{
+		gamedata.ClonerAgentStats.Kind.String(),
+		gamedata.FighterAgentStats.Kind.String(),
+		gamedata.RepairAgentStats.Kind.String(),
+		gamedata.CripplerAgentStats.Kind.String(),
+		gamedata.RechargeAgentStats.Kind.String(),
+		gamedata.RedminerAgentStats.Kind.String(),
+		gamedata.ServoAgentStats.Kind.String(),
 	}
 	config.TurretDesign = gamedata.GunpointAgentStats
 

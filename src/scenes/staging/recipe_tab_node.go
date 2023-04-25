@@ -77,7 +77,7 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 		if kind == gamedata.AgentScout {
 			return gamedata.ScoutAgentStats
 		}
-		for _, recipe := range tab.world.config.Tier2Recipes {
+		for _, recipe := range tab.world.tier2recipes {
 			if recipe.Result.Kind == kind {
 				return recipe.Result
 			}
@@ -91,7 +91,7 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 	imageHeight := 15 + 5 + 30
 	combined := ebiten.NewImage(imageWidth, imageHeight)
 	offsetX := 0.0
-	for _, recipe := range tab.world.config.Tier2Recipes {
+	for _, recipe := range tab.world.tier2recipes {
 		drawDrone(combined, droneStatsByKind(recipe.Drone1.Kind), recipe.Drone1.Faction, 15, offsetX, 0)
 		drawDrone(combined, droneStatsByKind(recipe.Drone2.Kind), recipe.Drone2.Faction, 15, offsetX+15, 0)
 		drawDrone(combined, recipe.Result, gamedata.NeutralFactionTag, 30, offsetX, 15+5)

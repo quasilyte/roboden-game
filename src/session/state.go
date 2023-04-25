@@ -22,6 +22,8 @@ type State struct {
 	MemProfile       string
 	MemProfileWriter io.WriteCloser
 
+	Simulation bool
+
 	ServerAddress string
 
 	Device userdevice.Info
@@ -75,48 +77,51 @@ type Achievement struct {
 }
 
 type LevelConfig struct {
-	Resources int
+	Resources int `json:"resources"`
 
-	ExtraUI bool
+	GameMode gamedata.Mode `json:"mode"`
 
-	GameMode gamedata.Mode
+	ExtraUI      bool `json:"extra_ui"`
+	FogOfWar     bool `json:"fog_of_war"`
+	InfiniteMode bool `json:"infinite_mode"`
+
+	InitialCreeps     int `json:"initial_creeps"`
+	NumCreepBases     int `json:"num_creep_bases"`
+	CreepDifficulty   int `json:"creep_difficulty"`
+	BossDifficulty    int `json:"boss_difficulty"`
+	ArenaProgression  int `json:"arena_progression"`
+	StartingResources int `json:"starting_resources"`
+	GameSpeed         int `json:"game_speed"`
+
+	Seed int64 `json:"seed"`
+
+	WorldSize int `json:"world_size"`
+
+	DifficultyScore int `json:"difficulty"`
+
+	DronePointsAllocated int `json:"points_allocated"`
+	Tier2Recipes         []string
+
+	TurretDesign *gamedata.AgentStats
+
+	Simulation bool
+
+	Tutorial *gamedata.TutorialData
 
 	AttackActionAvailable      bool
 	BuildTurretActionAvailable bool
 	RadiusActionAvailable      bool
 
-	FogOfWar     bool
-	InfiniteMode bool
-
-	SecondBase  bool
-	ExtraDrones []*gamedata.AgentStats
-
-	EliteResources    bool
-	EnemyBoss         bool
-	InitialCreeps     int
-	NumCreepBases     int
-	CreepDifficulty   int
-	BossDifficulty    int
-	ArenaProgression  int
-	StartingResources int
-	GameSpeed         int
-
-	Seed int64
-
-	WorldSize int
-
-	Tutorial        *gamedata.TutorialData
-	DifficultyScore int
-
-	Tier2Recipes         []gamedata.AgentMergeRecipe
-	TurretDesign         *gamedata.AgentStats
-	DronePointsAllocated int
+	EliteResources bool
+	EnemyBoss      bool
+	SecondBase     bool
+	ExtraDrones    []*gamedata.AgentStats
 }
 
 func (options *LevelConfig) Clone() LevelConfig {
 	cloned := *options
 
-	cloned.Tier2Recipes = make([]gamedata.AgentMergeRecipe, len(options.Tier2Recipes))
+	cloned.Tier2Recipes = make([]string, len(options.Tier2Recipes))
 	copy(cloned.Tier2Recipes, options.Tier2Recipes)
 
 	return cloned

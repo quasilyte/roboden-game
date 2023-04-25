@@ -788,7 +788,7 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 			c.updateTier2Recipes()
 		})
 		grid.AddChild(b.Widget)
-		if xslices.Contains(c.config.Tier2Recipes, recipe) {
+		if xslices.Contains(c.config.Tier2Recipes, recipe.Result.Kind.String()) {
 			b.Toggle()
 		}
 		c.droneButtons = append(c.droneButtons, droneButton{
@@ -835,7 +835,7 @@ func (c *LobbyMenuController) updateTier2Recipes() {
 		if !b.widget.IsToggled() {
 			continue
 		}
-		c.config.Tier2Recipes = append(c.config.Tier2Recipes, b.recipe)
+		c.config.Tier2Recipes = append(c.config.Tier2Recipes, b.recipe.Result.Kind.String())
 	}
 }
 

@@ -168,6 +168,11 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.nodeRunner = newNodeRunner(gameSpeed)
 	scene.AddObject(c.nodeRunner)
 
+	tier2recipes := make([]gamedata.AgentMergeRecipe, len(c.config.Tier2Recipes))
+	for i, droneName := range c.config.Tier2Recipes {
+		tier2recipes[i] = gamedata.FindRecipeByName(droneName)
+	}
+
 	world := &worldState{
 		rootScene:        scene,
 		nodeRunner:       c.nodeRunner,
@@ -187,7 +192,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 				Y: viewportWorld.Height,
 			},
 		},
-		tier2recipes: c.config.Tier2Recipes,
+		tier2recipes: tier2recipes,
 	}
 	world.inputMode = "keyboard"
 	if c.state.MainInput.GamepadConnected() {

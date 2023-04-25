@@ -6,7 +6,7 @@ type TutorialData struct {
 
 	Seed int64
 
-	Tier2Drones   []AgentMergeRecipe
+	Tier2Drones   []string
 	ExtraDrones   []*AgentStats
 	NumEnemyBases int
 
@@ -39,9 +39,9 @@ var Tutorials = []*TutorialData{
 		ScoreReward:     300,
 		Resources:       1,
 		CanChangeRadius: true,
-		Tier2Drones: []AgentMergeRecipe{
-			FindRecipe(ClonerAgentStats),
-			FindRecipe(FighterAgentStats),
+		Tier2Drones: []string{
+			ClonerAgentStats.Kind.String(),
+			FighterAgentStats.Kind.String(),
 		},
 		Objective:    ObjectiveTrigger,
 		ObjectiveKey: "objective.acquire_destroyer",
@@ -59,12 +59,12 @@ var Tutorials = []*TutorialData{
 		ExtraDrones: []*AgentStats{
 			DestroyerAgentStats,
 		},
-		Tier2Drones: []AgentMergeRecipe{
-			FindRecipe(ClonerAgentStats),
-			FindRecipe(FighterAgentStats),
-			FindRecipe(RepairAgentStats),
-			FindRecipe(FreighterAgentStats),
-			FindRecipe(ServoAgentStats),
+		Tier2Drones: []string{
+			ClonerAgentStats.Kind.String(),
+			FighterAgentStats.Kind.String(),
+			RepairAgentStats.Kind.String(),
+			FreighterAgentStats.Kind.String(),
+			ServoAgentStats.Kind.String(),
 		},
 		Objective: ObjectiveDestroyCreepBases,
 		Seed:      0xF0F3000 + 2,
@@ -84,14 +84,14 @@ var Tutorials = []*TutorialData{
 		ExtraDrones: []*AgentStats{
 			ServoAgentStats,
 		},
-		Tier2Drones: []AgentMergeRecipe{
-			FindRecipe(ClonerAgentStats),
-			FindRecipe(FighterAgentStats),
-			FindRecipe(RepairAgentStats),
-			FindRecipe(FreighterAgentStats),
-			FindRecipe(CripplerAgentStats),
-			FindRecipe(RedminerAgentStats),
-			FindRecipe(ServoAgentStats),
+		Tier2Drones: []string{
+			ClonerAgentStats.Kind.String(),
+			FighterAgentStats.Kind.String(),
+			RepairAgentStats.Kind.String(),
+			FreighterAgentStats.Kind.String(),
+			CripplerAgentStats.Kind.String(),
+			RedminerAgentStats.Kind.String(),
+			ServoAgentStats.Kind.String(),
 		},
 		Objective: ObjectiveBoss,
 		Seed:      0xF0F5000 + 4,

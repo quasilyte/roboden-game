@@ -11,8 +11,8 @@ import (
 	"github.com/quasilyte/ge/langs"
 
 	"github.com/quasilyte/roboden-game/assets"
-	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/userdevice"
 )
 
@@ -30,8 +30,8 @@ type State struct {
 
 	MainInput *input.Handler
 
-	LevelConfig      *LevelConfig
-	ArenaLevelConfig *LevelConfig
+	LevelConfig      *serverapi.LevelConfig
+	ArenaLevelConfig *serverapi.LevelConfig
 
 	Persistent PersistentData
 
@@ -74,57 +74,6 @@ type PlayerStats struct {
 type Achievement struct {
 	Name  string
 	Elite bool
-}
-
-type LevelConfig struct {
-	Resources int `json:"resources"`
-
-	GameMode gamedata.Mode `json:"mode"`
-
-	ExtraUI      bool `json:"extra_ui"`
-	FogOfWar     bool `json:"fog_of_war"`
-	InfiniteMode bool `json:"infinite_mode"`
-
-	InitialCreeps     int `json:"initial_creeps"`
-	NumCreepBases     int `json:"num_creep_bases"`
-	CreepDifficulty   int `json:"creep_difficulty"`
-	BossDifficulty    int `json:"boss_difficulty"`
-	ArenaProgression  int `json:"arena_progression"`
-	StartingResources int `json:"starting_resources"`
-	GameSpeed         int `json:"game_speed"`
-
-	Seed int64 `json:"seed"`
-
-	WorldSize int `json:"world_size"`
-
-	DifficultyScore int `json:"difficulty"`
-
-	DronePointsAllocated int `json:"points_allocated"`
-	Tier2Recipes         []string
-
-	TurretDesign *gamedata.AgentStats
-
-	Simulation bool
-
-	Tutorial *gamedata.TutorialData
-
-	AttackActionAvailable      bool
-	BuildTurretActionAvailable bool
-	RadiusActionAvailable      bool
-
-	EliteResources bool
-	EnemyBoss      bool
-	SecondBase     bool
-	ExtraDrones    []*gamedata.AgentStats
-}
-
-func (options *LevelConfig) Clone() LevelConfig {
-	cloned := *options
-
-	cloned.Tier2Recipes = make([]string, len(options.Tier2Recipes))
-	copy(cloned.Tier2Recipes, options.Tier2Recipes)
-
-	return cloned
 }
 
 type Resources struct {

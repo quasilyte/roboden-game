@@ -14,12 +14,13 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes/staging"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 )
 
 type TutorialMenuController struct {
 	state  *session.State
-	config session.LevelConfig
+	config serverapi.LevelConfig
 
 	scene *ge.Scene
 

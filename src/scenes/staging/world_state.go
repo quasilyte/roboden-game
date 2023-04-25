@@ -7,12 +7,14 @@ import (
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type worldState struct {
-	rand *gmath.Rand
+	rand      *gmath.Rand
+	localRand *gmath.Rand
 
 	rootScene  *ge.Scene
 	nodeRunner *nodeRunner
@@ -52,10 +54,12 @@ type worldState struct {
 
 	result battleResults
 
-	config *session.LevelConfig
+	config *serverapi.LevelConfig
 
 	tmpTargetSlice []targetable
 	tmpColonySlice []*colonyCoreNode
+
+	replayActions []serverapi.PlayerAction
 
 	inputMode string
 
@@ -260,4 +264,8 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, r float64, f func(a *colonyA
 			return
 		}
 	}
+}
+
+func (w *worldState) GetColonyIndex(colony *colonyCoreNode) int {
+	return xslices.Index(w.colonies, colony)
 }

@@ -15,7 +15,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui"
-	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/serverapi"
 )
 
 type specialChoiceKind int
@@ -31,6 +31,7 @@ const (
 )
 
 type selectedChoice struct {
+	Index   int
 	Faction gamedata.FactionTag
 	Option  choiceOption
 	Pos     gmath.Vec
@@ -201,7 +202,7 @@ type choiceWindowNode struct {
 	specialChoiceKinds   []specialChoiceKind
 	specialChoices       []choiceOption
 
-	config *session.LevelConfig
+	config *serverapi.LevelConfig
 	world  *worldState
 
 	cursor *gameui.CursorNode
@@ -456,6 +457,13 @@ func (w *choiceWindowNode) Update(delta float64) {
 	}
 }
 
+func (w *choiceWindowNode) TryExecute(cardIndex int, pos gmath.Vec) bool {
+	if cardIndex != -1 {
+		return w.activateChoice(cardIndex)
+	}
+	return w.activateMoveChoice(pos)
+}
+
 func (w *choiceWindowNode) HandleInput() {
 	if w.selectedColony == nil {
 		return
@@ -493,10 +501,10 @@ func (w *choiceWindowNode) HandleInput() {
 	}
 }
 
-func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
+func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) bool {
 	if !w.Enabled || w.state != choiceReady {
 		w.scene.Audio().PlaySound(assets.AudioError)
-		return
+		return false
 	}
 	w.selectedIndex = -1
 	choice := selectedChoice{
@@ -505,12 +513,13 @@ func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) {
 	}
 	w.startCharging(8.0)
 	w.EventChoiceSelected.Emit(choice)
+	return true
 }
 
-func (w *choiceWindowNode) activateChoice(i int) {
+func (w *choiceWindowNode) activateChoice(i int) bool {
 	if !w.Enabled || w.state != choiceReady {
 		w.scene.Audio().PlaySound(assets.AudioError)
-		return
+		return false
 	}
 
 	w.selectedIndex = i
@@ -520,6 +529,7 @@ func (w *choiceWindowNode) activateChoice(i int) {
 	choice := selectedChoice{
 		Faction: selectedFaction,
 		Option:  w.choices[i].option,
+		Index:   i,
 	}
 
 	if i == 4 {
@@ -530,4 +540,5 @@ func (w *choiceWindowNode) activateChoice(i int) {
 	}
 
 	w.EventChoiceSelected.Emit(choice)
+	return true
 }

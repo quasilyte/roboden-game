@@ -8,20 +8,21 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes/staging"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 )
 
 type HintScreen struct {
 	state *session.State
 
-	config session.LevelConfig
+	config serverapi.LevelConfig
 
 	backController ge.SceneController
 
 	scene *ge.Scene
 }
 
-func NewHintScreen(state *session.State, config session.LevelConfig, back ge.SceneController) *HintScreen {
+func NewHintScreen(state *session.State, config serverapi.LevelConfig, back ge.SceneController) *HintScreen {
 	return &HintScreen{
 		state:          state,
 		config:         config,

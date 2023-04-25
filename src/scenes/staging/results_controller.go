@@ -14,13 +14,14 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/timeutil"
 )
 
 type resultsController struct {
 	state  *session.State
-	config *session.LevelConfig
+	config *serverapi.LevelConfig
 
 	scene          *ge.Scene
 	backController ge.SceneController
@@ -38,6 +39,7 @@ type battleResults struct {
 	Victory          bool
 	GroundBossDefeat bool
 	TimePlayed       time.Duration
+	Ticks            int
 
 	ResourcesGathered      float64
 	EliteResourcesGathered float64
@@ -73,10 +75,12 @@ type battleResults struct {
 
 	OnlyTier1Military bool
 
+	Replay []serverapi.PlayerAction
+
 	Tier3Drones []gamedata.ColonyAgentKind
 }
 
-func newResultsController(state *session.State, config *session.LevelConfig, backController ge.SceneController, results battleResults) *resultsController {
+func newResultsController(state *session.State, config *serverapi.LevelConfig, backController ge.SceneController, results battleResults) *resultsController {
 	return &resultsController{
 		state:          state,
 		backController: backController,

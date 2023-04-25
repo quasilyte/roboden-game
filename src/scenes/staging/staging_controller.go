@@ -21,9 +21,17 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/pathing"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/viewport"
 )
+
+type GameSimulationResult struct {
+	Victory bool
+	Score   int
+	Time    time.Duration
+	Ticks   int
+}
 
 type Controller struct {
 	state *session.State
@@ -45,7 +53,7 @@ type Controller struct {
 
 	scene  *ge.Scene
 	world  *worldState
-	config session.LevelConfig
+	config serverapi.LevelConfig
 
 	choices *choiceWindowNode
 
@@ -53,6 +61,7 @@ type Controller struct {
 
 	exitNotice        *messageNode
 	transitionQueued  bool
+	gameFinished      bool
 	victoryCheckDelay float64
 
 	camera *viewport.Camera
@@ -71,9 +80,12 @@ type Controller struct {
 	cursor *gameui.CursorNode
 
 	debugInfo *ge.Label
+
+	replayActions []serverapi.PlayerAction
+	ticks         int
 }
 
-func NewController(state *session.State, config session.LevelConfig, back ge.SceneController) *Controller {
+func NewController(state *session.State, config serverapi.LevelConfig, back ge.SceneController) *Controller {
 	return &Controller{
 		state:          state,
 		backController: back,
@@ -81,13 +93,29 @@ func NewController(state *session.State, config session.LevelConfig, back ge.Sce
 	}
 }
 
+func (c *Controller) SetReplayActions(actions []serverapi.PlayerAction) {
+	c.replayActions = actions
+}
+
 func (c *Controller) initTextures() {
 	stunnerCreepStats.beamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageStunnerLine), stunnerCreepStats.weapon.AttackRange)
 	uberBossCreepStats.beamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageBossLaserLine), uberBossCreepStats.weapon.AttackRange)
 }
 
+func (c *Controller) GetSimulationResult() (GameSimulationResult, bool) {
+	var result GameSimulationResult
+	if !c.gameFinished {
+		return result, false
+	}
+	result.Victory = c.world.result.Victory
+	result.Score = c.world.result.Score
+	result.Time = c.world.result.TimePlayed
+	result.Ticks = c.world.result.Ticks
+	return result, true
+}
+
 func (c *Controller) Init(scene *ge.Scene) {
-	scene.Context().Rand.SetSeed(c.config.Seed * 21917)
+	scene.Context().Rand.SetSeed((c.config.Seed + 42) * 21917)
 	c.scene = scene
 
 	c.initTextures()
@@ -173,6 +201,9 @@ func (c *Controller) Init(scene *ge.Scene) {
 		tier2recipes[i] = gamedata.FindRecipeByName(droneName)
 	}
 
+	var localRand gmath.Rand
+	localRand.SetSeed(time.Now().Unix())
+
 	world := &worldState{
 		rootScene:        scene,
 		nodeRunner:       c.nodeRunner,
@@ -182,6 +213,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 		debugLogs:        c.state.Persistent.Settings.DebugLogs,
 		camera:           c.camera,
 		rand:             scene.Rand(),
+		localRand:        &localRand,
+		replayActions:    c.replayActions,
 		tmpTargetSlice:   make([]targetable, 0, 20),
 		tmpColonySlice:   make([]*colonyCoreNode, 0, 4),
 		width:            viewportWorld.Width,
@@ -380,6 +413,20 @@ func (c *Controller) onToggleButtonClicked() {
 }
 
 func (c *Controller) executeAction(choice selectedChoice) bool {
+	if c.config.ExecMode == serverapi.ExecuteNormal {
+		kind := serverapi.PlayerActionKind(choice.Index + 1)
+		if choice.Option.special == specialChoiceMoveColony {
+			kind = serverapi.ActionMove
+		}
+		a := serverapi.PlayerAction{
+			Kind:           kind,
+			Pos:            [2]float64{choice.Pos.X, choice.Pos.Y},
+			SelectedColony: c.world.GetColonyIndex(c.world.selectedColony),
+			Tick:           c.ticks,
+		}
+		c.world.replayActions = append(c.world.replayActions, a)
+	}
+
 	if choice.Option.special == specialChoiceNone {
 		switch choice.Faction {
 		case gamedata.YellowFactionTag:
@@ -570,14 +617,22 @@ func (c *Controller) defeat() {
 	}
 
 	c.transitionQueued = true
+
 	c.scene.DelayedCall(2.0, func() {
+		c.gameFinished = true
 		c.world.result.Victory = false
 		c.prepareBattleResults()
-		c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
+		if c.config.ExecMode != serverapi.ExecuteSimulation {
+			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
+		}
 	})
 }
 
 func (c *Controller) prepareBattleResults() {
+	if c.config.ExecMode == serverapi.ExecuteNormal {
+		c.world.result.Replay = c.world.replayActions
+	}
+	c.world.result.Ticks = c.ticks
 	c.world.result.TimePlayed = time.Second * time.Duration(c.nodeRunner.timePlayed)
 	if c.arenaManager != nil {
 		c.world.result.ArenaLevel = c.arenaManager.level
@@ -594,42 +649,74 @@ func (c *Controller) prepareBattleResults() {
 	c.world.result.DronePointsAllocated = c.config.DronePointsAllocated
 }
 
+func (c *Controller) calcVictory() {
+	c.world.result.Victory = true
+	c.prepareBattleResults()
+
+	t3set := map[gamedata.ColonyAgentKind]struct{}{}
+	for _, colony := range c.world.colonies {
+		colony.agents.Each(func(a *colonyAgentNode) {
+			if a.stats.Tier != 3 {
+				return
+			}
+			t3set[a.stats.Kind] = struct{}{}
+		})
+	}
+	for k := range t3set {
+		c.world.result.Tier3Drones = append(c.world.result.Tier3Drones, k)
+	}
+}
+
 func (c *Controller) victory() {
 	if c.transitionQueued {
 		return
 	}
+
 	c.transitionQueued = true
 
 	c.scene.Audio().PlaySound(assets.AudioVictory)
-
 	c.scene.DelayedCall(5.0, func() {
-		c.world.result.Victory = true
-		c.prepareBattleResults()
-
-		t3set := map[gamedata.ColonyAgentKind]struct{}{}
-		for _, colony := range c.world.colonies {
-			colony.agents.Each(func(a *colonyAgentNode) {
-				if a.stats.Tier != 3 {
-					return
-				}
-				t3set[a.stats.Kind] = struct{}{}
-			})
+		c.gameFinished = true
+		c.calcVictory()
+		if c.config.ExecMode != serverapi.ExecuteSimulation {
+			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 		}
-		for k := range t3set {
-			c.world.result.Tier3Drones = append(c.world.result.Tier3Drones, k)
-		}
-
-		c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 	})
+}
+
+func (c *Controller) handleReplayActions() {
+	if len(c.world.replayActions) == 0 {
+		return
+	}
+	a := c.world.replayActions[0]
+	if c.ticks > a.Tick {
+		panic(errIllegalAction)
+	}
+	if a.Tick != c.ticks {
+		return
+	}
+	c.world.replayActions = c.world.replayActions[1:]
+
+	if a.SelectedColony < 0 || a.SelectedColony >= len(c.world.colonies) {
+		panic(errInvalidColonyIndex)
+	}
+	if c.world.GetColonyIndex(c.world.selectedColony) != a.SelectedColony {
+		c.selectColony(c.world.colonies[a.SelectedColony])
+	}
+
+	ok := false
+	if a.Kind == serverapi.ActionMove {
+		ok = c.choices.TryExecute(-1, gmath.Vec{X: a.Pos[0], Y: a.Pos[1]})
+	} else {
+		ok = c.choices.TryExecute(int(a.Kind)-1, gmath.Vec{})
+	}
+	if !ok {
+		panic(errIllegalAction)
+	}
 }
 
 func (c *Controller) handleInput() {
 	mainInput := c.state.MainInput
-
-	if mainInput.ActionIsJustPressed(controls.ActionShowRecipes) {
-		c.recipeTab.Visible = !c.recipeTab.Visible
-		c.world.result.OpenedEvolutionTab = true
-	}
 
 	if !c.state.Device.IsMobile {
 		// Camera panning only makes sense on non-mobile devices
@@ -681,6 +768,16 @@ func (c *Controller) handleInput() {
 			newPos := c.cameraPanDragPos.Add(posDelta)
 			c.camera.SetOffset(newPos)
 		}
+	}
+
+	if c.config.ExecMode != serverapi.ExecuteNormal {
+		c.handleReplayActions()
+		return
+	}
+
+	if mainInput.ActionIsJustPressed(controls.ActionShowRecipes) {
+		c.recipeTab.Visible = !c.recipeTab.Visible
+		c.world.result.OpenedEvolutionTab = true
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionBack) {
@@ -788,6 +885,7 @@ func (c *Controller) checkVictory() {
 }
 
 func (c *Controller) Update(delta float64) {
+	c.ticks++
 	c.musicPlayer.Update(delta)
 	c.messageManager.Update(delta)
 

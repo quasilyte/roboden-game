@@ -15,6 +15,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/scenes/menus"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/userdevice"
 )
@@ -31,7 +32,8 @@ func main() {
 	flag.Parse()
 
 	ctx := ge.NewContext(ge.ContextConfig{
-		Mute: state.Simulation,
+		Mute:       state.Simulation,
+		FixedDelta: true,
 	})
 	ctx.Rand.SetSeed(time.Now().Unix())
 	ctx.GameName = "roboden"
@@ -77,7 +79,7 @@ func main() {
 	}
 }
 
-func newLevelConfig(config *session.LevelConfig) *session.LevelConfig {
+func newLevelConfig(config *serverapi.LevelConfig) *serverapi.LevelConfig {
 	config.BuildTurretActionAvailable = true
 	config.AttackActionAvailable = true
 	config.RadiusActionAvailable = true
@@ -106,10 +108,10 @@ func newLevelConfig(config *session.LevelConfig) *session.LevelConfig {
 
 func getDefaultSessionState() *session.State {
 	state := &session.State{
-		ArenaLevelConfig: newLevelConfig(&session.LevelConfig{
+		ArenaLevelConfig: newLevelConfig(&serverapi.LevelConfig{
 			ArenaProgression: 1,
 		}),
-		LevelConfig: newLevelConfig(&session.LevelConfig{
+		LevelConfig: newLevelConfig(&serverapi.LevelConfig{
 			EnemyBoss:     true,
 			InitialCreeps: 1,
 			NumCreepBases: 2,

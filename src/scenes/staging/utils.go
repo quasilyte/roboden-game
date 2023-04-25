@@ -148,13 +148,13 @@ func createMuteExplosion(world *worldState, above bool, pos gmath.Vec) {
 }
 
 func playIonExplosionSound(world *worldState, pos gmath.Vec) {
-	explosionSoundIndex := world.rand.IntRange(0, 1)
+	explosionSoundIndex := world.localRand.IntRange(0, 1)
 	explosionSound := resource.AudioID(int(assets.AudioIonZap1) + explosionSoundIndex)
 	playSound(world, explosionSound, pos)
 }
 
 func playExplosionSound(world *worldState, pos gmath.Vec) {
-	explosionSoundIndex := world.rand.IntRange(0, 4)
+	explosionSoundIndex := world.localRand.IntRange(0, 4)
 	explosionSound := resource.AudioID(int(assets.AudioExplosion1) + explosionSoundIndex)
 	playSound(world, explosionSound, pos)
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/gamedata"
-	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/serverapi"
 )
 
 // This tutorial system is not very elegant.
@@ -34,7 +34,7 @@ type tutorialManager struct {
 	choice selectedChoice
 
 	world        *worldState
-	config       *session.LevelConfig
+	config       *serverapi.LevelConfig
 	tutorialStep int
 	drone        *colonyAgentNode
 	creep        *creepNode

@@ -1,6 +1,7 @@
 package gamedata
 
 import (
+	"fmt"
 	"image/color"
 
 	resource "github.com/quasilyte/ebitengine-resource"
@@ -70,6 +71,15 @@ func init() {
 	for k := ColonyAgentKind(agentFirst); k < agentLast; k++ {
 		DroneKindByName[k.String()] = k
 	}
+}
+
+func FindTurretByName(turretName string) *AgentStats {
+	for _, stats := range TurretStatsList {
+		if stats.Kind.String() == turretName {
+			return stats
+		}
+	}
+	panic(fmt.Sprintf("requested a non-existing turret: %s", turretName))
 }
 
 type AgentStats struct {
@@ -167,7 +177,7 @@ var TetherBeaconAgentStats = &AgentStats{
 	Upkeep:         8,
 	MaxHealth:      70,
 	SupportReload:  10,
-	SupportRange:   375,
+	SupportRange:   450,
 	BeamSlideSpeed: 0.4,
 }
 
@@ -515,7 +525,7 @@ var FighterAgentStats = &AgentStats{
 		ProjectileImage: assets.ImageFighterProjectile,
 		ImpactArea:      10,
 		ProjectileSpeed: 250,
-		Damage:          DamageValue{Health: 4},
+		Damage:          DamageValue{Health: 5},
 		Explosion:       ProjectileExplosionFighterLaser,
 		MaxTargets:      1,
 		BurstSize:       1,
@@ -528,9 +538,9 @@ var SkirmisherAgentStats = &AgentStats{
 	Kind:        AgentSkirmisher,
 	Image:       assets.ImageSkirmisherAgent,
 	Size:        SizeMedium,
-	DiodeOffset: 1,
+	DiodeOffset: 3,
 	Tier:        2,
-	PointCost:   3,
+	PointCost:   2,
 	Cost:        25,
 	Upkeep:      8,
 	CanPatrol:   true,
@@ -691,7 +701,7 @@ var DestroyerAgentStats = &AgentStats{
 		AttackRange: 210,
 		Reload:      1.8,
 		AttackSound: assets.AudioDestroyerBeam,
-		Damage:      DamageValue{Health: 6},
+		Damage:      DamageValue{Health: 7},
 		MaxTargets:  1,
 		BurstSize:   1,
 		TargetFlags: TargetFlying | TargetGround,

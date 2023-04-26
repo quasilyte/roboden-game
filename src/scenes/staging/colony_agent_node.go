@@ -269,7 +269,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 			a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 			a.sprite.Shader.SetFloatValue("HP", 1.0)
 			a.sprite.Shader.Enabled = false
-			damageTexture := gmath.RandElem(scene.Rand(), turretDamageTextureList)
+			damageTexture := gmath.RandElem(a.world().localRand, turretDamageTextureList)
 			a.sprite.Shader.Texture1 = scene.LoadImage(damageTexture)
 		}
 	}
@@ -1833,7 +1833,7 @@ func (a *colonyAgentNode) hasTrait(t agentTraitBits) bool {
 func (a *colonyAgentNode) maxPayload() int {
 	n := a.stats.MaxPayload
 	if a.faction == gamedata.YellowFactionTag {
-		n++
+		n += 2
 	}
 	return n
 }

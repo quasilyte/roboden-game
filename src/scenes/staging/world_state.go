@@ -33,6 +33,7 @@ type worldState struct {
 	graphicsSettings session.GraphicsSettings
 	tier2recipes     []gamedata.AgentMergeRecipe
 	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
+	turretDesign     *gamedata.AgentStats
 
 	debugLogs        bool
 	evolutionEnabled bool
@@ -225,10 +226,6 @@ func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r
 		}
 	}
 	return nil
-}
-
-func (w *worldState) Update(delta float64) {
-	w.creepCoordinator.Update(delta)
 }
 
 func (w *worldState) BuildPath(from, to gmath.Vec) pathing.BuildPathResult {

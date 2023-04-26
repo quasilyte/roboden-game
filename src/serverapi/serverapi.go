@@ -15,7 +15,7 @@ type LeaderboardEntry struct {
 type GameReplay struct {
 	Results GameResults `json:"results"`
 
-	Config LevelConfig `json:"config"`
+	Config ReplayLevelConfig `json:"config"`
 
 	Actions []PlayerAction `json:"actions"`
 }
@@ -54,7 +54,7 @@ const (
 	ExecuteReplay
 )
 
-type LevelConfig struct {
+type ReplayLevelConfig struct {
 	Resources int `json:"resources"`
 
 	GameMode gamedata.Mode `json:"mode"`
@@ -77,23 +77,26 @@ type LevelConfig struct {
 
 	DifficultyScore int `json:"difficulty"`
 
-	DronePointsAllocated int `json:"points_allocated"`
-	Tier2Recipes         []string
+	DronePointsAllocated int      `json:"points_allocated"`
+	Tier2Recipes         []string `json:"tier2_recipes"`
 
-	TurretDesign *gamedata.AgentStats
+	TurretDesign string `json:"turret_design"`
+}
+
+type LevelConfig struct {
+	ReplayLevelConfig
 
 	ExecMode ExecutionMode
-
-	Tutorial *gamedata.TutorialData
 
 	AttackActionAvailable      bool
 	BuildTurretActionAvailable bool
 	RadiusActionAvailable      bool
+	EliteResources             bool
+	EnemyBoss                  bool
 
-	EliteResources bool
-	EnemyBoss      bool
-	SecondBase     bool
-	ExtraDrones    []*gamedata.AgentStats
+	Tutorial    *gamedata.TutorialData
+	SecondBase  bool
+	ExtraDrones []*gamedata.AgentStats
 }
 
 func (options *LevelConfig) Clone() LevelConfig {

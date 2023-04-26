@@ -27,12 +27,10 @@ func main() {
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
 	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
 	flag.StringVar(&gameDataFolder, "data", "", "a game data folder path")
-	flag.BoolVar(&state.Simulation, "simulation", false, "whether to run game in simulation-only mode")
 	flag.StringVar(&state.ServerAddress, "server", "127.0.0.1:8080", "leaderboard server address")
 	flag.Parse()
 
 	ctx := ge.NewContext(ge.ContextConfig{
-		Mute:       state.Simulation,
 		FixedDelta: true,
 	})
 	ctx.Rand.SetSeed(time.Now().Unix())
@@ -96,7 +94,7 @@ func newLevelConfig(config *serverapi.LevelConfig) *serverapi.LevelConfig {
 		gamedata.RedminerAgentStats.Kind.String(),
 		gamedata.ServoAgentStats.Kind.String(),
 	}
-	config.TurretDesign = gamedata.GunpointAgentStats
+	config.TurretDesign = gamedata.GunpointAgentStats.Kind.String()
 
 	config.Resources = 2
 	config.WorldSize = 2
@@ -109,12 +107,16 @@ func newLevelConfig(config *serverapi.LevelConfig) *serverapi.LevelConfig {
 func getDefaultSessionState() *session.State {
 	state := &session.State{
 		ArenaLevelConfig: newLevelConfig(&serverapi.LevelConfig{
-			ArenaProgression: 1,
+			ReplayLevelConfig: serverapi.ReplayLevelConfig{
+				ArenaProgression: 1,
+			},
 		}),
 		LevelConfig: newLevelConfig(&serverapi.LevelConfig{
-			EnemyBoss:     true,
-			InitialCreeps: 1,
-			NumCreepBases: 2,
+			EnemyBoss: true,
+			ReplayLevelConfig: serverapi.ReplayLevelConfig{
+				InitialCreeps: 1,
+				NumCreepBases: 2,
+			},
 		}),
 		Persistent: contentlock.GetDefaultData(),
 		Device:     userdevice.GetInfo(),

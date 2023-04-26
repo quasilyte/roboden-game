@@ -22,8 +22,6 @@ type State struct {
 	MemProfile       string
 	MemProfileWriter io.WriteCloser
 
-	Simulation bool
-
 	ServerAddress string
 
 	Device userdevice.Info

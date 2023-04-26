@@ -9,9 +9,14 @@ type nodeRunner struct {
 
 	speedMultiplier float64
 
+	victoryCheckDelay float64
+
 	scene *ge.Scene
 
 	timePlayed float64
+	ticks      int
+
+	creepCoordinator *creepCoordinator
 
 	objects      []ge.SceneObject
 	addedObjects []ge.SceneObject
@@ -28,8 +33,6 @@ func newNodeRunner(speedMultiplier float64) *nodeRunner {
 func (r *nodeRunner) Init(scene *ge.Scene) {
 	r.scene = scene
 }
-
-func (r *nodeRunner) IsDisposed() bool { return false }
 
 func (r *nodeRunner) SetPaused(paused bool) {
 	r.paused = paused
@@ -51,6 +54,9 @@ func (r *nodeRunner) Update(delta float64) {
 
 	computedDelta := delta * r.speedMultiplier
 	r.timePlayed += computedDelta
+	r.ticks++
+
+	r.creepCoordinator.Update(computedDelta)
 
 	liveObjects := r.objects[:0]
 	for _, o := range r.objects {

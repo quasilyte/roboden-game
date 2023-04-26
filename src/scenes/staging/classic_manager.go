@@ -53,18 +53,21 @@ func (m *classicManager) Update(delta float64) {
 }
 
 func (m *classicManager) spawnCrawlers() {
-	m.crawlersDelay = m.world.rand.FloatRange(50, 100)
+	nextAttackDelay := 0.0
+	numCreeps := 1
+	creepStats := howitzerCreepStats
+	if m.world.rand.Chance(0.7) {
+		nextAttackDelay = m.world.rand.FloatRange(50, 100)
+		numCreeps = m.world.rand.IntRange(3, 7)
+		creepStats = stealthCrawlerCreepStats
+	} else {
+		nextAttackDelay = m.world.rand.FloatRange(90, 140)
+	}
+	m.crawlersDelay = nextAttackDelay
 
 	sector := gmath.RandElem(m.world.rand, m.spawnAreas)
 	spawnPos := randomSectorPos(m.world.rand, sector)
 	targetPos := correctedPos(m.world.rect, randomSectorPos(m.world.rand, sector), 520)
-
-	numCreeps := 1
-	creepStats := howitzerCreepStats
-	if m.world.rand.Chance(0.65) {
-		numCreeps = m.world.rand.IntRange(3, 7)
-		creepStats = stealthCrawlerCreepStats
-	}
 
 	for i := 0; i < numCreeps; i++ {
 		creepPos, spawnDelay := groundCreepSpawnPos(m.world, spawnPos, creepStats)

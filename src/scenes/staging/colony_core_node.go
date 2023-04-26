@@ -203,7 +203,7 @@ func (c *colonyCoreNode) IsFlying() bool {
 }
 
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
-	return gmath.ClampMax(280+float64(c.agents.servoNum*20.0), 500)
+	return gmath.ClampMax(350+float64(c.agents.servoNum*10.0), 500)
 }
 
 func (c *colonyCoreNode) PatrolRadius() float64 {

@@ -36,17 +36,22 @@ type Camera struct {
 	screen *ebiten.Image
 
 	disposed bool
+	headless bool
 }
 
-func NewCamera(w *World, width, height float64) *Camera {
-	return &Camera{
+func NewCamera(w *World, headless bool, width, height float64) *Camera {
+	c := &Camera{
 		World: w,
 		Rect: gmath.Rect{
 			Min: gmath.Vec{},
 			Max: gmath.Vec{X: width, Y: height},
 		},
-		screen: ebiten.NewImage(int(w.Width), int(w.Height)),
+		headless: headless,
 	}
+	if !headless {
+		c.screen = ebiten.NewImage(int(w.Width), int(w.Height))
+	}
+	return c
 }
 
 func (c *Camera) Dispose() {
@@ -58,34 +63,58 @@ func (c *Camera) IsDisposed() bool {
 }
 
 func (c *Camera) AddSprite(s *ge.Sprite) {
+	if c.headless {
+		return
+	}
 	c.objects.AddSprite(s)
 }
 
 func (c *Camera) AddGraphics(o cameraObject) {
+	if c.headless {
+		return
+	}
 	c.objects.Add(o)
 }
 
 func (c *Camera) AddSpriteSlightlyAbove(s *ge.Sprite) {
+	if c.headless {
+		return
+	}
 	c.slightlyAboveObjects.AddSprite(s)
 }
 
 func (c *Camera) AddSpriteAbove(s *ge.Sprite) {
+	if c.headless {
+		return
+	}
 	c.aboveObjects.AddSprite(s)
 }
 
 func (c *Camera) AddGraphicsSlightlyAbove(o cameraObject) {
+	if c.headless {
+		return
+	}
 	c.slightlyAboveObjects.Add(o)
 }
 
 func (c *Camera) AddGraphicsAbove(o cameraObject) {
+	if c.headless {
+		return
+	}
 	c.aboveObjects.Add(o)
 }
 
 func (c *Camera) AddSpriteBelow(s *ge.Sprite) {
+	if c.headless {
+		return
+	}
 	c.belowObjects.AddSprite(s)
 }
 
 func (c *Camera) SortBelowLayer() {
+	if c.headless {
+		return
+	}
 	if len(c.belowObjects.objects) != 0 {
 		panic("unexpected below objects count")
 	}

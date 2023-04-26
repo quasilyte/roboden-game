@@ -721,7 +721,7 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 		}
 		var b *eui.ItemButton
 		b = eui.NewItemButton(uiResources, img, nil, "", func() {
-			if c.config.TurretDesign != turret {
+			if c.config.TurretDesign != turret.Kind.String() {
 				b.Toggle()
 				c.onTurretToggled(turret)
 			}
@@ -741,7 +741,7 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 			drone:  turret,
 		})
 		grid.AddChild(b.Widget)
-		if c.config.TurretDesign == turret {
+		if c.config.TurretDesign == turret.Kind.String() {
 			b.Toggle()
 		}
 	}
@@ -841,7 +841,7 @@ func (c *LobbyMenuController) updateTier2Recipes() {
 }
 
 func (c *LobbyMenuController) onTurretToggled(selectedTurret *gamedata.AgentStats) {
-	c.config.TurretDesign = selectedTurret
+	c.config.TurretDesign = selectedTurret.Kind.String()
 	for _, b := range c.turretButtons {
 		toggle := (b.drone != selectedTurret && b.widget.IsToggled())
 		if toggle {

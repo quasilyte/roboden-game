@@ -82,7 +82,6 @@ type Controller struct {
 	debugInfo *ge.Label
 
 	replayActions []serverapi.PlayerAction
-	ticks         int
 }
 
 func NewController(state *session.State, config serverapi.LevelConfig, back ge.SceneController) *Controller {
@@ -163,7 +162,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		Width:  worldSize,
 		Height: worldSize,
 	}
-	c.camera = viewport.NewCamera(viewportWorld, 1920/2, 1080/2)
+	c.camera = viewport.NewCamera(viewportWorld, c.config.ExecMode == serverapi.ExecuteSimulation, 1920/2, 1080/2)
 
 	if c.state.Device.IsMobile {
 		switch c.state.Persistent.Settings.ScrollingSpeed {
@@ -194,7 +193,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		gameSpeed = 1.5
 	}
 	c.nodeRunner = newNodeRunner(gameSpeed)
-	scene.AddObject(c.nodeRunner)
+	c.nodeRunner.Init(c.scene)
 
 	tier2recipes := make([]gamedata.AgentMergeRecipe, len(c.config.Tier2Recipes))
 	for i, droneName := range c.config.Tier2Recipes {
@@ -226,6 +225,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 			},
 		},
 		tier2recipes: tier2recipes,
+		turretDesign: gamedata.FindTurretByName(c.config.TurretDesign),
 	}
 	world.inputMode = "keyboard"
 	if c.state.MainInput.GamepadConnected() {
@@ -235,6 +235,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
 	c.world = world
 	world.Init()
+
+	c.nodeRunner.creepCoordinator = world.creepCoordinator
 
 	c.messageManager = newMessageManager(c.world)
 
@@ -263,9 +265,16 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.nodeRunner.AddObject(classicManager)
 	}
 
-	bg := ge.NewTiledBackground(scene.Context())
-	bg.LoadTileset(scene.Context(), world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
-	c.camera.SetBackground(bg)
+	// Background generation is an expensive operation.
+	// Don't do it inside simulation (headless) mode.
+	if c.config.ExecMode != serverapi.ExecuteSimulation {
+		// Use local rand for the tileset generation.
+		// Otherwise, we'll get incorrect results during the simulation.
+		bg := ge.NewTiledBackground(scene.Context())
+		bg.LoadTilesetWithRand(scene.Context(), world.localRand, world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
+		c.camera.SetBackground(bg)
+	}
+
 	g := newLevelGenerator(scene, c.world)
 	g.Generate()
 
@@ -330,7 +339,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.nodeRunner.AddObject(c.choices)
 
-	if c.config.FogOfWar {
+	if c.config.FogOfWar && c.config.ExecMode != serverapi.ExecuteSimulation {
 		c.visionRadius = 500.0
 
 		c.fogOfWar = ebiten.NewImage(int(c.world.width), int(c.world.height))
@@ -422,7 +431,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 			Kind:           kind,
 			Pos:            [2]float64{choice.Pos.X, choice.Pos.Y},
 			SelectedColony: c.world.GetColonyIndex(c.world.selectedColony),
-			Tick:           c.ticks,
+			Tick:           c.nodeRunner.ticks,
 		}
 		c.world.replayActions = append(c.world.replayActions, a)
 	}
@@ -480,7 +489,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		size := 40.0
 		if choice.Option.special == specialBuildGunpoint {
 			stats = gunpointConstructionStats
-			switch c.config.TurretDesign {
+			switch c.world.turretDesign {
 			case gamedata.BeamTowerAgentStats:
 				stats = beamTowerConstructionStats
 			case gamedata.TetherBeaconAgentStats:
@@ -632,7 +641,7 @@ func (c *Controller) prepareBattleResults() {
 	if c.config.ExecMode == serverapi.ExecuteNormal {
 		c.world.result.Replay = c.world.replayActions
 	}
-	c.world.result.Ticks = c.ticks
+	c.world.result.Ticks = c.nodeRunner.ticks
 	c.world.result.TimePlayed = time.Second * time.Duration(c.nodeRunner.timePlayed)
 	if c.arenaManager != nil {
 		c.world.result.ArenaLevel = c.arenaManager.level
@@ -689,10 +698,10 @@ func (c *Controller) handleReplayActions() {
 		return
 	}
 	a := c.world.replayActions[0]
-	if c.ticks > a.Tick {
+	if c.nodeRunner.ticks > a.Tick {
 		panic(errIllegalAction)
 	}
-	if a.Tick != c.ticks {
+	if a.Tick != c.nodeRunner.ticks {
 		return
 	}
 	c.world.replayActions = c.world.replayActions[1:]
@@ -711,6 +720,7 @@ func (c *Controller) handleReplayActions() {
 		ok = c.choices.TryExecute(int(a.Kind)-1, gmath.Vec{})
 	}
 	if !ok {
+		fmt.Println("fail at", a.Tick, time.Second*time.Duration(c.nodeRunner.timePlayed))
 		panic(errIllegalAction)
 	}
 }
@@ -885,9 +895,9 @@ func (c *Controller) checkVictory() {
 }
 
 func (c *Controller) Update(delta float64) {
-	c.ticks++
 	c.musicPlayer.Update(delta)
 	c.messageManager.Update(delta)
+	c.nodeRunner.Update(delta)
 
 	if c.world.selectedColony != nil {
 		flying := c.world.selectedColony.IsFlying()
@@ -910,9 +920,7 @@ func (c *Controller) Update(delta float64) {
 		return
 	}
 
-	c.world.Update(delta)
-
-	if c.config.FogOfWar {
+	if c.config.FogOfWar && c.config.ExecMode != serverapi.ExecuteSimulation {
 		for _, colony := range c.world.colonies {
 			if !colony.IsFlying() {
 				continue
@@ -930,7 +938,7 @@ func (c *Controller) Update(delta float64) {
 		}
 	}
 
-	if !c.transitionQueued {
+	if !c.transitionQueued && !c.nodeRunner.IsPaused() {
 		c.victoryCheckDelay = gmath.ClampMin(c.victoryCheckDelay-delta, 0)
 		if c.victoryCheckDelay == 0 {
 			c.victoryCheckDelay = c.scene.Rand().FloatRange(2.0, 3.5)
@@ -968,6 +976,8 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	}
 	c.world.selectedColony = colony
 	c.choices.selectedColony = colony
+	c.choices.Enabled = c.world.selectedColony != nil &&
+		c.world.selectedColony.mode == colonyModeNormal
 	if c.radar != nil {
 		c.radar.SetBase(c.world.selectedColony)
 	}

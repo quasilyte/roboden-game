@@ -65,10 +65,10 @@ func (m *classicManager) spawnCrawlers() {
 	creepStats := howitzerCreepStats
 	if m.world.rand.Chance(0.75) {
 		nextAttackDelay = m.world.rand.FloatRange(80, 140) * m.spawnDelayMultiplier
-		numCreeps = m.world.rand.IntRange(2, 6) + m.world.config.CreepSpawnRate
+		numCreeps = m.world.rand.IntRange(1, 5) + m.world.config.CreepSpawnRate
 		creepStats = stealthCrawlerCreepStats
 	} else {
-		nextAttackDelay = m.world.rand.FloatRange(200, 250) * m.spawnDelayMultiplier
+		nextAttackDelay = m.world.rand.FloatRange(210, 250) * m.spawnDelayMultiplier
 	}
 	m.crawlersDelay = nextAttackDelay
 

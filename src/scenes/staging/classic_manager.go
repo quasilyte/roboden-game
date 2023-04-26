@@ -92,7 +92,7 @@ func (m *classicManager) spawnCrawlers() {
 
 func (m *classicManager) spawnTier3Creep() {
 	m.tier3spawnRate = gmath.ClampMin(m.tier3spawnRate-0.025, 0.35)
-	m.tier3spawnDelay = m.world.rand.FloatRange(55, 80) * m.tier3spawnRate
+	m.tier3spawnDelay = (m.world.rand.FloatRange(55, 80) * m.tier3spawnRate) * m.spawnDelayMultiplier
 
 	var spawnPos gmath.Vec
 	roll := m.world.rand.Float()

@@ -13,7 +13,6 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/gtask"
-	"github.com/quasilyte/roboden-game/scenes/sim"
 	"github.com/quasilyte/roboden-game/session"
 )
 
@@ -57,13 +56,12 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 
 	initTask := gtask.StartTask(func(ctx *gtask.TaskContext) {
 		steps := []struct {
-			name    string
-			f       func(*ge.Context, *float64)
-			simSkip bool
+			name string
+			f    func(*ge.Context, *float64)
 		}{
 			{name: "load_images", f: assets.RegisterImageResources},
-			{name: "load_audio", f: assets.RegisterAudioResource, simSkip: true},
-			{name: "load_music", f: assets.RegisterMusicResource, simSkip: true},
+			{name: "load_audio", f: assets.RegisterAudioResource},
+			{name: "load_music", f: assets.RegisterMusicResource},
 			{name: "load_shaders", f: assets.RegisterShaderResources},
 			{name: "load_ui", f: c.loadUIResources},
 			{name: "load_extra", f: c.loadExtra},
@@ -72,10 +70,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		for _, step := range steps {
 			currentStep++
 			currentStepName = step.name
-			skip := c.state.Simulation && step.simSkip
-			if !skip {
-				step.f(scene.Context(), &ctx.Progress.Current)
-			}
+			step.f(scene.Context(), &ctx.Progress.Current)
 			runtime.Gosched()
 			runtime.GC()
 			ctx.Progress.Current = 1.0 * float64(currentStep+1)
@@ -87,11 +82,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		progressLabel.Label = fmt.Sprintf("%s: %d%%", d.Get("boot", currentStepName), p)
 	})
 	initTask.EventCompleted.Connect(nil, func(gsignal.Void) {
-		if c.state.Simulation {
-			c.scene.Context().ChangeScene(sim.NewController(c.state))
-		} else {
-			c.scene.Context().ChangeScene(NewMainMenuController(c.state))
-		}
+		c.scene.Context().ChangeScene(NewMainMenuController(c.state))
 	})
 
 	scene.AddObject(initTask)

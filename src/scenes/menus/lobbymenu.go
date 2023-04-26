@@ -356,13 +356,19 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	if c.mode == gamedata.ModeClassic {
-		b := c.newOptionButton(&c.config.BossDifficulty, -1, "menu.lobby.boss_difficulty", []string{
+		tab.AddChild(c.newOptionButton(&c.config.CreepSpawnRate, -1, "menu.lobby.creep_spawn_rate", []string{
+			"75%",
+			"100%",
+			"125%",
+			"150%",
+		}))
+
+		tab.AddChild(c.newOptionButton(&c.config.BossDifficulty, -1, "menu.lobby.boss_difficulty", []string{
 			d.Get("menu.option.easy"),
 			d.Get("menu.option.normal"),
 			d.Get("menu.option.hard"),
 			d.Get("menu.option.very_hard"),
-		})
-		tab.AddChild(b)
+		}))
 	}
 
 	if c.mode == gamedata.ModeArena {
@@ -524,6 +530,7 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 		score += 10 - (c.config.Resources * 5)
 		score += (c.config.NumCreepBases - 2) * 15
 		score += (c.config.BossDifficulty - 1) * 15
+		score += (c.config.CreepSpawnRate - 1) * 10
 		score += (c.config.InitialCreeps - 1) * 10
 		score -= c.config.StartingResources * 4
 	case gamedata.ModeArena:

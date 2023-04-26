@@ -114,8 +114,9 @@ func getDefaultSessionState() *session.State {
 		LevelConfig: newLevelConfig(&serverapi.LevelConfig{
 			EnemyBoss: true,
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
-				InitialCreeps: 1,
-				NumCreepBases: 2,
+				InitialCreeps:  1,
+				NumCreepBases:  2,
+				CreepSpawnRate: 1,
 			},
 		}),
 		Persistent: contentlock.GetDefaultData(),

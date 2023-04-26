@@ -151,6 +151,12 @@ The number of drone-producing bases the enemy has.
 These bases produce more and more units over time,
 but they can't be replaced after being destroyed.
 
+##menu.lobby.creep_spawn_rate : Creep spawn rate
+##menu.lobby.creep_spawn_rate.description
+This option controls the enemy unit spawn frequency.
+It affects the late-game out-of-screen spawns only.
+The enemy factories will produce units at the same speed.
+
 ##menu.lobby.creeps_difficulty : Creeps power
 ##menu.lobby.creeps_difficulty.description
 The enemy units' power multiplier.

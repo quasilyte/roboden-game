@@ -10,6 +10,8 @@ type classicManager struct {
 
 	spawnAreas []gmath.Rect
 
+	spawnDelayMultiplier float64
+
 	scene *ge.Scene
 
 	tier3spawnDelay float64
@@ -30,11 +32,16 @@ func (m *classicManager) Init(scene *ge.Scene) {
 
 	m.spawnAreas = creepSpawnAreas(m.world)
 
+	m.spawnDelayMultiplier = 0.75 + (0.25 * float64(m.world.config.CreepSpawnRate))
+
+	// 1.1, 1.0, 0.9, 0.8
+	firstSpawnDelayMultiplier := 1.1 - (0.1 * float64(m.world.config.CreepSpawnRate))
+
 	// Start launching tier3 creeps after ~15 minutes.
-	m.tier3spawnDelay = m.world.rand.FloatRange(15*60.0, 18*60.0)
+	m.tier3spawnDelay = m.world.rand.FloatRange(15*60.0, 18*60.0) * firstSpawnDelayMultiplier
 
 	// Extra crawlers show up around the 10th minute.
-	m.crawlersDelay = m.world.rand.FloatRange(10*60.0, 14*60.0)
+	m.crawlersDelay = m.world.rand.FloatRange(10*60.0, 14*60.0) * firstSpawnDelayMultiplier
 }
 
 func (m *classicManager) IsDisposed() bool {
@@ -57,11 +64,11 @@ func (m *classicManager) spawnCrawlers() {
 	numCreeps := 1
 	creepStats := howitzerCreepStats
 	if m.world.rand.Chance(0.75) {
-		nextAttackDelay = m.world.rand.FloatRange(60, 120)
-		numCreeps = m.world.rand.IntRange(3, 7)
+		nextAttackDelay = m.world.rand.FloatRange(80, 140) * m.spawnDelayMultiplier
+		numCreeps = m.world.rand.IntRange(2, 6) + m.world.config.CreepSpawnRate
 		creepStats = stealthCrawlerCreepStats
 	} else {
-		nextAttackDelay = m.world.rand.FloatRange(180, 220)
+		nextAttackDelay = m.world.rand.FloatRange(200, 250) * m.spawnDelayMultiplier
 	}
 	m.crawlersDelay = nextAttackDelay
 

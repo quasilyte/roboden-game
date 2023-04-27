@@ -448,7 +448,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModePosing:
 		a.mode = mode
-		a.dist = 16 // idle time
+		a.dist = pos.X // idle time
 		a.waypoint = gmath.Vec{}
 		return true
 

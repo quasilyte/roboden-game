@@ -332,7 +332,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 			})
 			if drone != nil {
 				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{}, nil)
+				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
 				return true
 			}
 		}
@@ -362,7 +362,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 			})
 			if drone != nil {
 				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{}, nil)
+				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
 				return true
 			}
 		}
@@ -384,7 +384,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 			})
 			if drone != nil {
 				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{}, nil)
+				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
 				return true
 			}
 		}
@@ -406,7 +406,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 			})
 			if drone != nil {
 				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{}, nil)
+				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
 				return true
 			}
 		}
@@ -428,7 +428,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 			})
 			if drone != nil {
 				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{}, nil)
+				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
 				return true
 			}
 		}

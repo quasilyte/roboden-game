@@ -13,6 +13,8 @@ type LeaderboardEntry struct {
 }
 
 type GameReplay struct {
+	GameVersion int `json:"game_version"`
+
 	Results GameResults `json:"results"`
 
 	Config ReplayLevelConfig `json:"config"`

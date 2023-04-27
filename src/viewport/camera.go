@@ -118,7 +118,7 @@ func (c *Camera) SortBelowLayer() {
 	if len(c.belowObjects.objects) != 0 {
 		panic("unexpected below objects count")
 	}
-	sort.Slice(c.belowObjects.sprites, func(i, j int) bool {
+	sort.SliceStable(c.belowObjects.sprites, func(i, j int) bool {
 		shape1 := c.belowObjects.sprites[i].BoundsRect()
 		shape2 := c.belowObjects.sprites[j].BoundsRect()
 		return shape1.Max.Y < shape2.Max.Y

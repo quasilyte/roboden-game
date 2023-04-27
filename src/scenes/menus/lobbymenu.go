@@ -288,6 +288,15 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 	}
 
 	{
+		b := c.newOptionButton(&c.config.Teleporters, -1, "menu.lobby.num_teleporters", []string{
+			"0",
+			"1",
+			"2",
+		})
+		tab.AddChild(b)
+	}
+
+	{
 		b := c.newBoolOptionButton(&c.config.FogOfWar, "menu.lobby.fog_of_war", []string{
 			d.Get("menu.option.off"),
 			d.Get("menu.option.on"),
@@ -547,6 +556,8 @@ func (c *LobbyMenuController) calcDifficultyScore() int {
 	if c.config.FogOfWar {
 		score += 5
 	}
+
+	score += 5 - (c.config.Teleporters * 5)
 
 	score += 20 - c.calcAllocatedPoints()
 

@@ -72,6 +72,8 @@ type ReplayLevelConfig struct {
 	StartingResources int `json:"starting_resources"`
 	GameSpeed         int `json:"game_speed"`
 
+	Teleporters int `json:"teleporters"`
+
 	Seed int64 `json:"seed"`
 
 	WorldSize int `json:"world_size"`

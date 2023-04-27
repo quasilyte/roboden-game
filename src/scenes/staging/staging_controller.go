@@ -584,7 +584,7 @@ func (c *Controller) launchAttack() {
 }
 
 func (c *Controller) launchRelocation(core *colonyCoreNode, dist, maxDist float64, dst gmath.Vec) bool {
-	const posCheckFlags = collisionSkipSmallCrawlers
+	const posCheckFlags = collisionSkipSmallCrawlers | collisionSkipTeleporters
 	dstDir := dst.DirectionTo(core.pos)
 	var relocationPoint gmath.Vec
 OuterLoop:
@@ -970,6 +970,7 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	if c.world.selectedColony != nil {
 		c.scene.Audio().PlaySound(assets.AudioBaseSelect)
 		c.world.selectedColony.EventDestroyed.Disconnect(c)
+		c.world.selectedColony.EventTeleported.Disconnect(c)
 		if c.rpanel != nil {
 			c.world.selectedColony.EventPrioritiesChanged.Disconnect(c)
 		}
@@ -994,6 +995,9 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	c.world.selectedColony.EventDestroyed.Connect(c, func(_ *colonyCoreNode) {
 		c.selectNextColony(false)
 	})
+	c.world.selectedColony.EventTeleported.Connect(c, func(colony *colonyCoreNode) {
+		c.toggleCamera(colony.pos)
+	})
 	if c.rpanel != nil {
 		c.world.selectedColony.EventPrioritiesChanged.Connect(c, func(_ *colonyCoreNode) {
 			c.rpanel.UpdateMetrics()
@@ -1003,12 +1007,16 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	c.flyingColonySelector.Pos.Base = &c.world.selectedColony.spritePos
 }
 
+func (c *Controller) toggleCamera(pos gmath.Vec) {
+	c.cameraToggleTarget = pos
+	c.cameraToggleProgress = 0
+}
+
 func (c *Controller) selectNextColony(center bool) {
 	colony := c.findNextColony()
 	c.selectColony(colony)
 	if center && c.world.selectedColony != nil {
-		c.cameraToggleTarget = c.world.selectedColony.pos
-		c.cameraToggleProgress = 0
+		c.toggleCamera(c.world.selectedColony.pos)
 	}
 }
 

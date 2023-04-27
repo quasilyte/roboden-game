@@ -130,6 +130,11 @@ In other words, 10 minutes of the actual gameplay will progress the game time by
 This options toggles the fog of war.
 If turned on, you won't have an entire map revealed from the start.
 
+##menu.lobby.num_teleporters : Teleporters
+##menu.lobby.num_teleporters.description
+How many pairs of teleporters will be placed on the map.
+If your colony lands on a teleportation platform, it will be transported to the connected teleporter.
+
 ##menu.lobby.ui_mode : User interface mode
 ##menu.lobby.ui_mode.description
 Whether to show extra graphical user interface elements or not.

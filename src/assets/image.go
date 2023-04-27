@@ -71,6 +71,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageActionIncreaseRadius: {Path: "image/ui/action_increase_radius.png"},
 		ImageActionDecreaseRadius: {Path: "image/ui/action_decrease_radius.png"},
 
+		ImageTeleportEffect:             {Path: "image/effects/teleport.png", FrameWidth: 100},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
@@ -101,6 +102,8 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageColonyCoreFlying:   {Path: "image/colony_core_flying.png"},
 		ImageColonyCoreHatch:    {Path: "image/colony_core_hatch.png"},
 		ImageColonyCoreDiode:    {Path: "image/colony_core_diode.png", FrameWidth: 4},
+		ImageTeleporter:         {Path: "image/teleporter.png"},
+		ImageTeleporterLights:   {Path: "image/teleporter_lights.png"},
 
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
@@ -302,6 +305,7 @@ const (
 	ImageObjectiveDisplay
 
 	ImageProjectileSmoke
+	ImageTeleportEffect
 	ImageStealthLaserExplosion
 	ImageCripplerBlasterExplosion
 	ImageScoutIonExplosion
@@ -360,6 +364,8 @@ const (
 	ImageColonyCoreHatch
 	ImageColonyCoreDiode
 	ImageColonyCoreShadow
+	ImageTeleporter
+	ImageTeleporterLights
 	ImageGunpointAgent
 	ImageBeamtowerAgent
 	ImageTetherBeaconAgent

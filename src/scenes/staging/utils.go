@@ -58,6 +58,7 @@ type collisionFlags int
 
 const (
 	collisionSkipSmallCrawlers collisionFlags = 1 << iota
+	collisionSkipTeleporters
 )
 
 func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, radius float64) bool {
@@ -104,6 +105,14 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 		}
 		if creep.stats.shadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+creep.stats.size) {
 			return false
+		}
+	}
+
+	if flags&collisionSkipTeleporters == 0 {
+		for _, tp := range world.teleporters {
+			if tp.pos.DistanceTo(pos) < (radius + 54) {
+				return false
+			}
 		}
 	}
 

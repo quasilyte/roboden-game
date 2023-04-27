@@ -113,6 +113,7 @@ func (c *TutorialMenuController) initUI() {
 		c.config.WorldSize = tutorial.WorldSize
 		c.config.Resources = tutorial.Resources
 		c.config.StartingResources = 0
+		c.config.Teleporters = 0
 		c.config.ExtraUI = true
 		c.config.InitialCreeps = tutorial.InitialCreeps
 		c.config.EliteResources = tutorial.RedCrystals

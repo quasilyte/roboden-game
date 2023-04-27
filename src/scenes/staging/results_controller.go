@@ -1,7 +1,10 @@
 package staging
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -98,6 +101,27 @@ func (c *resultsController) Init(scene *ge.Scene) {
 		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}
 	c.initUI()
+
+	{
+		var replay serverapi.GameReplay
+		replay.Config = c.config.ReplayLevelConfig
+		replay.Actions = c.results.Replay
+		replay.Results.Score = c.results.Score
+		replay.Results.Victory = c.results.Victory
+		replay.Results.Time = int(c.results.TimePlayed)
+		replay.Results.Ticks = c.results.Ticks
+		data, err := json.Marshal(replay)
+		if err != nil {
+			panic(err)
+		}
+		pwd, err := os.Getwd()
+		if err != nil {
+			panic(err)
+		}
+		if err := os.WriteFile(filepath.Join(pwd, "replay3.json"), data, os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (c *resultsController) updateProgress() {

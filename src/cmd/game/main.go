@@ -109,6 +109,7 @@ func getDefaultSessionState() *session.State {
 		ArenaLevelConfig: newLevelConfig(&serverapi.LevelConfig{
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				ArenaProgression: 1,
+				Teleporters:      1,
 			},
 		}),
 		LevelConfig: newLevelConfig(&serverapi.LevelConfig{
@@ -117,6 +118,7 @@ func getDefaultSessionState() *session.State {
 				InitialCreeps:  1,
 				NumCreepBases:  2,
 				CreepSpawnRate: 1,
+				Teleporters:    1,
 			},
 		}),
 		Persistent: contentlock.GetDefaultData(),

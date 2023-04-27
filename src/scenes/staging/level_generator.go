@@ -45,6 +45,7 @@ func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
 }
 
 func (g *levelGenerator) Generate() {
+	g.playerSpawn = g.world.rect.Center()
 	resourceMultipliers := []float64{
 		0.4,
 		0.75,
@@ -52,6 +53,7 @@ func (g *levelGenerator) Generate() {
 		1.25,
 		1.6,
 	}
+	g.placeTeleporters()
 	g.placePlayers()
 	g.placeWalls()
 	g.placeCreepBases()
@@ -100,8 +102,33 @@ func (g *levelGenerator) fillPathgrid() {
 	}
 }
 
+func (g *levelGenerator) placeTeleporters() {
+	for i := 0; i < g.world.config.Teleporters; i++ {
+		tp1sector := gmath.RandElem(g.world.rand, g.sectors)
+		tp1pos := correctedPos(tp1sector, g.randomPos(tp1sector), 240)
+		tp1 := &teleporterNode{id: i, pos: tp1pos, world: g.world}
+		g.world.teleporters = append(g.world.teleporters, tp1)
+		g.world.nodeRunner.AddObject(tp1)
+
+		var tp2 *teleporterNode
+		for {
+			tp2sector := gmath.RandElem(g.world.rand, g.sectors)
+			if tp2sector == tp1sector {
+				continue
+			}
+			tp2pos := correctedPos(tp2sector, g.randomPos(tp2sector), 240)
+			tp2 = &teleporterNode{id: i, pos: tp2pos, world: g.world}
+			g.world.teleporters = append(g.world.teleporters, tp2)
+			g.world.nodeRunner.AddObject(tp2)
+			break
+		}
+
+		tp1.other = tp2
+		tp2.other = tp1
+	}
+}
+
 func (g *levelGenerator) placePlayers() {
-	g.playerSpawn = g.world.rect.Center()
 	g.createBase(g.playerSpawn, true)
 
 	if g.world.config.SecondBase {

@@ -26,6 +26,7 @@ type worldState struct {
 	colonies       []*colonyCoreNode
 	constructions  []*constructionNode
 	walls          []*wallClusterNode
+	teleporters    []*teleporterNode
 
 	boss             *creepNode
 	creepCoordinator *creepCoordinator

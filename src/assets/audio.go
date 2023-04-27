@@ -95,6 +95,8 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioExplosion3:          {Path: "$sfx/explosion3.wav", Volume: -0.4},
 		AudioExplosion4:          {Path: "$sfx/explosion4.wav", Volume: -0.4},
 		AudioExplosion5:          {Path: "$sfx/explosion5.wav", Volume: -0.4},
+		AudioTeleportCharge:      {Path: "$sfx/teleport_charge.wav", Volume: -0.2},
+		AudioTeleportDone:        {Path: "$sfx/teleport_done.wav", Volume: -0.2},
 	}
 
 	singleThread := runtime.GOMAXPROCS(-1) == 1
@@ -177,6 +179,8 @@ const (
 	AudioExplosion3
 	AudioExplosion4
 	AudioExplosion5
+	AudioTeleportCharge
+	AudioTeleportDone
 
 	AudioMusicTrack1
 	AudioMusicTrack2

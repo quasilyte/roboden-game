@@ -30,6 +30,7 @@ const (
 	colonyModeTakeoff
 	colonyModeRelocating
 	colonyModeLanding
+	colonyModeTeleporting
 )
 
 var colonyResourceRectOffsets = []float64{
@@ -46,17 +47,21 @@ type colonyCoreNode struct {
 	evoDiode            *ge.Sprite
 	resourceRects       []*ge.Sprite
 	flyingResourceRects []*ge.Sprite
+	otherShader         ge.Shader
 
 	scene *ge.Scene
 
 	flashComponent      damageFlashComponent
 	hatchFlashComponent damageFlashComponent
 
-	pos       gmath.Vec
-	spritePos gmath.Vec
-	height    float64
-	maxHealth float64
-	health    float64
+	pos           gmath.Vec
+	spritePos     gmath.Vec
+	height        float64
+	maxHealth     float64
+	health        float64
+	teleportDelay float64
+
+	activatedTeleport *teleporterNode
 
 	tether int
 
@@ -96,6 +101,7 @@ type colonyCoreNode struct {
 
 	factionWeights *weightContainer[gamedata.FactionTag]
 
+	EventTeleported        gsignal.Event[*colonyCoreNode]
 	EventUnderAttack       gsignal.Event[*colonyCoreNode]
 	EventDestroyed         gsignal.Event[*colonyCoreNode]
 	EventPrioritiesChanged gsignal.Event[*colonyCoreNode]
@@ -138,6 +144,10 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.planner = newColonyActionPlanner(c, scene.Rand())
 
 	c.health = c.maxHealth
+
+	if len(c.world.teleporters) != 0 {
+		c.otherShader = scene.NewShader(assets.ShaderColonyTeleport)
+	}
 
 	c.sprite = scene.NewSprite(assets.ImageColonyCore)
 	c.sprite.Pos.Base = &c.spritePos
@@ -404,6 +414,41 @@ func (c *colonyCoreNode) Update(delta float64) {
 		c.updateLanding(delta)
 	case colonyModeNormal:
 		c.updateNormal(delta)
+	case colonyModeTeleporting:
+		c.updateTeleporting(delta)
+	}
+}
+
+func (c *colonyCoreNode) updateTeleporting(delta float64) {
+	c.teleportDelay -= delta
+	c.sprite.Shader.SetFloatValue("Time", 20-(c.teleportDelay*10))
+
+	if c.teleportDelay <= 0 {
+		playSound(c.world, assets.AudioTeleportDone, c.pos)
+		playSound(c.world, assets.AudioTeleportDone, c.relocationPoint)
+
+		c.agents.Each(func(a *colonyAgentNode) {
+			if a.mode == agentModeKamikazeAttack {
+				return
+			}
+			a.pos = c.relocationPoint.Add(c.world.rand.Offset(-38, 38))
+			e := newEffectNode(c.world.camera, a.pos, true, assets.ImageTeleportEffect)
+			e.scale = 0.5
+			c.world.nodeRunner.AddObject(e)
+			a.AssignMode(agentModePosing, gmath.Vec{X: c.world.rand.FloatRange(0.5, 2.5)}, nil)
+		})
+
+		c.mode = colonyModeNormal
+		c.pos = c.relocationPoint
+		c.otherShader, c.sprite.Shader = c.sprite.Shader, c.otherShader
+		c.hatch.Visible = true
+		for _, rect := range c.resourceRects {
+			rect.Visible = true
+		}
+
+		c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, false, assets.ImageTeleportEffect))
+
+		c.EventTeleported.Emit(c)
 	}
 }
 
@@ -431,6 +476,10 @@ func (c *colonyCoreNode) updateEvoDiode() {
 }
 
 func (c *colonyCoreNode) updateResourceRects() {
+	if c.mode == colonyModeTeleporting {
+		return
+	}
+
 	var slice []*ge.Sprite
 	if c.IsFlying() {
 		slice = c.flyingResourceRects
@@ -613,6 +662,31 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		playSound(c.world, assets.AudioColonyLanded, c.pos)
 		c.createLandingSmokeEffect()
 		c.crushCrawlers()
+		c.maybeTeleport()
+	}
+}
+
+func (c *colonyCoreNode) maybeTeleport() {
+	var teleporter *teleporterNode
+	for _, tp := range c.world.teleporters {
+		if tp.pos.DistanceTo(c.pos) < 34 {
+			teleporter = tp
+			break
+		}
+	}
+	if teleporter == nil {
+		return
+	}
+	c.mode = colonyModeTeleporting
+	c.teleportDelay = 2
+	c.relocationPoint = teleporter.other.pos.Add(gmath.Vec{Y: -8})
+	c.activatedTeleport = teleporter
+	c.otherShader, c.sprite.Shader = c.sprite.Shader, c.otherShader
+	c.sprite.Shader.SetFloatValue("Time", c.teleportDelay)
+	playSound(c.world, assets.AudioTeleportCharge, c.pos)
+	c.hatch.Visible = false
+	for _, rect := range c.resourceRects {
+		rect.Visible = false
 	}
 }
 

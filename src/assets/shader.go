@@ -16,6 +16,7 @@ func RegisterShaderResources(ctx *ge.Context, progress *float64) {
 		ShaderColonyDamage:     {Path: "shader/colony_damage.go"},
 		ShaderCreepTurretBuild: {Path: "shader/creep_turret_build.go"},
 		ShaderSlideX:           {Path: "shader/slide_x.go"},
+		ShaderColonyTeleport:   {Path: "shader/colony_teleport.go"},
 	}
 
 	singleThread := runtime.GOMAXPROCS(-1) == 1
@@ -40,4 +41,5 @@ const (
 	ShaderColonyDamage
 	ShaderCreepTurretBuild
 	ShaderSlideX
+	ShaderColonyTeleport
 )

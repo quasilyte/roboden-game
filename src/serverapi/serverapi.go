@@ -1,9 +1,5 @@
 package serverapi
 
-import (
-	"github.com/quasilyte/roboden-game/gamedata"
-)
-
 type LeaderboardEntry struct {
 	Rank       int    `json:"rank"`
 	Difficulty int    `json:"difficulty"`
@@ -48,18 +44,10 @@ const (
 	ActionMove
 )
 
-type ExecutionMode int
-
-const (
-	ExecuteNormal ExecutionMode = iota
-	ExecuteSimulation
-	ExecuteReplay
-)
-
 type ReplayLevelConfig struct {
 	Resources int `json:"resources"`
 
-	GameMode gamedata.Mode `json:"mode"`
+	RawGameMode string `json:"mode"`
 
 	ExtraUI      bool `json:"extra_ui"`
 	FogOfWar     bool `json:"fog_of_war"`
@@ -88,27 +76,6 @@ type ReplayLevelConfig struct {
 	TurretDesign string `json:"turret_design"`
 }
 
-type LevelConfig struct {
-	ReplayLevelConfig
-
-	ExecMode ExecutionMode
-
-	AttackActionAvailable      bool
-	BuildTurretActionAvailable bool
-	RadiusActionAvailable      bool
-	EliteResources             bool
-	EnemyBoss                  bool
-
-	Tutorial    *gamedata.TutorialData
-	SecondBase  bool
-	ExtraDrones []*gamedata.AgentStats
-}
-
-func (options *LevelConfig) Clone() LevelConfig {
-	cloned := *options
-
-	cloned.Tier2Recipes = make([]string, len(options.Tier2Recipes))
-	copy(cloned.Tier2Recipes, options.Tier2Recipes)
-
-	return cloned
+type PlayerHighscoreResp struct {
+	Score int `json:"score"`
 }

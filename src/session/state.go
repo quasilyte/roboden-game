@@ -11,8 +11,8 @@ import (
 	"github.com/quasilyte/ge/langs"
 
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
-	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/userdevice"
 )
 
@@ -28,8 +28,8 @@ type State struct {
 
 	MainInput *input.Handler
 
-	LevelConfig      *serverapi.LevelConfig
-	ArenaLevelConfig *serverapi.LevelConfig
+	LevelConfig      *gamedata.LevelConfig
+	ArenaLevelConfig *gamedata.LevelConfig
 
 	Persistent PersistentData
 

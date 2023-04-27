@@ -15,7 +15,6 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui"
-	"github.com/quasilyte/roboden-game/serverapi"
 )
 
 type specialChoiceKind int
@@ -202,7 +201,7 @@ type choiceWindowNode struct {
 	specialChoiceKinds   []specialChoiceKind
 	specialChoices       []choiceOption
 
-	config *serverapi.LevelConfig
+	config *gamedata.LevelConfig
 	world  *worldState
 
 	cursor *gameui.CursorNode

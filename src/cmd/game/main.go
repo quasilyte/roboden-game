@@ -77,7 +77,7 @@ func main() {
 	}
 }
 
-func newLevelConfig(config *serverapi.LevelConfig) *serverapi.LevelConfig {
+func newLevelConfig(config *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.BuildTurretActionAvailable = true
 	config.AttackActionAvailable = true
 	config.RadiusActionAvailable = true
@@ -106,13 +106,13 @@ func newLevelConfig(config *serverapi.LevelConfig) *serverapi.LevelConfig {
 
 func getDefaultSessionState() *session.State {
 	state := &session.State{
-		ArenaLevelConfig: newLevelConfig(&serverapi.LevelConfig{
+		ArenaLevelConfig: newLevelConfig(&gamedata.LevelConfig{
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				ArenaProgression: 1,
 				Teleporters:      1,
 			},
 		}),
-		LevelConfig: newLevelConfig(&serverapi.LevelConfig{
+		LevelConfig: newLevelConfig(&gamedata.LevelConfig{
 			EnemyBoss: true,
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				InitialCreeps:  1,

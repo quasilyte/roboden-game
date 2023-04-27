@@ -53,7 +53,7 @@ type Controller struct {
 
 	scene  *ge.Scene
 	world  *worldState
-	config serverapi.LevelConfig
+	config gamedata.LevelConfig
 
 	choices *choiceWindowNode
 
@@ -84,7 +84,7 @@ type Controller struct {
 	replayActions []serverapi.PlayerAction
 }
 
-func NewController(state *session.State, config serverapi.LevelConfig, back ge.SceneController) *Controller {
+func NewController(state *session.State, config gamedata.LevelConfig, back ge.SceneController) *Controller {
 	return &Controller{
 		state:          state,
 		backController: back,
@@ -162,7 +162,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		Width:  worldSize,
 		Height: worldSize,
 	}
-	c.camera = viewport.NewCamera(viewportWorld, c.config.ExecMode == serverapi.ExecuteSimulation, 1920/2, 1080/2)
+	c.camera = viewport.NewCamera(viewportWorld, c.config.ExecMode == gamedata.ExecuteSimulation, 1920/2, 1080/2)
 
 	if c.state.Device.IsMobile {
 		switch c.state.Persistent.Settings.ScrollingSpeed {
@@ -267,7 +267,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	// Background generation is an expensive operation.
 	// Don't do it inside simulation (headless) mode.
-	if c.config.ExecMode != serverapi.ExecuteSimulation {
+	if c.config.ExecMode != gamedata.ExecuteSimulation {
 		// Use local rand for the tileset generation.
 		// Otherwise, we'll get incorrect results during the simulation.
 		bg := ge.NewTiledBackground(scene.Context())
@@ -339,7 +339,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.nodeRunner.AddObject(c.choices)
 
-	if c.config.FogOfWar && c.config.ExecMode != serverapi.ExecuteSimulation {
+	if c.config.FogOfWar && c.config.ExecMode != gamedata.ExecuteSimulation {
 		c.visionRadius = 500.0
 
 		c.fogOfWar = ebiten.NewImage(int(c.world.width), int(c.world.height))
@@ -422,7 +422,7 @@ func (c *Controller) onToggleButtonClicked() {
 }
 
 func (c *Controller) executeAction(choice selectedChoice) bool {
-	if c.config.ExecMode == serverapi.ExecuteNormal {
+	if c.config.ExecMode == gamedata.ExecuteNormal {
 		kind := serverapi.PlayerActionKind(choice.Index + 1)
 		if choice.Option.special == specialChoiceMoveColony {
 			kind = serverapi.ActionMove
@@ -631,14 +631,14 @@ func (c *Controller) defeat() {
 		c.gameFinished = true
 		c.world.result.Victory = false
 		c.prepareBattleResults()
-		if c.config.ExecMode != serverapi.ExecuteSimulation {
+		if c.config.ExecMode != gamedata.ExecuteSimulation {
 			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 		}
 	})
 }
 
 func (c *Controller) prepareBattleResults() {
-	if c.config.ExecMode == serverapi.ExecuteNormal {
+	if c.config.ExecMode == gamedata.ExecuteNormal {
 		c.world.result.Replay = c.world.replayActions
 	}
 	c.world.result.Ticks = c.nodeRunner.ticks
@@ -687,7 +687,7 @@ func (c *Controller) victory() {
 	c.scene.DelayedCall(5.0, func() {
 		c.gameFinished = true
 		c.calcVictory()
-		if c.config.ExecMode != serverapi.ExecuteSimulation {
+		if c.config.ExecMode != gamedata.ExecuteSimulation {
 			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 		}
 	})
@@ -780,7 +780,7 @@ func (c *Controller) handleInput() {
 		}
 	}
 
-	if c.config.ExecMode != serverapi.ExecuteNormal {
+	if c.config.ExecMode != gamedata.ExecuteNormal {
 		c.handleReplayActions()
 		return
 	}
@@ -920,7 +920,7 @@ func (c *Controller) Update(delta float64) {
 		return
 	}
 
-	if c.config.FogOfWar && c.config.ExecMode != serverapi.ExecuteSimulation {
+	if c.config.FogOfWar && c.config.ExecMode != gamedata.ExecuteSimulation {
 		for _, colony := range c.world.colonies {
 			if !colony.IsFlying() {
 				continue

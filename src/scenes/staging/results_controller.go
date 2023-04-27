@@ -24,7 +24,7 @@ import (
 
 type resultsController struct {
 	state  *session.State
-	config *serverapi.LevelConfig
+	config *gamedata.LevelConfig
 
 	scene          *ge.Scene
 	backController ge.SceneController
@@ -83,7 +83,7 @@ type battleResults struct {
 	Tier3Drones []gamedata.ColonyAgentKind
 }
 
-func newResultsController(state *session.State, config *serverapi.LevelConfig, backController ge.SceneController, results battleResults) *resultsController {
+func newResultsController(state *session.State, config *gamedata.LevelConfig, backController ge.SceneController, results battleResults) *resultsController {
 	return &resultsController{
 		state:          state,
 		backController: backController,

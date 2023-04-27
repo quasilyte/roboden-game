@@ -56,7 +56,7 @@ type worldState struct {
 
 	result battleResults
 
-	config *serverapi.LevelConfig
+	config *gamedata.LevelConfig
 
 	tmpTargetSlice []targetable
 	tmpColonySlice []*colonyCoreNode

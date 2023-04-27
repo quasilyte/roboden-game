@@ -195,7 +195,7 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.results.score : Очки
 ##menu.results.new_achievement : Получено достижение
 ##menu.results.upgraded_achievement : Получено элитное достижение
-##menu.results.new_record : новый рекорд
+##menu.results.new_record : локальный рекорд
 ##menu.results.new_drone : Дрон разблокирован
 ##menu.results.new_turret : Турель разблокирована
 

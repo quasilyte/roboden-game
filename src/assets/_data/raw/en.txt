@@ -215,7 +215,7 @@ Survive for longer to get higher scores.
 ##menu.results.score : Score
 ##menu.results.new_achievement : New Achievement
 ##menu.results.upgraded_achievement : Upgraded Achievement
-##menu.results.new_record : new record
+##menu.results.new_record : local record
 ##menu.results.new_drone : Drone Unlocked
 ##menu.results.new_turret : Turret Unlocked
 

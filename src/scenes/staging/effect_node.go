@@ -16,6 +16,8 @@ type effectNode struct {
 	anim  *ge.Animation
 	above bool
 
+	scale float64
+
 	EventCompleted gesignal.Event[gesignal.Void]
 }
 
@@ -24,6 +26,7 @@ func newEffectNodeFromSprite(camera *viewport.Camera, above bool, sprite *ge.Spr
 		camera: camera,
 		above:  above,
 		anim:   ge.NewAnimation(sprite, -1),
+		scale:  1,
 	}
 	e.anim.SetSecondsPerFrame(0.05)
 	return e
@@ -35,6 +38,7 @@ func newEffectNode(camera *viewport.Camera, pos gmath.Vec, above bool, image res
 		pos:    pos,
 		image:  image,
 		above:  above,
+		scale:  1,
 	}
 }
 
@@ -46,6 +50,7 @@ func (e *effectNode) Init(scene *ge.Scene) {
 	} else {
 		sprite = e.anim.Sprite()
 	}
+	sprite.Scale = e.scale
 	if e.above {
 		e.camera.AddSpriteAbove(sprite)
 	} else {

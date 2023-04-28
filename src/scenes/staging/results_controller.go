@@ -3,6 +3,7 @@ package staging
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -104,11 +105,12 @@ func (c *resultsController) Init(scene *ge.Scene) {
 
 	{
 		var replay serverapi.GameReplay
+		replay.GameVersion = gamedata.BuildNumber
 		replay.Config = c.config.ReplayLevelConfig
 		replay.Actions = c.results.Replay
 		replay.Results.Score = c.results.Score
 		replay.Results.Victory = c.results.Victory
-		replay.Results.Time = int(c.results.TimePlayed)
+		replay.Results.Time = int(math.Floor(c.results.TimePlayed.Seconds()))
 		replay.Results.Ticks = c.results.Ticks
 		data, err := json.Marshal(replay)
 		if err != nil {
@@ -118,7 +120,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 		if err != nil {
 			panic(err)
 		}
-		if err := os.WriteFile(filepath.Join(pwd, "replay3.json"), data, os.ModePerm); err != nil {
+		if err := os.WriteFile(filepath.Join(pwd, "replay.json"), data, os.ModePerm); err != nil {
 			panic(err)
 		}
 	}

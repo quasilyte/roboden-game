@@ -1,7 +1,7 @@
-package menus
+package gamedata
 
 // Season 0: build 11+
-const seasonNumber = 0
+const SeasonNumber = 0
 
 // Version 2
 // - Added min movement radius to avoid accidental clicks
@@ -100,4 +100,4 @@ const seasonNumber = 0
 //
 // # Version 11
 // * Added online leaderboard to the game
-const buildNumber int = 11
+const BuildNumber int = 11

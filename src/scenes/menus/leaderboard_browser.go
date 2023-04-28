@@ -5,15 +5,18 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/httpfetch"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/timeutil"
 )
 
 type LeaderboardBrowserController struct {
@@ -59,12 +62,24 @@ func (c *LeaderboardBrowserController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), normalFont)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.leaderboard.season")+" "+strconv.Itoa(seasonNumber), smallFont))
+	boardData, fetchErr := c.getBoardData()
+
+	{
+		numPlayers := "?"
+		if fetchErr == nil {
+			numPlayers = strconv.Itoa(boardData.NumPlayers)
+		}
+		s := fmt.Sprintf("%s: %d, %s: %s",
+			d.Get("menu.leaderboard.season"),
+			gamedata.SeasonNumber,
+			d.Get("menu.leaderboard.num_players"),
+			numPlayers)
+		rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
+	}
 
 	panel := eui.NewPanel(uiResources, 0, 96)
 
-	boardEntries, err := c.getBoardData()
-	if err != nil {
+	if fetchErr != nil {
 		panel.AddChild(eui.NewCenteredLabel(d.Get("menu.leaderboard.fetch_error"), tinyFont))
 	} else {
 		grid := widget.NewContainer(
@@ -73,29 +88,33 @@ func (c *LeaderboardBrowserController) initUI() {
 			})),
 			widget.ContainerOpts.Layout(widget.NewGridLayout(
 				widget.GridLayoutOpts.Spacing(24, 4),
-				widget.GridLayoutOpts.Columns(4),
-				widget.GridLayoutOpts.Stretch([]bool{false, true, false, false}, nil),
+				widget.GridLayoutOpts.Columns(5),
+				widget.GridLayoutOpts.Stretch([]bool{false, true, false, false, false}, nil),
 			)))
 
 		grid.AddChild(eui.NewLabel("[rank]", tinyFont))
 		grid.AddChild(eui.NewLabel("[name]", tinyFont))
 		grid.AddChild(eui.NewLabel("[difficulty]", tinyFont))
 		grid.AddChild(eui.NewLabel("[score]", tinyFont))
+		grid.AddChild(eui.NewLabel("[time]", tinyFont))
 
 		grid.AddChild(eui.NewLabel("-", tinyFont))
 		grid.AddChild(eui.NewLabel("-", tinyFont))
 		grid.AddChild(eui.NewLabel("-", tinyFont))
 		grid.AddChild(eui.NewLabel("-", tinyFont))
+		grid.AddChild(eui.NewLabel("-", tinyFont))
 
-		for _, e := range boardEntries {
+		for _, e := range boardData.Entries {
 			clr := eui.NormalTextColor
 			if e.PlayerName == c.state.Persistent.PlayerName {
 				clr = eui.CaretColor
 			}
+			d := time.Duration(e.Time) * time.Second
 			grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Rank), tinyFont, clr))
 			grid.AddChild(eui.NewColoredLabel(e.PlayerName, tinyFont, clr))
 			grid.AddChild(eui.NewColoredLabel(fmt.Sprintf("%d%%", e.Difficulty), tinyFont, clr))
 			grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Score), tinyFont, clr))
+			grid.AddChild(eui.NewColoredLabel(timeutil.FormatDurationCompact(d), tinyFont, clr))
 		}
 		panel.AddChild(grid)
 	}
@@ -111,13 +130,13 @@ func (c *LeaderboardBrowserController) initUI() {
 	c.scene.AddObject(uiObject)
 }
 
-func (c *LeaderboardBrowserController) getBoardData() ([]serverapi.LeaderboardEntry, error) {
+func (c *LeaderboardBrowserController) getBoardData() (*serverapi.LeaderboardResp, error) {
 	var u url.URL
 	u.Host = c.state.ServerAddress
 	u.Scheme = "http"
-	u.Path = "roboden/api/get-player-board"
+	u.Path = "get-player-board"
 	q := u.Query()
-	q.Add("season", strconv.Itoa(seasonNumber))
+	q.Add("season", strconv.Itoa(gamedata.SeasonNumber))
 	q.Add("mode", c.gameMode)
 	q.Add("name", c.state.Persistent.PlayerName)
 	u.RawQuery = q.Encode()
@@ -126,11 +145,11 @@ func (c *LeaderboardBrowserController) getBoardData() ([]serverapi.LeaderboardEn
 	if err != nil {
 		return nil, err
 	}
-	var entries []serverapi.LeaderboardEntry
-	if err := json.Unmarshal(data, &entries); err != nil {
+	var resp serverapi.LeaderboardResp
+	if err := json.Unmarshal(data, &resp); err != nil {
 		return nil, err
 	}
-	return entries, nil
+	return &resp, nil
 }
 
 func (c *LeaderboardBrowserController) back() {

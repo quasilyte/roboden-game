@@ -205,6 +205,16 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		c.saveConfig()
 
 		c.config.GameMode = c.mode
+		switch c.mode {
+		case gamedata.ModeArena:
+			if c.config.InfiniteMode {
+				c.config.RawGameMode = "inf_arena"
+			} else {
+				c.config.RawGameMode = "arena"
+			}
+		case gamedata.ModeClassic:
+			c.config.RawGameMode = "classic"
+		}
 		c.config.DifficultyScore = c.calcDifficultyScore()
 		c.config.DronePointsAllocated = c.calcAllocatedPoints()
 		if c.seedInput.InputText != "" {

@@ -26,13 +26,6 @@ import (
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
-type GameSimulationResult struct {
-	Victory bool
-	Score   int
-	Time    time.Duration
-	Ticks   int
-}
-
 type Controller struct {
 	state *session.State
 
@@ -101,14 +94,14 @@ func (c *Controller) initTextures() {
 	uberBossCreepStats.beamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageBossLaserLine), uberBossCreepStats.weapon.AttackRange)
 }
 
-func (c *Controller) GetSimulationResult() (GameSimulationResult, bool) {
-	var result GameSimulationResult
+func (c *Controller) GetSimulationResult() (serverapi.GameResults, bool) {
+	var result serverapi.GameResults
 	if !c.gameFinished {
 		return result, false
 	}
 	result.Victory = c.world.result.Victory
 	result.Score = c.world.result.Score
-	result.Time = c.world.result.TimePlayed
+	result.Time = int(math.Floor(c.world.result.TimePlayed.Seconds()))
 	result.Ticks = c.world.result.Ticks
 	return result, true
 }

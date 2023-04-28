@@ -7,6 +7,16 @@ import (
 	"github.com/quasilyte/ge/langs"
 )
 
+func FormatDurationCompact(d time.Duration) string {
+	d = d.Round(time.Second)
+	hours := d / time.Hour
+	d -= hours * time.Hour
+	minutes := d / time.Minute
+	d -= minutes * time.Minute
+	seconds := d / time.Second
+	return fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
+}
+
 func FormatDuration(dict *langs.Dictionary, d time.Duration) string {
 	d = d.Round(time.Second)
 	hours := d / time.Hour

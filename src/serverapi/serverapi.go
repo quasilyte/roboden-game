@@ -4,6 +4,7 @@ type LeaderboardEntry struct {
 	Rank       int    `json:"rank"`
 	Difficulty int    `json:"difficulty"`
 	Score      int    `json:"score"`
+	Time       int    `json:"time"`
 	PlayerName string `json:"player_name"`
 	Drones     string `json:"drones"`
 }
@@ -76,6 +77,7 @@ type ReplayLevelConfig struct {
 	TurretDesign string `json:"turret_design"`
 }
 
-type PlayerHighscoreResp struct {
-	Score int `json:"score"`
+type LeaderboardResp struct {
+	NumPlayers int                `json:"num_players"`
+	Entries    []LeaderboardEntry `json:"entries"`
 }

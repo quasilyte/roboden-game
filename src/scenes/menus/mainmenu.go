@@ -8,6 +8,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
@@ -91,7 +92,7 @@ func (c *MainMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d (beta testing)", d.Get("menu.main.build"), buildNumber), smallFont)
+	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d (beta testing)", d.Get("menu.main.build"), gamedata.BuildNumber), smallFont)
 	rowContainer.AddChild(buildVersionLabel)
 
 	uiObject := eui.NewSceneObject(root)

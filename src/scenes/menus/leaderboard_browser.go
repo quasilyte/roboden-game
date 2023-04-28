@@ -59,7 +59,7 @@ func (c *LeaderboardBrowserController) initUI() {
 	d := c.scene.Dict()
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	// smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), normalFont)
@@ -77,6 +77,7 @@ func (c *LeaderboardBrowserController) initUI() {
 			seasons[i] = strconv.Itoa(i)
 		}
 		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			Scene:      c.scene,
 			Resources:  uiResources,
 			Input:      c.state.MainInput,
 			Value:      &c.selectedSeason,
@@ -89,18 +90,10 @@ func (c *LeaderboardBrowserController) initUI() {
 		}
 	}
 
-	// {
-	// 	numPlayers := "?"
-	// 	if fetchErr == nil {
-	// 		numPlayers = strconv.Itoa(boardData.NumPlayers)
-	// 	}
-	// 	s := fmt.Sprintf("%s: %d, %s: %s",
-	// 		d.Get("menu.leaderboard.season"),
-	// 		gamedata.SeasonNumber,
-	// 		d.Get("menu.leaderboard.num_players"),
-	// 		numPlayers)
-	// 	rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
-	// }
+	if fetchErr == nil {
+		s := fmt.Sprintf("%s: %d", d.Get("menu.leaderboard.num_players"), boardData.NumPlayers)
+		rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
+	}
 
 	panel := eui.NewPanel(uiResources, 0, 96)
 
@@ -129,17 +122,19 @@ func (c *LeaderboardBrowserController) initUI() {
 		grid.AddChild(eui.NewLabel("-", tinyFont))
 		grid.AddChild(eui.NewLabel("-", tinyFont))
 
-		for _, e := range boardData.Entries {
-			clr := eui.NormalTextColor
-			if e.PlayerName == c.state.Persistent.PlayerName {
-				clr = eui.CaretColor
+		for i := 0; i < 10; i++ {
+			for _, e := range boardData.Entries {
+				clr := eui.NormalTextColor
+				if e.PlayerName == c.state.Persistent.PlayerName {
+					clr = eui.CaretColor
+				}
+				d := time.Duration(e.Time) * time.Second
+				grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Rank), tinyFont, clr))
+				grid.AddChild(eui.NewColoredLabel(e.PlayerName, tinyFont, clr))
+				grid.AddChild(eui.NewColoredLabel(fmt.Sprintf("%d%%", e.Difficulty), tinyFont, clr))
+				grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Score), tinyFont, clr))
+				grid.AddChild(eui.NewColoredLabel(timeutil.FormatDurationCompact(d), tinyFont, clr))
 			}
-			d := time.Duration(e.Time) * time.Second
-			grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Rank), tinyFont, clr))
-			grid.AddChild(eui.NewColoredLabel(e.PlayerName, tinyFont, clr))
-			grid.AddChild(eui.NewColoredLabel(fmt.Sprintf("%d%%", e.Difficulty), tinyFont, clr))
-			grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Score), tinyFont, clr))
-			grid.AddChild(eui.NewColoredLabel(timeutil.FormatDurationCompact(d), tinyFont, clr))
 		}
 		panel.AddChild(grid)
 	}

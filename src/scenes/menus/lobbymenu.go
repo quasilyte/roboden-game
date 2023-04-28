@@ -424,6 +424,7 @@ func (c *LobbyMenuController) optionDescriptionText(key string) string {
 
 func (c *LobbyMenuController) newBoolOptionButton(value *bool, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
 	return eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+		Scene:      c.scene,
 		Resources:  c.state.Resources.UI,
 		Value:      value,
 		Label:      key,
@@ -439,6 +440,7 @@ func (c *LobbyMenuController) newBoolOptionButton(value *bool, key string, value
 
 func (c *LobbyMenuController) newOptionButton(value *int, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
 	return eui.NewSelectButton(eui.SelectButtonConfig{
+		Scene:      c.scene,
 		Resources:  c.state.Resources.UI,
 		Input:      c.state.MainInput,
 		Value:      value,

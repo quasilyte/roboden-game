@@ -353,6 +353,7 @@ func NewButton(res *Resources, scene *ge.Scene, text string, onclick func()) *wi
 type SelectButtonConfig struct {
 	Resources *Resources
 	Input     gameinput.Handler
+	Scene     *ge.Scene // If press sound is needed
 
 	Value      *int
 	Label      string
@@ -398,6 +399,9 @@ func NewSelectButton(config SelectButtonConfig) widget.PreferredSizeLocateableWi
 		}
 		*value = slider.Value()
 		button.Text().Label = makeLabel()
+		if config.Scene != nil {
+			config.Scene.Audio().PlaySound(assets.AudioClick)
+		}
 		if config.OnPressed != nil {
 			config.OnPressed()
 		}
@@ -414,6 +418,7 @@ func NewSelectButton(config SelectButtonConfig) widget.PreferredSizeLocateableWi
 
 type BoolSelectButtonConfig struct {
 	Resources *Resources
+	Scene     *ge.Scene // If press sound is needed
 
 	Value      *bool
 	Label      string
@@ -438,6 +443,9 @@ func NewBoolSelectButton(config BoolSelectButtonConfig) widget.PreferredSizeLoca
 		slider.Inc()
 		*value = slider.Value() != 0
 		button.Text().Label = key + ": " + valueNames[slider.Value()]
+		if config.Scene != nil {
+			config.Scene.Audio().PlaySound(assets.AudioClick)
+		}
 		if config.OnPressed != nil {
 			config.OnPressed()
 		}

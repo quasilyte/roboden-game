@@ -49,6 +49,7 @@ func (c *OptionsExtraMenuController) initUI() {
 
 	{
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
 			Resources: uiResources,
 			Value:     &options.ShowFPS,
 			Label:     d.Get("menu.options.show_fps"),

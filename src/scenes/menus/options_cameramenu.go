@@ -49,6 +49,7 @@ func (c *OptionsCameraMenuController) initUI() {
 
 	{
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+			Scene:      c.scene,
 			Resources:  uiResources,
 			Input:      c.state.MainInput,
 			Value:      &options.ScrollingSpeed,
@@ -59,6 +60,7 @@ func (c *OptionsCameraMenuController) initUI() {
 
 	{
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+			Scene:      c.scene,
 			Resources:  uiResources,
 			Input:      c.state.MainInput,
 			Value:      &options.EdgeScrollRange,

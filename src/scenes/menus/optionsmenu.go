@@ -75,6 +75,7 @@ func (c *OptionsMenuController) initUI() {
 		}
 		langIndex := xslices.Index(langOptions, options.Lang)
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+			Scene:      c.scene,
 			Resources:  uiResources,
 			Input:      c.state.MainInput,
 			Value:      &langIndex,

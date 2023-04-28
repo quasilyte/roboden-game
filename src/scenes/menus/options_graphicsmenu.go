@@ -49,6 +49,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 
 	{
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
 			Resources: uiResources,
 			Value:     &options.Graphics.ShadowsEnabled,
 			Label:     d.Get("menu.options.graphics.shadows"),
@@ -61,6 +62,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 
 	{
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
 			Resources: uiResources,
 			Value:     &options.Graphics.AllShadersEnabled,
 			Label:     d.Get("menu.options.graphics.shaders"),
@@ -73,6 +75,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 
 	{
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
 			Resources: uiResources,
 			Value:     &options.Graphics.FullscreenEnabled,
 			Label:     d.Get("menu.options.graphics.fullscreen"),

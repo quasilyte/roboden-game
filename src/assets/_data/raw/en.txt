@@ -23,7 +23,7 @@
 ##menu.leaderboard.arena : Arena
 ##menu.leaderboard.inf_arena : Infinite Arena
 ##menu.leaderboard.season : Season
-##menu.leaderboard.num_players : players
+##menu.leaderboard.num_players : Players
 
 ##menu.publish_score : Publish Score (online leaderboard)
 ##menu.save : Save

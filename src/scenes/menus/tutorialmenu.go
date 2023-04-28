@@ -88,6 +88,7 @@ func (c *TutorialMenuController) initUI() {
 	{
 		tutorialIndex := c.config.Tutorial.ID
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+			Scene:     c.scene,
 			Resources: uiResources,
 			Input:     c.state.MainInput,
 			Value:     &tutorialIndex,

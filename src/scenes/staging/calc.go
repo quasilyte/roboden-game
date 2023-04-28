@@ -56,6 +56,7 @@ func calcScore(world *worldState) int {
 			multiplier := timePlayed / baselineTime
 			return int(math.Round(float64(score) * multiplier))
 		}
+
 		score := world.config.DifficultyScore * 11
 		crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)
 		score += crystalsCollected * 3
@@ -63,9 +64,6 @@ func calcScore(world *worldState) int {
 		if world.result.CreepFragScore != 0 {
 			multiplier = float64(world.result.CreepFragScore) / float64(world.result.CreepTotalValue)
 		}
-		// fmt.Println("> creeps total value:", world.result.CreepTotalValue)
-		// fmt.Println("> creeps frag score:", world.result.CreepFragScore)
-		// fmt.Println("> score multiplier:", multiplier)
 		return int(math.Round(float64(score) * multiplier))
 
 	case gamedata.ModeClassic:

@@ -309,6 +309,8 @@ func (m *arenaManager) createWaveInfoText() string {
 func (m *arenaManager) spawnCreeps() {
 	m.scene.Audio().PlaySound(assets.AudioWaveStart)
 
+	isLastLevel := !m.world.config.InfiniteMode && m.level == m.lastLevel
+
 	for _, g := range m.waveInfo.groups {
 		sector := m.spawnAreas[g.side]
 		spawnPos := randomSectorPos(m.world.rand, sector)
@@ -325,15 +327,22 @@ func (m *arenaManager) spawnCreeps() {
 				creepPos = creepPos.Add(m.world.rand.Offset(-60, 60))
 			}
 			creepTargetPos := targetPos.Add(m.world.rand.Offset(-60, 60))
-			m.world.result.CreepTotalValue += creepFragScore(creepStats)
+			if isLastLevel {
+				m.world.result.CreepTotalValue += creepFragScore(creepStats)
+			}
 			if spawnDelay > 0 {
 				spawner := newCreepSpawnerNode(m.world, spawnDelay, creepPos, creepTargetPos, creepStats)
+				if isLastLevel {
+					spawner.fragScore = creepFragScore(creepStats)
+				}
 				m.world.nodeRunner.AddObject(spawner)
 			} else {
 				creep := m.world.NewCreepNode(creepPos, creepStats)
 				m.world.nodeRunner.AddObject(creep)
 				creep.SendTo(creepTargetPos)
-				creep.fragScore = creepFragScore(creepStats)
+				if isLastLevel {
+					creep.fragScore = creepFragScore(creepStats)
+				}
 			}
 		}
 	}

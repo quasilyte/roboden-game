@@ -120,7 +120,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		} else {
 			c.anim = ge.NewRepeatedAnimation(c.sprite, -1)
 		}
-		c.anim.Tick(scene.Rand().FloatRange(0, 0.7))
+		c.anim.Tick(c.world.localRand.FloatRange(0, 0.7))
 		c.anim.SetSecondsPerFrame(c.stats.animSpeed)
 	}
 	c.flashComponent.sprite = c.sprite

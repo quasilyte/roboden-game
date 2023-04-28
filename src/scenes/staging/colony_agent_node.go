@@ -299,9 +299,11 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.camera().AddSprite(a.shadow)
 	}
 
-	a.anim = ge.NewRepeatedAnimation(a.sprite, -1)
-	a.anim.Tick(scene.Rand().FloatRange(0, 0.7))
-	a.anim.SetOffsetY(float64(a.rank) * a.sprite.FrameHeight)
+	if a.world().config.ExecMode != gamedata.ExecuteSimulation {
+		a.anim = ge.NewRepeatedAnimation(a.sprite, -1)
+		a.anim.Tick(a.world().localRand.FloatRange(0, 0.7))
+		a.anim.SetOffsetY(float64(a.rank) * a.sprite.FrameHeight)
+	}
 
 	a.supportDelay = scene.Rand().FloatRange(0.8, 2)
 }
@@ -592,7 +594,9 @@ func (a *colonyAgentNode) orbitingWaypoint() gmath.Vec {
 }
 
 func (a *colonyAgentNode) Update(delta float64) {
-	a.anim.Tick(delta)
+	if a.anim != nil {
+		a.anim.Tick(delta)
+	}
 	a.flashComponent.Update(delta)
 
 	if a.stats.Tier == 1 {

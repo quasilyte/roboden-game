@@ -582,7 +582,7 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 	c.eliteResources = gmath.ClampMax(c.eliteResources, 10)
 	c.upkeepDelay = c.scene.Rand().FloatRange(6.5, 8.5)
 	upkeepPrice, _ := c.calcUpkeed()
-	if c.resources < upkeepPrice && c.GetResourcePriority() < 0.75 {
+	if c.resources < upkeepPrice && c.GetResourcePriority() < 0.7 {
 		c.AddPriority(priorityResources, 0.04)
 		c.resources = 0
 	} else {

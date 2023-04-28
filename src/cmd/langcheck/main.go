@@ -22,7 +22,10 @@ func main() {
 	missing := 0
 	invalid := 0
 
-	ctx := ge.NewContext()
+	ctx := ge.NewContext(ge.ContextConfig{
+		Mute:       true,
+		FixedDelta: true,
+	})
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, "")
 	assets.RegisterRawResources(ctx)
 

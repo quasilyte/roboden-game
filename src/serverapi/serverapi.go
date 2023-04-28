@@ -82,3 +82,8 @@ type LeaderboardResp struct {
 	NumPlayers int                `json:"num_players"`
 	Entries    []LeaderboardEntry `json:"entries"`
 }
+
+type SavePlayerScoreResp struct {
+	Queued           bool `json:"queued"`
+	CurrentHighscore int  `json:"current_highscore"`
+}

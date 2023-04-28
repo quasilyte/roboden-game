@@ -131,20 +131,18 @@ func (c *LeaderboardBrowserController) initUI() {
 			grid.AddChild(eui.NewLabel("-", tinyFont))
 		}
 
-		for i := 0; i < 10; i++ {
-			for _, e := range boardData.Entries {
-				clr := eui.NormalTextColor
-				if e.PlayerName == c.state.Persistent.PlayerName {
-					clr = eui.CaretColor
-				}
-				d := time.Duration(e.Time) * time.Second
-				grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Rank), tinyFont, clr))
-				grid.AddChild(eui.NewColoredLabel(e.PlayerName, tinyFont, clr))
-				grid.AddChild(eui.NewColoredLabel(fmt.Sprintf("%d%%", e.Difficulty), tinyFont, clr))
-				grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Score), tinyFont, clr))
-				if c.gameMode != "arena" {
-					grid.AddChild(eui.NewColoredLabel(timeutil.FormatDurationCompact(d), tinyFont, clr))
-				}
+		for _, e := range boardData.Entries {
+			clr := eui.NormalTextColor
+			if e.PlayerName == c.state.Persistent.PlayerName {
+				clr = eui.CaretColor
+			}
+			d := time.Duration(e.Time) * time.Second
+			grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Rank), tinyFont, clr))
+			grid.AddChild(eui.NewColoredLabel(e.PlayerName, tinyFont, clr))
+			grid.AddChild(eui.NewColoredLabel(fmt.Sprintf("%d%%", e.Difficulty), tinyFont, clr))
+			grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Score), tinyFont, clr))
+			if c.gameMode != "arena" {
+				grid.AddChild(eui.NewColoredLabel(timeutil.FormatDurationCompact(d), tinyFont, clr))
 			}
 		}
 		panel.AddChild(grid)

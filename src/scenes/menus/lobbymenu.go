@@ -238,6 +238,28 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			c.scene.Context().SaveGameData("save", c.state.Persistent)
 			c.scene.Context().ChangeScene(NewHintScreen(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
 		} else {
+			// replayData, err := os.ReadFile("./replay.json")
+			// if err != nil {
+			// 	panic(err)
+			// }
+			// var replay serverapi.GameReplay
+			// if err := json.Unmarshal(replayData, &replay); err != nil {
+			// 	panic(err)
+			// }
+			// config := gamedata.LevelConfig{
+			// 	ReplayLevelConfig: replay.Config,
+			// 	GameMode: gamedata.ModeArena,
+			// 	ExecMode: gamedata.ExecuteReplay,
+			// 	AttackActionAvailable: true,
+			// 	BuildTurretActionAvailable: true,
+			// 	RadiusActionAvailable: true,
+			// 	EliteResources: true,
+			// 	EnemyBoss: replay.Config.RawGameMode == "classic",
+			// }
+			// controller := staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode))
+			// controller.SetReplayActions(replay.Actions)
+			// c.scene.Context().ChangeScene(controller)
+
 			c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
 		}
 	}))
@@ -427,7 +449,7 @@ func (c *LobbyMenuController) newBoolOptionButton(value *bool, key string, value
 		Scene:      c.scene,
 		Resources:  c.state.Resources.UI,
 		Value:      value,
-		Label:      key,
+		Label:      c.scene.Dict().Get(key),
 		ValueNames: valueNames,
 		OnPressed: func() {
 			c.updateDifficultyScore(c.calcDifficultyScore())

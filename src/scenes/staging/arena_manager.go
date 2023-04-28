@@ -12,6 +12,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/timeutil"
 )
 
@@ -351,10 +352,10 @@ func (m *arenaManager) prepareWave() {
 	switch {
 	case isLastLevel:
 		m.levelStartDelay = 4.0 * 60
-		budgetStep = 120
+		budgetStep = 140
 	case m.level%5 == 0:
 		m.levelStartDelay = 4.0 * 60
-		budgetStep = 25
+		budgetStep = 20
 		if !m.world.config.InfiniteMode {
 			budgetStep += 2 * m.level
 		}
@@ -368,7 +369,9 @@ func (m *arenaManager) prepareWave() {
 	m.waveBudget += int(math.Round(float64(budgetStep) * m.budgetStepMultiplier))
 
 	budget := m.waveBudget
-	fmt.Printf("wave %d budget is %d\n", m.level, budget)
+	if m.world.config.ExecMode != gamedata.ExecuteSimulation {
+		fmt.Printf("wave %d budget is %d\n", m.level, budget)
+	}
 
 	// First decide which kind of attack we're doing.
 	attackDirectionRoll := m.world.rand.Float()

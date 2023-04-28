@@ -78,6 +78,7 @@ type ReplayLevelConfig struct {
 }
 
 type LeaderboardResp struct {
+	NumSeasons int                `json:"num_seasons"`
 	NumPlayers int                `json:"num_players"`
 	Entries    []LeaderboardEntry `json:"entries"`
 }

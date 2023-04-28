@@ -24,6 +24,8 @@ type LeaderboardBrowserController struct {
 
 	gameMode string
 
+	selectedSeason int
+
 	scene *ge.Scene
 }
 
@@ -36,6 +38,7 @@ func NewLeaderboardBrowserController(state *session.State, gameMode string) *Lea
 
 func (c *LeaderboardBrowserController) Init(scene *ge.Scene) {
 	c.scene = scene
+	c.selectedSeason = gamedata.SeasonNumber
 	c.initUI()
 }
 
@@ -56,7 +59,7 @@ func (c *LeaderboardBrowserController) initUI() {
 	d := c.scene.Dict()
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	// smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), normalFont)
@@ -65,17 +68,39 @@ func (c *LeaderboardBrowserController) initUI() {
 	boardData, fetchErr := c.getBoardData()
 
 	{
-		numPlayers := "?"
+		numSeasons := c.selectedSeason + 1
 		if fetchErr == nil {
-			numPlayers = strconv.Itoa(boardData.NumPlayers)
+			numSeasons = boardData.NumSeasons
 		}
-		s := fmt.Sprintf("%s: %d, %s: %s",
-			d.Get("menu.leaderboard.season"),
-			gamedata.SeasonNumber,
-			d.Get("menu.leaderboard.num_players"),
-			numPlayers)
-		rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
+		seasons := make([]string, numSeasons)
+		for i := range seasons {
+			seasons[i] = strconv.Itoa(i)
+		}
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			Resources:  uiResources,
+			Input:      c.state.MainInput,
+			Value:      &c.selectedSeason,
+			Label:      d.Get("menu.leaderboard.season"),
+			ValueNames: seasons,
+		})
+		rowContainer.AddChild(b)
+		if fetchErr != nil {
+			b.GetWidget().Disabled = true
+		}
 	}
+
+	// {
+	// 	numPlayers := "?"
+	// 	if fetchErr == nil {
+	// 		numPlayers = strconv.Itoa(boardData.NumPlayers)
+	// 	}
+	// 	s := fmt.Sprintf("%s: %d, %s: %s",
+	// 		d.Get("menu.leaderboard.season"),
+	// 		gamedata.SeasonNumber,
+	// 		d.Get("menu.leaderboard.num_players"),
+	// 		numPlayers)
+	// 	rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
+	// }
 
 	panel := eui.NewPanel(uiResources, 0, 96)
 

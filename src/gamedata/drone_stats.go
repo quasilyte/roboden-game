@@ -670,7 +670,7 @@ var MortarAgentStats = &AgentStats{
 	MaxHealth:   30,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     370,
-		Reload:          3.3,
+		Reload:          3.2,
 		AttackSound:     assets.AudioMortarShot,
 		ProjectileImage: assets.ImageMortarProjectile,
 		ImpactArea:      18,

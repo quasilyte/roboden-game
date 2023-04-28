@@ -46,10 +46,10 @@ const (
 
 func BindKeymap(ctx *ge.Context) gameinput.Handler {
 	keymap := input.Keymap{
-		ActionPanRight: {input.KeyRight, input.KeyGamepadLStickRight, input.KeyGamepadRight},
-		ActionPanDown:  {input.KeyDown, input.KeyGamepadLStickDown, input.KeyGamepadDown},
-		ActionPanLeft:  {input.KeyLeft, input.KeyGamepadLStickLeft, input.KeyGamepadLeft},
-		ActionPanUp:    {input.KeyUp, input.KeyGamepadLStickUp, input.KeyGamepadUp},
+		ActionPanRight: {input.KeyD, input.KeyGamepadLStickRight, input.KeyGamepadRight},
+		ActionPanDown:  {input.KeyS, input.KeyGamepadLStickDown, input.KeyGamepadDown},
+		ActionPanLeft:  {input.KeyA, input.KeyGamepadLStickLeft, input.KeyGamepadLeft},
+		ActionPanUp:    {input.KeyW, input.KeyGamepadLStickUp, input.KeyGamepadUp},
 		ActionPanAlt:   {input.KeyMouseMiddle},
 		ActionPanDrag:  {input.KeyTouchDrag},
 
@@ -67,11 +67,11 @@ func BindKeymap(ctx *ge.Context) gameinput.Handler {
 		ActionMenuFocusLeft:  {input.KeyLeft, input.KeyGamepadLeft},
 		ActionMenuFocusUp:    {input.KeyUp, input.KeyGamepadUp},
 
-		ActionChoice1:    {input.Key1, input.KeyQ, input.KeyGamepadY},
-		ActionChoice2:    {input.Key2, input.KeyW, input.KeyGamepadB},
-		ActionChoice3:    {input.Key3, input.KeyE, input.KeyGamepadA},
-		ActionChoice4:    {input.Key4, input.KeyR, input.KeyGamepadX},
-		ActionChoice5:    {input.Key5, input.KeyT, input.KeyGamepadR1},
+		ActionChoice1:    {input.Key1, input.KeyGamepadY},
+		ActionChoice2:    {input.Key2, input.KeyGamepadB},
+		ActionChoice3:    {input.Key3, input.KeyGamepadA},
+		ActionChoice4:    {input.Key4, input.KeyGamepadX},
+		ActionChoice5:    {input.Key5, input.KeyGamepadR1},
 		ActionMoveChoice: {input.KeyMouseRight, input.KeyGamepadRStick, input.KeyTouchTap},
 
 		ActionMoveCursor: {input.KeyGamepadRStickMotion},

@@ -21,7 +21,7 @@ and circle around all the time!
 You can change the selected colony priorities
 by choosing one of the action cards.
 Try activating them. You can use a left mouse click
-on them or press a hotkey: 1-5 or Q-T.
+on them or press a hotkey: 1-5.
 ##tutorial1.action_cards.gamepad
 You can change the selected colony priorities
 by choosing one of the action cards.
@@ -46,7 +46,7 @@ of combat units your colony wants to have.
 It also affects some combat-related behaviors.
 Try increasing it by choosing an appropriate card.
 ##tutorial1.camera.keyboard
-You can pan the camera by using arrow keys.
+You can pan the camera by using WASD keys.
 The mouse scrolling works near the camera edges
 or when you're holding the middle mouse button.
 Locate a resource stash by following a marker.

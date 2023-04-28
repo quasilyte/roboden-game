@@ -226,10 +226,10 @@ Survive for longer to get higher scores.
 ##menu.controls.notice : Controls remapping is coming soon!
 
 ##menu.controls.keyboard.text
-Pan camera | Middle mouse button + move, edge scroll or arrow keys
+Pan camera | Middle mouse button + move, edge scroll or WASD keys
 Move colony | RMB click on the destination
 Select colony | LMB click on the colony or TAB to switch between colonies
-Action card select | LMB click on the card or press 1-5, Q-T on a keyboard
+Action card select | LMB click on the card or press 1-5 on a keyboard
 Pause | SPACE button toggles the pause
 Toggle evolution sheet | ALT button
 Exit/Back | ESC button

@@ -1,7 +1,6 @@
 package staging
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/quasilyte/gmath"
@@ -64,9 +63,9 @@ func calcScore(world *worldState) int {
 		if world.result.CreepFragScore != 0 {
 			multiplier = float64(world.result.CreepFragScore) / float64(world.result.CreepTotalValue)
 		}
-		fmt.Println("> creeps total value:", world.result.CreepTotalValue)
-		fmt.Println("> creeps frag score:", world.result.CreepFragScore)
-		fmt.Println("> score multiplier:", multiplier)
+		// fmt.Println("> creeps total value:", world.result.CreepTotalValue)
+		// fmt.Println("> creeps frag score:", world.result.CreepFragScore)
+		// fmt.Println("> score multiplier:", multiplier)
 		return int(math.Round(float64(score) * multiplier))
 
 	case gamedata.ModeClassic:

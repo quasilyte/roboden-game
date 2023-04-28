@@ -183,6 +183,14 @@ type AgentMergeRecipe struct {
 }
 
 func FindRecipeByName(droneName string) AgentMergeRecipe {
+	r := findRecipeByName(droneName)
+	if r.Result != nil {
+		return r
+	}
+	panic(fmt.Sprintf("requested a non-existing recipe: %s", droneName))
+}
+
+func findRecipeByName(droneName string) AgentMergeRecipe {
 	for _, r := range Tier2agentMergeRecipes {
 		if r.Result.Kind.String() == droneName {
 			return r
@@ -193,7 +201,7 @@ func FindRecipeByName(droneName string) AgentMergeRecipe {
 			return r
 		}
 	}
-	panic(fmt.Sprintf("requested a non-existing recipe: %s", droneName))
+	return AgentMergeRecipe{}
 }
 
 func FindRecipe(stats *AgentStats) AgentMergeRecipe {

@@ -545,41 +545,7 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 }
 
 func (c *LobbyMenuController) calcDifficultyScore() int {
-	score := 100
-
-	switch c.mode {
-	case gamedata.ModeClassic:
-		if c.config.NumCreepBases != 0 {
-			score += (c.config.CreepDifficulty - 1) * 10
-		} else {
-			score += (c.config.CreepDifficulty - 1) * 5
-		}
-		score += 10 - (c.config.Resources * 5)
-		score += (c.config.NumCreepBases - 2) * 15
-		score += (c.config.BossDifficulty - 1) * 15
-		score += (c.config.CreepSpawnRate - 1) * 10
-		score += (c.config.InitialCreeps - 1) * 10
-		score -= c.config.StartingResources * 4
-	case gamedata.ModeArena:
-		score += 10 - (c.config.Resources * 5)
-		score += (c.config.CreepDifficulty - 1) * 15
-		score += c.config.InitialCreeps * 5
-		score += (c.config.ArenaProgression - 1) * 10
-		score -= c.config.StartingResources * 2
-	}
-
-	if !c.config.ExtraUI {
-		score += 5
-	}
-	if c.config.FogOfWar {
-		score += 5
-	}
-
-	score += 5 - (c.config.Teleporters * 5)
-
-	score += 20 - c.calcAllocatedPoints()
-
-	return score
+	return gamedata.CalcDifficultyScore(c.config.ReplayLevelConfig, c.calcAllocatedPoints())
 }
 
 func (c *LobbyMenuController) updateAllocatedPoints(allocated int) {

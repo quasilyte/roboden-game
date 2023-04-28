@@ -7,6 +7,7 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 )
 
@@ -52,7 +53,7 @@ func (c *UserNameMenu) isValidChar(ch byte) bool {
 
 func (c *UserNameMenu) isValidUsername(s string) bool {
 	nonSpace := 0
-	if len(s) > 32 {
+	if len(s) > serverapi.MaxNameLength {
 		return false
 	}
 	for i := 0; i < len(s); i++ {
@@ -97,7 +98,7 @@ func (c *UserNameMenu) initUI() {
 			}
 		}),
 		widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
-			good := len(newInputText) <= 32 && c.isValidUsername(newInputText)
+			good := len(newInputText) <= serverapi.MaxNameLength && c.isValidUsername(newInputText)
 			if !good && c.errorSoundDelay == 0 {
 				c.scene.Audio().PlaySound(assets.AudioError)
 				c.errorSoundDelay = 0.2

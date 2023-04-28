@@ -100,13 +100,18 @@ func (c *LeaderboardBrowserController) initUI() {
 	if fetchErr != nil {
 		panel.AddChild(eui.NewCenteredLabel(d.Get("menu.leaderboard.fetch_error"), tinyFont))
 	} else {
+		numColumns := 5
+		if c.gameMode == "arena" {
+			numColumns = 4
+		}
+
 		grid := widget.NewContainer(
 			widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Stretch: true,
 			})),
 			widget.ContainerOpts.Layout(widget.NewGridLayout(
 				widget.GridLayoutOpts.Spacing(24, 4),
-				widget.GridLayoutOpts.Columns(5),
+				widget.GridLayoutOpts.Columns(numColumns),
 				widget.GridLayoutOpts.Stretch([]bool{false, true, false, false, false}, nil),
 			)))
 
@@ -114,13 +119,17 @@ func (c *LeaderboardBrowserController) initUI() {
 		grid.AddChild(eui.NewLabel("[name]", tinyFont))
 		grid.AddChild(eui.NewLabel("[difficulty]", tinyFont))
 		grid.AddChild(eui.NewLabel("[score]", tinyFont))
-		grid.AddChild(eui.NewLabel("[time]", tinyFont))
+		if c.gameMode != "arena" {
+			grid.AddChild(eui.NewLabel("[time]", tinyFont))
+		}
 
 		grid.AddChild(eui.NewLabel("-", tinyFont))
 		grid.AddChild(eui.NewLabel("-", tinyFont))
 		grid.AddChild(eui.NewLabel("-", tinyFont))
 		grid.AddChild(eui.NewLabel("-", tinyFont))
-		grid.AddChild(eui.NewLabel("-", tinyFont))
+		if c.gameMode != "arena" {
+			grid.AddChild(eui.NewLabel("-", tinyFont))
+		}
 
 		for i := 0; i < 10; i++ {
 			for _, e := range boardData.Entries {
@@ -133,7 +142,9 @@ func (c *LeaderboardBrowserController) initUI() {
 				grid.AddChild(eui.NewColoredLabel(e.PlayerName, tinyFont, clr))
 				grid.AddChild(eui.NewColoredLabel(fmt.Sprintf("%d%%", e.Difficulty), tinyFont, clr))
 				grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Score), tinyFont, clr))
-				grid.AddChild(eui.NewColoredLabel(timeutil.FormatDurationCompact(d), tinyFont, clr))
+				if c.gameMode != "arena" {
+					grid.AddChild(eui.NewColoredLabel(timeutil.FormatDurationCompact(d), tinyFont, clr))
+				}
 			}
 		}
 		panel.AddChild(grid)

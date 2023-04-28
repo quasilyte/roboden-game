@@ -49,6 +49,19 @@ func (c *LeaderboardBrowserController) Update(delta float64) {
 	}
 }
 
+func (c *LeaderboardBrowserController) getBoardCache() *serverapi.LeaderboardResp {
+	switch c.gameMode {
+	case "classic":
+		return &c.state.Persistent.CachedClassicLeaderboard
+	case "arena":
+		return &c.state.Persistent.CachedArenaLeaderboard
+	case "inf_arena":
+		return &c.state.Persistent.CachedInfArenaLeaderboard
+	default:
+		return nil
+	}
+}
+
 func (c *LeaderboardBrowserController) initUI() {
 	uiResources := c.state.Resources.UI
 
@@ -67,9 +80,21 @@ func (c *LeaderboardBrowserController) initUI() {
 
 	boardData, fetchErr := c.getBoardData()
 
+	if fetchErr != nil {
+		// Try using the cached data.
+		cached := c.getBoardCache()
+		if len(cached.Entries) != 0 {
+			boardData = cached
+		}
+	} else {
+		// Save fetched data to the cache.
+		*c.getBoardCache() = *boardData
+		c.scene.Context().SaveGameData("save", c.state.Persistent)
+	}
+
 	{
 		numSeasons := c.selectedSeason + 1
-		if fetchErr == nil {
+		if boardData != nil {
 			numSeasons = boardData.NumSeasons
 		}
 		seasons := make([]string, numSeasons)
@@ -90,14 +115,14 @@ func (c *LeaderboardBrowserController) initUI() {
 		}
 	}
 
-	if fetchErr == nil {
+	if boardData != nil {
 		s := fmt.Sprintf("%s: %d", d.Get("menu.leaderboard.num_players"), boardData.NumPlayers)
 		rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
 	}
 
 	panel := eui.NewPanel(uiResources, 0, 96)
 
-	if fetchErr != nil {
+	if boardData == nil {
 		panel.AddChild(eui.NewCenteredLabel(d.Get("menu.leaderboard.fetch_error"), tinyFont))
 	} else {
 		numColumns := 5

@@ -13,6 +13,7 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/userdevice"
 )
 
@@ -45,6 +46,10 @@ type PersistentData struct {
 	PlayerName string
 
 	PlayerStats PlayerStats
+
+	CachedClassicLeaderboard  serverapi.LeaderboardResp
+	CachedArenaLeaderboard    serverapi.LeaderboardResp
+	CachedInfArenaLeaderboard serverapi.LeaderboardResp
 }
 
 type PlayerStats struct {

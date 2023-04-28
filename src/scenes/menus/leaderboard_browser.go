@@ -194,7 +194,6 @@ func (c *LeaderboardBrowserController) getBoardData() (*serverapi.LeaderboardRes
 	q.Add("mode", c.gameMode)
 	q.Add("name", c.state.Persistent.PlayerName)
 	u.RawQuery = q.Encode()
-	fmt.Println(u.String())
 	data, err := httpfetch.GetBytes(u.String())
 	if err != nil {
 		return nil, err

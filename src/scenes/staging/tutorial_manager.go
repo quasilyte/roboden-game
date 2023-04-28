@@ -4,10 +4,10 @@ import (
 	"math"
 
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
 )
 
 // This tutorial system is not very elegant.
@@ -24,7 +24,7 @@ type tutorialRunner struct {
 }
 
 type tutorialManager struct {
-	input *input.Handler
+	input gameinput.Handler
 
 	scene *ge.Scene
 
@@ -58,7 +58,7 @@ type tutorialManager struct {
 	EventTriggerVictory     gsignal.Event[gsignal.Void]
 }
 
-func newTutorialManager(h *input.Handler, world *worldState, messageManager *messageManager) *tutorialManager {
+func newTutorialManager(h gameinput.Handler, world *worldState, messageManager *messageManager) *tutorialManager {
 	return &tutorialManager{
 		input:          h,
 		world:          world,

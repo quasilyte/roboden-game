@@ -56,7 +56,7 @@ func main() {
 
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)
 	assets.RegisterRawResources(ctx)
-	controls.BindKeymap(ctx, state)
+	state.MainInput = controls.BindKeymap(ctx)
 
 	if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
 		fmt.Printf("can't load game data: %v", err)

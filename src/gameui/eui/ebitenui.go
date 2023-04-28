@@ -9,7 +9,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/userdevice"
 	"golang.org/x/image/font"
 )
@@ -348,7 +350,109 @@ func NewButton(res *Resources, scene *ge.Scene, text string, onclick func()) *wi
 	)
 }
 
-func NewButtonSelected(res *Resources, text string) *widget.Button {
+type SelectButtonConfig struct {
+	Resources *Resources
+	Input     gameinput.Handler
+
+	Value      *int
+	Label      string
+	ValueNames []string
+
+	OnPressed func()
+	OnHover   func()
+}
+
+func NewSelectButton(config SelectButtonConfig) widget.PreferredSizeLocateableWidget {
+	maxValue := len(config.ValueNames) - 1
+	value := config.Value
+	key := config.Label
+	valueNames := config.ValueNames
+
+	var slider gmath.Slider
+	slider.SetBounds(0, maxValue)
+	slider.TrySetValue(*value)
+	makeLabel := func() string {
+		if key == "" {
+			return valueNames[slider.Value()]
+		}
+		return key + ": " + valueNames[slider.Value()]
+	}
+
+	button := newButtonSelected(config.Resources, makeLabel())
+
+	button.ClickedEvent.AddHandler(func(args interface{}) {
+		increase := false
+		{
+			cursorPos := config.Input.AnyCursorPos()
+			buttonRect := button.GetWidget().Rect
+			buttonWidth := buttonRect.Dx()
+			if cursorPos.X >= float64(buttonRect.Min.X)+float64(buttonWidth)*0.5 {
+				increase = true
+			}
+		}
+
+		if increase {
+			slider.Inc()
+		} else {
+			slider.Dec()
+		}
+		*value = slider.Value()
+		button.Text().Label = makeLabel()
+		if config.OnPressed != nil {
+			config.OnPressed()
+		}
+	})
+
+	if config.OnHover != nil {
+		button.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+			config.OnHover()
+		})
+	}
+
+	return button
+}
+
+type BoolSelectButtonConfig struct {
+	Resources *Resources
+
+	Value      *bool
+	Label      string
+	ValueNames []string
+
+	OnPressed func()
+	OnHover   func()
+}
+
+func NewBoolSelectButton(config BoolSelectButtonConfig) widget.PreferredSizeLocateableWidget {
+	var slider gmath.Slider
+	slider.SetBounds(0, 1)
+	value := config.Value
+	key := config.Label
+	valueNames := config.ValueNames
+	if *value {
+		slider.TrySetValue(1)
+	}
+	button := newButtonSelected(config.Resources, key+": "+valueNames[slider.Value()])
+
+	button.ClickedEvent.AddHandler(func(args interface{}) {
+		slider.Inc()
+		*value = slider.Value() != 0
+		button.Text().Label = key + ": " + valueNames[slider.Value()]
+		if config.OnPressed != nil {
+			config.OnPressed()
+		}
+	})
+
+	if config.OnHover != nil {
+		button.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+			config.OnHover()
+		})
+	}
+
+	return button
+}
+
+func newButtonSelected(res *Resources, text string) *widget.Button {
 	return widget.NewButton(
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 			Stretch: true,

@@ -14,6 +14,7 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui"
 )
 
@@ -178,7 +179,7 @@ type choiceWindowNode struct {
 
 	selectedColony *colonyCoreNode
 
-	input *input.Handler
+	input gameinput.Handler
 
 	state choiceState
 
@@ -209,7 +210,7 @@ type choiceWindowNode struct {
 	EventChoiceSelected gsignal.Event[selectedChoice]
 }
 
-func newChoiceWindowNode(pos gmath.Vec, world *worldState, h *input.Handler, cursor *gameui.CursorNode) *choiceWindowNode {
+func newChoiceWindowNode(pos gmath.Vec, world *worldState, h gameinput.Handler, cursor *gameui.CursorNode) *choiceWindowNode {
 	return &choiceWindowNode{
 		pos:           pos,
 		input:         h,

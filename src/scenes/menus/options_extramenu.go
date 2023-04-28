@@ -3,7 +3,6 @@ package menus
 import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/gmath"
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
@@ -49,22 +48,15 @@ func (c *OptionsExtraMenuController) initUI() {
 	options := &c.state.Persistent.Settings
 
 	{
-		sliderOptions := []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		}
-		var slider gmath.Slider
-		slider.SetBounds(0, len(sliderOptions)-1)
-		if options.ShowFPS {
-			slider.TrySetValue(1)
-		}
-		debugButton := eui.NewButtonSelected(uiResources, d.Get("menu.options.show_fps")+": "+sliderOptions[slider.Value()])
-		debugButton.ClickedEvent.AddHandler(func(args interface{}) {
-			slider.Inc()
-			options.ShowFPS = slider.Value() != 0
-			debugButton.Text().Label = d.Get("menu.options.show_fps") + ": " + sliderOptions[slider.Value()]
-		})
-		rowContainer.AddChild(debugButton)
+		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Resources: uiResources,
+			Value:     &options.ShowFPS,
+			Label:     d.Get("menu.options.show_fps"),
+			ValueNames: []string{
+				d.Get("menu.option.off"),
+				d.Get("menu.option.on"),
+			},
+		}))
 	}
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

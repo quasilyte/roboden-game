@@ -11,7 +11,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
-	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/descriptions"
@@ -297,7 +296,7 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 	}
 
 	{
-		b := c.newOptionButton(&c.config.Teleporters, -1, "menu.lobby.num_teleporters", []string{
+		b := c.newOptionButton(&c.config.Teleporters, "menu.lobby.num_teleporters", []string{
 			"0",
 			"1",
 			"2",
@@ -322,7 +321,7 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 	}
 
 	{
-		b := c.newOptionButton(&c.config.GameSpeed, -1, "menu.lobby.game_speed", []string{
+		b := c.newOptionButton(&c.config.GameSpeed, "menu.lobby.game_speed", []string{
 			"x1",
 			"x1.2",
 			"x1.5",
@@ -346,12 +345,17 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	)
 
 	if c.mode == gamedata.ModeClassic {
-		b := c.newOptionButton(&c.config.NumCreepBases, 4, "menu.lobby.num_creep_bases", nil)
+		b := c.newOptionButton(&c.config.NumCreepBases, "menu.lobby.num_creep_bases", []string{
+			"0",
+			"1",
+			"2",
+			"3",
+		})
 		tab.AddChild(b)
 	}
 
 	{
-		b := c.newOptionButton(&c.config.InitialCreeps, -1, "menu.lobby.initial_creeps", []string{
+		b := c.newOptionButton(&c.config.InitialCreeps, "menu.lobby.initial_creeps", []string{
 			d.Get("menu.option.none"),
 			d.Get("menu.option.some"),
 			d.Get("menu.option.lots"),
@@ -360,7 +364,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
-		b := c.newOptionButton(&c.config.CreepDifficulty, -1, "menu.lobby.creeps_difficulty", []string{
+		b := c.newOptionButton(&c.config.CreepDifficulty, "menu.lobby.creeps_difficulty", []string{
 			"90%",
 			"100%",
 			"110%",
@@ -374,14 +378,14 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	if c.mode == gamedata.ModeClassic {
-		tab.AddChild(c.newOptionButton(&c.config.CreepSpawnRate, -1, "menu.lobby.creep_spawn_rate", []string{
+		tab.AddChild(c.newOptionButton(&c.config.CreepSpawnRate, "menu.lobby.creep_spawn_rate", []string{
 			"75%",
 			"100%",
 			"125%",
 			"150%",
 		}))
 
-		tab.AddChild(c.newOptionButton(&c.config.BossDifficulty, -1, "menu.lobby.boss_difficulty", []string{
+		tab.AddChild(c.newOptionButton(&c.config.BossDifficulty, "menu.lobby.boss_difficulty", []string{
 			d.Get("menu.option.easy"),
 			d.Get("menu.option.normal"),
 			d.Get("menu.option.hard"),
@@ -390,7 +394,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	if c.mode == gamedata.ModeArena {
-		b := c.newOptionButton(&c.config.ArenaProgression, -1, "menu.lobby.arena_progression", []string{
+		b := c.newOptionButton(&c.config.ArenaProgression, "menu.lobby.arena_progression", []string{
 			"80%",
 			"100%",
 			"120%",
@@ -402,7 +406,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
-		b := c.newOptionButton(&c.config.StartingResources, -1, "menu.lobby.starting_resources", []string{
+		b := c.newOptionButton(&c.config.StartingResources, "menu.lobby.starting_resources", []string{
 			d.Get("menu.option.none"),
 			d.Get("menu.option.some"),
 			d.Get("menu.option.lots"),
@@ -419,53 +423,34 @@ func (c *LobbyMenuController) optionDescriptionText(key string) string {
 }
 
 func (c *LobbyMenuController) newBoolOptionButton(value *bool, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
-	d := c.scene.Dict()
-	var slider gmath.Slider
-	slider.SetBounds(0, 1)
-	if *value {
-		slider.TrySetValue(1)
-	}
-	button := eui.NewButtonSelected(c.state.Resources.UI, d.Get(key)+": "+valueNames[slider.Value()])
-	button.ClickedEvent.AddHandler(func(args interface{}) {
-		slider.Inc()
-		*value = slider.Value() != 0
-		button.Text().Label = d.Get(key) + ": " + valueNames[slider.Value()]
-		c.updateDifficultyScore(c.calcDifficultyScore())
+	return eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+		Resources:  c.state.Resources.UI,
+		Value:      value,
+		Label:      key,
+		ValueNames: valueNames,
+		OnPressed: func() {
+			c.updateDifficultyScore(c.calcDifficultyScore())
+		},
+		OnHover: func() {
+			c.setHelpText(c.optionDescriptionText(key))
+		},
 	})
-	button.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
-		c.setHelpText(c.optionDescriptionText(key))
-	})
-	return button
 }
 
-func (c *LobbyMenuController) newOptionButton(value *int, maxValue int, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
-	if len(valueNames) == 0 {
-		if maxValue == -1 {
-			panic("can't have -1 maxValue with no valueNames specified")
-		}
-		valueNames = make([]string, maxValue+1)
-		for i := range valueNames {
-			valueNames[i] = strconv.Itoa(i)
-		}
-	}
-	if maxValue == -1 {
-		maxValue = len(valueNames) - 1
-	}
-	d := c.scene.Dict()
-	var slider gmath.Slider
-	slider.SetBounds(0, maxValue)
-	slider.TrySetValue(*value)
-	button := eui.NewButtonSelected(c.state.Resources.UI, d.Get(key)+": "+valueNames[slider.Value()])
-	button.ClickedEvent.AddHandler(func(args interface{}) {
-		slider.Inc()
-		*value = slider.Value()
-		button.Text().Label = d.Get(key) + ": " + valueNames[slider.Value()]
-		c.updateDifficultyScore(c.calcDifficultyScore())
+func (c *LobbyMenuController) newOptionButton(value *int, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
+	return eui.NewSelectButton(eui.SelectButtonConfig{
+		Resources:  c.state.Resources.UI,
+		Input:      c.state.MainInput,
+		Value:      value,
+		Label:      c.scene.Dict().Get(key),
+		ValueNames: valueNames,
+		OnPressed: func() {
+			c.updateDifficultyScore(c.calcDifficultyScore())
+		},
+		OnHover: func() {
+			c.setHelpText(c.optionDescriptionText(key))
+		},
 	})
-	button.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
-		c.setHelpText(c.optionDescriptionText(key))
-	})
-	return button
 }
 
 func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget.TabBookTab {
@@ -481,7 +466,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 	)
 
 	{
-		b := c.newOptionButton(&c.config.Resources, 4, "menu.lobby.world_resources", []string{
+		b := c.newOptionButton(&c.config.Resources, "menu.lobby.world_resources", []string{
 			d.Get("menu.option.very_low"),
 			d.Get("menu.option.low"),
 			d.Get("menu.option.normal"),
@@ -492,7 +477,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 	}
 
 	{
-		b := c.newOptionButton(&c.config.WorldSize, 3, "menu.lobby.world_size", []string{
+		b := c.newOptionButton(&c.config.WorldSize, "menu.lobby.world_size", []string{
 			d.Get("menu.option.very_small"),
 			d.Get("menu.option.small"),
 			d.Get("menu.option.normal"),

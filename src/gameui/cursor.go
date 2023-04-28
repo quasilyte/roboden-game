@@ -6,20 +6,17 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gameinput"
 )
-
-type Cursor interface {
-	ClickPos(input.Action) (gmath.Vec, bool)
-}
 
 type CursorNode struct {
 	sprite *ge.Sprite
-	input  *input.Handler
+	input  gameinput.Handler
 	pos    gmath.Vec
 	rect   gmath.Rect
 }
 
-func NewCursorNode(h *input.Handler, rect gmath.Rect) *CursorNode {
+func NewCursorNode(h gameinput.Handler, rect gmath.Rect) *CursorNode {
 	return &CursorNode{
 		input: h,
 		rect:  rect,

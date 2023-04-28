@@ -4,7 +4,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
 
-	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/gameinput"
 )
 
 const (
@@ -44,7 +44,7 @@ const (
 	ActionMoveChoice
 )
 
-func BindKeymap(ctx *ge.Context, state *session.State) {
+func BindKeymap(ctx *ge.Context) gameinput.Handler {
 	keymap := input.Keymap{
 		ActionPanRight: {input.KeyRight, input.KeyGamepadLStickRight, input.KeyGamepadRight},
 		ActionPanDown:  {input.KeyDown, input.KeyGamepadLStickDown, input.KeyGamepadDown},
@@ -79,5 +79,7 @@ func BindKeymap(ctx *ge.Context, state *session.State) {
 		ActionClick: {input.KeyMouseLeft, input.KeyGamepadRStick, input.KeyTouchTap},
 	}
 
-	state.MainInput = ctx.Input.NewHandler(0, keymap)
+	return gameinput.Handler{
+		Handler: ctx.Input.NewHandler(0, keymap),
+	}
 }

@@ -272,6 +272,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 
 	var replayData serverapi.GameReplay
 	if err := json.Unmarshal(uncompressedReplayData, &replayData); err != nil {
+		s.metrics.IncNumReplaysFailed()
 		s.logger.Error("found malformed replay json data with id=%d: %v", replayID, err)
 		// This should never happen, since we unmarhalled the data
 		// before saving it to the queue.
@@ -286,6 +287,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	seasonNumber := seasonByBuild(replayData.GameVersion)
 	db := s.getSeasonDB(seasonNumber)
 	if db == nil {
+		s.metrics.IncNumReplaysFailed()
 		archivedAt := time.Now().Unix()
 		if err := s.queue.Archive(replayID, playerName, archivedAt, compressedReplayData, archiveMismatchingResults); err != nil {
 			s.logger.Error("can't archive bad season replay with id=%d: %v", replayID, err)
@@ -299,22 +301,24 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	// The server should check this beforehand, but bad things can happen:
 	// we may not have this binary anymore.
 	runsimBinaryName := filepath.Join(s.runsimFolder, fmt.Sprintf("runsim_%d", replayData.GameVersion))
-	gameDataFolder := filepath.Join(s.runsimFolder, fmt.Sprintf("roboden_data_%d", replayData.GameVersion))
-	if !fileExists(runsimBinaryName) || !fileExists(gameDataFolder) {
+	if !fileExists(runsimBinaryName) {
+		s.metrics.IncNumReplaysFailed()
 		archivedAt := time.Now().Unix()
 		if err := s.queue.Archive(replayID, playerName, archivedAt, compressedReplayData, archiveUnsupportedBuild); err != nil {
 			s.logger.Error("can't archive unsupported build replay with id=%d: %v", replayID, err)
 			return false, err
 		}
+		s.logger.Info("archived unsupported build (%d) replay with id=%d", replayData.GameVersion, replayID)
 		return false, nil
 	}
 
 	start := time.Now()
-	var combinedOutput bytes.Buffer
-	cmd := exec.Command(runsimBinaryName, "--data", gameDataFolder)
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+	cmd := exec.Command(runsimBinaryName)
 	cmd.Stdin = bytes.NewReader(uncompressedReplayData)
-	cmd.Stdout = &combinedOutput
-	cmd.Stderr = &combinedOutput
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 	if err := cmd.Start(); err != nil {
 		return false, err
 	}
@@ -333,18 +337,19 @@ func (s *apiServer) doRunReplay() (bool, error) {
 			return true, err
 		}
 		s.logger.Info("archived errored replay with id=%d", replayID)
-		return true, fmt.Errorf("failed to execute runsim: %s: %w", combinedOutput.String(), err)
+		return true, fmt.Errorf("failed to execute runsim: %s: %w", stderr.String(), err)
 	}
 
 	s.logger.Info("simulation took %v", elapsed)
 	s.metrics.IncNumReplaysCompleted()
 
 	var result serverapi.GameResults
-	if err := json.Unmarshal(combinedOutput.Bytes(), &result); err != nil {
+	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
 		return true, fmt.Errorf("unmarshal runsim results: %w", err)
 	}
 
 	if result != replayData.Results {
+		s.metrics.IncNumReplaysFailed()
 		archivedAt := time.Now().Unix()
 		if err := s.queue.Archive(replayID, playerName, archivedAt, compressedReplayData, archiveMismatchingResults); err != nil {
 			s.logger.Error("can't archive mis-simulated replay with id=%d: %v", replayID, err)

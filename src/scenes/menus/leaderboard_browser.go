@@ -189,7 +189,7 @@ func (c *LeaderboardBrowserController) initUI() {
 		if fetchErr != nil {
 			// Try using the cached data.
 			cached := c.getBoardCache()
-			if len(cached.Entries) != 0 {
+			if cached.NumSeasons != 0 {
 				boardData = cached
 			}
 		} else {

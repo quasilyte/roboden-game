@@ -24,7 +24,9 @@ type State struct {
 	MemProfile       string
 	MemProfileWriter io.WriteCloser
 
-	ServerAddress string
+	ServerProtocol string
+	ServerHost     string
+	ServerPath     string
 
 	Device userdevice.Info
 

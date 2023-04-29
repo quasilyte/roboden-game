@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -24,11 +25,30 @@ func main() {
 	state := getDefaultSessionState()
 
 	var gameDataFolder string
+	var serverAddress string
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
 	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
 	flag.StringVar(&gameDataFolder, "data", "", "a game data folder path")
-	flag.StringVar(&state.ServerAddress, "server", "127.0.0.1:8080", "leaderboard server address")
+	flag.StringVar(&serverAddress, "server", "127.0.0.1:8080", "leaderboard server address")
 	flag.Parse()
+
+	parsedAddress, err := url.Parse(serverAddress)
+	if err != nil {
+		state.ServerProtocol = "http"
+		state.ServerHost = "127.0.0.1:8080"
+		state.ServerPath = ""
+	} else {
+		if parsedAddress.Scheme == "" {
+			state.ServerProtocol = "http"
+		} else {
+			state.ServerProtocol = parsedAddress.Scheme
+		}
+		state.ServerHost = parsedAddress.Host
+		state.ServerPath = parsedAddress.Path
+	}
+	if runtime.GOARCH != "wasm" {
+		fmt.Printf("server proto=%q host=%q path=%q\n", state.ServerProtocol, state.ServerHost, state.ServerPath)
+	}
 
 	ctx := ge.NewContext(ge.ContextConfig{
 		FixedDelta: true,

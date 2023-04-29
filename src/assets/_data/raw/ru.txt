@@ -27,6 +27,11 @@
 ##menu.leaderboard.inf_arena : Бесконечная Арена
 ##menu.leaderboard.season : Сезон
 ##menu.leaderboard.num_players : Участников
+##menu.leaderboard.col_rank : позиция
+##menu.leaderboard.col_name : никнейм
+##menu.leaderboard.col_difficulty : сложность
+##menu.leaderboard.col_score : очки
+##menu.leaderboard.col_time : время
 
 ##menu.publish_score : Отправить Результат
 ##menu.publish_high_score : Отправить Рекорды

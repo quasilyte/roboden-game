@@ -123,12 +123,12 @@ func (c *LeaderboardBrowserController) initBoard(boardData *serverapi.Leaderboar
 				widget.GridLayoutOpts.Stretch([]bool{false, true, false, false, false}, nil),
 			)))
 
-		grid.AddChild(eui.NewLabel("[rank]", tinyFont))
-		grid.AddChild(eui.NewLabel("[name]", tinyFont))
-		grid.AddChild(eui.NewLabel("[difficulty]", tinyFont))
-		grid.AddChild(eui.NewLabel("[score]", tinyFont))
+		grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_rank")+"]", tinyFont))
+		grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_name")+"]", tinyFont))
+		grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_difficulty")+"]", tinyFont))
+		grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_score")+"]", tinyFont))
 		if c.gameMode != "arena" {
-			grid.AddChild(eui.NewLabel("[time]", tinyFont))
+			grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_time")+"]", tinyFont))
 		}
 
 		grid.AddChild(eui.NewLabel("-", tinyFont))

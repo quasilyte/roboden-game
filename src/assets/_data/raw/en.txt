@@ -27,6 +27,11 @@
 ##menu.leaderboard.inf_arena : Infinite Arena
 ##menu.leaderboard.season : Season
 ##menu.leaderboard.num_players : Players
+##menu.leaderboard.col_rank : rank
+##menu.leaderboard.col_name : name
+##menu.leaderboard.col_difficulty : difficulty
+##menu.leaderboard.col_score : score
+##menu.leaderboard.col_time : time
 
 ##menu.publish_score : Publish Score
 ##menu.publish_high_score : Publish Highscores

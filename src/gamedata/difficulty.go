@@ -1,6 +1,8 @@
 package gamedata
 
-import "github.com/quasilyte/roboden-game/serverapi"
+import (
+	"github.com/quasilyte/roboden-game/serverapi"
+)
 
 func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int) int {
 	score := 100

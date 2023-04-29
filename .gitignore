@@ -1,4 +1,5 @@
 bin
 *.wasm
+*.db
 src/vendor
 .idea

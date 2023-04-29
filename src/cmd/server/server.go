@@ -561,7 +561,7 @@ func (s *apiServer) NewHandler(f func(*http.Request) (any, error)) func(http.Res
 
 func (s *apiServer) corsAllowed(origin string) bool {
 	switch origin {
-	case "http://localhost:8080":
+	case "http://localhost:8080", "https://quasilyte.itch.io":
 		return true
 	default:
 		return false

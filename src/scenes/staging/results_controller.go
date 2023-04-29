@@ -349,6 +349,7 @@ func (c *resultsController) initUI() {
 
 	replay := c.makeGameReplay()
 	if c.config.Tutorial == nil && c.highScore {
+		c.state.SentHighscores = false
 		key := c.config.RawGameMode + "_highscore"
 		c.scene.Context().SaveGameData(key, replay)
 	}

@@ -131,7 +131,7 @@ var servantCreepStats = &creepStats{
 	shadowImage: assets.ImageMediumShadow,
 	tier:        2,
 	speed:       70,
-	maxHealth:   55,
+	maxHealth:   65,
 	animSpeed:   0.15,
 	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:      1,
@@ -140,7 +140,7 @@ var servantCreepStats = &creepStats{
 		AttackRange:     240,
 		ImpactArea:      10,
 		ProjectileSpeed: 340,
-		Damage:          gamedata.DamageValue{Health: 3, Energy: 20},
+		Damage:          gamedata.DamageValue{Health: 4, Energy: 20},
 		ProjectileImage: assets.ImageServantProjectile,
 		Reload:          3.2,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -19,10 +18,6 @@ import (
 )
 
 func main() {
-	var gameDataFolder string
-	flag.StringVar(&gameDataFolder, "data", "", "a game data folder path")
-	flag.Parse()
-
 	replayDataBytes, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		panic(err)
@@ -51,7 +46,7 @@ func main() {
 		Mute:       true,
 		FixedDelta: true,
 	})
-	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)
+	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, "")
 	ctx.Dict = langs.NewDictionary("en", 2)
 
 	var progress float64

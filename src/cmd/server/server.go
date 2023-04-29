@@ -71,6 +71,18 @@ func newAPIServer(config serverConfig) *apiServer {
 }
 
 func (s *apiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodOptions {
+		if origin := r.Header.Get("Origin"); s.corsAllowed(origin) {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, HEAD")
+			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept")
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
 	const kb = 1024
 	r.Body = http.MaxBytesReader(w, r.Body, 32*kb)
 	s.httpHandler.ServeHTTP(w, r)
@@ -524,6 +536,10 @@ func (s *apiServer) writeError(w http.ResponseWriter, err error) {
 func (s *apiServer) NewHandler(f func(*http.Request) (any, error)) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		v, err := f(r)
+		if origin := r.Header.Get("origin"); s.corsAllowed(origin) {
+			w.Header().Set("Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		}
 		if err != nil {
 			s.writeError(w, err)
 			return
@@ -537,7 +553,17 @@ func (s *apiServer) NewHandler(f func(*http.Request) (any, error)) func(http.Res
 			s.writeError(w, err)
 			return
 		}
+
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(data)
+	}
+}
+
+func (s *apiServer) corsAllowed(origin string) bool {
+	switch origin {
+	case "http://localhost:8080":
+		return true
+	default:
+		return false
 	}
 }

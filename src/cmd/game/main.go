@@ -32,22 +32,29 @@ func main() {
 	flag.StringVar(&serverAddress, "server", "127.0.0.1:8080", "leaderboard server address")
 	flag.Parse()
 
-	parsedAddress, err := url.Parse(serverAddress)
-	if err != nil {
-		state.ServerProtocol = "http"
-		state.ServerHost = "127.0.0.1:8080"
-		state.ServerPath = ""
-	} else {
-		if parsedAddress.Scheme == "" {
-			state.ServerProtocol = "http"
-		} else {
-			state.ServerProtocol = parsedAddress.Scheme
-		}
-		state.ServerHost = parsedAddress.Host
-		state.ServerPath = parsedAddress.Path
-	}
 	if runtime.GOARCH != "wasm" {
+		// It's possible to use a localhost server on desktops.
+		// Or alternative leaderboad servers for what it's worth.
+		parsedAddress, err := url.Parse(serverAddress)
+		if err != nil {
+			state.ServerProtocol = "http"
+			state.ServerHost = "127.0.0.1:8080"
+			state.ServerPath = ""
+		} else {
+			if parsedAddress.Scheme == "" {
+				state.ServerProtocol = "http"
+			} else {
+				state.ServerProtocol = parsedAddress.Scheme
+			}
+			state.ServerHost = parsedAddress.Host
+			state.ServerPath = parsedAddress.Path
+		}
 		fmt.Printf("server proto=%q host=%q path=%q\n", state.ServerProtocol, state.ServerHost, state.ServerPath)
+	} else {
+		// On wasm (inside the browser) we're hardcoding the server data for now.
+		state.ServerProtocol = "https"
+		state.ServerHost = "quasilyte.tech"
+		state.ServerPath = "/roboden/api"
 	}
 
 	ctx := ge.NewContext(ge.ContextConfig{

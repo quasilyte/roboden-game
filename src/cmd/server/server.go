@@ -270,6 +270,8 @@ func (s *apiServer) doRunReplay() (bool, error) {
 		return false, err
 	}
 
+	checksum := sha1encode(uncompressedReplayData)
+
 	var replayData serverapi.GameReplay
 	if err := json.Unmarshal(uncompressedReplayData, &replayData); err != nil {
 		s.metrics.IncNumReplaysFailed()
@@ -277,7 +279,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 		// This should never happen, since we unmarhalled the data
 		// before saving it to the queue.
 		// Although if it does happen, let's remove the entry so it doesn't happen again.
-		if err := s.queue.Delete(replayID); err != nil {
+		if err := s.queue.Delete(replayID, checksum, playerName); err != nil {
 			s.logger.Error("can't delete malformed replay with id=%d: %v", replayID, err)
 			return false, err
 		}
@@ -289,7 +291,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	if db == nil {
 		s.metrics.IncNumReplaysFailed()
 		archivedAt := time.Now().Unix()
-		if err := s.queue.Archive(replayID, playerName, archivedAt, compressedReplayData, archiveMismatchingResults); err != nil {
+		if err := s.queue.Archive(replayID, checksum, playerName, archivedAt, compressedReplayData, archiveMismatchingResults); err != nil {
 			s.logger.Error("can't archive bad season replay with id=%d: %v", replayID, err)
 			return false, err
 		}
@@ -304,7 +306,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	if !fileExists(runsimBinaryName) {
 		s.metrics.IncNumReplaysFailed()
 		archivedAt := time.Now().Unix()
-		if err := s.queue.Archive(replayID, playerName, archivedAt, compressedReplayData, archiveUnsupportedBuild); err != nil {
+		if err := s.queue.Archive(replayID, checksum, playerName, archivedAt, compressedReplayData, archiveUnsupportedBuild); err != nil {
 			s.logger.Error("can't archive unsupported build replay with id=%d: %v", replayID, err)
 			return false, err
 		}
@@ -332,7 +334,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	if err != nil {
 		s.metrics.IncNumReplaysFailed()
 		archivedAt := time.Now().Unix()
-		if err := s.queue.Archive(replayID, playerName, archivedAt, compressedReplayData, archiveExecError); err != nil {
+		if err := s.queue.Archive(replayID, checksum, playerName, archivedAt, compressedReplayData, archiveExecError); err != nil {
 			s.logger.Error("can't archive bad-exec replay with id=%d: %v", replayID, err)
 			return true, err
 		}
@@ -351,7 +353,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	if result != replayData.Results {
 		s.metrics.IncNumReplaysFailed()
 		archivedAt := time.Now().Unix()
-		if err := s.queue.Archive(replayID, playerName, archivedAt, compressedReplayData, archiveMismatchingResults); err != nil {
+		if err := s.queue.Archive(replayID, checksum, playerName, archivedAt, compressedReplayData, archiveMismatchingResults); err != nil {
 			s.logger.Error("can't archive mis-simulated replay with id=%d: %v", replayID, err)
 			return false, err
 		}
@@ -367,7 +369,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	if err != nil {
 		return true, err
 	}
-	if err := s.queue.Delete(replayID); err != nil {
+	if err := s.queue.Delete(replayID, checksum, playerName); err != nil {
 		return true, err
 	}
 

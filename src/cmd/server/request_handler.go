@@ -127,12 +127,27 @@ func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 		return nil, errQueueIsFull
 	}
 
+	replayChecksum := sha1encode(data)
+	checksumOwner, err := h.server.queue.ChecksumOwner(replayChecksum)
+	if err != nil {
+		return nil, err
+	}
+	if checksumOwner != "" {
+		if checksumOwner != playerName {
+			h.server.logger.Info("got duplicate checksum from %q, current owner is %q", playerName, checksumOwner)
+			return nil, errBadParams
+		}
+		h.server.logger.Info("%q sent existing replay", playerName)
+		// Make the client happy. Tell them that we're working on this replay.
+		resp := &serverapi.SavePlayerScoreResp{Queued: true}
+		return resp, nil
+	}
+
 	resp := &serverapi.SavePlayerScoreResp{}
 
 	// Now check if it actually makes sense to calculate the score.
 	// If claimed score is less than the current record for the player,
 	// don't bother calculating this submission.
-
 	playerScore := db.PlayerScore(gameReplay.Config.RawGameMode, playerName)
 	resp.CurrentHighscore = playerScore
 	if playerScore > gameReplay.Results.Score {

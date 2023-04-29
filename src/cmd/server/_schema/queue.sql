@@ -1,3 +1,8 @@
+CREATE TABLE replay_checksums (
+    replay_hash TEXT NOT NULL PRIMARY KEY,
+    player_name TEXT NOT NULL
+);
+
 CREATE TABLE replay_queue (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     player_name TEXT NOT NULL,

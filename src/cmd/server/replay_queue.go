@@ -10,6 +10,8 @@ import (
 type replayQueue struct {
 	conn *sql.DB
 
+	checksumOwner    *sql.Stmt
+	addChecksum      *sql.Stmt
 	countStmt        *sql.Stmt
 	countForPlayer   *sql.Stmt
 	pushStmt         *sql.Stmt
@@ -23,6 +25,26 @@ func newReplayQueue(conn *sql.DB) *replayQueue {
 }
 
 func (q *replayQueue) PrepareQueries() error {
+	{
+		stmt, err := q.conn.Prepare("SELECT player_name FROM replay_checksums WHERE replay_hash = ?")
+		if err != nil {
+			return err
+		}
+		q.checksumOwner = stmt
+	}
+
+	{
+		stmt, err := q.conn.Prepare(`
+			INSERT INTO replay_checksums
+			       ('replay_hash', 'player_name')
+			VALUES (?, ?)
+		`)
+		if err != nil {
+			return err
+		}
+		q.addChecksum = stmt
+	}
+
 	{
 		stmt, err := q.conn.Prepare(`
 			INSERT INTO replay_queue
@@ -96,9 +118,24 @@ func (q *replayQueue) PrepareQueries() error {
 	return nil
 }
 
-func (q *replayQueue) Delete(id int) error {
-	_, err := q.deleteByIDStmt.Exec(id)
-	return err
+func (q *replayQueue) ChecksumOwner(h string) (string, error) {
+	var name string
+	err := q.checksumOwner.QueryRow(h).Scan(&name)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	return name, err
+}
+
+func (q *replayQueue) Delete(id int, checksum, playerName string) error {
+	return withTransaction(q.conn, func(tx *sql.Tx) error {
+		_, err := tx.Stmt(q.addChecksum).Exec(checksum, playerName)
+		if err != nil {
+			return err
+		}
+		_, err = tx.Stmt(q.deleteByIDStmt).Exec(id)
+		return err
+	})
 }
 
 func (q *replayQueue) Get() (int, string, []byte, error) {
@@ -121,9 +158,13 @@ func (q *replayQueue) CountForPlayer(name string) (int, error) {
 	return result, err
 }
 
-func (q *replayQueue) Archive(id int, playerName string, createdAt int64, compressedData []byte, reason archiveReason) error {
+func (q *replayQueue) Archive(id int, checksum, playerName string, createdAt int64, compressedData []byte, reason archiveReason) error {
 	return withTransaction(q.conn, func(tx *sql.Tx) error {
-		_, err := tx.Stmt(q.addToArchiveStmt).Exec(id, playerName, createdAt, compressedData, int(reason))
+		_, err := tx.Stmt(q.addChecksum).Exec(checksum, playerName)
+		if err != nil {
+			return err
+		}
+		_, err = tx.Stmt(q.addToArchiveStmt).Exec(id, playerName, createdAt, compressedData, int(reason))
 		if err != nil {
 			return err
 		}

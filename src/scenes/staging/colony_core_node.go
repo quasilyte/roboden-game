@@ -88,8 +88,9 @@ type colonyCoreNode struct {
 	realRadius    float64
 	realRadiusSqr float64
 
-	upkeepDelay  float64
-	cloningDelay float64
+	upkeepDelay   float64
+	cloningDelay  float64
+	resourceDelay float64
 
 	actionDelay float64
 	priorities  *weightContainer[colonyPriority]
@@ -395,6 +396,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 	c.updateResourceRects()
 
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
+	c.resourceDelay = gmath.ClampMin(c.resourceDelay-delta, 0)
 	c.heavyDamageWarningCooldown = gmath.ClampMin(c.heavyDamageWarningCooldown-delta, 0)
 
 	if c.shadow != nil && c.shadow.Visible {
@@ -582,8 +584,8 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 	c.eliteResources = gmath.ClampMax(c.eliteResources, 10)
 	c.upkeepDelay = c.scene.Rand().FloatRange(6.5, 8.5)
 	upkeepPrice, _ := c.calcUpkeed()
-	if c.resources < upkeepPrice && c.GetResourcePriority() < 0.7 {
-		c.AddPriority(priorityResources, 0.04)
+	if c.resources < upkeepPrice && c.GetResourcePriority() < 0.5 {
+		c.AddPriority(priorityResources, 0.03)
 		c.resources = 0
 	} else {
 		c.resources -= upkeepPrice
@@ -745,8 +747,8 @@ func (c *colonyCoreNode) updateNormal(delta float64) {
 }
 
 func (c *colonyCoreNode) doAction() {
-	if c.resourceShortage >= 5 && c.GetResourcePriority() < 0.5 {
-		c.AddPriority(priorityResources, c.scene.Rand().FloatRange(0.02, 0.05))
+	if c.resourceShortage >= 5 && c.GetResourcePriority() < 0.4 {
+		c.AddPriority(priorityResources, c.scene.Rand().FloatRange(0.01, 0.03))
 		c.resourceShortage -= 5
 	}
 
@@ -828,11 +830,18 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			return false
 		}
 		source := action.Value.(*essenceSourceNode)
-		maxNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/4, 2, 10)
-		minNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/10, 2, 6)
-		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)
-		extraAssign := gmath.Clamp(int(c.GetResourcePriority()*10)-1, 0, 10)
-		toAssign += extraAssign
+		// 0.1 resource priority: 1
+		// 0.2 resource priority: 3
+		// 0.3 resource priority: 5
+		// 0.5 resource priority: 9
+		// 0.7 resource priority: 13
+		// 0.8 resource priority: 15 (cap)
+		resourcesPriority := c.GetResourcePriority()
+		priorityCapacity := gmath.Clamp((resourcesPriority*20)-1, 0, 15)
+		toAssign := int(math.Floor(priorityCapacity) * c.scene.Rand().FloatRange(0.8, 1.2))
+		if toAssign == 0 {
+			return false
+		}
 		toAssign = gmath.ClampMax(toAssign, source.resource)
 		numAssigned := 0
 		c.agents.Find(searchWorkers|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
@@ -848,6 +857,14 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		if numAssigned == 0 && c.failedResource == nil {
 			c.failedResource = source
 			c.failedResourceTick = 0
+		}
+		if numAssigned != 0 {
+			// 0.1 resource priority: 3.6 delay
+			// 0.2 resource priority: 3.2 delay
+			// 0.3 resource priority: 2.8 delay
+			// 0.5 resource priority: 2.0 delay
+			// 0.7 resource priority: 1.2 delay
+			c.resourceDelay += 4.0 - (resourcesPriority * 4)
 		}
 		return numAssigned != 0
 

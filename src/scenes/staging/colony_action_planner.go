@@ -153,9 +153,6 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 		}
 	}
 
-	if len(p.world.essenceSources) == 0 {
-		return colonyAction{}
-	}
 	if p.colony.agents.NumAvailableWorkers() == 0 {
 		return colonyAction{}
 	}
@@ -169,6 +166,13 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 		if a.Kind != actionNone {
 			return a
 		}
+	}
+
+	if p.colony.resourceDelay > 0 {
+		return colonyAction{}
+	}
+	if len(p.world.essenceSources) == 0 {
+		return colonyAction{}
 	}
 
 	var bestSource *essenceSourceNode

@@ -620,10 +620,10 @@ func (c *Controller) defeat() {
 
 	c.transitionQueued = true
 
+	c.prepareBattleResults()
 	c.scene.DelayedCall(2.0, func() {
 		c.gameFinished = true
 		c.world.result.Victory = false
-		c.prepareBattleResults()
 		if c.config.ExecMode != gamedata.ExecuteSimulation {
 			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 		}
@@ -651,24 +651,6 @@ func (c *Controller) prepareBattleResults() {
 	c.world.result.DronePointsAllocated = c.config.DronePointsAllocated
 }
 
-func (c *Controller) calcVictory() {
-	c.world.result.Victory = true
-	c.prepareBattleResults()
-
-	t3set := map[gamedata.ColonyAgentKind]struct{}{}
-	for _, colony := range c.world.colonies {
-		colony.agents.Each(func(a *colonyAgentNode) {
-			if a.stats.Tier != 3 {
-				return
-			}
-			t3set[a.stats.Kind] = struct{}{}
-		})
-	}
-	for k := range t3set {
-		c.world.result.Tier3Drones = append(c.world.result.Tier3Drones, k)
-	}
-}
-
 func (c *Controller) victory() {
 	if c.transitionQueued {
 		return
@@ -677,9 +659,22 @@ func (c *Controller) victory() {
 	c.transitionQueued = true
 
 	c.scene.Audio().PlaySound(assets.AudioVictory)
+	c.prepareBattleResults()
 	c.scene.DelayedCall(5.0, func() {
 		c.gameFinished = true
-		c.calcVictory()
+		c.world.result.Victory = true
+		t3set := map[gamedata.ColonyAgentKind]struct{}{}
+		for _, colony := range c.world.colonies {
+			colony.agents.Each(func(a *colonyAgentNode) {
+				if a.stats.Tier != 3 {
+					return
+				}
+				t3set[a.stats.Kind] = struct{}{}
+			})
+		}
+		for k := range t3set {
+			c.world.result.Tier3Drones = append(c.world.result.Tier3Drones, k)
+		}
 		if c.config.ExecMode != gamedata.ExecuteSimulation {
 			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 		}

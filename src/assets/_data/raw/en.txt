@@ -9,6 +9,8 @@
 ##boot.load_shaders : Compiling shaders
 ##boot.load_extra : Initializing game data
 
+##menu.submit.title : Sending data, please wait
+
 ##menu.main.title : Main Menu
 ##menu.main.play : Play
 ##menu.main.profile : Stats & Achievements
@@ -18,6 +20,7 @@
 ##menu.main.build : Build
 ##menu.main.leaderboard : Leaderboard
 
+##menu.leaderboard.placeholder : Loading data...
 ##menu.leaderboard.fetch_error : Can't load leaderboard
 ##menu.leaderboard.classic : Classic
 ##menu.leaderboard.arena : Arena
@@ -25,7 +28,8 @@
 ##menu.leaderboard.season : Season
 ##menu.leaderboard.num_players : Players
 
-##menu.publish_score : Publish Score (online leaderboard)
+##menu.publish_score : Publish Score
+##menu.publish_high_score : Publish Highscores
 ##menu.save : Save
 ##menu.set_user_name : Change Player Name
 ##menu.user_name : Player Name

@@ -127,15 +127,9 @@ func (q *replayQueue) ChecksumOwner(h string) (string, error) {
 	return name, err
 }
 
-func (q *replayQueue) Delete(id int, checksum, playerName string) error {
-	return withTransaction(q.conn, func(tx *sql.Tx) error {
-		_, err := tx.Stmt(q.addChecksum).Exec(checksum, playerName)
-		if err != nil {
-			return err
-		}
-		_, err = tx.Stmt(q.deleteByIDStmt).Exec(id)
-		return err
-	})
+func (q *replayQueue) Delete(id int, playerName string) error {
+	_, err := q.deleteByIDStmt.Exec(id)
+	return err
 }
 
 func (q *replayQueue) Get() (int, string, []byte, error) {
@@ -158,13 +152,9 @@ func (q *replayQueue) CountForPlayer(name string) (int, error) {
 	return result, err
 }
 
-func (q *replayQueue) Archive(id int, checksum, playerName string, createdAt int64, compressedData []byte, reason archiveReason) error {
+func (q *replayQueue) Archive(id int, playerName string, createdAt int64, compressedData []byte, reason archiveReason) error {
 	return withTransaction(q.conn, func(tx *sql.Tx) error {
-		_, err := tx.Stmt(q.addChecksum).Exec(checksum, playerName)
-		if err != nil {
-			return err
-		}
-		_, err = tx.Stmt(q.addToArchiveStmt).Exec(id, playerName, createdAt, compressedData, int(reason))
+		_, err := tx.Stmt(q.addToArchiveStmt).Exec(id, playerName, createdAt, compressedData, int(reason))
 		if err != nil {
 			return err
 		}
@@ -174,7 +164,7 @@ func (q *replayQueue) Archive(id int, checksum, playerName string, createdAt int
 
 }
 
-func (q *replayQueue) PushRaw(playerName string, createdAt int64, replayData []byte, compressed bool) error {
+func (q *replayQueue) PushRaw(checksum, playerName string, createdAt int64, replayData []byte, compressed bool) error {
 	if !compressed {
 		compressedReplayData, err := gzipCompress(replayData)
 		if err != nil {
@@ -182,14 +172,20 @@ func (q *replayQueue) PushRaw(playerName string, createdAt int64, replayData []b
 		}
 		replayData = compressedReplayData
 	}
-	_, err := q.pushStmt.Exec(playerName, createdAt, replayData)
-	return err
+	return withTransaction(q.conn, func(tx *sql.Tx) error {
+		_, err := tx.Stmt(q.addChecksum).Exec(checksum, playerName)
+		if err != nil {
+			return err
+		}
+		_, err = tx.Stmt(q.pushStmt).Exec(playerName, createdAt, replayData)
+		return err
+	})
 }
 
-func (q *replayQueue) Push(playerName string, createdAt int64, replay serverapi.GameReplay) error {
+func (q *replayQueue) Push(checksum, playerName string, createdAt int64, replay serverapi.GameReplay) error {
 	replayData, err := json.Marshal(replay)
 	if err != nil {
 		return err
 	}
-	return q.PushRaw(playerName, createdAt, replayData, false)
+	return q.PushRaw(checksum, playerName, createdAt, replayData, false)
 }

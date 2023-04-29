@@ -172,7 +172,7 @@ func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 	// Use the compressed data we've read from the request body to avoid
 	// redundant encoding/compression.
 	timestamp := time.Now().Unix()
-	if err := h.server.queue.PushRaw(playerName, timestamp, data, false); err != nil {
+	if err := h.server.queue.PushRaw(replayChecksum, playerName, timestamp, data, false); err != nil {
 		return nil, err
 	}
 

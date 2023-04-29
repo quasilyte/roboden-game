@@ -1075,7 +1075,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 	if c.specialModifier != 0 && c.height == crawlersSpawnHeight {
 		if c.specialDelay == 0 {
 			// Time until next crawler is spawned.
-			c.specialDelay = c.scene.Rand().FloatRange(2, 4)
+			c.specialDelay = c.scene.Rand().FloatRange(4, 6)
 			c.specialModifier--
 			if c.specialModifier > 0 {
 				spawnPos := c.crawlerSpawnPos()

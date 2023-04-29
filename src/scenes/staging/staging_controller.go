@@ -990,7 +990,9 @@ func (c *Controller) selectColony(colony *colonyCoreNode) {
 	})
 	c.world.selectedColony.EventTeleported.Connect(c, func(colony *colonyCoreNode) {
 		c.toggleCamera(colony.pos)
-		c.updateFogOfWar(colony.pos)
+		if c.config.FogOfWar && c.config.ExecMode != gamedata.ExecuteSimulation {
+			c.updateFogOfWar(colony.pos)
+		}
 	})
 	if c.rpanel != nil {
 		c.world.selectedColony.EventPrioritiesChanged.Connect(c, func(_ *colonyCoreNode) {

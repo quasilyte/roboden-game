@@ -6,6 +6,26 @@ import (
 	"github.com/quasilyte/roboden-game/serverapi"
 )
 
+func IsSendableReplay(r serverapi.GameReplay) bool {
+	if r.Results.Score <= 0 {
+		return false
+	}
+	switch r.Config.RawGameMode {
+	case "classic", "arena":
+		// There is no point in running a non-victory game replay
+		// for a mode that can be won.
+		if !r.Results.Victory {
+			return false
+		}
+	case "inf_arena":
+		// Infinite arena can't be won.
+		if r.Results.Victory {
+			return false
+		}
+	}
+	return true
+}
+
 func IsValidReplay(replay serverapi.GameReplay) bool {
 	if replay.GameVersion < 0 {
 		return false

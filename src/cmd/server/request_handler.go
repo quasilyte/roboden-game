@@ -174,19 +174,8 @@ func (h *requestHandler) isValidGameReplay(r serverapi.GameReplay) error {
 	if !gamedata.IsValidReplay(r) {
 		return errBadParams
 	}
-
-	switch r.Config.RawGameMode {
-	case "classic", "arena":
-		// There is no point in running a non-victory game replay
-		// for a mode that can be won.
-		if !r.Results.Victory {
-			return errBadParams
-		}
-	case "inf_arena":
-		// Infinite arena can't be won.
-		if r.Results.Victory {
-			return errBadParams
-		}
+	if !gamedata.IsSendableReplay(r) {
+		return errBadParams
 	}
 
 	return nil

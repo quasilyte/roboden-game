@@ -9,6 +9,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/timeutil"
 )
@@ -77,6 +78,30 @@ func (c *ProfileStatsMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
+	var sendScoreButton *widget.Button
+	sendScoreButton = eui.NewButton(uiResources, c.scene, d.Get("menu.publish_high_score"), func() {
+		if c.state.Persistent.PlayerName == "" {
+			backController := NewProfileStatsMenuController(c.state)
+			userNameScene := c.state.SceneRegistry.UserNameMenu(backController)
+			c.scene.Context().ChangeScene(userNameScene)
+			return
+		}
+		c.state.SentHighscores = true
+		sendScoreButton.GetWidget().Disabled = true
+		replays := c.prepareHighscoreReplays()
+		if len(replays) != 0 {
+			backController := NewProfileStatsMenuController(c.state)
+			submitController := c.state.SceneRegistry.SubmitScreen(backController, replays)
+			c.scene.Context().ChangeScene(submitController)
+			return
+		}
+	})
+	rowContainer.AddChild(sendScoreButton)
+	sendScoreButton.GetWidget().Disabled = c.state.SentHighscores ||
+		(c.state.Persistent.PlayerStats.HighestClassicScore == 0 &&
+			c.state.Persistent.PlayerStats.HighestArenaScore == 0 &&
+			c.state.Persistent.PlayerStats.HighestInfArenaScore == 0)
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
@@ -84,6 +109,29 @@ func (c *ProfileStatsMenuController) initUI() {
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
+}
+
+func (c *ProfileStatsMenuController) prepareHighscoreReplays() []serverapi.GameReplay {
+	keys := []string{
+		"classic_highscore",
+		"arena_highscore",
+		"inf_arena_highscore",
+	}
+	var replays []serverapi.GameReplay
+	for _, key := range keys {
+		if !c.scene.Context().CheckGameData(key) {
+			continue
+		}
+		var replay serverapi.GameReplay
+		if err := c.scene.Context().LoadGameData(key, &replay); err != nil {
+			fmt.Printf("load %q highscore data: %v\n", key, err)
+			continue
+		}
+		if gamedata.IsSendableReplay(replay) && gamedata.IsValidReplay(replay) {
+			replays = append(replays, replay)
+		}
+	}
+	return replays
 }
 
 func (c *ProfileStatsMenuController) back() {

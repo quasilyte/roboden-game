@@ -1,11 +1,8 @@
 package staging
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -103,27 +100,18 @@ func (c *resultsController) Init(scene *ge.Scene) {
 	}
 	c.initUI()
 
-	{
-		var replay serverapi.GameReplay
-		replay.GameVersion = gamedata.BuildNumber
-		replay.Config = c.config.ReplayLevelConfig
-		replay.Actions = c.results.Replay
-		replay.Results.Score = c.results.Score
-		replay.Results.Victory = c.results.Victory
-		replay.Results.Time = int(math.Floor(c.results.TimePlayed.Seconds()))
-		replay.Results.Ticks = c.results.Ticks
-		data, err := json.Marshal(replay)
-		if err != nil {
-			panic(err)
-		}
-		pwd, err := os.Getwd()
-		if err != nil {
-			panic(err)
-		}
-		if err := os.WriteFile(filepath.Join(pwd, "replay.json"), data, os.ModePerm); err != nil {
-			panic(err)
-		}
-	}
+}
+
+func (c *resultsController) makeGameReplay() serverapi.GameReplay {
+	var replay serverapi.GameReplay
+	replay.GameVersion = gamedata.BuildNumber
+	replay.Config = c.config.ReplayLevelConfig
+	replay.Actions = c.results.Replay
+	replay.Results.Score = c.results.Score
+	replay.Results.Victory = c.results.Victory
+	replay.Results.Time = int(math.Floor(c.results.TimePlayed.Seconds()))
+	replay.Results.Ticks = c.results.Ticks
+	return replay
 }
 
 func (c *resultsController) updateProgress() {
@@ -359,9 +347,21 @@ func (c *resultsController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
+	replay := c.makeGameReplay()
 	if c.config.Tutorial == nil && c.highScore {
+		key := c.config.RawGameMode + "_highscore"
+		c.scene.Context().SaveGameData(key, replay)
+	}
+	if c.config.Tutorial == nil && gamedata.IsSendableReplay(replay) {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.publish_score"), func() {
-			// c.back()
+			if c.state.Persistent.PlayerName == "" {
+				backController := newResultsController(c.state, c.config, c.backController, c.results)
+				userNameScene := c.state.SceneRegistry.UserNameMenu(backController)
+				c.scene.Context().ChangeScene(userNameScene)
+				return
+			}
+			submitController := c.state.SceneRegistry.SubmitScreen(c.backController, []serverapi.GameReplay{replay})
+			c.scene.Context().ChangeScene(submitController)
 		}))
 	}
 

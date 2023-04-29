@@ -1,19 +1,19 @@
 package menus
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/clientkit"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
-	"github.com/quasilyte/roboden-game/httpfetch"
+	"github.com/quasilyte/roboden-game/gtask"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/timeutil"
@@ -27,6 +27,9 @@ type LeaderboardBrowserController struct {
 	selectedSeason int
 
 	scene *ge.Scene
+
+	rowContainer *widget.Container
+	placeholder  *widget.Text
 }
 
 func NewLeaderboardBrowserController(state *session.State, gameMode string) *LeaderboardBrowserController {
@@ -62,35 +65,14 @@ func (c *LeaderboardBrowserController) getBoardCache() *serverapi.LeaderboardRes
 	}
 }
 
-func (c *LeaderboardBrowserController) initUI() {
+func (c *LeaderboardBrowserController) initBoard(boardData *serverapi.LeaderboardResp, fetchErr error) {
 	uiResources := c.state.Resources.UI
 
-	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
-	root.AddChild(rowContainer)
-
 	d := c.scene.Dict()
-
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), normalFont)
-	rowContainer.AddChild(titleLabel)
-
-	boardData, fetchErr := c.getBoardData()
-
-	if fetchErr != nil {
-		// Try using the cached data.
-		cached := c.getBoardCache()
-		if len(cached.Entries) != 0 {
-			boardData = cached
-		}
-	} else {
-		// Save fetched data to the cache.
-		*c.getBoardCache() = *boardData
-		c.scene.Context().SaveGameData("save", c.state.Persistent)
-	}
+	c.rowContainer.RemoveChild(c.placeholder)
 
 	{
 		numSeasons := c.selectedSeason + 1
@@ -109,7 +91,7 @@ func (c *LeaderboardBrowserController) initUI() {
 			Label:      d.Get("menu.leaderboard.season"),
 			ValueNames: seasons,
 		})
-		rowContainer.AddChild(b)
+		c.rowContainer.AddChild(b)
 		if fetchErr != nil {
 			b.GetWidget().Disabled = true
 		}
@@ -117,10 +99,11 @@ func (c *LeaderboardBrowserController) initUI() {
 
 	if boardData != nil {
 		s := fmt.Sprintf("%s: %d", d.Get("menu.leaderboard.num_players"), boardData.NumPlayers)
-		rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
+		c.rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
 	}
 
 	panel := eui.NewPanel(uiResources, 0, 96)
+	c.rowContainer.AddChild(panel)
 
 	if boardData == nil {
 		panel.AddChild(eui.NewCenteredLabel(d.Get("menu.leaderboard.fetch_error"), tinyFont))
@@ -173,36 +156,53 @@ func (c *LeaderboardBrowserController) initUI() {
 		panel.AddChild(grid)
 	}
 
-	rowContainer.AddChild(panel)
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	c.rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
+}
+
+func (c *LeaderboardBrowserController) initUI() {
+	root := eui.NewAnchorContainer()
+	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	c.rowContainer = rowContainer
+	root.AddChild(rowContainer)
+
+	d := c.scene.Dict()
+
+	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
+	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), normalFont)
+	rowContainer.AddChild(titleLabel)
+
+	c.placeholder = eui.NewCenteredLabel(d.Get("menu.leaderboard.placeholder"), tinyFont)
+	rowContainer.AddChild(c.placeholder)
 
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
-}
 
-func (c *LeaderboardBrowserController) getBoardData() (*serverapi.LeaderboardResp, error) {
-	var u url.URL
-	u.Host = c.state.ServerAddress
-	u.Scheme = "http"
-	u.Path = "get-player-board"
-	q := u.Query()
-	q.Add("season", strconv.Itoa(gamedata.SeasonNumber))
-	q.Add("mode", c.gameMode)
-	q.Add("name", c.state.Persistent.PlayerName)
-	u.RawQuery = q.Encode()
-	data, err := httpfetch.GetBytes(u.String())
-	if err != nil {
-		return nil, err
-	}
-	var resp serverapi.LeaderboardResp
-	if err := json.Unmarshal(data, &resp); err != nil {
-		return nil, err
-	}
-	return &resp, nil
+	var boardData *serverapi.LeaderboardResp
+	var fetchErr error
+	fetchTask := gtask.StartTask(func(ctx *gtask.TaskContext) {
+		boardData, fetchErr = clientkit.GetLeaderboard(c.state, c.gameMode)
+		if fetchErr != nil {
+			// Try using the cached data.
+			cached := c.getBoardCache()
+			if len(cached.Entries) != 0 {
+				boardData = cached
+			}
+		} else {
+			// Save fetched data to the cache.
+			*c.getBoardCache() = *boardData
+			c.scene.Context().SaveGameData("save", c.state.Persistent)
+		}
+	})
+	fetchTask.EventCompleted.Connect(nil, func(gsignal.Void) {
+		c.initBoard(boardData, fetchErr)
+		root.RequestRelayout()
+	})
+	c.scene.AddObject(fetchTask)
 }
 
 func (c *LeaderboardBrowserController) back() {

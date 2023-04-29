@@ -70,10 +70,22 @@ func main() {
 
 	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
 
+	registerScenes(state)
+	state.Context = ctx
+
 	fmt.Println("is mobile?", state.Device.IsMobile)
 
 	if err := ge.RunGame(ctx, menus.NewBootloadController(state)); err != nil {
 		panic(err)
+	}
+}
+
+func registerScenes(state *session.State) {
+	state.SceneRegistry.UserNameMenu = func(backController ge.SceneController) ge.SceneController {
+		return menus.NewUserNameMenuController(state, backController)
+	}
+	state.SceneRegistry.SubmitScreen = func(backController ge.SceneController, replays []serverapi.GameReplay) ge.SceneController {
+		return menus.NewSubmitScreenController(state, backController, replays)
 	}
 }
 

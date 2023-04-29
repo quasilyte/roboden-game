@@ -13,6 +13,7 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/scenes"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/userdevice"
 )
@@ -34,7 +35,13 @@ type State struct {
 
 	Persistent PersistentData
 
+	SceneRegistry scenes.Registry
+
 	Resources Resources
+
+	Context *ge.Context
+
+	SentHighscores bool
 }
 
 type PersistentData struct {
@@ -44,6 +51,8 @@ type PersistentData struct {
 	SeenArenaMode   bool
 
 	PlayerName string
+
+	NumPendingSubmissions int
 
 	PlayerStats PlayerStats
 

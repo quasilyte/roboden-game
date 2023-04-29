@@ -951,6 +951,17 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 }
 
 func (a *colonyAgentNode) doTether() {
+	// If it's connected to the colony, it can't boost anyone else.
+	if a.target != nil {
+		if tether, ok := a.target.(*tetherNode); ok {
+			a.supportDelay = a.scene.Rand().FloatRange(0.5, 2)
+			if !tether.IsDisposed() {
+				return
+			}
+			a.target = nil
+		}
+	}
+
 	maxRangeSqr := a.stats.SupportRange * a.stats.SupportRange
 	colonyTarget := randIterate(a.scene.Rand(), a.world().colonies, func(colony *colonyCoreNode) bool {
 		if !colony.IsFlying() {
@@ -958,9 +969,11 @@ func (a *colonyAgentNode) doTether() {
 		}
 		return colony.pos.DistanceSquaredTo(a.pos) <= maxRangeSqr
 	})
-	if colonyTarget != nil {
+	if colonyTarget != nil && a.target != colonyTarget {
+		tether := newTetherNode(a.world(), a, colonyTarget)
+		a.target = tether
 		colonyTarget.tether++
-		a.world().nodeRunner.AddObject(newTetherNode(a.world(), a, colonyTarget))
+		a.world().nodeRunner.AddObject(tether)
 		playSound(a.world(), assets.AudioTetherShot, a.pos)
 		a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.95, 1.35)
 		return

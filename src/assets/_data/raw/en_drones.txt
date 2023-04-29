@@ -154,6 +154,7 @@ It's vulnerable against enemy flying units.
 ##turret.beamtower.description
 A highly destructive long-range energy weapon platform.
 It lacks the durability of a bunker and it's harder to build.
+Its fire rate decreases when attacking consecutively, it needs time to recharge.
 It's vulnerable against enemy ground units.
 
 ##turret.tetherbeacon : Navigation Beacon

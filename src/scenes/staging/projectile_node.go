@@ -260,13 +260,7 @@ func (p *projectileNode) detonate() {
 
 	dmg := p.weapon.Damage
 	if dmg.Health != 0 {
-		var multiplier float64
-		if p.target.IsFlying() {
-			multiplier = p.weapon.FlyingTargetDamageMult
-		} else {
-			multiplier = p.weapon.GroundTargetDamageMult
-		}
-		dmg.Health *= multiplier
+		dmg.Health *= damageMultiplier(p.target, p.weapon)
 	}
 	p.target.OnDamage(dmg, p.attacker)
 	p.createExplosion()

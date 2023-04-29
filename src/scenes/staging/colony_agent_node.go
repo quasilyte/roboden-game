@@ -1171,11 +1171,19 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		return
 	}
 
-	a.attackDelay = a.stats.Weapon.Reload * a.scene.Rand().FloatRange(0.8, 1.2)
 	targets := a.findAttackTargets()
 	if len(targets) == 0 {
+		a.attackDelay = 0.75 * a.scene.Rand().FloatRange(0.8, 1.4)
 		return
 	}
+
+	reloadMultiplier := a.scene.Rand().FloatRange(0.8, 1.2)
+	if a.stats == gamedata.BeamTowerAgentStats {
+		reloadMultiplier += (a.specialDelay * 0.25)
+		a.specialDelay += ((a.stats.Weapon.Reload) + 1.5) * reloadMultiplier
+	}
+
+	a.attackDelay = a.stats.Weapon.Reload * reloadMultiplier
 
 	switch a.stats.Kind {
 	case gamedata.AgentDestroyer:
@@ -1193,7 +1201,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			offset = offset.Add(offsetStep)
 			targetOffset = targetOffset.Add(targetOffsetStep)
 		}
-		target.OnDamage(a.stats.Weapon.Damage, a)
+		target.OnDamage(multipliedDamage(target, a.stats.Weapon), a)
 
 	case gamedata.AgentPrism:
 		target := targets[0]
@@ -1221,6 +1229,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		beam := newBeamNode(a.world(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
 		beam.width = width
 		a.world().nodeRunner.AddObject(beam)
+		damage.Health *= damageMultiplier(target, a.stats.Weapon)
 		target.OnDamage(damage, a)
 
 	default:
@@ -1254,7 +1263,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 					beam := newTextureBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamTexture, a.stats.BeamSlideSpeed, a.stats.BeamOpaqueTime)
 					a.world().nodeRunner.AddObject(beam)
 				}
-				target.OnDamage(a.stats.Weapon.Damage, a)
+				target.OnDamage(multipliedDamage(target, a.stats.Weapon), a)
 			}
 		}
 	}

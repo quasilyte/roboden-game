@@ -7,6 +7,21 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
+func multipliedDamage(target targetable, weapon *gamedata.WeaponStats) gamedata.DamageValue {
+	damage := weapon.Damage
+	if damage.Health != 0 {
+		damage.Health *= damageMultiplier(target, weapon)
+	}
+	return damage
+}
+
+func damageMultiplier(target targetable, weapon *gamedata.WeaponStats) float64 {
+	if target.IsFlying() {
+		return weapon.FlyingTargetDamageMult
+	}
+	return weapon.GroundTargetDamageMult
+}
+
 func creepFragScore(stats *creepStats) int {
 	switch stats {
 	case crawlerCreepStats:

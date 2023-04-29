@@ -1179,7 +1179,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 
 	reloadMultiplier := a.scene.Rand().FloatRange(0.8, 1.2)
 	if a.stats == gamedata.BeamTowerAgentStats {
-		reloadMultiplier += (a.specialDelay * 0.25)
+		reloadMultiplier += (a.specialDelay * 0.3)
 		a.specialDelay += ((a.stats.Weapon.Reload) + 1.5) * reloadMultiplier
 	}
 

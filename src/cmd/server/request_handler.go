@@ -127,7 +127,7 @@ func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 		return nil, errQueueIsFull
 	}
 
-	replayChecksum := sha1encode(data)
+	replayChecksum := h.calcReplayChecksum(&gameReplay)
 	checksumOwner, err := h.server.queue.ChecksumOwner(replayChecksum)
 	if err != nil {
 		return nil, err
@@ -194,4 +194,29 @@ func (h *requestHandler) isValidGameReplay(r serverapi.GameReplay) error {
 	}
 
 	return nil
+}
+
+func (h *requestHandler) calcReplayChecksum(replay *serverapi.GameReplay) string {
+	buf := make([]byte, 0, 256)
+
+	buf = strconv.AppendInt(buf, replay.Config.Seed, 10)
+	buf = append(buf, '/')
+	buf = append(buf, replay.Config.RawGameMode...)
+	buf = append(buf, '/')
+	for _, drone := range replay.Config.Tier2Recipes {
+		buf = append(buf, drone...)
+		buf = append(buf, '$')
+	}
+	buf = append(buf, replay.Config.TurretDesign...)
+	buf = append(buf, '$')
+	buf = strconv.AppendInt(buf, int64(len(replay.Actions)), 10)
+	buf = append(buf, '@')
+	buf = strconv.AppendInt(buf, int64(replay.Results.Score), 10)
+	buf = append(buf, ':')
+	buf = strconv.AppendInt(buf, int64(replay.Results.Ticks), 10)
+	buf = append(buf, ':')
+	buf = strconv.AppendInt(buf, int64(replay.Results.Time), 10)
+	buf = append(buf, ';')
+
+	return sha1encode(buf)
 }

@@ -12,7 +12,7 @@ type logger interface {
 	Info(format string, args ...any)
 	Error(format string, args ...any)
 	GetSize() int64
-	Truncate() error
+	Rotate() error
 }
 
 type fileLogger struct {
@@ -27,21 +27,32 @@ func (l *fileLogger) GetSize() int64 {
 	return atomic.LoadInt64(&l.size)
 }
 
-func (l *fileLogger) Truncate() error {
+func (l *fileLogger) Rotate() error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
 	if l.filename == "" {
 		return nil
 	}
+
 	if err := l.f.Close(); err != nil {
 		return err
 	}
+
+	oldData, err := os.ReadFile(l.filename)
+	if err == nil {
+		oldFilename := l.filename + ".old"
+		if err := os.WriteFile(oldFilename, oldData, 0o666); err != nil {
+			panic(err)
+		}
+	}
+
 	f, err := os.Create(l.filename)
 	if err != nil {
 		return err
 	}
 	l.f = f
+	l.size = 0
 	return nil
 }
 

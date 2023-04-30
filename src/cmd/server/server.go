@@ -151,7 +151,7 @@ func (s *apiServer) intervalLeaderboardUpdate() float64 {
 	return floatRange(s.rand, 45, 5*60)
 }
 
-func (s *apiServer) intervalLogTruncate() float64 {
+func (s *apiServer) intervalLogRotate() float64 {
 	return floatRange(s.rand, 20, 40)
 }
 
@@ -168,7 +168,7 @@ func (s *apiServer) BackgroundTask() {
 	untilArenaLeaderboardUpdate := s.intervalLeaderboardUpdate()
 	untilInfArenaLeaderboardUpdate := s.intervalLeaderboardUpdate()
 	untilMetricsFlush := s.intervalMetricsFlush()
-	untilLogTruncate := s.intervalLogTruncate()
+	untilLogRotate := s.intervalLogRotate()
 	untilRunReplay := s.intervalRunReplay()
 
 	for {
@@ -235,17 +235,17 @@ func (s *apiServer) BackgroundTask() {
 			continue
 		}
 
-		untilLogTruncate -= secondsSlept
-		if untilLogTruncate <= 0 {
-			truncated, err := s.doLogTruncate()
+		untilLogRotate -= secondsSlept
+		if untilLogRotate <= 0 {
+			rotated, err := s.doLogRotate()
 			if err != nil {
-				s.logger.Error("truncate log: %v", err)
-			} else if truncated {
-				s.logger.Info("truncated log file")
+				s.logger.Error("rotate log file: %v", err)
+			} else if rotated {
+				s.logger.Info("rotated log file")
 			} else {
-				s.logger.Info("no need to do a log truncate")
+				s.logger.Info("no need to do a log rotate")
 			}
-			untilLogTruncate = s.intervalLogTruncate()
+			untilLogRotate = s.intervalLogRotate()
 			continue
 		}
 
@@ -386,12 +386,12 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	return true, nil
 }
 
-func (s *apiServer) doLogTruncate() (bool, error) {
+func (s *apiServer) doLogRotate() (bool, error) {
 	const kb = 1024
-	if s.logger.GetSize() < 128*kb {
+	if s.logger.GetSize() < 256*kb {
 		return false, nil
 	}
-	return true, s.logger.Truncate()
+	return true, s.logger.Rotate()
 }
 
 func (s *apiServer) doMetricsFlush() error {

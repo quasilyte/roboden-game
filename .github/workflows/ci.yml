@@ -31,7 +31,7 @@ jobs:
           go-version: 1.19
       - name: Build Windows exe
         shell: bash
-        run: cd src && go build -v -o roboden.exe cmd/game/main.go
+        run: cd src && go run ./cmd/builder -o roboden.exe
       - name: Upload Windows exe
         uses: actions/upload-artifact@v3
         with:
@@ -51,7 +51,7 @@ jobs:
           go-version: 1.19
       - name: Build Mac exe
         shell: bash
-        run: cd src && go build -v -o roboden cmd/game/main.go
+        run: cd src && go run ./cmd/builder -o roboden
       - name: Tar it up
         shell: bash
         run: tar -zcvf roboden-mac.tar.gz src/roboden LICENSE
@@ -76,7 +76,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get -y install libgl1-mesa-dev xorg-dev libasound2-dev
       - name: Build Linux exe
         shell: bash
-        run: cd src && go build -v -o roboden cmd/game/main.go
+        run: cd src && go run ./cmd/builder -o roboden
       - name: Tar it up
         shell: bash
         run: tar -zcvf roboden-lin.tar.gz src/roboden LICENSE
@@ -98,7 +98,7 @@ jobs:
           go-version: 1.19
       - name: Build Web binary
         shell: bash
-        run: cd src && GOOS=js GOARCH=wasm go build -v -ldflags "-w -s" -o dist/web/roboden.wasm cmd/game/main.go
+        run: cd src && go run ./cmd/builder -wasm -o dist/web/main.wasm
       - name: Copy WASM exec script
         shell: bash
         run: cd src && cp $(go env GOROOT)/misc/wasm/wasm_exec.js dist/web/.

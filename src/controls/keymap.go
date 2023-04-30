@@ -46,10 +46,10 @@ const (
 
 func BindKeymap(ctx *ge.Context) gameinput.Handler {
 	keymap := input.Keymap{
-		ActionPanRight: {input.KeyD, input.KeyGamepadLStickRight, input.KeyGamepadRight},
-		ActionPanDown:  {input.KeyS, input.KeyGamepadLStickDown, input.KeyGamepadDown},
-		ActionPanLeft:  {input.KeyA, input.KeyGamepadLStickLeft, input.KeyGamepadLeft},
-		ActionPanUp:    {input.KeyW, input.KeyGamepadLStickUp, input.KeyGamepadUp},
+		ActionPanRight: {input.KeyD, input.KeyRight, input.KeyGamepadLStickRight, input.KeyGamepadRight},
+		ActionPanDown:  {input.KeyS, input.KeyDown, input.KeyGamepadLStickDown, input.KeyGamepadDown},
+		ActionPanLeft:  {input.KeyA, input.KeyLeft, input.KeyGamepadLStickLeft, input.KeyGamepadLeft},
+		ActionPanUp:    {input.KeyW, input.KeyUp, input.KeyGamepadLStickUp, input.KeyGamepadUp},
 		ActionPanAlt:   {input.KeyMouseMiddle},
 		ActionPanDrag:  {input.KeyTouchDrag},
 

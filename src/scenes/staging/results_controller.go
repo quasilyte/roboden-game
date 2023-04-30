@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/ebitenui/ebitenui/widget"
@@ -27,11 +26,8 @@ type resultsController struct {
 	scene          *ge.Scene
 	backController ge.SceneController
 
-	highScore            bool
-	newAchievements      []string
-	upgradedAchievements []string
-	newDrones            []gamedata.ColonyAgentKind
-	newTurrets           []gamedata.ColonyAgentKind
+	highScore bool
+	rewards   *gameRewards
 
 	results battleResults
 }
@@ -81,25 +77,28 @@ type battleResults struct {
 	Tier3Drones []gamedata.ColonyAgentKind
 }
 
-func newResultsController(state *session.State, config *gamedata.LevelConfig, backController ge.SceneController, results battleResults) *resultsController {
+func newResultsController(state *session.State, config *gamedata.LevelConfig, backController ge.SceneController, results battleResults, rewards *gameRewards) *resultsController {
 	return &resultsController{
 		state:          state,
 		backController: backController,
 		results:        results,
 		config:         config,
+		rewards:        rewards,
 	}
 }
 
 func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
+
 	victory := c.results.Victory ||
 		(c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode)
-	if victory {
+	if victory && c.rewards == nil {
+		c.rewards = &gameRewards{}
 		c.updateProgress()
 		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}
-	c.initUI()
 
+	c.initUI()
 }
 
 func (c *resultsController) makeGameReplay() serverapi.GameReplay {
@@ -166,9 +165,9 @@ func (c *resultsController) updateProgress() {
 	}
 
 	contentUpdates := contentlock.Update(c.state)
-	c.newAchievements, c.upgradedAchievements = c.checkAchievements()
-	c.newDrones = contentUpdates.DronesUnlocked
-	c.newTurrets = contentUpdates.TurretsUnlocked
+	c.rewards.newAchievements, c.rewards.upgradedAchievements = c.checkAchievements()
+	c.rewards.newDrones = contentUpdates.DronesUnlocked
+	c.rewards.newTurrets = contentUpdates.TurretsUnlocked
 }
 
 func (c *resultsController) Update(delta float64) {
@@ -325,19 +324,6 @@ func (c *resultsController) initUI() {
 		lines = append(lines, [2]string{d.Get("game.wave"), itoa(c.results.ArenaLevel)})
 	}
 
-	for _, a := range c.newAchievements {
-		lines = append(lines, [2]string{d.Get("menu.results.new_achievement"), d.Get("achievement", a)})
-	}
-	for _, a := range c.upgradedAchievements {
-		lines = append(lines, [2]string{d.Get("menu.results.upgraded_achievement"), d.Get("achievement", a)})
-	}
-	for _, kind := range c.newDrones {
-		lines = append(lines, [2]string{d.Get("menu.results.new_drone"), d.Get("drone", strings.ToLower(kind.String()))})
-	}
-	for _, kind := range c.newTurrets {
-		lines = append(lines, [2]string{d.Get("menu.results.new_turret"), d.Get("turret", strings.ToLower(kind.String()))})
-	}
-
 	for _, pair := range lines {
 		grid.AddChild(eui.NewLabel(pair[0], smallFont))
 		grid.AddChild(eui.NewLabel(pair[1], smallFont))
@@ -356,19 +342,29 @@ func (c *resultsController) initUI() {
 	if c.config.Tutorial == nil && gamedata.IsSendableReplay(replay) {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.publish_score"), func() {
 			if c.state.Persistent.PlayerName == "" {
-				backController := newResultsController(c.state, c.config, c.backController, c.results)
+				backController := newResultsController(c.state, c.config, c.backController, c.results, c.rewards)
 				userNameScene := c.state.SceneRegistry.UserNameMenu(backController)
 				c.scene.Context().ChangeScene(userNameScene)
 				return
 			}
-			submitController := c.state.SceneRegistry.SubmitScreen(c.backController, []serverapi.GameReplay{replay})
+			nextController := c.backController
+			if !c.rewards.IsEmpty() {
+				nextController = newRewardsController(c.state, *c.rewards, c.backController)
+			}
+			submitController := c.state.SceneRegistry.SubmitScreen(nextController, []serverapi.GameReplay{replay})
 			c.scene.Context().ChangeScene(submitController)
 		}))
 	}
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby_back"), func() {
-		c.back()
-	}))
+	if c.rewards.IsEmpty() {
+		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby_back"), func() {
+			c.back()
+		}))
+	} else {
+		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.results.claim_rewards"), func() {
+			c.scene.Context().ChangeScene(newRewardsController(c.state, *c.rewards, c.backController))
+		}))
+	}
 
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)

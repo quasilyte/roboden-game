@@ -214,6 +214,8 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.lobby.tab.difficulty : Сложность
 ##menu.lobby.tab.extra : Доп
 
+##menu.results.claim_rewards : Получить Награду
+##menu.results.rewards : Награждение
 ##menu.results.the_end : Конец
 ##menu.results.victory : Победа
 ##menu.results.defeat : Поражение

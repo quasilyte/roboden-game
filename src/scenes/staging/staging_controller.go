@@ -628,7 +628,7 @@ func (c *Controller) defeat() {
 		c.gameFinished = true
 		c.world.result.Victory = false
 		if c.config.ExecMode != gamedata.ExecuteSimulation {
-			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
+			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result, nil))
 		}
 	})
 }
@@ -679,7 +679,7 @@ func (c *Controller) victory() {
 			c.world.result.Tier3Drones = append(c.world.result.Tier3Drones, k)
 		}
 		if c.config.ExecMode != gamedata.ExecuteSimulation {
-			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
+			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result, nil))
 		}
 	})
 }

@@ -215,6 +215,8 @@ Survive for longer to get higher scores.
 ##menu.lobby.tab.difficulty : Difficulty
 ##menu.lobby.tab.extra : Extra
 
+##menu.results.claim_rewards : Claim Rewards
+##menu.results.rewards : Rewards
 ##menu.results.the_end : The End
 ##menu.results.victory : Victory
 ##menu.results.defeat : Defeat

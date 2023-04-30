@@ -81,6 +81,8 @@ func (c *TutorialMenuController) initUI() {
 		c.config.Tutorial = gamedata.Tutorials[0]
 	}
 
+	c.helpLabel.Label = descriptionText(c.config.Tutorial.ID)
+
 	panel := eui.NewPanel(uiResources, 560, 220)
 	panel.AddChild(helpLabel)
 	rowContainer.AddChild(panel)

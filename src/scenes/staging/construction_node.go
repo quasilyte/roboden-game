@@ -40,7 +40,7 @@ var gunpointConstructionStats = &constructionStats{
 }
 
 var beamTowerConstructionStats = &constructionStats{
-	ConstructionSpeed: 0.03,
+	ConstructionSpeed: 0.025,
 	DamageModifier:    0.04,
 	Kind:              constructTurret,
 	TurretStats:       gamedata.BeamTowerAgentStats,

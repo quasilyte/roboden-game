@@ -29,7 +29,7 @@ func main() {
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
 	flag.StringVar(&state.CPUProfile, "cpuprofile", "", "collect app cpu profile")
 	flag.StringVar(&gameDataFolder, "data", "", "a game data folder path")
-	flag.StringVar(&serverAddress, "server", "127.0.0.1:8080", "leaderboard server address")
+	flag.StringVar(&serverAddress, "server", DefaultServerAddr, "leaderboard server address")
 	flag.Parse()
 
 	if runtime.GOARCH != "wasm" {

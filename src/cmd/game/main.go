@@ -101,6 +101,7 @@ func main() {
 	state.Context = ctx
 
 	fmt.Println("is mobile?", state.Device.IsMobile)
+	fmt.Println("game commit version:", CommitHash)
 
 	if err := ge.RunGame(ctx, menus.NewBootloadController(state)); err != nil {
 		panic(err)

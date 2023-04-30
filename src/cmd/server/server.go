@@ -560,8 +560,10 @@ func (s *apiServer) NewHandler(f func(*http.Request) (any, error)) func(http.Res
 }
 
 func (s *apiServer) corsAllowed(origin string) bool {
+	const itchioWebGames = "https://v6p9d9t4.ssl.hwcdn.net"
+
 	switch origin {
-	case "http://localhost:8080", "https://quasilyte.itch.io":
+	case "http://localhost:8080", itchioWebGames:
 		return true
 	default:
 		return false

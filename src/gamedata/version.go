@@ -100,4 +100,9 @@ const SeasonNumber = 0
 //
 // # Version 11
 // * Added online leaderboard to the game
+// * Added a separate rewards screen
+// * Added teleports
+// * Balance tweaks
+// * Resources priority effect rework
+// * Changed the default keyboard binds for camera to WASD
 const BuildNumber int = 11

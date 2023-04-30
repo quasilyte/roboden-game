@@ -99,6 +99,9 @@ func (c *Controller) GetSimulationResult() (serverapi.GameResults, bool) {
 	if !c.gameFinished {
 		return result, false
 	}
+	if len(c.world.replayActions) != 0 {
+		panic(errExcessiveAcions)
+	}
 	result.Victory = c.world.result.Victory
 	result.Score = c.world.result.Score
 	result.Time = int(math.Floor(c.world.result.TimePlayed.Seconds()))

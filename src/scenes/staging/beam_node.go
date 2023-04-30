@@ -33,6 +33,7 @@ var (
 	prismBeamColor2          = ge.RGB(0x61bad8)
 	prismBeamColor3          = ge.RGB(0x7bdbfc)
 	prismBeamColor4          = ge.RGB(0xccf2ff)
+	prismBeamColor5          = ge.RGB(0xffffff)
 	evoBeamColor             = ge.RGB(0xa641c2)
 )
 
@@ -41,6 +42,7 @@ var prismBeamColors = []color.RGBA{
 	prismBeamColor2,
 	prismBeamColor3,
 	prismBeamColor4,
+	prismBeamColor5,
 }
 
 func newBeamNode(world *worldState, from, to ge.Pos, clr color.RGBA) *beamNode {

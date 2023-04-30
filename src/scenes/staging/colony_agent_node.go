@@ -1193,7 +1193,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	reloadMultiplier := a.scene.Rand().FloatRange(0.8, 1.2)
 	if a.stats == gamedata.BeamTowerAgentStats {
 		reloadMultiplier += (a.specialDelay * 0.3)
-		a.specialDelay += ((a.stats.Weapon.Reload) + 1.5) * reloadMultiplier
+		a.specialDelay += ((a.stats.Weapon.Reload) + 1.75) * reloadMultiplier
 	}
 
 	a.attackDelay = a.stats.Weapon.Reload * reloadMultiplier
@@ -1222,6 +1222,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		width := 1.0
 		numReflections := 0
 		pos := &a.pos
+		const maxReflections = 4
 		a.colonyCore.agents.Find(searchFighters|searchRandomized, func(ally *colonyAgentNode) bool {
 			if ally.stats.Kind != gamedata.AgentPrism || ally == a {
 				return false
@@ -1229,16 +1230,21 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			if ally.pos.DistanceSquaredTo(*pos) > (196 * 196) {
 				return false
 			}
-			ally.attackDelay += float64(numReflections) * 0.3
+			ally.attackDelay += float64(numReflections) * 0.1
 			beam := newBeamNode(a.world(), ge.Pos{Base: pos}, ge.Pos{Base: &ally.pos}, prismBeamColors[numReflections])
 			beam.width = width
 			a.world().nodeRunner.AddObject(beam)
 			numReflections++
 			damage.Health++
-			width++
+			if numReflections < maxReflections {
+				width++
+			}
 			pos = &ally.pos
-			return numReflections >= 3
+			return numReflections >= maxReflections
 		})
+		if numReflections == maxReflections {
+			damage.Health++
+		}
 		beam := newBeamNode(a.world(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
 		beam.width = width
 		a.world().nodeRunner.AddObject(beam)
@@ -1402,7 +1408,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 	}
 
 	const explosionRangeSqr float64 = 34 * 34
-	const explosionDamage float64 = 30.0
+	const explosionDamage float64 = 35.0
 	if a.moveTowards(delta, a.waypoint) {
 		if a.pos.DistanceSquaredTo(creep.pos) > explosionRangeSqr {
 			a.waypoint = gmath.Vec{}

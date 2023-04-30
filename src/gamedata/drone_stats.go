@@ -375,7 +375,7 @@ var GuardianAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       55,
 	MaxHealth:   50,
-	SelfRepair:  0.75,
+	SelfRepair:  1,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange: 260,
 		Reload:      3.2,
@@ -546,7 +546,7 @@ var SkirmisherAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       80,
 	MaxHealth:   20,
-	SelfRepair:  0.5,
+	SelfRepair:  0.75,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:       180,
 		Reload:            2,
@@ -636,8 +636,8 @@ var AntiAirAgentStats = &AgentStats{
 	Speed:       80,
 	MaxHealth:   20,
 	Weapon: InitWeaponStats(&WeaponStats{
-		AttackRange:     250,
-		Reload:          2.4,
+		AttackRange:     260,
+		Reload:          2.35,
 		AttackSound:     assets.AudioAntiAirMissiles,
 		ProjectileImage: assets.ImageAntiAirMissile,
 		ImpactArea:      18,
@@ -758,7 +758,7 @@ var RepellerAgentStats = &AgentStats{
 		ProjectileImage: assets.ImageRepellerProjectile,
 		ImpactArea:      10,
 		ProjectileSpeed: 200,
-		Damage:          DamageValue{Health: 1, Disarm: 4},
+		Damage:          DamageValue{Health: 2, Disarm: 4},
 		MaxTargets:      2,
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,

@@ -838,7 +838,13 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		// 0.8 resource priority: 15 (cap)
 		resourcesPriority := c.GetResourcePriority()
 		priorityCapacity := gmath.Clamp((resourcesPriority*20)-1, 0, 15)
-		toAssign := int(math.Floor(priorityCapacity) * c.scene.Rand().FloatRange(0.8, 1.2))
+		// 15 drones => +0
+		// 25 drones => +1
+		// 35 drones => +2
+		// 45 drones => +3
+		// 100 drones => +8
+		colonySizeBonus := gmath.Clamp((len(c.agents.workers)-15)/10, 0, 10)
+		toAssign := int(math.Floor(priorityCapacity)*c.scene.Rand().FloatRange(0.8, 1.3)) + colonySizeBonus
 		if toAssign == 0 {
 			return false
 		}

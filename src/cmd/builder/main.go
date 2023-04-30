@@ -14,8 +14,10 @@ func main() {
 		"the output binary name")
 	flag.StringVar(&args.commit, "commit", "",
 		"a commit hash")
-	flag.BoolVar(&args.wasm, "wasm", false,
-		"whether we're building for wasm target")
+	flag.StringVar(&args.goos, "goos", "",
+		"select a cross-compilation GOOS value")
+	flag.StringVar(&args.goarch, "goarch", "",
+		"select a cross-compilation GOARCH value")
 	flag.Parse()
 
 	commit := args.commit
@@ -42,9 +44,11 @@ func main() {
 	}
 	cmd := exec.Command("go", goFlags...)
 	cmd.Env = append([]string{}, os.Environ()...) // Copy env slice
-	if args.wasm {
-		cmd.Env = append(cmd.Env, "GOOS=js")
-		cmd.Env = append(cmd.Env, "GOARCH=wasm")
+	if args.goos != "" {
+		cmd.Env = append(cmd.Env, "GOOS="+args.goos)
+	}
+	if args.goarch != "" {
+		cmd.Env = append(cmd.Env, "GOARCH="+args.goarch)
 	}
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -53,7 +57,9 @@ func main() {
 }
 
 type arguments struct {
-	wasm   bool
 	commit string
 	output string
+
+	goos   string
+	goarch string
 }

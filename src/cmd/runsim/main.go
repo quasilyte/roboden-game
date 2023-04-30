@@ -67,14 +67,15 @@ func main() {
 
 	var simResult serverapi.GameResults
 	start := time.Now()
+OuterLoop:
 	for {
-		stop := false
 		for i := 0; i < 60*60; i++ {
 			runner.Update(1.0 / 60.0)
+			var stop bool
 			simResult, stop = controller.GetSimulationResult()
-		}
-		if stop {
-			break
+			if stop {
+				break OuterLoop
+			}
 		}
 		if time.Since(start) >= (30 * time.Second) {
 			panic("simulation takes too long")

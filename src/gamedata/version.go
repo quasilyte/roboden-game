@@ -113,6 +113,9 @@ const SeasonNumber = 0
 //   - Added Devourer tier 3 drone
 //   - Added "Oil regeneration rate" world option
 //
+// * UX:
+//   - Added difficulty description tag in the game lobby
+//
 // * Optimizations:
 //   - The game doesn't create animation objects for drones with no animation anymore
 const BuildNumber int = 12

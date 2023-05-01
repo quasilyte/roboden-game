@@ -40,10 +40,12 @@ func (c *OptionsMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
+	rowContainer.GetWidget().MinWidth = 340
+
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
 
 	d := c.scene.Dict()
-	titleLabel := eui.NewLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings

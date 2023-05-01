@@ -563,7 +563,23 @@ func (c *LobbyMenuController) updateAllocatedPoints(allocated int) {
 }
 
 func (c *LobbyMenuController) updateDifficultyScore(score int) {
-	c.difficultyLabel.Label = fmt.Sprintf("%s: %d%%", c.scene.Dict().Get("menu.lobby.tab.difficulty"), score)
+	d := c.scene.Dict()
+	var tag string
+	switch {
+	case score < 40:
+		tag = d.Get("menu.option.very_easy")
+	case score < 80:
+		tag = d.Get("menu.option.easy")
+	case score < 120:
+		tag = d.Get("menu.option.normal")
+	case score < 160:
+		tag = d.Get("menu.option.hard")
+	case score < 200:
+		tag = d.Get("menu.option.very_hard")
+	default:
+		tag = d.Get("menu.option.impossible")
+	}
+	c.difficultyLabel.Label = fmt.Sprintf("%s: %d%% (%s)", c.scene.Dict().Get("menu.lobby.tab.difficulty"), score, tag)
 }
 
 func (c *LobbyMenuController) calcAllocatedPoints() int {

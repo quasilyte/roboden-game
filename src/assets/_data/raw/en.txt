@@ -107,6 +107,7 @@
 ##menu.option.easy : easy
 ##menu.option.hard : hard
 ##menu.option.very_hard : very hard
+##menu.option.impossible : impossible
 
 ##menu.option.very_small : very small
 ##menu.option.small : small
@@ -125,6 +126,8 @@
 ##menu.credits.crew : crew
 ##menu.credits.assets : assets
 ##menu.credits.thank_player : And thank you, dear player <3
+
+##menu.lobby.difficulty_very
 
 ##menu.lobby.points_allocated : Points allocated
 ##menu.lobby.game_seed : Game seed

@@ -98,7 +98,7 @@ jobs:
           go-version: 1.19
       - name: Build Web binary
         shell: bash
-        run: cd src && go run ./cmd/builder -goos=JS -goarch=wasm -o dist/web/main.wasm
+        run: cd src && go run ./cmd/builder -goos=js -goarch=wasm -o dist/web/main.wasm
       - name: Copy WASM exec script
         shell: bash
         run: cd src && cp $(go env GOROOT)/misc/wasm/wasm_exec.js dist/web/.

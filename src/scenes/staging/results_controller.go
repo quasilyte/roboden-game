@@ -127,7 +127,7 @@ func (c *resultsController) updateProgress() {
 			stats.TotalScore += c.config.Tutorial.ScoreReward
 		}
 		if c.config.Tutorial.ID+1 < len(gamedata.Tutorials) {
-			c.state.LevelConfig.Tutorial = gamedata.Tutorials[c.config.Tutorial.ID+1]
+			c.state.TutorialLevelConfig.Tutorial = gamedata.Tutorials[c.config.Tutorial.ID+1]
 		}
 		return
 	}

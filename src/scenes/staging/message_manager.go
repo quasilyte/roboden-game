@@ -43,6 +43,10 @@ func (m *messageManager) Update(delta float64) {
 	}
 }
 
+func (m *messageManager) MessageIsEmpty() bool {
+	return len(m.queue) == 0 && m.message == nil
+}
+
 func (m *messageManager) AddMessage(info queuedMessageInfo) {
 	m.queue = append(m.queue, info)
 }

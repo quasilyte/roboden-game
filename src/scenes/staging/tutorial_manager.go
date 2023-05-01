@@ -145,21 +145,23 @@ func (m *tutorialManager) updateTutorial1() bool {
 			timer:         20,
 		})
 	}
-	if !m.explainedWorker && m.tutorialStep >= 19 {
-		worker := m.findDrone(searchWorkers, func(a *colonyAgentNode) bool {
+	if m.messageManager.MessageIsEmpty() && !m.explainedWorker && m.tutorialStep >= 19 {
+		worker := m.findDrone(searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
 			return a.stats.Kind == gamedata.AgentWorker
 		})
 		if worker != nil {
 			m.explainDrone(worker, "tutorial1.hint_worker")
+			worker.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
 			m.explainedWorker = true
 		}
 	}
-	if !m.explainedScout && m.tutorialStep >= 19 {
-		scout := m.findDrone(searchFighters, func(a *colonyAgentNode) bool {
+	if m.messageManager.MessageIsEmpty() && !m.explainedScout && m.tutorialStep >= 19 {
+		scout := m.findDrone(searchFighters|searchOnlyAvailable, func(a *colonyAgentNode) bool {
 			return a.stats.Kind == gamedata.AgentScout
 		})
 		if scout != nil {
 			m.explainDrone(scout, "tutorial1.hint_scout")
+			scout.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
 			m.explainedScout = true
 		}
 	}
@@ -580,7 +582,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 	var servoBot *colonyAgentNode
 	var repairBot *colonyAgentNode
 	for _, colony := range m.world.colonies {
-		colony.agents.Find(searchWorkers, func(a *colonyAgentNode) bool {
+		colony.agents.Find(searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
 			switch a.stats.Kind {
 			case gamedata.AgentFreighter:
 				freighter = a
@@ -592,15 +594,15 @@ func (m *tutorialManager) updateTutorial3() bool {
 			return false
 		})
 	}
-	if freighter != nil && !m.explainedFreighterBots {
+	if m.messageManager.MessageIsEmpty() && freighter != nil && !m.explainedFreighterBots {
 		m.explainDrone(freighter, "tutorial3.hint_freighter")
 		m.explainedFreighterBots = true
 	}
-	if servoBot != nil && !m.explainedServoBots {
+	if m.messageManager.MessageIsEmpty() && servoBot != nil && !m.explainedServoBots {
 		m.explainDrone(servoBot, "tutorial3.hint_servobot")
 		m.explainedServoBots = true
 	}
-	if repairBot != nil && !m.explainedRepairBots {
+	if m.messageManager.MessageIsEmpty() && repairBot != nil && !m.explainedRepairBots {
 		m.explainDrone(repairBot, "tutorial3.hint_repairbot")
 		m.explainedRepairBots = true
 	}
@@ -711,7 +713,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 
 func (m *tutorialManager) updateTutorial4() bool {
 	if !m.explainedSuperElites {
-		superElite := m.findDrone(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
+		superElite := m.findDrone(searchFighters|searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
 			return a.rank == 2
 		})
 		if superElite != nil {

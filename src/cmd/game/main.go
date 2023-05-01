@@ -165,6 +165,10 @@ func getDefaultSessionState() *session.State {
 		Device:     userdevice.GetInfo(),
 	}
 
+	tutorialConfig := state.LevelConfig.Clone()
+	state.TutorialLevelConfig = &tutorialConfig
+	state.TutorialLevelConfig.Tutorial = gamedata.Tutorials[0]
+
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {
 		drone := recipe.Result
 		if drone.ScoreCost != 0 {

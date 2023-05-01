@@ -32,8 +32,9 @@ type State struct {
 
 	MainInput gameinput.Handler
 
-	LevelConfig      *gamedata.LevelConfig
-	ArenaLevelConfig *gamedata.LevelConfig
+	LevelConfig         *gamedata.LevelConfig
+	ArenaLevelConfig    *gamedata.LevelConfig
+	TutorialLevelConfig *gamedata.LevelConfig
 
 	Persistent PersistentData
 

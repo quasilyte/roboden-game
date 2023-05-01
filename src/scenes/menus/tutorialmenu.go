@@ -76,10 +76,7 @@ func (c *TutorialMenuController) initUI() {
 	helpLabel.MaxWidth = 540
 	c.helpLabel = helpLabel
 
-	c.config = c.state.LevelConfig.Clone()
-	if c.config.Tutorial == nil {
-		c.config.Tutorial = gamedata.Tutorials[0]
-	}
+	c.config = c.state.TutorialLevelConfig.Clone()
 
 	c.helpLabel.Label = descriptionText(c.config.Tutorial.ID)
 
@@ -110,7 +107,7 @@ func (c *TutorialMenuController) initUI() {
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
 		// Clone before overriding any extra options.
 		clonedConfig := c.config.Clone()
-		c.state.LevelConfig = &clonedConfig
+		c.state.TutorialLevelConfig = &clonedConfig
 
 		tutorial := c.config.Tutorial
 		c.config.GameMode = gamedata.ModeTutorial

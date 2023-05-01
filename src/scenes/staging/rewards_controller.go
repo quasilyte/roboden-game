@@ -84,7 +84,7 @@ func (c *rewardsController) Update(delta float64) {
 	pair := c.lines[0]
 	c.lines = c.lines[1:]
 	c.grid.AddChild(eui.NewLabel(pair[0], smallFont))
-	c.grid.AddChild(eui.NewLabel(pair[1], smallFont))
+	c.grid.AddChild(eui.NewLabel(pair[1], smallFont, widget.TextOpts.Position(widget.TextPositionEnd, widget.TextPositionCenter)))
 	if c.panel != nil {
 		c.rowContainer.AddChild(c.panel)
 		c.panel = nil
@@ -113,11 +113,18 @@ func (c *rewardsController) initUI() {
 
 	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.results.rewards"), normalFont))
 
-	panel := eui.NewPanel(uiResources, 0, 0)
+	panel := eui.NewPanel(uiResources, 460, 0)
 	c.panel = panel
 
-	c.grid = eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 8),
-		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
+	c.grid = widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+			Stretch: true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Spacing(24, 8),
+			widget.GridLayoutOpts.Columns(2),
+			widget.GridLayoutOpts.Stretch([]bool{true, false}, nil),
+		)))
 
 	for _, a := range c.rewards.newAchievements {
 		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_achievement"), d.Get("achievement", a)})

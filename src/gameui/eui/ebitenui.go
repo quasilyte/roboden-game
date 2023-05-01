@@ -211,14 +211,18 @@ func NewCenteredLabel(text string, ff font.Face) *widget.Text {
 	)
 }
 
-func NewColoredLabel(text string, ff font.Face, clr color.RGBA) *widget.Text {
-	return widget.NewText(
+func NewColoredLabel(text string, ff font.Face, clr color.RGBA, options ...widget.TextOpt) *widget.Text {
+	opts := []widget.TextOpt{
 		widget.TextOpts.Text(text, ff, clr),
-	)
+	}
+	if len(options) != 0 {
+		opts = append(opts, options...)
+	}
+	return widget.NewText(opts...)
 }
 
-func NewLabel(text string, ff font.Face) *widget.Text {
-	return NewColoredLabel(text, ff, NormalTextColor)
+func NewLabel(text string, ff font.Face, options ...widget.TextOpt) *widget.Text {
+	return NewColoredLabel(text, ff, NormalTextColor, options...)
 }
 
 func NewBigItemButton(res *Resources, img *ebiten.Image, onclick func()) *ItemButton {

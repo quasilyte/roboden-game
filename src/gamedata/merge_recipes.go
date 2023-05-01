@@ -4,10 +4,10 @@ import "fmt"
 
 // Merge usage:
 //
-// yellow worker ++++
+// yellow worker +++++
 // yellow scout +++++
 // red worker +++++
-// red scout ++++
+// red scout +++++
 // green worker ++++
 // green scout +++++
 // blue worker +++++
@@ -33,9 +33,9 @@ import "fmt"
 // defender: yellow scout + red scout
 // kamikaze: blue worker + blue scout [! a non-standard combination]
 // skirmisher: green scout + blue scout
+// scarab: yellow worker + red scout
 //
 // Unused:
-// yellow worker + red scout
 // yellow worker + green scout
 // red worker + green worker
 // red worker + green scout
@@ -140,6 +140,11 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Drone2: RecipeSubject{BlueFactionTag, AgentScout},
 		Result: SkirmisherAgentStats,
 	},
+	{
+		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
+		Drone2: RecipeSubject{RedFactionTag, AgentScout},
+		Result: ScarabAgentStats,
+	},
 }
 
 var Tier3agentMergeRecipes = []AgentMergeRecipe{
@@ -160,6 +165,12 @@ var Tier3agentMergeRecipes = []AgentMergeRecipe{
 		Drone2:  RecipeSubject{Kind: AgentFighter},
 		EvoCost: 11,
 		Result:  DestroyerAgentStats,
+	},
+	{
+		Drone1:  RecipeSubject{Kind: AgentScarab},
+		Drone2:  RecipeSubject{Kind: AgentScarab},
+		EvoCost: 11,
+		Result:  DevourerAgentStats,
 	},
 	{
 		Drone1:  RecipeSubject{Kind: AgentScavenger},

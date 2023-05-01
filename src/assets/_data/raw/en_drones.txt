@@ -173,3 +173,14 @@ Its evolution recipe makes it easy to mass-produce these.
 A high-technology combat unit with good burst damage on mid distances.
 As a downside, its weapon are only half effective against flying targets.
 Skirmisher slowly repairs itself when out of combat.
+
+##drone.scarab : Scarab
+##drone.scarab.description
+A very vulnerable hybrid drone, but only during its initial stage.
+Scarabs combine into a more powerful combat drone that gets even more powerful over time.
+The upgraded form can't perform any worker-related tasks.
+
+##drone.devourer : Devourer
+##drone.devourer.description
+A combat drone that starts as a relatively weak unit, but becomes more dangerous with time.
+This drone can consume heavily damaged tier 1 units to recover itself and get some permanent boosts.

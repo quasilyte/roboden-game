@@ -88,6 +88,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
 		ImageGreenZap:                   {Path: "image/effects/green_zap.png", FrameWidth: 14},
 		ImageCloakWave:                  {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
+		ImageDroneConsumed:              {Path: "image/effects/drone_consumed.png", FrameWidth: 28},
 		ImageServantWave:                {Path: "image/effects/servant_wave.png", FrameWidth: 64},
 		ImageSmokeDown:                  {Path: "image/effects/smoke_down.png", FrameWidth: 8},
 		ImageSmokeSideDown:              {Path: "image/effects/smoke_side_down.png", FrameWidth: 8},
@@ -134,6 +135,8 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageRedminerAgent:      {Path: "image/drones/redminer_agent.png", FrameWidth: 13, FrameHeight: 18},
 		ImageGeneratorAgent:     {Path: "image/drones/generator_agent.png", FrameWidth: 15, FrameHeight: 17},
 		ImageSkirmisherAgent:    {Path: "image/drones/skirmisher_agent.png", FrameWidth: 19, FrameHeight: 12},
+		ImageScarabAgent:        {Path: "image/drones/scarab_agent.png", FrameWidth: 23, FrameHeight: 12},
+		ImageDevourerAgent:      {Path: "image/drones/devourer_agent.png", FrameWidth: 23, FrameHeight: 22},
 
 		ImageColonyDamageMask:  {Path: "image/shaders/colony_damage_mask.png"},
 		ImageTurretDamageMask1: {Path: "image/shaders/turret_damage_mask1.png"},
@@ -184,6 +187,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
+		ImageScarabProjectile:         {Path: "image/projectile/scarab_projectile.png"},
 		ImageSkirmisherProjectile:     {Path: "image/projectile/skirmisher_projectile.png"},
 		ImageHeavyCrawlerProjectile:   {Path: "image/projectile/heavy_crawler_projectile.png"},
 		ImageStealthCrawlerProjectile: {Path: "image/projectile/stealth_crawler_projectile.png"},
@@ -322,6 +326,7 @@ const (
 	ImagePurpleIonZap
 	ImageGreenZap
 	ImageCloakWave
+	ImageDroneConsumed
 	ImageServantWave
 	ImageSmokeDown
 	ImageSmokeSideDown
@@ -373,6 +378,8 @@ const (
 	ImageWorkerAgent
 	ImageGeneratorAgent
 	ImageSkirmisherAgent
+	ImageScarabAgent
+	ImageDevourerAgent
 	ImageScoutAgent
 	ImageClonerAgent
 	ImageScavengerAgent
@@ -434,6 +441,7 @@ const (
 	ImageLandCrack3
 	ImageLandCrack4
 
+	ImageScarabProjectile
 	ImageSkirmisherProjectile
 	ImageHeavyCrawlerProjectile
 	ImageStealthCrawlerProjectile

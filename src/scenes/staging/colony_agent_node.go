@@ -57,6 +57,7 @@ const (
 	agentModeBuildBuilding
 	agentModeGuardForever
 	agentModeKamikazeAttack
+	agentModeConsumeDrone
 )
 
 type agentTraitBits uint64
@@ -100,6 +101,7 @@ type colonyAgentNode struct {
 	payload         int
 	cloneGen        int
 	rank            int
+	devourerLevel   int
 	faction         gamedata.FactionTag
 	cargoValue      float64
 	cargoEliteValue float64
@@ -155,6 +157,7 @@ func (a *colonyAgentNode) Clone() *colonyAgentNode {
 	}
 	cloned := newColonyAgentNode(a.colonyCore, a.stats, a.pos)
 	cloned.speed = a.speed
+	cloned.devourerLevel = a.devourerLevel
 	cloned.maxHealth = a.maxHealth
 	cloned.maxEnergy = a.maxEnergy
 	cloned.reloadRate = a.reloadRate
@@ -574,6 +577,12 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.mode = mode
 		a.target = target
 		return true
+
+	case agentModeConsumeDrone:
+		a.waypoint = target.(*colonyAgentNode).pos.Add(a.scene.Rand().Offset(-4, 4))
+		a.mode = mode
+		a.target = target
+		return true
 	}
 
 	return false
@@ -693,6 +702,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRepairTurret(delta)
 	case agentModeKamikazeAttack:
 		a.updateKamikazeAttack(delta)
+	case agentModeConsumeDrone:
+		a.updateConsumeDrone(delta)
 	case agentModeGuardForever:
 		// Just chill.
 	}
@@ -916,8 +927,10 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 }
 
 func (a *colonyAgentNode) processSupport(delta float64) {
+	// TODO: just add a bool field to the agent stats, like Support:true and
+	// get rid of this switch statement.
 	switch a.stats.Kind {
-	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentScavenger, gamedata.AgentMarauder, gamedata.AgentDisintegrator, gamedata.AgentTetherBeacon:
+	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentScavenger, gamedata.AgentMarauder, gamedata.AgentDisintegrator, gamedata.AgentTetherBeacon, gamedata.AgentDevourer:
 		// OK
 	default:
 		return
@@ -941,6 +954,8 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 		// Reload depends on the target being there or not.
 		setDelay = false
 		a.doDisintegratorAttack()
+	case gamedata.AgentDevourer:
+		a.doConsumeDrone()
 	case gamedata.AgentTetherBeacon:
 		setDelay = false
 		a.doTether()
@@ -948,6 +963,78 @@ func (a *colonyAgentNode) processSupport(delta float64) {
 	if setDelay {
 		a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.7, 1.4)
 	}
+}
+
+func (a *colonyAgentNode) doConsumeDrone() {
+	if a.colonyCore.mode != colonyModeNormal {
+		return
+	}
+	if a.mode != agentModeStandby && a.mode != agentModePatrol {
+		return
+	}
+
+	if a.colonyCore.resources < 100 {
+		return
+	}
+	if a.colonyCore.agents.NumAvailableWorkers() < 5 || a.colonyCore.agents.NumAvailableFighters() < 5 {
+		return
+	}
+
+	if a.devourerLevel >= gamedata.DevourerMaxLevel {
+		// A max-developed devourer will only consume for healing.
+		if a.health >= (a.maxHealth * 0.6) {
+			return
+		}
+	} else {
+		// A developing devourer may consume even on full health, sometimes.
+		if a.health >= a.maxHealth && a.scene.Rand().Chance(0.65) {
+			return
+		}
+	}
+
+	// Prefer the kind of drones that is less scarce.
+	bestKind := gamedata.AgentWorker
+	if a.colonyCore.agents.NumAvailableFighters() > a.colonyCore.agents.NumAvailableWorkers() {
+		bestKind = gamedata.AgentScout
+	}
+
+	var bestTarget *colonyAgentNode
+	bestScore := 0.0
+	a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized|searchOnlyAvailable, func(x *colonyAgentNode) bool {
+		if x.stats.Tier != 1 {
+			return false
+		}
+		if x.stats.Kind == gamedata.AgentScout && x.health == x.maxHealth {
+			return false
+		}
+		score := 2.0
+		if a.stats.Kind == bestKind {
+			score += 0.5
+		}
+		if a.faction == gamedata.NeutralFactionTag {
+			score += 0.5
+		}
+		if a.rank != 0 {
+			score -= float64(a.rank) * 0.5
+		}
+		multiplier := (2.0 - (x.health / x.maxHealth)) + (1.2 - (x.energy / x.maxEnergy))
+		score *= multiplier
+		if score > bestScore {
+			bestTarget = x
+			bestScore = score
+		}
+		return false
+	})
+	if bestTarget == nil {
+		return
+	}
+
+	// Make it wait for the devourer to come closer.
+	// If anything goes wrong, it will get back to normal after some time.
+	// 8 seconds should be enough.
+	bestTarget.AssignMode(agentModePosing, gmath.Vec{X: 8}, nil)
+
+	a.AssignMode(agentModeConsumeDrone, gmath.Vec{}, bestTarget)
 }
 
 func (a *colonyAgentNode) doTether() {
@@ -1171,6 +1258,47 @@ func (a *colonyAgentNode) findAttackTargets() []targetable {
 	return targets
 }
 
+func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
+	for _, target := range targets {
+		if a.stats.Weapon.ProjectileSpeed != 0 {
+			toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
+			j := 0
+			attacksPerBurst := a.stats.Weapon.AttacksPerBurst
+			for i := 0; i < burstSize; i += attacksPerBurst {
+				if i+attacksPerBurst > burstSize {
+					// This happens only once for the last burst wave
+					// if attacks-per-burst are not aligned with burstSize (like with Devourer).
+					attacksPerBurst = burstSize - i
+				}
+				for i := 0; i < attacksPerBurst; i++ {
+					fireDelay := float64(j) * a.stats.Weapon.BurstDelay
+					p := newProjectileNode(projectileConfig{
+						World:     a.world(),
+						Weapon:    a.stats.Weapon,
+						Attacker:  a,
+						ToPos:     toPos,
+						Target:    target,
+						FireDelay: fireDelay,
+					})
+					a.world().nodeRunner.AddObject(p)
+				}
+				j++
+			}
+		} else {
+			// TODO: this code is duplited with creep node.
+			if a.stats.BeamTexture == nil {
+				beam := newBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamColor)
+				beam.width = a.stats.BeamWidth
+				a.world().nodeRunner.AddObject(beam)
+			} else {
+				beam := newTextureBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamTexture, a.stats.BeamSlideSpeed, a.stats.BeamOpaqueTime)
+				a.world().nodeRunner.AddObject(beam)
+			}
+			target.OnDamage(multipliedDamage(target, a.stats.Weapon), a)
+		}
+	}
+}
+
 func (a *colonyAgentNode) processAttack(delta float64) {
 	if a.stats.Weapon == nil || a.stats.Kind == gamedata.AgentDisintegrator {
 		return
@@ -1251,40 +1379,14 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		damage.Health *= damageMultiplier(target, a.stats.Weapon)
 		target.OnDamage(damage, a)
 
+	case gamedata.AgentDevourer:
+		// Every consumed drone gives +1 to the power level.
+		// Every power level gives +1 projectile (burst size).
+		burstSize := a.stats.Weapon.BurstSize + a.devourerLevel
+		a.attackTargets(targets, burstSize)
+
 	default:
-		for _, target := range targets {
-			if a.stats.Weapon.ProjectileSpeed != 0 {
-				toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
-				j := 0
-				attacksPerBurst := a.stats.Weapon.AttacksPerBurst
-				for i := 0; i < a.stats.Weapon.BurstSize; i += attacksPerBurst {
-					for i := 0; i < attacksPerBurst; i++ {
-						fireDelay := float64(j) * a.stats.Weapon.BurstDelay
-						p := newProjectileNode(projectileConfig{
-							World:     a.world(),
-							Weapon:    a.stats.Weapon,
-							Attacker:  a,
-							ToPos:     toPos,
-							Target:    target,
-							FireDelay: fireDelay,
-						})
-						a.world().nodeRunner.AddObject(p)
-					}
-					j++
-				}
-			} else {
-				// TODO: this code is duplited with creep node.
-				if a.stats.BeamTexture == nil {
-					beam := newBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamColor)
-					beam.width = a.stats.BeamWidth
-					a.world().nodeRunner.AddObject(beam)
-				} else {
-					beam := newTextureBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamTexture, a.stats.BeamSlideSpeed, a.stats.BeamOpaqueTime)
-					a.world().nodeRunner.AddObject(beam)
-				}
-				target.OnDamage(multipliedDamage(target, a.stats.Weapon), a)
-			}
-		}
+		a.attackTargets(targets, a.stats.Weapon.BurstSize)
 	}
 
 	playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
@@ -1384,6 +1486,28 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		a.colonyCore.OnHeal(a.scene.Rand().FloatRange(3, 5))
 		return
+	}
+}
+
+func (a *colonyAgentNode) updateConsumeDrone(delta float64) {
+	target := a.target.(*colonyAgentNode)
+	if target.IsDisposed() || target.mode != agentModePosing {
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		return
+	}
+
+	if a.moveTowards(delta, a.waypoint) {
+		// Give a partial drone cost refund.
+		playSound(a.world(), assets.AudioAgentConsumed, a.pos)
+		a.colonyCore.resources += target.stats.Cost * 0.5
+		a.colonyCore.eliteResources += float64(target.rank)
+		if a.devourerLevel < gamedata.DevourerMaxLevel {
+			a.devourerLevel++
+			a.maxHealth += 5
+		}
+		a.health = gmath.ClampMax(a.health+target.maxHealth*2, a.maxHealth)
+		target.Destroy()
+		a.world().nodeRunner.AddObject(newEffectNode(a.camera(), a.pos, true, assets.ImageDroneConsumed))
 	}
 }
 

@@ -44,6 +44,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioCourierResourceBeam: {Path: "$sfx/courier_resource_beam.wav", Volume: -0.3},
 		AudioAgentProduced:       {Path: "$sfx/agent_produced.wav", Volume: -0.3},
 		AudioAgentRecycled:       {Path: "$sfx/agent_recycled.wav", Volume: -0.3},
+		AudioAgentConsumed:       {Path: "$sfx/drone_consumed.wav", Volume: -0.25},
 		AudioAgentDestroyed:      {Path: "$sfx/agent_destroyed.wav", Volume: -0.25},
 		AudioFighterBeam:         {Path: "$sfx/fighter_beam.wav", Volume: -0.35},
 		AudioDefenderShot:        {Path: "$sfx/defender_shot.wav", Volume: -0.5},
@@ -74,6 +75,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioMarauderShot:        {Path: "$sfx/marauder_shot.wav", Volume: -0.4},
 		AudioPrismShot:           {Path: "$sfx/prism_shot.wav", Volume: -0.4},
 		AudioSkirmisherShot:      {Path: "$sfx/skirmisher_shot.wav", Volume: -0.3},
+		AudioScarabShot:          {Path: "$sfx/scarab_shot.wav", Volume: -0.4},
 		AudioRailgun:             {Path: "$sfx/railgun.wav", Volume: -0.3},
 		AudioAntiAirMissiles:     {Path: "$sfx/aa_missiles.wav", Volume: -0.4},
 		AudioMissile:             {Path: "$sfx/missile.wav", Volume: -0.3},
@@ -128,6 +130,7 @@ const (
 	AudioCourierResourceBeam
 	AudioAgentProduced
 	AudioAgentRecycled
+	AudioAgentConsumed
 	AudioAgentDestroyed
 	AudioWandererBeam
 	AudioStunBeam
@@ -162,6 +165,7 @@ const (
 	AudioDestroyerBeam
 	AudioPrismShot
 	AudioSkirmisherShot
+	AudioScarabShot
 	AudioAntiAirMissiles
 	AudioMissile
 	AudioRailgun

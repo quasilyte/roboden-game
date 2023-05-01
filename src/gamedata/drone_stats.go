@@ -47,6 +47,7 @@ const (
 	AgentDefender
 	AgentKamikaze
 	AgentSkirmisher
+	AgentScarab
 
 	// Tier3
 	AgentGuardian
@@ -54,6 +55,7 @@ const (
 	AgentDestroyer
 	AgentMarauder
 	AgentTrucker
+	AgentDevourer
 
 	AgentKindNum
 
@@ -619,6 +621,78 @@ var ScavengerAgentStats = &AgentStats{
 		BurstSize:       2,
 		BurstDelay:      0.12,
 		TargetFlags:     TargetFlying | TargetGround,
+	}),
+}
+
+var ScarabAgentStats = &AgentStats{
+	ScoreCost:   ScarabDroneCost,
+	Kind:        AgentScarab,
+	Image:       assets.ImageScarabAgent,
+	Size:        SizeMedium,
+	DiodeOffset: -5,
+	Tier:        2,
+	PointCost:   3,
+	Cost:        20,
+	Upkeep:      8,
+	CanGather:   true,
+	CanPatrol:   true,
+	Speed:       65,
+	MaxHealth:   14,
+	MaxPayload:  1,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange:     150,
+		Reload:          2.5,
+		AttackSound:     assets.AudioScarabShot,
+		ProjectileImage: assets.ImageScarabProjectile,
+		ImpactArea:      8,
+		ProjectileSpeed: 350,
+		Damage:          DamageValue{Health: 1},
+		MaxTargets:      1,
+		AttacksPerBurst: 2,
+		ArcPower:        1,
+		RandArc:         true,
+		RoundProjectile: true,
+		BurstSize:       2,
+		TargetFlags:     TargetGround,
+	}),
+}
+
+const (
+	// +1 burst size per level (+6)
+	// +5 max hp per level (+30)
+	DevourerMaxLevel = 6
+)
+
+var DevourerAgentStats = &AgentStats{
+	Kind:          AgentDevourer,
+	Image:         assets.ImageDevourerAgent,
+	Size:          SizeLarge,
+	DiodeOffset:   7,
+	Tier:          3,
+	Cost:          60,
+	Upkeep:        20,
+	CanPatrol:     true,
+	Speed:         75,
+	MaxHealth:     30,
+	MaxPayload:    1,
+	SupportReload: 25,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange:         200,
+		Reload:              2.0,
+		AttackSound:         assets.AudioScarabShot,
+		ProjectileImage:     assets.ImageScarabProjectile,
+		ProjectileFireSound: true,
+		ImpactArea:          10,
+		ProjectileSpeed:     350,
+		Damage:              DamageValue{Health: 1},
+		MaxTargets:          1,
+		AttacksPerBurst:     3,
+		ArcPower:            1,
+		RandArc:             true,
+		RoundProjectile:     true,
+		BurstDelay:          0.25,
+		BurstSize:           3,
+		TargetFlags:         TargetFlying | TargetGround,
 	}),
 }
 

@@ -90,10 +90,13 @@ func newResultsController(state *session.State, config *gamedata.LevelConfig, ba
 func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
 
+	if c.rewards == nil {
+		c.rewards = &gameRewards{}
+	}
+
 	victory := c.results.Victory ||
 		(c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode)
-	if victory && c.rewards == nil {
-		c.rewards = &gameRewards{}
+	if victory {
 		c.updateProgress()
 		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}

@@ -28,6 +28,8 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score -= config.StartingResources * 2
 	}
 
+	score += 10 - (config.OilRegenRate * 5)
+
 	if !config.ExtraUI {
 		score += 5
 	}

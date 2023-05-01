@@ -46,6 +46,7 @@ type worldState struct {
 
 	creepHealthMultiplier float64
 	bossHealthMultiplier  float64
+	oilRegenMultiplier    float64
 
 	numRedCrystals int
 
@@ -105,6 +106,7 @@ func (w *worldState) Init() {
 
 	w.creepHealthMultiplier = 0.90 + (float64(w.config.CreepDifficulty) * 0.10)
 	w.bossHealthMultiplier = 0.75 + (float64(w.config.BossDifficulty) * 0.25)
+	w.oilRegenMultiplier = float64(w.config.OilRegenRate) * 0.5
 }
 
 func (w *worldState) IsTutorial() bool {
@@ -195,6 +197,12 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 
 func (w *worldState) NewEssenceSourceNode(stats *essenceSourceStats, pos gmath.Vec) *essenceSourceNode {
 	n := newEssenceSourceNode(w, stats, pos)
+	if stats.regenDelay != 0 && w.oilRegenMultiplier != 0 {
+		// 0.5 => 1.5
+		// 1.0 => 1.0
+		// 1.5 => 0.5
+		n.recoverDelayTimer = (2.0 - w.oilRegenMultiplier) * stats.regenDelay
+	}
 	n.EventDestroyed.Connect(nil, func(x *essenceSourceNode) {
 		w.essenceSources = xslices.Remove(w.essenceSources, x)
 	})

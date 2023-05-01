@@ -160,6 +160,11 @@ Fewer resources mean it will be hard to play a long battle.
 The generated world size.
 It's usually harder to play on a smaller map.
 
+##menu.lobby.oil_regen_rate : Oil regeneration rate
+##menu.lobby.oil_regen_rate.description
+How fast the oil and magma-like resources regenerate over time.
+This option can be used to completely disable that regeneration or make it faster.
+
 ##menu.lobby.num_creep_bases : Creep bases
 ##menu.lobby.num_creep_bases.description
 The number of drone-producing bases the enemy has.

@@ -105,4 +105,14 @@ const SeasonNumber = 0
 // * Balance tweaks
 // * Resources priority effect rework
 // * Changed the default keyboard binds for camera to WASD
-const BuildNumber int = 11
+//
+// # Version 12
+//
+// * New content:
+//   - Added Scarab tier 2 drone
+//   - Added Devourer tier 3 drone
+//   - Added "Oil regeneration rate" world option
+//
+// * Optimizations:
+//   - The game doesn't create animation objects for drones with no animation anymore
+const BuildNumber int = 12

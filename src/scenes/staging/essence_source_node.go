@@ -125,10 +125,11 @@ type essenceSourceNode struct {
 
 	sprite *ge.Sprite
 
-	capacity     int
-	resource     int
-	percengage   float64
-	recoverDelay float64
+	capacity          int
+	resource          int
+	percengage        float64
+	recoverDelay      float64 // a ticker before the next regen
+	recoverDelayTimer float64 // how much time it takes to reach a regen tick
 
 	rotation gmath.Rad
 	pos      gmath.Vec
@@ -173,12 +174,12 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 func (e *essenceSourceNode) IsDisposed() bool { return e.sprite.IsDisposed() }
 
 func (e *essenceSourceNode) Update(delta float64) {
-	if e.stats.regenDelay == 0 {
+	if e.recoverDelayTimer == 0 {
 		return
 	}
 	e.recoverDelay -= delta
 	if e.recoverDelay <= 0 {
-		e.recoverDelay = e.stats.regenDelay * e.scene.Rand().FloatRange(0.75, 1.25)
+		e.recoverDelay = e.recoverDelayTimer * e.scene.Rand().FloatRange(0.75, 1.25)
 		e.resource = gmath.ClampMax(e.resource+1, e.capacity)
 		e.percengage = float64(e.resource) / float64(e.capacity)
 		e.updateShader()
@@ -193,7 +194,7 @@ func (e *essenceSourceNode) Harvest(n int) int {
 	n = gmath.ClampMax(n, e.resource)
 	e.resource -= n
 	e.percengage = float64(e.resource) / float64(e.capacity)
-	if e.resource <= 0 && e.stats.regenDelay == 0 {
+	if e.resource <= 0 && e.recoverDelayTimer == 0 {
 		e.Destroy()
 		if e.stats == redCrystalSource {
 			e.world.result.RedCrystalsCollected++

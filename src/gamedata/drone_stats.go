@@ -494,7 +494,7 @@ var PrismAgentStats = &AgentStats{
 	Upkeep:      11,
 	CanPatrol:   true,
 	Speed:       70,
-	MaxHealth:   28,
+	MaxHealth:   30,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     200,
 		Reload:          3.7,
@@ -880,7 +880,7 @@ var DisintegratorAgentStats = &AgentStats{
 		ImpactArea:            18,
 		ProjectileSpeed:       210,
 		ProjectileRotateSpeed: 26,
-		Damage:                DamageValue{Health: 14},
+		Damage:                DamageValue{Health: 15},
 		MaxTargets:            1,
 		BurstSize:             1,
 		Explosion:             ProjectileExplosionPurple,

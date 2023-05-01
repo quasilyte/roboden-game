@@ -303,9 +303,13 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	}
 
 	if a.world().config.ExecMode != gamedata.ExecuteSimulation {
-		a.anim = ge.NewRepeatedAnimation(a.sprite, -1)
-		a.anim.Tick(a.world().localRand.FloatRange(0, 0.7))
-		a.anim.SetOffsetY(float64(a.rank) * a.sprite.FrameHeight)
+		// If there are no animation frames inside the image, do
+		// not create the animation object.
+		if a.sprite.FrameWidth != a.sprite.ImageWidth() {
+			a.anim = ge.NewRepeatedAnimation(a.sprite, -1)
+			a.anim.Tick(a.world().localRand.FloatRange(0, 0.7))
+			a.anim.SetOffsetY(float64(a.rank) * a.sprite.FrameHeight)
+		}
 	}
 
 	a.supportDelay = scene.Rand().FloatRange(0.8, 2)

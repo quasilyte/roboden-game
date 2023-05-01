@@ -500,6 +500,16 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 		tab.AddChild(b)
 	}
 
+	{
+		b := c.newOptionButton(&c.config.OilRegenRate, "menu.lobby.oil_regen_rate", []string{
+			"0%",
+			"50%",
+			"100%",
+			"150%",
+		})
+		tab.AddChild(b)
+	}
+
 	return tab
 }
 

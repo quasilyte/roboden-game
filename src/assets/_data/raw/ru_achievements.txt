@@ -10,7 +10,7 @@
 ##achievement.trample.description
 Раздави хотя бы 1 вражеского наземного робота, приземлившись на него колонией.
 
-##achievement.impossible : Миссия Невыполнима
+##achievement.impossible : Невероятно Тяжело
 ##achievement.impossible.description
 Победи в битве при сложности выше 200%.
 

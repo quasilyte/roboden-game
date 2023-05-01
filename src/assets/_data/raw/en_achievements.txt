@@ -10,7 +10,7 @@
 ##achievement.trample.description
 Crush at least 1 enemy ground robot by landing your colony on it.
 
-##achievement.impossible : Impossible Difficulty
+##achievement.impossible : Impossibly Difficult
 ##achievement.impossible.description
 Win while having a difficulty set to more than 200%.
 

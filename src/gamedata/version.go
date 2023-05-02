@@ -116,6 +116,9 @@ const SeasonNumber = 0
 // * UX:
 //   - Added difficulty description tag in the game lobby
 //
+// * Bug fixes:
+//   - Fixed overlapping teleports bug
+//
 // * Optimizations:
 //   - The game doesn't create animation objects for drones with no animation anymore
 const BuildNumber int = 12

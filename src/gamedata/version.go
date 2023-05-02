@@ -113,6 +113,11 @@ const SeasonNumber = 0
 //   - Added Devourer tier 3 drone
 //   - Added "Oil regeneration rate" world option
 //
+// * Balance:
+//   - Add 2 max hp to Prism drones (28 -> 30)
+//   - Make tether towers affect up to 4 drones (it was 2 before)
+//   - Make tether towers slightly reduce the amount of drone energy consumption
+//
 // * UX:
 //   - Added difficulty description tag in the game lobby
 //

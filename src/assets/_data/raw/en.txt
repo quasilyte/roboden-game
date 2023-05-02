@@ -171,8 +171,7 @@ This option can be used to completely disable that regeneration or make it faste
 ##menu.lobby.num_creep_bases : Creep bases
 ##menu.lobby.num_creep_bases.description
 The number of drone-producing bases the enemy has.
-These bases produce more and more units over time,
-but they can't be replaced after being destroyed.
+These bases produce more and more units over time, but they can't be replaced after being destroyed.
 
 ##menu.lobby.creep_spawn_rate : Creep spawn rate
 ##menu.lobby.creep_spawn_rate.description

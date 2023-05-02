@@ -64,6 +64,18 @@ func (g *levelGenerator) Generate() {
 	g.fillPathgrid()
 }
 
+func (g *levelGenerator) randomFreePos(sector gmath.Rect, radius, pad float64) gmath.Vec {
+	for {
+		pos := g.randomPos(sector)
+		if pad != 0 {
+			pos = correctedPos(sector, pos, pad)
+		}
+		if posIsFree(g.world, nil, pos, radius) {
+			return pos
+		}
+	}
+}
+
 func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
 	return randomSectorPos(&g.rng, sector)
 }
@@ -105,7 +117,7 @@ func (g *levelGenerator) fillPathgrid() {
 func (g *levelGenerator) placeTeleporters() {
 	for i := 0; i < g.world.config.Teleporters; i++ {
 		tp1sector := gmath.RandElem(g.world.rand, g.sectors)
-		tp1pos := correctedPos(tp1sector, g.randomPos(tp1sector), 240)
+		tp1pos := g.randomFreePos(tp1sector, 96, 196)
 		tp1 := &teleporterNode{id: i, pos: tp1pos, world: g.world}
 		g.world.teleporters = append(g.world.teleporters, tp1)
 		g.world.nodeRunner.AddObject(tp1)
@@ -116,7 +128,7 @@ func (g *levelGenerator) placeTeleporters() {
 			if tp2sector == tp1sector {
 				continue
 			}
-			tp2pos := correctedPos(tp2sector, g.randomPos(tp2sector), 240)
+			tp2pos := g.randomFreePos(tp2sector, 96, 196)
 			tp2 = &teleporterNode{id: i, pos: tp2pos, world: g.world}
 			g.world.teleporters = append(g.world.teleporters, tp2)
 			g.world.nodeRunner.AddObject(tp2)

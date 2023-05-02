@@ -74,7 +74,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 	}
 	toValidate := [...]optionValidator{
 		{cfg.InitialCreeps, 0, 2},
-		{cfg.NumCreepBases, 0, 3},
+		{cfg.NumCreepBases, 0, 4},
 		{cfg.CreepDifficulty, 0, 7},
 		{cfg.CreepSpawnRate, 0, 3},
 		{cfg.BossDifficulty, 0, 3},

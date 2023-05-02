@@ -64,7 +64,18 @@ func (g *levelGenerator) Generate() {
 	g.fillPathgrid()
 }
 
+func (g *levelGenerator) randomFreePosWithFallback(sector, fallback gmath.Rect, radius, pad float64) (gmath.Vec, gmath.Rect) {
+	pos := g.randomFreePos(sector, radius, pad)
+	selectedSector := sector
+	if pos.IsZero() {
+		pos = g.randomFreePos(fallback, radius, pad)
+		selectedSector = fallback
+	}
+	return pos, selectedSector
+}
+
 func (g *levelGenerator) randomFreePos(sector gmath.Rect, radius, pad float64) gmath.Vec {
+	tries := 0
 	for {
 		pos := g.randomPos(sector)
 		if pad != 0 {
@@ -73,7 +84,37 @@ func (g *levelGenerator) randomFreePos(sector gmath.Rect, radius, pad float64) g
 		if posIsFree(g.world, nil, pos, radius) {
 			return pos
 		}
+		tries++
+		if tries > 32 {
+			break
+		}
 	}
+
+	// Try a linear search starting from a random offset.
+	probePos := g.randomPos(sector)
+	pos := probePos
+	for pos.Y+pad < sector.Max.Y {
+		for pos.X+pad < sector.Max.X {
+			if posIsFree(g.world, nil, pos, radius) {
+				return pos
+			}
+			pos.X += radius
+		}
+		pos.Y += radius
+	}
+	// Now try moving backwards.
+	pos = probePos.Sub(gmath.Vec{X: radius, Y: radius})
+	for pos.Y-pad > sector.Min.Y {
+		for pos.X-pad > sector.Min.X {
+			if posIsFree(g.world, nil, pos, radius) {
+				return pos
+			}
+			pos.X -= radius
+		}
+		pos.Y -= radius
+	}
+
+	return gmath.Vec{}
 }
 
 func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
@@ -114,29 +155,38 @@ func (g *levelGenerator) fillPathgrid() {
 	}
 }
 
+func (g *levelGenerator) nextSector(sectorIndex int, sectors []gmath.Rect) gmath.Rect {
+	if sectorIndex+1 >= len(sectors) {
+		return sectors[0]
+	}
+	return sectors[sectorIndex+1]
+}
+
 func (g *levelGenerator) placeTeleporters() {
 	for i := 0; i < g.world.config.Teleporters; i++ {
-		tp1sector := gmath.RandElem(g.world.rand, g.sectors)
-		tp1pos := g.randomFreePos(tp1sector, 96, 196)
+		tp1sectorIndex := gmath.RandIndex(g.world.rand, g.sectors)
+		tp1pos, tp1sector := g.randomFreePosWithFallback(g.sectors[tp1sectorIndex], g.nextSector(tp1sectorIndex, g.sectors), 96, 196)
 		tp1 := &teleporterNode{id: i, pos: tp1pos, world: g.world}
-		g.world.teleporters = append(g.world.teleporters, tp1)
-		g.world.nodeRunner.AddObject(tp1)
 
 		var tp2 *teleporterNode
 		for {
-			tp2sector := gmath.RandElem(g.world.rand, g.sectors)
+			tp2sectorIndex := gmath.RandIndex(g.world.rand, g.sectors)
+			tp2sector := g.sectors[tp2sectorIndex]
 			if tp2sector == tp1sector {
 				continue
 			}
-			tp2pos := g.randomFreePos(tp2sector, 96, 196)
+			tp2pos, _ := g.randomFreePosWithFallback(tp2sector, g.nextSector(tp2sectorIndex, g.sectors), 96, 196)
 			tp2 = &teleporterNode{id: i, pos: tp2pos, world: g.world}
-			g.world.teleporters = append(g.world.teleporters, tp2)
-			g.world.nodeRunner.AddObject(tp2)
 			break
 		}
 
 		tp1.other = tp2
 		tp2.other = tp1
+
+		g.world.teleporters = append(g.world.teleporters, tp1)
+		g.world.nodeRunner.AddObject(tp1)
+		g.world.teleporters = append(g.world.teleporters, tp2)
+		g.world.nodeRunner.AddObject(tp2)
 	}
 }
 
@@ -450,20 +500,7 @@ func (g *levelGenerator) placeCreepBases() {
 	numBases := g.world.config.NumCreepBases
 	for i := 0; i < numBases; i++ {
 		border := borders[i]
-		var basePos gmath.Vec
-		for round := 0; round < 32; round++ {
-			posProbe := g.randomPos(border)
-			if posIsFree(g.world, nil, posProbe, 48) {
-				basePos = posProbe
-				break
-			}
-		}
-		if basePos.IsZero() {
-			if g.world.debugLogs {
-				fmt.Println("couldn't deploy creep base", i+1)
-			}
-			continue
-		}
+		basePos := g.randomFreePos(border, 48, 16)
 		if g.world.debugLogs {
 			fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
 		}
@@ -476,7 +513,7 @@ func (g *levelGenerator) placeCreepBases() {
 		if i == 1 || i == 3 {
 			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
 		} else {
-			base.specialModifier = 1.0 // Initial level base
+			base.specialModifier = 1.0 // Initial base level
 			base.specialDelay = g.rng.FloatRange(60, 120)
 			base.attackDelay = g.rng.FloatRange(40, 50)
 		}

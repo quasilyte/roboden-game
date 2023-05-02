@@ -51,10 +51,12 @@ type colonyAgentContainer struct {
 	rand *gmath.Rand
 
 	workers  []*colonyAgentNode
-	fighters []*colonyAgentNode
+	fighters []*colonyAgentNode // Contains universal drones as well
+
+	universal []*colonyAgentNode // Contains only universal drones; needed only when querying just for workers
 
 	availableWorkers   []*colonyAgentNode
-	availableFighters  []*colonyAgentNode
+	availableFighters  []*colonyAgentNode // Does not contain universal drones
 	availableUniversal []*colonyAgentNode // Can both patrol and gather
 
 	sortTmp [3][]*colonyAgentNode
@@ -68,10 +70,11 @@ type colonyAgentContainer struct {
 func newColonyAgentContainer(rand *gmath.Rand) *colonyAgentContainer {
 	return &colonyAgentContainer{
 		rand:               rand,
-		workers:            make([]*colonyAgentNode, 0, 32),
-		fighters:           make([]*colonyAgentNode, 0, 20),
-		availableWorkers:   make([]*colonyAgentNode, 0, 32),
-		availableFighters:  make([]*colonyAgentNode, 0, 20),
+		workers:            make([]*colonyAgentNode, 0, 48),
+		fighters:           make([]*colonyAgentNode, 0, 32),
+		universal:          make([]*colonyAgentNode, 0, 20),
+		availableWorkers:   make([]*colonyAgentNode, 0, 48),
+		availableFighters:  make([]*colonyAgentNode, 0, 32),
 		availableUniversal: make([]*colonyAgentNode, 0, 16),
 	}
 }
@@ -127,6 +130,9 @@ func (c *colonyAgentContainer) NumAvailableFighters() int {
 func (c *colonyAgentContainer) Add(a *colonyAgentNode) {
 	if a.stats.CanPatrol {
 		c.fighters = append(c.fighters, a)
+		if a.stats.CanGather {
+			c.universal = append(c.universal, a)
+		}
 	} else {
 		c.workers = append(c.workers, a)
 	}
@@ -136,6 +142,7 @@ func (c *colonyAgentContainer) Remove(a *colonyAgentNode) {
 	if a.stats.CanPatrol {
 		c.fighters = xslices.Remove(c.fighters, a)
 		if a.stats.CanGather {
+			c.universal = xslices.Remove(c.universal, a)
 			c.availableUniversal = xslices.Remove(c.availableUniversal, a)
 		} else {
 			c.availableFighters = xslices.Remove(c.availableFighters, a)
@@ -163,19 +170,23 @@ func (c *colonyAgentContainer) Find(flags agentSearchFlags, f func(a *colonyAgen
 	flags.Validate()
 	switch flags {
 	case searchWorkers:
-		return c.findSlice(c.workers, f)
+		return c.findSlice2(c.workers, c.universal, f)
 	case searchFighters:
+		// c.fighters has both fighters and universal drones.
 		return c.findSlice(c.fighters, f)
 	case searchWorkers | searchFighters:
+		// These two slices cover 100% of the drones.
+		// It's like Each(), but allows an early break.
 		return c.findSlice2(c.workers, c.fighters, f)
 	case searchWorkers | searchOnlyAvailable:
 		return c.findSlice2(c.availableWorkers, c.availableUniversal, f)
 	case searchFighters | searchOnlyAvailable:
+		// c.availableFighters does not include universal drones, hence the extra c.availableUniversal argument.
 		return c.findSlice2(c.availableFighters, c.availableUniversal, f)
 	case searchWorkers | searchFighters | searchOnlyAvailable:
 		return c.findSlice3(c.availableWorkers, c.availableFighters, c.availableUniversal, f)
 	case searchWorkers | searchRandomized:
-		return c.randFindSlice(c.workers, f)
+		return c.randFindSlice2(c.workers, c.universal, f)
 	case searchFighters | searchRandomized:
 		return c.randFindSlice(c.fighters, f)
 	case searchWorkers | searchFighters | searchRandomized:

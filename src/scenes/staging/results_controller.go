@@ -258,7 +258,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			continue
 		}
 
-		elite := difficultyLevel == 2
+		elite := difficultyLevel == 2 || a.OnlyElite
 		if _, ok := alreadyAchieved[a.Name]; ok {
 			stats.Achievements = xslices.Remove(stats.Achievements, session.Achievement{
 				Name:  a.Name,

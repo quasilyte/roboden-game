@@ -123,6 +123,8 @@ const SeasonNumber = 0
 //
 // * Bug fixes:
 //   - Fixed overlapping teleports bug
+//   - Fixed universal drones not being queries by SearchWorkers in drones container
+//   - Make "catch em all" achievement come with Elite grade right away
 //
 // * Optimizations:
 //   - The game doesn't create animation objects for drones with no animation anymore

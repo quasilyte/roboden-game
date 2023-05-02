@@ -6,9 +6,10 @@ import (
 )
 
 type Achievement struct {
-	Name string
-	Mode Mode
-	Icon resource.ImageID
+	Name      string
+	Mode      Mode
+	Icon      resource.ImageID
+	OnlyElite bool
 }
 
 type Mode int
@@ -38,9 +39,10 @@ func (m Mode) String() string {
 var AchievementList = []*Achievement{
 	// Any mode achievements.
 	{
-		Name: "t3engineer",
-		Mode: ModeAny,
-		Icon: assets.ImageAchievementT3Engineer,
+		Name:      "t3engineer",
+		Mode:      ModeAny,
+		Icon:      assets.ImageAchievementT3Engineer,
+		OnlyElite: true,
 	},
 	{
 		Name: "trample",
@@ -55,9 +57,10 @@ var AchievementList = []*Achievement{
 
 	// Classic mode achievements.
 	{
-		Name: "impossible",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementImpossible,
+		Name:      "impossible",
+		Mode:      ModeClassic,
+		Icon:      assets.ImageAchievementImpossible,
+		OnlyElite: true,
 	},
 	{
 		Name: "cheapbuild10",

@@ -2,6 +2,7 @@ package menus
 
 import (
 	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"strings"
@@ -16,6 +17,7 @@ import (
 	"github.com/quasilyte/roboden-game/contentlock"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 )
 
@@ -128,6 +130,10 @@ func (c *TerminalMenu) initUI() {
 		{
 			key:     "debug.logs",
 			handler: c.onDebugLogs,
+		},
+		{
+			key:     "replay.dump",
+			handler: c.onReplayDump,
 		},
 	}
 
@@ -282,4 +288,34 @@ func (c *TerminalMenu) onDebugLogs(ctx *terminalCommandContext) (string, error) 
 	oldValue := c.state.Persistent.Settings.DebugLogs
 	c.state.Persistent.Settings.DebugLogs = args.enable
 	return fmt.Sprintf("Set debug.logs to %v (was %v)", args.enable, oldValue), nil
+}
+
+func (c *TerminalMenu) onReplayDump(ctx *terminalCommandContext) (string, error) {
+	type argsType struct {
+		file string
+	}
+	if ctx.parsedArgs == nil {
+		args := &argsType{}
+		ctx.parsedArgs = args
+		ctx.fs.StringVar(&args.file, "file", "classic_highscore", "which replay file to dump")
+		return "", nil
+	}
+	args := ctx.parsedArgs.(*argsType)
+	var replayKey string
+	switch args.file {
+	case "classic_highscore", "arena_highscore", "inf_arena_highscore":
+		replayKey = args.file
+	default:
+		return "", fmt.Errorf("unknown replay file %q", args.file)
+	}
+	var replayData serverapi.GameReplay
+	if err := c.scene.Context().LoadGameData(replayKey, &replayData); err != nil {
+		return "", err
+	}
+	jsonData, err := json.Marshal(replayData)
+	if err != nil {
+		return "", err
+	}
+	println(string(jsonData))
+	return fmt.Sprintf("%q replay data is dumped to the console", replayKey), nil
 }

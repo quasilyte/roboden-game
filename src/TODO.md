@@ -6,6 +6,7 @@ todo engine:
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 - why animation affects Y axis?
 - add Midpoint to gmath
+- add LoadGameDataRaw
 
 todo:
 - remove beam/projectile creating code duplication from drone-vs-creep

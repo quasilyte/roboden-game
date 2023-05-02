@@ -77,6 +77,11 @@ const (
 	TargetGround
 )
 
+func InitDroneStats(stats *AgentStats) *AgentStats {
+	stats.SupportRangeSqr = stats.SupportRange * stats.SupportRange
+	return stats
+}
+
 func InitWeaponStats(stats *WeaponStats) *WeaponStats {
 	if stats.Accuracy == 0 {
 		stats.Accuracy = 1.0

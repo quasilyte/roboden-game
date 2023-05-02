@@ -111,8 +111,9 @@ type AgentStats struct {
 	DiodeOffset float64
 	FireOffset  float64
 
-	SupportReload float64
-	SupportRange  float64
+	SupportReload   float64
+	SupportRange    float64
+	SupportRangeSqr float64
 
 	Weapon *WeaponStats
 
@@ -129,7 +130,7 @@ var TurretStatsList = []*AgentStats{
 	BeamTowerAgentStats,
 }
 
-var GunpointAgentStats = &AgentStats{
+var GunpointAgentStats = InitDroneStats(&AgentStats{
 	Kind:      AgentGunpoint,
 	Image:     assets.ImageGunpointAgent,
 	Size:      SizeLarge,
@@ -149,9 +150,9 @@ var GunpointAgentStats = &AgentStats{
 		TargetFlags:     TargetGround,
 		FireOffset:      gmath.Vec{Y: 6},
 	}),
-}
+})
 
-var BeamTowerAgentStats = &AgentStats{
+var BeamTowerAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost: BeamTowerTurretCost,
 	Kind:      AgentBeamTower,
 	Image:     assets.ImageBeamtowerAgent,
@@ -170,20 +171,20 @@ var BeamTowerAgentStats = &AgentStats{
 	}),
 	BeamOpaqueTime: 0.1,
 	BeamSlideSpeed: 0.4,
-}
+})
 
-var TetherBeaconAgentStats = &AgentStats{
+var TetherBeaconAgentStats = InitDroneStats(&AgentStats{
 	Kind:           AgentTetherBeacon,
 	Image:          assets.ImageTetherBeaconAgent,
 	Size:           SizeLarge,
 	Upkeep:         8,
 	MaxHealth:      70,
-	SupportReload:  4,
+	SupportReload:  10,
 	SupportRange:   450,
 	BeamSlideSpeed: 0.4,
-}
+})
 
-var WorkerAgentStats = &AgentStats{
+var WorkerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentWorker,
 	Image:       assets.ImageWorkerAgent,
 	Size:        SizeSmall,
@@ -195,9 +196,9 @@ var WorkerAgentStats = &AgentStats{
 	MaxPayload:  1,
 	Speed:       80,
 	MaxHealth:   12,
-}
+})
 
-var ScoutAgentStats = &AgentStats{
+var ScoutAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentScout,
 	Image:       assets.ImageScoutAgent,
 	Size:        SizeSmall,
@@ -221,9 +222,9 @@ var ScoutAgentStats = &AgentStats{
 		TargetFlags:     TargetFlying | TargetGround,
 		Explosion:       ProjectileExplosionScoutIon,
 	}),
-}
+})
 
-var TruckerAgentStats = &AgentStats{
+var TruckerAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentTrucker,
 	Image:                assets.ImageTruckerAgent,
 	Size:                 SizeLarge,
@@ -249,9 +250,9 @@ var TruckerAgentStats = &AgentStats{
 		ProjectileRotateSpeed: 24,
 		TargetFlags:           TargetFlying,
 	}),
-}
+})
 
-var CourierAgentStats = &AgentStats{
+var CourierAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentCourier,
 	Image:       assets.ImageCourierAgent,
 	Size:        SizeMedium,
@@ -277,9 +278,9 @@ var CourierAgentStats = &AgentStats{
 		ProjectileRotateSpeed: 24,
 		TargetFlags:           TargetFlying,
 	}),
-}
+})
 
-var RedminerAgentStats = &AgentStats{
+var RedminerAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentRedminer,
 	Image:                assets.ImageRedminerAgent,
 	Size:                 SizeMedium,
@@ -293,9 +294,9 @@ var RedminerAgentStats = &AgentStats{
 	Speed:                75,
 	MaxHealth:            20,
 	EnergyRegenRateBonus: 0.2,
-}
+})
 
-var GeneratorAgentStats = &AgentStats{
+var GeneratorAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentGenerator,
 	Image:                assets.ImageGeneratorAgent,
 	Size:                 SizeMedium,
@@ -309,9 +310,9 @@ var GeneratorAgentStats = &AgentStats{
 	Speed:                90,
 	MaxHealth:            26,
 	EnergyRegenRateBonus: 1,
-}
+})
 
-var ClonerAgentStats = &AgentStats{
+var ClonerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentCloner,
 	Image:       assets.ImageClonerAgent,
 	Size:        SizeMedium,
@@ -324,9 +325,9 @@ var ClonerAgentStats = &AgentStats{
 	MaxPayload:  1,
 	Speed:       90,
 	MaxHealth:   16,
-}
+})
 
-var RepairAgentStats = &AgentStats{
+var RepairAgentStats = InitDroneStats(&AgentStats{
 	Kind:           AgentRepair,
 	Image:          assets.ImageRepairAgent,
 	Size:           SizeMedium,
@@ -344,9 +345,9 @@ var RepairAgentStats = &AgentStats{
 	SupportRange:   450,
 	BeamOpaqueTime: 0.2,
 	BeamSlideSpeed: 0.6,
-}
+})
 
-var RechargeAgentStats = &AgentStats{
+var RechargeAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentRecharger,
 	Image:                assets.ImageRechargerAgent,
 	Size:                 SizeMedium,
@@ -364,9 +365,9 @@ var RechargeAgentStats = &AgentStats{
 	SupportRange:         400,
 	BeamOpaqueTime:       0.2,
 	BeamSlideSpeed:       0.8,
-}
+})
 
-var GuardianAgentStats = &AgentStats{
+var GuardianAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentGuardian,
 	Image:       assets.ImageGuardianAgent,
 	Size:        SizeLarge,
@@ -389,9 +390,9 @@ var GuardianAgentStats = &AgentStats{
 	}),
 	BeamOpaqueTime: 0.1,
 	BeamSlideSpeed: -1.6,
-}
+})
 
-var ServoAgentStats = &AgentStats{
+var ServoAgentStats = InitDroneStats(&AgentStats{
 	Kind:          AgentServo,
 	Image:         assets.ImageServoAgent,
 	Size:          SizeMedium,
@@ -406,9 +407,9 @@ var ServoAgentStats = &AgentStats{
 	MaxHealth:     18,
 	SupportReload: 8,
 	SupportRange:  310,
-}
+})
 
-var FreighterAgentStats = &AgentStats{
+var FreighterAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentFreighter,
 	Image:                assets.ImageFreighterAgent,
 	Size:                 SizeMedium,
@@ -422,9 +423,9 @@ var FreighterAgentStats = &AgentStats{
 	Speed:                70,
 	MaxHealth:            28,
 	EnergyRegenRateBonus: 0.5,
-}
+})
 
-var CripplerAgentStats = &AgentStats{
+var CripplerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentCrippler,
 	Image:       assets.ImageCripplerAgent,
 	Size:        SizeMedium,
@@ -450,9 +451,9 @@ var CripplerAgentStats = &AgentStats{
 		TargetFlags:     TargetFlying | TargetGround,
 		Explosion:       ProjectileExplosionCripplerBlaster,
 	}),
-}
+})
 
-var StormbringerAgentStats = &AgentStats{
+var StormbringerAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentStormbringer,
 	Image:                assets.ImageStormbringerAgent,
 	Size:                 SizeLarge,
@@ -480,9 +481,9 @@ var StormbringerAgentStats = &AgentStats{
 		TargetFlags:           TargetFlying | TargetGround,
 		Explosion:             ProjectileExplosionShocker,
 	}),
-}
+})
 
-var PrismAgentStats = &AgentStats{
+var PrismAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   PrismDroneCost,
 	Kind:        AgentPrism,
 	Image:       assets.ImagePrismAgent,
@@ -506,9 +507,9 @@ var PrismAgentStats = &AgentStats{
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
 	}),
-}
+})
 
-var FighterAgentStats = &AgentStats{
+var FighterAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentFighter,
 	Image:       assets.ImageFighterAgent,
 	Size:        SizeMedium,
@@ -533,9 +534,9 @@ var FighterAgentStats = &AgentStats{
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
 	}),
-}
+})
 
-var SkirmisherAgentStats = &AgentStats{
+var SkirmisherAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   SkirmisherDroneCost,
 	Kind:        AgentSkirmisher,
 	Image:       assets.ImageSkirmisherAgent,
@@ -567,9 +568,9 @@ var SkirmisherAgentStats = &AgentStats{
 		ArcPower:          1.2,
 		RandArc:           true,
 	}),
-}
+})
 
-var DefenderAgentStats = &AgentStats{
+var DefenderAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   DefenderDroneCost,
 	Kind:        AgentDefender,
 	Image:       assets.ImageDefenderAgent,
@@ -593,9 +594,9 @@ var DefenderAgentStats = &AgentStats{
 	}),
 	BeamOpaqueTime: 0.1,
 	BeamSlideSpeed: -1.6,
-}
+})
 
-var ScavengerAgentStats = &AgentStats{
+var ScavengerAgentStats = InitDroneStats(&AgentStats{
 	Kind:          AgentScavenger,
 	Image:         assets.ImageScavengerAgent,
 	Size:          SizeMedium,
@@ -622,9 +623,9 @@ var ScavengerAgentStats = &AgentStats{
 		BurstDelay:      0.12,
 		TargetFlags:     TargetFlying | TargetGround,
 	}),
-}
+})
 
-var ScarabAgentStats = &AgentStats{
+var ScarabAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   ScarabDroneCost,
 	Kind:        AgentScarab,
 	Image:       assets.ImageScarabAgent,
@@ -655,7 +656,7 @@ var ScarabAgentStats = &AgentStats{
 		BurstSize:       2,
 		TargetFlags:     TargetGround,
 	}),
-}
+})
 
 const (
 	// +1 burst size per level (+6)
@@ -663,7 +664,7 @@ const (
 	DevourerMaxLevel = 6
 )
 
-var DevourerAgentStats = &AgentStats{
+var DevourerAgentStats = InitDroneStats(&AgentStats{
 	Kind:          AgentDevourer,
 	Image:         assets.ImageDevourerAgent,
 	Size:          SizeLarge,
@@ -694,9 +695,9 @@ var DevourerAgentStats = &AgentStats{
 		BurstSize:           3,
 		TargetFlags:         TargetFlying | TargetGround,
 	}),
-}
+})
 
-var AntiAirAgentStats = &AgentStats{
+var AntiAirAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   AntiAirDroneCost,
 	Kind:        AgentAntiAir,
 	Image:       assets.ImageAntiAirAgent,
@@ -727,9 +728,9 @@ var AntiAirAgentStats = &AgentStats{
 		TargetFlags:     TargetFlying,
 		FireOffset:      gmath.Vec{Y: -8},
 	}),
-}
+})
 
-var MortarAgentStats = &AgentStats{
+var MortarAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   MortarDroneCost,
 	Kind:        AgentMortar,
 	Image:       assets.ImageMortarAgent,
@@ -758,9 +759,9 @@ var MortarAgentStats = &AgentStats{
 		TargetFlags:     TargetGround,
 		RoundProjectile: true,
 	}),
-}
+})
 
-var DestroyerAgentStats = &AgentStats{
+var DestroyerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentDestroyer,
 	Image:       assets.ImageDestroyerAgent,
 	Size:        SizeLarge,
@@ -780,9 +781,9 @@ var DestroyerAgentStats = &AgentStats{
 		BurstSize:   1,
 		TargetFlags: TargetFlying | TargetGround,
 	}),
-}
+})
 
-var MarauderAgentStats = &AgentStats{
+var MarauderAgentStats = InitDroneStats(&AgentStats{
 	Kind:          AgentMarauder,
 	Image:         assets.ImageMarauderAgent,
 	Size:          SizeLarge,
@@ -809,9 +810,9 @@ var MarauderAgentStats = &AgentStats{
 		TargetFlags:     TargetFlying | TargetGround,
 		Explosion:       ProjectileExplosionCripplerBlaster,
 	}),
-}
+})
 
-var RepellerAgentStats = &AgentStats{
+var RepellerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentRepeller,
 	Image:       assets.ImageRepellerAgent,
 	Size:        SizeMedium,
@@ -838,9 +839,9 @@ var RepellerAgentStats = &AgentStats{
 		TargetFlags:     TargetFlying | TargetGround,
 		Explosion:       ProjectileExplosionShocker,
 	}),
-}
+})
 
-var KamikazeAgentStats = &AgentStats{
+var KamikazeAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   KamikazeDroneCost,
 	Kind:        AgentKamikaze,
 	Image:       assets.ImageKamikazeAgent,
@@ -855,9 +856,9 @@ var KamikazeAgentStats = &AgentStats{
 	CanPatrol:   true,
 	Speed:       100,
 	MaxHealth:   20,
-}
+})
 
-var DisintegratorAgentStats = &AgentStats{
+var DisintegratorAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:     DisintegratorDroneCost,
 	Kind:          AgentDisintegrator,
 	Image:         assets.ImageDisintegratorAgent,
@@ -887,4 +888,4 @@ var DisintegratorAgentStats = &AgentStats{
 		TargetFlags:           TargetFlying | TargetGround,
 		GroundDamageBonus:     -0.5,
 	}),
-}
+})

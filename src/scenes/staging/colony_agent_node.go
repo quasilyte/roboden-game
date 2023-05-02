@@ -1041,6 +1041,15 @@ func (a *colonyAgentNode) doConsumeDrone() {
 	a.AssignMode(agentModeConsumeDrone, gmath.Vec{}, bestTarget)
 }
 
+func (a *colonyAgentNode) tetherTarget(target *colonyAgentNode) {
+	target.tether = true
+	if target.energyBill > 50 {
+		target.energyBill = gmath.ClampMin(target.energyBill-20, 50)
+	}
+	a.world().nodeRunner.AddObject(newTetherNode(a.world(), a, target))
+	playSound(a.world(), assets.AudioTetherShot, a.pos)
+}
+
 func (a *colonyAgentNode) doTether() {
 	// If it's connected to the colony, it can't boost anyone else.
 	if a.target != nil {
@@ -1053,12 +1062,11 @@ func (a *colonyAgentNode) doTether() {
 		}
 	}
 
-	maxRangeSqr := a.stats.SupportRange * a.stats.SupportRange
 	colonyTarget := randIterate(a.scene.Rand(), a.world().colonies, func(colony *colonyCoreNode) bool {
 		if !colony.IsFlying() {
 			return false
 		}
-		return colony.pos.DistanceSquaredTo(a.pos) <= maxRangeSqr
+		return colony.pos.DistanceSquaredTo(a.pos) <= a.stats.SupportRangeSqr
 	})
 	if colonyTarget != nil && a.target != colonyTarget {
 		tether := newTetherNode(a.world(), a, colonyTarget)
@@ -1070,39 +1078,30 @@ func (a *colonyAgentNode) doTether() {
 		return
 	}
 
-	var agentCandidate *colonyAgentNode
-	agentTarget := a.colonyCore.agents.Find(searchWorkers|searchRandomized, func(x *colonyAgentNode) bool {
-		if x.tether {
-			return false
-		}
-		if x.pos.DistanceSquaredTo(a.pos) > maxRangeSqr {
-			return false
-		}
-		switch x.mode {
-		case agentModeKamikazeAttack, agentModeCharging, agentModeForcedCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging:
-			// Modes that are never targeted.
-			return false
-		}
-		agentCandidate = x
-		switch x.mode {
-		case agentModeMineEssence, agentModeReturn, agentModeCourierFlight:
-			// The best modes to be hastened.
-			return true
-		default:
-			return false
-		}
+	const maxNumberOfTargets = 4
+	actionsLeft := maxNumberOfTargets
+	actionsLeft -= a.walkTetherTargets(a.colonyCore, actionsLeft, func(x *colonyAgentNode) {
+		a.tetherTarget(x)
 	})
-	if agentTarget == nil && agentCandidate != nil {
-		agentTarget = agentCandidate
+	if actionsLeft != 0 {
+		randIterate(a.scene.Rand(), a.world().colonies, func(colony *colonyCoreNode) bool {
+			if actionsLeft <= 0 {
+				return true
+			}
+			if colony == a.colonyCore {
+				return false
+			}
+			actionsLeft -= a.walkTetherTargets(colony, actionsLeft, func(x *colonyAgentNode) {
+				a.tetherTarget(x)
+			})
+			return actionsLeft <= 0
+		})
 	}
-	if agentTarget != nil {
-		agentTarget.tether = true
-		a.world().nodeRunner.AddObject(newTetherNode(a.world(), a, agentTarget))
-		playSound(a.world(), assets.AudioTetherShot, a.pos)
+
+	if actionsLeft != maxNumberOfTargets {
 		a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.95, 1.35)
 		return
 	}
-
 	a.supportDelay = a.scene.Rand().FloatRange(0.5, 2)
 }
 
@@ -1226,6 +1225,49 @@ func (a *colonyAgentNode) doRepair() {
 		target.health = gmath.ClampMax(target.health+3, target.maxHealth)
 		playSound(a.world(), assets.AudioRepairBeam, a.pos)
 	}
+}
+
+func (a *colonyAgentNode) walkTetherTargets(colony *colonyCoreNode, num int, f func(x *colonyAgentNode)) int {
+	targets := a.world().tmpTargetSlice[:0]
+	processed := 0
+	colony.agents.Find(searchWorkers|searchRandomized, func(x *colonyAgentNode) bool {
+		if processed >= num {
+			return true
+		}
+		if x.tether {
+			return false
+		}
+		if x.pos.DistanceSquaredTo(a.pos) > a.stats.SupportRangeSqr {
+			return false
+		}
+		switch x.mode {
+		case agentModeKamikazeAttack, agentModeConsumeDrone, agentModeCharging, agentModeForcedCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging, agentModePosing:
+			// Modes that are never targeted.
+			return false
+		}
+
+		switch x.mode {
+		case agentModeMineEssence, agentModeReturn, agentModeCourierFlight:
+			// The best modes to be hastened.
+			processed++
+			f(x)
+		default:
+			if len(targets) < num {
+				targets = append(targets, x)
+			}
+		}
+		return processed >= num
+	})
+	if processed < num {
+		for _, target := range targets {
+			f(target.(*colonyAgentNode))
+			processed++
+			if processed >= num {
+				break
+			}
+		}
+	}
+	return processed
 }
 
 func (a *colonyAgentNode) findAttackTargets() []targetable {

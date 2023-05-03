@@ -84,7 +84,7 @@ func (s *apiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	const kb = 1024
-	r.Body = http.MaxBytesReader(w, r.Body, 32*kb)
+	r.Body = http.MaxBytesReader(w, r.Body, 128*kb)
 	s.httpHandler.ServeHTTP(w, r)
 }
 

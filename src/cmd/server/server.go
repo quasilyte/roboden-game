@@ -325,6 +325,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	}
 
 	start := time.Now()
+	timeout := 30 * time.Second
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
 	var runsimArgs []string
@@ -332,6 +333,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 		// Infinite arenas may take much longer to simulate due to
 		// their "almost infinite" nature.
 		runsimArgs = append(runsimArgs, "--timeout=60")
+		timeout = 60 * time.Second
 	}
 	cmd := exec.Command(runsimBinaryName, runsimArgs...)
 	cmd.Stdin = bytes.NewReader(uncompressedReplayData)
@@ -341,7 +343,7 @@ func (s *apiServer) doRunReplay() (bool, error) {
 		return false, err
 	}
 	// The simulation should never take that long, but better be safe than sorry.
-	timer := time.AfterFunc(15*time.Second, func() {
+	timer := time.AfterFunc(timeout, func() {
 		cmd.Process.Kill()
 	})
 	err = cmd.Wait()

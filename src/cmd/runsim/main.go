@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -18,6 +19,9 @@ import (
 )
 
 func main() {
+	timeoutFlag := flag.Int("timeout", 30, "simulation timeout in seconds")
+	flag.Parse()
+
 	replayDataBytes, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		panic(err)
@@ -55,7 +59,18 @@ func main() {
 	assets.RegisterRawResources(ctx)
 	assets.RegisterShaderResources(ctx, &progress)
 
-	state := &session.State{}
+	state := &session.State{
+		Persistent: session.PersistentData{
+			Settings: session.GameSettings{
+				Graphics: session.GraphicsSettings{
+					ShadowsEnabled:    false,
+					AllShadersEnabled: false,
+				},
+				MusicVolumeLevel:   0,
+				EffectsVolumeLevel: 0,
+			},
+		},
+	}
 	state.MainInput = gameinput.Handler{
 		Handler: ctx.Input.NewHandler(0, nil),
 	}
@@ -64,6 +79,8 @@ func main() {
 	controller.SetReplayActions(replayData.Actions)
 	runner, scene := ge.NewSimulatedScene(ctx, controller)
 	controller.Init(scene)
+
+	timeout := (time.Duration(*timeoutFlag) * time.Second)
 
 	var simResult serverapi.GameResults
 	start := time.Now()
@@ -77,7 +94,7 @@ OuterLoop:
 				break OuterLoop
 			}
 		}
-		if time.Since(start) >= (30 * time.Second) {
+		if time.Since(start) >= timeout {
 			panic("simulation takes too long")
 		}
 	}

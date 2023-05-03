@@ -18,15 +18,19 @@ type nodeRunner struct {
 
 	creepCoordinator *creepCoordinator
 
-	objects      []ge.SceneObject
-	addedObjects []ge.SceneObject
+	projectiles      []*projectileNode
+	addedProjectiles []*projectileNode
+	objects          []ge.SceneObject
+	addedObjects     []ge.SceneObject
 }
 
 func newNodeRunner(speedMultiplier float64) *nodeRunner {
 	return &nodeRunner{
-		objects:         make([]ge.SceneObject, 0, 512),
-		addedObjects:    make([]ge.SceneObject, 0, 32),
-		speedMultiplier: speedMultiplier,
+		projectiles:      make([]*projectileNode, 0, 128),
+		addedProjectiles: make([]*projectileNode, 0, 40),
+		objects:          make([]ge.SceneObject, 0, 512),
+		addedObjects:     make([]ge.SceneObject, 0, 32),
+		speedMultiplier:  speedMultiplier,
 	}
 }
 
@@ -40,6 +44,11 @@ func (r *nodeRunner) SetPaused(paused bool) {
 
 func (r *nodeRunner) IsPaused() bool {
 	return r.paused
+}
+
+func (r *nodeRunner) AddProjectile(p *projectileNode) {
+	r.addedProjectiles = append(r.addedProjectiles, p)
+	p.Init(r.scene)
 }
 
 func (r *nodeRunner) AddObject(o ge.SceneObject) {
@@ -57,6 +66,18 @@ func (r *nodeRunner) Update(delta float64) {
 	r.ticks++
 
 	r.creepCoordinator.Update(computedDelta)
+
+	liveProjectiles := r.projectiles[:0]
+	for _, p := range r.projectiles {
+		if p.IsDisposed() {
+			continue
+		}
+		p.Update(computedDelta)
+		liveProjectiles = append(liveProjectiles, p)
+	}
+	r.projectiles = liveProjectiles
+	r.projectiles = append(r.projectiles, r.addedProjectiles...)
+	r.addedProjectiles = r.addedProjectiles[:0]
 
 	liveObjects := r.objects[:0]
 	for _, o := range r.objects {

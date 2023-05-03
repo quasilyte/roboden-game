@@ -17,7 +17,6 @@ optimizations:
 - don't create projectile explosion effects when simulating
 - don't create projectile trail effects when simulating
 - maybe use a reusable projectileNode pool
-- process projectiles and effect nodes in separate slices inside node runner
 - optimize "find targets around point" code; don't scan everyone
 - do not do math.Round for spritePos in sim mode; make GetPos return real pos
 bugs:

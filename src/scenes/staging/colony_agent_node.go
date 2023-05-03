@@ -1133,7 +1133,7 @@ func (a *colonyAgentNode) doDisintegratorAttack() {
 		ToPos:    toPos,
 		Target:   target,
 	})
-	a.world().nodeRunner.AddObject(p)
+	a.world().nodeRunner.AddProjectile(p)
 	a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
 	playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
 	a.world().nodeRunner.AddObject(newEffectNode(a.camera(), a.pos, true, assets.ImagePurpleIonZap))
@@ -1326,7 +1326,7 @@ func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
 						Target:    target,
 						FireDelay: fireDelay,
 					})
-					a.world().nodeRunner.AddObject(p)
+					a.world().nodeRunner.AddProjectile(p)
 				}
 				j++
 			}

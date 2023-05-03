@@ -455,7 +455,7 @@ func (c *creepNode) doAttack(target targetable) {
 				Target:    target,
 				FireDelay: fireDelay,
 			})
-			c.world.nodeRunner.AddObject(p)
+			c.world.nodeRunner.AddProjectile(p)
 		}
 		return
 	}
@@ -785,7 +785,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 					Target:     target,
 					FireOffset: fireOffset,
 				})
-				c.world.nodeRunner.AddObject(p)
+				c.world.nodeRunner.AddProjectile(p)
 			} else if c.world.rand.Chance(0.3) {
 				c.specialModifier = howitzerFoldTurret
 				c.sprite.Visible = false

@@ -8,6 +8,22 @@ todo engine:
 - add Midpoint to gmath
 - add LoadGameDataRaw
 
+optimizations:
+- make processSupport faster, have a flag hasSupport in drone stats
+- make creep.TargetKind work faster (don't use IsFlying there)
+- use different movetowards (dir vector?)
+- add elite kinds of creeps (to spawn less creeps and still hit the same budget)
+- don't create projectile sprites
+- don't create projectile explosion effects when simulating
+- don't create projectile trail effects when simulating
+- use local rand in effects-related code
+- maybe use a reusable projectileNode pool
+- process projectiles and effect nodes in separate slices inside node runner
+- optimize "find targets around point" code; don't scan everyone
+- do not do math.Round for spritePos in sim mode; make GetPos return real pos
+bugs:
+- victoryCheckDelay in nodeRunner is unused?
+
 todo:
 - remove beam/projectile creating code duplication from drone-vs-creep
 - fireoffset is duplicated in weapon and drone stats

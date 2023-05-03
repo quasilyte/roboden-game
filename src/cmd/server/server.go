@@ -327,7 +327,13 @@ func (s *apiServer) doRunReplay() (bool, error) {
 	start := time.Now()
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	cmd := exec.Command(runsimBinaryName)
+	var runsimArgs []string
+	if replayData.Config.RawGameMode == "inf_arena" {
+		// Infinite arenas may take much longer to simulate due to
+		// their "almost infinite" nature.
+		runsimArgs = append(runsimArgs, "--timeout=60")
+	}
+	cmd := exec.Command(runsimBinaryName, runsimArgs...)
 	cmd.Stdin = bytes.NewReader(uncompressedReplayData)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

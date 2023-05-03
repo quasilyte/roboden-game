@@ -169,7 +169,7 @@ func (p *projectileNode) Update(delta float64) {
 		switch p.weapon.TrailEffect {
 		case gamedata.ProjectileTrailSmoke:
 			if p.trailCounter <= 0 {
-				p.trailCounter = p.world.rand.FloatRange(0.1, 0.3)
+				p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
 				p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, p.pos, true, assets.ImageProjectileSmoke))
 			}
 		}
@@ -210,7 +210,7 @@ func (p *projectileNode) createExplosion() {
 	if explosionKind == gamedata.ProjectileExplosionNone {
 		return
 	}
-	explosionPos := p.pos.Add(p.world.rand.Offset(-4, 4))
+	explosionPos := p.pos.Add(p.world.localRand.Offset(-4, 4))
 	switch explosionKind {
 	case gamedata.ProjectileExplosionNormal:
 		createExplosion(p.world, p.target.IsFlying(), explosionPos)
@@ -239,7 +239,7 @@ func (p *projectileNode) createExplosion() {
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionPurple:
-		soundIndex := p.world.rand.IntRange(0, 2)
+		soundIndex := p.world.localRand.IntRange(0, 2)
 		sound := assets.AudioPurpleExplosion1 + resource.AudioID(soundIndex)
 		p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, explosionPos, p.target.IsFlying(), assets.ImagePurpleExplosion))
 		playSound(p.world, sound, explosionPos)

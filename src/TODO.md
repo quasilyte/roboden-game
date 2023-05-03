@@ -16,7 +16,6 @@ optimizations:
 - don't create projectile sprites
 - don't create projectile explosion effects when simulating
 - don't create projectile trail effects when simulating
-- use local rand in effects-related code
 - maybe use a reusable projectileNode pool
 - process projectiles and effect nodes in separate slices inside node runner
 - optimize "find targets around point" code; don't scan everyone

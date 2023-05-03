@@ -176,7 +176,7 @@ func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 		return nil, err
 	}
 
-	h.server.logger.Info("added %q replay to the queue", playerName)
+	h.server.logger.Info("added %q replay to the queue (mode=%q score=%d)", playerName, gameReplay.Config.RawGameMode, gameReplay.Results.Score)
 	h.server.metrics.IncNumReplaysQueued()
 	resp.Queued = true
 	return resp, err

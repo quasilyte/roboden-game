@@ -33,8 +33,10 @@ type creepStats struct {
 	beamOpaqueTime float64
 	beamTexture    *ge.Texture
 
+	targetKind    gamedata.TargetKind
 	disarmable    bool
 	canBeRepelled bool
+	flying        bool
 }
 
 var turretCreepStats = &creepStats{
@@ -60,6 +62,7 @@ var turretCreepStats = &creepStats{
 	size:          40,
 	canBeRepelled: false,
 	disarmable:    false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var baseCreepStats = &creepStats{
@@ -70,6 +73,7 @@ var baseCreepStats = &creepStats{
 	size:          60,
 	disarmable:    false,
 	canBeRepelled: false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var crawlerBaseCreepStats = &creepStats{
@@ -80,6 +84,7 @@ var crawlerBaseCreepStats = &creepStats{
 	size:          60,
 	disarmable:    false,
 	canBeRepelled: false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var crawlerBaseConstructionCreepStats = &creepStats{
@@ -90,6 +95,7 @@ var crawlerBaseConstructionCreepStats = &creepStats{
 	size:          40,
 	disarmable:    false,
 	canBeRepelled: false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var turretConstructionCreepStats = &creepStats{
@@ -100,6 +106,7 @@ var turretConstructionCreepStats = &creepStats{
 	size:          40,
 	disarmable:    false,
 	canBeRepelled: false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var wandererCreepStats = &creepStats{
@@ -123,6 +130,8 @@ var wandererCreepStats = &creepStats{
 	}),
 	disarmable:    true,
 	canBeRepelled: true,
+	flying:        true,
+	targetKind:    gamedata.TargetFlying,
 }
 
 var servantCreepStats = &creepStats{
@@ -147,6 +156,8 @@ var servantCreepStats = &creepStats{
 	}),
 	disarmable:    true,
 	canBeRepelled: false,
+	flying:        true,
+	targetKind:    gamedata.TargetFlying,
 }
 
 var crawlerCreepStats = &creepStats{
@@ -172,6 +183,7 @@ var crawlerCreepStats = &creepStats{
 	size:          24,
 	disarmable:    true,
 	canBeRepelled: false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var eliteCrawlerCreepStats = &creepStats{
@@ -196,6 +208,7 @@ var eliteCrawlerCreepStats = &creepStats{
 	size:          24,
 	disarmable:    true,
 	canBeRepelled: false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var heavyCrawlerCreepStats = &creepStats{
@@ -224,6 +237,7 @@ var heavyCrawlerCreepStats = &creepStats{
 	size:          24,
 	disarmable:    true,
 	canBeRepelled: false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var howitzerCreepStats = &creepStats{
@@ -269,6 +283,7 @@ var howitzerCreepStats = &creepStats{
 	size:          32,
 	disarmable:    false,
 	canBeRepelled: false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var stealthCrawlerCreepStats = &creepStats{
@@ -296,6 +311,7 @@ var stealthCrawlerCreepStats = &creepStats{
 	size:          24,
 	disarmable:    true,
 	canBeRepelled: false,
+	targetKind:    gamedata.TargetGround,
 }
 
 var assaultCreepStats = &creepStats{
@@ -320,6 +336,8 @@ var assaultCreepStats = &creepStats{
 	}),
 	disarmable:    true,
 	canBeRepelled: true,
+	flying:        true,
+	targetKind:    gamedata.TargetFlying,
 }
 
 var dominatorCreepStats = &creepStats{
@@ -342,6 +360,8 @@ var dominatorCreepStats = &creepStats{
 	beamWidth:     1,
 	disarmable:    false,
 	canBeRepelled: false,
+	flying:        true,
+	targetKind:    gamedata.TargetFlying,
 }
 
 var builderCreepStats = &creepStats{
@@ -354,6 +374,8 @@ var builderCreepStats = &creepStats{
 	maxHealth:     150,
 	canBeRepelled: false,
 	disarmable:    false,
+	flying:        true,
+	targetKind:    gamedata.TargetFlying,
 }
 
 var uberBossCreepStats = &creepStats{
@@ -375,6 +397,8 @@ var uberBossCreepStats = &creepStats{
 	beamSlideSpeed: 2,
 	disarmable:     false,
 	canBeRepelled:  false,
+	flying:         true, // Most of the time...
+	targetKind:     gamedata.TargetFlying,
 }
 
 var stunnerCreepStats = &creepStats{
@@ -396,4 +420,6 @@ var stunnerCreepStats = &creepStats{
 	beamSlideSpeed: 0.8,
 	disarmable:     true,
 	canBeRepelled:  true,
+	flying:         true,
+	targetKind:     gamedata.TargetFlying,
 }

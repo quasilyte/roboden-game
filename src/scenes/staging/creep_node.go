@@ -162,8 +162,10 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	case creepCrawlerBase:
 		c.attackDelay = c.scene.Rand().FloatRange(5, 10)
 	case creepTurretConstruction, creepCrawlerBaseConstruction:
-		c.sprite.Shader = scene.NewShader(assets.ShaderCreepTurretBuild)
-		c.sprite.Shader.SetFloatValue("Time", 0)
+		if !c.world.simulation {
+			c.sprite.Shader = scene.NewShader(assets.ShaderCreepTurretBuild)
+			c.sprite.Shader.SetFloatValue("Time", 0)
+		}
 	case creepHowitzer:
 		pos := ge.Pos{Base: &c.spritePos, Offset: gmath.Vec{Y: -10}}
 		trunk := newHowitzerTrunkNode(c.world.camera, pos)
@@ -260,23 +262,20 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 }
 
 func (c *creepNode) IsFlying() bool {
-	switch c.stats.kind {
-	case creepCrawler, creepHowitzer:
-		return false
-	case creepBase, creepTurret, creepCrawlerBase, creepTurretConstruction, creepCrawlerBaseConstruction:
-		return false
-	case creepUberBoss:
+	if c.stats.kind == creepUberBoss {
 		return !c.altSprite.Visible
-	default:
-		return true
 	}
+	return c.stats.flying
 }
 
 func (c *creepNode) TargetKind() gamedata.TargetKind {
-	if c.IsFlying() {
-		return gamedata.TargetFlying
+	if c.stats.kind == creepUberBoss {
+		if c.IsFlying() {
+			return gamedata.TargetFlying
+		}
+		return gamedata.TargetGround
 	}
-	return gamedata.TargetGround
+	return c.stats.targetKind
 }
 
 func (c *creepNode) explode() {
@@ -447,7 +446,7 @@ func (c *creepNode) doAttack(target targetable) {
 			}
 			toPos := snipePos(c.stats.weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
 			fireDelay := float64(i) * c.stats.weapon.BurstDelay
-			p := newProjectileNode(projectileConfig{
+			p := c.world.newProjectileNode(projectileConfig{
 				World:     c.world,
 				Weapon:    c.stats.weapon,
 				Attacker:  c,
@@ -777,7 +776,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 				dir := c.pos.AngleToPoint(targetPos).Normalized()
 				trunk := c.specialTarget.(*howitzerTrunkNode)
 				fireOffset := trunk.SetRotation(dir)
-				p := newProjectileNode(projectileConfig{
+				p := c.world.newProjectileNode(projectileConfig{
 					World:      c.world,
 					Weapon:     c.stats.specialWeapon,
 					Attacker:   c,
@@ -892,7 +891,9 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	}
 
 	c.specialModifier += delta * 0.02
-	c.sprite.Shader.SetFloatValue("Time", c.specialModifier)
+	if !c.sprite.Shader.IsNil() {
+		c.sprite.Shader.SetFloatValue("Time", c.specialModifier)
+	}
 }
 
 func (c *creepNode) updateCreepCrawlerBase(delta float64) {

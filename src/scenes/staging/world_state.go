@@ -57,7 +57,10 @@ type worldState struct {
 
 	result battleResults
 
-	config *gamedata.LevelConfig
+	simulation bool
+	config     *gamedata.LevelConfig
+
+	projectilePool []*projectileNode
 
 	tmpTargetSlice []targetable
 	tmpColonySlice []*colonyCoreNode
@@ -70,8 +73,10 @@ type worldState struct {
 }
 
 func (w *worldState) Init() {
+	w.projectilePool = make([]*projectileNode, 0, 128)
 	w.evolutionEnabled = true
 	w.movementEnabled = true
+	w.simulation = w.config.ExecMode == gamedata.ExecuteSimulation
 
 	factions := []gamedata.FactionTag{
 		gamedata.YellowFactionTag,
@@ -107,6 +112,22 @@ func (w *worldState) Init() {
 	w.creepHealthMultiplier = 0.90 + (float64(w.config.CreepDifficulty) * 0.10)
 	w.bossHealthMultiplier = 0.75 + (float64(w.config.BossDifficulty) * 0.25)
 	w.oilRegenMultiplier = float64(w.config.OilRegenRate) * 0.5
+}
+
+func (w *worldState) newProjectileNode(config projectileConfig) *projectileNode {
+	if len(w.projectilePool) != 0 {
+		p := w.projectilePool[len(w.projectilePool)-1]
+		initProjectileNode(p, config)
+		w.projectilePool = w.projectilePool[:len(w.projectilePool)-1]
+		return p
+	}
+	p := &projectileNode{}
+	initProjectileNode(p, config)
+	return p
+}
+
+func (w *worldState) freeProjectileNode(p *projectileNode) {
+	w.projectilePool = append(w.projectilePool, p)
 }
 
 func (w *worldState) IsTutorial() bool {

@@ -29,7 +29,8 @@ type projectileNode struct {
 	arcFrom               gmath.Vec
 	arcTo                 gmath.Vec
 
-	sprite *ge.Sprite
+	disposed bool
+	sprite   *ge.Sprite
 }
 
 type targetable interface {
@@ -50,8 +51,8 @@ type projectileConfig struct {
 	FireOffset gmath.Vec
 }
 
-func newProjectileNode(config projectileConfig) *projectileNode {
-	p := &projectileNode{
+func initProjectileNode(p *projectileNode, config projectileConfig) {
+	*p = projectileNode{
 		weapon:    config.Weapon,
 		attacker:  config.Attacker,
 		pos:       config.Attacker.GetPos().Add(config.Weapon.FireOffset).Add(config.FireOffset),
@@ -60,7 +61,6 @@ func newProjectileNode(config projectileConfig) *projectileNode {
 		fireDelay: config.FireDelay,
 		world:     config.World,
 	}
-	return p
 }
 
 func (p *projectileNode) Init(scene *ge.Scene) {
@@ -111,12 +111,13 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 		p.rotation = scene.Rand().Rad()
 	}
 
-	p.sprite = scene.NewSprite(p.weapon.ProjectileImage)
-	p.sprite.Pos.Base = &p.pos
-	p.sprite.Rotation = &p.rotation
-	p.world.camera.AddSpriteAbove(p.sprite)
-
-	p.sprite.Visible = false
+	if !p.world.simulation {
+		p.sprite = scene.NewSprite(p.weapon.ProjectileImage)
+		p.sprite.Pos.Base = &p.pos
+		p.sprite.Rotation = &p.rotation
+		p.world.camera.AddSpriteAbove(p.sprite)
+		p.sprite.Visible = false
+	}
 
 	if p.weapon.Accuracy != 1.0 {
 		missChance := 1.0 - p.weapon.Accuracy
@@ -137,10 +138,17 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 	}
 }
 
-func (p *projectileNode) IsDisposed() bool { return p.sprite.IsDisposed() }
+func (p *projectileNode) IsDisposed() bool { return p.disposed }
 
 func (p *projectileNode) playFireSound() {
 	playSound(p.world, p.weapon.AttackSound, p.pos)
+}
+
+func (p *projectileNode) setSpriteVisibility(visible bool) {
+	if p.sprite == nil {
+		return
+	}
+	p.sprite.Visible = visible
 }
 
 func (p *projectileNode) Update(delta float64) {
@@ -151,7 +159,7 @@ func (p *projectileNode) Update(delta float64) {
 		}
 		p.fireDelay -= delta
 		if p.fireDelay <= 0 {
-			p.sprite.Visible = true
+			p.setSpriteVisibility(true)
 			p.pos = p.attacker.GetPos().Add(p.weapon.FireOffset)
 			p.arcStart = p.pos
 			if p.weapon.ProjectileFireSound {
@@ -164,7 +172,7 @@ func (p *projectileNode) Update(delta float64) {
 
 	travelled := p.weapon.ProjectileSpeed * delta
 
-	if p.weapon.TrailEffect != gamedata.ProjectileTrailNone {
+	if !p.world.simulation && p.weapon.TrailEffect != gamedata.ProjectileTrailNone {
 		p.trailCounter -= delta
 		switch p.weapon.TrailEffect {
 		case gamedata.ProjectileTrailSmoke:
@@ -184,7 +192,7 @@ func (p *projectileNode) Update(delta float64) {
 		if p.weapon.ProjectileRotateSpeed != 0 {
 			p.rotation += gmath.Rad(delta * p.weapon.ProjectileRotateSpeed)
 		}
-		p.sprite.Visible = true
+		p.setSpriteVisibility(true)
 		return
 	}
 
@@ -198,14 +206,21 @@ func (p *projectileNode) Update(delta float64) {
 		p.rotation = p.pos.AngleToPoint(newPos)
 	}
 	p.pos = newPos
-	p.sprite.Visible = true
+	p.setSpriteVisibility(true)
 }
 
 func (p *projectileNode) Dispose() {
-	p.sprite.Dispose()
+	if p.sprite != nil {
+		p.sprite.Dispose()
+	}
+	p.disposed = true
 }
 
 func (p *projectileNode) createExplosion() {
+	if p.world.simulation {
+		return
+	}
+
 	explosionKind := p.weapon.Explosion
 	if explosionKind == gamedata.ProjectileExplosionNone {
 		return

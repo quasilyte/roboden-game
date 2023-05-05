@@ -104,6 +104,7 @@ type AgentStats struct {
 	CanGather  bool
 	CanPatrol  bool
 	CanCloak   bool
+	HasSupport bool
 	MaxPayload int
 
 	SelfRepair float64
@@ -182,6 +183,7 @@ var TetherBeaconAgentStats = InitDroneStats(&AgentStats{
 	SupportReload:  10,
 	SupportRange:   450,
 	BeamSlideSpeed: 0.4,
+	HasSupport:     true,
 })
 
 var WorkerAgentStats = InitDroneStats(&AgentStats{
@@ -338,6 +340,7 @@ var RepairAgentStats = InitDroneStats(&AgentStats{
 	Cost:           26,
 	Upkeep:         14,
 	CanGather:      true,
+	HasSupport:     true,
 	MaxPayload:     1,
 	Speed:          100,
 	MaxHealth:      18,
@@ -357,6 +360,7 @@ var RechargeAgentStats = InitDroneStats(&AgentStats{
 	Cost:                 15,
 	Upkeep:               4,
 	CanGather:            true,
+	HasSupport:           true,
 	MaxPayload:           1,
 	Speed:                90,
 	MaxHealth:            16,
@@ -606,6 +610,7 @@ var ScavengerAgentStats = InitDroneStats(&AgentStats{
 	Cost:          18,
 	Upkeep:        6,
 	CanPatrol:     true,
+	HasSupport:    true,
 	Speed:         100,
 	MaxHealth:     22,
 	SupportReload: 16,
@@ -673,6 +678,7 @@ var DevourerAgentStats = InitDroneStats(&AgentStats{
 	Cost:          60,
 	Upkeep:        20,
 	CanPatrol:     true,
+	HasSupport:    true,
 	Speed:         75,
 	MaxHealth:     30,
 	MaxPayload:    1,
@@ -793,6 +799,7 @@ var MarauderAgentStats = InitDroneStats(&AgentStats{
 	Upkeep:        12,
 	CanPatrol:     true,
 	CanCloak:      true,
+	HasSupport:    true,
 	Speed:         100,
 	SupportReload: 14,
 	MaxHealth:     30,
@@ -869,6 +876,7 @@ var DisintegratorAgentStats = InitDroneStats(&AgentStats{
 	Cost:          22,
 	Upkeep:        12,
 	CanGather:     true,
+	HasSupport:    true,
 	MaxPayload:    1,
 	CanPatrol:     true,
 	Speed:         80,

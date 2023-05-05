@@ -232,6 +232,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.world = world
 	world.Init()
 
+	c.nodeRunner.world = world
+
 	c.nodeRunner.creepCoordinator = world.creepCoordinator
 
 	c.messageManager = newMessageManager(c.world)

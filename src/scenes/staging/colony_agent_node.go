@@ -622,9 +622,11 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.shadow.SetAlpha(newShadowAlpha)
 	}
 
-	// FIXME: this should be fixed in the ge package.
-	a.spritePos.X = math.Round(a.pos.X)
-	a.spritePos.Y = math.Round(a.pos.Y)
+	if !a.world().simulation {
+		// FIXME: this should be fixed in the ge package.
+		a.spritePos.X = math.Round(a.pos.X)
+		a.spritePos.Y = math.Round(a.pos.Y)
+	}
 
 	if a.energyBill != 0 {
 		a.energy -= delta * 2
@@ -931,12 +933,7 @@ func (a *colonyAgentNode) GetVelocity() gmath.Vec {
 }
 
 func (a *colonyAgentNode) processSupport(delta float64) {
-	// TODO: just add a bool field to the agent stats, like Support:true and
-	// get rid of this switch statement.
-	switch a.stats.Kind {
-	case gamedata.AgentRepair, gamedata.AgentRecharger, gamedata.AgentScavenger, gamedata.AgentMarauder, gamedata.AgentDisintegrator, gamedata.AgentTetherBeacon, gamedata.AgentDevourer:
-		// OK
-	default:
+	if !a.stats.HasSupport {
 		return
 	}
 
@@ -1126,7 +1123,7 @@ func (a *colonyAgentNode) doDisintegratorAttack() {
 	a.supportDelay = a.stats.SupportReload * a.scene.Rand().FloatRange(0.8, 1.2)
 	target := targets[0]
 	toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
-	p := newProjectileNode(projectileConfig{
+	p := a.world().newProjectileNode(projectileConfig{
 		World:    a.world(),
 		Weapon:   a.stats.Weapon,
 		Attacker: a,
@@ -1318,7 +1315,7 @@ func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
 				}
 				for i := 0; i < attacksPerBurst; i++ {
 					fireDelay := float64(j) * a.stats.Weapon.BurstDelay
-					p := newProjectileNode(projectileConfig{
+					p := a.world().newProjectileNode(projectileConfig{
 						World:     a.world(),
 						Weapon:    a.stats.Weapon,
 						Attacker:  a,

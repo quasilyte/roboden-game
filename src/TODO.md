@@ -9,14 +9,8 @@ todo engine:
 - add LoadGameDataRaw
 
 optimizations:
-- make processSupport faster, have a flag hasSupport in drone stats
-- make creep.TargetKind work faster (don't use IsFlying there)
 - use different movetowards (dir vector?)
 - add elite kinds of creeps (to spawn less creeps and still hit the same budget)
-- don't create projectile sprites
-- don't create projectile explosion effects when simulating
-- don't create projectile trail effects when simulating
-- maybe use a reusable projectileNode pool
 - optimize "find targets around point" code; don't scan everyone
 - do not do math.Round for spritePos in sim mode; make GetPos return real pos
 bugs:

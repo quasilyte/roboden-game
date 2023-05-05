@@ -10,6 +10,7 @@ type nodeRunner struct {
 	speedMultiplier float64
 
 	victoryCheckDelay float64
+	world             *worldState
 
 	scene *ge.Scene
 
@@ -70,6 +71,7 @@ func (r *nodeRunner) Update(delta float64) {
 	liveProjectiles := r.projectiles[:0]
 	for _, p := range r.projectiles {
 		if p.IsDisposed() {
+			p.world.freeProjectileNode(p)
 			continue
 		}
 		p.Update(computedDelta)

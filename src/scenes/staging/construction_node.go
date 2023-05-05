@@ -86,13 +86,15 @@ func newConstructionNode(world *worldState, pos gmath.Vec, stats *constructionSt
 func (c *constructionNode) Init(scene *ge.Scene) {
 	c.sprite = scene.NewSprite(c.stats.Image)
 	c.sprite.Pos.Base = &c.pos
-	switch c.stats.Kind {
-	case constructBase:
-		c.sprite.Shader = scene.NewShader(assets.ShaderColonyBuild)
-	case constructTurret:
-		c.sprite.Shader = scene.NewShader(assets.ShaderTurretBuild)
+	if !c.world.simulation {
+		switch c.stats.Kind {
+		case constructBase:
+			c.sprite.Shader = scene.NewShader(assets.ShaderColonyBuild)
+		case constructTurret:
+			c.sprite.Shader = scene.NewShader(assets.ShaderTurretBuild)
+		}
+		c.sprite.Shader.SetFloatValue("Time", 0)
 	}
-	c.sprite.Shader.SetFloatValue("Time", 0)
 	c.world.camera.AddSpriteBelow(c.sprite)
 
 	c.maxBuildHeight = c.sprite.ImageHeight() * 0.9
@@ -149,7 +151,9 @@ func (c *constructionNode) Construct(v float64, builder *colonyCoreNode) bool {
 		c.done(builder)
 		return true
 	}
-	c.sprite.Shader.SetFloatValue("Time", c.progress)
+	if !c.sprite.Shader.IsNil() {
+		c.sprite.Shader.SetFloatValue("Time", c.progress)
+	}
 	return false
 }
 

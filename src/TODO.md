@@ -13,8 +13,6 @@ optimizations:
 - add elite kinds of creeps (to spawn less creeps and still hit the same budget)
 - optimize "find targets around point" code; don't scan everyone
 - do not do math.Round for spritePos in sim mode; make GetPos return real pos
-bugs:
-- victoryCheckDelay in nodeRunner is unused?
 
 todo:
 - remove beam/projectile creating code duplication from drone-vs-creep

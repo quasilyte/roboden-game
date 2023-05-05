@@ -9,8 +9,7 @@ type nodeRunner struct {
 
 	speedMultiplier float64
 
-	victoryCheckDelay float64
-	world             *worldState
+	world *worldState
 
 	scene *ge.Scene
 

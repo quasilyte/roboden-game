@@ -205,9 +205,11 @@ func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 func (c *creepNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
 
-	// FIXME: this should be fixed in the ge package.
-	c.spritePos.X = math.Round(c.pos.X)
-	c.spritePos.Y = math.Round(c.pos.Y)
+	if !c.world.simulation {
+		// FIXME: this should be fixed in the ge package.
+		c.spritePos.X = math.Round(c.pos.X)
+		c.spritePos.Y = math.Round(c.pos.Y)
+	}
 
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
 	c.aggro = gmath.ClampMin(c.aggro-delta, 0)
@@ -252,7 +254,7 @@ func (c *creepNode) Update(delta float64) {
 	}
 }
 
-func (c *creepNode) GetPos() *gmath.Vec { return &c.spritePos }
+func (c *creepNode) GetPos() *gmath.Vec { return &c.pos }
 
 func (c *creepNode) GetVelocity() gmath.Vec {
 	if c.waypoint.IsZero() {

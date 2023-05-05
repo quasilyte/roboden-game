@@ -389,9 +389,11 @@ func (c *colonyCoreNode) Update(delta float64) {
 		c.hatchFlashComponent.Update(delta)
 	}
 
-	// FIXME: this should be fixed in the ge package.
-	c.spritePos.X = math.Round(c.pos.X)
-	c.spritePos.Y = math.Round(c.pos.Y)
+	if !c.world.simulation {
+		// FIXME: this should be fixed in the ge package.
+		c.spritePos.X = math.Round(c.pos.X)
+		c.spritePos.Y = math.Round(c.pos.Y)
+	}
 
 	c.updateResourceRects()
 

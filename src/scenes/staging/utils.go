@@ -8,6 +8,12 @@ import (
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
+func moveTowardsWithSpeed(from, to gmath.Vec, delta, speed float64) (gmath.Vec, bool) {
+	travelled := speed * delta
+	result := from.MoveTowards(to, travelled)
+	return result, result == to
+}
+
 func randIterate[T any](rand *gmath.Rand, slice []T, f func(x T) bool) T {
 	var result T
 	if len(slice) == 0 {

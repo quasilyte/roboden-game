@@ -1162,11 +1162,7 @@ func (c *creepNode) movementSpeed() float64 {
 }
 
 func (c *creepNode) moveTowards(delta float64, pos gmath.Vec) bool {
-	travelled := c.movementSpeed() * delta
-	if c.pos.DistanceTo(pos) <= travelled {
-		c.pos = pos
-		return true
-	}
-	c.pos = c.pos.MoveTowards(pos, travelled)
-	return false
+	var reached bool
+	c.pos, reached = moveTowardsWithSpeed(c.pos, pos, delta, c.movementSpeed())
+	return reached
 }

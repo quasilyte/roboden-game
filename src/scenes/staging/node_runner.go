@@ -66,6 +66,7 @@ func (r *nodeRunner) Update(delta float64) {
 	r.ticks++
 
 	r.creepCoordinator.Update(computedDelta)
+	r.world.Update()
 
 	liveProjectiles := r.projectiles[:0]
 	for _, p := range r.projectiles {

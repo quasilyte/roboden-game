@@ -1268,37 +1268,102 @@ func (a *colonyAgentNode) walkTetherTargets(colony *colonyCoreNode, num int, f f
 }
 
 func (a *colonyAgentNode) findAttackTargets() []targetable {
-	creeps := a.world().creeps
+	w := a.world()
+	creeps := w.creeps
 	if len(creeps) == 0 {
 		return nil
 	}
-	targets := a.world().tmpTargetSlice[:0]
-	inc := a.scene.Rand().Bool()
-	var slider gmath.Slider
-	slider.SetBounds(0, len(creeps)-1)
-	slider.TrySetValue(a.scene.Rand().IntRange(0, len(creeps)-1))
-	for i := 0; i < len(creeps); i++ {
-		if len(targets) >= a.stats.Weapon.MaxTargets {
-			break
-		}
-		c := creeps[slider.Value()]
-		if inc {
-			slider.Inc()
-		} else {
-			slider.Dec()
-		}
-		if c.IsCloaked() {
-			continue
-		}
-		if !a.CanAttack(c.TargetKind()) {
-			continue
-		}
-		if c.pos.DistanceSquaredTo(a.pos) > a.stats.Weapon.AttackRangeSqr {
-			continue
-		}
-		targets = append(targets, c)
+
+	// Find a sector that contains this object.
+	cellX, cellY := w.GetPosCell(a.pos)
+	cellRect := w.GetCellRect(cellX, cellY)
+
+	// Determine how many sectors we need to consider.
+	// In the simplest case, it's a single sector,
+	// but sometimes we need to check the adjacent sectors too.
+	startX := cellX
+	startY := cellY
+	endX := cellX
+	endY := cellY
+	attackRange := a.stats.Weapon.AttackRange
+	leftmostPos := gmath.Vec{X: a.pos.X - attackRange, Y: a.pos.Y - attackRange}
+	rightmostPos := gmath.Vec{X: a.pos.X + attackRange, Y: a.pos.Y + attackRange}
+	if leftmostPos.X < cellRect.Min.X {
+		delta := cellRect.Min.X - leftmostPos.X
+		startX -= int(math.Ceil((attackRange - delta) * w.creepClusterMultiplier))
 	}
+	if rightmostPos.X > cellRect.Max.X {
+		delta := rightmostPos.X - cellRect.Max.X
+		endX += int(math.Ceil((attackRange - delta) * w.creepClusterMultiplier))
+	}
+	if leftmostPos.Y < cellRect.Min.Y {
+		delta := cellRect.Min.Y - leftmostPos.Y
+		startY -= int(math.Ceil((attackRange - delta) * w.creepClusterMultiplier))
+	}
+	if rightmostPos.Y > cellRect.Max.Y {
+		delta := rightmostPos.Y - cellRect.Max.Y
+		endY += int(math.Ceil((attackRange - delta) * w.creepClusterMultiplier))
+	}
+
+	maxTargets := a.stats.Weapon.MaxTargets
+	targets := w.tmpTargetSlice[:0]
+	maybeAppendTarget := func(creep *creepNode) bool {
+		if a.isValidTarget(creep) {
+			targets = append(targets, creep)
+		}
+		return len(targets) >= maxTargets
+	}
+
+	startX = gmath.Clamp(startX, 0, 8)
+	startY = gmath.Clamp(startY, 0, 8)
+	endX = gmath.Clamp(endX, 0, 8)
+	endY = gmath.Clamp(endY, 0, 8)
+	numStepsX := endX - startX + 1
+	numStepsY := endY - startY + 1
+
+	// Now decide the sector traversal order.
+	// This is needed to add some randomness to the target selection.
+	dx := 1
+	if a.scene.Rand().Bool() {
+		dx = -1
+		startX = endX
+	}
+	dy := 1
+	if a.scene.Rand().Bool() {
+		dy = -1
+		startY = endY
+	}
+
+	for i, y := 0, startY; i < numStepsY; i, y = i+1, y+dy {
+		for j, x := 0, startX; j < numStepsX; j, x = j+1, x+dx {
+			clusterCreeps := w.creepClusters[y][x]
+			randIterate(w.rand, clusterCreeps, maybeAppendTarget)
+			if len(targets) >= maxTargets {
+				return targets
+			}
+		}
+	}
+
+	// New creeps are created outside of the map, so they end up
+	// in the fallback cluster that includes everything that is out of bounds.
+	if len(w.fallbackCreepCluster) != 0 {
+		randIterate(w.rand, w.fallbackCreepCluster, maybeAppendTarget)
+	}
+
 	return targets
+}
+
+func (a *colonyAgentNode) isValidTarget(creep *creepNode) bool {
+	if creep.IsCloaked() {
+		return false
+	}
+	if !a.CanAttack(creep.TargetKind()) {
+		return false
+	}
+	if creep.pos.DistanceSquaredTo(a.pos) > a.stats.Weapon.AttackRangeSqr {
+		return false
+	}
+	return true
 }
 
 func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
@@ -1461,13 +1526,9 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 }
 
 func (a *colonyAgentNode) moveTowardsWithSpeed(delta, speed float64, pos gmath.Vec) bool {
-	travelled := speed * delta
-	if a.pos.DistanceTo(pos) <= travelled {
-		a.pos = pos
-		return true
-	}
-	a.pos = a.pos.MoveTowards(pos, travelled)
-	return false
+	var reached bool
+	a.pos, reached = moveTowardsWithSpeed(a.pos, pos, delta, speed)
+	return reached
 }
 
 func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {

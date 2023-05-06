@@ -31,6 +31,11 @@ type worldState struct {
 	boss             *creepNode
 	creepCoordinator *creepCoordinator
 
+	creepClusterSize       float64
+	creepClusterMultiplier float64
+	creepClusters          [8][8][]*creepNode
+	fallbackCreepCluster   []*creepNode
+
 	graphicsSettings session.GraphicsSettings
 	tier2recipes     []gamedata.AgentMergeRecipe
 	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
@@ -73,6 +78,15 @@ type worldState struct {
 }
 
 func (w *worldState) Init() {
+	w.creepClusterSize = w.width * 0.125
+	w.creepClusterMultiplier = 1.0 / w.creepClusterSize
+	w.fallbackCreepCluster = make([]*creepNode, 0, 32)
+	for y := range w.creepClusters {
+		for x := range w.creepClusters {
+			w.creepClusters[y][x] = make([]*creepNode, 0, 16)
+		}
+	}
+
 	w.projectilePool = make([]*projectileNode, 0, 128)
 	w.evolutionEnabled = true
 	w.movementEnabled = true
@@ -124,6 +138,40 @@ func (w *worldState) newProjectileNode(config projectileConfig) *projectileNode 
 	p := &projectileNode{}
 	initProjectileNode(p, config)
 	return p
+}
+
+func (w *worldState) GetCellRect(x, y int) gmath.Rect {
+	min := gmath.Vec{X: float64(x) * w.creepClusterSize, Y: float64(y) * w.creepClusterSize}
+	return gmath.Rect{
+		Min: min,
+		Max: min.Add(gmath.Vec{X: w.creepClusterSize, Y: w.creepClusterSize}),
+	}
+}
+
+func (w *worldState) GetPosCell(pos gmath.Vec) (x int, y int) {
+	cellX := int(pos.X * w.creepClusterMultiplier)
+	cellY := int(pos.Y * w.creepClusterMultiplier)
+	return cellX, cellY
+}
+
+func (w *worldState) Update() {
+	w.fallbackCreepCluster = w.fallbackCreepCluster[:0]
+	for y := range w.creepClusters {
+		for x := range w.creepClusters[y] {
+			w.creepClusters[y][x] = w.creepClusters[y][x][:0]
+		}
+	}
+
+	for _, creep := range w.creeps {
+		x, y := w.GetPosCell(creep.pos)
+		if y < len(w.creepClusters) {
+			if x < len(w.creepClusters[y]) {
+				w.creepClusters[y][x] = append(w.creepClusters[y][x], creep)
+				continue
+			}
+		}
+		w.fallbackCreepCluster = append(w.fallbackCreepCluster, creep)
+	}
 }
 
 func (w *worldState) freeProjectileNode(p *projectileNode) {

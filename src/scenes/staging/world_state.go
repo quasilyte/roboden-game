@@ -279,24 +279,37 @@ func (w *worldState) NewEssenceSourceNode(stats *essenceSourceStats, pos gmath.V
 	return n
 }
 
+var nearBaseModeTable = [256]bool{
+	agentModeAlignStandby:   true,
+	agentModeStandby:        true,
+	agentModePatrol:         true,
+	agentModeRepairBase:     true,
+	agentModeRepairTurret:   true,
+	agentModeRecycleReturn:  true,
+	agentModeRecycleLanding: true,
+	agentModeBuildBuilding:  true,
+}
+
 func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r float64, skipIdling bool, f func(a *colonyAgentNode) bool) *colonyAgentNode {
 	if len(agents) == 0 {
 		return nil
 	}
+
 	var slider gmath.Slider
 	slider.SetBounds(0, len(agents)-1)
 	slider.TrySetValue(w.rand.IntRange(0, len(agents)-1))
+	radiusSqr := r * r
 	for i := 0; i < len(agents); i++ {
 		slider.Inc()
 		a := agents[slider.Value()]
+		if skipIdling && nearBaseModeTable[byte(a.mode)] {
+			continue
+		}
 		if a.IsCloaked() {
 			continue
 		}
-		if skipIdling && a.mode == agentModeStandby {
-			continue
-		}
-		dist := a.pos.DistanceTo(pos)
-		if dist > r {
+		distSqr := a.pos.DistanceSquaredTo(pos)
+		if distSqr > radiusSqr {
 			continue
 		}
 		if f(a) {
@@ -329,9 +342,13 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, r float64, f func(a *colonyA
 		}
 	}
 
-	// TODO: use agents container methods here.
 	for _, c := range w.colonies {
-		skipIdling := c.pos.DistanceTo(pos)*0.3 > r
+		skipIdling := false
+		dist := c.pos.DistanceTo(pos)
+		colonyEffectiveRadius := c.realRadius * 0.8
+		if dist > colonyEffectiveRadius {
+			skipIdling = (dist - colonyEffectiveRadius) > r
+		}
 		if a := w.findColonyAgent(c.agents.fighters, pos, r, skipIdling, f); a != nil {
 			return
 		}

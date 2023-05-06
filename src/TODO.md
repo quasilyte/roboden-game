@@ -10,7 +10,6 @@ todo engine:
 
 optimizations:
 - traverse creeps only once in node runner instead of twice (nodeRunner + worldState.Update)
-- make "find target" for creeps more efficient (like we did with allied drones)
 - add elite kinds of creeps (to spawn less creeps and still hit the same budget)
 - use sectors to find kamikaze explosion targets?
 - do not do math.Round for spritePos in sim mode; make GetPos return real pos

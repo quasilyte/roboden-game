@@ -69,6 +69,7 @@ type ReplayLevelConfig struct {
 
 	WorldSize    int `json:"world_size"`
 	OilRegenRate int `json:"oil_regen_rage"`
+	Terrain      int `json:"terrain"`
 
 	DifficultyScore int `json:"difficulty"`
 

@@ -524,13 +524,18 @@ func (g *levelGenerator) placeCreepBases() {
 func (g *levelGenerator) placeWalls() {
 	rand := &g.rng
 
-	worldSizeMultipliers := []float64{
+	worldSizeMultipliers := [...]float64{
 		0.5,
 		0.75,
 		1.0,
 		1.4,
 	}
-	multiplier := worldSizeMultipliers[g.world.config.WorldSize]
+	terrainMultiplier := [...]float64{
+		0.2,
+		1.0,
+		2.5,
+	}
+	multiplier := worldSizeMultipliers[g.world.config.WorldSize] * terrainMultiplier[g.world.config.Terrain]
 	numWallClusters := int(float64(rand.IntRange(8, 10)) * multiplier)
 	numMountains := int(float64(rand.IntRange(5, 9)) * multiplier)
 

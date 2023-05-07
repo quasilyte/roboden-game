@@ -137,6 +137,7 @@ func newLevelConfig(config *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.TurretDesign = gamedata.GunpointAgentStats.Kind.String()
 
 	config.OilRegenRate = 2
+	config.Terrain = 1
 	config.Resources = 2
 	config.WorldSize = 2
 	config.CreepDifficulty = 1

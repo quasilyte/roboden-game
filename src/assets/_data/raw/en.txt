@@ -205,6 +205,11 @@ It affects the number of units it will produce and how hard it will be to defeat
 This defines whether your initial colony will have any starting resources.
 Some builds can benefit from the early game advantage.
 
+##menu.lobby.land : Terrain
+##menu.lobby.land.description
+Choose how many mountains and landcracks the map will have.
+You can make them really rare or appear almost everywhere.
+
 ##menu.lobby.go : Go!
 
 ##menu.lobby.infinite_mode : Infinite mode
@@ -213,6 +218,10 @@ Whether you want to play an infinite arena mode.
 In the normal arena, you win after the special wave 20.
 In the infinite mode, there is no wave limit.
 Survive for longer to get higher scores.
+
+##menu.lobby.land_flat : flat
+##menu.lobby.land_normal : balanced
+##menu.lobby.land_mountains : mountain-heavy
 
 ##menu.lobby.ui_immersive : minimal
 ##menu.lobby.ui_informative : informative

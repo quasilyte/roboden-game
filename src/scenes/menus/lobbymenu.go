@@ -511,6 +511,15 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 		tab.AddChild(b)
 	}
 
+	{
+		b := c.newOptionButton(&c.config.Terrain, "menu.lobby.land", []string{
+			d.Get("menu.lobby.land_flat"),
+			d.Get("menu.lobby.land_normal"),
+			d.Get("menu.lobby.land_mountains"),
+		})
+		tab.AddChild(b)
+	}
+
 	return tab
 }
 

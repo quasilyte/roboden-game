@@ -112,6 +112,7 @@ const SeasonNumber = 0
 //   - Added Scarab tier 2 drone
 //   - Added Devourer tier 3 drone
 //   - Added "Oil regeneration rate" world option
+//   - Added "Terrain" world option
 //
 // * Balance:
 //   - Add 2 max hp to Prism drones (28 -> 30)
@@ -128,6 +129,7 @@ const SeasonNumber = 0
 //   - Fixed universal drones not being queries by SearchWorkers in drones container
 //   - Make "catch em all" achievement come with Elite grade right away
 //   - Fixed multi rewards
+//   - Fixed Trucker drone diode location
 //
 // * Optimizations:
 //   - The game doesn't create animation objects for drones with no animation anymore

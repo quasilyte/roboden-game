@@ -230,7 +230,7 @@ var TruckerAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentTrucker,
 	Image:                assets.ImageTruckerAgent,
 	Size:                 SizeLarge,
-	DiodeOffset:          1,
+	DiodeOffset:          4,
 	Tier:                 3,
 	Cost:                 40,
 	Upkeep:               9,

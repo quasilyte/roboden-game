@@ -130,6 +130,7 @@ const SeasonNumber = 0
 //   - Make "catch em all" achievement come with Elite grade right away
 //   - Fixed multi rewards
 //   - Fixed Trucker drone diode location
+//   - Fixed leaderboard layout issues
 //
 // * Optimizations:
 //   - The game doesn't create animation objects for drones with no animation anymore

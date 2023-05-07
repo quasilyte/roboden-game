@@ -7,13 +7,10 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
-	"github.com/quasilyte/roboden-game/clientkit"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
-	"github.com/quasilyte/roboden-game/gtask"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/timeutil"
@@ -29,13 +26,17 @@ type LeaderboardBrowserController struct {
 	scene *ge.Scene
 
 	rowContainer *widget.Container
-	placeholder  *widget.Text
+
+	boardData *serverapi.LeaderboardResp
+	fetchErr  error
 }
 
-func NewLeaderboardBrowserController(state *session.State, gameMode string) *LeaderboardBrowserController {
+func NewLeaderboardBrowserController(state *session.State, gameMode string, boardData *serverapi.LeaderboardResp, fetchErr error) *LeaderboardBrowserController {
 	return &LeaderboardBrowserController{
-		state:    state,
-		gameMode: gameMode,
+		state:     state,
+		gameMode:  gameMode,
+		boardData: boardData,
+		fetchErr:  fetchErr,
 	}
 }
 
@@ -52,27 +53,15 @@ func (c *LeaderboardBrowserController) Update(delta float64) {
 	}
 }
 
-func (c *LeaderboardBrowserController) getBoardCache() *serverapi.LeaderboardResp {
-	switch c.gameMode {
-	case "classic":
-		return &c.state.Persistent.CachedClassicLeaderboard
-	case "arena":
-		return &c.state.Persistent.CachedArenaLeaderboard
-	case "inf_arena":
-		return &c.state.Persistent.CachedInfArenaLeaderboard
-	default:
-		return nil
-	}
-}
-
-func (c *LeaderboardBrowserController) initBoard(boardData *serverapi.LeaderboardResp, fetchErr error) {
+func (c *LeaderboardBrowserController) initBoard() {
 	uiResources := c.state.Resources.UI
+
+	boardData := c.boardData
+	fetchErr := c.fetchErr
 
 	d := c.scene.Dict()
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
-
-	c.rowContainer.RemoveChild(c.placeholder)
 
 	{
 		numSeasons := c.selectedSeason + 1
@@ -103,7 +92,6 @@ func (c *LeaderboardBrowserController) initBoard(boardData *serverapi.Leaderboar
 	}
 
 	panel := eui.NewPanel(uiResources, 0, 96)
-	c.rowContainer.AddChild(panel)
 
 	if boardData == nil {
 		panel.AddChild(eui.NewCenteredLabel(d.Get("menu.leaderboard.fetch_error"), tinyFont))
@@ -156,6 +144,8 @@ func (c *LeaderboardBrowserController) initBoard(boardData *serverapi.Leaderboar
 		panel.AddChild(grid)
 	}
 
+	c.rowContainer.AddChild(panel)
+
 	c.rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
@@ -170,39 +160,15 @@ func (c *LeaderboardBrowserController) initUI() {
 	d := c.scene.Dict()
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), normalFont)
 	rowContainer.AddChild(titleLabel)
 
-	c.placeholder = eui.NewCenteredLabel(d.Get("menu.leaderboard.placeholder"), tinyFont)
-	rowContainer.AddChild(c.placeholder)
+	c.initBoard()
 
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
-
-	var boardData *serverapi.LeaderboardResp
-	var fetchErr error
-	fetchTask := gtask.StartTask(func(ctx *gtask.TaskContext) {
-		boardData, fetchErr = clientkit.GetLeaderboard(c.state, c.gameMode)
-		if fetchErr != nil {
-			// Try using the cached data.
-			cached := c.getBoardCache()
-			if cached.NumSeasons != 0 {
-				boardData = cached
-			}
-		} else {
-			// Save fetched data to the cache.
-			*c.getBoardCache() = *boardData
-			c.scene.Context().SaveGameData("save", c.state.Persistent)
-		}
-	})
-	fetchTask.EventCompleted.Connect(nil, func(gsignal.Void) {
-		c.initBoard(boardData, fetchErr)
-		root.RequestRelayout()
-	})
-	c.scene.AddObject(fetchTask)
 }
 
 func (c *LeaderboardBrowserController) back() {

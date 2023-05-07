@@ -46,15 +46,15 @@ func (c *LeaderboardMenuController) initUI() {
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.classic"), func() {
-		c.scene.Context().ChangeScene(NewLeaderboardBrowserController(c.state, "classic"))
+		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, "classic"))
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.arena"), func() {
-		c.scene.Context().ChangeScene(NewLeaderboardBrowserController(c.state, "arena"))
+		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, "arena"))
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.inf_arena"), func() {
-		c.scene.Context().ChangeScene(NewLeaderboardBrowserController(c.state, "inf_arena"))
+		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, "inf_arena"))
 	}))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

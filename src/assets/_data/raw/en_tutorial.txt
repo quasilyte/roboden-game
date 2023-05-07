@@ -279,7 +279,8 @@ to produce elite drones.
 Collect some to see it for yourself.
 ##tutorial4.elite_drone
 This is an elite drone.
-It has most of its base stats improved.
+It has most of its base stats improved
+and slight self-repair capacilities.
 The red crystals are accessible, but
 they're not the best source of elites.
 ##tutorial4.red_miner_request

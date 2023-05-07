@@ -250,6 +250,7 @@ Select colony | LMB click on the colony or TAB to switch between colonies
 Action card select | LMB click on the card or press 1-5 on a keyboard
 Pause | SPACE button toggles the pause
 Toggle evolution sheet | ALT button
+Toggle user interface | F11 button
 Exit/Back | ESC button
 
 ##menu.controls.gamepad.text

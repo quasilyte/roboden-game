@@ -28,6 +28,8 @@ const (
 
 	ActionShowRecipes
 
+	ActionToggleInterface
+
 	ActionClick
 
 	ActionBack
@@ -56,6 +58,8 @@ func BindKeymap(ctx *ge.Context) gameinput.Handler {
 		ActionToggleColony: {input.KeyTab, input.KeyGamepadL1},
 
 		ActionShowRecipes: {input.KeyAlt, input.KeyGamepadR2},
+
+		ActionToggleInterface: {input.KeyF11},
 
 		ActionDebug: {input.KeyBackquote},
 

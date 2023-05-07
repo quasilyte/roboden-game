@@ -202,15 +202,16 @@ type choiceWindowNode struct {
 	specialChoiceKinds   []specialChoiceKind
 	specialChoices       []choiceOption
 
-	config *gamedata.LevelConfig
-	world  *worldState
+	config  *gamedata.LevelConfig
+	world   *worldState
+	uiLayer *uiLayer
 
 	cursor *gameui.CursorNode
 
 	EventChoiceSelected gsignal.Event[selectedChoice]
 }
 
-func newChoiceWindowNode(pos gmath.Vec, world *worldState, h gameinput.Handler, cursor *gameui.CursorNode) *choiceWindowNode {
+func newChoiceWindowNode(pos gmath.Vec, world *worldState, uiLayer *uiLayer, h gameinput.Handler, cursor *gameui.CursorNode) *choiceWindowNode {
 	return &choiceWindowNode{
 		pos:           pos,
 		input:         h,
@@ -218,6 +219,7 @@ func newChoiceWindowNode(pos gmath.Vec, world *worldState, h gameinput.Handler, 
 		selectedIndex: -1,
 		config:        world.config,
 		world:         world,
+		uiLayer:       uiLayer,
 	}
 }
 
@@ -297,13 +299,13 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		floppy := scene.NewSprite(floppies[i])
 		floppy.Centered = false
 		floppy.Pos.Offset = offset
-		scene.AddGraphicsAbove(floppy, 1)
+		w.uiLayer.AddGraphics(floppy)
 
 		flipSprite := scene.NewSprite(flipSprites[i])
 		flipSprite.Centered = false
 		flipSprite.Pos.Offset = offset
 		flipSprite.Visible = false
-		scene.AddGraphicsAbove(flipSprite, 1)
+		w.uiLayer.AddGraphics(flipSprite)
 
 		offset.Y += floppy.ImageHeight() + offsetY
 
@@ -325,8 +327,8 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		lightLabel.Width = 86 + 2
 		lightLabel.Height = 62 + 2
 
-		scene.AddGraphicsAbove(darkLabel, 1)
-		scene.AddGraphicsAbove(lightLabel, 1)
+		w.uiLayer.AddGraphics(darkLabel)
+		w.uiLayer.AddGraphics(lightLabel)
 
 		var icon *ge.Sprite
 		if i == 4 {
@@ -334,7 +336,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 			icon.Centered = false
 			icon.Pos.Base = &floppy.Pos.Offset
 			icon.Pos.Offset = gmath.Vec{X: 5, Y: 26}
-			scene.AddGraphicsAbove(icon, 1)
+			w.uiLayer.AddGraphics(icon)
 		}
 
 		choice := &choiceOptionSlot{

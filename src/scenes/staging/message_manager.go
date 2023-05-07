@@ -6,7 +6,8 @@ import (
 )
 
 type messageManager struct {
-	world *worldState
+	world   *worldState
+	uiLayer *uiLayer
 
 	messageTimer     float64
 	messageTimeLimit float64
@@ -21,8 +22,11 @@ type queuedMessageInfo struct {
 	timer         float64
 }
 
-func newMessageManager(world *worldState) *messageManager {
-	return &messageManager{world: world}
+func newMessageManager(world *worldState, uiLayer *uiLayer) *messageManager {
+	return &messageManager{
+		world:   world,
+		uiLayer: uiLayer,
+	}
 }
 
 func (m *messageManager) Update(delta float64) {
@@ -60,9 +64,9 @@ func (m *messageManager) nextMessage() {
 	m.messageTimeLimit = info.timer
 	messagePos := gmath.Vec{X: 16, Y: 202}
 	if info.targetPos.Base != nil {
-		m.message = newWorldTutorialHintNode(m.world.camera, messagePos, info.targetPos, info.text)
+		m.message = newWorldTutorialHintNode(m.world.camera, m.uiLayer, messagePos, info.targetPos, info.text)
 	} else {
-		m.message = newScreenTutorialHintNode(m.world.camera, messagePos, info.targetPos.Offset, info.text)
+		m.message = newScreenTutorialHintNode(m.world.camera, m.uiLayer, messagePos, info.targetPos.Offset, info.text)
 	}
 	m.message.trackedObject = info.trackedObject
 	m.world.rootScene.AddObject(m.message)

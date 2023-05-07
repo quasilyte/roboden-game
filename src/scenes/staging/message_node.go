@@ -16,6 +16,7 @@ type messageNode struct {
 	camera      *viewport.Camera
 
 	trackedObject ge.SceneObject
+	uiLayer       *uiLayer
 
 	pos       gmath.Vec
 	targetPos ge.Pos
@@ -27,8 +28,9 @@ type messageNode struct {
 	xpadding float64
 }
 
-func newScreenTutorialHintNode(camera *viewport.Camera, pos, targetPos gmath.Vec, text string) *messageNode {
+func newScreenTutorialHintNode(camera *viewport.Camera, uiLayer *uiLayer, pos, targetPos gmath.Vec, text string) *messageNode {
 	return &messageNode{
+		uiLayer:   uiLayer,
 		pos:       pos,
 		targetPos: ge.Pos{Offset: targetPos},
 		text:      text,
@@ -37,8 +39,9 @@ func newScreenTutorialHintNode(camera *viewport.Camera, pos, targetPos gmath.Vec
 	}
 }
 
-func newWorldTutorialHintNode(camera *viewport.Camera, pos gmath.Vec, targetPos ge.Pos, text string) *messageNode {
+func newWorldTutorialHintNode(camera *viewport.Camera, uiLayer *uiLayer, pos gmath.Vec, targetPos ge.Pos, text string) *messageNode {
 	return &messageNode{
+		uiLayer:   uiLayer,
 		pos:       pos,
 		targetPos: targetPos,
 		text:      text,
@@ -88,8 +91,8 @@ func (m *messageNode) Init(scene *ge.Scene) {
 		m.camera.AddGraphicsAbove(m.targetLine2)
 	}
 
-	scene.AddGraphicsAbove(m.rect, 1)
-	scene.AddGraphicsAbove(m.label, 1)
+	m.uiLayer.AddGraphics(m.rect)
+	m.uiLayer.AddGraphics(m.label)
 }
 
 func (m *messageNode) UpdateText(s string) {
@@ -98,6 +101,10 @@ func (m *messageNode) UpdateText(s string) {
 }
 
 func (m *messageNode) Update(delta float64) {
+	if m.targetLine != nil {
+		m.targetLine.Visible = m.uiLayer.Visible
+		m.targetLine2.Visible = m.uiLayer.Visible
+	}
 	if m.targetLine != nil && m.trackedObject != nil && m.trackedObject.IsDisposed() {
 		m.targetLine.Dispose()
 		m.targetLine2.Dispose()

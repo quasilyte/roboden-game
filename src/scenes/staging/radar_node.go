@@ -28,12 +28,15 @@ type radarNode struct {
 
 	world  *worldState
 	colony *colonyCoreNode
+
+	uiLayer *uiLayer
 }
 
-func newRadarNode(world *worldState) *radarNode {
+func newRadarNode(world *worldState, uiLayer *uiLayer) *radarNode {
 	return &radarNode{
 		world:    world,
 		nearDist: 1536,
+		uiLayer:  uiLayer,
 	}
 }
 
@@ -53,7 +56,7 @@ func (r *radarNode) Init(scene *ge.Scene) {
 		X: 8 + r.sprite.ImageWidth()/2,
 		Y: 1080/2 - (8 + r.sprite.ImageHeight()/2),
 	}
-	scene.AddGraphicsAbove(r.sprite, 1)
+	r.uiLayer.AddGraphics(r.sprite)
 
 	r.radius = 55.0
 	r.diameter = r.radius * 2
@@ -68,20 +71,20 @@ func (r *radarNode) Init(scene *ge.Scene) {
 	r.wave = scene.NewSprite(assets.ImageRadarWave)
 	r.wave.Pos.Base = &r.pos
 	r.wave.Rotation = &r.direction
-	scene.AddGraphicsAbove(r.wave, 1)
+	r.uiLayer.AddGraphics(r.wave)
 
 	r.bossPath = ge.NewLine(ge.Pos{}, ge.Pos{})
 	var pathColor ge.ColorScale
 	pathColor.SetColor(ge.RGB(0x91234e))
 	r.bossPath.SetColorScale(pathColor)
 	r.bossPath.Visible = false
-	scene.AddGraphicsAbove(r.bossPath, 1)
+	r.uiLayer.AddGraphics(r.bossPath)
 
 	r.bossSpot = ge.NewSprite(scene.Context())
 	r.bossSpot.Pos.Base = &r.pos
 	r.bossSpot.Centered = false
 	r.bossSpot.Visible = false
-	scene.AddGraphicsAbove(r.bossSpot, 1)
+	r.uiLayer.AddGraphics(r.bossSpot)
 }
 
 func (r *radarNode) setBossVisibility(visible bool) {

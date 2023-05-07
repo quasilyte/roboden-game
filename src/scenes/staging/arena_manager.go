@@ -41,8 +41,9 @@ type arenaManager struct {
 
 	waveInfo arenaWaveInfo
 
-	scene *ge.Scene
-	world *worldState
+	scene   *ge.Scene
+	world   *worldState
+	uiLayer *uiLayer
 
 	creepSelectionSlice      []*arenaCreepInfo
 	groupCreepSelectionSlice []*arenaCreepInfo
@@ -80,9 +81,10 @@ type arenaWaveInfo struct {
 	attackSides [4]bool
 }
 
-func newArenaManager(world *worldState) *arenaManager {
+func newArenaManager(world *worldState, uiLayer *uiLayer) *arenaManager {
 	return &arenaManager{
-		world: world,
+		world:   world,
+		uiLayer: uiLayer,
 		waveInfo: arenaWaveInfo{
 			groups: make([]arenaWaveGroup, 0, 8),
 		},
@@ -200,7 +202,7 @@ func (m *arenaManager) Update(delta float64) {
 
 func (m *arenaManager) createWaveInfoMessageNode() *messageNode {
 	s := m.createWaveInfoText()
-	message := newScreenTutorialHintNode(m.world.camera, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
+	message := newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
 	message.xpadding = 20
 	return message
 }

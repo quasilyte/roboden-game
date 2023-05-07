@@ -13,7 +13,8 @@ import (
 type rpanelNode struct {
 	scene *ge.Scene
 
-	world *worldState
+	world   *worldState
+	uiLayer *uiLayer
 
 	layerSprite1 *ge.Sprite
 	layerSprite2 *ge.Sprite
@@ -25,8 +26,11 @@ type rpanelNode struct {
 	priorityIcons []*ge.Sprite
 }
 
-func newRpanelNode(world *worldState) *rpanelNode {
-	return &rpanelNode{world: world}
+func newRpanelNode(world *worldState, uiLayer *uiLayer) *rpanelNode {
+	return &rpanelNode{
+		world:   world,
+		uiLayer: uiLayer,
+	}
 }
 
 func (panel *rpanelNode) IsDisposed() bool { return false }
@@ -37,12 +41,12 @@ func (panel *rpanelNode) Init(scene *ge.Scene) {
 	panel.layerSprite1 = scene.NewSprite(assets.ImageRightPanelLayer1)
 	panel.layerSprite1.Pos.Offset.X = 782
 	panel.layerSprite1.Centered = false
-	scene.AddGraphicsAbove(panel.layerSprite1, 1)
+	panel.uiLayer.AddGraphics(panel.layerSprite1)
 
 	panel.layerSprite2 = scene.NewSprite(assets.ImageRightPanelLayer2)
 	panel.layerSprite2.Pos = panel.layerSprite1.Pos
 	panel.layerSprite2.Centered = false
-	scene.AddGraphicsAbove(panel.layerSprite2, 2)
+	panel.uiLayer.AddGraphicsAbove(panel.layerSprite2)
 
 	colors := [...]color.RGBA{
 		gamedata.FactionByTag(gamedata.YellowFactionTag).Color,
@@ -55,7 +59,7 @@ func (panel *rpanelNode) Init(scene *ge.Scene) {
 		rect.Centered = false
 		rect.Pos.Offset = gmath.Vec{X: 952}
 		rect.FillColorScale.SetColor(clr)
-		scene.AddGraphicsAbove(rect, 2)
+		panel.uiLayer.AddGraphicsAbove(rect)
 		panel.factionRects = append(panel.factionRects, rect)
 	}
 
@@ -69,12 +73,12 @@ func (panel *rpanelNode) Init(scene *ge.Scene) {
 		bar := scene.NewSprite(assets.ImagePriorityBar)
 		bar.Pos.Offset = gmath.Vec{X: 805 + ((20 + bar.FrameWidth) * float64(i))}
 		bar.Centered = false
-		scene.AddGraphicsAbove(bar, 1)
+		panel.uiLayer.AddGraphics(bar)
 
 		icon := scene.NewSprite(iconImageID)
 		icon.Pos.Offset = gmath.Vec{X: 805 + ((20 + bar.FrameWidth) * float64(i))}
 		icon.Centered = false
-		scene.AddGraphicsAbove(icon, 2)
+		panel.uiLayer.AddGraphicsAbove(icon)
 
 		panel.priorityBars = append(panel.priorityBars, bar)
 		panel.priorityIcons = append(panel.priorityIcons, icon)

@@ -50,6 +50,8 @@ type Controller struct {
 
 	choices *choiceWindowNode
 
+	uiLayer *uiLayer
+
 	musicPlayer *musicPlayer
 
 	exitNotice        *messageNode
@@ -117,6 +119,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.musicPlayer = newMusicPlayer(scene)
 	c.musicPlayer.Start()
+
+	c.uiLayer = newUILayer()
 
 	if c.state.CPUProfile != "" {
 		f, err := os.Create(c.state.CPUProfile)
@@ -236,7 +240,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.nodeRunner.creepCoordinator = world.creepCoordinator
 
-	c.messageManager = newMessageManager(c.world)
+	c.messageManager = newMessageManager(c.world, c.uiLayer)
 
 	c.world.EventColonyCreated.Connect(c, func(colony *colonyCoreNode) {
 		colony.EventUnderAttack.Connect(c, func(colony *colonyCoreNode) {
@@ -255,7 +259,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	switch c.config.GameMode {
 	case gamedata.ModeArena:
-		c.arenaManager = newArenaManager(world)
+		c.arenaManager = newArenaManager(world, c.uiLayer)
 		c.nodeRunner.AddObject(c.arenaManager)
 		c.arenaManager.EventVictory.Connect(c, c.onVictoryTrigger)
 	case gamedata.ModeClassic:
@@ -283,9 +287,11 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.cursor = gameui.NewCursorNode(c.state.MainInput, c.camera.Rect)
 
+	scene.AddGraphics(c.camera)
+
 	buttonSize := gmath.Vec{X: 32, Y: 36}
 	if c.config.EnemyBoss {
-		c.radar = newRadarNode(c.world)
+		c.radar = newRadarNode(c.world, c.uiLayer)
 		c.nodeRunner.AddObject(c.radar)
 
 		toggleButtonOffset := gmath.Vec{X: 155, Y: 491}
@@ -296,7 +302,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	} else {
 		buttonsImage := scene.NewSprite(assets.ImageRadarlessButtons)
 		buttonsImage.Centered = false
-		scene.AddGraphicsAbove(buttonsImage, 1)
+		c.uiLayer.AddGraphics(buttonsImage)
 		buttonsImage.Pos.Offset = gmath.Vec{
 			X: 8,
 			Y: c.camera.Rect.Height() - buttonsImage.ImageHeight() - 8,
@@ -310,7 +316,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	if c.config.ExtraUI {
-		c.rpanel = newRpanelNode(c.world)
+		c.rpanel = newRpanelNode(c.world, c.uiLayer)
 		scene.AddObject(c.rpanel)
 	}
 
@@ -318,16 +324,14 @@ func (c *Controller) Init(scene *ge.Scene) {
 		X: 960 - 232 - 16,
 		Y: 540 - 200 - 16,
 	}
-	c.choices = newChoiceWindowNode(choicesPos, c.world, c.state.MainInput, c.cursor)
+	c.choices = newChoiceWindowNode(choicesPos, c.world, c.uiLayer, c.state.MainInput, c.cursor)
 	c.choices.EventChoiceSelected.Connect(nil, c.onChoiceSelected)
 
 	c.selectNextColony(true)
 	c.camera.CenterOn(c.world.selectedColony.pos)
 
-	scene.AddGraphics(c.camera)
-
 	if c.world.IsTutorial() {
-		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world, c.messageManager)
+		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world, c.uiLayer, c.messageManager)
 		c.nodeRunner.AddObject(c.tutorialManager)
 		if c.rpanel != nil {
 			c.tutorialManager.EventRequestPanelUpdate.Connect(c, c.onPanelUpdateRequested)
@@ -375,14 +379,16 @@ func (c *Controller) Init(scene *ge.Scene) {
 	// 	}
 	// }
 
-	scene.AddObject(c.cursor)
-
 	{
 		c.recipeTab = newRecipeTabNode(c.world)
 		c.recipeTab.Visible = false
-		scene.AddGraphics(c.recipeTab)
+		c.uiLayer.AddGraphics(c.recipeTab)
 		scene.AddObject(c.recipeTab)
 	}
+
+	scene.AddGraphics(c.uiLayer)
+
+	scene.AddObject(c.cursor)
 }
 
 func (c *Controller) updateFogOfWar(pos gmath.Vec) {
@@ -407,8 +413,9 @@ func (c *Controller) onExitButtonClicked() {
 	}
 
 	d := c.scene.Dict()
+	c.uiLayer.Visible = true
 	c.nodeRunner.SetPaused(true)
-	c.exitNotice = newScreenTutorialHintNode(c.camera, gmath.Vec{}, gmath.Vec{}, d.Get("game.exit.notice", c.world.inputMode))
+	c.exitNotice = newScreenTutorialHintNode(c.camera, c.uiLayer, gmath.Vec{}, gmath.Vec{}, d.Get("game.exit.notice", c.world.inputMode))
 	c.scene.AddObject(c.exitNotice)
 	noticeSize := gmath.Vec{X: c.exitNotice.width, Y: c.exitNotice.height}
 	noticeCenterPos := c.camera.Rect.Center().Sub(noticeSize.Mulf(0.5))
@@ -776,6 +783,10 @@ func (c *Controller) handleInput() {
 	if c.config.ExecMode != gamedata.ExecuteNormal {
 		c.handleReplayActions()
 		return
+	}
+
+	if mainInput.ActionIsJustPressed(controls.ActionToggleInterface) {
+		c.uiLayer.Visible = !c.uiLayer.Visible
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionShowRecipes) {

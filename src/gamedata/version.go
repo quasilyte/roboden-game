@@ -117,15 +117,20 @@ const SeasonNumber = 0
 //   - Add 2 max hp to Prism drones (28 -> 30)
 //   - Make tether towers affect up to 4 drones (it was 2 before)
 //   - Make tether towers slightly reduce the amount of drone energy consumption
+//   - Made attack action range scale better
 //
 // * UX:
 //   - Added difficulty description tag in the game lobby
+//   - Added a UI toggle key
 //
 // * Bug fixes:
 //   - Fixed overlapping teleports bug
 //   - Fixed universal drones not being queries by SearchWorkers in drones container
 //   - Make "catch em all" achievement come with Elite grade right away
+//   - Fixed multi rewards
 //
 // * Optimizations:
 //   - The game doesn't create animation objects for drones with no animation anymore
+//   - Clusters for creeps (makes target selection faster)
+//   - Less allocations in simulation mode
 const BuildNumber int = 12

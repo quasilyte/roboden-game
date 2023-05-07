@@ -555,7 +555,7 @@ func (c *Controller) launchAttack() {
 		return
 	}
 	closeTargets := c.world.tmpTargetSlice[:0]
-	maxDist := gmath.ClampMin(c.world.selectedColony.PatrolRadius()*2, 320)
+	maxDist := (c.world.selectedColony.PatrolRadius() * 2) + 196
 	maxDist *= c.world.rand.FloatRange(0.95, 1.2)
 	for _, creep := range c.world.creeps {
 		if len(closeTargets) >= 5 {

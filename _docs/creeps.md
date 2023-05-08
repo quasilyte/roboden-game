@@ -2,7 +2,7 @@
 
 Every super creep gets x2 max health.
 
-In addition to that, there is are creep-specific bonuses.
+In addition to that, there are creep-specific bonuses.
 
 | Creep Type | Bonus |
 |---|---|

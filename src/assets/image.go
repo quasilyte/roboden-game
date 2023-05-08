@@ -173,6 +173,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png", FrameHeight: 25},
 		ImageUberBoss:            {Path: "image/creeps/uber_boss.png", FrameWidth: 40, FrameHeight: 40},
 		ImageUberBossOpen:        {Path: "image/creeps/uber_boss_open.png", FrameHeight: 40},
+		ImageSuperUberBossOpen:   {Path: "image/creeps/super_uber_boss_open.png", FrameHeight: 40},
 		ImageCreepBase:           {Path: "image/creeps/creep_base.png", FrameWidth: 32, FrameHeight: 32},
 		ImageCrawlerCreepBase:    {Path: "image/creeps/crawler_base_creep.png", FrameHeight: 25},
 		ImageBuilderCreep:        {Path: "image/creeps/builder_creep.png", FrameWidth: 31, FrameHeight: 31},
@@ -361,6 +362,7 @@ const (
 	ImageFactionDiode
 	ImageUberBoss
 	ImageUberBossOpen
+	ImageSuperUberBossOpen
 	ImageUberBossShadow
 	ImageCreepBase
 	ImageColonyResourceBar1

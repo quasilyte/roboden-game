@@ -424,6 +424,7 @@ func (g *levelGenerator) placeBoss() {
 	pos := gmath.RandElem(&g.rng, spawnLocations)
 	boss := g.world.NewCreepNode(pos, uberBossCreepStats)
 	boss.specialDelay = g.rng.FloatRange(3*60, 4*60)
+	boss.super = g.world.config.SuperCreeps
 	g.world.nodeRunner.AddObject(boss)
 
 	g.world.boss = boss
@@ -510,6 +511,7 @@ func (g *levelGenerator) placeCreepBases() {
 		}
 		g.placeCreepsCluster(baseRegion, 1, turretCreepStats)
 		base := g.world.NewCreepNode(basePos, baseCreepStats)
+		base.super = i == 0 && g.world.config.SuperCreeps
 		if i == 1 || i == 3 {
 			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
 		} else {

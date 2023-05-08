@@ -200,6 +200,12 @@ This option affects how easy the early game exploration will be.
 The enemy colony's power level.
 It affects the number of units it will produce and how hard it will be to defeat it in battle.
 
+##menu.lobby.super_creeps : Super enemies
+##menu.lobby.super_creeps.description
+Whether enemies can have super versions of units.
+This is similar to the elite drones the player may have.
+Turning it on makes the game significantly harder.
+
 ##menu.lobby.starting_resources : Starting resources
 ##menu.lobby.starting_resources.description
 This defines whether your initial colony will have any starting resources.

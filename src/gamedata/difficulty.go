@@ -1,6 +1,7 @@
 package gamedata
 
 import (
+	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/serverapi"
 )
 
@@ -11,8 +12,14 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 	case "classic":
 		if config.NumCreepBases != 0 {
 			score += (config.CreepDifficulty - 1) * 10
+			if config.SuperCreeps {
+				score += 40
+			}
 		} else {
 			score += (config.CreepDifficulty - 1) * 5
+			if config.SuperCreeps {
+				score += 25
+			}
 		}
 		score += 10 - (config.Resources * 5)
 		score += (config.NumCreepBases - 2) * 15
@@ -41,5 +48,5 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 
 	score += 20 - pointsAllocated
 
-	return score
+	return gmath.ClampMin(score, 1)
 }

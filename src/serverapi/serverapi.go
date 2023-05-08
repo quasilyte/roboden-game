@@ -53,6 +53,7 @@ type ReplayLevelConfig struct {
 	ExtraUI      bool `json:"extra_ui"`
 	FogOfWar     bool `json:"fog_of_war"`
 	InfiniteMode bool `json:"infinite_mode"`
+	SuperCreeps  bool `json:"super_creps"`
 
 	InitialCreeps     int `json:"initial_creeps"`
 	NumCreepBases     int `json:"num_creep_bases"`

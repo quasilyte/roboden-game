@@ -107,7 +107,12 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	c.maxHealth = c.stats.maxHealth
 	if c.super {
-		c.maxHealth *= 2
+		if c.stats.kind == creepUberBoss {
+			// Boss only gets a bit of extra health.
+			c.maxHealth *= 1.2
+		} else {
+			c.maxHealth *= 2
+		}
 	}
 
 	c.sprite = scene.NewSprite(c.stats.image)
@@ -148,7 +153,11 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 
 	if c.stats.kind == creepUberBoss {
-		c.altSprite = scene.NewSprite(assets.ImageUberBossOpen)
+		img := assets.ImageUberBossOpen
+		if c.super {
+			img = assets.ImageSuperUberBossOpen
+		}
+		c.altSprite = scene.NewSprite(img)
 		c.altSprite.Visible = false
 		c.altSprite.Pos.Base = &c.spritePos
 		c.world.camera.AddSprite(c.altSprite)
@@ -456,8 +465,10 @@ func (c *creepNode) spawnServants(n int) {
 	angleStep := gmath.Rad(float64(angleDelta) / float64(n-1))
 	angle := startAngle
 	for i := 0; i < n; i++ {
+		super := c.super && (i == 0 || i == n-1)
 		dir := gmath.RadToVec(angle)
 		spawn := newServantSpawnerNode(c.world, c.pos, dir, c.world.colonies[0])
+		spawn.super = super
 		c.world.nodeRunner.AddObject(spawn)
 		angle += angleStep
 	}
@@ -1159,6 +1170,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 					}
 				}
 				crawler := c.world.NewCreepNode(spawnPos, crawlerStats)
+				crawler.super = c.super && c.world.rand.Chance(0.5)
 				crawler.path = crawlerSpawnPositions[int(c.specialModifier-1)]
 				crawler.waypoint = crawler.pos
 				c.world.nodeRunner.AddObject(crawler)

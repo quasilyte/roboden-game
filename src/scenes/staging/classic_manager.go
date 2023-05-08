@@ -77,13 +77,16 @@ func (m *classicManager) spawnCrawlers() {
 	targetPos := correctedPos(m.world.rect, randomSectorPos(m.world.rand, sector), 520)
 
 	for i := 0; i < numCreeps; i++ {
+		super := m.world.config.SuperCreeps && m.world.rand.Chance(0.3)
 		creepPos, spawnDelay := groundCreepSpawnPos(m.world, spawnPos, creepStats)
 		creepTargetPos := targetPos.Add(m.world.rand.Offset(-60, 60))
 		if spawnDelay > 0 {
 			spawner := newCreepSpawnerNode(m.world, spawnDelay, creepPos, creepTargetPos, creepStats)
+			spawner.super = super
 			m.world.nodeRunner.AddObject(spawner)
 		} else {
 			creep := m.world.NewCreepNode(creepPos, creepStats)
+			creep.super = super
 			m.world.nodeRunner.AddObject(creep)
 			creep.SendTo(creepTargetPos)
 		}
@@ -91,6 +94,7 @@ func (m *classicManager) spawnCrawlers() {
 }
 
 func (m *classicManager) spawnTier3Creep() {
+	superChance := 1.0 - m.tier3spawnRate
 	m.tier3spawnRate = gmath.ClampMin(m.tier3spawnRate-0.025, 0.35)
 	m.tier3spawnDelay = (m.world.rand.FloatRange(55, 80) * m.tier3spawnRate) * m.spawnDelayMultiplier
 
@@ -115,5 +119,6 @@ func (m *classicManager) spawnTier3Creep() {
 		stats = builderCreepStats
 	}
 	creep := m.world.NewCreepNode(spawnPos, stats)
+	creep.super = m.world.config.SuperCreeps && m.world.rand.Chance(superChance)
 	m.world.nodeRunner.AddObject(creep)
 }

@@ -404,6 +404,13 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			d.Get("menu.option.hard"),
 			d.Get("menu.option.very_hard"),
 		}))
+
+		if c.state.Persistent.PlayerStats.TotalScore >= gamedata.ArenaModeCost {
+			tab.AddChild(c.newBoolOptionButton(&c.config.SuperCreeps, "menu.lobby.super_creeps", []string{
+				d.Get("menu.option.off"),
+				d.Get("menu.option.on"),
+			}))
+		}
 	}
 
 	if c.mode == gamedata.ModeArena {

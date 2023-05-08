@@ -22,6 +22,16 @@ func damageMultiplier(target targetable, weapon *gamedata.WeaponStats) float64 {
 	return weapon.GroundTargetDamageMult
 }
 
+func superCreepCostMultiplier(stats *creepStats) int {
+	switch stats.kind {
+	case creepCrawler:
+		return 2
+	case creepTurret, creepBase, creepCrawlerBase:
+		return 4
+	}
+	return 3
+}
+
 func creepFragScore(stats *creepStats) int {
 	switch stats {
 	case crawlerCreepStats:
@@ -48,9 +58,9 @@ func creepFragScore(stats *creepStats) int {
 	case servantCreepStats:
 		return 25
 	case dominatorCreepStats:
-		return 100
+		return 80
 	case howitzerCreepStats:
-		return 100
+		return 90
 
 	default:
 		return 0

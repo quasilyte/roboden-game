@@ -25,6 +25,7 @@ type creepStats struct {
 	maxHealth float64
 
 	weapon        *gamedata.WeaponStats
+	superWeapon   *gamedata.WeaponStats
 	specialWeapon *gamedata.WeaponStats
 
 	beamColor      color.RGBA
@@ -245,7 +246,7 @@ var howitzerCreepStats = &creepStats{
 	image:     assets.ImageHowitzerCreep,
 	animSpeed: 0.2,
 	speed:     10,
-	maxHealth: 340,
+	maxHealth: 270,
 	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:          3,
 		BurstSize:           4,
@@ -346,7 +347,7 @@ var dominatorCreepStats = &creepStats{
 	shadowImage: assets.ImageBigShadow,
 	tier:        3,
 	speed:       35,
-	maxHealth:   200,
+	maxHealth:   190,
 	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:  1,
 		BurstSize:   1,
@@ -413,7 +414,16 @@ var stunnerCreepStats = &creepStats{
 		BurstSize:   1,
 		AttackSound: assets.AudioStunBeam,
 		AttackRange: 230,
-		Damage:      gamedata.DamageValue{Health: 2, Energy: 50},
+		Damage:      gamedata.DamageValue{Health: 2, Energy: 40},
+		Reload:      2.6,
+		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
+	}),
+	superWeapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
+		MaxTargets:  3,
+		BurstSize:   1,
+		AttackSound: assets.AudioStunBeam,
+		AttackRange: 230,
+		Damage:      gamedata.DamageValue{Slow: 2, Health: 2, Energy: 55},
 		Reload:      2.6,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),

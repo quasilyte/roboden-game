@@ -25,12 +25,16 @@ func newServantWaveNode(owner *creepNode) *servantWaveNode {
 }
 
 func (e *servantWaveNode) Init(scene *ge.Scene) {
-	s := scene.NewSprite(assets.ImageServantWave)
+	img := assets.ImageServantWave
+	if e.owner.super {
+		img = assets.ImageSuperServantWave
+	}
+	s := scene.NewSprite(img)
 	s.Pos.Base = &e.pos
 	e.owner.world.camera.AddSpriteAbove(s)
 
 	e.anim = ge.NewAnimation(s, -1)
-	e.anim.SetSecondsPerFrame(0.03)
+	e.anim.SetAnimationSpan(0.03 * 6)
 
 	e.damageDelay = 0.09
 }
@@ -45,7 +49,12 @@ func (e *servantWaveNode) Dispose() {
 
 func (e *servantWaveNode) dealDamage() {
 	// TODO: more efficient way to grab all units around the pos.
-	const maxRangeSqr float64 = 96 * 96
+	maxRangeSqr := 96.0 * 96.0
+	damage := gamedata.DamageValue{Health: 4, Slow: 2}
+	if e.owner.super {
+		maxRangeSqr = 128.0 * 128.0
+		damage.Slow++
+	}
 	for _, colony := range e.owner.world.colonies {
 		if colony.realRadius < 196 && colony.pos.DistanceSquaredTo(e.pos) > (maxRangeSqr*2) {
 			continue
@@ -55,7 +64,7 @@ func (e *servantWaveNode) dealDamage() {
 			if distSqr > maxRangeSqr {
 				return
 			}
-			a.OnDamage(gamedata.DamageValue{Health: 4, Slow: 2}, e.owner)
+			a.OnDamage(damage, e.owner)
 		})
 	}
 }

@@ -926,7 +926,11 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return true
 
 	case actionProduceAgent:
-		a := c.NewColonyAgentNode(action.Value.(*gamedata.AgentStats), c.GetEntrancePos())
+		pos := c.GetEntrancePos()
+		if c.world.rand.Bool() {
+			pos.X++
+		}
+		a := c.NewColonyAgentNode(action.Value.(*gamedata.AgentStats), pos)
 		a.faction = c.pickAgentFaction()
 		if c.eliteResources >= 1 {
 			c.eliteResources--

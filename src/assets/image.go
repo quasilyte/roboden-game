@@ -90,6 +90,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageCloakWave:                  {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
 		ImageDroneConsumed:              {Path: "image/effects/drone_consumed.png", FrameWidth: 28},
 		ImageServantWave:                {Path: "image/effects/servant_wave.png", FrameWidth: 64},
+		ImageSuperServantWave:           {Path: "image/effects/super_servant_wave.png", FrameWidth: 96},
 		ImageSmokeDown:                  {Path: "image/effects/smoke_down.png", FrameWidth: 8},
 		ImageSmokeSideDown:              {Path: "image/effects/smoke_side_down.png", FrameWidth: 8},
 		ImageSmokeSide:                  {Path: "image/effects/smoke_side.png", FrameWidth: 15},
@@ -157,23 +158,23 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageEssenceSource:                {Path: "image/resources/essence_source.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/resources/red_essence_source.png", FrameWidth: 32},
 
-		ImageHowitzerCreep:       {Path: "image/creeps/howitzer_creep.png", FrameWidth: 37},
-		ImageHowitzerPreparing:   {Path: "image/creeps/howitzer_preparing.png", FrameWidth: 37},
+		ImageHowitzerCreep:       {Path: "image/creeps/howitzer_creep.png", FrameWidth: 37, FrameHeight: 30},
+		ImageHowitzerPreparing:   {Path: "image/creeps/howitzer_preparing.png", FrameWidth: 37, FrameHeight: 36},
 		ImageHowitzerTrunk:       {Path: "image/creeps/howitzer_trunk.png", FrameWidth: 23},
-		ImageHeavyCrawlerCreep:   {Path: "image/creeps/heavy_crawler_creep.png", FrameWidth: 25},
-		ImageStealthCrawlerCreep: {Path: "image/creeps/stealth_crawler_creep.png", FrameWidth: 19},
-		ImageEliteCrawlerCreep:   {Path: "image/creeps/elite_crawler_creep.png", FrameWidth: 23},
-		ImageCrawlerCreep:        {Path: "image/creeps/crawler_creep.png", FrameWidth: 23},
-		ImagePrimitiveCreep:      {Path: "image/creeps/tier1_creep.png"},
-		ImageServantCreep:        {Path: "image/creeps/servant_creep.png", FrameWidth: 15},
-		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png"},
-		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25},
-		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23},
-		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png"},
-		ImageUberBoss:            {Path: "image/creeps/uber_boss.png", FrameWidth: 40},
-		ImageUberBossOpen:        {Path: "image/creeps/uber_boss_open.png"},
-		ImageCreepBase:           {Path: "image/creeps/creep_base.png", FrameWidth: 32},
-		ImageCrawlerCreepBase:    {Path: "image/creeps/crawler_base_creep.png"},
+		ImageHeavyCrawlerCreep:   {Path: "image/creeps/heavy_crawler_creep.png", FrameWidth: 25, FrameHeight: 19},
+		ImageStealthCrawlerCreep: {Path: "image/creeps/stealth_crawler_creep.png", FrameWidth: 19, FrameHeight: 16},
+		ImageEliteCrawlerCreep:   {Path: "image/creeps/elite_crawler_creep.png", FrameWidth: 23, FrameHeight: 17},
+		ImageCrawlerCreep:        {Path: "image/creeps/crawler_creep.png", FrameWidth: 23, FrameHeight: 16},
+		ImagePrimitiveCreep:      {Path: "image/creeps/tier1_creep.png", FrameHeight: 9},
+		ImageServantCreep:        {Path: "image/creeps/servant_creep.png", FrameWidth: 15, FrameHeight: 13},
+		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png", FrameHeight: 16},
+		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25, FrameHeight: 22},
+		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23, FrameHeight: 24},
+		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png", FrameHeight: 25},
+		ImageUberBoss:            {Path: "image/creeps/uber_boss.png", FrameWidth: 40, FrameHeight: 40},
+		ImageUberBossOpen:        {Path: "image/creeps/uber_boss_open.png", FrameHeight: 40},
+		ImageCreepBase:           {Path: "image/creeps/creep_base.png", FrameWidth: 32, FrameHeight: 32},
+		ImageCrawlerCreepBase:    {Path: "image/creeps/crawler_base_creep.png", FrameHeight: 25},
 		ImageBuilderCreep:        {Path: "image/creeps/builder_creep.png", FrameWidth: 31, FrameHeight: 31},
 
 		ImageBackgroundTiles: {Path: "image/landscape/tiles.png"},
@@ -328,6 +329,7 @@ const (
 	ImageCloakWave
 	ImageDroneConsumed
 	ImageServantWave
+	ImageSuperServantWave
 	ImageSmokeDown
 	ImageSmokeSideDown
 	ImageSmokeSide

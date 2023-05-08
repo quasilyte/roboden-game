@@ -13,6 +13,7 @@ type creepSpawnerNode struct {
 	creepDest  gmath.Vec
 	creepStats *creepStats
 	fragScore  int
+	super      bool
 	disposed   bool
 }
 
@@ -43,6 +44,7 @@ func (spawner *creepSpawnerNode) Update(delta float64) {
 	if spawner.delay <= 0 {
 		spawner.disposed = true
 		creep := spawner.world.NewCreepNode(spawner.pos, spawner.creepStats)
+		creep.super = spawner.super
 		spawner.world.nodeRunner.AddObject(creep)
 		creep.SendTo(spawner.creepDest)
 		creep.fragScore = spawner.fragScore

@@ -62,8 +62,13 @@ type arenaManager struct {
 	EventVictory gsignal.Event[gsignal.Void]
 }
 
+type arenaWaveUnit struct {
+	stats *creepStats
+	super bool
+}
+
 type arenaWaveGroup struct {
-	units []*creepStats
+	units []arenaWaveUnit
 	side  int
 }
 
@@ -317,7 +322,8 @@ func (m *arenaManager) spawnCreeps() {
 		sector := m.spawnAreas[g.side]
 		spawnPos := randomSectorPos(m.world.rand, sector)
 		targetPos := correctedPos(m.world.rect, randomSectorPos(m.world.rand, sector), 520)
-		for _, creepStats := range g.units {
+		for _, u := range g.units {
+			creepStats := u.stats
 			creepPos := spawnPos
 			spawnDelay := 0.0
 			if creepStats.shadowImage == assets.ImageNone {
@@ -328,23 +334,28 @@ func (m *arenaManager) spawnCreeps() {
 			} else {
 				creepPos = creepPos.Add(m.world.rand.Offset(-60, 60))
 			}
-			creepTargetPos := targetPos.Add(m.world.rand.Offset(-60, 60))
+
+			fragScore := 0
 			if isLastLevel {
-				m.world.result.CreepTotalValue += creepFragScore(creepStats)
+				fragScore = creepFragScore(creepStats)
+				if u.super {
+					fragScore *= superCreepCostMultiplier(creepStats)
+				}
 			}
+
+			creepTargetPos := targetPos.Add(m.world.rand.Offset(-60, 60))
+			m.world.result.CreepTotalValue += fragScore
 			if spawnDelay > 0 {
 				spawner := newCreepSpawnerNode(m.world, spawnDelay, creepPos, creepTargetPos, creepStats)
-				if isLastLevel {
-					spawner.fragScore = creepFragScore(creepStats)
-				}
+				spawner.fragScore = fragScore
+				spawner.super = u.super
 				m.world.nodeRunner.AddObject(spawner)
 			} else {
 				creep := m.world.NewCreepNode(creepPos, creepStats)
+				creep.super = u.super
 				m.world.nodeRunner.AddObject(creep)
 				creep.SendTo(creepTargetPos)
-				if isLastLevel {
-					creep.fragScore = creepFragScore(creepStats)
-				}
+				creep.fragScore = fragScore
 			}
 		}
 	}
@@ -430,7 +441,7 @@ func (m *arenaManager) prepareWave() {
 			creepSelection = append(creepSelection, m.builderCreepInfo)
 		}
 
-		const maxGroupBudget = 100
+		const maxGroupBudget = 120
 		for sideBudget > 0 {
 			groupCreepSelection := m.groupCreepSelectionSlice[:0]
 			groupCreepSelection = append(groupCreepSelection, creepSelection...)
@@ -445,7 +456,7 @@ func (m *arenaManager) prepareWave() {
 				if !ok {
 					break
 				}
-				if creep.kind == creepBuilder {
+				if creep.stats.kind == creepBuilder {
 					m.waveInfo.builders = true
 					groupCreepSelection = xslices.Remove(groupCreepSelection, m.builderCreepInfo)
 				}
@@ -465,9 +476,10 @@ func (m *arenaManager) prepareWave() {
 		m.waveInfo.taskForce = true
 		numAttackers := 1 + (m.level / 6)
 		g := arenaWaveGroup{side: m.attackSides[0]}
-		g.units = make([]*creepStats, numAttackers)
+		g.units = make([]arenaWaveUnit, numAttackers)
 		for i := range g.units {
-			g.units[i] = servantCreepStats
+			super := i == 0
+			g.units[i] = arenaWaveUnit{super: super, stats: servantCreepStats}
 		}
 		groups = append(groups, g)
 	}
@@ -476,33 +488,38 @@ func (m *arenaManager) prepareWave() {
 		// The last wave.
 		m.waveInfo.isLast = true
 		for i := 0; i < 3; i++ {
-			groups[0].units = append(groups[0].units, dominatorCreepStats)
+			super := i == 0
+			groups[0].units = append(groups[0].units, arenaWaveUnit{super: super, stats: dominatorCreepStats})
 		}
 		for i := 0; i < 2; i++ {
 			index := gmath.RandIndex(m.world.rand, groups)
-			groups[index].units = append(groups[index].units, howitzerCreepStats)
+			groups[index].units = append(groups[index].units, arenaWaveUnit{stats: howitzerCreepStats})
 		}
 		var groupSlider gmath.Slider
 		groupSlider.SetBounds(0, len(groups)-1)
 		for i := 0; i < 7; i++ {
+			super := i <= 1
 			index := groupSlider.Value()
-			groups[index].units = append(groups[index].units, servantCreepStats)
+			groups[index].units = append(groups[index].units, arenaWaveUnit{super: super, stats: servantCreepStats})
 			groupSlider.Inc()
 		}
 	} else if m.level%5 == 0 {
 		// A mini boss wave.
-		// 5 => 1 boss
+		// 5  => 1 boss
 		// 10 => 2 bosses
 		// 15 => 3 bosses
+		// 20 => 4 bosses
 		// ...
+		// At the 10th wave, there is always exactly 1 super unit.
 		numBosses := m.level / 5
 		for i := 0; i < numBosses; i++ {
+			super := i == 1
 			groupIndex := gmath.RandIndex(m.world.rand, groups)
 			if m.world.rand.Bool() {
-				groups[groupIndex].units = append(groups[groupIndex].units, howitzerCreepStats)
+				groups[groupIndex].units = append(groups[groupIndex].units, arenaWaveUnit{super: super, stats: howitzerCreepStats})
 				m.waveInfo.howitzer = true
 			} else {
-				groups[groupIndex].units = append(groups[groupIndex].units, dominatorCreepStats)
+				groups[groupIndex].units = append(groups[groupIndex].units, arenaWaveUnit{super: super, stats: dominatorCreepStats})
 				m.waveInfo.dominator = true
 			}
 		}
@@ -511,15 +528,35 @@ func (m *arenaManager) prepareWave() {
 	m.waveInfo.groups = groups
 }
 
-func (m *arenaManager) pickUnit(budget int, selection []*arenaCreepInfo) (*creepStats, int, bool) {
+func (m *arenaManager) pickUnit(budget int, selection []*arenaCreepInfo) (arenaWaveUnit, int, bool) {
+	var u arenaWaveUnit
 	if budget < selection[0].cost {
-		return nil, budget, false
+		return u, budget, false
 	}
 	creepInfo := randIterate(m.world.rand, selection, func(x *arenaCreepInfo) bool {
 		return x.cost <= budget && x.minLevel <= m.level
 	})
-	if creepInfo.cost != 0 && creepInfo.cost <= budget {
-		return creepInfo.stats, budget - creepInfo.cost, true
+	if creepInfo.cost != 0 {
+		u.stats = creepInfo.stats
+		cost := creepInfo.cost
+		superCostMultiplier := superCreepCostMultiplier(u.stats)
+		if (creepInfo.minLevel+4) <= m.level && creepInfo.cost*superCostMultiplier <= budget {
+			// 1  => 0%
+			// 4  => 0%
+			// 5  => 3%
+			// 10 => 18%
+			// 15 => 33%
+			// 20 => 48%
+			// 30 => 78%
+			eliteChance := gmath.Clamp(float64(m.level-4)*0.03, 0, 0.9)
+			if m.world.rand.Chance(eliteChance) {
+				u.super = true
+				return u, budget - creepInfo.cost*superCostMultiplier, true
+			}
+		}
+		if creepInfo.cost <= budget {
+			return u, budget - cost, true
+		}
 	}
-	return nil, budget, false
+	return u, budget, false
 }

@@ -62,6 +62,7 @@ type creepNode struct {
 	wasRetreating   bool
 	spawnedFromBase bool
 	cloaking        bool
+	super           bool
 
 	path            pathing.GridPath
 	specialTarget   any
@@ -105,6 +106,9 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	c.scene = scene
 
 	c.maxHealth = c.stats.maxHealth
+	if c.super {
+		c.maxHealth *= 2
+	}
 
 	c.sprite = scene.NewSprite(c.stats.image)
 	c.sprite.Pos.Base = &c.spritePos
@@ -120,8 +124,13 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		} else {
 			c.anim = ge.NewRepeatedAnimation(c.sprite, -1)
 		}
-		c.anim.Tick(c.world.localRand.FloatRange(0, 0.7))
 		c.anim.SetSecondsPerFrame(c.stats.animSpeed)
+		if c.super {
+			c.anim.SetOffsetY(c.sprite.FrameHeight)
+		}
+		c.anim.Tick(c.world.localRand.FloatRange(0, 0.7))
+	} else if c.super {
+		c.sprite.FrameOffset.Y = c.sprite.FrameHeight
 	}
 	c.flashComponent.sprite = c.sprite
 
@@ -218,9 +227,13 @@ func (c *creepNode) Update(delta float64) {
 	if c.stats.weapon != nil && c.attackDelay == 0 && c.disarm == 0 && !c.cloaking {
 		c.attackDelay = c.stats.weapon.Reload * c.scene.Rand().FloatRange(0.8, 1.2)
 		targets := c.findTargets()
+		weapon := c.stats.weapon
+		if c.super && c.stats.superWeapon != nil {
+			weapon = c.stats.superWeapon
+		}
 		if len(targets) != 0 {
 			for _, target := range targets {
-				c.doAttack(target)
+				c.doAttack(target, weapon)
 			}
 			if !c.stats.weapon.ProjectileFireSound {
 				playSound(c.world, c.stats.weapon.AttackSound, c.pos)
@@ -290,6 +303,9 @@ func (c *creepNode) explode() {
 			}
 
 			fall := newDroneFallNode(c.world, nil, c.stats.image, shadowImg, c.pos, c.height)
+			if c.super {
+				fall.FrameOffsetY = c.sprite.FrameHeight
+			}
 			c.world.nodeRunner.AddObject(fall)
 		} else {
 			createAreaExplosion(c.world, spriteRect(c.pos, c.altSprite), true)
@@ -331,6 +347,9 @@ func (c *creepNode) explode() {
 			}
 
 			fall := newDroneFallNode(c.world, scraps, c.stats.image, shadowImg, c.pos, agentFlightHeight)
+			if c.super {
+				fall.FrameOffsetY = c.sprite.FrameHeight
+			}
 			c.world.nodeRunner.AddObject(fall)
 		}
 	}
@@ -355,10 +374,16 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		}
 	}
 
-	c.slow = gmath.ClampMax(c.slow+damage.Slow, 5)
+	if damage.Slow != 0 {
+		slowImmune := c.super && c.stats == crawlerCreepStats
+		if !slowImmune {
+			c.slow = gmath.ClampMax(c.slow+damage.Slow, 5)
+		}
+	}
 
 	if damage.Disarm != 0 && c.stats.disarmable {
-		if c.scene.Rand().Chance(damage.Disarm * 0.1) {
+		disarmImmune := c.super && c.stats == crawlerCreepStats
+		if !disarmImmune && c.scene.Rand().Chance(damage.Disarm*0.1) {
 			c.disarm = 2.5
 			c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, c.IsFlying(), assets.ImageIonZap))
 			playIonExplosionSound(c.world, c.pos)
@@ -438,19 +463,25 @@ func (c *creepNode) spawnServants(n int) {
 	}
 }
 
-func (c *creepNode) doAttack(target targetable) {
+func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 	if c.stats.weapon.ProjectileImage != assets.ImageNone {
+		burstSize := c.stats.weapon.BurstSize
+		burstDelay := c.stats.weapon.BurstDelay
+		if c.super && c.stats == stealthCrawlerCreepStats {
+			burstSize += 2
+			burstDelay = 0.25
+		}
 		targetVelocity := target.GetVelocity()
-		for i := 0; i < c.stats.weapon.BurstSize; i++ {
+		for i := 0; i < burstSize; i++ {
 			burstCorrectedPos := *target.GetPos()
 			if i != 0 {
-				burstCorrectedPos = burstCorrectedPos.Add(targetVelocity.Mulf(c.stats.weapon.BurstDelay))
+				burstCorrectedPos = burstCorrectedPos.Add(targetVelocity.Mulf(burstDelay))
 			}
 			toPos := snipePos(c.stats.weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
-			fireDelay := float64(i) * c.stats.weapon.BurstDelay
+			fireDelay := float64(i) * burstDelay
 			p := c.world.newProjectileNode(projectileConfig{
 				World:     c.world,
-				Weapon:    c.stats.weapon,
+				Weapon:    weapon,
 				Attacker:  c,
 				ToPos:     toPos.Add(c.scene.Rand().Offset(-4, 4)),
 				Target:    target,
@@ -487,7 +518,7 @@ func (c *creepNode) doAttack(target targetable) {
 		c.world.nodeRunner.AddObject(rearBeam2)
 	}
 
-	target.OnDamage(c.stats.weapon.Damage, c)
+	target.OnDamage(weapon.Damage, c)
 }
 
 func (c *creepNode) retreatFrom(pos gmath.Vec) {
@@ -517,13 +548,30 @@ func (c *creepNode) SendTo(pos gmath.Vec) {
 }
 
 func (c *creepNode) findTargets() []targetable {
+	maxTargets := c.stats.weapon.MaxTargets
+	attackRangeSqr := c.stats.weapon.AttackRangeSqr
+	if c.super {
+		switch c.stats.kind {
+		case creepAssault, creepPrimitiveWanderer, creepDominator:
+			maxTargets++
+		case creepTurret:
+			attackRangeSqr *= 1.3
+		case creepCrawler:
+			if c.stats == eliteCrawlerCreepStats {
+				maxTargets++
+			} else if c.stats == heavyCrawlerCreepStats {
+				attackRangeSqr *= 1.2
+			}
+		}
+	}
+
 	targets := c.world.tmpTargetSlice[:0]
 	if c.aggro > 0 && c.aggroTarget != nil {
 		if c.aggroTarget.IsDisposed() || c.pos.DistanceSquaredTo(*c.aggroTarget.GetPos()) > c.stats.weapon.AttackRangeSqr {
 			c.aggroTarget = nil
 		} else {
 			targets = append(targets, c.aggroTarget)
-			if len(targets) >= c.stats.weapon.MaxTargets {
+			if len(targets) >= maxTargets {
 				return targets
 			}
 		}
@@ -531,13 +579,13 @@ func (c *creepNode) findTargets() []targetable {
 
 	c.world.FindColonyAgent(c.pos, c.stats.weapon.AttackRange, func(a *colonyAgentNode) bool {
 		targets = append(targets, a)
-		return len(targets) >= c.stats.weapon.MaxTargets
+		return len(targets) >= maxTargets
 	})
 	if c.stats.weapon.Damage.Health == 0 {
 		return targets
 	}
 
-	if len(targets) >= c.stats.weapon.MaxTargets {
+	if len(targets) >= maxTargets {
 		return targets
 	}
 	if c.stats.weapon.TargetFlags&gamedata.TargetGround == 0 {
@@ -545,23 +593,23 @@ func (c *creepNode) findTargets() []targetable {
 	}
 
 	for _, colony := range c.world.constructions {
-		if len(targets) >= c.stats.weapon.MaxTargets {
+		if len(targets) >= maxTargets {
 			return targets
 		}
-		if colony.pos.DistanceTo(c.pos) > c.stats.weapon.AttackRange {
+		if colony.pos.DistanceSquaredTo(c.pos) > c.stats.weapon.AttackRangeSqr {
 			continue
 		}
 		targets = append(targets, colony)
 	}
 
-	if len(targets) >= c.stats.weapon.MaxTargets {
+	if len(targets) >= maxTargets {
 		return targets
 	}
 	for _, colony := range c.world.colonies {
-		if len(targets) >= c.stats.weapon.MaxTargets {
+		if len(targets) >= maxTargets {
 			return targets
 		}
-		if colony.pos.DistanceTo(c.pos) > c.stats.weapon.AttackRange {
+		if colony.pos.DistanceSquaredTo(c.pos) > c.stats.weapon.AttackRangeSqr {
 			continue
 		}
 		targets = append(targets, colony)
@@ -659,6 +707,7 @@ func (c *creepNode) updateBuilder(delta float64) {
 				buildingStats = crawlerBaseConstructionCreepStats
 			}
 			turret := c.world.NewCreepNode(turretPos, buildingStats)
+			turret.super = c.super && c.world.rand.Chance(0.4)
 			turret.specialTarget = c
 			c.specialTarget = turret
 			c.world.nodeRunner.AddObject(turret)
@@ -721,13 +770,16 @@ func (c *creepNode) isNearEnemyBase(dist float64) bool {
 }
 
 func (c *creepNode) findHowitzerTarget(rangeMultiplier float64) targetable {
-	const minAttackRangeSqe float64 = 160 * 160
+	const minAttackRangeSqr float64 = 160 * 160
 	var target targetable
 	maxAttackRangeSqr := rangeMultiplier * c.stats.specialWeapon.AttackRangeSqr
+	if c.super {
+		maxAttackRangeSqr *= 1.1
+	}
 	randIterate(c.world.rand, c.world.colonies, func(colony *colonyCoreNode) bool {
 		if !colony.IsFlying() {
 			distSqr := colony.pos.DistanceSquaredTo(c.pos)
-			canAttack := distSqr > minAttackRangeSqe && distSqr < maxAttackRangeSqr
+			canAttack := distSqr > minAttackRangeSqr && distSqr < maxAttackRangeSqr
 			if canAttack {
 				target = colony
 				return true
@@ -735,7 +787,7 @@ func (c *creepNode) findHowitzerTarget(rangeMultiplier float64) targetable {
 		}
 		turretTarget := randIterate(c.world.rand, colony.turrets, func(turret *colonyAgentNode) bool {
 			distSqr := turret.pos.DistanceSquaredTo(c.pos)
-			return distSqr > minAttackRangeSqe && distSqr < maxAttackRangeSqr
+			return distSqr > minAttackRangeSqr && distSqr < maxAttackRangeSqr
 		})
 		if turretTarget != nil {
 			target = turretTarget
@@ -744,6 +796,13 @@ func (c *creepNode) findHowitzerTarget(rangeMultiplier float64) targetable {
 		return false
 	})
 	return target
+}
+
+func (c *creepNode) setAnimSprite(s *ge.Sprite, numFrames int) {
+	c.anim.SetSprite(s, numFrames)
+	if c.super {
+		c.anim.SetOffsetY(s.FrameHeight)
+	}
 }
 
 func (c *creepNode) updateHowitzer(delta float64) {
@@ -792,7 +851,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 				c.sprite.Visible = false
 				c.altSprite.Visible = true
 				c.anim.Mode = ge.AnimationBackward
-				c.anim.SetSprite(c.altSprite, -1)
+				c.setAnimSprite(c.altSprite, -1)
 				c.anim.Rewind()
 				trunk := c.specialTarget.(*howitzerTrunkNode)
 				trunk.SetVisibility(false)
@@ -808,7 +867,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 			c.altSprite.Visible = false
 			c.sprite.Visible = true
 			c.anim.Mode = ge.AnimationForward
-			c.anim.SetSprite(c.sprite, 4)
+			c.setAnimSprite(c.sprite, 4)
 			c.anim.Rewind()
 		}
 		return
@@ -832,7 +891,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 		hasTargets := c.findHowitzerTarget(1.1) != nil
 		if c.specialDelay == 0 && (hasTargets || c.world.rand.Chance(0.25)) {
 			c.specialModifier = howitzerPreparing
-			c.anim.SetSprite(c.altSprite, -1)
+			c.setAnimSprite(c.altSprite, -1)
 			c.anim.Rewind()
 			c.sprite.Visible = false
 			c.altSprite.Visible = true
@@ -886,6 +945,7 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 			resultStats = crawlerBaseCreepStats
 		}
 		result := c.world.NewCreepNode(c.pos, resultStats)
+		result.super = c.super
 		c.specialTarget.(*creepNode).specialTarget = result
 		c.world.nodeRunner.AddObject(result)
 		c.Destroy()
@@ -902,7 +962,12 @@ func (c *creepNode) updateCreepCrawlerBase(delta float64) {
 	if c.attackDelay != 0 {
 		return
 	}
-	const maxUnits = 10
+	maxUnits := float64(10)
+	productionDelay := 1.0
+	if c.super {
+		maxUnits = 16.0
+		productionDelay = 0.75
+	}
 	if c.specialModifier > maxUnits {
 		return
 	}
@@ -917,10 +982,11 @@ func (c *creepNode) updateCreepCrawlerBase(delta float64) {
 		c.attackDelay = c.scene.Rand().FloatRange(2, 5)
 		return
 	}
-	c.attackDelay = c.scene.Rand().FloatRange(25, 55)
+	c.attackDelay = c.scene.Rand().FloatRange(25, 55) * productionDelay
 	c.specialModifier++
 
 	crawler := c.world.NewCreepNode(spawnPos, crawlerCreepStats)
+	crawler.super = c.super && c.scene.Rand().Chance(0.2)
 	crawler.SendTo(dstPos)
 	crawler.waypoint = crawler.pos
 	c.world.nodeRunner.AddObject(crawler)
@@ -995,6 +1061,7 @@ func (c *creepNode) updateCreepBase(delta float64) {
 		}
 
 		creep := c.world.NewCreepNode(spawnPos, stats)
+		creep.super = c.super && c.scene.Rand().Chance(0.4)
 		creep.waypoint = waypoint
 		creep.spawnedFromBase = true
 		c.world.nodeRunner.AddObject(creep)

@@ -392,6 +392,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModeAlignStandby:
+		if a.shadow != nil && a.mode == agentModeTakeoff {
+			a.shadow.Visible = true
+		}
 		if a.cloningBeam != nil {
 			a.cloningBeam.Dispose()
 			a.cloningBeam = nil
@@ -523,6 +526,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModeTakeoff:
 		a.mode = mode
 		a.waypoint = a.pos.Sub(gmath.Vec{Y: agentFlightHeight})
+		if a.shadow != nil {
+			a.shadow.Visible = false
+		}
 		return true
 
 	case agentModePickup:
@@ -1314,10 +1320,10 @@ func (a *colonyAgentNode) findAttackTargets() []targetable {
 		return len(targets) >= maxTargets
 	}
 
-	startX = gmath.Clamp(startX, 0, 8)
-	startY = gmath.Clamp(startY, 0, 8)
-	endX = gmath.Clamp(endX, 0, 8)
-	endY = gmath.Clamp(endY, 0, 8)
+	startX = gmath.Clamp(startX, 0, 7)
+	startY = gmath.Clamp(startY, 0, 7)
+	endX = gmath.Clamp(endX, 0, 7)
+	endY = gmath.Clamp(endY, 0, 7)
 	numStepsX := endX - startX + 1
 	numStepsY := endY - startY + 1
 
@@ -1559,6 +1565,9 @@ func (a *colonyAgentNode) updateTakeoff(delta float64) {
 	a.height += delta * 30
 	if a.moveTowards(delta, a.waypoint) {
 		a.height = agentFlightHeight
+		if a.shadow != nil {
+			a.shadow.Visible = true
+		}
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }

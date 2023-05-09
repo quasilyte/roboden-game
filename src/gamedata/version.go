@@ -135,6 +135,7 @@ const SeasonNumber = 0
 //   - Fixed Trucker drone diode location
 //   - Fixed leaderboard layout issues
 //   - Removed "colony under attack" notice during the fatal damage
+//   - Fixed some of the faction bonuses (they were not applied properly)
 //
 // * Optimizations:
 //   - The game doesn't create animation objects for drones with no animation anymore

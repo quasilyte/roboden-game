@@ -164,13 +164,13 @@ func (a *colonyAgentNode) Clone() *colonyAgentNode {
 	cloned.traits = a.traits
 	cloned.cloneGen = a.cloneGen + 1
 	cloned.faction = a.faction
+	cloned.energyRegenRate = a.energyRegenRate
+	cloned.healthRegen = a.healthRegen
 	return cloned
 }
 
 func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.scene = scene
-	a.energyRegenRate = 1 + a.stats.EnergyRegenRateBonus
-	a.healthRegen = a.stats.SelfRepair
 
 	if a.stats.Tier == 1 {
 		a.lifetime = scene.Rand().FloatRange(1.5*60, 3*60)
@@ -179,6 +179,26 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		// If evolution priority is high, neutral drones will be recycled anyway.
 		if a.faction == gamedata.NeutralFactionTag {
 			a.lifetime *= 2
+		}
+	}
+
+	if a.cloneGen == 0 {
+		a.energyRegenRate = 1 + a.stats.EnergyRegenRateBonus
+		a.healthRegen = a.stats.SelfRepair
+		a.maxHealth = a.stats.MaxHealth * scene.Rand().FloatRange(0.9, 1.1)
+		a.maxEnergy = scene.Rand().FloatRange(120, 200)
+		a.speed = a.stats.Speed * scene.Rand().FloatRange(0.8, 1.1)
+
+		switch a.faction {
+		case gamedata.RedFactionTag:
+			a.maxHealth *= 1.4
+		case gamedata.GreenFactionTag:
+			a.speed *= 1.25
+		case gamedata.BlueFactionTag:
+			a.maxEnergy *= 1.8
+			a.energyRegenRate += 0.2
+		case gamedata.YellowFactionTag:
+			a.energyRegenRate += 0.5
 		}
 	}
 
@@ -237,24 +257,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 			// 5% for panic.
 			a.traits |= traitLowHPPanic
 		}
-
-		switch a.faction {
-		case gamedata.RedFactionTag:
-			a.maxHealth *= 1.4
-		case gamedata.GreenFactionTag:
-			a.speed *= 1.2
-		case gamedata.BlueFactionTag:
-			a.maxEnergy *= 1.8
-			a.energyRegenRate += 0.2
-		case gamedata.YellowFactionTag:
-			a.energyRegenRate += 0.5
-		}
 	}
 
 	if a.cloneGen == 0 {
-		a.maxHealth = a.stats.MaxHealth * scene.Rand().FloatRange(0.9, 1.1)
-		a.maxEnergy = scene.Rand().FloatRange(120, 200)
-		a.speed = a.stats.Speed * scene.Rand().FloatRange(0.8, 1.1)
 		a.applyRankBonuses()
 	}
 

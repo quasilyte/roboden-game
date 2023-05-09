@@ -423,11 +423,25 @@ func (c *colonyCoreNode) Update(delta float64) {
 	}
 }
 
+func (c *colonyCoreNode) stopTeleportationEffect() {
+	c.otherShader, c.sprite.Shader = c.sprite.Shader, c.otherShader
+	c.hatch.Visible = true
+	for _, rect := range c.resourceRects {
+		rect.Visible = true
+	}
+}
+
 func (c *colonyCoreNode) updateTeleporting(delta float64) {
 	c.teleportDelay -= delta
 	c.sprite.Shader.SetFloatValue("Time", 20-(c.teleportDelay*10))
 
 	if c.teleportDelay <= 0 {
+		if !c.canTeleportTo(c.relocationPoint) {
+			c.mode = colonyModeNormal
+			c.stopTeleportationEffect()
+			return
+		}
+
 		playSound(c.world, assets.AudioTeleportDone, c.pos)
 		playSound(c.world, assets.AudioTeleportDone, c.relocationPoint)
 
@@ -444,11 +458,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 
 		c.mode = colonyModeNormal
 		c.pos = c.relocationPoint
-		c.otherShader, c.sprite.Shader = c.sprite.Shader, c.otherShader
-		c.hatch.Visible = true
-		for _, rect := range c.resourceRects {
-			rect.Visible = true
-		}
+		c.stopTeleportationEffect()
 
 		c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, false, assets.ImageTeleportEffect))
 
@@ -670,6 +680,19 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 	}
 }
 
+func (c *colonyCoreNode) canTeleportTo(pos gmath.Vec) bool {
+	for _, otherColony := range c.world.colonies {
+		if otherColony == c {
+			continue
+		}
+		if pos.DistanceSquaredTo(otherColony.pos) <= (40 * 40) {
+			// There is a colony on the other side that blocks the teleporter.
+			return false
+		}
+	}
+	return true
+}
+
 func (c *colonyCoreNode) maybeTeleport() {
 	var teleporter *teleporterNode
 	for _, tp := range c.world.teleporters {
@@ -681,6 +704,11 @@ func (c *colonyCoreNode) maybeTeleport() {
 	if teleporter == nil {
 		return
 	}
+	// Is that teleporter already occupied?
+	if !c.canTeleportTo(teleporter.other.pos) {
+		return
+	}
+
 	c.mode = colonyModeTeleporting
 	c.teleportDelay = 2
 	c.relocationPoint = teleporter.other.pos.Add(gmath.Vec{Y: -8})

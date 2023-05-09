@@ -29,6 +29,7 @@ type Camera struct {
 	bg                   *ge.TiledBackground
 	fogOfWar             *ebiten.Image
 	belowObjects         layer
+	slightlyBelowObjects layer
 	objects              layer
 	slightlyAboveObjects layer
 	aboveObjects         layer
@@ -109,6 +110,13 @@ func (c *Camera) AddSpriteBelow(s *ge.Sprite) {
 		return
 	}
 	c.belowObjects.AddSprite(s)
+}
+
+func (c *Camera) AddSpriteSlightlyBelow(s *ge.Sprite) {
+	if c.headless {
+		return
+	}
+	c.slightlyBelowObjects.AddSprite(s)
 }
 
 func (c *Camera) SortBelowLayer() {
@@ -222,6 +230,7 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 	c.screen.Clear()
 	c.bg.DrawPartial(c.screen, c.globalRect)
 	c.drawLayer(c.screen, &c.belowObjects)
+	c.drawLayer(c.screen, &c.slightlyBelowObjects)
 	c.drawLayer(c.screen, &c.objects)
 	c.drawLayer(c.screen, &c.slightlyAboveObjects)
 	c.drawLayer(c.screen, &c.aboveObjects)

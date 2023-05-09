@@ -60,6 +60,19 @@ func (c *OptionsExtraMenuController) initUI() {
 		}))
 	}
 
+	{
+		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
+			Resources: uiResources,
+			Value:     &options.ShowTimer,
+			Label:     d.Get("menu.options.show_timer"),
+			ValueNames: []string{
+				d.Get("menu.option.off"),
+				d.Get("menu.option.on"),
+			},
+		}))
+	}
+
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	if !c.state.Device.IsMobile {

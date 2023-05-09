@@ -23,6 +23,7 @@ import (
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/timeutil"
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
@@ -74,7 +75,8 @@ type Controller struct {
 
 	cursor *gameui.CursorNode
 
-	debugInfo *ge.Label
+	debugInfo        *ge.Label
+	debugUpdateDelay float64
 
 	replayActions []serverapi.PlayerAction
 }
@@ -354,7 +356,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.updateFogOfWar(c.world.selectedColony.pos)
 	}
 
-	if c.state.Persistent.Settings.ShowFPS {
+	if c.state.Persistent.Settings.ShowFPS || c.state.Persistent.Settings.ShowTimer {
 		c.debugInfo = scene.NewLabel(assets.FontSmall)
 		c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
 		c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
@@ -956,7 +958,25 @@ func (c *Controller) Update(delta float64) {
 	c.handleInput()
 
 	if c.debugInfo != nil {
+		c.updateDebug(delta)
+	}
+}
+
+func (c *Controller) updateDebug(delta float64) {
+	c.debugUpdateDelay -= delta
+	if c.debugUpdateDelay > 0 {
+		return
+	}
+	c.debugUpdateDelay = 0.5
+
+	settings := &c.state.Persistent.Settings
+	switch {
+	case settings.ShowFPS && settings.ShowTimer:
+		c.debugInfo.Text = fmt.Sprintf("Time: %s FPS: %.0f TPS: %.0f", timeutil.FormatDurationCompact(time.Second*time.Duration(c.nodeRunner.timePlayed)), ebiten.ActualFPS(), ebiten.ActualTPS())
+	case settings.ShowFPS:
 		c.debugInfo.Text = fmt.Sprintf("FPS: %.0f TPS: %.0f", ebiten.ActualFPS(), ebiten.ActualTPS())
+	case settings.ShowTimer:
+		c.debugInfo.Text = fmt.Sprintf("Time: %s", timeutil.FormatDurationCompact(time.Second*time.Duration(c.nodeRunner.timePlayed)))
 	}
 }
 

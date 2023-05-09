@@ -120,10 +120,12 @@ const SeasonNumber = 0
 //   - Make tether towers affect up to 4 drones (it was 2 before)
 //   - Make tether towers slightly reduce the amount of drone energy consumption
 //   - Made attack action range scale better
+//   - Reworked (nerfed) couriers income
 //
 // * UX:
 //   - Added difficulty description tag in the game lobby
 //   - Added a UI toggle key
+//   - Added a Timer extra option
 //
 // * Bug fixes:
 //   - Fixed overlapping teleports bug

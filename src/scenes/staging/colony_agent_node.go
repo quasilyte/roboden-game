@@ -1916,7 +1916,7 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 			}
 			return
 		}
-		if target.pos.DistanceTo(a.pos) < 70 {
+		if target.pos.DistanceSquaredTo(a.pos) < (70 * 70) {
 			if a.payload != 0 {
 				target.resources += a.cargoValue
 				a.clearCargo()
@@ -1925,15 +1925,22 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 			beam.width = 2
 			a.world().nodeRunner.AddObject(beam)
 			playSound(a.world(), assets.AudioCourierResourceBeam, a.pos)
+			dist := target.pos.DistanceTo(a.colonyCore.pos)
 			// Now go back and bring some resources.
-			a.payload = a.maxPayload()
-			a.cargoValue = float64(a.payload) * 3
-			a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
+			if dist > 115 {
+				a.payload = a.maxPayload()
+				a.cargoValue = float64(a.payload) * (math.Trunc((dist-100)/15) * 0.08)
+				a.cargoValue = gmath.ClampMax(a.cargoValue, 10)
+				a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
+			} else {
+				a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+			}
 			// Get a minor repair+recharge.
 			a.health = gmath.ClampMax(a.health+5, a.maxHealth)
 			a.energy = gmath.ClampMax(a.energy+15, a.maxEnergy)
 			return
 		}
+		// TODO: use a followPos here?
 		a.waypoint = a.pos.DirectionTo(target.pos).Mulf(60).Add(target.pos).Add(a.scene.Rand().Offset(-20, 20))
 	}
 }

@@ -102,6 +102,7 @@ type GameSettings struct {
 	ScrollingSpeed     int
 	EdgeScrollRange    int
 	ShowFPS            bool
+	ShowTimer          bool
 	DebugLogs          bool
 	Graphics           GraphicsSettings
 }

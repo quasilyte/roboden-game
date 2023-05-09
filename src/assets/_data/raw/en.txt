@@ -118,6 +118,7 @@
 ##menu.options.scroll_speed : Scroll speed
 ##menu.options.edge_scroll_range : Edge scroll range
 ##menu.options.show_fps : Show FPS
+##menu.options.show_timer : Show timer
 
 ##menu.options.graphics.shadows : Shadows
 ##menu.options.graphics.shaders : Shaders

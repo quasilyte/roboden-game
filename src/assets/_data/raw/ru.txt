@@ -118,6 +118,7 @@
 ##menu.options.scroll_speed : Скорость скроллинга
 ##menu.options.edge_scroll_range : Ширина границы прокрутки
 ##menu.options.show_fps : Отображать FPS
+##menu.options.show_timer : Отображать таймер
 
 ##menu.options.graphics.shadows : Тени
 ##menu.options.graphics.shaders : Шейдеры

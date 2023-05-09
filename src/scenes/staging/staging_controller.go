@@ -360,7 +360,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.debugInfo = scene.NewLabel(assets.FontSmall)
 		c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
 		c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
-		scene.AddGraphicsAbove(c.debugInfo, 1)
+		c.uiLayer.AddGraphics(c.debugInfo)
 	}
 
 	c.camera.SortBelowLayer()
@@ -792,6 +792,9 @@ func (c *Controller) handleInput() {
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionShowRecipes) {
+		if c.debugInfo != nil {
+			c.debugInfo.Visible = c.recipeTab.Visible
+		}
 		c.recipeTab.Visible = !c.recipeTab.Visible
 		c.world.result.OpenedEvolutionTab = true
 	}

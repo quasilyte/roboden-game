@@ -113,6 +113,7 @@ const SeasonNumber = 0
 //   - Added Devourer tier 3 drone
 //   - Added "Oil regeneration rate" world option
 //   - Added "Terrain" world option
+//   - Super creep versions (classic + arena)
 //
 // * Balance:
 //   - Add 2 max hp to Prism drones (28 -> 30)
@@ -131,9 +132,10 @@ const SeasonNumber = 0
 //   - Fixed multi rewards
 //   - Fixed Trucker drone diode location
 //   - Fixed leaderboard layout issues
+//   - Removed "colony under attack" notice during the fatal damage
 //
 // * Optimizations:
 //   - The game doesn't create animation objects for drones with no animation anymore
-//   - Clusters for creeps (makes target selection faster)
+//   - Clusters for units (makes target selection faster)
 //   - Less allocations in simulation mode
 const BuildNumber int = 12

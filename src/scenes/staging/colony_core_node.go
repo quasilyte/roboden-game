@@ -241,15 +241,6 @@ func (c *colonyCoreNode) OnHeal(amount float64) {
 }
 
 func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable) {
-	if damage.Health != 0 {
-		c.flashComponent.flash = 0.2
-		c.hatchFlashComponent.flash = 0.2
-		if c.heavyDamageWarningCooldown == 0 && c.health <= c.maxHealth*0.75 {
-			c.heavyDamageWarningCooldown = 45
-			c.EventUnderAttack.Emit(c)
-		}
-	}
-
 	c.health -= damage.Health
 	if c.health < 0 {
 		if c.height == 0 {
@@ -266,6 +257,15 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable
 		}
 		c.Destroy()
 		return
+	}
+
+	if damage.Health != 0 {
+		c.flashComponent.flash = 0.2
+		c.hatchFlashComponent.flash = 0.2
+		if c.heavyDamageWarningCooldown == 0 && c.health <= c.maxHealth*0.75 {
+			c.heavyDamageWarningCooldown = 45
+			c.EventUnderAttack.Emit(c)
+		}
 	}
 
 	c.updateHealthShader()

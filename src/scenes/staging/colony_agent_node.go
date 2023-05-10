@@ -58,6 +58,7 @@ const (
 	agentModeMergingRoomba
 	agentModeBuildBuilding
 	agentModeGuardForever
+	agentModeRoombaGuard
 	agentModeRoombaPatrol
 	agentModeRoombaWait
 	agentModeKamikazeAttack
@@ -742,7 +743,7 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateKamikazeAttack(delta)
 	case agentModeConsumeDrone:
 		a.updateConsumeDrone(delta)
-	case agentModeRoombaPatrol:
+	case agentModeRoombaPatrol, agentModeRoombaGuard:
 		a.updateRoombaPatrol(delta)
 	case agentModeRoombaWait:
 		a.updateRoombaWait(delta)
@@ -1703,9 +1704,16 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 		}
 	}
 
-	if len(a.colonyCore.turrets) != 0 && a.scene.Rand().Chance(0.1) {
+	if a.mode == agentModeRoombaGuard && a.scene.Rand().Chance(0.9) {
+		a.mode = agentModeRoombaWait
+		a.dist = a.scene.Rand().FloatRange(10, 25)
+		return
+	}
+
+	if len(a.colonyCore.turrets) != 0 && a.scene.Rand().Chance(0.15) {
 		turret := gmath.RandElem(a.scene.Rand(), a.colonyCore.turrets)
 		a.sendTo(turret.pos.Add(a.scene.Rand().Offset(-80, 80)))
+		a.mode = agentModeRoombaGuard
 		return
 	}
 

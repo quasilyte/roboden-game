@@ -5,6 +5,10 @@ type GridCoord struct {
 	Y int
 }
 
+func (c GridCoord) IsZero() bool {
+	return c.X == 0 && c.Y == 0
+}
+
 func (c GridCoord) Add(other GridCoord) GridCoord {
 	return GridCoord{X: c.X + other.X, Y: c.Y + other.Y}
 }

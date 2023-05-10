@@ -38,6 +38,7 @@ type creepStats struct {
 	disarmable    bool
 	canBeRepelled bool
 	flying        bool
+	building      bool
 }
 
 var turretCreepStats = &creepStats{
@@ -63,6 +64,7 @@ var turretCreepStats = &creepStats{
 	size:          40,
 	canBeRepelled: false,
 	disarmable:    false,
+	building:      true,
 	targetKind:    gamedata.TargetGround,
 }
 
@@ -74,6 +76,7 @@ var baseCreepStats = &creepStats{
 	size:          60,
 	disarmable:    false,
 	canBeRepelled: false,
+	building:      true,
 	targetKind:    gamedata.TargetGround,
 }
 
@@ -85,6 +88,7 @@ var crawlerBaseCreepStats = &creepStats{
 	size:          60,
 	disarmable:    false,
 	canBeRepelled: false,
+	building:      true,
 	targetKind:    gamedata.TargetGround,
 }
 
@@ -96,6 +100,7 @@ var crawlerBaseConstructionCreepStats = &creepStats{
 	size:          40,
 	disarmable:    false,
 	canBeRepelled: false,
+	building:      true,
 	targetKind:    gamedata.TargetGround,
 }
 
@@ -107,6 +112,7 @@ var turretConstructionCreepStats = &creepStats{
 	size:          40,
 	disarmable:    false,
 	canBeRepelled: false,
+	building:      true,
 	targetKind:    gamedata.TargetGround,
 }
 

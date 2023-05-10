@@ -122,7 +122,7 @@ func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
 }
 
 func (g *levelGenerator) fillPathgrid() {
-	p := g.world.pathgrid
+	w := g.world
 
 	if pathing.CellSize != wallTileSize {
 		panic("update the pathgrid build algorithm")
@@ -138,20 +138,14 @@ func (g *levelGenerator) fillPathgrid() {
 			for y := wall.rect.Min.Y; y <= wall.rect.Max.Y; y += pathing.CellSize {
 				for x := wall.rect.Min.X; x <= wall.rect.Max.X; x += pathing.CellSize {
 					pos := gmath.Vec{X: x, Y: y}
-					p.MarkCell(p.PosToCoord(pos))
+					w.MarkPos(pos)
 				}
 			}
 			continue
 		}
 		for _, pos := range wall.points {
-			p.MarkCell(p.PosToCoord(pos))
+			w.MarkPos(pos)
 		}
-	}
-
-	// For resources we can only get an approx grid cell,
-	// since resources are not grid-aligned.
-	for _, essence := range g.world.essenceSources {
-		p.MarkCell(p.PosToCoord(essence.pos))
 	}
 }
 
@@ -166,7 +160,7 @@ func (g *levelGenerator) placeTeleporters() {
 	for i := 0; i < g.world.config.Teleporters; i++ {
 		tp1sectorIndex := gmath.RandIndex(g.world.rand, g.sectors)
 		tp1pos, tp1sector := g.randomFreePosWithFallback(g.sectors[tp1sectorIndex], g.nextSector(tp1sectorIndex, g.sectors), 96, 196)
-		tp1 := &teleporterNode{id: i, pos: tp1pos, world: g.world}
+		tp1 := &teleporterNode{id: i, pos: g.world.Adjust2x2CellPos(tp1pos, 0).Sub(teleportOffset), world: g.world}
 
 		var tp2 *teleporterNode
 		for {
@@ -176,7 +170,7 @@ func (g *levelGenerator) placeTeleporters() {
 				continue
 			}
 			tp2pos, _ := g.randomFreePosWithFallback(tp2sector, g.nextSector(tp2sectorIndex, g.sectors), 96, 196)
-			tp2 = &teleporterNode{id: i, pos: tp2pos, world: g.world}
+			tp2 = &teleporterNode{id: i, pos: g.world.Adjust2x2CellPos(tp2pos, 0).Sub(teleportOffset), world: g.world}
 			break
 		}
 
@@ -237,6 +231,9 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stat
 	initialPos := pos
 	unitPos := pos
 	for i := 0; i < maxSize; i++ {
+		if stats.building {
+			pos = g.world.AdjustCellPos(pos, 6)
+		}
 		if !posIsFree(g.world, nil, pos, 24) || pos.DistanceTo(g.playerSpawn) < 520 {
 			break
 		}
@@ -269,8 +266,7 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stat
 }
 
 func (g *levelGenerator) adjustResourcePos(pos gmath.Vec) gmath.Vec {
-	aligned := g.world.pathgrid.AlignPos(pos)
-	return aligned.Add(g.rng.Offset(-10, 10))
+	return g.world.AdjustCellPos(pos, 10)
 }
 
 func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, kind *essenceSourceStats) int {
@@ -502,6 +498,7 @@ func (g *levelGenerator) placeCreepBases() {
 	for i := 0; i < numBases; i++ {
 		border := borders[i]
 		basePos := g.randomFreePos(border, 48, 16)
+		basePos = g.world.AdjustCellPos(basePos, 6)
 		if g.world.debugLogs {
 			fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
 		}

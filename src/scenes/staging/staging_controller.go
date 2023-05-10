@@ -79,6 +79,8 @@ type Controller struct {
 	debugUpdateDelay float64
 
 	replayActions []serverapi.PlayerAction
+
+	// rects []*ge.Rect
 }
 
 func NewController(state *session.State, config gamedata.LevelConfig, back ge.SceneController) *Controller {
@@ -377,8 +379,27 @@ func (c *Controller) Init(scene *ge.Scene) {
 	// 			rect.FillColorScale.SetRGBA(200, 50, 50, 100)
 	// 			rect.Pos.Offset = c.world.pathgrid.CoordToPos(coord)
 	// 			c.camera.AddGraphics(rect)
+	// 			c.rects = append(c.rects, rect)
 	// 		}
 	// 	}
+	// 	c.world.EventUnmarked.Connect(c, func(pos gmath.Vec) {
+	// 		index := xslices.IndexWhere(c.rects, func(rect *ge.Rect) bool {
+	// 			return rect.Pos.Offset == pos
+	// 		})
+	// 		if index == -1 {
+	// 			panic("??")
+	// 		}
+	// 		c.rects[index].Dispose()
+	// 		c.rects[index] = c.rects[len(c.rects)-1]
+	// 		c.rects = c.rects[:len(c.rects)-1]
+	// 	})
+	// 	c.world.EventMarked.Connect(c, func(pos gmath.Vec) {
+	// 		rect := ge.NewRect(scene.Context(), pathing.CellSize, pathing.CellSize)
+	// 		rect.FillColorScale.SetRGBA(200, 50, 50, 100)
+	// 		rect.Pos.Offset = c.world.pathgrid.CoordToPos(c.world.pathgrid.PosToCoord(pos))
+	// 		c.camera.AddGraphics(rect)
+	// 		c.rects = append(c.rects, rect)
+	// 	})
 	// }
 
 	{
@@ -478,7 +499,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		dist := gmath.ClampMax(clickDist, maxDist)
 		relocationVec := c.world.selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
 		relocationPos = relocationVec.Add(c.world.selectedColony.pos)
-		return c.launchRelocation(c.world.selectedColony, dist, maxDist, relocationPos)
+		return c.launchRelocation(c.world.selectedColony, dist, relocationPos)
 	case specialIncreaseRadius:
 		c.world.result.RadiusIncreases++
 		c.world.selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
@@ -489,35 +510,43 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		c.world.selectedColony.realRadius = gmath.ClampMin(c.world.selectedColony.realRadius-value, 96)
 		c.world.selectedColony.realRadiusSqr = c.world.selectedColony.realRadius * c.world.selectedColony.realRadius
 		return true
-	case specialBuildColony, specialBuildGunpoint:
-		// TODO: use a pathing.Grid to find a free cell?
+	case specialBuildGunpoint:
+		stats := gunpointConstructionStats
+		switch c.world.turretDesign {
+		case gamedata.BeamTowerAgentStats:
+			stats = beamTowerConstructionStats
+		case gamedata.TetherBeaconAgentStats:
+			stats = tetherBeaconConstructionStats
+		}
+		coord := c.world.pathgrid.PosToCoord(c.world.selectedColony.pos)
+		freeCoord := randIterate(c.world.rand, colonyNearCellOffsets, func(offset pathing.GridCoord) bool {
+			probe := coord.Add(offset)
+			return c.world.pathgrid.CellIsFree(probe)
+		})
+		if !freeCoord.IsZero() {
+			pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord))
+			spriteOffset := roundedPos(c.world.rand.Offset(-4, 4))
+			construction := c.world.NewConstructionNode(pos, spriteOffset, stats)
+			c.nodeRunner.AddObject(construction)
+			return true
+		}
+		return false
+
+	case specialBuildColony:
+		p := c.world.pathgrid
 		stats := colonyCoreConstructionStats
-		dist := 60.0
-		size := 40.0
-		if choice.Option.special == specialBuildGunpoint {
-			stats = gunpointConstructionStats
-			switch c.world.turretDesign {
-			case gamedata.BeamTowerAgentStats:
-				stats = beamTowerConstructionStats
-			case gamedata.TetherBeaconAgentStats:
-				stats = tetherBeaconConstructionStats
-			}
-			dist = 48.0
-			size = 32.0
-		} else {
-			c.world.result.ColoniesBuilt++
+		coord := p.PosToCoord(c.world.selectedColony.pos)
+		freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
+			probe := coord.Add(offset)
+			return c.world.CellIsFree2x2(probe)
+		})
+		if !freeCoord.IsZero() {
+			pos := p.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})
+			construction := c.world.NewConstructionNode(pos, gmath.Vec{}, stats)
+			c.nodeRunner.AddObject(construction)
+			return true
 		}
-		direction := c.world.rand.Rad()
-		for i := 0; i < 22; i++ {
-			locationProbe := gmath.RadToVec(direction).Mulf(dist).Add(c.world.selectedColony.pos)
-			direction += (2 * math.Pi) / 22
-			constructionPos := c.pickColonyPos(nil, locationProbe, size, 4)
-			if !constructionPos.IsZero() {
-				construction := c.world.NewConstructionNode(constructionPos, stats)
-				c.nodeRunner.AddObject(construction)
-				return true
-			}
-		}
+		return false
 	}
 
 	return false
@@ -533,23 +562,6 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	} else {
 		c.scene.Audio().PlaySound(assets.AudioError)
 	}
-}
-
-func (c *Controller) pickColonyPos(core *colonyCoreNode, pos gmath.Vec, r float64, tries int) gmath.Vec {
-	pos = correctedPos(c.world.rect, pos, 0)
-	minOffset := -10.0
-	maxOffset := 10.0
-	for i := 0; i < tries; i++ {
-		probe := pos.Add(c.world.rand.Offset(minOffset, maxOffset))
-		probe = roundedPos(probe)
-		probe = correctedPos(c.world.rect, probe, 98)
-		if posIsFree(c.world, core, probe, r) {
-			return probe
-		}
-		minOffset -= 10
-		maxOffset += 10
-	}
-	return gmath.Vec{}
 }
 
 func (c *Controller) launchAttack() {
@@ -590,40 +602,29 @@ func (c *Controller) launchAttack() {
 	})
 }
 
-func (c *Controller) launchRelocation(core *colonyCoreNode, dist, maxDist float64, dst gmath.Vec) bool {
-	const posCheckFlags = collisionSkipSmallCrawlers | collisionSkipTeleporters
-	dstDir := dst.DirectionTo(core.pos)
-	var relocationPoint gmath.Vec
-OuterLoop:
-	for _, step := range [3]float64{-32.0, 32.0, -16.0} {
-		currentDist := dist
-		currentPos := dst
-		for {
-			if posIsFreeWithFlags(c.world, core, currentPos, 48, posCheckFlags) {
-				relocationPoint = currentPos
-				break OuterLoop
-			}
-			leftPos := dstDir.Rotated(-0.2).Mulf(currentDist).Add(core.pos)
-			if posIsFreeWithFlags(c.world, core, leftPos, 48, posCheckFlags) {
-				relocationPoint = leftPos
-				break OuterLoop
-			}
-			rightPos := dstDir.Rotated(0.2).Mulf(currentDist).Add(core.pos)
-			if posIsFreeWithFlags(c.world, core, rightPos, 48, posCheckFlags) {
-				relocationPoint = rightPos
-				break OuterLoop
-			}
-			currentDist += step
-			if currentDist < 0 || currentDist > maxDist || currentPos.DistanceSquaredTo(core.pos) < 32 {
-				break
-			}
-			currentPos = dstDir.Mulf(currentDist).Add(core.pos)
-		}
-	}
-	if !relocationPoint.IsZero() {
-		core.doRelocation(roundedPos(relocationPoint))
+func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gmath.Vec) bool {
+	coord := c.world.pathgrid.PosToCoord(dst)
+	if c.world.CellIsFree2x2(coord) {
+		pos := c.world.pathgrid.CoordToPos(coord).Sub(gmath.Vec{X: 16, Y: 16})
+		core.doRelocation(pos)
 		return true
 	}
+
+	freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
+		probe := coord.Add(offset)
+		return c.world.CellIsFree2x2(probe)
+	})
+	if !freeCoord.IsZero() {
+		pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})
+		core.doRelocation(pos)
+		return true
+	}
+
+	if dist > 160 {
+		nextDst := dst.MoveTowards(core.pos, 96)
+		return c.launchRelocation(core, dist-96, nextDst)
+	}
+
 	return false
 }
 

@@ -17,6 +17,7 @@ type essenceSourceStats struct {
 	eliteValue  float64 // Elite resource score per unit
 	spritesheet bool
 	canRotate   bool
+	passable    bool
 	size        float64
 }
 
@@ -81,6 +82,7 @@ var smallScrapSource = &essenceSourceStats{
 	regenDelay: 0, // none
 	value:      1, // 4-5
 	size:       14,
+	passable:   true,
 }
 
 var scrapSource = &essenceSourceStats{
@@ -89,6 +91,7 @@ var scrapSource = &essenceSourceStats{
 	regenDelay: 0, // none
 	value:      1, // 8-12
 	size:       16,
+	passable:   true,
 }
 
 var smallScrapCreepSource = &essenceSourceStats{
@@ -97,6 +100,7 @@ var smallScrapCreepSource = &essenceSourceStats{
 	regenDelay: 0, // none
 	value:      2, // 10-14
 	size:       14,
+	passable:   true,
 }
 
 var scrapCreepSource = &essenceSourceStats{
@@ -105,6 +109,7 @@ var scrapCreepSource = &essenceSourceStats{
 	regenDelay: 0, // none
 	value:      2, // 16-28
 	size:       16,
+	passable:   true,
 }
 
 var bigScrapCreepSource = &essenceSourceStats{
@@ -113,6 +118,7 @@ var bigScrapCreepSource = &essenceSourceStats{
 	regenDelay: 0, // none
 	value:      2, // 24-40
 	size:       20,
+	passable:   true,
 }
 
 type essenceSourceNode struct {

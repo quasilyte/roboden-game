@@ -683,7 +683,7 @@ func (c *creepNode) canBuildHere(pos gmath.Vec) bool {
 	if pos.X < pad || pos.Y < pad || pos.X > (c.world.width-pad) || pos.Y > (c.world.height-pad) {
 		return false
 	}
-	return posIsFree(c.world, nil, pos, 80)
+	return posIsFree(c.world, nil, pos, 64)
 }
 
 func (c *creepNode) updateBuilder(delta float64) {
@@ -731,7 +731,9 @@ func (c *creepNode) updateBuilder(delta float64) {
 			c.world.nodeRunner.AddObject(lasers)
 			return
 		}
-		c.waypoint = correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 400)
+		nextWaypoint := correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 400)
+		nextWaypoint = c.world.AdjustCellPos(nextWaypoint, 4).Sub(gmath.Vec{Y: agentFlightHeight})
+		c.waypoint = nextWaypoint
 	}
 
 	if c.moveTowards(delta, c.waypoint) {
@@ -980,7 +982,7 @@ func (c *creepNode) updateCreepCrawlerBase(delta float64) {
 	maxUnits := float64(10)
 	productionDelay := 1.0
 	if c.super {
-		maxUnits = 16.0
+		maxUnits = 15
 		productionDelay = 0.75
 	}
 	if c.specialModifier > maxUnits {
@@ -989,14 +991,10 @@ func (c *creepNode) updateCreepCrawlerBase(delta float64) {
 
 	spawnPos := c.pos.Add(gmath.Vec{Y: 16})
 	dstOffset := gmath.Vec{
-		X: c.scene.Rand().FloatRange(-128, 128),
-		Y: c.scene.Rand().FloatRange(-80, 80),
+		X: c.scene.Rand().FloatRange(-160, 160),
+		Y: c.scene.Rand().FloatRange(-160, 160),
 	}
-	dstPos := spawnPos.Add(gmath.Vec{Y: 96}).Add(dstOffset)
-	if !posIsFreeWithFlags(c.world, nil, dstPos, 8, collisionSkipSmallCrawlers) {
-		c.attackDelay = c.scene.Rand().FloatRange(2, 5)
-		return
-	}
+	dstPos := spawnPos.Add(dstOffset)
 	c.attackDelay = c.scene.Rand().FloatRange(25, 55) * productionDelay
 	c.specialModifier++
 

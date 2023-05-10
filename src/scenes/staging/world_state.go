@@ -57,8 +57,9 @@ type worldState struct {
 
 	selectedColony *colonyCoreNode
 
-	pathgrid *pathing.Grid
-	bfs      *pathing.GreedyBFS
+	gridCounters map[int]uint8
+	pathgrid     *pathing.Grid
+	bfs          *pathing.GreedyBFS
 
 	result battleResults
 
@@ -75,9 +76,79 @@ type worldState struct {
 	inputMode string
 
 	EventColonyCreated gsignal.Event[*colonyCoreNode]
+
+	// EventUnmarked gsignal.Event[gmath.Vec]
+	// EventMarked   gsignal.Event[gmath.Vec]
+}
+
+func (w *worldState) Adjust2x2CellPos(pos gmath.Vec, offset float64) gmath.Vec {
+	aligned := w.pathgrid.AlignPos2x2(pos)
+	if offset == 0 {
+		return roundedPos(aligned)
+	}
+	return roundedPos(aligned.Add(w.rand.Offset(-offset, offset)))
+}
+
+func (w *worldState) AdjustCellPos(pos gmath.Vec, offset float64) gmath.Vec {
+	aligned := w.pathgrid.AlignPos(pos)
+	return roundedPos(aligned.Add(w.rand.Offset(-offset, offset)))
+}
+
+func (w *worldState) MarkPos(pos gmath.Vec) {
+	w.MarkCell(w.pathgrid.PosToCoord(pos))
+}
+
+func (w *worldState) UnmarkPos(pos gmath.Vec) {
+	w.UnmarkCell(w.pathgrid.PosToCoord(pos))
+}
+
+func (w *worldState) CellIsFree2x2(cell pathing.GridCoord) bool {
+	p := w.pathgrid
+	return p.CellIsFree(cell) &&
+		p.CellIsFree(cell.Add(pathing.GridCoord{X: -1})) &&
+		p.CellIsFree(cell.Add(pathing.GridCoord{X: -1, Y: -1})) &&
+		p.CellIsFree(cell.Add(pathing.GridCoord{Y: -1}))
+}
+
+func (w *worldState) MarkPos2x2(pos gmath.Vec) {
+	cell := w.pathgrid.PosToCoord(pos)
+	w.MarkCell(cell)
+	w.MarkCell(cell.Add(pathing.GridCoord{X: -1}))
+	w.MarkCell(cell.Add(pathing.GridCoord{X: -1, Y: -1}))
+	w.MarkCell(cell.Add(pathing.GridCoord{Y: -1}))
+}
+
+func (w *worldState) UnmarkPos2x2(pos gmath.Vec) {
+	cell := w.pathgrid.PosToCoord(pos)
+	w.UnmarkCell(cell)
+	w.UnmarkCell(cell.Add(pathing.GridCoord{X: -1}))
+	w.UnmarkCell(cell.Add(pathing.GridCoord{X: -1, Y: -1}))
+	w.UnmarkCell(cell.Add(pathing.GridCoord{Y: -1}))
+}
+
+func (w *worldState) MarkCell(coord pathing.GridCoord) {
+	key := w.pathgrid.CoordToIndex(coord)
+	if v := w.gridCounters[key]; v == 0 {
+		w.pathgrid.MarkCell(coord)
+		// w.EventMarked.Emit(w.pathgrid.CoordToPos(coord))
+	}
+	w.gridCounters[key]++
+}
+
+func (w *worldState) UnmarkCell(coord pathing.GridCoord) {
+	key := w.pathgrid.CoordToIndex(coord)
+	if v := w.gridCounters[key]; v == 1 {
+		w.pathgrid.UnmarkCell(coord)
+		delete(w.gridCounters, key)
+		// w.EventUnmarked.Emit(w.pathgrid.CoordToPos(coord))
+	} else {
+		w.gridCounters[key]--
+	}
 }
 
 func (w *worldState) Init() {
+	w.gridCounters = make(map[int]uint8)
+
 	w.creepClusterSize = w.width * 0.125
 	w.creepClusterMultiplier = 1.0 / w.creepClusterSize
 	w.fallbackCreepCluster = make([]*creepNode, 0, 32)
@@ -198,11 +269,21 @@ func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	return n
 }
 
-func (w *worldState) NewConstructionNode(pos gmath.Vec, stats *constructionStats) *constructionNode {
-	n := newConstructionNode(w, pos, stats)
+func (w *worldState) NewConstructionNode(pos, spriteOffset gmath.Vec, stats *constructionStats) *constructionNode {
+	n := newConstructionNode(w, pos, spriteOffset, stats)
 	n.EventDestroyed.Connect(nil, func(x *constructionNode) {
+		if stats == colonyCoreConstructionStats {
+			w.UnmarkPos2x2(x.pos)
+		} else {
+			w.UnmarkPos(x.pos)
+		}
 		w.constructions = xslices.Remove(w.constructions, x)
 	})
+	if stats == colonyCoreConstructionStats {
+		w.MarkPos2x2(pos)
+	} else {
+		w.MarkPos(pos)
+	}
 	w.constructions = append(w.constructions, n)
 	return n
 }
@@ -240,6 +321,9 @@ func (w *worldState) MaxActiveCrawlers() int {
 func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 	n := newCreepNode(w, stats, pos)
 	n.EventDestroyed.Connect(nil, func(x *creepNode) {
+		if stats.building {
+			w.UnmarkPos(pos)
+		}
 		w.creeps = xslices.Remove(w.creeps, x)
 		if x.stats.kind == creepCrawler {
 			w.creepCoordinator.crawlers = xslices.Remove(w.creepCoordinator.crawlers, x)
@@ -257,6 +341,9 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 			w.result.CreepsDefeated++
 		}
 	})
+	if stats.building {
+		w.MarkPos(pos)
+	}
 	w.creeps = append(w.creeps, n)
 	if stats.kind == creepCrawler {
 		w.creepCoordinator.crawlers = append(w.creepCoordinator.crawlers, n)
@@ -273,8 +360,14 @@ func (w *worldState) NewEssenceSourceNode(stats *essenceSourceStats, pos gmath.V
 		n.recoverDelayTimer = (2.0 - w.oilRegenMultiplier) * stats.regenDelay
 	}
 	n.EventDestroyed.Connect(nil, func(x *essenceSourceNode) {
+		if !stats.passable {
+			w.UnmarkPos(x.pos)
+		}
 		w.essenceSources = xslices.Remove(w.essenceSources, x)
 	})
+	if !stats.passable {
+		w.MarkPos(pos)
+	}
 	w.essenceSources = append(w.essenceSources, n)
 	return n
 }

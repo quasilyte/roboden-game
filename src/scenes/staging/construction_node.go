@@ -57,6 +57,7 @@ var tetherBeaconConstructionStats = &constructionStats{
 
 type constructionNode struct {
 	pos              gmath.Vec
+	spriteOffset     gmath.Vec
 	constructPosBase gmath.Vec
 
 	stats *constructionStats
@@ -75,17 +76,19 @@ type constructionNode struct {
 	EventDestroyed gsignal.Event[*constructionNode]
 }
 
-func newConstructionNode(world *worldState, pos gmath.Vec, stats *constructionStats) *constructionNode {
+func newConstructionNode(world *worldState, pos, spriteOffset gmath.Vec, stats *constructionStats) *constructionNode {
 	return &constructionNode{
-		world: world,
-		pos:   pos,
-		stats: stats,
+		world:        world,
+		pos:          pos,
+		spriteOffset: spriteOffset,
+		stats:        stats,
 	}
 }
 
 func (c *constructionNode) Init(scene *ge.Scene) {
 	c.sprite = scene.NewSprite(c.stats.Image)
 	c.sprite.Pos.Base = &c.pos
+	c.sprite.Pos.Offset = c.spriteOffset
 	if !c.world.simulation {
 		switch c.stats.Kind {
 		case constructBase:
@@ -174,6 +177,7 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 		turret := newColonyAgentNode(builder, c.stats.TurretStats, c.pos)
 		builder.AcceptTurret(turret)
 		c.world.nodeRunner.AddObject(turret)
+		turret.sprite.Pos.Offset = c.spriteOffset
 		turret.mode = agentModeGuardForever
 
 	case constructBase:

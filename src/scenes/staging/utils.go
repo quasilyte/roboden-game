@@ -1,12 +1,57 @@
 package staging
 
 import (
+	"math"
+
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/pathing"
 )
+
+// ? ? ? ?
+// ? o o ?
+// ? o x ?
+// ? ? ? ?
+var colonyNearCellOffsets = []pathing.GridCoord{
+	{X: -2, Y: -2},
+	{X: -1, Y: -2},
+	{X: 0, Y: -2},
+	{X: 1, Y: -2},
+	{X: 1, Y: -1},
+	{X: 1, Y: 0},
+	{X: 1, Y: 1},
+	{X: 0, Y: 1},
+	{X: -1, Y: 1},
+	{X: -2, Y: 1},
+	{X: -2, Y: 0},
+	{X: -2, Y: -1},
+}
+
+// ? ? ? ? ?
+// ? o o . ?
+// ? o x . ?
+// ? . . . ?
+// ? ? ? ? ?
+var colonyNear2x2CellOffsets = []pathing.GridCoord{
+	{X: -2, Y: -2},
+	{X: -1, Y: -2},
+	{X: 0, Y: -2},
+	{X: 1, Y: -2},
+	{X: 2, Y: -2},
+	{X: 2, Y: -1},
+	{X: 2, Y: 0},
+	{X: 2, Y: 1},
+	{X: 2, Y: 2},
+	{X: 1, Y: 2},
+	{X: 0, Y: 2},
+	{X: -1, Y: 2},
+	{X: -2, Y: 2},
+	{X: -2, Y: 1},
+	{X: -2, Y: 0},
+	{X: -2, Y: -1},
+}
 
 func moveTowardsWithSpeed(from, to gmath.Vec, delta, speed float64) (gmath.Vec, bool) {
 	travelled := speed * delta
@@ -193,15 +238,10 @@ func spriteRect(pos gmath.Vec, sprite *ge.Sprite) gmath.Rect {
 }
 
 func roundedPos(pos gmath.Vec) gmath.Vec {
-	x := int(pos.X)
-	y := int(pos.Y)
-	if x%2 != 0 {
-		x++
+	return gmath.Vec{
+		X: math.Round(pos.X),
+		Y: math.Round(pos.Y),
 	}
-	if y%2 != 0 {
-		y++
-	}
-	return gmath.Vec{X: float64(x), Y: float64(y)}
 }
 
 func correctedPos(sector gmath.Rect, pos gmath.Vec, pad float64) gmath.Vec {

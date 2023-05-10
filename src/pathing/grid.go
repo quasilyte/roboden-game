@@ -88,6 +88,35 @@ func (g *Grid) AlignPos(pos gmath.Vec) gmath.Vec {
 	return g.CoordToPos(g.PosToCoord(pos))
 }
 
+func (g *Grid) AlignPos2x2(pos gmath.Vec) gmath.Vec {
+	alignedPos := g.AlignPos(pos)
+	remX := int(pos.X) % int(CellSize)
+	remY := int(pos.Y) % int(CellSize)
+	if remX < int(CellSize)/2 {
+		alignedPos.X -= 16
+	} else {
+		alignedPos.X += 16
+	}
+	if remY < int(CellSize)/2 {
+		alignedPos.Y -= 16
+	} else {
+		alignedPos.Y += 16
+	}
+	return alignedPos
+}
+
+func (g *Grid) IndexToCoord(index int) GridCoord {
+	u32 := uint32(index)
+	x := int(u32 & 0xffff)
+	y := int(u32 >> 16)
+	return GridCoord{X: x, Y: y}
+}
+
+func (g *Grid) CoordToIndex(cell GridCoord) int {
+	u32 := uint32(cell.X) | uint32(cell.Y<<16)
+	return int(u32)
+}
+
 func (g *Grid) PosToCoord(pos gmath.Vec) GridCoord {
 	x := int(pos.X) / int(CellSize)
 	y := int(pos.Y) / int(CellSize)

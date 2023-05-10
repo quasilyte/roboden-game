@@ -8,6 +8,8 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 )
 
+var teleportOffset = gmath.Vec{Y: -8}
+
 type teleporterNode struct {
 	id    int
 	world *worldState

@@ -208,6 +208,8 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	}
 	makeResourceRects(c.resourceRects, false)
 	makeResourceRects(c.flyingResourceRects, true)
+
+	c.markCells()
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
@@ -352,8 +354,10 @@ func (c *colonyCoreNode) AcceptRoomba(roomba *colonyAgentNode) {
 
 func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	turret.EventDestroyed.Connect(c, func(x *colonyAgentNode) {
+		c.world.UnmarkPos(x.pos)
 		c.turrets = xslices.Remove(c.turrets, x)
 	})
+	c.world.MarkPos(turret.pos)
 	c.turrets = append(c.turrets, turret)
 	turret.colonyCore = c
 }
@@ -469,7 +473,9 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		})
 
 		c.mode = colonyModeNormal
+		c.unmarkCells()
 		c.pos = c.relocationPoint
+		c.markCells()
 		c.stopTeleportationEffect()
 
 		c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, false, assets.ImageTeleportEffect))
@@ -622,6 +628,8 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.relocationPoint = pos
 
+	c.unmarkCells()
+
 	c.agents.Each(func(a *colonyAgentNode) {
 		if a.mode == agentModeKamikazeAttack {
 			return
@@ -692,6 +700,7 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.createLandingSmokeEffect()
 		c.crushCrawlers()
 		c.maybeTeleport()
+		c.markCells()
 	}
 }
 
@@ -726,7 +735,7 @@ func (c *colonyCoreNode) maybeTeleport() {
 
 	c.mode = colonyModeTeleporting
 	c.teleportDelay = 2
-	c.relocationPoint = teleporter.other.pos.Add(gmath.Vec{Y: -8})
+	c.relocationPoint = teleporter.other.pos.Add(teleportOffset)
 	c.activatedTeleport = teleporter
 	c.otherShader, c.sprite.Shader = c.sprite.Shader, c.otherShader
 	c.sprite.Shader.SetFloatValue("Time", c.teleportDelay)
@@ -807,6 +816,14 @@ func (c *colonyCoreNode) doAction() {
 	} else {
 		c.actionDelay = c.scene.Rand().FloatRange(0.15, 0.25)
 	}
+}
+
+func (c *colonyCoreNode) unmarkCells() {
+	c.world.UnmarkPos2x2(c.pos)
+}
+
+func (c *colonyCoreNode) markCells() {
+	c.world.MarkPos2x2(c.pos)
 }
 
 func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {

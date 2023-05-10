@@ -592,7 +592,8 @@ func (c *creepNode) findTargets() []targetable {
 		}
 	}
 
-	c.world.FindColonyAgent(c.pos, c.stats.weapon.AttackRange, func(a *colonyAgentNode) bool {
+	skipGroundTargets := c.stats.weapon.TargetFlags&gamedata.TargetGround == 0
+	c.world.FindColonyAgent(c.pos, skipGroundTargets, c.stats.weapon.AttackRange, func(a *colonyAgentNode) bool {
 		targets = append(targets, a)
 		return len(targets) >= maxTargets
 	})
@@ -600,10 +601,7 @@ func (c *creepNode) findTargets() []targetable {
 		return targets
 	}
 
-	if len(targets) >= maxTargets {
-		return targets
-	}
-	if c.stats.weapon.TargetFlags&gamedata.TargetGround == 0 {
+	if len(targets) >= maxTargets || skipGroundTargets {
 		return targets
 	}
 

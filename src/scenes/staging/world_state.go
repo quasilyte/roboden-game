@@ -416,41 +416,43 @@ func (w *worldState) BuildPath(from, to gmath.Vec) pathing.BuildPathResult {
 	return w.bfs.BuildPath(w.pathgrid, w.pathgrid.PosToCoord(from), w.pathgrid.PosToCoord(to))
 }
 
-func (w *worldState) FindColonyAgent(pos gmath.Vec, r float64, f func(a *colonyAgentNode) bool) {
+func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, f func(a *colonyAgentNode) bool) {
 	// TODO: use an agent container for turrets too?
 	// Randomized order for iteration would be good here.
 	// Also, this "find" function is used to collect N units, not a single unit (see its usage).
 
-	radiusSqr := r * r
+	if !skipGround {
+		radiusSqr := r * r
 
-	// Turrets have the highest targeting priority.
-	for _, c := range w.colonies {
-		if len(c.turrets) == 0 {
-			continue
-		}
-		for _, turret := range c.turrets {
-			distSqr := turret.pos.DistanceSquaredTo(pos)
-			if distSqr > radiusSqr {
+		// Turrets have the highest targeting priority.
+		for _, c := range w.colonies {
+			if len(c.turrets) == 0 {
 				continue
 			}
-			if f(turret) {
-				return
+			for _, turret := range c.turrets {
+				distSqr := turret.pos.DistanceSquaredTo(pos)
+				if distSqr > radiusSqr {
+					continue
+				}
+				if f(turret) {
+					return
+				}
 			}
 		}
-	}
 
-	// Roombas have the second priority.
-	for _, c := range w.colonies {
-		if len(c.roombas) == 0 {
-			continue
-		}
-		for _, roomba := range c.roombas {
-			distSqr := roomba.pos.DistanceSquaredTo(pos)
-			if distSqr > radiusSqr {
+		// Roombas have the second priority.
+		for _, c := range w.colonies {
+			if len(c.roombas) == 0 {
 				continue
 			}
-			if f(roomba) {
-				return
+			for _, roomba := range c.roombas {
+				distSqr := roomba.pos.DistanceSquaredTo(pos)
+				if distSqr > radiusSqr {
+					continue
+				}
+				if f(roomba) {
+					return
+				}
 			}
 		}
 	}

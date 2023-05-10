@@ -616,7 +616,7 @@ var SkirmisherAgentStats = InitDroneStats(&AgentStats{
 		Damage:            DamageValue{Health: 2},
 		Explosion:         ProjectileExplosionGreenZap,
 		MaxTargets:        1,
-		BurstSize:         1,
+		BurstSize:         4,
 		AttacksPerBurst:   4,
 		BurstDelay:        0.3,
 		TargetFlags:       TargetFlying | TargetGround,

@@ -1703,6 +1703,12 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 		}
 	}
 
+	if len(a.colonyCore.turrets) != 0 && a.scene.Rand().Chance(0.1) {
+		turret := gmath.RandElem(a.scene.Rand(), a.colonyCore.turrets)
+		a.sendTo(turret.pos.Add(a.scene.Rand().Offset(-80, 80)))
+		return
+	}
+
 	// Try to find a new target.
 	newTarget := randIterate(a.scene.Rand(), a.world().creeps, func(creep *creepNode) bool {
 		switch creep.stats.kind {

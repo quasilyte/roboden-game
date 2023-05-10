@@ -3,15 +3,15 @@ package gamedata
 const (
 	ArenaModeCost int = 1500
 
-	MortarDroneCost        int = 500
-	AntiAirDroneCost       int = 1000
-	DisintegratorDroneCost int = 2000
-	PrismDroneCost         int = 3000
-	DefenderDroneCost      int = 4000
-	SkirmisherDroneCost    int = 5000
-	KamikazeDroneCost      int = 6000
-	ScarabDroneCost        int = 7000
-	RoombaDroneCost        int = 8000
+	RoombaDroneCost        int = 500
+	MortarDroneCost        int = 1000
+	AntiAirDroneCost       int = 2000
+	DisintegratorDroneCost int = 3000
+	PrismDroneCost         int = 4000
+	DefenderDroneCost      int = 5000
+	SkirmisherDroneCost    int = 6000
+	KamikazeDroneCost      int = 7000
+	ScarabDroneCost        int = 8000
 
 	BeamTowerTurretCost int = 2500
 )

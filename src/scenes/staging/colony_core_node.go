@@ -80,6 +80,7 @@ type colonyCoreNode struct {
 
 	agents  *colonyAgentContainer
 	turrets []*colonyAgentNode
+	roombas []*colonyAgentNode
 
 	planner *colonyActionPlanner
 
@@ -281,6 +282,9 @@ func (c *colonyCoreNode) Destroy() {
 	for _, turret := range c.turrets {
 		turret.OnDamage(gamedata.DamageValue{Health: 1000}, c)
 	}
+	for _, turret := range c.roombas {
+		turret.OnDamage(gamedata.DamageValue{Health: 1000}, c)
+	}
 	c.EventDestroyed.Emit(c)
 	c.Dispose()
 }
@@ -336,6 +340,14 @@ func (c *colonyCoreNode) NewColonyAgentNode(stats *gamedata.AgentStats, pos gmat
 func (c *colonyCoreNode) DetachAgent(a *colonyAgentNode) {
 	a.EventDestroyed.Disconnect(c)
 	c.agents.Remove(a)
+}
+
+func (c *colonyCoreNode) AcceptRoomba(roomba *colonyAgentNode) {
+	roomba.EventDestroyed.Connect(c, func(x *colonyAgentNode) {
+		c.roombas = xslices.Remove(c.roombas, x)
+	})
+	c.roombas = append(c.roombas, roomba)
+	roomba.colonyCore = c
 }
 
 func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
@@ -544,6 +556,9 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 	})
 	for _, turret := range c.turrets {
 		upkeepTotal += turret.stats.Upkeep
+	}
+	for _, roomba := range c.roombas {
+		upkeepTotal += roomba.stats.Upkeep
 	}
 	upkeepDecrease = gmath.ClampMax(upkeepDecrease, 10)
 	upkeepTotal = gmath.ClampMin(upkeepTotal-(upkeepDecrease*20), 0)
@@ -1006,8 +1021,12 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	case actionMergeAgents:
 		agent1 := action.Value.(*colonyAgentNode)
 		agent2 := action.Value2.(*colonyAgentNode)
-		agent1.AssignMode(agentModeMerging, gmath.Vec{}, agent2)
-		agent2.AssignMode(agentModeMerging, gmath.Vec{}, agent1)
+		mode := agentModeMerging
+		if gamedata.ColonyAgentKind(action.Value4) == gamedata.AgentRoomba {
+			mode = agentModeMergingRoomba
+		}
+		agent1.AssignMode(mode, gmath.Vec{}, agent2)
+		agent2.AssignMode(mode, gmath.Vec{}, agent1)
 		if action.Value3 != 0 {
 			c.evoPoints = gmath.ClampMin(c.evoPoints-action.Value3, 0)
 			c.updateEvoDiode()

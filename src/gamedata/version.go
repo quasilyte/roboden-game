@@ -114,6 +114,7 @@ const SeasonNumber = 0
 //   - Added "Oil regeneration rate" world option
 //   - Added "Terrain" world option
 //   - Super creep versions (classic + arena)
+//   - Added Seeker tier 2 drone
 //
 // * Balance:
 //   - Add 2 max hp to Prism drones (28 -> 30)

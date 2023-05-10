@@ -558,6 +558,7 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 		Value:    firstAgent,
 		Value2:   secondAgent,
 		Value3:   recipe.EvoCost,
+		Value4:   int(recipe.Result.Kind),
 		TimeCost: 0.9,
 	}
 }

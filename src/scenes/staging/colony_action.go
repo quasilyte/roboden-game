@@ -16,6 +16,7 @@ type colonyAction struct {
 	Value    any
 	Value2   any
 	Value3   float64
+	Value4   int
 	TimeCost float64
 }
 

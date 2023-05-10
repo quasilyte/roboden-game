@@ -120,7 +120,11 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	if c.stats.shadowImage != assets.ImageNone {
 		c.world.camera.AddSpriteAbove(c.sprite)
 	} else {
-		c.world.camera.AddSprite(c.sprite)
+		if c.stats.kind == creepCrawler {
+			c.world.camera.AddSpriteSlightlyBelow(c.sprite)
+		} else {
+			c.world.camera.AddSprite(c.sprite)
+		}
 	}
 	if c.stats.animSpeed != 0 {
 		if c.stats.kind == creepHowitzer {

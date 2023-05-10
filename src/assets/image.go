@@ -72,8 +72,11 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageActionDecreaseRadius: {Path: "image/ui/action_decrease_radius.png"},
 
 		ImageTeleportEffect:             {Path: "image/effects/teleport.png", FrameWidth: 100},
+		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 50},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
+		ImageRoombaShotExplosion:        {Path: "image/effects/roomba_shot_explosion.png", FrameWidth: 9},
+		ImageScarabShotExplosion:        {Path: "image/effects/scarab_projectile_explosion.png", FrameWidth: 11},
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
 		ImageScoutIonExplosion:          {Path: "image/effects/scout_ion_explosion.png", FrameWidth: 5},
 		ImageShockerExplosion:           {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
@@ -110,6 +113,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
 		ImageTetherBeaconAgent:  {Path: "image/drones/tether_beacon_agent.png"},
+		ImageRoombaAgent:        {Path: "image/drones/roomba_agent.png", FrameWidth: 17, FrameHeight: 13},
 		ImageWorkerAgent:        {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
 		ImageScoutAgent:         {Path: "image/drones/scout_agent.png", FrameWidth: 11, FrameHeight: 13},
 		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 13},
@@ -189,6 +193,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
+		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
 		ImageScarabProjectile:         {Path: "image/projectile/scarab_projectile.png"},
 		ImageSkirmisherProjectile:     {Path: "image/projectile/skirmisher_projectile.png"},
 		ImageHeavyCrawlerProjectile:   {Path: "image/projectile/heavy_crawler_projectile.png"},
@@ -313,7 +318,10 @@ const (
 
 	ImageProjectileSmoke
 	ImageTeleportEffect
+	ImageMergingComplete
 	ImageStealthLaserExplosion
+	ImageRoombaShotExplosion
+	ImageScarabShotExplosion
 	ImageCripplerBlasterExplosion
 	ImageScoutIonExplosion
 	ImageShockerExplosion
@@ -379,6 +387,7 @@ const (
 	ImageGunpointAgent
 	ImageBeamtowerAgent
 	ImageTetherBeaconAgent
+	ImageRoombaAgent
 	ImageWorkerAgent
 	ImageGeneratorAgent
 	ImageSkirmisherAgent
@@ -445,6 +454,7 @@ const (
 	ImageLandCrack3
 	ImageLandCrack4
 
+	ImageRoombaProjectile
 	ImageScarabProjectile
 	ImageSkirmisherProjectile
 	ImageHeavyCrawlerProjectile

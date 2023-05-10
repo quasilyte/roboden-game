@@ -48,6 +48,7 @@ const (
 	AgentKamikaze
 	AgentSkirmisher
 	AgentScarab
+	AgentRoomba
 
 	// Tier3
 	AgentGuardian
@@ -105,6 +106,7 @@ type AgentStats struct {
 	CanPatrol  bool
 	CanCloak   bool
 	HasSupport bool
+	IsFlying   bool
 	MaxPayload int
 
 	SelfRepair float64
@@ -133,6 +135,7 @@ var TurretStatsList = []*AgentStats{
 
 var GunpointAgentStats = InitDroneStats(&AgentStats{
 	Kind:      AgentGunpoint,
+	IsFlying:  false,
 	Image:     assets.ImageGunpointAgent,
 	Size:      SizeLarge,
 	Upkeep:    12,
@@ -156,6 +159,7 @@ var GunpointAgentStats = InitDroneStats(&AgentStats{
 var BeamTowerAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost: BeamTowerTurretCost,
 	Kind:      AgentBeamTower,
+	IsFlying:  false,
 	Image:     assets.ImageBeamtowerAgent,
 	Size:      SizeLarge,
 	Upkeep:    14,
@@ -176,6 +180,7 @@ var BeamTowerAgentStats = InitDroneStats(&AgentStats{
 
 var TetherBeaconAgentStats = InitDroneStats(&AgentStats{
 	Kind:           AgentTetherBeacon,
+	IsFlying:       false,
 	Image:          assets.ImageTetherBeaconAgent,
 	Size:           SizeLarge,
 	Upkeep:         8,
@@ -188,6 +193,7 @@ var TetherBeaconAgentStats = InitDroneStats(&AgentStats{
 
 var WorkerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentWorker,
+	IsFlying:    true,
 	Image:       assets.ImageWorkerAgent,
 	Size:        SizeSmall,
 	DiodeOffset: 5,
@@ -202,6 +208,7 @@ var WorkerAgentStats = InitDroneStats(&AgentStats{
 
 var ScoutAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentScout,
+	IsFlying:    true,
 	Image:       assets.ImageScoutAgent,
 	Size:        SizeSmall,
 	DiodeOffset: 5,
@@ -228,6 +235,7 @@ var ScoutAgentStats = InitDroneStats(&AgentStats{
 
 var TruckerAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentTrucker,
+	IsFlying:             true,
 	Image:                assets.ImageTruckerAgent,
 	Size:                 SizeLarge,
 	DiodeOffset:          4,
@@ -256,6 +264,7 @@ var TruckerAgentStats = InitDroneStats(&AgentStats{
 
 var CourierAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentCourier,
+	IsFlying:    true,
 	Image:       assets.ImageCourierAgent,
 	Size:        SizeMedium,
 	DiodeOffset: 5,
@@ -284,6 +293,7 @@ var CourierAgentStats = InitDroneStats(&AgentStats{
 
 var RedminerAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentRedminer,
+	IsFlying:             true,
 	Image:                assets.ImageRedminerAgent,
 	Size:                 SizeMedium,
 	DiodeOffset:          6,
@@ -300,6 +310,7 @@ var RedminerAgentStats = InitDroneStats(&AgentStats{
 
 var GeneratorAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentGenerator,
+	IsFlying:             true,
 	Image:                assets.ImageGeneratorAgent,
 	Size:                 SizeMedium,
 	DiodeOffset:          10,
@@ -316,6 +327,7 @@ var GeneratorAgentStats = InitDroneStats(&AgentStats{
 
 var ClonerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentCloner,
+	IsFlying:    true,
 	Image:       assets.ImageClonerAgent,
 	Size:        SizeMedium,
 	DiodeOffset: 5,
@@ -331,6 +343,7 @@ var ClonerAgentStats = InitDroneStats(&AgentStats{
 
 var RepairAgentStats = InitDroneStats(&AgentStats{
 	Kind:           AgentRepair,
+	IsFlying:       true,
 	Image:          assets.ImageRepairAgent,
 	Size:           SizeMedium,
 	DiodeOffset:    5,
@@ -352,6 +365,7 @@ var RepairAgentStats = InitDroneStats(&AgentStats{
 
 var RechargeAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentRecharger,
+	IsFlying:             true,
 	Image:                assets.ImageRechargerAgent,
 	Size:                 SizeMedium,
 	DiodeOffset:          9,
@@ -373,6 +387,7 @@ var RechargeAgentStats = InitDroneStats(&AgentStats{
 
 var GuardianAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentGuardian,
+	IsFlying:    true,
 	Image:       assets.ImageGuardianAgent,
 	Size:        SizeLarge,
 	DiodeOffset: -4,
@@ -398,6 +413,7 @@ var GuardianAgentStats = InitDroneStats(&AgentStats{
 
 var ServoAgentStats = InitDroneStats(&AgentStats{
 	Kind:          AgentServo,
+	IsFlying:      true,
 	Image:         assets.ImageServoAgent,
 	Size:          SizeMedium,
 	DiodeOffset:   -4,
@@ -415,6 +431,7 @@ var ServoAgentStats = InitDroneStats(&AgentStats{
 
 var FreighterAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentFreighter,
+	IsFlying:             true,
 	Image:                assets.ImageFreighterAgent,
 	Size:                 SizeMedium,
 	DiodeOffset:          1,
@@ -431,6 +448,7 @@ var FreighterAgentStats = InitDroneStats(&AgentStats{
 
 var CripplerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentCrippler,
+	IsFlying:    true,
 	Image:       assets.ImageCripplerAgent,
 	Size:        SizeMedium,
 	DiodeOffset: 5,
@@ -459,6 +477,7 @@ var CripplerAgentStats = InitDroneStats(&AgentStats{
 
 var StormbringerAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentStormbringer,
+	IsFlying:             true,
 	Image:                assets.ImageStormbringerAgent,
 	Size:                 SizeLarge,
 	DiodeOffset:          7,
@@ -489,6 +508,7 @@ var StormbringerAgentStats = InitDroneStats(&AgentStats{
 
 var PrismAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   PrismDroneCost,
+	IsFlying:    true,
 	Kind:        AgentPrism,
 	Image:       assets.ImagePrismAgent,
 	Size:        SizeMedium,
@@ -513,8 +533,39 @@ var PrismAgentStats = InitDroneStats(&AgentStats{
 	}),
 })
 
+var RoombaAgentStats = InitDroneStats(&AgentStats{
+	Kind:        AgentRoomba,
+	IsFlying:    false,
+	Image:       assets.ImageRoombaAgent,
+	Size:        SizeMedium,
+	DiodeOffset: 2,
+	Tier:        2,
+	PointCost:   2,
+	Cost:        20,
+	Upkeep:      3,
+	Speed:       40,
+	MaxHealth:   50,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange:         200,
+		Reload:              2,
+		AttackSound:         assets.AudioRoombaShot,
+		ProjectileImage:     assets.ImageRoombaProjectile,
+		ImpactArea:          10,
+		ProjectileSpeed:     400,
+		Damage:              DamageValue{Health: 4},
+		MaxTargets:          1,
+		BurstSize:           2,
+		BurstDelay:          0.65,
+		TargetFlags:         TargetFlying | TargetGround,
+		Accuracy:            0.75,
+		ProjectileFireSound: true,
+		Explosion:           ProjectileExplosionRoombaShot,
+	}),
+})
+
 var FighterAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentFighter,
+	IsFlying:    true,
 	Image:       assets.ImageFighterAgent,
 	Size:        SizeMedium,
 	DiodeOffset: 1,
@@ -542,6 +593,7 @@ var FighterAgentStats = InitDroneStats(&AgentStats{
 
 var SkirmisherAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   SkirmisherDroneCost,
+	IsFlying:    true,
 	Kind:        AgentSkirmisher,
 	Image:       assets.ImageSkirmisherAgent,
 	Size:        SizeMedium,
@@ -576,6 +628,7 @@ var SkirmisherAgentStats = InitDroneStats(&AgentStats{
 
 var DefenderAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   DefenderDroneCost,
+	IsFlying:    true,
 	Kind:        AgentDefender,
 	Image:       assets.ImageDefenderAgent,
 	Size:        SizeMedium,
@@ -602,6 +655,7 @@ var DefenderAgentStats = InitDroneStats(&AgentStats{
 
 var ScavengerAgentStats = InitDroneStats(&AgentStats{
 	Kind:          AgentScavenger,
+	IsFlying:      true,
 	Image:         assets.ImageScavengerAgent,
 	Size:          SizeMedium,
 	DiodeOffset:   -5,
@@ -632,6 +686,7 @@ var ScavengerAgentStats = InitDroneStats(&AgentStats{
 
 var ScarabAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   ScarabDroneCost,
+	IsFlying:    true,
 	Kind:        AgentScarab,
 	Image:       assets.ImageScarabAgent,
 	Size:        SizeMedium,
@@ -660,6 +715,7 @@ var ScarabAgentStats = InitDroneStats(&AgentStats{
 		RoundProjectile: true,
 		BurstSize:       2,
 		TargetFlags:     TargetGround,
+		Explosion:       ProjectileExplosionScarab,
 	}),
 })
 
@@ -671,6 +727,7 @@ const (
 
 var DevourerAgentStats = InitDroneStats(&AgentStats{
 	Kind:          AgentDevourer,
+	IsFlying:      true,
 	Image:         assets.ImageDevourerAgent,
 	Size:          SizeLarge,
 	DiodeOffset:   7,
@@ -700,11 +757,13 @@ var DevourerAgentStats = InitDroneStats(&AgentStats{
 		BurstDelay:          0.25,
 		BurstSize:           3,
 		TargetFlags:         TargetFlying | TargetGround,
+		Explosion:           ProjectileExplosionScarab,
 	}),
 })
 
 var AntiAirAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   AntiAirDroneCost,
+	IsFlying:    true,
 	Kind:        AgentAntiAir,
 	Image:       assets.ImageAntiAirAgent,
 	Size:        SizeMedium,
@@ -738,6 +797,7 @@ var AntiAirAgentStats = InitDroneStats(&AgentStats{
 
 var MortarAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   MortarDroneCost,
+	IsFlying:    true,
 	Kind:        AgentMortar,
 	Image:       assets.ImageMortarAgent,
 	Size:        SizeMedium,
@@ -769,6 +829,7 @@ var MortarAgentStats = InitDroneStats(&AgentStats{
 
 var DestroyerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentDestroyer,
+	IsFlying:    true,
 	Image:       assets.ImageDestroyerAgent,
 	Size:        SizeLarge,
 	DiodeOffset: 0,
@@ -791,6 +852,7 @@ var DestroyerAgentStats = InitDroneStats(&AgentStats{
 
 var MarauderAgentStats = InitDroneStats(&AgentStats{
 	Kind:          AgentMarauder,
+	IsFlying:      true,
 	Image:         assets.ImageMarauderAgent,
 	Size:          SizeLarge,
 	DiodeOffset:   0,
@@ -821,6 +883,7 @@ var MarauderAgentStats = InitDroneStats(&AgentStats{
 
 var RepellerAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentRepeller,
+	IsFlying:    true,
 	Image:       assets.ImageRepellerAgent,
 	Size:        SizeMedium,
 	DiodeOffset: 8,
@@ -850,6 +913,7 @@ var RepellerAgentStats = InitDroneStats(&AgentStats{
 
 var KamikazeAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   KamikazeDroneCost,
+	IsFlying:    true,
 	Kind:        AgentKamikaze,
 	Image:       assets.ImageKamikazeAgent,
 	Size:        SizeMedium,
@@ -867,6 +931,7 @@ var KamikazeAgentStats = InitDroneStats(&AgentStats{
 
 var DisintegratorAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:     DisintegratorDroneCost,
+	IsFlying:      true,
 	Kind:          AgentDisintegrator,
 	Image:         assets.ImageDisintegratorAgent,
 	Size:          SizeMedium,

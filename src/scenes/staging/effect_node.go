@@ -11,12 +11,14 @@ import (
 type effectNode struct {
 	camera *viewport.Camera
 
-	pos   gmath.Vec
-	image resource.ImageID
-	anim  *ge.Animation
-	above bool
+	pos     gmath.Vec
+	image   resource.ImageID
+	anim    *ge.Animation
+	above   bool
+	rotates bool
 
-	scale float64
+	rotation gmath.Rad
+	scale    float64
 
 	EventCompleted gesignal.Event[gesignal.Void]
 }
@@ -50,6 +52,7 @@ func (e *effectNode) Init(scene *ge.Scene) {
 	} else {
 		sprite = e.anim.Sprite()
 	}
+	sprite.Rotation = &e.rotation
 	sprite.Scale = e.scale
 	if e.above {
 		e.camera.AddSpriteAbove(sprite)
@@ -75,5 +78,8 @@ func (e *effectNode) Update(delta float64) {
 		e.EventCompleted.Emit(gesignal.Void{})
 		e.Dispose()
 		return
+	}
+	if e.rotates {
+		e.rotation += gmath.Rad(delta * 2)
 	}
 }

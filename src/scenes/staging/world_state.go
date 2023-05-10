@@ -327,16 +327,36 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, r float64, f func(a *colonyA
 	// TODO: use an agent container for turrets too?
 	// Randomized order for iteration would be good here.
 	// Also, this "find" function is used to collect N units, not a single unit (see its usage).
+
+	radiusSqr := r * r
+
+	// Turrets have the highest targeting priority.
 	for _, c := range w.colonies {
 		if len(c.turrets) == 0 {
 			continue
 		}
 		for _, turret := range c.turrets {
-			dist := turret.pos.DistanceTo(pos)
-			if dist > r {
+			distSqr := turret.pos.DistanceSquaredTo(pos)
+			if distSqr > radiusSqr {
 				continue
 			}
 			if f(turret) {
+				return
+			}
+		}
+	}
+
+	// Roombas have the second priority.
+	for _, c := range w.colonies {
+		if len(c.roombas) == 0 {
+			continue
+		}
+		for _, roomba := range c.roombas {
+			distSqr := roomba.pos.DistanceSquaredTo(pos)
+			if distSqr > radiusSqr {
+				continue
+			}
+			if f(roomba) {
 				return
 			}
 		}

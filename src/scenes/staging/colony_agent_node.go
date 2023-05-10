@@ -11,6 +11,7 @@ import (
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
@@ -54,8 +55,11 @@ const (
 	agentModeRecycleReturn
 	agentModeRecycleLanding
 	agentModeMerging
+	agentModeMergingRoomba
 	agentModeBuildBuilding
 	agentModeGuardForever
+	agentModeRoombaPatrol
+	agentModeRoombaWait
 	agentModeKamikazeAttack
 	agentModeConsumeDrone
 )
@@ -93,6 +97,7 @@ type colonyAgentNode struct {
 	spritePos gmath.Vec
 
 	traits agentTraitBits
+	path   pathing.GridPath
 
 	mode     colonyAgentMode
 	waypoint gmath.Vec
@@ -271,9 +276,13 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	if a.IsFlying() {
 		a.camera().AddSpriteAbove(a.sprite)
 	} else {
-		a.camera().AddSprite(a.sprite)
+		if a.stats.Kind == gamedata.AgentRoomba {
+			a.camera().AddSpriteSlightlyBelow(a.sprite)
+		} else {
+			a.camera().AddSprite(a.sprite)
+		}
 		// Turret damage is an optional shader.
-		if a.world().graphicsSettings.AllShadersEnabled {
+		if a.IsTurret() && a.world().graphicsSettings.AllShadersEnabled {
 			a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 			a.sprite.Shader.SetFloatValue("HP", 1.0)
 			a.sprite.Shader.Enabled = false
@@ -291,10 +300,19 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		var colorScale ge.ColorScale
 		colorScale.SetColor(gamedata.FactionByTag(a.faction).Color)
 		a.diode.SetColorScale(colorScale)
-		a.camera().AddSpriteAbove(a.diode)
+
+		if a.IsFlying() {
+			a.camera().AddSpriteAbove(a.diode)
+		} else {
+			if a.stats.Kind == gamedata.AgentRoomba {
+				a.camera().AddSpriteSlightlyBelow(a.diode)
+			} else {
+				a.camera().AddSprite(a.diode)
+			}
+		}
 	}
 
-	if !a.IsTurret() && a.world().graphicsSettings.ShadowsEnabled {
+	if a.IsFlying() && a.world().graphicsSettings.ShadowsEnabled {
 		shadowImage := assets.ImageSmallShadow
 		switch a.stats.Size {
 		case gamedata.SizeMedium:
@@ -390,10 +408,13 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.waypoint = a.pos.DirectionTo(targetPos).Mulf(110).Add(targetPos).Add(a.scene.Rand().Offset(-20, 20))
 		return true
 
-	case agentModeMerging:
+	case agentModeMerging, agentModeMergingRoomba:
 		a.mode = mode
 		a.target = target
 		a.dist = a.scene.Rand().FloatRange(8, 10) // merging time
+		if mode == agentModeMergingRoomba {
+			a.dist *= 1.5
+		}
 		return true
 
 	case agentModeAlignStandby:
@@ -701,7 +722,7 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateWaitCloning(delta)
 	case agentModeMakeClone:
 		a.updateMakeClone(delta)
-	case agentModeMerging:
+	case agentModeMerging, agentModeMergingRoomba:
 		a.updateMerging(delta)
 	case agentModeResourceTakeoff:
 		a.updateResourceTakeoff(delta)
@@ -721,6 +742,10 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateKamikazeAttack(delta)
 	case agentModeConsumeDrone:
 		a.updateConsumeDrone(delta)
+	case agentModeRoombaPatrol:
+		a.updateRoombaPatrol(delta)
+	case agentModeRoombaWait:
+		a.updateRoombaWait(delta)
 	case agentModeGuardForever:
 		// Just chill.
 	}
@@ -746,7 +771,7 @@ func (a *colonyAgentNode) Destroy() {
 }
 
 func (a *colonyAgentNode) IsFlying() bool {
-	return !a.IsTurret()
+	return a.stats.IsFlying
 }
 
 func (a *colonyAgentNode) ReceiveEnergyDamage(damage float64) {
@@ -766,10 +791,12 @@ func (a *colonyAgentNode) doCloak(d float64) {
 }
 
 func (a *colonyAgentNode) explode() {
-	if a.IsTurret() {
+	if !a.stats.IsFlying {
 		createAreaExplosion(a.world(), spriteRect(a.pos, a.sprite), true)
-		scraps := a.world().NewEssenceSourceNode(scrapSource, a.pos.Add(gmath.Vec{Y: 2}))
-		a.world().nodeRunner.AddObject(scraps)
+		if a.IsTurret() || a.scene.Rand().Chance(0.3) {
+			scraps := a.world().NewEssenceSourceNode(scrapSource, a.pos.Add(gmath.Vec{Y: 2}))
+			a.world().nodeRunner.AddObject(scraps)
+		}
 		return
 	}
 
@@ -913,7 +940,7 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 		a.onLowHealthDamage(source)
 	}
 
-	if damage.Morale != 0 && !a.IsTurret() {
+	if damage.Morale != 0 && a.stats.IsFlying {
 		switch a.mode {
 		case agentModeMineEssence:
 			a.clearCargo()
@@ -1607,6 +1634,99 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) updateRoombaWait(delta float64) {
+	a.dist -= delta
+	a.health = gmath.ClampMax(a.health+(delta*0.2), a.maxHealth)
+	a.energy = gmath.ClampMax(a.energy+(delta*2), a.maxEnergy)
+	if a.dist <= 0 {
+		a.mode = agentModeRoombaPatrol
+	}
+}
+
+func (a *colonyAgentNode) sendTo(pos gmath.Vec) {
+	p := a.world().BuildPath(a.pos, pos)
+	a.path = p.Steps
+	a.waypoint = a.world().pathgrid.AlignPos(a.pos)
+}
+
+func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
+	if a.energy < 0 {
+		// Discharged. It needs some time to recover.
+		a.mode = agentModeRoombaWait
+		a.dist = a.scene.Rand().FloatRange(5, 25)
+		a.waypoint = gmath.Vec{}
+		a.energy = a.scene.Rand().FloatRange(10, 20)
+		return
+	}
+
+	// Moving towards destination (or a target).
+	if !a.waypoint.IsZero() {
+		a.energy -= 3 * delta
+		if a.moveTowards(delta, a.waypoint) {
+			if a.target != nil {
+				target := a.target.(*creepNode)
+				if target.IsDisposed() {
+					a.target = nil
+				} else if a.pos.DistanceSquaredTo(target.pos) <= (a.stats.Weapon.AttackRangeSqr * a.supportDelay) {
+					a.mode = agentModeRoombaWait
+					a.dist = a.scene.Rand().FloatRange(7, 11)
+					a.waypoint = gmath.Vec{}
+					a.target = nil
+					return
+				}
+			}
+			if a.path.HasNext() {
+				if a.health < a.maxHealth*0.8 && a.scene.Rand().Chance(0.1) {
+					a.mode = agentModeRoombaWait
+					a.dist = a.scene.Rand().FloatRange(1, 10)
+					a.waypoint = gmath.Vec{}
+					return
+				}
+				// TODO: remove code duplication with crawlers.
+				d := a.path.Next()
+				aligned := a.world().pathgrid.AlignPos(a.pos)
+				a.waypoint = posMove(aligned, d).Add(a.world().rand.Offset(-4, 4))
+				return
+			}
+			a.waypoint = gmath.Vec{}
+		}
+		return
+	}
+
+	if a.target != nil {
+		target := a.target.(*creepNode)
+		if target.IsDisposed() {
+			a.target = nil
+		} else {
+			a.sendTo(target.pos.Add(a.scene.Rand().Offset(-80, 80)))
+			return
+		}
+	}
+
+	// Try to find a new target.
+	newTarget := randIterate(a.scene.Rand(), a.world().creeps, func(creep *creepNode) bool {
+		switch creep.stats.kind {
+		case creepBase, creepCrawlerBase, creepTurret, creepHowitzer:
+			return true
+		default:
+			return false
+		}
+	})
+	if newTarget != nil {
+		a.supportDelay = a.scene.Rand().FloatRange(0.4, 0.95)
+		a.target = newTarget
+		a.sendTo(newTarget.pos.Add(a.scene.Rand().Offset(-80, 80)))
+	} else {
+		if a.scene.Rand().Chance(0.4) {
+			targetPos := correctedPos(a.world().rect, randomSectorPos(a.scene.Rand(), a.world().rect), 480)
+			a.sendTo(targetPos)
+		} else {
+			a.mode = agentModeRoombaWait
+			a.dist = a.scene.Rand().FloatRange(2, 5)
+		}
+	}
+}
+
 func (a *colonyAgentNode) updateConsumeDrone(delta float64) {
 	target := a.target.(*colonyAgentNode)
 	if target.IsDisposed() || target.mode != agentModePosing {
@@ -1785,20 +1905,39 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		a.world().nodeRunner.AddObject(beam)
 	}
 	a.dist -= delta
-	if a.pos.DistanceTo(target.pos) > 10 {
+	if a.pos.DistanceSquaredTo(target.pos) > (10 * 10) {
 		a.pos = a.pos.MoveTowards(target.pos, delta*12)
 	} else {
 		// Merging is x3 faster when units are next to each other.
 		a.dist -= delta * 2
+		if a.mode == agentModeMergingRoomba {
+			if a.height > 5 {
+				descent := gmath.ClampMax(20*delta, a.height-5)
+				a.pos.Y += descent
+				a.height -= descent
+			}
+		}
 	}
 	if a.dist <= 0 {
 		a.cloningBeam.Dispose()
 		a.cloningBeam = nil
+		if a.mode == agentModeMergingRoomba && !posIsFreeWithFlags(a.world(), nil, a.pos, 2, collisionSkipSmallCrawlers|collisionSkipTeleporters) {
+			a.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
+			target.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
+			return
+		}
+
 		newStats := mergeAgents(a.world(), a, target)
 		if newStats == nil {
 			panic(fmt.Sprintf("empty merge result for %s %s + %s %s", a.faction, a.stats.Kind, target.faction, target.stats.Kind))
 		}
-		newAgent := a.colonyCore.NewColonyAgentNode(newStats, target.pos)
+		var newAgent *colonyAgentNode
+		if a.mode == agentModeMergingRoomba {
+			newAgent = newColonyAgentNode(a.colonyCore, newStats, target.pos)
+			a.colonyCore.AcceptRoomba(newAgent)
+		} else {
+			newAgent = a.colonyCore.NewColonyAgentNode(newStats, target.pos)
+		}
 		var newFaction gamedata.FactionTag
 		rankScore := a.rank + target.rank
 		switch rankScore {
@@ -1830,9 +1969,17 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		}
 		newAgent.faction = newFaction
 		a.world().nodeRunner.AddObject(newAgent)
-		newAgent.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		if newAgent.stats == gamedata.RoombaAgentStats {
+			newAgent.mode = agentModeRoombaWait
+			newAgent.dist = 1
+		} else {
+			newAgent.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		}
 		target.Destroy()
 		a.Destroy()
+		effect := newEffectNode(a.world().camera, newAgent.pos, newAgent.stats != gamedata.RoombaAgentStats, assets.ImageMergingComplete)
+		effect.rotates = true
+		a.world().nodeRunner.AddObject(effect)
 		return
 	}
 }
@@ -1998,7 +2145,7 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 				}
 			}
 		}
-		if !a.hasTrait(traitNeverStop) && a.energy < 40 && a.scene.Rand().Chance(0.2) {
+		if a.colonyCore.mode == colonyModeNormal && !a.hasTrait(traitNeverStop) && a.energy < 40 && a.scene.Rand().Chance(0.2) {
 			a.AssignMode(agentModeCharging, gmath.Vec{}, nil)
 			return
 		}

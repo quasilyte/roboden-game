@@ -560,6 +560,7 @@ var RoombaAgentStats = InitDroneStats(&AgentStats{
 		Accuracy:            0.75,
 		ProjectileFireSound: true,
 		Explosion:           ProjectileExplosionRoombaShot,
+		TrailEffect:         ProjectileTrailRoomba,
 	}),
 })
 

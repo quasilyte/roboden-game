@@ -52,6 +52,7 @@ type ProjectileTrailEffect int
 const (
 	ProjectileTrailNone ProjectileTrailEffect = iota
 	ProjectileTrailSmoke
+	ProjectileTrailRoomba
 )
 
 type ProjectileExplosionKind int

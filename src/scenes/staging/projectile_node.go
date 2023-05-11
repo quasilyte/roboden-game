@@ -180,6 +180,13 @@ func (p *projectileNode) Update(delta float64) {
 				p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
 				p.world.nodeRunner.AddObject(newEffectNode(p.world.camera, p.pos, true, assets.ImageProjectileSmoke))
 			}
+		case gamedata.ProjectileTrailRoomba:
+			if p.trailCounter <= 0 {
+				p.trailCounter = p.world.localRand.FloatRange(0.1, 0.2)
+				effect := newEffectNode(p.world.camera, p.pos, true, assets.ImageRoombaLaserTrail)
+				effect.rotation = p.rotation
+				p.world.nodeRunner.AddObject(effect)
+			}
 		}
 	}
 

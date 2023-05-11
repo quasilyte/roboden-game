@@ -1039,11 +1039,17 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		agent1 := action.Value.(*colonyAgentNode)
 		agent2 := action.Value2.(*colonyAgentNode)
 		mode := agentModeMerging
+		mergePoint := midpoint(agent1.pos, agent2.pos)
+		mergePos1 := mergePoint.Add(c.scene.Rand().Offset(-14, 14))
+		mergePos2 := mergePoint.Add(c.scene.Rand().Offset(-14, 14))
 		if gamedata.ColonyAgentKind(action.Value4) == gamedata.AgentRoomba {
 			mode = agentModeMergingRoomba
+			if !posIsFreeWithFlags(c.world, nil, mergePoint.Add(gmath.Vec{Y: agentFlightHeight}), 10, collisionSkipSmallCrawlers|collisionSkipTeleporters) {
+				return false
+			}
 		}
-		agent1.AssignMode(mode, gmath.Vec{}, agent2)
-		agent2.AssignMode(mode, gmath.Vec{}, agent1)
+		agent1.AssignMode(mode, mergePos1, agent2)
+		agent2.AssignMode(mode, mergePos2, agent1)
 		if action.Value3 != 0 {
 			c.evoPoints = gmath.ClampMin(c.evoPoints-action.Value3, 0)
 			c.updateEvoDiode()

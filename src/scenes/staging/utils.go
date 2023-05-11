@@ -10,6 +10,10 @@ import (
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
+func midpoint(a, b gmath.Vec) gmath.Vec {
+	return a.Add(b).Mulf(0.5)
+}
+
 // ? ? ? ?
 // ? o o ?
 // ? o x ?

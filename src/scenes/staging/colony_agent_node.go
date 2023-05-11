@@ -413,6 +413,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.mode = mode
 		a.target = target
 		a.dist = a.scene.Rand().FloatRange(8, 10) // merging time
+		a.waypoint = pos
 		if mode == agentModeMergingRoomba {
 			a.dist *= 1.5
 		}
@@ -1925,8 +1926,8 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		// Merging is x3 faster when units are next to each other.
 		a.dist -= delta * 2
 		if a.mode == agentModeMergingRoomba {
-			if a.height > 5 {
-				descent := gmath.ClampMax(20*delta, a.height-5)
+			if a.height > 2 {
+				descent := gmath.ClampMax(20*delta, a.height-2)
 				a.pos.Y += descent
 				a.height -= descent
 			}

@@ -420,7 +420,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModeAlignStandby:
-		if a.shadow != nil && a.mode == agentModeTakeoff {
+		if a.shadow != nil {
 			a.shadow.Visible = true
 		}
 		if a.cloningBeam != nil {
@@ -572,6 +572,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModeRecycleLanding:
 		a.mode = mode
 		a.waypoint = a.colonyCore.GetEntrancePos()
+		if a.shadow != nil {
+			a.shadow.Visible = false
+		}
 		return true
 
 	case agentModeRepairTurret:

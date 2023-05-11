@@ -2026,8 +2026,8 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 		target.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		clone := a.colonyCore.CloneAgentNode(target)
 		a.world().nodeRunner.AddObject(clone)
+		a.world().result.DronesProduced++
 		clone.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-		a.world().result.DronesCloned++
 		return
 	}
 }

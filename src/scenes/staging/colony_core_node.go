@@ -325,7 +325,6 @@ func (c *colonyCoreNode) CloneAgentNode(a *colonyAgentNode) *colonyAgentNode {
 	cloned := a.Clone()
 	cloned.pos = pos
 	c.AcceptAgent(cloned)
-	c.world.result.DronesProduced++
 	return cloned
 }
 
@@ -335,7 +334,6 @@ func (c *colonyCoreNode) NewColonyAgentNode(stats *gamedata.AgentStats, pos gmat
 	}
 	a := newColonyAgentNode(c, stats, pos)
 	c.AcceptAgent(a)
-	c.world.result.DronesProduced++
 	return a
 }
 
@@ -998,6 +996,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		}
 		a.height = 0
 		c.world.nodeRunner.AddObject(a)
+		c.world.result.DronesProduced++
 		c.resources -= a.stats.Cost
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)
 		playSound(c.world, assets.AudioAgentProduced, c.pos)

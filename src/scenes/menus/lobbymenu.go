@@ -421,6 +421,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"140%",
 			"160%",
 			"180%",
+			"200%",
 		})
 		tab.AddChild(b)
 	}

@@ -188,8 +188,7 @@ It mostly affects the amount of durability enemy units have.
 ##menu.lobby.arena_progression : Wave difficulty progression
 ##menu.lobby.arena_progression.description
 This option defines the difficulty progression speed.
-Every wave is harder than the previous one and this
-option controls by how much.
+Every wave is harder than the previous one and this option controls by how much.
 
 ##menu.lobby.initial_creeps : Initial creeps count
 ##menu.lobby.initial_creeps.description

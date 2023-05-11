@@ -59,7 +59,9 @@ const (
 	agentModeBuildBuilding
 	agentModeGuardForever
 	agentModeRoombaGuard
+	agentModeRoombaAttack
 	agentModeRoombaPatrol
+	agentModeRoombaCombatWait
 	agentModeRoombaWait
 	agentModeKamikazeAttack
 	agentModeConsumeDrone
@@ -747,9 +749,9 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateKamikazeAttack(delta)
 	case agentModeConsumeDrone:
 		a.updateConsumeDrone(delta)
-	case agentModeRoombaPatrol, agentModeRoombaGuard:
+	case agentModeRoombaPatrol, agentModeRoombaGuard, agentModeRoombaAttack:
 		a.updateRoombaPatrol(delta)
-	case agentModeRoombaWait:
+	case agentModeRoombaWait, agentModeRoombaCombatWait:
 		a.updateRoombaWait(delta)
 	case agentModeGuardForever:
 		// Just chill.
@@ -877,6 +879,17 @@ func (a *colonyAgentNode) onLowHealthDamage(source targetable) {
 		}
 	}
 
+	if a.mode == agentModeRoombaCombatWait && a.scene.Rand().Chance(0.4) {
+		a.mode = agentModeRoombaGuard
+		a.sendTo(a.colonyCore.pos.Add(a.scene.Rand().Offset(-180, 180)))
+		if a.specialDelay == 0 {
+			a.energy = gmath.ClampMax(a.energy+50, a.maxEnergy)
+			a.specialDelay = 20
+			a.resting = false
+		}
+		return
+	}
+
 	// Don't do anything weird when colony is being relocated.
 	if a.colonyCore.mode != colonyModeNormal {
 		return
@@ -939,13 +952,35 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 		if a.IsTurret() {
 			a.updateHealthShader()
 		}
+		if a.stats.Kind == gamedata.AgentRoomba && !source.IsFlying() {
+			switch a.mode {
+			case agentModeRoombaPatrol:
+				if source.GetPos().DistanceSquaredTo(a.pos) < a.stats.Weapon.AttackRangeSqr && a.scene.Rand().Chance(0.2) {
+					a.mode = agentModeRoombaCombatWait
+					a.dist = a.scene.Rand().FloatRange(6, 10)
+					a.waypoint = gmath.Vec{}
+					return
+				}
+			case agentModeRoombaWait:
+				if source != a.target && source.GetPos().DistanceSquaredTo(a.pos) > a.stats.Weapon.AttackRangeSqr && a.scene.Rand().Chance(0.45) {
+					a.mode = agentModeRoombaAttack
+					a.target = source
+					a.sendTo(midpoint(a.pos, *source.GetPos()))
+					return
+				}
+			}
+		}
 	}
 
 	if a.health <= (a.maxHealth*0.33) || a.health <= damage.Health {
 		a.onLowHealthDamage(source)
 	}
 
-	if damage.Morale != 0 && a.stats.IsFlying {
+	if !a.stats.IsFlying {
+		return
+	}
+
+	if damage.Morale != 0 {
 		switch a.mode {
 		case agentModeMineEssence:
 			a.clearCargo()
@@ -1642,7 +1677,7 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 func (a *colonyAgentNode) updateRoombaWait(delta float64) {
 	a.dist -= delta
 	a.health = gmath.ClampMax(a.health+(delta*0.2), a.maxHealth)
-	a.energy = gmath.ClampMax(a.energy+(delta*2), a.maxEnergy)
+	a.energy = gmath.ClampMax(a.energy+(delta*2.5), a.maxEnergy)
 	if a.dist <= 0 {
 		a.mode = agentModeRoombaPatrol
 	}
@@ -1666,25 +1701,31 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 
 	// Moving towards destination (or a target).
 	if !a.waypoint.IsZero() {
-		a.energy -= 3 * delta
+		a.energy -= 2.5 * delta
 		if a.moveTowards(delta, a.waypoint) {
 			if a.target != nil {
 				target := a.target.(*creepNode)
 				if target.IsDisposed() {
 					a.target = nil
 				} else if a.pos.DistanceSquaredTo(target.pos) <= (a.stats.Weapon.AttackRangeSqr * a.supportDelay) {
-					a.mode = agentModeRoombaWait
-					a.dist = a.scene.Rand().FloatRange(7, 11)
+					a.mode = agentModeRoombaCombatWait
+					a.dist = a.scene.Rand().FloatRange(7, 16)
 					a.waypoint = gmath.Vec{}
 					a.target = nil
 					return
 				}
 			}
 			if a.path.HasNext() {
-				if a.health < a.maxHealth*0.8 && a.scene.Rand().Chance(0.1) {
+				if a.mode == agentModeRoombaPatrol && a.health < a.maxHealth*0.8 && a.scene.Rand().Chance(0.1) {
+					a.health = gmath.ClampMax(a.health+1, a.maxHealth)
 					a.mode = agentModeRoombaWait
-					a.dist = a.scene.Rand().FloatRange(1, 10)
+					a.dist = a.scene.Rand().FloatRange(4, 10)
 					a.waypoint = gmath.Vec{}
+					if !a.world().simulation {
+						smokeEffect := newEffectNode(a.world().camera, a.pos.Add(gmath.Vec{Y: -10}), false, assets.ImageRoombaSmoke)
+						a.world().nodeRunner.AddObject(smokeEffect)
+						smokeEffect.anim.SetSecondsPerFrame(0.08)
+					}
 					return
 				}
 				// TODO: remove code duplication with crawlers.
@@ -1708,6 +1749,11 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 		}
 	}
 
+	if a.mode == agentModeRoombaAttack {
+		a.mode = agentModeRoombaCombatWait
+		a.dist = a.scene.Rand().FloatRange(12, 20)
+		return
+	}
 	if a.mode == agentModeRoombaGuard && a.scene.Rand().Chance(0.9) {
 		a.mode = agentModeRoombaWait
 		a.dist = a.scene.Rand().FloatRange(10, 25)

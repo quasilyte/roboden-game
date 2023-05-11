@@ -98,6 +98,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageSmokeDown:                  {Path: "image/effects/smoke_down.png", FrameWidth: 8},
 		ImageSmokeSideDown:              {Path: "image/effects/smoke_side_down.png", FrameWidth: 8},
 		ImageSmokeSide:                  {Path: "image/effects/smoke_side.png", FrameWidth: 15},
+		ImageRoombaSmoke:                {Path: "image/effects/roomba_smoke.png", FrameWidth: 8},
 
 		ImageFactionDiode:       {Path: "image/faction_diode.png"},
 		ImageColonyResourceBar1: {Path: "image/colony_resource_bar1.png"},
@@ -344,6 +345,7 @@ const (
 	ImageSmokeDown
 	ImageSmokeSideDown
 	ImageSmokeSide
+	ImageRoombaSmoke
 
 	ImageColonyDamageMask
 	ImageTurretDamageMask1

@@ -557,7 +557,7 @@ var RoombaAgentStats = InitDroneStats(&AgentStats{
 		BurstSize:           2,
 		BurstDelay:          0.65,
 		TargetFlags:         TargetFlying | TargetGround,
-		Accuracy:            0.75,
+		Accuracy:            0.8,
 		ProjectileFireSound: true,
 		Explosion:           ProjectileExplosionRoombaShot,
 		TrailEffect:         ProjectileTrailRoomba,

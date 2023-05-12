@@ -441,7 +441,7 @@ func (m *arenaManager) prepareWave() {
 			creepSelection = append(creepSelection, m.builderCreepInfo)
 		}
 
-		const maxGroupBudget = 120
+		const maxGroupBudget = 110
 		for sideBudget > 0 {
 			groupCreepSelection := m.groupCreepSelectionSlice[:0]
 			groupCreepSelection = append(groupCreepSelection, creepSelection...)

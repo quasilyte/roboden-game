@@ -11,6 +11,7 @@ import (
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/pathing"
 )
 
 const (
@@ -209,7 +210,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	makeResourceRects(c.resourceRects, false)
 	makeResourceRects(c.flyingResourceRects, true)
 
-	c.markCells()
+	c.markCells(c.pos)
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
@@ -471,9 +472,9 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		})
 
 		c.mode = colonyModeNormal
-		c.unmarkCells()
+		c.unmarkCells(c.pos)
 		c.pos = c.relocationPoint
-		c.markCells()
+		c.markCells(c.pos)
 		c.stopTeleportationEffect()
 
 		c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, false, assets.ImageTeleportEffect))
@@ -626,7 +627,7 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.relocationPoint = pos
 
-	c.unmarkCells()
+	c.unmarkCells(c.pos)
 
 	c.agents.Each(func(a *colonyAgentNode) {
 		if a.mode == agentModeKamikazeAttack {
@@ -666,11 +667,49 @@ func (c *colonyCoreNode) updateTakeoff(delta float64) {
 	}
 }
 
+func (c *colonyCoreNode) startLanding() {
+	c.waypoint = c.relocationPoint
+	c.mode = colonyModeLanding
+	c.markCells(c.relocationPoint)
+}
+
 func (c *colonyCoreNode) updateRelocating(delta float64) {
 	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
-		c.waypoint = c.relocationPoint
-		c.mode = colonyModeLanding
+		// The landing spot could be unavailable by the moment we reach it.
+		coord := c.world.pathgrid.PosToCoord(c.relocationPoint)
+		if c.world.CellIsFree2x2(coord) {
+			c.startLanding()
+			return
+		}
+		newSpot := c.findLandingSpot(coord, true)
+		if !newSpot.IsZero() {
+			c.relocationPoint = newSpot
+			c.waypoint = newSpot.Sub(gmath.Vec{Y: coreFlightHeight})
+		} else {
+			c.startLanding()
+		}
 	}
+}
+
+func (c *colonyCoreNode) findLandingSpot(coord pathing.GridCoord, recurse bool) gmath.Vec {
+	freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
+		probe := coord.Add(offset)
+		return c.world.CellIsFree2x2(probe)
+	})
+	if !freeCoord.IsZero() {
+		pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})
+		return pos
+	}
+
+	var freePos gmath.Vec
+	if recurse {
+		randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
+			probe := coord.Add(offset)
+			freePos = c.findLandingSpot(probe, false)
+			return !freePos.IsZero()
+		})
+	}
+	return freePos
 }
 
 func (c *colonyCoreNode) updateLanding(delta float64) {
@@ -694,7 +733,6 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.createLandingSmokeEffect()
 		c.crushCrawlers()
 		c.maybeTeleport()
-		c.markCells()
 	}
 }
 
@@ -812,12 +850,12 @@ func (c *colonyCoreNode) doAction() {
 	}
 }
 
-func (c *colonyCoreNode) unmarkCells() {
-	c.world.UnmarkPos2x2(c.pos)
+func (c *colonyCoreNode) unmarkCells(pos gmath.Vec) {
+	c.world.UnmarkPos2x2(pos)
 }
 
-func (c *colonyCoreNode) markCells() {
-	c.world.MarkPos2x2(c.pos)
+func (c *colonyCoreNode) markCells(pos gmath.Vec) {
+	c.world.MarkPos2x2(pos)
 }
 
 func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {

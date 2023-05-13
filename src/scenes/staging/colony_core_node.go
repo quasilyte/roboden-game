@@ -636,11 +636,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 		if a.IsCloaked() {
 			a.doUncloak()
 		}
-		if a.height != agentFlightHeight {
-			a.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
-		} else {
-			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-		}
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	})
 
 	c.mode = colonyModeTakeoff
@@ -1009,7 +1005,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		transferUnit := func(dst, src *colonyCoreNode, a *colonyAgentNode) {
 			src.DetachAgent(a)
 			dst.AcceptAgent(a)
-			a.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		}
 		srcColony := action.Value.(*colonyCoreNode)
 		workersSent := 0

@@ -446,6 +446,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModeStandby:
+		if a.height != agentFlightHeight {
+			return a.AssignMode(agentModeAlignStandby, pos, target)
+		}
 		if a.cloningBeam != nil {
 			a.cloningBeam.Dispose()
 			a.cloningBeam = nil
@@ -1986,8 +1989,8 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		a.cloningBeam.Dispose()
 		a.cloningBeam = nil
 		if a.mode == agentModeMergingRoomba && !posIsFreeWithFlags(a.world(), nil, a.pos, 2, collisionSkipSmallCrawlers|collisionSkipTeleporters) {
-			a.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
-			target.AssignMode(agentModeAlignStandby, gmath.Vec{}, nil)
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+			target.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
 

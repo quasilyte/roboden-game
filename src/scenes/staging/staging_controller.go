@@ -525,7 +525,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		})
 		if !freeCoord.IsZero() {
 			pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord))
-			spriteOffset := roundedPos(c.world.rand.Offset(-4, 4))
+			spriteOffset := roundedPos(c.world.rand.Offset(-3, 3))
 			construction := c.world.NewConstructionNode(pos, spriteOffset, stats)
 			c.nodeRunner.AddObject(construction)
 			return true

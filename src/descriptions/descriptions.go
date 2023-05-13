@@ -64,6 +64,10 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier bool) s
 		tag = d.Get("drone", "kind", "worker")
 	case drone.CanPatrol:
 		tag = d.Get("drone", "kind", "military")
+	default:
+		if drone.Kind == gamedata.AgentRoomba {
+			tag = d.Get("drone", "kind", "military")
+		}
 	}
 	key := strings.ToLower(drone.Kind.String())
 

@@ -2,7 +2,10 @@ package staging
 
 import (
 	"fmt"
+	"image"
+	"sort"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -53,8 +56,7 @@ type wallClusterNode struct {
 
 	chunks []wallChunk
 
-	points  []gmath.Vec
-	sprites []*ge.Sprite
+	points []gmath.Vec
 }
 
 type wallClusterConfig struct {
@@ -79,64 +81,31 @@ func newWallClusterNode(config wallClusterConfig) *wallClusterNode {
 func (w *wallClusterNode) IsDisposed() bool { return false }
 
 func (w *wallClusterNode) Init(scene *ge.Scene) {
-	if len(w.chunks) == 0 {
-		w.initOriented(scene)
-	} else {
-		w.initChunks(scene)
-	}
 }
 
-func (w *wallClusterNode) initChunks(scene *ge.Scene) {
-	w.sprites = make([]*ge.Sprite, 0, len(w.chunks))
+func (w *wallClusterNode) createSubImage(img resource.Image, offsetX int) *ebiten.Image {
+	_, height := img.Data.Size()
+	min := image.Point{
+		X: offsetX,
+		Y: 0,
+	}
+	return img.Data.SubImage(image.Rectangle{
+		Min: min,
+		Max: image.Point{X: min.X + int(img.DefaultFrameWidth), Y: height},
+	}).(*ebiten.Image)
+}
+
+func (w *wallClusterNode) initChunks(bg *ge.TiledBackground, scene *ge.Scene) {
 	w.points = make([]gmath.Vec, len(w.chunks), len(w.chunks)+8)
 
 	pointSet := make(map[gmath.Vec]struct{}, len(w.points)+8)
 	for i, chunk := range w.chunks {
-		var texture resource.ImageID
-		numSprites := 1
-		switch chunk.kind {
-		case mountainSmall:
-			texture = assets.ImageMountainSmall
-			roll := scene.Rand().Float()
-			if roll < 0.7 {
-				numSprites = 2
-			} else if roll < 0.8 {
-				numSprites = 3
-			}
-		case mountainMedium:
-			texture = assets.ImageMountainMedium
-		case mountainBig:
-			texture = assets.ImageMountainBig
-		case mountainWide:
-			texture = assets.ImageMountainWide
-		case mountainTall:
-			texture = assets.ImageMountainTall
-			roll := scene.Rand().Float()
-			if roll < 0.4 {
-				numSprites = 2
-			}
-		default:
-			panic("unexpected chunk size")
-		}
-
 		pointSet[chunk.pos] = struct{}{}
 		w.points[i] = chunk.pos
+	}
 
-		for j := 0; j < numSprites; j++ {
-			s := scene.NewSprite(texture)
-			numFrames := int(s.ImageWidth() / s.FrameWidth)
-			if numFrames > 1 {
-				s.FrameOffset.X = float64(scene.Rand().IntRange(0, numFrames-1)) * s.FrameWidth
-			}
-			s.FlipHorizontal = scene.Rand().Bool()
-			s.Pos.Base = &w.points[i]
-			if numSprites == 1 {
-				s.Pos.Offset = scene.Rand().Offset(-4, 4)
-			} else {
-				s.Pos.Offset = scene.Rand().Offset(-8, 8)
-			}
-			w.sprites = append(w.sprites, s)
-		}
+	if !w.world.simulation {
+		w.drawMountains(bg, scene)
 	}
 
 	pushNewPoint := func(pos gmath.Vec) {
@@ -164,11 +133,90 @@ func (w *wallClusterNode) initChunks(scene *ge.Scene) {
 		}
 	}
 
-	for _, s := range w.sprites {
-		w.world.camera.AddSpriteBelow(s)
-	}
-
 	w.initGeometryRect()
+}
+
+func (w *wallClusterNode) drawMountains(bg *ge.TiledBackground, scene *ge.Scene) {
+	type pendingImage struct {
+		data    *ebiten.Image
+		options ebiten.DrawImageOptions
+		rect    gmath.Rect
+	}
+	images := make([]pendingImage, 0, len(w.chunks)+8)
+
+	for i, chunk := range w.chunks {
+		var texture resource.ImageID
+		numSprites := 1
+		switch chunk.kind {
+		case mountainSmall:
+			texture = assets.ImageMountainSmall
+			roll := w.world.localRand.Float()
+			if roll < 0.7 {
+				numSprites = 2
+			} else if roll < 0.8 {
+				numSprites = 3
+			}
+		case mountainMedium:
+			texture = assets.ImageMountainMedium
+		case mountainBig:
+			texture = assets.ImageMountainBig
+		case mountainWide:
+			texture = assets.ImageMountainWide
+		case mountainTall:
+			texture = assets.ImageMountainTall
+			roll := w.world.localRand.Float()
+			if roll < 0.4 {
+				numSprites = 2
+			}
+		default:
+			panic("unexpected chunk size")
+		}
+
+		for j := 0; j < numSprites; j++ {
+			img := scene.LoadImage(texture)
+			width, height := img.Data.Size()
+			numFrames := width / int(img.DefaultFrameWidth)
+			var drawOptions ebiten.DrawImageOptions
+			frameOffset := w.world.localRand.IntRange(0, numFrames-1) * int(img.DefaultFrameWidth)
+			subImage := w.createSubImage(img, frameOffset)
+			if w.world.localRand.Bool() {
+				drawOptions.GeoM.Scale(-1, 1)
+				drawOptions.GeoM.Translate(img.DefaultFrameWidth, 0)
+			}
+
+			min := gmath.Vec{
+				X: w.points[i].X - float64(img.DefaultFrameWidth/2),
+				Y: w.points[i].Y - float64(height/2),
+			}
+			drawOptions.GeoM.Translate(min.X, min.Y)
+			imageRect := gmath.Rect{
+				Min: min,
+				Max: min.Add(gmath.Vec{X: img.DefaultFrameWidth, Y: float64(height)}),
+			}
+			var offset gmath.Vec
+			if numSprites == 1 {
+				offset = w.world.localRand.Offset(-4, 4)
+			} else {
+				offset = w.world.localRand.Offset(-8, 8)
+			}
+			imageRect.Min = imageRect.Min.Add(offset)
+			imageRect.Max = imageRect.Max.Add(offset)
+			drawOptions.GeoM.Translate(offset.X, offset.Y)
+			images = append(images, pendingImage{
+				data:    subImage,
+				options: drawOptions,
+				rect:    imageRect,
+			})
+		}
+	}
+	sort.SliceStable(images, func(i, j int) bool {
+		shape1 := images[i].rect
+		shape2 := images[j].rect
+		return shape1.Max.Y < shape2.Max.Y
+	})
+	for _, img := range images {
+		bg.DrawImage(img.data, &img.options)
+	}
 }
 
 func (w *wallClusterNode) initGeometryRect() {
@@ -218,7 +266,7 @@ func (w *wallClusterNode) initGeometryRect() {
 	}
 }
 
-func (w *wallClusterNode) initOriented(scene *ge.Scene) {
+func (w *wallClusterNode) initOriented(bg *ge.TiledBackground, scene *ge.Scene) {
 	if len(w.points) > maxWallSegments {
 		panic(fmt.Sprintf("too many segments in a wall cluster: %d", len(w.points)))
 	}
@@ -226,18 +274,9 @@ func (w *wallClusterNode) initOriented(scene *ge.Scene) {
 		panic("empty wall cluster")
 	}
 
-	layerPicker := gmath.NewRandPicker[resource.ImageID](scene.Rand())
+	layerPicker := gmath.NewRandPicker[resource.ImageID](w.world.localRand)
 	for _, l := range w.atlas.layers {
 		layerPicker.AddOption(l.texture, l.weight)
-	}
-
-	w.sprites = make([]*ge.Sprite, len(w.points))
-	for i := range w.points {
-		texture := layerPicker.Pick()
-		s := scene.NewSprite(texture)
-		s.Pos.Base = &w.points[i]
-		w.sprites[i] = s
-		w.world.camera.AddSpriteBelow(s)
 	}
 
 	w.initGeometryRect()
@@ -273,7 +312,6 @@ func (w *wallClusterNode) initOriented(scene *ge.Scene) {
 	maxY := len(clusterMap)
 	for i := range w.points {
 		p := w.points[i]
-		s := w.sprites[i]
 		connectionsMask := uint8(0)
 		wallX, wallY := getGridCoords(p.Sub(origin))
 		for bitIndex, option := range checkList {
@@ -288,7 +326,16 @@ func (w *wallClusterNode) initOriented(scene *ge.Scene) {
 			bitMask := 1 << bitIndex
 			connectionsMask |= uint8(bitMask)
 		}
-		s.FrameOffset.X = float64(int(connectionsMask) * int(wallTileSize))
+
+		if !w.world.simulation {
+			texture := layerPicker.Pick()
+			var drawOptions ebiten.DrawImageOptions
+			img := scene.LoadImage(texture)
+			drawOptions.GeoM.Translate(w.points[i].X-(wallTileSize/2), w.points[i].Y-(wallTileSize/2))
+			frameOffset := int(connectionsMask) * int(wallTileSize)
+			subImage := w.createSubImage(img, frameOffset)
+			bg.DrawImage(subImage, &drawOptions)
+		}
 	}
 }
 

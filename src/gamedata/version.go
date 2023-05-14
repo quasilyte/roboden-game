@@ -142,6 +142,7 @@ const SeasonNumber = 0
 //   - The game doesn't create animation objects for drones with no animation anymore
 //   - Clusters for units (makes target selection faster)
 //   - Less allocations in simulation mode
+//   - Terrain is drawn as a single texture instead of a set of sprites
 //
 // * Visuals:
 //   - Generate less looped land cracks

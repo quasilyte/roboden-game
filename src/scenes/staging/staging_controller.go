@@ -273,16 +273,18 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	// Background generation is an expensive operation.
 	// Don't do it inside simulation (headless) mode.
+	var bg *ge.TiledBackground
 	if c.config.ExecMode != gamedata.ExecuteSimulation {
 		// Use local rand for the tileset generation.
 		// Otherwise, we'll get incorrect results during the simulation.
-		bg := ge.NewTiledBackground(scene.Context())
+		bg = ge.NewTiledBackground(scene.Context())
 		bg.LoadTilesetWithRand(scene.Context(), world.localRand, world.width, world.height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
 		c.camera.SetBackground(bg)
 	}
-
-	g := newLevelGenerator(scene, c.world)
-	g.Generate()
+	{
+		g := newLevelGenerator(scene, bg, c.world)
+		g.Generate()
+	}
 
 	c.colonySelector = scene.NewSprite(assets.ImageColonyCoreSelector)
 	c.camera.AddSpriteBelow(c.colonySelector)

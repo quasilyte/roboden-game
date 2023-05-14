@@ -24,14 +24,16 @@ type levelGenerator struct {
 	playerSpawn  gmath.Vec
 	sectors      []gmath.Rect
 	sectorSlider gmath.Slider
+	bg           *ge.TiledBackground
 
 	pendingResources []*essenceSourceNode
 }
 
-func newLevelGenerator(scene *ge.Scene, world *worldState) *levelGenerator {
+func newLevelGenerator(scene *ge.Scene, bg *ge.TiledBackground, world *worldState) *levelGenerator {
 	g := &levelGenerator{
 		scene: scene,
 		world: world,
+		bg:    bg,
 	}
 	g.rng.SetSeed(world.config.Seed)
 	g.sectors = []gmath.Rect{
@@ -757,6 +759,7 @@ func (g *levelGenerator) placeWalls() {
 			config.world = g.world
 			wall := g.world.NewWallClusterNode(config)
 			g.scene.AddObject(wall)
+			wall.initOriented(g.bg, g.scene)
 		}
 	}
 
@@ -838,5 +841,6 @@ func (g *levelGenerator) placeWalls() {
 		config.world = g.world
 		wall := g.world.NewWallClusterNode(config)
 		g.scene.AddObject(wall)
+		wall.initChunks(g.bg, g.scene)
 	}
 }

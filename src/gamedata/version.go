@@ -142,4 +142,7 @@ const SeasonNumber = 0
 //   - The game doesn't create animation objects for drones with no animation anymore
 //   - Clusters for units (makes target selection faster)
 //   - Less allocations in simulation mode
+//
+// * Visuals:
+//   - Generate less looped land cracks
 const BuildNumber int = 12

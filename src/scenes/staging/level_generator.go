@@ -556,9 +556,9 @@ func (g *levelGenerator) placeWalls() {
 	shapePicker := gmath.NewRandPicker[int](rand)
 	shapePicker.AddOption(wallPit, 0.05)
 	shapePicker.AddOption(wallLine, 0.1)
-	shapePicker.AddOption(wallSpikedLine, 0.1)
-	shapePicker.AddOption(wallZap, 0.2)
-	shapePicker.AddOption(wallSnake, 0.15)
+	shapePicker.AddOption(wallSpikedLine, 0.15)
+	shapePicker.AddOption(wallZap, 0.25)
+	shapePicker.AddOption(wallSnake, 0.05)
 	shapePicker.AddOption(wallCrossway, 0.1)
 
 	directions := []gmath.Vec{
@@ -720,15 +720,20 @@ func (g *levelGenerator) placeWalls() {
 			lengthRoll := rand.IntRange(1, maxLength)
 			length := lengthRoll
 			dir := chooseRandDirection()
+			prevSpikeDir := dir
 			for length > 0 {
 				currentPos = currentPos.Add(dir)
 				if !posIsFree(g.world, nil, currentPos, 48) {
 					break
 				}
 				if spiked && rand.Chance(0.5) {
-					sidePos := currentPos.Add(rotateDirection(dir))
-					if posIsFree(g.world, nil, sidePos, 48) {
-						config.points = append(config.points, sidePos)
+					spikeDir := rotateDirection(dir)
+					sidePos := currentPos.Add(spikeDir)
+					if spikeDir != prevSpikeDir || g.world.rand.Chance(0.15) {
+						if posIsFree(g.world, nil, sidePos, 48) {
+							prevSpikeDir = spikeDir
+							config.points = append(config.points, sidePos)
+						}
 					}
 				}
 				config.points = append(config.points, currentPos)

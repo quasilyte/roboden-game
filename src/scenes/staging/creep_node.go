@@ -120,11 +120,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	if c.stats.shadowImage != assets.ImageNone {
 		c.world.camera.AddSpriteAbove(c.sprite)
 	} else {
-		if c.stats.kind == creepCrawler {
-			c.world.camera.AddSpriteSlightlyBelow(c.sprite)
-		} else {
-			c.world.camera.AddSprite(c.sprite)
-		}
+		c.world.camera.AddSprite(c.sprite)
 	}
 	if c.stats.animSpeed != 0 {
 		if c.stats.kind == creepHowitzer {
@@ -1119,8 +1115,9 @@ func (c *creepNode) updateUberBoss(delta float64) {
 	c.anim.Tick(delta)
 
 	if c.shadow != nil {
-		c.shadow.Pos.Offset.Y = math.Round(c.height + 4)
-		newShadowAlpha := float32(1.0 - ((c.height / agentFlightHeight) * 0.5))
+		roundedHeight := math.Round(c.height)
+		c.shadow.Pos.Offset.Y = roundedHeight + 4
+		newShadowAlpha := float32(1.0 - ((roundedHeight / agentFlightHeight) * 0.5))
 		c.shadow.SetAlpha(newShadowAlpha)
 	}
 

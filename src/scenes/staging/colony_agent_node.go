@@ -279,11 +279,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	if a.IsFlying() {
 		a.camera().AddSpriteAbove(a.sprite)
 	} else {
-		if a.stats.Kind == gamedata.AgentRoomba {
-			a.camera().AddSpriteSlightlyBelow(a.sprite)
-		} else {
-			a.camera().AddSprite(a.sprite)
-		}
+		a.camera().AddSprite(a.sprite)
 		// Turret damage is an optional shader.
 		if a.IsTurret() && a.world().graphicsSettings.AllShadersEnabled {
 			a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
@@ -307,11 +303,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		if a.IsFlying() {
 			a.camera().AddSpriteAbove(a.diode)
 		} else {
-			if a.stats.Kind == gamedata.AgentRoomba {
-				a.camera().AddSpriteSlightlyBelow(a.diode)
-			} else {
-				a.camera().AddSprite(a.diode)
-			}
+			a.camera().AddSprite(a.diode)
 		}
 	}
 

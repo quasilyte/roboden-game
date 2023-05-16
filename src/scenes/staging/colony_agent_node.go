@@ -1544,7 +1544,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			beam.width = width
 			a.world().nodeRunner.AddObject(beam)
 			numReflections++
-			damage.Health++
+			damage.Health += 1.5
 			if numReflections < maxReflections {
 				width++
 			}

@@ -265,141 +265,154 @@ func (c *TerminalMenu) onSaveInfo(*terminalCommandContext) (string, error) {
 	return strings.Join(lines, "\n"), nil
 }
 
-func (c *TerminalMenu) onBalanceDronesCalc(*terminalCommandContext) (string, error) {
-	type droneInfo struct {
-		name         string
-		computed     float64
-		score        float64
-		defenseScore float64
-		weaponScore  float64
-		pointCost    int
-		cost         int
-		upkeep       int
-	}
-	var tier2 []droneInfo
-	for _, recipe := range gamedata.Tier2agentMergeRecipes {
-		drone := recipe.Result
+type droneScore struct {
+	name         string
+	computed     float64
+	score        float64
+	defenseScore float64
+	weaponScore  float64
+	pointCost    int
+	cost         int
+	upkeep       int
+}
 
-		defenseScore := 0.0
-		defenseScore += 0.4 * drone.MaxHealth
-		defenseScore += 9 * drone.SelfRepair
-		if drone.CanCloak {
-			defenseScore += 5
-		}
-
-		score := 0.0
-		if drone.MaxPayload > 1 {
-			score += float64(2 * drone.MaxPayload)
-		}
-		if drone.CanGather {
-			score += 5
-			score += 0.15 * drone.Speed
-			score += 5 * drone.EnergyRegenRateBonus
-		} else {
-			score += 0.05 * drone.Speed
-			score += 2.5 * drone.EnergyRegenRateBonus
-		}
-		if drone.CanPatrol {
-			score += defenseScore
-		} else {
-			score += 0.4 * defenseScore
-		}
-
-		// Rate the special abilities.
-		switch drone.Kind {
-		case gamedata.AgentCloner, gamedata.AgentRepair:
-			score += 18
-		case gamedata.AgentRedminer:
-			score += 14
-		case gamedata.AgentServo:
-			score += 12
-		case gamedata.AgentCourier, gamedata.AgentRecharger:
-			score += 8
-		case gamedata.AgentScarab:
-			// Becomes much better if kept safe.
-			score += 8
-		case gamedata.AgentKamikaze:
-			score += 6
-		case gamedata.AgentGenerator, gamedata.AgentScavenger:
-			score += 4
-		}
-
-		weaponScore := 0.0
-		if drone.Weapon != nil {
-			projectileScore := 0.0
-			healthDamage := drone.Weapon.Damage.Health
-			switch drone.Kind {
-			case gamedata.AgentPrism:
-				// Prisms connect their attacks, so the effective damage
-				// is usually higher.
-				healthDamage += 6
-			}
-			projectileScore += 2.5 * healthDamage
-			projectileScore += 0.5 * drone.Weapon.Damage.Disarm
-			projectileScore += 5.0 * drone.Weapon.Damage.Aggro
-			projectileScore += 0.25 * drone.Weapon.Damage.Morale
-			projectileScore += 0.5 * drone.Weapon.Damage.Energy
-			projectileScore += 0.75 * drone.Weapon.Damage.Slow
-
-			if drone.Weapon.TargetFlags == gamedata.TargetFlying|gamedata.TargetGround {
-				// Can attack both kinds of targets.
-				// There can be a penalty against some targets, so we take that into account as well.
-				flyingMultiplier := 0.6 * drone.Weapon.FlyingTargetDamageMult
-				groundMultiplier := 0.4 * drone.Weapon.GroundTargetDamageMult
-				projectileScore *= (flyingMultiplier + groundMultiplier)
-			} else {
-				// Can attack only 1 kind of targets.
-				if drone.Weapon.TargetFlags == gamedata.TargetFlying {
-					projectileScore *= (0.6 + 0.1)
-				} else {
-					projectileScore *= (0.4 + 0.1)
-				}
-			}
-
-			burstScore := projectileScore
-			if drone.Weapon.BurstSize > 1 {
-				burstScore += float64(drone.Weapon.BurstSize)
-			}
-			if drone.Weapon.MaxTargets > 1 {
-				burstScore += (0.7 * float64(drone.Weapon.MaxTargets))
-			}
-			shotsPerSecond := 1.0 / drone.Weapon.Reload
-			rangeScore := gmath.ClampMin((drone.Weapon.AttackRange-80)*0.04, 0)
-			if drone.Weapon.TargetFlags&gamedata.TargetFlying != 0 && drone.Weapon.AttackRange > 250 {
-				// Can outrange flying uber boss.
-				rangeScore += 2.5
-			} else if drone.Weapon.TargetFlags&gamedata.TargetGround != 0 && drone.Weapon.AttackRange > 320 {
-				// Can outrange ground turrets.
-				rangeScore += 1.5
-			}
-			weaponScore = 3 * ((burstScore + rangeScore) * shotsPerSecond)
-		}
-
-		computedScore := score + weaponScore
-		computedScore *= (1.0 - (0.8 * float64(drone.PointCost) / 20.0))
-		computedScore -= 0.35 * float64(drone.Upkeep)
-		computedScore -= 0.1 * float64(drone.Cost)
-
-		tier2 = append(tier2, droneInfo{
-			name:         drone.Kind.String(),
-			computed:     computedScore,
-			score:        score,
-			defenseScore: defenseScore,
-			weaponScore:  weaponScore,
-			pointCost:    drone.PointCost,
-			cost:         int(drone.Cost),
-			upkeep:       drone.Upkeep,
-		})
-	}
-
-	sort.SliceStable(tier2, func(i, j int) bool {
-		score1 := tier2[i].computed
-		score2 := tier2[j].computed
+func (c *TerminalMenu) sortDroneScoreList(list []droneScore) {
+	sort.SliceStable(list, func(i, j int) bool {
+		score1 := list[i].computed
+		score2 := list[j].computed
 		return score1 > score2
 	})
+}
 
-	println("tier 2 drones (with weapon):")
-	for _, d := range tier2 {
+func (c *TerminalMenu) calcDroneScore(drone *gamedata.AgentStats) droneScore {
+	defenseScore := 0.0
+	maxHealth := drone.MaxHealth
+	if drone.Kind == gamedata.AgentDevourer {
+		maxHealth += 5 * 6
+	}
+	defenseScore += 0.4 * maxHealth
+	defenseScore += 7 * drone.SelfRepair
+	if drone.CanCloak {
+		defenseScore += 5
+	}
+
+	score := 0.0
+	if drone.MaxPayload > 1 {
+		extraPayload := float64(drone.MaxPayload - 1)
+		if drone.CanGather {
+			score += 2.0 * extraPayload
+		} else {
+			score += 1.0 * extraPayload
+		}
+	}
+	if drone.CanGather {
+		score += 5
+		score += 0.15 * drone.Speed
+		score += 5 * drone.EnergyRegenRateBonus
+	} else {
+		score += 0.05 * drone.Speed
+		score += 2.5 * drone.EnergyRegenRateBonus
+	}
+	if drone.CanPatrol {
+		score += defenseScore
+	} else {
+		score += 0.4 * defenseScore
+	}
+
+	// Rate the special abilities.
+	switch drone.Kind {
+	case gamedata.AgentCloner, gamedata.AgentRepair:
+		score += 18
+	case gamedata.AgentRedminer:
+		score += 14
+	case gamedata.AgentServo:
+		score += 12
+	case gamedata.AgentCourier, gamedata.AgentTrucker, gamedata.AgentRecharger:
+		score += 8
+	case gamedata.AgentScarab:
+		// Becomes much better if kept safe.
+		score += 8
+	case gamedata.AgentKamikaze:
+		score += 6
+	case gamedata.AgentGenerator, gamedata.AgentScavenger, gamedata.AgentMarauder:
+		score += 4
+	}
+
+	weaponScore := 0.0
+	if drone.Weapon != nil {
+		projectileScore := 0.0
+		healthDamage := drone.Weapon.Damage.Health
+		switch drone.Kind {
+		case gamedata.AgentPrism:
+			// Prisms connect their attacks, so the effective damage
+			// is usually higher.
+			healthDamage += 6
+		}
+		projectileScore += 2.5 * healthDamage
+		projectileScore += 0.5 * drone.Weapon.Damage.Disarm
+		projectileScore += 5.0 * drone.Weapon.Damage.Aggro
+		projectileScore += 0.25 * drone.Weapon.Damage.Morale
+		projectileScore += 0.5 * drone.Weapon.Damage.Energy
+		projectileScore += 0.75 * drone.Weapon.Damage.Slow
+
+		if drone.Weapon.TargetFlags == gamedata.TargetFlying|gamedata.TargetGround {
+			// Can attack both kinds of targets.
+			// There can be a penalty against some targets, so we take that into account as well.
+			flyingMultiplier := 0.6 * drone.Weapon.FlyingTargetDamageMult
+			groundMultiplier := 0.4 * drone.Weapon.GroundTargetDamageMult
+			projectileScore *= (flyingMultiplier + groundMultiplier)
+		} else {
+			// Can attack only 1 kind of targets.
+			if drone.Weapon.TargetFlags == gamedata.TargetFlying {
+				projectileScore *= (0.6 + 0.05)
+			} else {
+				projectileScore *= (0.4 + 0.05)
+			}
+		}
+
+		burstScore := projectileScore
+		burstSize := drone.Weapon.BurstSize
+		if drone.Kind == gamedata.AgentDevourer {
+			burstSize += 6
+		}
+		if drone.Weapon.BurstSize > 1 {
+			burstScore *= float64(burstSize)
+		}
+		if drone.Weapon.MaxTargets > 1 {
+			burstScore *= (0.7 * float64(drone.Weapon.MaxTargets))
+		}
+		shotsPerSecond := 1.0 / drone.Weapon.Reload
+		rangeScore := gmath.ClampMin((drone.Weapon.AttackRange-80)*0.04, 0)
+		if drone.Weapon.TargetFlags&gamedata.TargetFlying != 0 && drone.Weapon.AttackRange > 250 {
+			// Can outrange flying uber boss.
+			rangeScore += 2.5
+		} else if drone.Weapon.TargetFlags&gamedata.TargetGround != 0 && drone.Weapon.AttackRange > 320 {
+			// Can outrange ground turrets.
+			rangeScore += 1.5
+		}
+		weaponScore = 3 * ((burstScore + rangeScore) * shotsPerSecond)
+	}
+
+	computedScore := score + weaponScore
+	computedScore *= (1.0 - (0.8 * (float64(drone.PointCost) / 20.0)))
+	computedScore -= 0.35 * float64(drone.Upkeep)
+	computedScore -= 0.1 * float64(drone.Cost)
+
+	return droneScore{
+		name:         drone.Kind.String(),
+		computed:     computedScore,
+		score:        score,
+		defenseScore: defenseScore,
+		weaponScore:  weaponScore,
+		pointCost:    drone.PointCost,
+		cost:         int(drone.Cost),
+		upkeep:       drone.Upkeep,
+	}
+}
+
+func (c *TerminalMenu) dumpList(tag string, list []droneScore) {
+	println(fmt.Sprintf("%s (with weapon):", tag))
+	for _, d := range list {
 		if d.weaponScore == 0 {
 			continue
 		}
@@ -410,8 +423,8 @@ func (c *TerminalMenu) onBalanceDronesCalc(*terminalCommandContext) (string, err
 			d.score, d.defenseScore, d.weaponScore, d.score+d.weaponScore, d.cost, d.upkeep)
 		println(s)
 	}
-	println("tier 2 drones (workers):")
-	for _, d := range tier2 {
+	println(fmt.Sprintf("%s (workers):", tag))
+	for _, d := range list {
 		if d.weaponScore != 0 {
 			continue
 		}
@@ -422,6 +435,22 @@ func (c *TerminalMenu) onBalanceDronesCalc(*terminalCommandContext) (string, err
 			d.score, d.defenseScore, d.cost, d.upkeep)
 		println(s)
 	}
+}
+
+func (c *TerminalMenu) onBalanceDronesCalc(*terminalCommandContext) (string, error) {
+	var tier2 []droneScore
+	for _, recipe := range gamedata.Tier2agentMergeRecipes {
+		tier2 = append(tier2, c.calcDroneScore(recipe.Result))
+	}
+	c.sortDroneScoreList(tier2)
+	c.dumpList("tier 2", tier2)
+
+	var tier3 []droneScore
+	for _, recipe := range gamedata.Tier3agentMergeRecipes {
+		tier3 = append(tier3, c.calcDroneScore(recipe.Result))
+	}
+	c.sortDroneScoreList(tier3)
+	c.dumpList("tier 3", tier3)
 
 	return "drones balance report is dumped to the console", nil
 }

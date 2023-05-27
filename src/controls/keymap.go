@@ -10,6 +10,8 @@ import (
 const (
 	ActionUnknown input.Action = iota
 
+	ActionSkipDemo
+
 	ActionPanRight
 	ActionPanDown
 	ActionPanLeft
@@ -48,6 +50,8 @@ const (
 
 func BindKeymap(ctx *ge.Context) gameinput.Handler {
 	keymap := input.Keymap{
+		ActionSkipDemo: {input.KeyEnter, input.KeyGamepadStart},
+
 		ActionPanRight: {input.KeyD, input.KeyRight, input.KeyGamepadLStickRight, input.KeyGamepadRight},
 		ActionPanDown:  {input.KeyS, input.KeyDown, input.KeyGamepadLStickDown, input.KeyGamepadDown},
 		ActionPanLeft:  {input.KeyA, input.KeyLeft, input.KeyGamepadLStickLeft, input.KeyGamepadLeft},

@@ -65,6 +65,8 @@ github.com/quasilyte/ge v0.0.0-20230428212551-bbf13e2fb998 h1:xAXtisZhl+IUfVdIpB
 github.com/quasilyte/ge v0.0.0-20230428212551-bbf13e2fb998/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
 github.com/quasilyte/ge v0.0.0-20230514081809-5a55f52a3d0f h1:lgkJ0ZdwyzqMfCqtb+md/kx6NBRqQw/HtebAdPvUTnw=
 github.com/quasilyte/ge v0.0.0-20230514081809-5a55f52a3d0f/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
+github.com/quasilyte/ge v0.0.0-20230526174700-84eca97ad2ec h1:YEZ0dkPvFkid9pSTqKMlE2n2Gu7vkBhKkCx5N+7fwsw=
+github.com/quasilyte/ge v0.0.0-20230526174700-84eca97ad2ec/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
 github.com/quasilyte/gmath v0.0.0-20230330100913-3c961c5497a9 h1:rjdY/+AuT9o/1p9wfd9MMViq6dpzL7Ch0CFf6Zm+8Z0=
 github.com/quasilyte/gmath v0.0.0-20230330100913-3c961c5497a9/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gmath v0.0.0-20230428180022-2163470ca0a9 h1:a7LbchKx0dyxohIASRHDr16ylkxlfZ3XGeqzwd09J+Q=

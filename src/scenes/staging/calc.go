@@ -7,6 +7,68 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
+func getTurretPower(stats *gamedata.AgentStats) int {
+	switch stats {
+	case gamedata.GunpointAgentStats:
+		return 35
+	case gamedata.BeamTowerAgentStats:
+		return 45
+	default:
+		return 0
+	}
+}
+
+func calcCreepPower(world *worldState, creep *creepNode) int {
+	power := 2.5 * float64(creepFragScore(creep.stats))
+	if creep.super {
+		power *= float64(superCreepCostMultiplier(creep.stats))
+	}
+	if creep.stats.kind == creepUberBoss {
+		power = float64(power) * world.bossHealthMultiplier
+	} else {
+		power = float64(power) * world.creepHealthMultiplier
+	}
+	power *= (creep.health / creep.maxHealth) + 0.2
+	return int(power)
+}
+
+func calcPosDanger(world *worldState, pstate *playerState, pos gmath.Vec, r float64) (int, gmath.Vec) {
+	total := 0
+	highestDanger := 0
+	var mostDangerousPos gmath.Vec
+	world.WalkCreeps(pos, r, func(creep *creepNode) bool {
+		danger := calcCreepPower(world, creep)
+		if danger > highestDanger {
+			highestDanger = danger
+			mostDangerousPos = creep.pos
+		}
+		total += danger
+		return false
+	})
+	dangerDecrease := 0
+	rSqr := r * r
+	if turretPower := getTurretPower(world.turretDesign); turretPower != 0 {
+		for _, c := range pstate.colonies {
+			for _, turret := range c.turrets {
+				if turret.pos.DistanceSquaredTo(pos) < rSqr {
+					dangerDecrease += turretPower
+				}
+			}
+		}
+	}
+	if pstate.hasRoombas {
+		for _, c := range pstate.colonies {
+			for _, roomba := range c.roombas {
+				if roomba.pos.DistanceSquaredTo(pos) < rSqr {
+					dangerDecrease += int(gamedata.RoombaAgentStats.Cost)
+				}
+			}
+		}
+	}
+	total = gmath.ClampMin(total-dangerDecrease, 0)
+	return total, mostDangerousPos
+}
+
 func multipliedDamage(target targetable, weapon *gamedata.WeaponStats) gamedata.DamageValue {
 	damage := weapon.Damage
 	if damage.Health != 0 {
@@ -28,6 +90,8 @@ func superCreepCostMultiplier(stats *creepStats) int {
 		return 3
 	case creepTurret, creepBase, creepCrawlerBase, creepHowitzer, creepDominator, creepServant:
 		return 5
+	case creepUberBoss:
+		return 2
 	}
 	return 4
 }
@@ -53,14 +117,17 @@ func creepFragScore(stats *creepStats) int {
 		return 25
 
 	case turretCreepStats:
-		return 10
+		return 20
 
 	case servantCreepStats:
-		return 25
+		return 30
 	case dominatorCreepStats:
-		return 80
+		return 75
 	case howitzerCreepStats:
-		return 90
+		return 85
+
+	case uberBossCreepStats:
+		return 200
 
 	default:
 		return 0
@@ -69,19 +136,18 @@ func creepFragScore(stats *creepStats) int {
 
 func calcScore(world *worldState) int {
 	switch world.config.GameMode {
-	case gamedata.ModeArena:
-		if world.config.InfiniteMode {
-			score := world.config.DifficultyScore * 7
-			timePlayed := world.result.TimePlayed.Seconds()
-			if timePlayed < 5*60 {
-				return 0
-			}
-			timePlayed -= 5 * 60
-			baselineTime := 60.0 * 60.0
-			multiplier := timePlayed / baselineTime
-			return int(math.Round(float64(score) * multiplier))
+	case gamedata.ModeInfArena:
+		score := world.config.DifficultyScore * 7
+		timePlayed := world.result.TimePlayed.Seconds()
+		if timePlayed < 5*60 {
+			return 0
 		}
+		timePlayed -= 5 * 60
+		baselineTime := 60.0 * 60.0
+		multiplier := timePlayed / baselineTime
+		return int(math.Round(float64(score) * multiplier))
 
+	case gamedata.ModeArena:
 		score := world.config.DifficultyScore * 11
 		crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)
 		score += crystalsCollected * 3

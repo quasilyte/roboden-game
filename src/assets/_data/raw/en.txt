@@ -1,5 +1,8 @@
 ##game.title : Roboden
 
+##game.splash.presskey.keyboard : Press ENTER to continue
+##game.splash.presskey.gamepad : Press START to continue
+
 ##boot.wasm : Web build needs to download assets, it can take a while
 ##boot.title : Starting Roboden, please wait
 ##boot.load_ui : Loading UI resources
@@ -8,6 +11,7 @@
 ##boot.load_music : Loading music
 ##boot.load_shaders : Compiling shaders
 ##boot.load_extra : Initializing game data
+##boot.almost_there : Almost there
 
 ##menu.submit.title : Sending data, please wait
 
@@ -52,6 +56,7 @@
 
 ##menu.play.classic : Classic Mode
 ##menu.play.arena : Arena Mode
+##menu.play.inf_arena : Infinite Arena Mode
 ##menu.play.tutorial : Tutorial
 ##menu.play.to_unlock : Score To Unlock
 
@@ -119,6 +124,7 @@
 ##menu.options.edge_scroll_range : Edge scroll range
 ##menu.options.show_fps : Show FPS
 ##menu.options.show_timer : Show timer
+##menu.options.splash_screen : Splash screen
 
 ##menu.options.graphics.shadows : Shadows
 ##menu.options.graphics.shaders : Shaders
@@ -148,6 +154,18 @@ If turned on, you won't have an entire map revealed from the start.
 ##menu.lobby.num_teleporters.description
 How many pairs of teleporters will be placed on the map.
 If your colony lands on a teleportation platform, it will be transported to the connected teleporter.
+
+##menu.lobby.players.classic : Players
+##menu.lobby.players.classic.description
+This option controls the number of allied colonies on the map and who controls them.
+Selecting two players will enable a split-screen local multiplayer (use two gamepads).
+Only the single player mode score is ranked and can be published.
+
+##menu.lobby.player_mode.single_player : single player
+##menu.lobby.player_mode.single_bot : single bot
+##menu.lobby.player_mode.player_and_bot : player and bot
+##menu.lobby.player_mode.two_players : two players (split-screen)
+##menu.lobby.player_mode.two_bots : two bots
 
 ##menu.lobby.ui_mode : User interface mode
 ##menu.lobby.ui_mode.description
@@ -289,9 +307,11 @@ Exit/Back | BACK or SELECT button
 ##menu.overview.arena
 >> In Arena game mode, you need to survive the attacks that come in waves.
 
->> There are 20 waves in total, unless the infinite mode is turned on.
+>> There are 20 waves in total, the last wave being the most challenging.
 
 >> Do not attack large groups of enemies: let them spread a little.
+
+##menu.overview.inf_arena
 
 ##game.notice.base_under_attack
 Your colony is under attack!

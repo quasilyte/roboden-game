@@ -56,12 +56,15 @@ func (r *nodeRunner) AddObject(o ge.SceneObject) {
 	o.Init(r.scene)
 }
 
-func (r *nodeRunner) Update(delta float64) {
+func (r *nodeRunner) ComputeDelta(delta float64) float64 {
+	return delta * r.speedMultiplier
+}
+
+func (r *nodeRunner) Update(computedDelta float64) {
 	if r.paused {
 		return
 	}
 
-	computedDelta := delta * r.speedMultiplier
 	r.timePlayed += computedDelta
 	r.ticks++
 

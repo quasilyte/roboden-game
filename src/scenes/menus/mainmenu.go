@@ -8,6 +8,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
@@ -45,6 +46,11 @@ func (c *MainMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *MainMenuController) Update(delta float64) {
+	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+		c.scene.Audio().PauseCurrentMusic()
+		c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
+		return
+	}
 }
 
 func (c *MainMenuController) initUI() {

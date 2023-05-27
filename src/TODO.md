@@ -6,7 +6,18 @@ todo engine:
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 - why animation affects Y axis?
 - add Midpoint to gmath
+- add distance between line and point to gmath
 - add LoadGameDataRaw
+
+computers and multi-players:
+- per-player uilayer
+- fix exit button and its notification
+- fix simulation replay (it has a panic stub right now)
+- BUG sometimes damage highlight stays
+- don't show "colony under attack" in demo
+- manual camera in replay mode
+- update mode intro texts, add inf arena intro text
+- cinematic camera should prioritize boss events before choosing a random player
 
 optimizations:
 - traverse creeps only once in node runner instead of twice (nodeRunner + worldState.Update)

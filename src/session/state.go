@@ -34,6 +34,7 @@ type State struct {
 
 	LevelConfig         *gamedata.LevelConfig
 	ArenaLevelConfig    *gamedata.LevelConfig
+	InfArenaLevelConfig *gamedata.LevelConfig
 	TutorialLevelConfig *gamedata.LevelConfig
 
 	Persistent PersistentData
@@ -50,8 +51,9 @@ type State struct {
 type PersistentData struct {
 	Settings GameSettings
 
-	SeenClassicMode bool
-	SeenArenaMode   bool
+	SeenClassicMode  bool
+	SeenArenaMode    bool
+	SeenInfArenaMode bool
 
 	PlayerName string
 
@@ -104,6 +106,7 @@ type GameSettings struct {
 	ShowFPS            bool
 	ShowTimer          bool
 	DebugLogs          bool
+	Demo               bool
 	Graphics           GraphicsSettings
 }
 

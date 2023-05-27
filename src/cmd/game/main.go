@@ -154,6 +154,14 @@ func getDefaultSessionState() *session.State {
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				ArenaProgression: 1,
 				Teleporters:      1,
+				RawGameMode:      "arena",
+			},
+		}),
+		InfArenaLevelConfig: newLevelConfig(&gamedata.LevelConfig{
+			ReplayLevelConfig: serverapi.ReplayLevelConfig{
+				ArenaProgression: 1,
+				Teleporters:      1,
+				RawGameMode:      "inf_arena",
 			},
 		}),
 		LevelConfig: newLevelConfig(&gamedata.LevelConfig{
@@ -164,6 +172,7 @@ func getDefaultSessionState() *session.State {
 				NumCreepBases:  2,
 				CreepSpawnRate: 1,
 				Teleporters:    1,
+				RawGameMode:    "classic",
 			},
 		}),
 		Persistent: contentlock.GetDefaultData(),

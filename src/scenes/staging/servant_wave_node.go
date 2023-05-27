@@ -55,7 +55,7 @@ func (e *servantWaveNode) dealDamage() {
 		maxRangeSqr = 128.0 * 128.0
 		damage.Slow++
 	}
-	for _, colony := range e.owner.world.colonies {
+	for _, colony := range e.owner.world.allColonies {
 		if colony.realRadius < 196 && colony.pos.DistanceSquaredTo(e.pos) > (maxRangeSqr*2) {
 			continue
 		}

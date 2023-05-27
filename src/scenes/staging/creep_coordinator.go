@@ -170,8 +170,9 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 	}
 
 	// Now try to find a suitable target.
+	p := gmath.RandElem(c.world.rand, c.world.players)
 	var target *colonyCoreNode
-	for _, colony := range c.world.colonies {
+	for _, colony := range p.GetState().colonies {
 		if colony.pos.DistanceSquaredTo(leader.pos) > attackRangeSqr {
 			continue
 		}

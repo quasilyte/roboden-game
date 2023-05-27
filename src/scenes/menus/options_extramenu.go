@@ -51,6 +51,19 @@ func (c *OptionsExtraMenuController) initUI() {
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
 			Scene:     c.scene,
 			Resources: uiResources,
+			Value:     &options.Demo,
+			Label:     d.Get("menu.options.splash_screen"),
+			ValueNames: []string{
+				d.Get("menu.option.off"),
+				d.Get("menu.option.on"),
+			},
+		}))
+	}
+
+	{
+		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
+			Resources: uiResources,
 			Value:     &options.ShowFPS,
 			Label:     d.Get("menu.options.show_fps"),
 			ValueNames: []string{

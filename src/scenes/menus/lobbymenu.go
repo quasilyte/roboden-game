@@ -64,8 +64,12 @@ func (c *LobbyMenuController) Init(scene *ge.Scene) {
 	switch c.mode {
 	case gamedata.ModeArena:
 		c.config = c.state.ArenaLevelConfig.Clone()
-	default:
+	case gamedata.ModeInfArena:
+		c.config = c.state.InfArenaLevelConfig.Clone()
+	case gamedata.ModeClassic:
 		c.config = c.state.LevelConfig.Clone()
+	default:
+		panic("unexpected game mode")
 	}
 	c.config.Tutorial = nil
 
@@ -216,12 +220,16 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			c.config.Seed = c.randomSeed()
 		}
 
+		c.config.Finalize()
+
 		var seenFlag *bool
 		switch c.mode {
 		case gamedata.ModeClassic:
 			seenFlag = &c.state.Persistent.SeenClassicMode
 		case gamedata.ModeArena:
 			seenFlag = &c.state.Persistent.SeenArenaMode
+		case gamedata.ModeInfArena:
+			seenFlag = &c.state.Persistent.SeenInfArenaMode
 		}
 		if !*seenFlag {
 			*seenFlag = true
@@ -236,17 +244,18 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			// if err := json.Unmarshal(replayData, &replay); err != nil {
 			// 	panic(err)
 			// }
-			// config := gamedata.LevelConfig{
-			// 	ReplayLevelConfig: replay.Config,
-			// 	GameMode: gamedata.ModeArena,
-			// 	ExecMode: gamedata.ExecuteReplay,
-			// 	AttackActionAvailable: true,
+			// config2 := gamedata.LevelConfig{
+			// 	ReplayLevelConfig:          replay.Config,
+			// 	GameMode:                   gamedata.ModeClassic,
+			// 	ExecMode:                   gamedata.ExecuteReplay,
+			// 	AttackActionAvailable:      true,
 			// 	BuildTurretActionAvailable: true,
-			// 	RadiusActionAvailable: true,
-			// 	EliteResources: true,
-			// 	EnemyBoss: replay.Config.RawGameMode == "classic",
+			// 	RadiusActionAvailable:      true,
+			// 	EliteResources:             true,
+			// 	EnemyBoss:                  replay.Config.RawGameMode == "classic",
 			// }
-			// controller := staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode))
+			// config2.Finalize()
+			// controller := staging.NewController(c.state, config2, NewLobbyMenuController(c.state, c.mode))
 			// controller.SetReplayActions(replay.Actions)
 			// c.scene.Context().ChangeScene(controller)
 
@@ -300,6 +309,17 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 	)
 
 	{
+		b := c.newOptionButton(&c.config.PlayersMode, "menu.lobby.players."+c.config.RawGameMode, []string{
+			d.Get("menu.lobby.player_mode.single_player"),
+			d.Get("menu.lobby.player_mode.single_bot"),
+			d.Get("menu.lobby.player_mode.player_and_bot"),
+			d.Get("menu.lobby.player_mode.two_players"),
+			d.Get("menu.lobby.player_mode.two_bots"),
+		})
+		tab.AddChild(b)
+	}
+
+	{
 		b := c.newBoolOptionButton(&c.config.ExtraUI, "menu.lobby.ui_mode", []string{
 			d.Get("menu.lobby.ui_immersive"),
 			d.Get("menu.lobby.ui_informative"),
@@ -318,14 +338,6 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 
 	{
 		b := c.newBoolOptionButton(&c.config.FogOfWar, "menu.lobby.fog_of_war", []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		})
-		tab.AddChild(b)
-	}
-
-	if c.mode == gamedata.ModeArena {
-		b := c.newBoolOptionButton(&c.config.InfiniteMode, "menu.lobby.infinite_mode", []string{
 			d.Get("menu.option.off"),
 			d.Get("menu.option.on"),
 		})
@@ -563,16 +575,6 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 }
 
 func (c *LobbyMenuController) calcDifficultyScore() int {
-	switch c.mode {
-	case gamedata.ModeArena:
-		if c.config.InfiniteMode {
-			c.config.RawGameMode = "inf_arena"
-		} else {
-			c.config.RawGameMode = "arena"
-		}
-	case gamedata.ModeClassic:
-		c.config.RawGameMode = "classic"
-	}
 	return gamedata.CalcDifficultyScore(c.config.ReplayLevelConfig, c.calcAllocatedPoints())
 }
 

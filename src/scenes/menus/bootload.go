@@ -66,7 +66,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 			{name: "load_ui", f: c.loadUIResources},
 			{name: "load_extra", f: c.loadExtra},
 		}
-		ctx.Progress.Total = float64(len(steps))
+		ctx.Progress.Total = float64(len(steps) + 1)
 		for _, step := range steps {
 			currentStep++
 			currentStepName = step.name
@@ -75,14 +75,23 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 			runtime.GC()
 			ctx.Progress.Current = 1.0 * float64(currentStep+1)
 		}
+		ctx.Progress.Current++
 	})
 
 	initTask.EventProgress.Connect(nil, func(progress gtask.TaskProgress) {
-		p := int(math.Round(progress.Current*100)) - (currentStep * 100)
-		progressLabel.Label = fmt.Sprintf("%s: %d%%", d.Get("boot", currentStepName), p)
+		if progress.Current == progress.Total {
+			progressLabel.Label = d.Get("boot.almost_there")
+		} else {
+			p := int(math.Round(progress.Current*100)) - (currentStep * 100)
+			progressLabel.Label = fmt.Sprintf("%s: %d%%", d.Get("boot", currentStepName), p)
+		}
 	})
 	initTask.EventCompleted.Connect(nil, func(gsignal.Void) {
-		c.scene.Context().ChangeScene(NewMainMenuController(c.state))
+		if c.state.Persistent.Settings.Demo {
+			c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
+		} else {
+			c.scene.Context().ChangeScene(NewMainMenuController(c.state))
+		}
 	})
 
 	scene.AddObject(initTask)
@@ -103,8 +112,8 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, progress *float64) {
 		imageID resource.ImageID
 		length  float64
 	}{
-		{gamedata.RepairAgentStats, assets.ImageRepairLine, gamedata.RepairAgentStats.SupportRange},
-		{gamedata.RechargeAgentStats, assets.ImageRechargerLine, gamedata.RepairAgentStats.SupportRange},
+		{gamedata.RepairAgentStats, assets.ImageRepairLine, gamedata.RepairAgentStats.SupportRange * 1.3},
+		{gamedata.RechargerAgentStats, assets.ImageRechargerLine, gamedata.RepairAgentStats.SupportRange * 1.3},
 		{gamedata.DefenderAgentStats, assets.ImageDefenderLine, gamedata.DefenderAgentStats.Weapon.AttackRange},
 		{gamedata.GuardianAgentStats, assets.ImageDefenderLine, gamedata.GuardianAgentStats.Weapon.AttackRange},
 		{gamedata.BeamTowerAgentStats, assets.ImageBeamtowerLine, gamedata.BeamTowerAgentStats.Weapon.AttackRange},

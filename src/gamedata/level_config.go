@@ -1,6 +1,8 @@
 package gamedata
 
 import (
+	"fmt"
+
 	"github.com/quasilyte/roboden-game/serverapi"
 )
 
@@ -8,12 +10,36 @@ type ExecutionMode int
 
 const (
 	ExecuteNormal ExecutionMode = iota
+	ExecuteDemo
 	ExecuteSimulation
 	ExecuteReplay
 )
 
+type PlayerKind int
+
+const (
+	PlayerNone PlayerKind = iota
+	PlayerHuman
+	PlayerComputer
+)
+
+func (pk PlayerKind) String() string {
+	switch pk {
+	case PlayerNone:
+		return "none"
+	case PlayerHuman:
+		return "human"
+	case PlayerComputer:
+		return "computer"
+	default:
+		return "?"
+	}
+}
+
 type LevelConfig struct {
 	serverapi.ReplayLevelConfig
+
+	Players []PlayerKind
 
 	GameMode Mode
 
@@ -30,11 +56,39 @@ type LevelConfig struct {
 	ExtraDrones []*AgentStats
 }
 
-func (options *LevelConfig) Clone() LevelConfig {
-	cloned := *options
+func (config *LevelConfig) Finalize() {
+	switch config.RawGameMode {
+	case "inf_arena":
+		config.GameMode = ModeInfArena
+	case "arena":
+		config.GameMode = ModeArena
+	case "classic":
+		config.GameMode = ModeClassic
+	default:
+		panic(fmt.Sprintf("unexpected game mode: %q", config.RawGameMode))
+	}
 
-	cloned.Tier2Recipes = make([]string, len(options.Tier2Recipes))
-	copy(cloned.Tier2Recipes, options.Tier2Recipes)
+	switch config.PlayersMode {
+	case serverapi.PmodeSinglePlayer:
+		config.Players = []PlayerKind{PlayerHuman}
+	case serverapi.PmodeSingleBot:
+		config.Players = []PlayerKind{PlayerComputer}
+	case serverapi.PmodePlayerAndBot:
+		config.Players = []PlayerKind{PlayerHuman, PlayerComputer}
+	case serverapi.PmodeTwoPlayers:
+		config.Players = []PlayerKind{PlayerHuman, PlayerHuman}
+	case serverapi.PmodeTwoBots:
+		config.Players = []PlayerKind{PlayerComputer, PlayerComputer}
+	default:
+		panic(fmt.Sprintf("unexpected mode: %d", config.PlayersMode))
+	}
+}
+
+func (config *LevelConfig) Clone() LevelConfig {
+	cloned := *config
+
+	cloned.Tier2Recipes = make([]string, len(config.Tier2Recipes))
+	copy(cloned.Tier2Recipes, config.Tier2Recipes)
 
 	return cloned
 }

@@ -1,0 +1,146 @@
+package menus
+
+import (
+	"math"
+
+	"github.com/quasilyte/ge"
+	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/scenes/staging"
+	"github.com/quasilyte/roboden-game/serverapi"
+	"github.com/quasilyte/roboden-game/session"
+)
+
+type SplashScreenController struct {
+	state *session.State
+
+	scene *ge.Scene
+
+	darkRect *ge.Rect
+
+	controller *staging.Controller
+	simulated  bool
+
+	menuController *MainMenuController
+}
+
+func NewSplashScreenController(state *session.State) *SplashScreenController {
+	return &SplashScreenController{state: state}
+}
+
+func (c *SplashScreenController) Init(scene *ge.Scene) {
+	c.scene = scene
+
+	c.menuController = NewMainMenuController(c.state)
+
+	c.scene.Audio().SetGroupVolume(assets.SoundGroupMusic, 0)
+	c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, 0)
+
+	config := c.state.LevelConfig.Clone()
+	switch turretRoll := c.scene.Rand().Float(); {
+	case turretRoll < 0.4:
+		config.TurretDesign = "BeamTower" // 40%
+	case turretRoll < 0.65:
+		config.TurretDesign = "Gunpoint" // 25%
+	default:
+		_ = turretRoll
+		config.TurretDesign = "TetherBeacon" // 35%
+	}
+	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())
+	config.RawGameMode = "classic"
+	config.ExecMode = gamedata.ExecuteDemo
+	config.PlayersMode = serverapi.PmodeSingleBot
+	config.WorldSize = 2
+	config.Resources = 4
+	config.CreepDifficulty = 0
+	config.BossDifficulty = 0
+	config.NumCreepBases = 1
+	config.Seed = int64(scene.Rand().IntRange(0, math.MaxInt-10))
+	config.StartingResources = 2
+	config.InitialCreeps = 2
+	for i := 0; i < 3; i++ {
+		config.ExtraDrones = append(config.ExtraDrones, gamedata.WorkerAgentStats)
+	}
+	for i := 0; i < 5; i++ {
+		d := gamedata.FindRecipeByName(gmath.RandElem(scene.Rand(), config.Tier2Recipes)).Result
+		if d.Kind == gamedata.AgentRoomba {
+			config.ExtraDrones = append(config.ExtraDrones, gamedata.ScoutAgentStats)
+			continue
+		}
+		config.ExtraDrones = append(config.ExtraDrones, d)
+	}
+	config.Finalize()
+	c.controller = staging.NewController(c.state, config, c.menuController)
+	scene.AddObject(c.controller)
+
+	logo := scene.NewSprite(assets.ImageLogo)
+	logo.Pos.Offset.X = scene.Context().WindowWidth / 2
+	logo.Pos.Offset.Y = scene.Context().WindowHeight / 5
+	scene.AddGraphics(logo)
+
+	presskeyLabel := scene.NewLabel(assets.FontNormal)
+	presskeyLabel.Width = scene.Context().WindowWidth
+	presskeyLabel.AlignHorizontal = ge.AlignHorizontalCenter
+	presskeyLabel.Text = scene.Dict().Get("game.splash.presskey", c.state.DetectInputMode())
+	presskeyLabel.ColorScale.SetRGBA(0x9d, 0xd7, 0x93, 0xff)
+	presskeyLabel.Pos.Offset.Y = logo.Pos.Offset.Y + 40
+	scene.AddGraphics(presskeyLabel)
+
+	c.darkRect = ge.NewRect(scene.Context(), scene.Context().WindowWidth, scene.Context().WindowHeight)
+	c.darkRect.Centered = false
+	c.darkRect.FillColorScale.SetRGBA(0, 0, 0, 0xff)
+	scene.AddGraphics(c.darkRect)
+}
+
+func (c *SplashScreenController) Update(delta float64) {
+	if !c.simulated {
+		var cameraPos gmath.Vec
+		c.simulated = true
+		timeSimulated := 0.0
+		maxFrames := 20 * (60 * 60)
+		for i := 0; i < maxFrames/(10*60); i++ {
+			for j := 0; j < (10 * 60); j++ {
+				dt := 1.0 / 60.0
+				timeSimulated += dt
+				c.controller.Update(1.0 / 60.0)
+			}
+			if timeSimulated >= 3*60 {
+				pos, isExciting := c.controller.IsExcitingDemoFrame()
+				if isExciting {
+					cameraPos = pos
+					break
+				}
+			}
+		}
+		c.scene.Audio().SetGroupVolume(assets.SoundGroupMusic, assets.VolumeMultiplier(c.state.Persistent.Settings.MusicVolumeLevel))
+		c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, assets.VolumeMultiplier(c.state.Persistent.Settings.EffectsVolumeLevel))
+		if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
+			c.scene.Audio().PlayMusic(assets.AudioMusicTrack2)
+		}
+		c.controller.CenterDemoCamera(cameraPos)
+	}
+
+	if c.darkRect != nil {
+		c.darkRect.FillColorScale.A -= float32(delta)
+		if c.darkRect.FillColorScale.A <= 0.1 {
+			c.darkRect.Dispose()
+			c.darkRect = nil
+		}
+	}
+
+	c.handleInput()
+}
+
+func (c *SplashScreenController) handleInput() {
+	if c.state.MainInput.ActionIsJustPressed(controls.ActionSkipDemo) {
+		c.stopDemo()
+		return
+	}
+}
+
+func (c *SplashScreenController) stopDemo() {
+	c.scene.Audio().PauseCurrentMusic()
+	c.scene.Context().ChangeScene(c.menuController)
+}

@@ -1,7 +1,8 @@
 package gamedata
 
 const (
-	ArenaModeCost int = 1500
+	ArenaModeCost    int = 1500
+	InfArenaModeCost int = 2500
 
 	RoombaDroneCost        int = 500
 	MortarDroneCost        int = 1000

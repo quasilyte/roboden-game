@@ -10,6 +10,12 @@ import (
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
+func pointToLineDistance(point, a, b gmath.Vec) float64 {
+	s1 := -b.Y + a.Y
+	s2 := b.X - a.X
+	return math.Abs((point.X-a.X)*s1+(point.Y-a.Y)*s2) / math.Sqrt(s1*s1+s2*s2)
+}
+
 func midpoint(a, b gmath.Vec) gmath.Vec {
 	return a.Add(b).Mulf(0.5)
 }
@@ -68,6 +74,15 @@ func randIterate[T any](rand *gmath.Rand, slice []T, f func(x T) bool) T {
 	if len(slice) == 0 {
 		return result
 	}
+	if len(slice) == 1 {
+		// Don't use rand() if there is only 1 element.
+		x := slice[0]
+		if f(x) {
+			result = x
+		}
+		return result
+	}
+
 	var slider gmath.Slider
 	slider.SetBounds(0, len(slice)-1)
 	slider.TrySetValue(rand.IntRange(0, len(slice)-1))
@@ -138,7 +153,7 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 			return false
 		}
 	}
-	for _, colony := range world.colonies {
+	for _, colony := range world.allColonies {
 		for _, turret := range colony.turrets {
 			if turret.pos.DistanceTo(pos) < (radius + 32) {
 				return false

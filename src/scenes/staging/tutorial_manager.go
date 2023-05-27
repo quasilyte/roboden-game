@@ -119,7 +119,7 @@ func (m *tutorialManager) Update(delta float64) {
 }
 
 func (m *tutorialManager) runUpdateFunc() {
-	if len(m.world.colonies) == 0 {
+	if len(m.world.allColonies) == 0 {
 		return
 	}
 	hintOpen := m.hint != nil
@@ -138,11 +138,11 @@ func (m *tutorialManager) OnChoice(choice selectedChoice) {
 }
 
 func (m *tutorialManager) updateTutorial1() bool {
-	if !m.explainedResourcePool && m.world.colonies[0].resources > 100 {
+	if !m.explainedResourcePool && m.world.allColonies[0].resources > 100 {
 		m.explainedResourcePool = true
 		m.messageManager.AddMessage(queuedMessageInfo{
-			targetPos:     ge.Pos{Base: &m.world.colonies[0].spritePos, Offset: gmath.Vec{X: -3, Y: 18}},
-			trackedObject: m.world.colonies[0],
+			targetPos:     ge.Pos{Base: &m.world.allColonies[0].spritePos, Offset: gmath.Vec{X: -3, Y: 18}},
+			trackedObject: m.world.allColonies[0],
 			text:          m.scene.Dict().Get("tutorial1.resource_bar"),
 			timer:         20,
 		})
@@ -171,7 +171,7 @@ func (m *tutorialManager) updateTutorial1() bool {
 	switch m.tutorialStep {
 	case 0:
 		s := m.scene.Dict().Get("tutorial1.your_colony")
-		targetPos := ge.Pos{Base: &m.world.colonies[0].spritePos}
+		targetPos := ge.Pos{Base: &m.world.allColonies[0].spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		m.stepTicks = 5
@@ -265,14 +265,14 @@ func (m *tutorialManager) updateTutorial1() bool {
 			return true
 		}
 	case 16:
-		return !m.world.colonies[0].IsFlying()
+		return !m.world.allColonies[0].IsFlying()
 	case 17:
 		s := m.scene.Dict().Get("tutorial1.fill_resources")
 		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
 		m.scene.AddObject(m.hint)
 		return true
 	case 18:
-		if m.world.colonies[0].resources > (maxVisualResources * 0.5) {
+		if m.world.allColonies[0].resources > (maxVisualResources * 0.5) {
 			return true
 		}
 	case 19:
@@ -329,7 +329,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 			return true
 		}
 	case 4:
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
 				return a.faction != gamedata.NeutralFactionTag && a.mode == agentModeStandby
 			})
@@ -359,7 +359,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		if m.stepTicks > 0 {
 			return false
 		}
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
 				return a.faction == gamedata.YellowFactionTag && a.mode == agentModeStandby
 			})
@@ -381,7 +381,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		if m.stepTicks > 0 {
 			return false
 		}
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
 				return a.faction == gamedata.RedFactionTag && a.mode == agentModeStandby
 			})
@@ -403,7 +403,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		if m.stepTicks > 0 {
 			return false
 		}
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
 				return a.faction == gamedata.GreenFactionTag && a.mode == agentModeStandby
 			})
@@ -425,7 +425,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		if m.stepTicks > 0 {
 			return false
 		}
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
 				return a.faction == gamedata.BlueFactionTag && a.mode == agentModeStandby
 			})
@@ -451,7 +451,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
 		m.scene.AddObject(m.hint)
 		m.stepTicks = 5
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			colony.factionWeights.SetWeight(gamedata.YellowFactionTag, 0)
 			colony.factionWeights.SetWeight(gamedata.RedFactionTag, 0)
 			colony.factionWeights.SetWeight(gamedata.GreenFactionTag, 0)
@@ -480,7 +480,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 			return false
 		}
 		m.world.evolutionEnabled = true
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			cloner := colony.agents.Find(searchWorkers, func(a *colonyAgentNode) bool {
 				return a.stats.Kind == gamedata.AgentCloner
 			})
@@ -527,7 +527,7 @@ func (m *tutorialManager) updateTutorial2() bool {
 			return false
 		}
 		numFighters := 0
-		m.world.colonies[0].agents.Find(searchFighters, func(a *colonyAgentNode) bool {
+		m.world.allColonies[0].agents.Find(searchFighters, func(a *colonyAgentNode) bool {
 			if a.stats.Kind == gamedata.AgentFighter {
 				numFighters++
 			}
@@ -536,14 +536,14 @@ func (m *tutorialManager) updateTutorial2() bool {
 		return numFighters >= 2
 	case 29:
 		s := m.scene.Dict().Get("tutorial2.evo_points")
-		targetPos := ge.Pos{Base: &m.world.colonies[0].spritePos, Offset: gmath.Vec{X: -19, Y: -30}}
+		targetPos := ge.Pos{Base: &m.world.allColonies[0].spritePos, Offset: gmath.Vec{X: -19, Y: -30}}
 		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
 	case 30:
-		return m.world.colonies[0].evoPoints >= blueEvoThreshold
+		return m.world.allColonies[0].evoPoints >= blueEvoThreshold
 	case 31:
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			destroyer := colony.agents.Find(searchFighters, func(a *colonyAgentNode) bool {
 				return a.stats.Kind == gamedata.AgentDestroyer
 			})
@@ -583,7 +583,7 @@ func (m *tutorialManager) updateTutorial3() bool {
 	var freighter *colonyAgentNode
 	var servoBot *colonyAgentNode
 	var repairBot *colonyAgentNode
-	for _, colony := range m.world.colonies {
+	for _, colony := range m.world.allColonies {
 		colony.agents.Find(searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
 			switch a.stats.Kind {
 			case gamedata.AgentFreighter:
@@ -612,12 +612,12 @@ func (m *tutorialManager) updateTutorial3() bool {
 	switch m.tutorialStep {
 	case 0:
 		s := m.scene.Dict().Get("tutorial3.base_select", m.world.inputMode)
-		targetPos := ge.Pos{Base: &m.world.colonies[1].spritePos}
+		targetPos := ge.Pos{Base: &m.world.allColonies[1].spritePos}
 		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
 		m.scene.AddObject(m.hint)
 		return true
 	case 1:
-		return m.world.selectedColony != m.world.colonies[0]
+		return m.world.players[0].GetState().selectedColony != m.world.allColonies[0]
 	case 2:
 		s := m.scene.Dict().Get("tutorial3.base_controls")
 		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
@@ -762,7 +762,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 				continue
 
 			}
-			dist := e.pos.DistanceSquaredTo(m.world.colonies[0].pos)
+			dist := e.pos.DistanceSquaredTo(m.world.allColonies[0].pos)
 			if dist < closestDist {
 				closestDist = dist
 				redCrystal = e
@@ -778,7 +778,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 	case 7:
 		return m.resource.IsDisposed()
 	case 8:
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			elite := colony.agents.Find(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
 				return a.rank > 0
 			})
@@ -803,7 +803,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 		m.scene.AddObject(m.hint)
 		return true
 	case 12:
-		for _, colony := range m.world.colonies {
+		for _, colony := range m.world.allColonies {
 			redminer := colony.agents.Find(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
 				return a.stats.Kind == gamedata.AgentRedminer
 			})
@@ -830,7 +830,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 				continue
 
 			}
-			dist := e.pos.DistanceSquaredTo(m.world.colonies[0].pos)
+			dist := e.pos.DistanceSquaredTo(m.world.allColonies[0].pos)
 			if dist < closestDist {
 				closestDist = dist
 				redOil = e
@@ -846,7 +846,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 		return true
 	case 16:
 		return m.stepTicks == 0 ||
-			(m.stepTicks < 8 && m.world.colonies[0].pos.DistanceSquaredTo(m.resource.pos) <= (280*280))
+			(m.stepTicks < 8 && m.world.allColonies[0].pos.DistanceSquaredTo(m.resource.pos) <= (280*280))
 	case 17:
 		s := m.scene.Dict().Get("tutorial4.final_goal")
 		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
@@ -861,7 +861,7 @@ func (m *tutorialManager) updateTutorial4() bool {
 }
 
 func (m *tutorialManager) findDrone(flags agentSearchFlags, f func(a *colonyAgentNode) bool) *colonyAgentNode {
-	for _, colony := range m.world.colonies {
+	for _, colony := range m.world.allColonies {
 		drone := colony.agents.Find(flags, f)
 		if drone != nil {
 			return drone

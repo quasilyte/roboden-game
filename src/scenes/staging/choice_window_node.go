@@ -3,38 +3,39 @@ package staging
 import (
 	"image/color"
 	"math"
-	"strings"
 
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
-	"github.com/quasilyte/gsignal"
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
-	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui"
 )
 
-type specialChoiceKind int
+type choiceWindowNode struct {
+	pos gmath.Vec
 
-const (
-	specialChoiceNone specialChoiceKind = iota
-	specialIncreaseRadius
-	specialDecreaseRadius
-	specialBuildGunpoint
-	specialBuildColony
-	specialAttack
-	specialChoiceMoveColony
-)
+	scene *ge.Scene
 
-type selectedChoice struct {
-	Index   int
-	Faction gamedata.FactionTag
-	Option  choiceOption
-	Pos     gmath.Vec
+	input gameinput.Handler
+
+	Enabled bool
+
+	charging    bool
+	targetValue float64
+	value       float64
+
+	floppyOffsetX float64
+	selectedIndex int
+
+	choices []*choiceOptionSlot
+
+	world *worldState
+
+	cursor *gameui.CursorNode
 }
 
 type choiceOptionSlot struct {
@@ -47,229 +48,20 @@ type choiceOptionSlot struct {
 	option     choiceOption
 }
 
-type choiceOption struct {
-	text    string
-	effects []choiceOptionEffect
-	special specialChoiceKind
-	icon    resource.ImageID
-	cost    float64
-}
-
-type choiceOptionEffect struct {
-	priority colonyPriority
-	value    float64
-}
-
-var specialChoicesTable = [...]choiceOption{
-	specialAttack: {
-		text:    "attack",
-		special: specialAttack,
-		cost:    5,
-		icon:    assets.ImageActionAttack,
-	},
-
-	specialBuildColony: {
-		text:    "build_colony",
-		special: specialBuildColony,
-		cost:    25,
-		icon:    assets.ImageActionBuildColony,
-	},
-	specialBuildGunpoint: {
-		text:    "build_gunpoint",
-		special: specialBuildGunpoint,
-		cost:    10,
-		icon:    assets.ImageActionBuildTurret,
-	},
-
-	specialIncreaseRadius: {
-		text:    "increase_radius",
-		special: specialIncreaseRadius,
-		cost:    15,
-		icon:    assets.ImageActionIncreaseRadius,
-	},
-	specialDecreaseRadius: {
-		text:    "decrease_radius",
-		special: specialDecreaseRadius,
-		cost:    4,
-		icon:    assets.ImageActionDecreaseRadius,
-	},
-}
-
-var choiceOptionList = []choiceOption{
-	{
-		text: "resources",
-		effects: []choiceOptionEffect{
-			{priority: priorityResources, value: 0.2},
-		},
-	},
-	{
-		text: "growth",
-		effects: []choiceOptionEffect{
-			{priority: priorityGrowth, value: 0.2},
-		},
-	},
-	{
-		text: "security",
-		effects: []choiceOptionEffect{
-			{priority: prioritySecurity, value: 0.2},
-		},
-	},
-	{
-		text: "evolution",
-		effects: []choiceOptionEffect{
-			{priority: priorityEvolution, value: 0.2},
-		},
-	},
-
-	{
-		text: "resources+growth",
-		effects: []choiceOptionEffect{
-			{priority: priorityResources, value: 0.15},
-			{priority: priorityGrowth, value: 0.15},
-		},
-	},
-	{
-		text: "resources+security",
-		effects: []choiceOptionEffect{
-			{priority: priorityResources, value: 0.15},
-			{priority: prioritySecurity, value: 0.15},
-		},
-	},
-	{
-		text: "resources+evolution",
-		effects: []choiceOptionEffect{
-			{priority: priorityResources, value: 0.15},
-			{priority: priorityEvolution, value: 0.15},
-		},
-	},
-	{
-		text: "growth+security",
-		effects: []choiceOptionEffect{
-			{priority: priorityGrowth, value: 0.15},
-			{priority: prioritySecurity, value: 0.15},
-		},
-	},
-	{
-		text: "growth+evolution",
-		effects: []choiceOptionEffect{
-			{priority: priorityGrowth, value: 0.15},
-			{priority: priorityEvolution, value: 0.15},
-		},
-	},
-	{
-		text: "security+evolution",
-		effects: []choiceOptionEffect{
-			{priority: prioritySecurity, value: 0.15},
-			{priority: priorityEvolution, value: 0.15},
-		},
-	},
-}
-
-type choiceState int
-
-const (
-	choiceCharging choiceState = iota
-	choiceReady
-)
-
-type choiceWindowNode struct {
-	pos gmath.Vec
-
-	scene *ge.Scene
-
-	selectedColony *colonyCoreNode
-
-	input gameinput.Handler
-
-	state choiceState
-
-	Enabled bool
-
-	floppyOffsetX float64
-	selectedSlide float64
-	selectedIndex int
-
-	targetValue float64
-	value       float64
-
-	choices []*choiceOptionSlot
-
-	shuffledOptions []choiceOption
-
-	beforeSpecialShuffle int
-	buildTurret          bool
-	increaseRadius       bool
-	specialChoiceKinds   []specialChoiceKind
-	specialChoices       []choiceOption
-
-	config  *gamedata.LevelConfig
-	world   *worldState
-	uiLayer *uiLayer
-
-	cursor *gameui.CursorNode
-
-	EventChoiceSelected gsignal.Event[selectedChoice]
-}
-
-func newChoiceWindowNode(pos gmath.Vec, world *worldState, uiLayer *uiLayer, h gameinput.Handler, cursor *gameui.CursorNode) *choiceWindowNode {
+func newChoiceWindowNode(pos gmath.Vec, world *worldState, h gameinput.Handler, cursor *gameui.CursorNode) *choiceWindowNode {
 	return &choiceWindowNode{
 		pos:           pos,
 		input:         h,
 		cursor:        cursor,
 		selectedIndex: -1,
-		config:        world.config,
 		world:         world,
-		uiLayer:       uiLayer,
 	}
 }
 
 func (w *choiceWindowNode) Init(scene *ge.Scene) {
 	w.scene = scene
 
-	d := scene.Dict()
-
-	w.shuffledOptions = make([]choiceOption, len(choiceOptionList))
-	copy(w.shuffledOptions, choiceOptionList)
-
-	translateText := func(s string) string {
-		keys := strings.Split(s, "+")
-		for _, k := range keys {
-			s = strings.Replace(s, k, d.Get("game.choice", k), 1)
-		}
-		s = strings.ReplaceAll(s, "+", "\n+\n")
-		s = strings.ReplaceAll(s, " ", "\n")
-		return s
-	}
-
-	// Now translate the options.
-	for i := range w.shuffledOptions {
-		o := &w.shuffledOptions[i]
-		o.text = translateText(o.text)
-	}
-
-	w.specialChoiceKinds = []specialChoiceKind{
-		specialBuildColony,
-	}
-
-	if w.config.AttackActionAvailable {
-		w.specialChoiceKinds = append(w.specialChoiceKinds, specialAttack)
-	}
-	if w.config.RadiusActionAvailable {
-		w.specialChoiceKinds = append(w.specialChoiceKinds, specialDecreaseRadius)
-	}
-
-	// Now translate the special choices.
-	w.specialChoices = make([]choiceOption, len(specialChoicesTable))
-	copy(w.specialChoices, specialChoicesTable[:])
-	for i := range w.specialChoices {
-		o := &w.specialChoices[i]
-		if o.text == "" {
-			continue
-		}
-		o.text = translateText(o.text)
-	}
-
-	camera := w.selectedColony.world.camera
+	camera := w.world.camera
 	floppies := [...]resource.ImageID{
 		assets.ImageFloppyYellow,
 		assets.ImageFloppyRed,
@@ -299,13 +91,13 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		floppy := scene.NewSprite(floppies[i])
 		floppy.Centered = false
 		floppy.Pos.Offset = offset
-		w.uiLayer.AddGraphics(floppy)
+		w.world.uiLayer.AddGraphics(floppy)
 
 		flipSprite := scene.NewSprite(flipSprites[i])
 		flipSprite.Centered = false
 		flipSprite.Pos.Offset = offset
 		flipSprite.Visible = false
-		w.uiLayer.AddGraphics(flipSprite)
+		w.world.uiLayer.AddGraphics(flipSprite)
 
 		offset.Y += floppy.ImageHeight() + offsetY
 
@@ -327,8 +119,8 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 		lightLabel.Width = 86 + 2
 		lightLabel.Height = 62 + 2
 
-		w.uiLayer.AddGraphics(darkLabel)
-		w.uiLayer.AddGraphics(lightLabel)
+		w.world.uiLayer.AddGraphics(darkLabel)
+		w.world.uiLayer.AddGraphics(lightLabel)
 
 		var icon *ge.Sprite
 		if i == 4 {
@@ -336,7 +128,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 			icon.Centered = false
 			icon.Pos.Base = &floppy.Pos.Offset
 			icon.Pos.Offset = gmath.Vec{X: 5, Y: 26}
-			w.uiLayer.AddGraphics(icon)
+			w.world.uiLayer.AddGraphics(icon)
 		}
 
 		choice := &choiceOptionSlot{
@@ -364,7 +156,9 @@ func (w *choiceWindowNode) IsDisposed() bool {
 	return false
 }
 
-func (w *choiceWindowNode) revealChoices() {
+func (w *choiceWindowNode) RevealChoices(selection choiceSelection) {
+	w.charging = false
+
 	for _, o := range w.choices {
 		o.floppy.Pos.Offset.X = w.floppyOffsetX
 		o.floppy.Visible = true
@@ -375,47 +169,27 @@ func (w *choiceWindowNode) revealChoices() {
 			o.icon.Visible = true
 		}
 	}
-	w.state = choiceReady
 
-	gmath.Shuffle(w.scene.Rand(), w.shuffledOptions)
-	for i, o := range w.shuffledOptions[:4] {
+	for i, o := range selection.cards {
 		w.choices[i].option = o
 		w.choices[i].labelDark.Text = o.text
 		w.choices[i].labelLight.Text = o.text
 	}
 
-	if w.beforeSpecialShuffle == 0 {
-		w.buildTurret = !w.buildTurret
-		w.increaseRadius = !w.increaseRadius
-		gmath.Shuffle(w.scene.Rand(), w.specialChoiceKinds)
-		w.beforeSpecialShuffle = len(w.specialChoiceKinds)
-	}
-	w.beforeSpecialShuffle--
-	specialIndex := w.beforeSpecialShuffle
-
-	specialOptionKind := w.specialChoiceKinds[specialIndex]
-	switch specialOptionKind {
-	case specialBuildColony:
-		if w.buildTurret && w.config.BuildTurretActionAvailable {
-			specialOptionKind = specialBuildGunpoint
-		}
-	case specialDecreaseRadius:
-		if w.increaseRadius {
-			specialOptionKind = specialIncreaseRadius
-		}
-	}
-	specialOption := w.specialChoices[specialOptionKind]
-	w.choices[4].option = specialOption
-	w.choices[4].labelDark.Text = specialOption.text
-	w.choices[4].labelLight.Text = specialOption.text
-	w.choices[4].icon.SetImage(w.scene.LoadImage(specialOption.icon))
+	w.choices[4].option = selection.special
+	w.choices[4].labelDark.Text = selection.special.text
+	w.choices[4].labelLight.Text = selection.special.text
+	w.choices[4].icon.SetImage(w.scene.LoadImage(selection.special.icon))
 
 	w.scene.Audio().PlaySound(assets.AudioChoiceReady)
 }
 
-func (w *choiceWindowNode) startCharging(targetValue float64) {
-	w.value = 0
+func (w *choiceWindowNode) StartCharging(targetValue float64, cardIndex int) {
+	w.charging = true
 	w.targetValue = targetValue
+	w.value = 0
+	w.selectedIndex = cardIndex
+
 	for i, o := range w.choices {
 		if i == w.selectedIndex {
 			continue
@@ -429,21 +203,13 @@ func (w *choiceWindowNode) startCharging(targetValue float64) {
 			o.icon.Visible = false
 		}
 	}
-	w.state = choiceCharging
 }
 
 func (w *choiceWindowNode) Update(delta float64) {
-	if w.selectedColony == nil {
-		return
-	}
-	if w.state != choiceCharging {
+	if !w.charging {
 		return
 	}
 	w.value += delta
-	if w.value >= w.targetValue {
-		w.revealChoices()
-		return
-	}
 
 	percentage := w.value / w.targetValue
 	const maxSlideOffset float64 = 144 + 8
@@ -459,35 +225,15 @@ func (w *choiceWindowNode) Update(delta float64) {
 	}
 }
 
-func (w *choiceWindowNode) TryExecute(cardIndex int, pos gmath.Vec) bool {
-	if cardIndex != -1 {
-		return w.activateChoice(cardIndex)
-	}
-	return w.activateMoveChoice(pos)
-}
-
-func (w *choiceWindowNode) HandleInput() {
-	if w.selectedColony == nil {
-		return
-	}
-
+func (w *choiceWindowNode) HandleInput() int {
 	if pos, ok := w.cursor.ClickPos(controls.ActionClick); ok {
 		for i, choice := range w.choices {
 			if choice.rect.Contains(pos) {
-				w.activateChoice(i)
-				return
+				return i
 			}
 		}
 	}
-	if w.world.movementEnabled {
-		if pos, ok := w.cursor.ClickPos(controls.ActionMoveChoice); ok {
-			globalClickPos := pos.Add(w.selectedColony.world.camera.Offset)
-			if globalClickPos.DistanceTo(w.selectedColony.pos) > 28 {
-				w.activateMoveChoice(globalClickPos)
-				return
-			}
-		}
-	}
+
 	actions := [...]input.Action{
 		controls.ActionChoice1,
 		controls.ActionChoice2,
@@ -497,50 +243,9 @@ func (w *choiceWindowNode) HandleInput() {
 	}
 	for i, a := range actions {
 		if w.input.ActionIsJustPressed(a) {
-			w.activateChoice(i)
-			return
+			return i
 		}
 	}
-}
 
-func (w *choiceWindowNode) activateMoveChoice(pos gmath.Vec) bool {
-	if !w.Enabled || w.state != choiceReady {
-		w.scene.Audio().PlaySound(assets.AudioError)
-		return false
-	}
-	w.selectedIndex = -1
-	choice := selectedChoice{
-		Option: choiceOption{special: specialChoiceMoveColony},
-		Pos:    pos,
-	}
-	w.startCharging(8.0)
-	w.EventChoiceSelected.Emit(choice)
-	return true
-}
-
-func (w *choiceWindowNode) activateChoice(i int) bool {
-	if !w.Enabled || w.state != choiceReady {
-		w.scene.Audio().PlaySound(assets.AudioError)
-		return false
-	}
-
-	w.selectedIndex = i
-	w.selectedSlide = 0
-
-	selectedFaction := gamedata.FactionTag(i + 1)
-	choice := selectedChoice{
-		Faction: selectedFaction,
-		Option:  w.choices[i].option,
-		Index:   i,
-	}
-
-	if i == 4 {
-		// Special action selected.
-		w.startCharging(w.choices[i].option.cost)
-	} else {
-		w.startCharging(10.0)
-	}
-
-	w.EventChoiceSelected.Emit(choice)
-	return true
+	return -1
 }

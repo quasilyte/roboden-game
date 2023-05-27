@@ -1,14 +1,19 @@
 package staging
 
 import (
+	"image/color"
+	"math"
+
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/gedraw"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
-	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/userdevice"
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
@@ -18,12 +23,18 @@ type worldState struct {
 
 	rootScene  *ge.Scene
 	nodeRunner *nodeRunner
+	uiLayer    *uiLayer
 
+	// TODO: this shared camera should go away to make
+	// split-screens work?
 	camera *viewport.Camera
 
+	visionCircle *ebiten.Image
+
+	players        []player
+	allColonies    []*colonyCoreNode
 	essenceSources []*essenceSourceNode
 	creeps         []*creepNode
-	colonies       []*colonyCoreNode
 	constructions  []*constructionNode
 	walls          []*wallClusterNode
 	teleporters    []*teleporterNode
@@ -45,9 +56,10 @@ type worldState struct {
 	evolutionEnabled bool
 	movementEnabled  bool
 
-	width  float64
-	height float64
-	rect   gmath.Rect
+	width     float64
+	height    float64
+	rect      gmath.Rect
+	innerRect gmath.Rect
 
 	creepHealthMultiplier float64
 	bossHealthMultiplier  float64
@@ -55,23 +67,21 @@ type worldState struct {
 
 	numRedCrystals int
 
-	selectedColony *colonyCoreNode
-
 	gridCounters map[int]uint8
 	pathgrid     *pathing.Grid
 	bfs          *pathing.GreedyBFS
 
 	result battleResults
 
-	simulation bool
-	config     *gamedata.LevelConfig
+	simulation   bool
+	config       *gamedata.LevelConfig
+	gameSettings *session.GameSettings
+	deviceInfo   userdevice.Info
 
 	projectilePool []*projectileNode
 
 	tmpTargetSlice []targetable
 	tmpColonySlice []*colonyCoreNode
-
-	replayActions []serverapi.PlayerAction
 
 	inputMode string
 
@@ -197,6 +207,11 @@ func (w *worldState) Init() {
 	w.creepHealthMultiplier = 0.90 + (float64(w.config.CreepDifficulty) * 0.10)
 	w.bossHealthMultiplier = 0.75 + (float64(w.config.BossDifficulty) * 0.25)
 	w.oilRegenMultiplier = float64(w.config.OilRegenRate) * 0.5
+
+	if w.config.FogOfWar && w.config.ExecMode != gamedata.ExecuteSimulation {
+		w.visionCircle = ebiten.NewImage(int(colonyVisionRadius*2), int(colonyVisionRadius*2))
+		gedraw.DrawCircle(w.visionCircle, gmath.Vec{X: colonyVisionRadius, Y: colonyVisionRadius}, colonyVisionRadius, color.RGBA{A: 255})
+	}
 }
 
 func (w *worldState) newProjectileNode(config projectileConfig) *projectileNode {
@@ -261,16 +276,19 @@ func (w *worldState) NewWallClusterNode(config wallClusterConfig) *wallClusterNo
 
 func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	n := newColonyCoreNode(config)
+	playerState := config.Player.GetState()
 	n.EventDestroyed.Connect(nil, func(x *colonyCoreNode) {
-		w.colonies = xslices.Remove(w.colonies, x)
+		w.allColonies = xslices.Remove(w.allColonies, x)
+		playerState.colonies = xslices.Remove(playerState.colonies, x)
 	})
-	w.colonies = append(w.colonies, n)
+	w.allColonies = append(w.allColonies, n)
+	playerState.colonies = append(playerState.colonies, n)
 	w.EventColonyCreated.Emit(n)
 	return n
 }
 
-func (w *worldState) NewConstructionNode(pos, spriteOffset gmath.Vec, stats *constructionStats) *constructionNode {
-	n := newConstructionNode(w, pos, spriteOffset, stats)
+func (w *worldState) NewConstructionNode(p player, pos, spriteOffset gmath.Vec, stats *constructionStats) *constructionNode {
+	n := newConstructionNode(w, p, pos, spriteOffset, stats)
 	n.EventDestroyed.Connect(nil, func(x *constructionNode) {
 		if stats == colonyCoreConstructionStats {
 			w.UnmarkPos2x2(x.pos)
@@ -416,18 +434,92 @@ func (w *worldState) BuildPath(from, to gmath.Vec) pathing.BuildPathResult {
 	return w.bfs.BuildPath(w.pathgrid, w.pathgrid.PosToCoord(from), w.pathgrid.PosToCoord(to))
 }
 
+func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNode) bool) {
+	creeps := w.creeps
+	if len(creeps) == 0 {
+		return
+	}
+
+	// Find a sector that contains this pos.
+	cellX, cellY := w.GetPosCell(pos)
+	cellRect := w.GetCellRect(cellX, cellY)
+
+	// Determine how many sectors we need to consider.
+	// In the simplest case, it's a single sector,
+	// but sometimes we need to check the adjacent sectors too.
+	startX := cellX
+	startY := cellY
+	endX := cellX
+	endY := cellY
+	searchRange := r
+	leftmostPos := gmath.Vec{X: pos.X - searchRange, Y: pos.Y - searchRange}
+	rightmostPos := gmath.Vec{X: pos.X + searchRange, Y: pos.Y + searchRange}
+	if leftmostPos.X < cellRect.Min.X {
+		delta := cellRect.Min.X - leftmostPos.X
+		startX -= int(math.Ceil((searchRange - delta) * w.creepClusterMultiplier))
+	}
+	if rightmostPos.X > cellRect.Max.X {
+		delta := rightmostPos.X - cellRect.Max.X
+		endX += int(math.Ceil((searchRange - delta) * w.creepClusterMultiplier))
+	}
+	if leftmostPos.Y < cellRect.Min.Y {
+		delta := cellRect.Min.Y - leftmostPos.Y
+		startY -= int(math.Ceil((searchRange - delta) * w.creepClusterMultiplier))
+	}
+	if rightmostPos.Y > cellRect.Max.Y {
+		delta := rightmostPos.Y - cellRect.Max.Y
+		endY += int(math.Ceil((searchRange - delta) * w.creepClusterMultiplier))
+	}
+
+	startX = gmath.Clamp(startX, 0, 7)
+	startY = gmath.Clamp(startY, 0, 7)
+	endX = gmath.Clamp(endX, 0, 7)
+	endY = gmath.Clamp(endY, 0, 7)
+	numStepsX := endX - startX + 1
+	numStepsY := endY - startY + 1
+
+	// Now decide the sector traversal order.
+	// This is needed to add some randomness to the target selection.
+	dx := 1
+	if w.rand.Bool() {
+		dx = -1
+		startX = endX
+	}
+	dy := 1
+	if w.rand.Bool() {
+		dy = -1
+		startY = endY
+	}
+
+	for i, y := 0, startY; i < numStepsY; i, y = i+1, y+dy {
+		for j, x := 0, startX; j < numStepsX; j, x = j+1, x+dx {
+			clusterCreeps := w.creepClusters[y][x]
+			if randIterate(w.rand, clusterCreeps, f) != nil {
+				return
+			}
+		}
+	}
+
+	// New creeps are created outside of the map, so they end up
+	// in the fallback cluster that includes everything that is out of bounds.
+	if len(w.fallbackCreepCluster) != 0 {
+		randIterate(w.rand, w.fallbackCreepCluster, f)
+	}
+}
+
 func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, f func(a *colonyAgentNode) bool) {
 	// TODO: use an agent container for turrets too?
-	// Randomized order for iteration would be good here.
 	// Also, this "find" function is used to collect N units, not a single unit (see its usage).
+
+	found := false
 
 	if !skipGround {
 		radiusSqr := r * r
 
 		// Turrets have the highest targeting priority.
-		for _, c := range w.colonies {
+		randIterate(w.rand, w.allColonies, func(c *colonyCoreNode) bool {
 			if len(c.turrets) == 0 {
-				continue
+				return false
 			}
 			for _, turret := range c.turrets {
 				distSqr := turret.pos.DistanceSquaredTo(pos)
@@ -435,15 +527,20 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, 
 					continue
 				}
 				if f(turret) {
-					return
+					found = true
+					return true
 				}
 			}
+			return false
+		})
+		if found {
+			return
 		}
 
 		// Roombas have the second priority.
-		for _, c := range w.colonies {
+		randIterate(w.rand, w.allColonies, func(c *colonyCoreNode) bool {
 			if len(c.roombas) == 0 {
-				continue
+				return false
 			}
 			for _, roomba := range c.roombas {
 				distSqr := roomba.pos.DistanceSquaredTo(pos)
@@ -451,13 +548,18 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, 
 					continue
 				}
 				if f(roomba) {
-					return
+					found = true
+					return true
 				}
 			}
+			return false
+		})
+		if found {
+			return
 		}
 	}
 
-	for _, c := range w.colonies {
+	randIterate(w.rand, w.allColonies, func(c *colonyCoreNode) bool {
 		skipIdling := false
 		dist := c.pos.DistanceTo(pos)
 		colonyEffectiveRadius := c.realRadius * 0.8
@@ -465,14 +567,15 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, 
 			skipIdling = (dist - colonyEffectiveRadius) > r
 		}
 		if a := w.findColonyAgent(c.agents.fighters, pos, r, skipIdling, f); a != nil {
-			return
+			return true
 		}
 		if a := w.findColonyAgent(c.agents.workers, pos, r, skipIdling, f); a != nil {
-			return
+			return true
 		}
-	}
+		return false
+	})
 }
 
 func (w *worldState) GetColonyIndex(colony *colonyCoreNode) int {
-	return xslices.Index(w.colonies, colony)
+	return xslices.Index(colony.player.GetState().colonies, colony)
 }

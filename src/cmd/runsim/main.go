@@ -40,12 +40,6 @@ func main() {
 		EliteResources:             true,
 		EnemyBoss:                  replayData.Config.RawGameMode == "classic",
 	}
-	switch replayData.Config.RawGameMode {
-	case "classic":
-		config.GameMode = gamedata.ModeClassic
-	case "arena", "inf_arena":
-		config.GameMode = gamedata.ModeArena
-	}
 	ctx := ge.NewContext(ge.ContextConfig{
 		Mute:       true,
 		FixedDelta: true,
@@ -75,6 +69,7 @@ func main() {
 		Handler: ctx.Input.NewHandler(0, nil),
 	}
 
+	config.Finalize()
 	controller := staging.NewController(state, config, nil)
 	controller.SetReplayActions(replayData.Actions)
 	runner, scene := ge.NewSimulatedScene(ctx, controller)

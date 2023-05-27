@@ -71,7 +71,7 @@ type battleResults struct {
 
 	OnlyTier1Military bool
 
-	Replay []serverapi.PlayerAction
+	Replay [][]serverapi.PlayerAction
 
 	Tier3Drones []gamedata.ColonyAgentKind
 }
@@ -95,8 +95,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 		c.rewards = &gameRewards{}
 	}
 
-	victory := c.results.Victory ||
-		(c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode)
+	victory := c.results.Victory || c.config.GameMode == gamedata.ModeInfArena
 	if victory && firstTime {
 		c.updateProgress()
 		c.scene.Context().SaveGameData("save", c.state.Persistent)
@@ -152,19 +151,17 @@ func (c *resultsController) updateProgress() {
 			stats.HighestClassicScore = c.results.Score
 			stats.HighestClassicScoreDifficulty = c.results.DifficultyScore
 		}
+	case gamedata.ModeInfArena:
+		if stats.HighestInfArenaScore < c.results.Score {
+			c.highScore = true
+			stats.HighestInfArenaScore = c.results.Score
+			stats.HighestInfArenaScoreDifficulty = c.results.DifficultyScore
+		}
 	case gamedata.ModeArena:
-		if c.config.InfiniteMode {
-			if stats.HighestInfArenaScore < c.results.Score {
-				c.highScore = true
-				stats.HighestInfArenaScore = c.results.Score
-				stats.HighestInfArenaScoreDifficulty = c.results.DifficultyScore
-			}
-		} else {
-			if stats.HighestArenaScore < c.results.Score {
-				c.highScore = true
-				stats.HighestArenaScore = c.results.Score
-				stats.HighestArenaScoreDifficulty = c.results.DifficultyScore
-			}
+		if stats.HighestArenaScore < c.results.Score {
+			c.highScore = true
+			stats.HighestArenaScore = c.results.Score
+			stats.HighestArenaScoreDifficulty = c.results.DifficultyScore
 		}
 	}
 
@@ -250,9 +247,9 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = c.results.EnemyColonyDamageFromTurrets >= (c.results.EnemyColonyDamage * 0.25)
 
 		case "infinite":
-			unlocked = c.config.InfiniteMode && c.results.ArenaLevel >= 35
+			unlocked = c.config.GameMode == gamedata.ModeInfArena && c.results.ArenaLevel >= 35
 		case "antidominator":
-			unlocked = !c.config.InfiniteMode && c.results.DominatorsSurvived == 0
+			unlocked = c.config.GameMode == gamedata.ModeArena && c.results.DominatorsSurvived == 0
 		}
 
 		if !unlocked {
@@ -294,7 +291,7 @@ func (c *resultsController) initUI() {
 	switch {
 	case c.results.Victory:
 		titleString = d.Get("menu.results.victory") + "!"
-	case c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode:
+	case c.config.GameMode == gamedata.ModeInfArena:
 		titleString = d.Get("menu.results.the_end")
 	default:
 		titleString = d.Get("menu.results.defeat")
@@ -316,7 +313,7 @@ func (c *resultsController) initUI() {
 		{d.Get("menu.results.creeps_defeated"), itoa(c.results.CreepsDefeated)},
 	}
 	if c.config.GameMode != gamedata.ModeTutorial {
-		if (c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode) || c.results.Victory {
+		if (c.config.GameMode == gamedata.ModeInfArena) || c.results.Victory {
 			if c.highScore {
 				lines = append(lines, [2]string{d.Get("menu.results.score"), fmt.Sprintf("%v (%s)", c.results.Score, d.Get("menu.results.new_record"))})
 			} else {
@@ -324,7 +321,7 @@ func (c *resultsController) initUI() {
 			}
 		}
 	}
-	if c.config.GameMode == gamedata.ModeArena && c.config.InfiniteMode {
+	if c.config.GameMode == gamedata.ModeInfArena {
 		lines = append(lines, [2]string{d.Get("game.wave"), itoa(c.results.ArenaLevel)})
 	}
 

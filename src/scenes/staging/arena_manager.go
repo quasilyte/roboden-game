@@ -33,7 +33,8 @@ type arenaManager struct {
 	levelStartDelay      float64
 	budgetStepMultiplier float64
 
-	victory bool
+	victory  bool
+	infArena bool
 
 	attackSides []int
 
@@ -96,6 +97,7 @@ func newArenaManager(world *worldState, uiLayer *uiLayer) *arenaManager {
 		attackSides:              []int{0, 1, 2, 3},
 		creepSelectionSlice:      make([]*arenaCreepInfo, 0, 16),
 		groupCreepSelectionSlice: make([]*arenaCreepInfo, 0, 16),
+		infArena:                 world.config.GameMode == gamedata.ModeInfArena,
 	}
 }
 
@@ -106,7 +108,7 @@ func (m *arenaManager) IsDisposed() bool {
 func (m *arenaManager) Init(scene *ge.Scene) {
 	m.scene = scene
 
-	if !m.world.config.InfiniteMode {
+	if !m.infArena {
 		m.lastLevel = 20
 	}
 
@@ -181,7 +183,7 @@ func (m *arenaManager) Update(delta float64) {
 
 	m.levelStartDelay -= delta
 	if m.levelStartDelay <= 0 {
-		if !m.world.config.InfiniteMode && m.level > m.lastLevel {
+		if !m.infArena && m.level > m.lastLevel {
 			m.victory = true
 			m.info.Dispose()
 			m.EventVictory.Emit(gsignal.Void{})
@@ -213,7 +215,7 @@ func (m *arenaManager) createWaveInfoMessageNode() *messageNode {
 }
 
 func (m *arenaManager) createWaveOverviewText() string {
-	if !m.world.config.InfiniteMode && m.level > m.lastLevel {
+	if !m.infArena && m.level > m.lastLevel {
 		return ""
 	}
 
@@ -291,7 +293,7 @@ func (m *arenaManager) createWaveInfoText() string {
 	var buf strings.Builder
 	buf.Grow(256)
 
-	if !m.world.config.InfiniteMode && m.level > m.lastLevel {
+	if !m.infArena && m.level > m.lastLevel {
 		buf.WriteString(d.Get("game.wave_last"))
 		buf.WriteString(": ")
 		buf.WriteString(timeutil.FormatDuration(d, time.Duration(m.levelStartDelay*float64(time.Second))))
@@ -316,7 +318,7 @@ func (m *arenaManager) createWaveInfoText() string {
 func (m *arenaManager) spawnCreeps() {
 	m.scene.Audio().PlaySound(assets.AudioWaveStart)
 
-	isLastLevel := !m.world.config.InfiniteMode && m.level == m.lastLevel
+	isLastLevel := !m.infArena && m.level == m.lastLevel
 
 	for _, g := range m.waveInfo.groups {
 		sector := m.spawnAreas[g.side]
@@ -362,13 +364,13 @@ func (m *arenaManager) spawnCreeps() {
 }
 
 func (m *arenaManager) prepareWave() {
-	if !m.world.config.InfiniteMode && m.level > m.lastLevel {
+	if !m.infArena && m.level > m.lastLevel {
 		m.levelStartDelay = 5.0 * 60
 		m.waveInfo = arenaWaveInfo{}
 		return
 	}
 
-	isLastLevel := !m.world.config.InfiniteMode && m.level == m.lastLevel
+	isLastLevel := !m.infArena && m.level == m.lastLevel
 
 	budgetStep := 0
 	switch {
@@ -378,7 +380,7 @@ func (m *arenaManager) prepareWave() {
 	case m.level%5 == 0:
 		m.levelStartDelay = 4.0 * 60
 		budgetStep = 20
-		if !m.world.config.InfiniteMode {
+		if !m.infArena {
 			budgetStep += 2 * m.level
 		}
 	case m.level == 1:

@@ -65,6 +65,19 @@ func (c *PlayMenuController) initUI() {
 		rowContainer.AddChild(b)
 	}
 
+	{
+		toUnlock := gamedata.InfArenaModeCost - c.state.Persistent.PlayerStats.TotalScore
+		label := d.Get("menu.play.inf_arena")
+		if toUnlock > 0 {
+			label = fmt.Sprintf("%s: %d", d.Get("menu.play.to_unlock"), toUnlock)
+		}
+		b := eui.NewButton(uiResources, c.scene, label, func() {
+			c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeInfArena))
+		})
+		b.GetWidget().Disabled = toUnlock > 0
+		rowContainer.AddChild(b)
+	}
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.tutorial"), func() {
 		c.scene.Context().ChangeScene(NewTutorialMenuController(c.state))
 	}))

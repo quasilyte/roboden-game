@@ -62,6 +62,8 @@ type constructionNode struct {
 
 	stats *constructionStats
 
+	player player
+
 	world *worldState
 
 	progress float64
@@ -76,11 +78,12 @@ type constructionNode struct {
 	EventDestroyed gsignal.Event[*constructionNode]
 }
 
-func newConstructionNode(world *worldState, pos, spriteOffset gmath.Vec, stats *constructionStats) *constructionNode {
+func newConstructionNode(world *worldState, p player, pos, spriteOffset gmath.Vec, stats *constructionStats) *constructionNode {
 	return &constructionNode{
 		world:        world,
 		pos:          pos,
 		spriteOffset: spriteOffset,
+		player:       p,
 		stats:        stats,
 	}
 }
@@ -185,6 +188,7 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 			World:  c.world,
 			Radius: 128,
 			Pos:    c.pos,
+			Player: c.player,
 		})
 		core.resources = 40
 		core.priorities.SetWeight(priorityResources, 0.4)

@@ -50,7 +50,8 @@ type colonyCoreNode struct {
 	flyingResourceRects []*ge.Sprite
 	otherShader         ge.Shader
 
-	scene *ge.Scene
+	player player
+	scene  *ge.Scene
 
 	flashComponent      damageFlashComponent
 	hatchFlashComponent damageFlashComponent
@@ -106,6 +107,7 @@ type colonyCoreNode struct {
 
 	EventTeleported        gsignal.Event[*colonyCoreNode]
 	EventUnderAttack       gsignal.Event[*colonyCoreNode]
+	EventOnDamage          gsignal.Event[targetable]
 	EventDestroyed         gsignal.Event[*colonyCoreNode]
 	EventPrioritiesChanged gsignal.Event[*colonyCoreNode]
 }
@@ -116,6 +118,8 @@ type colonyConfig struct {
 	Radius float64
 
 	World *worldState
+
+	Player player
 }
 
 func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
@@ -123,6 +127,7 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 		world:      config.World,
 		realRadius: config.Radius,
 		maxHealth:  100,
+		player:     config.Player,
 	}
 	c.realRadiusSqr = c.realRadius * c.realRadius
 	c.priorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
@@ -217,12 +222,21 @@ func (c *colonyCoreNode) IsFlying() bool {
 	return c.mode != colonyModeNormal
 }
 
+func (c *colonyCoreNode) MaxFlyDistanceSqr() float64 {
+	dist := c.MaxFlyDistance()
+	return dist * dist
+}
+
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
 	return gmath.ClampMax(350+float64(c.agents.servoNum*10.0), 500)
 }
 
 func (c *colonyCoreNode) PatrolRadius() float64 {
 	return c.realRadius * (1.0 + c.GetSecurityPriority()*0.25)
+}
+
+func (c *colonyCoreNode) AttackRadius() float64 {
+	return 1.4*c.PatrolRadius() + 320
 }
 
 func (c *colonyCoreNode) GetPos() *gmath.Vec { return &c.pos }
@@ -270,6 +284,7 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable
 			c.heavyDamageWarningCooldown = 45
 			c.EventUnderAttack.Emit(c)
 		}
+		c.EventOnDamage.Emit(source)
 	}
 
 	c.updateHealthShader()
@@ -738,7 +753,7 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 }
 
 func (c *colonyCoreNode) canTeleportTo(pos gmath.Vec) bool {
-	for _, otherColony := range c.world.colonies {
+	for _, otherColony := range c.world.allColonies {
 		if otherColony == c {
 			continue
 		}

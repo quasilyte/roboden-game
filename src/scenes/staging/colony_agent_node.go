@@ -1132,7 +1132,7 @@ func (a *colonyAgentNode) doTether() {
 		}
 	}
 
-	colonyTarget := randIterate(a.scene.Rand(), a.world().colonies, func(colony *colonyCoreNode) bool {
+	colonyTarget := randIterate(a.scene.Rand(), a.colonyCore.player.GetState().colonies, func(colony *colonyCoreNode) bool {
 		if !colony.IsFlying() {
 			return false
 		}
@@ -1154,7 +1154,7 @@ func (a *colonyAgentNode) doTether() {
 		a.tetherTarget(x)
 	})
 	if actionsLeft != 0 {
-		randIterate(a.scene.Rand(), a.world().colonies, func(colony *colonyCoreNode) bool {
+		randIterate(a.scene.Rand(), a.colonyCore.player.GetState().colonies, func(colony *colonyCoreNode) bool {
 			if actionsLeft <= 0 {
 				return true
 			}
@@ -1263,11 +1263,11 @@ func (a *colonyAgentNode) doRecharge() {
 		return x != a &&
 			x.mode != agentModeKamikazeAttack &&
 			(x.energy+rechargerEnergyRecorery) < x.maxEnergy &&
-			x.pos.DistanceTo(a.pos) < gamedata.RechargeAgentStats.SupportRange
+			x.pos.DistanceSquaredTo(a.pos) < gamedata.RechargerAgentStats.SupportRangeSqr
 	})
 	if target != nil {
 		target.energy = gmath.ClampMax(target.energy+rechargerEnergyRecorery, target.maxEnergy)
-		a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RechargeAgentStats))
+		a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RechargerAgentStats))
 		playSound(a.world(), assets.AudioRechargerBeam, a.pos)
 	}
 }
@@ -1288,7 +1288,7 @@ func (a *colonyAgentNode) doRepair() {
 		return x != a &&
 			x.mode != agentModeKamikazeAttack &&
 			x.health < x.maxHealth &&
-			x.pos.DistanceTo(a.pos) < gamedata.RepairAgentStats.SupportRange
+			x.pos.DistanceSquaredTo(a.pos) < gamedata.RepairAgentStats.SupportRangeSqr
 	})
 	if target != nil {
 		a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RepairAgentStats))
@@ -1342,86 +1342,15 @@ func (a *colonyAgentNode) walkTetherTargets(colony *colonyCoreNode, num int, f f
 
 func (a *colonyAgentNode) findAttackTargets() []targetable {
 	w := a.world()
-	creeps := w.creeps
-	if len(creeps) == 0 {
-		return nil
-	}
-
-	// Find a sector that contains this object.
-	cellX, cellY := w.GetPosCell(a.pos)
-	cellRect := w.GetCellRect(cellX, cellY)
-
-	// Determine how many sectors we need to consider.
-	// In the simplest case, it's a single sector,
-	// but sometimes we need to check the adjacent sectors too.
-	startX := cellX
-	startY := cellY
-	endX := cellX
-	endY := cellY
-	attackRange := a.stats.Weapon.AttackRange
-	leftmostPos := gmath.Vec{X: a.pos.X - attackRange, Y: a.pos.Y - attackRange}
-	rightmostPos := gmath.Vec{X: a.pos.X + attackRange, Y: a.pos.Y + attackRange}
-	if leftmostPos.X < cellRect.Min.X {
-		delta := cellRect.Min.X - leftmostPos.X
-		startX -= int(math.Ceil((attackRange - delta) * w.creepClusterMultiplier))
-	}
-	if rightmostPos.X > cellRect.Max.X {
-		delta := rightmostPos.X - cellRect.Max.X
-		endX += int(math.Ceil((attackRange - delta) * w.creepClusterMultiplier))
-	}
-	if leftmostPos.Y < cellRect.Min.Y {
-		delta := cellRect.Min.Y - leftmostPos.Y
-		startY -= int(math.Ceil((attackRange - delta) * w.creepClusterMultiplier))
-	}
-	if rightmostPos.Y > cellRect.Max.Y {
-		delta := rightmostPos.Y - cellRect.Max.Y
-		endY += int(math.Ceil((attackRange - delta) * w.creepClusterMultiplier))
-	}
 
 	maxTargets := a.stats.Weapon.MaxTargets
 	targets := w.tmpTargetSlice[:0]
-	maybeAppendTarget := func(creep *creepNode) bool {
+	w.WalkCreeps(a.pos, a.stats.Weapon.AttackRange, func(creep *creepNode) bool {
 		if a.isValidTarget(creep) {
 			targets = append(targets, creep)
 		}
 		return len(targets) >= maxTargets
-	}
-
-	startX = gmath.Clamp(startX, 0, 7)
-	startY = gmath.Clamp(startY, 0, 7)
-	endX = gmath.Clamp(endX, 0, 7)
-	endY = gmath.Clamp(endY, 0, 7)
-	numStepsX := endX - startX + 1
-	numStepsY := endY - startY + 1
-
-	// Now decide the sector traversal order.
-	// This is needed to add some randomness to the target selection.
-	dx := 1
-	if a.scene.Rand().Bool() {
-		dx = -1
-		startX = endX
-	}
-	dy := 1
-	if a.scene.Rand().Bool() {
-		dy = -1
-		startY = endY
-	}
-
-	for i, y := 0, startY; i < numStepsY; i, y = i+1, y+dy {
-		for j, x := 0, startX; j < numStepsX; j, x = j+1, x+dx {
-			clusterCreeps := w.creepClusters[y][x]
-			randIterate(w.rand, clusterCreeps, maybeAppendTarget)
-			if len(targets) >= maxTargets {
-				return targets
-			}
-		}
-	}
-
-	// New creeps are created outside of the map, so they end up
-	// in the fallback cluster that includes everything that is out of bounds.
-	if len(w.fallbackCreepCluster) != 0 {
-		randIterate(w.rand, w.fallbackCreepCluster, maybeAppendTarget)
-	}
+	})
 
 	return targets
 }
@@ -1978,14 +1907,15 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		}
 	}
 	if a.dist <= 0 {
-		a.cloningBeam.Dispose()
-		a.cloningBeam = nil
-		if a.mode == agentModeMergingRoomba && !posIsFreeWithFlags(a.world(), nil, a.pos, 2, collisionSkipSmallCrawlers|collisionSkipTeleporters) {
+		mergingFailed := (a.mode == agentModeMergingRoomba && !posIsFreeWithFlags(a.world(), nil, a.pos, 2, collisionSkipSmallCrawlers|collisionSkipTeleporters)) ||
+			(a.pos.DistanceSquaredTo(target.pos) > (30 * 30))
+		if mergingFailed {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			target.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
-
+		a.cloningBeam.Dispose()
+		a.cloningBeam = nil
 		newStats := mergeAgents(a.world(), a, target)
 		if newStats == nil {
 			panic(fmt.Sprintf("empty merge result for %s %s + %s %s", a.faction, a.stats.Kind, target.faction, target.stats.Kind))

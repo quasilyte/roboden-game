@@ -429,6 +429,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		} else {
 			c.world.result.EnemyColonyDamage += damage.Health
 		}
+		colony := getUnitColony(source)
 		if c.IsFlying() {
 			// Stage 0: send 2 servants. (very easy and above)
 			// Stage 1: send 3 servants. (easy and above)
@@ -438,19 +439,19 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 			if c.bossStage <= maxStage {
 				hpPercentage := c.health / c.maxHealth
 				if hpPercentage < 0.8 && c.bossStage == 0 {
-					c.spawnServants(2)
+					c.spawnServants(2, colony)
 					c.bossStage++
 				}
 				if hpPercentage < 0.6 && c.bossStage == 1 {
-					c.spawnServants(3)
+					c.spawnServants(3, colony)
 					c.bossStage++
 				}
 				if hpPercentage < 0.4 && c.bossStage == 2 {
-					c.spawnServants(4)
+					c.spawnServants(4, colony)
 					c.bossStage++
 				}
 				if hpPercentage < 0.2 && c.bossStage == 3 {
-					c.spawnServants(5)
+					c.spawnServants(5, colony)
 					c.bossStage++
 				}
 			}
@@ -458,7 +459,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 	}
 }
 
-func (c *creepNode) spawnServants(n int) {
+func (c *creepNode) spawnServants(n int, colony *colonyCoreNode) {
 	startAngle := gmath.DegToRad(180 + 45)
 	endAngle := gmath.DegToRad(360 - 45)
 	angleDelta := endAngle - startAngle
@@ -467,7 +468,7 @@ func (c *creepNode) spawnServants(n int) {
 	for i := 0; i < n; i++ {
 		super := c.super && (i == 0 || i == n-1)
 		dir := gmath.RadToVec(angle)
-		spawn := newServantSpawnerNode(c.world, c.pos, dir, c.world.colonies[0])
+		spawn := newServantSpawnerNode(c.world, c.pos, dir, colony)
 		spawn.super = super
 		c.world.nodeRunner.AddObject(spawn)
 		angle += angleStep
@@ -614,15 +615,13 @@ func (c *creepNode) findTargets() []targetable {
 	if len(targets) >= maxTargets {
 		return targets
 	}
-	for _, colony := range c.world.colonies {
-		if len(targets) >= maxTargets {
-			return targets
-		}
+	randIterate(c.world.rand, c.world.allColonies, func(colony *colonyCoreNode) bool {
 		if colony.pos.DistanceSquaredTo(c.pos) > c.stats.weapon.AttackRangeSqr {
-			continue
+			return false
 		}
 		targets = append(targets, colony)
-	}
+		return len(targets) >= maxTargets
+	})
 
 	return targets
 }
@@ -636,10 +635,10 @@ func (c *creepNode) wandererMovement(delta float64) {
 			c.retreatFrom(c.pos)
 		} else if c.scene.Rand().Chance(0.4) {
 			// Go somewhere near a random colony.
-			if len(c.world.colonies) == 0 {
+			if len(c.world.allColonies) == 0 {
 				return // Waiting for a game over?
 			}
-			colony := gmath.RandElem(c.scene.Rand(), c.world.colonies)
+			colony := gmath.RandElem(c.scene.Rand(), c.world.allColonies)
 			c.setWaypoint(colony.pos.Add(c.scene.Rand().Offset(-200, 200)))
 			c.wasAttacking = true
 		} else if c.scene.Rand().Chance(0.3) {
@@ -765,7 +764,7 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 
 func (c *creepNode) isNearEnemyBase(dist float64) bool {
 	distSqr := dist * dist
-	for _, colony := range c.world.colonies {
+	for _, colony := range c.world.allColonies {
 		if colony.pos.DistanceSquaredTo(c.pos) < distSqr {
 			return true
 		}
@@ -787,7 +786,7 @@ func (c *creepNode) findHowitzerTarget(rangeMultiplier float64) targetable {
 	if c.super {
 		maxAttackRangeSqr *= 1.1
 	}
-	randIterate(c.world.rand, c.world.colonies, func(colony *colonyCoreNode) bool {
+	randIterate(c.world.rand, c.world.allColonies, func(colony *colonyCoreNode) bool {
 		if !colony.IsFlying() {
 			distSqr := colony.pos.DistanceSquaredTo(c.pos)
 			canAttack := distSqr > minAttackRangeSqr && distSqr < maxAttackRangeSqr
@@ -1079,17 +1078,17 @@ func (c *creepNode) updateCreepBase(delta float64) {
 func (c *creepNode) updateServant(delta float64) {
 	c.anim.Tick(delta)
 
-	if c.specialTarget == nil && len(c.world.colonies) == 0 {
+	if c.specialTarget == nil && len(c.world.allColonies) == 0 {
 		return
 	}
 
 	target, ok := c.specialTarget.(*colonyCoreNode)
 	if !ok || target == nil || target.IsDisposed() {
-		if len(c.world.colonies) == 0 {
+		if len(c.world.allColonies) == 0 {
 			c.specialTarget = nil
 			return
 		}
-		c.specialTarget = gmath.RandElem(c.world.rand, c.world.colonies)
+		c.specialTarget = gmath.RandElem(c.world.rand, c.world.allColonies)
 		return
 	} else {
 		// Fly around the target base.

@@ -11,6 +11,8 @@ import (
 
 func RegisterImageResources(ctx *ge.Context, progress *float64) {
 	imageResources := map[resource.ImageID]resource.ImageInfo{
+		ImageLogo: {Path: "image/logo.png"},
+
 		ImageAchievementImpossible:    {Path: "image/achievement/impossible.png"},
 		ImageAchievementCheapBuild10:  {Path: "image/achievement/cheapbuild10.png"},
 		ImageAchievementT3Engineer:    {Path: "image/achievement/t3engineer.png"},
@@ -276,6 +278,8 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 
 const (
 	ImageNone resource.ImageID = iota
+
+	ImageLogo
 
 	ImageAchievementAntiDominator
 	ImageAchievementImpossible

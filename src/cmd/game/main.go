@@ -125,12 +125,14 @@ func newLevelConfig(config *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.ExtraUI = true
 	config.EliteResources = true
 
+	config.PlayersMode = serverapi.PmodeSinglePlayer
+
 	config.Tier2Recipes = []string{
 		gamedata.ClonerAgentStats.Kind.String(),
 		gamedata.FighterAgentStats.Kind.String(),
 		gamedata.RepairAgentStats.Kind.String(),
 		gamedata.CripplerAgentStats.Kind.String(),
-		gamedata.RechargeAgentStats.Kind.String(),
+		gamedata.RechargerAgentStats.Kind.String(),
 		gamedata.RedminerAgentStats.Kind.String(),
 		gamedata.ServoAgentStats.Kind.String(),
 	}

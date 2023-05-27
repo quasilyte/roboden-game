@@ -16,7 +16,7 @@ type GameReplay struct {
 
 	Config ReplayLevelConfig `json:"config"`
 
-	Actions []PlayerAction `json:"actions"`
+	Actions [][]PlayerAction `json:"actions"`
 }
 
 type GameResults struct {
@@ -32,6 +32,14 @@ type PlayerAction struct {
 	Kind           PlayerActionKind `json:"kind"`
 	SelectedColony int              `json:"selected_colony"`
 }
+
+const (
+	PmodeSinglePlayer int = iota
+	PmodeSingleBot
+	PmodePlayerAndBot
+	PmodeTwoPlayers
+	PmodeTwoBots
+)
 
 type PlayerActionKind int
 
@@ -49,6 +57,8 @@ type ReplayLevelConfig struct {
 	Resources int `json:"resources"`
 
 	RawGameMode string `json:"mode"`
+
+	PlayersMode int `json:"players_mode"`
 
 	ExtraUI      bool `json:"extra_ui"`
 	FogOfWar     bool `json:"fog_of_war"`

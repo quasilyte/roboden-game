@@ -139,3 +139,11 @@ func (state *State) ReloadLanguage(ctx *ge.Context) {
 	}
 	ctx.Dict = dict
 }
+
+func (state *State) DetectInputMode() string {
+	inputMode := "keyboard"
+	if state.MainInput.GamepadConnected() {
+		inputMode = "gamepad"
+	}
+	return inputMode
+}

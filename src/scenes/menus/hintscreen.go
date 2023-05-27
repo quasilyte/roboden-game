@@ -53,21 +53,13 @@ func (c *HintScreen) initUI() {
 
 	d := c.scene.Context().Dict
 
-	var modeName string
-	switch c.config.GameMode {
-	case gamedata.ModeClassic:
-		modeName = "classic"
-	case gamedata.ModeArena:
-		modeName = "arena"
-	}
-
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.play", modeName), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.play", c.config.GameMode.String()), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	{
-		l := eui.NewLabel(d.Get("menu.overview", modeName), smallFont)
+		l := eui.NewLabel(d.Get("menu.overview", c.config.GameMode.String()), smallFont)
 		l.MaxWidth = 640
 		rowContainer.AddChild(l)
 	}

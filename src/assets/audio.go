@@ -68,7 +68,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioStunBeam:            {Path: "$sfx/stun_laser.wav", Volume: -0.3},
 		AudioServantShot:         {Path: "$sfx/servant_shot.wav", Volume: -0.35},
 		AudioServantWave:         {Path: "$sfx/servant_wave.wav", Volume: 0.05},
-		AudioRechargerBeam:       {Path: "$sfx/recharger_beam.wav", Volume: -0.55},
+		AudioRechargerBeam:       {Path: "$sfx/recharger_beam.wav", Volume: -0.45},
 		AudioRepairBeam:          {Path: "$sfx/repair_beam.wav", Volume: -0.25},
 		AudioRepellerBeam:        {Path: "$sfx/repeller_beam.wav", Volume: -0.4},
 		AudioDestroyerBeam:       {Path: "$sfx/destroyer_beam.wav", Volume: -0.3},

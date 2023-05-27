@@ -363,7 +363,7 @@ var RepairAgentStats = InitDroneStats(&AgentStats{
 	BeamSlideSpeed: 0.6,
 })
 
-var RechargeAgentStats = InitDroneStats(&AgentStats{
+var RechargerAgentStats = InitDroneStats(&AgentStats{
 	Kind:                 AgentRecharger,
 	IsFlying:             true,
 	Image:                assets.ImageRechargerAgent,
@@ -707,7 +707,7 @@ var ScarabAgentStats = InitDroneStats(&AgentStats{
 		ProjectileImage: assets.ImageScarabProjectile,
 		ImpactArea:      8,
 		ProjectileSpeed: 350,
-		Damage:          DamageValue{Health: 1},
+		Damage:          DamageValue{Health: 1.5},
 		MaxTargets:      1,
 		AttacksPerBurst: 2,
 		ArcPower:        1,
@@ -748,7 +748,7 @@ var DevourerAgentStats = InitDroneStats(&AgentStats{
 		ProjectileFireSound: true,
 		ImpactArea:          10,
 		ProjectileSpeed:     350,
-		Damage:              DamageValue{Health: 1},
+		Damage:              DamageValue{Health: 1.5},
 		MaxTargets:          1,
 		AttacksPerBurst:     3,
 		ArcPower:            1,

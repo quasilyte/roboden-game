@@ -64,7 +64,7 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 	{
 		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
 		Drone2: RecipeSubject{GreenFactionTag, AgentWorker},
-		Result: RechargeAgentStats,
+		Result: RechargerAgentStats,
 	},
 	{
 		Drone1: RecipeSubject{YellowFactionTag, AgentScout},

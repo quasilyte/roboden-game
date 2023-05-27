@@ -13,7 +13,6 @@ type colonyActionPlanner struct {
 	numTier1WorkerAgents int
 	numTier1CombatAgents int
 	numTier1Agents       int
-	numTier2Agents       int
 	numPatrolAgents      int
 	numGarrisonAgents    int
 
@@ -40,7 +39,6 @@ func newColonyActionPlanner(colony *colonyCoreNode, rand *gmath.Rand) *colonyAct
 func (p *colonyActionPlanner) PickAction() colonyAction {
 	p.leadingFaction = p.colony.factionWeights.MaxKey()
 	p.numPatrolAgents = 0
-	p.numTier2Agents = 0
 	p.agentCountTable = [gamedata.AgentKindNum]uint8{}
 	leadingFactionAgents := 0
 	leadingFactionCombatAgents := 0
@@ -57,8 +55,6 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 			} else {
 				p.numTier1WorkerAgents++
 			}
-		case 2:
-			p.numTier2Agents++
 		}
 		if !a.stats.CanPatrol {
 			if a.faction == p.leadingFaction {
@@ -106,7 +102,7 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 	maxTradingDist := (p.colony.PatrolRadius() * 1.75) + 200
 	potentialTargets := &p.world.tmpColonySlice
 	(*potentialTargets) = (*potentialTargets)[:0]
-	for _, colony := range p.world.colonies {
+	for _, colony := range p.colony.player.GetState().colonies {
 		if colony == p.colony {
 			continue
 		}
@@ -161,7 +157,7 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 		return colonyAction{}
 	}
 
-	if len(p.world.colonies) >= 2 && p.colony.agents.hasCourier {
+	if len(p.colony.player.GetState().colonies) >= 2 && p.colony.agents.hasCourier {
 		a := p.trySendingCourier()
 		if a.Kind != actionNone {
 			return a
@@ -420,19 +416,25 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 
 func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 	if p.colony.NumAgents() == 0 {
-		// Need to call reinforcements.
-		for _, c := range p.world.colonies {
-			if c.NumAgents() < 10 || c.agents.NumAvailableWorkers() < 6 || c.agents.NumAvailableFighters() < 2 {
-				continue
-			}
-			dist := c.pos.DistanceTo(p.colony.pos)
-			if dist > c.realRadius*3 {
-				continue
-			}
-			return colonyAction{
-				Kind:     actionGetReinforcements,
-				Value:    c,
-				TimeCost: 1,
+		playerColonies := p.colony.player.GetState().colonies
+		if len(playerColonies) != 1 {
+			// Need to call reinforcements.
+			for _, c := range playerColonies {
+				if c == p.colony {
+					continue
+				}
+				if c.NumAgents() < 10 || c.agents.NumAvailableWorkers() < 6 || c.agents.NumAvailableFighters() < 2 {
+					continue
+				}
+				dist := c.pos.DistanceTo(p.colony.pos)
+				if dist > c.realRadius*3 {
+					continue
+				}
+				return colonyAction{
+					Kind:     actionGetReinforcements,
+					Value:    c,
+					TimeCost: 1,
+				}
 			}
 		}
 	}
@@ -517,7 +519,7 @@ func (p *colonyActionPlanner) pickMergeRecipe(list []gamedata.AgentMergeRecipe, 
 func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 	var list []gamedata.AgentMergeRecipe
 	tier := 0
-	if p.colony.evoPoints >= blueEvoThreshold && p.numTier2Agents >= 2 && (p.numTier1Agents < 2 || p.world.rand.Bool()) {
+	if p.colony.evoPoints >= blueEvoThreshold && p.colony.agents.tier2Num >= 2 && (p.numTier1Agents < 2 || p.world.rand.Bool()) {
 		list = gamedata.Tier3agentMergeRecipes
 		tier = 3
 	} else {
@@ -617,7 +619,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 		}
 	}
 
-	if p.numTier2Agents > 0 {
+	if p.colony.agents.tier2Num > 0 {
 		// evolution=10% => ~2.5%
 		// evolution=20% => ~10%
 		// evolution=40% => ~25%

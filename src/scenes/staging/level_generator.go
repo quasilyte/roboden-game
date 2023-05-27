@@ -187,18 +187,28 @@ func (g *levelGenerator) placeTeleporters() {
 }
 
 func (g *levelGenerator) placePlayers() {
-	g.createBase(g.playerSpawn, true)
+	switch len(g.world.config.Players) {
+	case 1:
+		g.createBase(g.world.players[0], g.playerSpawn, true)
+	case 2:
+		playerOffset := gmath.Vec{X: 64, Y: 64}
+		g.createBase(g.world.players[0], g.playerSpawn.Sub(playerOffset), true)
+		g.createBase(g.world.players[1], g.playerSpawn.Add(playerOffset), true)
+	default:
+		panic(fmt.Sprintf("invalid number of players: %d", len(g.world.config.Players)))
+	}
 
 	if g.world.config.SecondBase {
-		g.createBase(g.playerSpawn.Add(gmath.Vec{X: 160, Y: 96}), false)
+		g.createBase(g.world.players[0], g.playerSpawn.Add(gmath.Vec{X: 160, Y: 96}), false)
 	}
 }
 
-func (g *levelGenerator) createBase(pos gmath.Vec, mainBase bool) {
+func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 	core := g.world.NewColonyCoreNode(colonyConfig{
 		World:  g.world,
 		Radius: 128,
 		Pos:    pos,
+		Player: p,
 	})
 	core.priorities.SetWeight(priorityResources, 0.5)
 	core.priorities.SetWeight(priorityGrowth, 0.4)
@@ -376,7 +386,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 
 	// If there are no resources near the colony spawn pos,
 	// place something in there.
-	for _, core := range g.world.colonies {
+	for _, core := range g.world.allColonies {
 		hasResources := xslices.ContainsWhere(g.world.essenceSources, func(source *essenceSourceNode) bool {
 			// We don't count scraps as some viable starting resource.
 			return source.pos.DistanceTo(core.pos) <= core.realRadius &&
@@ -466,14 +476,18 @@ func (g *levelGenerator) placeCreeps() {
 		numCrawlers -= g.placeCreepsCluster(sector, 1, stats)
 	}
 
-	numHowitzers := 0
+	numSpecial := 0
+	specialStats := howitzerCreepStats
 	if g.world.config.InitialCreeps > 1 {
-		numHowitzers = 1
+		numSpecial = 1
+		if g.world.rand.Bool() {
+			specialStats = builderCreepStats
+		}
 	}
-	for numHowitzers > 0 {
+	for numSpecial > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numHowitzers -= g.placeCreepsCluster(sector, 1, howitzerCreepStats)
+		numSpecial -= g.placeCreepsCluster(sector, 1, specialStats)
 	}
 }
 

@@ -182,6 +182,13 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 		colony.defendDelay = p.world.rand.FloatRange(3, 6)
 	}
 
+	// Only defensive actions (like relocation) are allowed
+	// for any unrecoverable colony.
+	// It will be a waste of a turn to invest cards here.
+	if p.colonyCantRecover(colony.node) {
+		return false
+	}
+
 	if p.buildColonyDelay == 0 && p.choiceSelection.special.special == specialBuildColony {
 		if p.maybeBuildColony(colony) {
 			p.buildColonyDelay = p.world.rand.FloatRange(80, 6*60)
@@ -234,6 +241,11 @@ func (p *computerPlayer) maybeDoAction() bool {
 	})
 }
 
+func (p *computerPlayer) colonyCantRecover(colony *colonyCoreNode) bool {
+	return colony.resources < gamedata.WorkerAgentStats.Cost &&
+		len(colony.agents.workers) == 0
+}
+
 func (p *computerPlayer) maybeDoDefensiveAction(colony *computerColony) bool {
 	if colony.howitzerAttacker != nil {
 		if p.maybeHandleHowitzerThreat(colony) {
@@ -266,6 +278,7 @@ func (p *computerPlayer) maybeRegroup(colony *computerColony) bool {
 	}
 
 	needRegroup := (len(colony.node.agents.fighters) < 4 && colony.node.resources < 150) ||
+		p.colonyCantRecover(colony.node) ||
 		(colony.node.NumAgents() < 30 && colony.node.health < colony.node.maxHealth*0.75)
 	if !needRegroup || p.world.rand.Chance(0.1) {
 		return false

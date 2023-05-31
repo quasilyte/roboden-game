@@ -111,7 +111,7 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 func (p *computerPlayer) maxTurretsForColony() int {
 	switch p.world.turretDesign {
 	case gamedata.GunpointAgentStats:
-		return p.world.rand.IntRange(2, 4)
+		return p.world.rand.IntRange(2, 5)
 	case gamedata.BeamTowerAgentStats:
 		return p.world.rand.IntRange(1, 4)
 	case gamedata.TetherBeaconAgentStats:

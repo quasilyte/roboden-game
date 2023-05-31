@@ -70,6 +70,7 @@ func (c *UserNameMenu) isValidUsername(s string) bool {
 }
 
 func (c *UserNameMenu) initUI() {
+	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

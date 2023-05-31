@@ -35,6 +35,7 @@ func (c *CreditsMenuController) Update(delta float64) {
 }
 
 func (c *CreditsMenuController) initUI() {
+	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

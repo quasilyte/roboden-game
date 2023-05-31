@@ -199,6 +199,13 @@ func NewCamera(w *World, stage *CameraStage, width, height float64) *Camera {
 	return c
 }
 
+func (c *Camera) RenderToImage() *ebiten.Image {
+	result := ebiten.NewImage(c.screen.Size())
+	var options ebiten.DrawImageOptions
+	result.DrawImage(c.screen, &options)
+	return result
+}
+
 func (c *Camera) Dispose() {
 	c.disposed = true
 }

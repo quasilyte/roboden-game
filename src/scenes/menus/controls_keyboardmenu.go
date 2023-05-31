@@ -34,6 +34,7 @@ func (c *ControlsKeyboardMenuController) Update(delta float64) {
 }
 
 func (c *ControlsKeyboardMenuController) initUI() {
+	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

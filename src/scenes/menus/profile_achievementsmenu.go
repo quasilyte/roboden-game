@@ -64,6 +64,7 @@ func (c *ProfileAchievementsMenuController) paintIcon(icon *ebiten.Image) *ebite
 }
 
 func (c *ProfileAchievementsMenuController) initUI() {
+	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

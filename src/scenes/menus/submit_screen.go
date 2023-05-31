@@ -52,6 +52,7 @@ func (c *submitScreenController) spawnTask() {
 }
 
 func (c *submitScreenController) initUI() {
+	addDemoBackground(c.state, c.scene)
 	d := c.scene.Dict()
 
 	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face

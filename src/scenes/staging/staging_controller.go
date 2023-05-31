@@ -62,6 +62,8 @@ type Controller struct {
 	replayActions [][]serverapi.PlayerAction
 
 	// rects []*ge.Rect
+
+	EventBeforeLeaveScene gsignal.Event[gsignal.Void]
 }
 
 func NewController(state *session.State, config gamedata.LevelConfig, back ge.SceneController) *Controller {
@@ -91,6 +93,10 @@ func (c *Controller) CenterDemoCamera(pos gmath.Vec) {
 	c.camera.ToggleCamera(pos)
 	c.camera.cinematicSwitchDelay = c.world.localRand.FloatRange(20, 30)
 	c.camera.mode = camCinematic
+}
+
+func (c *Controller) RenderDemoFrame() *ebiten.Image {
+	return c.camera.RenderToImage()
 }
 
 func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
@@ -1084,6 +1090,8 @@ func (c *Controller) updateDebug(delta float64) {
 func (c *Controller) IsDisposed() bool { return false }
 
 func (c *Controller) leaveScene(controller ge.SceneController) {
+	c.EventBeforeLeaveScene.Emit(gsignal.Void{})
+
 	c.scene.Audio().PauseCurrentMusic()
 	c.scene.Context().ChangeScene(controller)
 }

@@ -54,6 +54,7 @@ func (c *LeaderboardBrowserController) Update(delta float64) {
 }
 
 func (c *LeaderboardBrowserController) initBoard() {
+	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
 	boardData := c.boardData

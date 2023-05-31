@@ -5,6 +5,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/langs"
@@ -43,6 +44,8 @@ type State struct {
 	SceneRegistry scenes.Registry
 
 	Resources Resources
+
+	DemoFrame *ebiten.Image
 
 	Context *ge.Context
 

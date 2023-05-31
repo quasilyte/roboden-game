@@ -35,6 +35,7 @@ func (c *ProfileProgressMenuController) Update(delta float64) {
 }
 
 func (c *ProfileProgressMenuController) initUI() {
+	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

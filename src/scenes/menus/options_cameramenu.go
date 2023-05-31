@@ -33,6 +33,7 @@ func (c *OptionsCameraMenuController) Update(delta float64) {
 }
 
 func (c *OptionsCameraMenuController) initUI() {
+	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

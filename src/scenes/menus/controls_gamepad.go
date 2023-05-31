@@ -34,6 +34,7 @@ func (c *ControlsGamepadMenuController) Update(delta float64) {
 }
 
 func (c *ControlsGamepadMenuController) initUI() {
+	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

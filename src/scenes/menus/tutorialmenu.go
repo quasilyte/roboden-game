@@ -42,6 +42,7 @@ func (c *TutorialMenuController) Update(delta float64) {
 }
 
 func (c *TutorialMenuController) initUI() {
+	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

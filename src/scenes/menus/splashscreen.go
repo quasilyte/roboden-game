@@ -5,6 +5,7 @@ import (
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -75,6 +76,12 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.controller = staging.NewController(c.state, config, c.menuController)
 	scene.AddObject(c.controller)
 
+	c.controller.EventBeforeLeaveScene.Connect(nil, func(gsignal.Void) {
+		// Just in case demo stops by a victory/defeat,
+		// make sure that we capture that last frame.
+		c.state.DemoFrame = c.controller.RenderDemoFrame()
+	})
+
 	logo := scene.NewSprite(assets.ImageLogo)
 	logo.Pos.Offset.X = scene.Context().WindowWidth / 2
 	logo.Pos.Offset.Y = scene.Context().WindowHeight / 5
@@ -96,8 +103,8 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 
 func (c *SplashScreenController) Update(delta float64) {
 	if !c.simulated {
-		var cameraPos gmath.Vec
 		c.simulated = true
+		var cameraPos gmath.Vec
 		timeSimulated := 0.0
 		maxFrames := 20 * (60 * 60)
 		for i := 0; i < maxFrames/(10*60); i++ {
@@ -141,6 +148,8 @@ func (c *SplashScreenController) handleInput() {
 }
 
 func (c *SplashScreenController) stopDemo() {
+	c.state.DemoFrame = c.controller.RenderDemoFrame()
+
 	c.scene.Audio().PauseCurrentMusic()
 	c.scene.Context().ChangeScene(c.menuController)
 }

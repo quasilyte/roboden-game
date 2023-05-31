@@ -202,8 +202,8 @@ func (w *worldState) Init() {
 		}
 	}
 
-	w.creepHealthMultiplier = 0.90 + (float64(w.config.CreepDifficulty) * 0.10)
-	w.bossHealthMultiplier = 0.75 + (float64(w.config.BossDifficulty) * 0.25)
+	w.creepHealthMultiplier = 0.6 + (float64(w.config.CreepDifficulty) * 0.2)
+	w.bossHealthMultiplier = 0.7 + (float64(w.config.BossDifficulty) * 0.3)
 	w.oilRegenMultiplier = float64(w.config.OilRegenRate) * 0.5
 
 	if w.config.FogOfWar && w.config.ExecMode != gamedata.ExecuteSimulation {

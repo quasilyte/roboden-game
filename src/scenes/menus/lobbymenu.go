@@ -399,14 +399,14 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 
 	{
 		b := c.newOptionButton(&c.config.CreepDifficulty, "menu.lobby.creeps_difficulty", []string{
-			"90%",
+			"60%",
+			"80%",
 			"100%",
-			"110%",
 			"120%",
-			"130%",
 			"140%",
-			"150%",
 			"160%",
+			"180%",
+			"200%",
 		})
 		tab.AddChild(b)
 	}

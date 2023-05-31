@@ -158,7 +158,9 @@ If your colony lands on a teleportation platform, it will be transported to the 
 ##menu.lobby.players.classic : Players
 ##menu.lobby.players.classic.description
 This option controls the number of allied colonies on the map and who controls them.
-Selecting two players will enable a split-screen local multiplayer (use two gamepads).
+Selecting two players will enable a split-screen local multiplayer.
+You will need at least 1 gamepad to play in the split-screen mode.
+If any of the allied players is defeated, the game ends.
 Only the single player mode score is ranked and can be published.
 
 ##menu.lobby.player_mode.single_player : single player
@@ -235,13 +237,6 @@ Choose how many mountains and landcracks the map will have.
 You can make them really rare or appear almost everywhere.
 
 ##menu.lobby.go : Go!
-
-##menu.lobby.infinite_mode : Infinite mode
-##menu.lobby.infinite_mode.description
-Whether you want to play an infinite arena mode.
-In the normal arena, you win after the special wave 20.
-In the infinite mode, there is no wave limit.
-Survive for longer to get higher scores.
 
 ##menu.lobby.land_flat : flat
 ##menu.lobby.land_normal : balanced

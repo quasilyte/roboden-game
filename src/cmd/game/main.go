@@ -144,7 +144,7 @@ func newLevelConfig(config *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.Terrain = 1
 	config.Resources = 2
 	config.WorldSize = 2
-	config.CreepDifficulty = 1
+	config.CreepDifficulty = 2
 	config.BossDifficulty = 1
 
 	return config

@@ -109,7 +109,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	if c.super {
 		if c.stats.kind == creepUberBoss {
 			// Boss only gets a bit of extra health.
-			c.maxHealth *= 1.2
+			c.maxHealth *= 1.3
 		} else {
 			c.maxHealth *= 2
 		}

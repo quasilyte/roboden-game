@@ -14,12 +14,12 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 			score += 5
 		}
 		if config.NumCreepBases != 0 {
-			score += (config.CreepDifficulty - 1) * 10
+			score += (config.CreepDifficulty - 2) * 15
 			if config.SuperCreeps {
 				score += 45
 			}
 		} else {
-			score += (config.CreepDifficulty - 1) * 5
+			score += (config.CreepDifficulty - 2) * 10
 			if config.SuperCreeps {
 				score += 35
 			}
@@ -35,7 +35,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 			score += 5
 		}
 		score += 10 - (config.Resources * 5)
-		score += (config.CreepDifficulty - 1) * 15
+		score += (config.CreepDifficulty - 2) * 20
 		score += config.InitialCreeps * 5
 		score += (config.ArenaProgression - 1) * 10
 		score -= config.StartingResources * 2

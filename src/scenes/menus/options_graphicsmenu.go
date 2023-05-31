@@ -37,13 +37,13 @@ func (c *OptionsGraphicsMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
 	root.AddChild(rowContainer)
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
+	normalFont := assets.BitmapFont3
 
 	d := c.scene.Dict()
-	titleLabel := eui.NewLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.graphics"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.graphics"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings

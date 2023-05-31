@@ -79,13 +79,12 @@ func (c *UserNameMenu) initUI() {
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := assets.BitmapFont1
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.user_name"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.user_name"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	textinput := eui.NewTextInput(uiResources, normalFont,
+	textinput := eui.NewTextInput(uiResources, assets.BitmapFont2,
 		widget.TextInputOpts.WidgetOpts(
 			widget.WidgetOpts.MinSize(480, 0),
 		),

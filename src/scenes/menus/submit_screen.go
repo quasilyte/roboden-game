@@ -55,15 +55,13 @@ func (c *submitScreenController) initUI() {
 	addDemoBackground(c.state, c.scene)
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-
 	root := eui.NewAnchorContainer()
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
-	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.submit.title"), normalFont))
+	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.submit.title"), assets.BitmapFont3))
 
-	c.spinner = eui.NewCenteredLabel("--", normalFont)
+	c.spinner = eui.NewCenteredLabel("--", assets.BitmapFont2)
 	rowContainer.AddChild(c.spinner)
 
 	uiObject := eui.NewSceneObject(root)

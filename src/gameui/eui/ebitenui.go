@@ -159,12 +159,13 @@ func NewHorizontalContainer() *widget.Container {
 		)))
 }
 
-func NewRowLayoutContainer(spacing int, rowscale []bool) *widget.Container {
+func NewRowLayoutContainerWithMinWidth(minWidth, spacing int, rowscale []bool) *widget.Container {
 	return widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			StretchHorizontal: true,
 			StretchVertical:   true,
 		})),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.MinSize(minWidth, 0)),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,
@@ -177,6 +178,10 @@ func NewRowLayoutContainer(spacing int, rowscale []bool) *widget.Container {
 			widget.GridLayoutOpts.Spacing(spacing, spacing),
 		)),
 	)
+}
+
+func NewRowLayoutContainer(spacing int, rowscale []bool) *widget.Container {
+	return NewRowLayoutContainerWithMinWidth(0, spacing, rowscale)
 }
 
 func NewSeparator(ld interface{}) widget.PreferredSizeLocateableWidget {
@@ -285,7 +290,7 @@ func (b *ItemButton) Toggle() {
 	}
 }
 
-func NewItemButton(res *Resources, img *ebiten.Image, ff font.Face, label string, onclick func()) *ItemButton {
+func NewItemButton(res *Resources, img *ebiten.Image, ff font.Face, label string, labelOffset int, onclick func()) *ItemButton {
 	container := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewStackedLayout()),
 		widget.ContainerOpts.WidgetOpts(
@@ -318,7 +323,7 @@ func NewItemButton(res *Resources, img *ebiten.Image, ff font.Face, label string
 		paddingContainer := widget.NewContainer(
 			widget.ContainerOpts.Layout(
 				widget.NewAnchorLayout(widget.AnchorLayoutOpts.Padding(widget.Insets{
-					Top: 24,
+					Top: labelOffset,
 				})),
 			),
 		)
@@ -540,7 +545,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 	{
 		idle := loader.LoadImage(assets.ImageUITextInputIdle).Data
 		disabled := loader.LoadImage(assets.ImageUITextInputIdle).Data
-		ff := loader.LoadFont(assets.FontSmall).Face
 		result.TextInput = &TextInputResource{
 			Image: &widget.TextInputImage{
 				Idle:     image.NewNineSlice(idle, [3]int{9, 14, 6}, [3]int{9, 14, 6}),
@@ -552,7 +556,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 				Top:    4,
 				Bottom: 4,
 			},
-			FontFace: ff,
+			FontFace: assets.BitmapFont2,
 			TextColors: &widget.TextInputColor{
 				Idle:          NormalTextColor,
 				Disabled:      NormalTextColor,
@@ -588,7 +592,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			Left:  30,
 			Right: 30,
 		}
-		ff := loader.LoadFont(assets.FontSmall).Face
 		result.BigItemButton = &ToggleButtonResource{
 			Image: &widget.ButtonImage{
 				Idle:     idle,
@@ -605,7 +608,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			Padding:  buttonPadding,
 			Color:    NormalTextColor,
 			AltColor: ge.RGB(0x000000),
-			FontFace: ff,
+			FontFace: assets.BitmapFont2,
 		}
 	}
 
@@ -622,7 +625,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			Left:  30,
 			Right: 30,
 		}
-		ff := loader.LoadFont(assets.FontNormal).Face
 		result.ItemButton = &ToggleButtonResource{
 			Image: &widget.ButtonImage{
 				Idle:     idle,
@@ -639,7 +641,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			Padding:  buttonPadding,
 			Color:    NormalTextColor,
 			AltColor: ge.RGB(0x000000),
-			FontFace: ff,
+			FontFace: assets.BitmapFont2,
 		}
 	}
 
@@ -664,7 +666,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			Idle:     NormalTextColor,
 			Disabled: ge.RGB(0x5a7a91),
 		}
-		ff := loader.LoadFont(assets.FontSmall).Face
 		result.Button = &ButtonResource{
 			Image: &widget.ButtonImage{
 				Idle:     idle,
@@ -674,7 +675,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			},
 			Padding:    buttonPadding,
 			TextColors: buttonColors,
-			FontFace:   ff,
+			FontFace:   assets.BitmapFont2,
 		}
 		result.ButtonSelected = &ButtonResource{
 			Image: &widget.ButtonImage{
@@ -685,7 +686,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			},
 			Padding:    buttonPadding,
 			TextColors: buttonColors,
-			FontFace:   ff,
+			FontFace:   assets.BitmapFont2,
 		}
 		result.TabButton = &ButtonResource{
 			Image: &widget.ButtonImage{
@@ -696,7 +697,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			},
 			Padding:    buttonPadding,
 			TextColors: buttonColors,
-			FontFace:   ff,
+			FontFace:   assets.BitmapFont2,
 		}
 	}
 

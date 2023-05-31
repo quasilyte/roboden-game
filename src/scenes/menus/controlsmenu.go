@@ -36,15 +36,14 @@ func (c *ControlsMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := assets.BitmapFont1
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.keyboard"), func() {

@@ -36,14 +36,12 @@ func (c *ProfileMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(320, 10, nil)
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.achievements"), func() {
@@ -63,6 +61,12 @@ func (c *ProfileMenuController) initUI() {
 	}))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+
+	if !c.state.Device.IsMobile {
+		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.set_user_name"), func() {
+			c.scene.Context().ChangeScene(NewUserNameMenuController(c.state, c))
+		}))
+	}
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

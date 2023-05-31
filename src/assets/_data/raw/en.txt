@@ -17,7 +17,7 @@
 
 ##menu.main.title : Main Menu
 ##menu.main.play : Play
-##menu.main.profile : Stats & Achievements
+##menu.main.profile : Profile
 ##menu.main.settings : Settings
 ##menu.main.credits : Credits
 ##menu.main.exit : Exit
@@ -58,7 +58,6 @@
 ##menu.play.arena : Arena Mode
 ##menu.play.inf_arena : Infinite Arena Mode
 ##menu.play.tutorial : Tutorial
-##menu.play.to_unlock : Score To Unlock
 
 ##menu.profile.achievements : Achievements
 ##menu.profile.stats : Stats
@@ -268,7 +267,7 @@ You can make them really rare or appear almost everywhere.
 ##menu.results.new_drone : Drone Unlocked
 ##menu.results.new_turret : Turret Unlocked
 
-##menu.controls.keyboard : Keyboard & Mouse
+##menu.controls.keyboard : Keyboard
 ##menu.controls.gamepad : Gamepad
 ##menu.controls.touch : Touchscreen
 ##menu.controls.notice : Controls remapping is coming soon!

@@ -279,11 +279,10 @@ func (c *resultsController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(320, 10, nil)
 	root.AddChild(rowContainer)
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	smallFont := assets.BitmapFont1
 
 	d := c.scene.Dict()
 
@@ -296,7 +295,7 @@ func (c *resultsController) initUI() {
 	default:
 		titleString = d.Get("menu.results.defeat")
 	}
-	titleLabel := eui.NewCenteredLabel(titleString, normalFont)
+	titleLabel := eui.NewCenteredLabel(titleString, assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

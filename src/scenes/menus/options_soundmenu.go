@@ -37,13 +37,11 @@ func (c *OptionsSoundMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
 	root.AddChild(rowContainer)
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-
 	d := c.scene.Dict()
-	titleLabel := eui.NewLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.sound"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.sound"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings

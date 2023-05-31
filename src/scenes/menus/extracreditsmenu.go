@@ -41,13 +41,12 @@ func (c *ExtraCreditsMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
-	bigFont := c.scene.Context().Loader.LoadFont(assets.FontBig).Face
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	bigFont := assets.BitmapFont3
+	smallFont := assets.BitmapFont1
 
 	d := c.scene.Context().Dict
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.credits")+" -> "+d.Get("menu.more"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.credits")+" -> "+d.Get("menu.more"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

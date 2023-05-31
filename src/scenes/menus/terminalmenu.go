@@ -76,10 +76,10 @@ func (c *TerminalMenu) initUI() {
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := assets.BitmapFont1
+	normalFont := assets.BitmapFont2
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra")+" -> "+d.Get("menu.terminal"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra")+" -> "+d.Get("menu.terminal"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	outputPanel := eui.NewPanel(uiResources, 520, 200)

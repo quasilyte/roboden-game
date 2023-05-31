@@ -461,7 +461,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	if c.state.Persistent.Settings.ShowFPS || c.state.Persistent.Settings.ShowTimer {
 		if len(c.world.cameras) != 0 {
-			c.debugInfo = scene.NewLabel(assets.FontSmall)
+			c.debugInfo = ge.NewLabel(assets.BitmapFont1)
 			c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
 			c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
 			c.world.cameras[0].UI.AddGraphics(c.debugInfo)
@@ -954,7 +954,8 @@ func (c *Controller) handleInput() {
 	}
 
 	if c.sharedActionIsJustPressed(controls.ActionBack) {
-		c.onExitButtonClicked()
+		// c.onExitButtonClicked()
+		c.victory()
 		return
 	}
 

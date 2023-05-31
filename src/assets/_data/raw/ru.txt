@@ -13,7 +13,7 @@
 
 ##menu.main.title : Главное меню
 ##menu.main.play : Играть
-##menu.main.profile : Статистика и Достижения
+##menu.main.profile : Профиль
 ##menu.main.settings : Настройки
 ##menu.main.credits : Авторы
 ##menu.main.exit : Выход
@@ -53,7 +53,6 @@
 ##menu.play.classic : Классический Режим
 ##menu.play.arena : Режим Арены
 ##menu.play.tutorial : Обучение
-##menu.play.to_unlock : Очков До Разблокировки
 
 ##menu.profile.achievements : Достижения
 ##menu.profile.stats : Статистика
@@ -246,7 +245,7 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.results.new_drone : Дрон разблокирован
 ##menu.results.new_turret : Турель разблокирована
 
-##menu.controls.keyboard : Клавиатура и Мышь
+##menu.controls.keyboard : Клавиатура
 ##menu.controls.gamepad : Геймпад
 ##menu.controls.touch : Тачскрин
 ##menu.controls.notice : Изменение схемы управления уже в разработке!

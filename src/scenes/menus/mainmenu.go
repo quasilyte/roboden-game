@@ -59,10 +59,8 @@ func (c *MainMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
 	root.AddChild(rowContainer)
-
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
 	d := c.scene.Dict()
 
@@ -99,7 +97,7 @@ func (c *MainMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d (beta testing)", d.Get("menu.main.build"), gamedata.BuildNumber), smallFont)
+	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d (beta testing)", d.Get("menu.main.build"), gamedata.BuildNumber), assets.BitmapFont1)
 	rowContainer.AddChild(buildVersionLabel)
 
 	uiObject := eui.NewSceneObject(root)

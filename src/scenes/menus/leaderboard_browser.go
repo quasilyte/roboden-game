@@ -61,8 +61,8 @@ func (c *LeaderboardBrowserController) initBoard() {
 	fetchErr := c.fetchErr
 
 	d := c.scene.Dict()
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	smallFont := assets.BitmapFont1
+	tinyFont := assets.BitmapFont1
 
 	{
 		numSeasons := c.selectedSeason + 1
@@ -160,9 +160,7 @@ func (c *LeaderboardBrowserController) initUI() {
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	c.initBoard()

@@ -37,13 +37,11 @@ func (c *OptionsExtraMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
 	root.AddChild(rowContainer)
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-
 	d := c.scene.Dict()
-	titleLabel := eui.NewLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings
@@ -92,10 +90,6 @@ func (c *OptionsExtraMenuController) initUI() {
 	if !c.state.Device.IsMobile {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.terminal"), func() {
 			c.scene.Context().ChangeScene(NewTerminalMenuController(c.state))
-		}))
-
-		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.set_user_name"), func() {
-			c.scene.Context().ChangeScene(NewUserNameMenuController(c.state, c))
 		}))
 	}
 

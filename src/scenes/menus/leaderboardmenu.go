@@ -41,9 +41,7 @@ func (c *LeaderboardMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.leaderboard"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.classic"), func() {

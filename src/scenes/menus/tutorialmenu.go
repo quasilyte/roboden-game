@@ -67,10 +67,9 @@ func (c *TutorialMenuController) initUI() {
 		return description + "\n\n" + objective + "\n" + rewardText
 	}
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := assets.BitmapFont1
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.play")+" -> "+d.Get("menu.play.tutorial"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.play")+" -> "+d.Get("menu.play.tutorial"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	helpLabel := eui.NewLabel("", tinyFont)

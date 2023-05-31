@@ -41,23 +41,22 @@ func (c *ProfileStatsMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(280, 10, nil)
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := assets.BitmapFont1
 
 	helpLabel := eui.NewLabel("", tinyFont)
 	helpLabel.MaxWidth = 340
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.stats"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.stats"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := assets.BitmapFont1
 	stats := c.state.Persistent.PlayerStats
 
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),

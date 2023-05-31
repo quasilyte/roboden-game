@@ -29,12 +29,10 @@ func NewBootloadController(state *session.State) *BootloadController {
 func (c *BootloadController) Init(scene *ge.Scene) {
 	c.scene = scene
 
-	assets.RegisterFontResources(scene.Context(), nil)
-
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := assets.BitmapFont1
+	normalFont := assets.BitmapFont2
 
 	root := eui.NewAnchorContainer()
 	rowContainer := eui.NewRowLayoutContainer(10, nil)

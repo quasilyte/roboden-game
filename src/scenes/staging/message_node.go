@@ -49,14 +49,13 @@ func newWorldTutorialHintNode(camera *viewport.Camera, pos gmath.Vec, targetPos 
 func (m *messageNode) SetPos(pos gmath.Vec) {
 	m.pos = pos
 	m.rect.Pos.Offset = m.pos
-	m.label.Pos.Offset = m.pos
+	m.label.Pos.Offset = m.pos.Add(gmath.Vec{Y: 4})
 }
 
 func (m *messageNode) Init(scene *ge.Scene) {
-	ff := scene.Context().Loader.LoadFont(assets.FontTiny)
-	bounds := text.BoundString(ff.Face, m.text)
+	bounds := text.BoundString(assets.BitmapFont1, m.text)
 	m.width = (float64(bounds.Dx()) + 16) + m.xpadding
-	m.height = (float64(bounds.Dy()) + 20)
+	m.height = (float64(bounds.Dy()) + 16)
 
 	m.rect = ge.NewRect(scene.Context(), m.width, m.height)
 	m.rect.OutlineColorScale.SetColor(ge.RGB(0x5e5a5d))
@@ -65,12 +64,12 @@ func (m *messageNode) Init(scene *ge.Scene) {
 	m.rect.Centered = false
 	m.rect.Pos.Offset = m.pos
 
-	m.label = scene.NewLabel(assets.FontTiny)
+	m.label = ge.NewLabel(assets.BitmapFont1)
 	m.label.AlignHorizontal = ge.AlignHorizontalCenter
 	m.label.AlignVertical = ge.AlignVerticalCenter
 	m.label.Width = m.width
 	m.label.Height = m.height
-	m.label.Pos.Offset = m.pos
+	m.label.Pos.Offset = m.pos.Add(gmath.Vec{Y: 4})
 	m.label.Text = m.text
 	m.label.ColorScale.SetColor(ge.RGB(0x9dd793))
 

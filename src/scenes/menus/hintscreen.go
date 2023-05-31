@@ -49,12 +49,11 @@ func (c *HintScreen) initUI() {
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := assets.BitmapFont2
 
 	d := c.scene.Context().Dict
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.play", c.config.GameMode.String()), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.play", c.config.GameMode.String()), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

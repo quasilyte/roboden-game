@@ -39,18 +39,17 @@ func (c *ProfileProgressMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(280, 10, nil)
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := assets.BitmapFont1
 
 	helpLabel := eui.NewLabel("", tinyFont)
 	helpLabel.MaxWidth = 340
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.progress"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.progress"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -65,7 +64,7 @@ func (c *ProfileProgressMenuController) initUI() {
 		modesUnlocked++
 	}
 
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := assets.BitmapFont1
 
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
 		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))

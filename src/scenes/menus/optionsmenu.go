@@ -38,15 +38,11 @@ func (c *OptionsMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
 	root.AddChild(rowContainer)
 
-	rowContainer.GetWidget().MinWidth = 340
-
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-
 	d := c.scene.Dict()
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.settings"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings

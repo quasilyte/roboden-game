@@ -49,15 +49,13 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	tinyFont := assets.BitmapFont1
 
 	helpLabel := eui.NewLabel("", tinyFont)
 	helpLabel.MaxWidth = 340
 	c.helpLabel = helpLabel
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.dronebook"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.dronebook"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	stats := &c.state.Persistent.PlayerStats
@@ -106,7 +104,7 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 		drone := drones[i]
 		available := droneIsUnlocked(drone)
 		frame := droneImage(drone, available)
-		b := eui.NewItemButton(uiResources, frame, smallFont, "", func() {})
+		b := eui.NewItemButton(uiResources, frame, tinyFont, "", 0, func() {})
 		b.SetDisabled(true)
 		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
 			if available {

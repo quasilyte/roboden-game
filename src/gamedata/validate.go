@@ -10,6 +10,9 @@ func IsSendableReplay(r serverapi.GameReplay) bool {
 	if r.Results.Score <= 0 {
 		return false
 	}
+	if r.Config.PlayersMode != serverapi.PmodeSinglePlayer {
+		return false
+	}
 	switch r.Config.RawGameMode {
 	case "classic", "arena":
 		// There is no point in running a non-victory game replay

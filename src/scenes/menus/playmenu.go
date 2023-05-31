@@ -39,43 +39,42 @@ func (c *PlayMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainer(10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(440, 10, nil)
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.play"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.play"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.classic"), func() {
 		c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeClassic))
 	}))
 
+	score := c.state.Persistent.PlayerStats.TotalScore
 	{
-		toUnlock := gamedata.ArenaModeCost - c.state.Persistent.PlayerStats.TotalScore
 		label := d.Get("menu.play.arena")
-		if toUnlock > 0 {
-			label = fmt.Sprintf("%s: %d", d.Get("menu.play.to_unlock"), toUnlock)
+		unlocked := score >= gamedata.ArenaModeCost
+		if !unlocked {
+			label += fmt.Sprintf(" [%d/%d]", score, gamedata.ArenaModeCost)
 		}
 		b := eui.NewButton(uiResources, c.scene, label, func() {
 			c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeArena))
 		})
-		b.GetWidget().Disabled = toUnlock > 0
+		b.GetWidget().Disabled = !unlocked
 		rowContainer.AddChild(b)
 	}
 
 	{
-		toUnlock := gamedata.InfArenaModeCost - c.state.Persistent.PlayerStats.TotalScore
 		label := d.Get("menu.play.inf_arena")
-		if toUnlock > 0 {
-			label = fmt.Sprintf("%s: %d", d.Get("menu.play.to_unlock"), toUnlock)
+		unlocked := score >= gamedata.InfArenaModeCost
+		if !unlocked {
+			label += fmt.Sprintf(" [%d/%d]", score, gamedata.InfArenaModeCost)
 		}
 		b := eui.NewButton(uiResources, c.scene, label, func() {
 			c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeInfArena))
 		})
-		b.GetWidget().Disabled = toUnlock > 0
+		b.GetWidget().Disabled = !unlocked
 		rowContainer.AddChild(b)
 	}
 

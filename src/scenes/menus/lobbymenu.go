@@ -200,7 +200,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 
 	d := c.scene.Dict()
 
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := assets.BitmapFont1
 
 	c.difficultyLabel = eui.NewCenteredLabel("Difficulty: 1000%", tinyFont)
 	panel.AddChild(c.difficultyLabel)
@@ -570,7 +570,7 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := assets.BitmapFont1
 
 	tab.AddChild(c.createBasesPanel(uiResources))
 	tab.AddChild(c.createTurretsPanel(uiResources))
@@ -634,7 +634,8 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 	panel := eui.NewPanel(uiResources, 0, 0)
 	c.helpPanel = panel
 
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := assets.BitmapFont1
+	normalFont := assets.BitmapFont2
 
 	label := eui.NewLabel("", tinyFont)
 	label.MaxWidth = 320
@@ -657,7 +658,7 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 		iconsContainer.AddChild(icon1)
 
 		separator := widget.NewText(
-			widget.TextOpts.Text("", tinyFont, uiResources.Button.TextColors.Idle),
+			widget.TextOpts.Text("", normalFont, uiResources.Button.TextColors.Idle),
 			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 		)
 		c.helpIconSeparator = separator
@@ -680,7 +681,7 @@ func (c *LobbyMenuController) randomSeed() int64 {
 func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widget.Container {
 	worldSettingsPanel := eui.NewPanel(uiResources, 340, 0)
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
+	tinyFont := assets.BitmapFont1
 
 	d := c.scene.Dict()
 
@@ -696,7 +697,7 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 			)),
 		)
 
-		textinput := eui.NewTextInput(uiResources, normalFont,
+		textinput := eui.NewTextInput(uiResources, tinyFont,
 			widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
 				if len(newInputText) > 15 {
 					return false, nil
@@ -718,7 +719,7 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 			widget.LabelOpts.TextOpts(
 				widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 			),
-			widget.LabelOpts.Text(d.Get("menu.lobby.game_seed"), normalFont, &widget.LabelColor{
+			widget.LabelOpts.Text(d.Get("menu.lobby.game_seed"), tinyFont, &widget.LabelColor{
 				Idle:     uiResources.Button.TextColors.Idle,
 				Disabled: uiResources.Button.TextColors.Disabled,
 			}),
@@ -785,7 +786,7 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 			img = c.scene.LoadImage(assets.ImageLock).Data
 		}
 		var b *eui.ItemButton
-		b = eui.NewItemButton(uiResources, img, nil, "", func() {
+		b = eui.NewItemButton(uiResources, img, nil, "", 0, func() {
 			if c.config.TurretDesign != turret.Kind.String() {
 				b.Toggle()
 				c.onTurretToggled(turret)
@@ -819,7 +820,7 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *widget.Container {
 	dronesPanel := eui.NewPanel(uiResources, 0, 0)
 
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := assets.BitmapFont1
 
 	grid := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
@@ -848,7 +849,7 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 			frame = c.scene.LoadImage(assets.ImageLock).Data
 		}
 		var b *eui.ItemButton
-		b = eui.NewItemButton(uiResources, frame, smallFont, costLabel, func() {
+		b = eui.NewItemButton(uiResources, frame, smallFont, costLabel, 26, func() {
 			b.Toggle()
 			c.onDroneToggled()
 			c.updateTier2Recipes()
@@ -885,7 +886,7 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 
 	// Pad the remaining space with disabled buttons.
 	for i := len(gamedata.Tier2agentMergeRecipes); i < maxNumDrones; i++ {
-		b := eui.NewItemButton(uiResources, nil, nil, "", func() {})
+		b := eui.NewItemButton(uiResources, nil, nil, "", 0, func() {})
 		b.SetDisabled(true)
 		grid.AddChild(b.Widget)
 	}

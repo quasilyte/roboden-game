@@ -73,15 +73,13 @@ func (c *ProfileAchievementsMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	normalFont := c.scene.Context().Loader.LoadFont(assets.FontNormal).Face
-	tinyFont := c.scene.Context().Loader.LoadFont(assets.FontTiny).Face
-	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
+	smallFont := assets.BitmapFont1
 
-	helpLabel := eui.NewLabel("", tinyFont)
+	helpLabel := eui.NewLabel("", smallFont)
 	helpLabel.MaxWidth = 320
 	c.helpLabel = helpLabel
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.title")+" -> "+d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.achievements"), normalFont)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.achievements"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rootGrid := widget.NewContainer(
@@ -112,7 +110,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 				grade = 1
 			}
 		}
-		b := eui.NewItemButton(uiResources, img, smallFont, strings.Repeat(".", grade), func() {})
+		b := eui.NewItemButton(uiResources, img, smallFont, strings.Repeat("*", grade), 44, func() {})
 		b.SetDisabled(true)
 		c.descriptions = append(c.descriptions, (func() string {
 			var lines []string

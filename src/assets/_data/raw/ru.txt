@@ -108,6 +108,7 @@
 ##menu.option.hard : сложно
 ##menu.option.very_hard : очень сложно
 ##menu.option.impossible : невозможно
+##menu.difficulty_score_despair : отчаяние
 
 ##menu.option.very_small : крохотный
 ##menu.option.small : небольшой

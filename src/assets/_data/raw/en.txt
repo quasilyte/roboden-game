@@ -113,6 +113,7 @@
 ##menu.option.hard : hard
 ##menu.option.very_hard : very hard
 ##menu.option.impossible : impossible
+##menu.difficulty_score_despair : despair
 
 ##menu.option.very_small : very small
 ##menu.option.small : small

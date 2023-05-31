@@ -47,7 +47,7 @@ func (c *CursorNode) ClickPos(action input.Action) (gmath.Vec, bool) {
 func (c *CursorNode) Update(delta float64) {
 	if info, ok := c.input.PressedActionInfo(controls.ActionMoveCursor); ok {
 		c.sprite.Visible = true
-		c.pos.X = gmath.Clamp(c.pos.X+info.Pos.X*delta*640, 0, c.rect.Width())
-		c.pos.Y = gmath.Clamp(c.pos.Y+info.Pos.Y*delta*640, 0, c.rect.Height())
+		c.pos.X = gmath.Clamp(c.pos.X+info.Pos.X*delta*640, c.rect.Min.X, c.rect.Max.X)
+		c.pos.Y = gmath.Clamp(c.pos.Y+info.Pos.Y*delta*640, c.rect.Min.Y, c.rect.Max.Y)
 	}
 }

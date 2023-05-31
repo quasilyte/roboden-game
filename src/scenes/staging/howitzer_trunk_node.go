@@ -11,21 +11,21 @@ import (
 
 type howitzerTrunkNode struct {
 	pos    ge.Pos
-	camera *viewport.Camera
+	stage  *viewport.CameraStage
 	sprite *ge.Sprite
 }
 
-func newHowitzerTrunkNode(camera *viewport.Camera, pos ge.Pos) *howitzerTrunkNode {
+func newHowitzerTrunkNode(stage *viewport.CameraStage, pos ge.Pos) *howitzerTrunkNode {
 	return &howitzerTrunkNode{
-		pos:    pos,
-		camera: camera,
+		pos:   pos,
+		stage: stage,
 	}
 }
 
 func (trunk *howitzerTrunkNode) Init(scene *ge.Scene) {
 	trunk.sprite = scene.NewSprite(assets.ImageHowitzerTrunk)
 	trunk.sprite.Pos = trunk.pos
-	trunk.camera.AddGraphics(trunk.sprite)
+	trunk.stage.AddGraphics(trunk.sprite)
 }
 
 func (trunk *howitzerTrunkNode) SetVisibility(visible bool) {

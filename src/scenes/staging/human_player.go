@@ -1,18 +1,14 @@
 package staging
 
 import (
-	"image/color"
 	"math"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/ge/gedraw"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
-	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui"
 )
@@ -30,81 +26,70 @@ type humanPlayer struct {
 	rpanel               *rpanelNode
 	cursor               *gameui.CursorNode
 	radar                *radarNode
+	screenButtons        *screenButtonsNode
 	colonySelector       *ge.Sprite
 	flyingColonySelector *ge.Sprite
-	fogOfWar             *ebiten.Image
 
-	exitButtonRect   gmath.Rect
-	toggleButtonRect gmath.Rect
+	EventExitPressed gsignal.Event[gsignal.Void]
 }
 
-func newHumanPlayer(world *worldState, state *playerState, h gameinput.Handler, cursor *gameui.CursorNode, choiceGen *choiceGenerator) *humanPlayer {
+type humanPlayerConfig struct {
+	world          *worldState
+	state          *playerState
+	input          gameinput.Handler
+	cursor         *gameui.CursorNode
+	choiceGen      *choiceGenerator
+	messageManager *messageManager
+}
+
+func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
 	return &humanPlayer{
-		world:     world,
-		state:     state,
-		scene:     world.rootScene,
-		choiceGen: choiceGen,
-		input:     h,
-		cursor:    cursor,
+		world:     config.world,
+		state:     config.state,
+		scene:     config.world.rootScene,
+		choiceGen: config.choiceGen,
+		input:     config.input,
+		cursor:    config.cursor,
 	}
 }
 
 func (p *humanPlayer) Init() {
 	p.state.Init(p.world)
 
-	choicesPos := gmath.Vec{
-		X: 960 - 232 - 16,
-		Y: 540 - 200 - 16,
-	}
-	p.choiceWindow = newChoiceWindowNode(choicesPos, p.world, p.input, p.cursor)
+	// choicesPos := gmath.Vec{
+	// 	X: 960 - 232 - 16,
+	// 	Y: 540 - 200 - 16,
+	// }
+	p.choiceWindow = newChoiceWindowNode(p.state.camera.Camera, p.world, p.input, p.cursor)
 	p.world.nodeRunner.AddObject(p.choiceWindow)
 
-	if p.world.config.ExtraUI {
-		p.rpanel = newRpanelNode(p.world, p.world.uiLayer)
+	if p.world.config.InterfaceMode >= 2 {
+		p.rpanel = newRpanelNode(p.state.camera.Camera)
 		p.scene.AddObject(p.rpanel)
 	}
 
-	buttonSize := gmath.Vec{X: 32, Y: 36}
-	if p.world.config.EnemyBoss {
-		p.radar = newRadarNode(p.world, p.world.uiLayer)
+	buttonsPos := gmath.Vec{X: 137, Y: 470}
+	if p.world.config.EnemyBoss && p.world.config.InterfaceMode >= 1 {
+		p.radar = newRadarNode(p.world, p)
 		p.world.nodeRunner.AddObject(p.radar)
-
-		toggleButtonOffset := gmath.Vec{X: 155, Y: 491}
-		p.toggleButtonRect = gmath.Rect{Min: toggleButtonOffset, Max: toggleButtonOffset.Add(buttonSize)}
-
-		exitButtonOffset := gmath.Vec{X: 211, Y: 491}
-		p.exitButtonRect = gmath.Rect{Min: exitButtonOffset, Max: exitButtonOffset.Add(buttonSize)}
 	} else {
-		buttonsImage := p.scene.NewSprite(assets.ImageRadarlessButtons)
-		buttonsImage.Centered = false
-		p.world.uiLayer.AddGraphics(buttonsImage)
-		buttonsImage.Pos.Offset = gmath.Vec{
-			X: 8,
-			Y: p.world.camera.Rect.Height() - buttonsImage.ImageHeight() - 8,
-		}
+		buttonsPos = gmath.Vec{X: 8, Y: 470}
+	}
 
-		toggleButtonOffset := (gmath.Vec{X: 13, Y: 23}).Add(buttonsImage.Pos.Offset)
-		p.toggleButtonRect = gmath.Rect{Min: toggleButtonOffset, Max: toggleButtonOffset.Add(buttonSize)}
-
-		exitButtonOffset := (gmath.Vec{X: 69, Y: 23}).Add(buttonsImage.Pos.Offset)
-		p.exitButtonRect = gmath.Rect{Min: exitButtonOffset, Max: exitButtonOffset.Add(buttonSize)}
+	if len(p.world.cameras) == 1 {
+		p.screenButtons = newScreenButtonsNode(p.state.camera.Camera, buttonsPos)
+		p.screenButtons.Init(p.world.rootScene)
+		p.screenButtons.EventToggleButtonPressed.Connect(p, p.onToggleButtonClicked)
+		p.screenButtons.EventExitButtonPressed.Connect(p, p.onExitButtonClicked)
 	}
 
 	p.colonySelector = p.scene.NewSprite(assets.ImageColonyCoreSelector)
-	p.world.camera.AddSpriteBelow(p.colonySelector)
+	p.state.camera.Private.AddSpriteBelow(p.colonySelector)
 	p.flyingColonySelector = p.scene.NewSprite(assets.ImageColonyCoreSelector)
-	p.world.camera.AddSpriteSlightlyAbove(p.flyingColonySelector)
+	p.state.camera.Private.AddSpriteSlightlyAbove(p.flyingColonySelector)
 
 	p.selectNextColony(true)
-	p.world.camera.CenterOn(p.state.selectedColony.pos)
-
-	if p.world.config.FogOfWar && p.world.config.ExecMode != gamedata.ExecuteSimulation {
-		p.fogOfWar = ebiten.NewImage(int(p.world.width), int(p.world.height))
-		gedraw.DrawRect(p.fogOfWar, p.world.rect, color.RGBA{A: 255})
-		p.world.camera.SetFogOfWar(p.fogOfWar)
-
-		p.updateFogOfWar(p.state.selectedColony.pos)
-	}
+	p.state.camera.CenterOn(p.state.selectedColony.pos)
 
 	p.choiceGen.EventChoiceReady.Connect(p, p.choiceWindow.RevealChoices)
 	p.choiceGen.EventChoiceSelected.Connect(p, func(choice selectedChoice) {
@@ -123,15 +108,6 @@ func (p *humanPlayer) Update(delta float64) {
 	p.choiceWindow.Enabled = p.state.selectedColony != nil &&
 		p.state.selectedColony.mode == colonyModeNormal
 
-	if p.world.config.FogOfWar && p.world.config.ExecMode != gamedata.ExecuteSimulation {
-		for _, colony := range p.state.colonies {
-			if !colony.IsFlying() {
-				continue
-			}
-			p.updateFogOfWar(colony.spritePos)
-		}
-	}
-
 	if p.state.selectedColony != nil {
 		flying := p.state.selectedColony.IsFlying()
 		p.colonySelector.Visible = !flying
@@ -143,13 +119,17 @@ func (p *humanPlayer) HandleInput() {
 	selectedColony := p.state.selectedColony
 
 	if p.input.ActionIsJustPressed(controls.ActionToggleColony) {
-		p.onToggleButtonClicked()
+		p.onToggleButtonClicked(gsignal.Void{})
 		return
+	}
+
+	if p.input.ActionIsJustPressed(controls.ActionToggleInterface) {
+		p.state.camera.UI.Visible = !p.state.camera.UI.Visible
 	}
 
 	if selectedColony != nil && p.world.movementEnabled {
 		if pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice); ok {
-			globalClickPos := pos.Add(p.world.camera.Offset)
+			globalClickPos := p.state.camera.AbsPos(pos)
 			if globalClickPos.DistanceTo(selectedColony.pos) > 28 {
 				if !p.choiceGen.TryExecute(-1, globalClickPos) {
 					p.scene.Audio().PlaySound(assets.AudioError)
@@ -170,7 +150,7 @@ func (p *humanPlayer) HandleInput() {
 	clickPos, hasClick := p.cursor.ClickPos(controls.ActionClick)
 	if len(p.state.colonies) > 1 {
 		if hasClick {
-			clickPos := clickPos.Add(p.world.camera.Offset)
+			globalClickPos := p.state.camera.AbsPos(clickPos)
 			selectDist := 40.0
 			if p.world.deviceInfo.IsMobile {
 				selectDist = 80.0
@@ -181,7 +161,7 @@ func (p *humanPlayer) HandleInput() {
 				if colony == p.state.selectedColony {
 					continue
 				}
-				dist := colony.pos.DistanceTo(clickPos)
+				dist := colony.pos.DistanceTo(globalClickPos)
 				if dist > selectDist {
 					continue
 				}
@@ -199,13 +179,8 @@ func (p *humanPlayer) HandleInput() {
 	if handledClick {
 		return
 	}
-	// if p.exitButtonRect.Contains(clickPos) {
-	// 	p.onExitButtonClicked()
-	// 	return
-	// }
-	if p.toggleButtonRect.Contains(clickPos) {
-		p.onToggleButtonClicked()
-		return
+	if p.screenButtons != nil {
+		p.screenButtons.HandleInput(clickPos)
 	}
 }
 
@@ -264,9 +239,6 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	})
 	p.state.selectedColony.EventTeleported.Connect(p, func(colony *colonyCoreNode) {
 		p.state.camera.ToggleCamera(colony.pos)
-		if p.world.config.FogOfWar && p.world.config.ExecMode != gamedata.ExecuteSimulation {
-			p.updateFogOfWar(colony.pos)
-		}
 	})
 	if p.rpanel != nil {
 		p.state.selectedColony.EventPrioritiesChanged.Connect(p, func(_ *colonyCoreNode) {
@@ -277,17 +249,15 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.spritePos
 }
 
-func (p *humanPlayer) updateFogOfWar(pos gmath.Vec) {
-	var options ebiten.DrawImageOptions
-	options.CompositeMode = ebiten.CompositeModeDestinationOut
-	options.GeoM.Translate(pos.X-colonyVisionRadius, pos.Y-colonyVisionRadius)
-	p.fogOfWar.DrawImage(p.world.visionCircle, &options)
-}
-
 func (p *humanPlayer) onPanelUpdateRequested(gsignal.Void) {
+	// FIXME: is it unused?
 	p.rpanel.UpdateMetrics()
 }
 
-func (p *humanPlayer) onToggleButtonClicked() {
+func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {
+	p.EventExitPressed.Emit(gsignal.Void{})
+}
+
+func (p *humanPlayer) onToggleButtonClicked(gsignal.Void) {
 	p.selectNextColony(true)
 }

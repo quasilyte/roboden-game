@@ -58,9 +58,9 @@ type ReplayLevelConfig struct {
 
 	RawGameMode string `json:"mode"`
 
-	PlayersMode int `json:"players_mode"`
+	PlayersMode   int `json:"players_mode"`
+	InterfaceMode int `json:"ui_mode"`
 
-	ExtraUI     bool `json:"extra_ui"`
 	FogOfWar    bool `json:"fog_of_war"`
 	SuperCreeps bool `json:"super_creps"`
 

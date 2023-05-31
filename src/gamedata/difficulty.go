@@ -10,6 +10,9 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 
 	switch config.RawGameMode {
 	case "classic":
+		if config.InterfaceMode < 2 {
+			score += 5
+		}
 		if config.NumCreepBases != 0 {
 			score += (config.CreepDifficulty - 1) * 10
 			if config.SuperCreeps {
@@ -28,6 +31,9 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score += (config.InitialCreeps - 1) * 10
 		score -= config.StartingResources * 4
 	case "arena", "inf_arena":
+		if config.InterfaceMode == 0 {
+			score += 5
+		}
 		score += 10 - (config.Resources * 5)
 		score += (config.CreepDifficulty - 1) * 15
 		score += config.InitialCreeps * 5
@@ -37,9 +43,6 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 
 	score += 10 - (config.OilRegenRate * 5)
 
-	if !config.ExtraUI {
-		score += 5
-	}
 	if config.FogOfWar {
 		score += 5
 	}

@@ -73,7 +73,7 @@ func (b *beamNode) Init(scene *ge.Scene) {
 		c.SetColor(b.color)
 		b.line.SetColorScale(c)
 		b.line.Width = b.width
-		b.world.camera.AddGraphicsAbove(b.line)
+		b.world.stage.AddGraphicsAbove(b.line)
 	} else {
 		b.texLine = ge.NewTextureLine(scene.Context(), b.from, b.to)
 		b.texLine.SetTexture(b.texture)
@@ -81,7 +81,7 @@ func (b *beamNode) Init(scene *ge.Scene) {
 			b.texLine.Shader = scene.NewShader(assets.ShaderSlideX)
 			b.texLine.Shader.SetFloatValue("Time", 0)
 		}
-		b.world.camera.AddGraphicsAbove(b.texLine)
+		b.world.stage.AddGraphicsAbove(b.texLine)
 	}
 }
 

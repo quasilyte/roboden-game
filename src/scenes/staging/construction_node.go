@@ -101,7 +101,7 @@ func (c *constructionNode) Init(scene *ge.Scene) {
 		}
 		c.sprite.Shader.SetFloatValue("Time", 0)
 	}
-	c.world.camera.AddSpriteBelow(c.sprite)
+	c.world.stage.AddSpriteBelow(c.sprite)
 
 	c.maxBuildHeight = c.sprite.ImageHeight() * 0.9
 	c.initialBuildHeight = c.sprite.ImageHeight() * 0.45

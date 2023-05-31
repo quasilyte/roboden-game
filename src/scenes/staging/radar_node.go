@@ -12,7 +12,8 @@ type radarNode struct {
 	sprite *ge.Sprite
 	wave   *ge.Sprite
 
-	scene *ge.Scene
+	scene  *ge.Scene
+	player *humanPlayer
 
 	nearDist       float64
 	nearDistPixels float64
@@ -28,15 +29,13 @@ type radarNode struct {
 
 	world  *worldState
 	colony *colonyCoreNode
-
-	uiLayer *uiLayer
 }
 
-func newRadarNode(world *worldState, uiLayer *uiLayer) *radarNode {
+func newRadarNode(world *worldState, p *humanPlayer) *radarNode {
 	return &radarNode{
 		world:    world,
 		nearDist: 1536,
-		uiLayer:  uiLayer,
+		player:   p,
 	}
 }
 
@@ -56,14 +55,14 @@ func (r *radarNode) Init(scene *ge.Scene) {
 		X: 8 + r.sprite.ImageWidth()/2,
 		Y: 1080/2 - (8 + r.sprite.ImageHeight()/2),
 	}
-	r.uiLayer.AddGraphics(r.sprite)
+	r.player.state.camera.UI.AddGraphics(r.sprite)
 
 	r.radius = 55.0
 	r.diameter = r.radius * 2
 	r.nearDistPixels = r.radius - 1
 	r.scaleRatio = r.nearDistPixels / r.nearDist
 
-	r.pos = (gmath.Vec{X: 67, Y: 83}).Add(gmath.Vec{
+	r.pos = (gmath.Vec{X: 65, Y: 74}).Add(gmath.Vec{
 		X: 8,
 		Y: 1080/2 - r.sprite.ImageHeight() - 8,
 	})
@@ -71,20 +70,20 @@ func (r *radarNode) Init(scene *ge.Scene) {
 	r.wave = scene.NewSprite(assets.ImageRadarWave)
 	r.wave.Pos.Base = &r.pos
 	r.wave.Rotation = &r.direction
-	r.uiLayer.AddGraphics(r.wave)
+	r.player.state.camera.UI.AddGraphics(r.wave)
 
 	r.bossPath = ge.NewLine(ge.Pos{}, ge.Pos{})
 	var pathColor ge.ColorScale
 	pathColor.SetColor(ge.RGB(0x91234e))
 	r.bossPath.SetColorScale(pathColor)
 	r.bossPath.Visible = false
-	r.uiLayer.AddGraphics(r.bossPath)
+	r.player.state.camera.UI.AddGraphics(r.bossPath)
 
 	r.bossSpot = ge.NewSprite(scene.Context())
 	r.bossSpot.Pos.Base = &r.pos
 	r.bossSpot.Centered = false
 	r.bossSpot.Visible = false
-	r.uiLayer.AddGraphics(r.bossSpot)
+	r.player.state.camera.UI.AddGraphics(r.bossSpot)
 }
 
 func (r *radarNode) setBossVisibility(visible bool) {

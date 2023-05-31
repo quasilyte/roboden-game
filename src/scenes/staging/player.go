@@ -27,10 +27,9 @@ type playerState struct {
 	hasRoombas bool
 }
 
-func newPlayerState(camera *cameraManager) *playerState {
+func newPlayerState() *playerState {
 	pstate := &playerState{
 		colonies: make([]*colonyCoreNode, 0, 1),
-		camera:   camera,
 	}
 
 	return pstate

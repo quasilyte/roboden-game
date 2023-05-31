@@ -9,7 +9,7 @@ import (
 
 type builderLaserNode struct {
 	scene        *ge.Scene
-	camera       *viewport.Camera
+	stage        *viewport.CameraStage
 	pos          gmath.Vec
 	disposed     bool
 	arms         []*ge.Line
@@ -18,10 +18,10 @@ type builderLaserNode struct {
 	armMoveDelay float64
 }
 
-func newBuilderLaserNode(camera *viewport.Camera, pos gmath.Vec) *builderLaserNode {
+func newBuilderLaserNode(stage *viewport.CameraStage, pos gmath.Vec) *builderLaserNode {
 	return &builderLaserNode{
-		camera: camera,
-		pos:    pos,
+		stage: stage,
+		pos:   pos,
 	}
 }
 
@@ -58,7 +58,7 @@ func (laser *builderLaserNode) Init(scene *ge.Scene) {
 		var colorScale ge.ColorScale
 		colorScale.SetColor(builderBeamColor)
 		arm.SetColorScale(colorScale)
-		laser.camera.AddGraphics(arm)
+		laser.stage.AddGraphics(arm)
 		laser.arms[i] = arm
 	}
 }

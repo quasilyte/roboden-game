@@ -3,11 +3,13 @@ package staging
 import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type messageManager struct {
-	world   *worldState
-	uiLayer *uiLayer
+	world *worldState
+
+	cam *viewport.Camera
 
 	messageTimer     float64
 	messageTimeLimit float64
@@ -22,10 +24,10 @@ type queuedMessageInfo struct {
 	timer         float64
 }
 
-func newMessageManager(world *worldState, uiLayer *uiLayer) *messageManager {
+func newMessageManager(world *worldState, cam *viewport.Camera) *messageManager {
 	return &messageManager{
-		world:   world,
-		uiLayer: uiLayer,
+		world: world,
+		cam:   cam,
 	}
 }
 
@@ -64,9 +66,9 @@ func (m *messageManager) nextMessage() {
 	m.messageTimeLimit = info.timer
 	messagePos := gmath.Vec{X: 16, Y: 202}
 	if info.targetPos.Base != nil {
-		m.message = newWorldTutorialHintNode(m.world.camera, m.uiLayer, messagePos, info.targetPos, info.text)
+		m.message = newWorldTutorialHintNode(m.cam, messagePos, info.targetPos, info.text)
 	} else {
-		m.message = newScreenTutorialHintNode(m.world.camera, m.uiLayer, messagePos, info.targetPos.Offset, info.text)
+		m.message = newScreenTutorialHintNode(m.cam, messagePos, info.targetPos.Offset, info.text)
 	}
 	m.message.trackedObject = info.trackedObject
 	m.world.rootScene.AddObject(m.message)

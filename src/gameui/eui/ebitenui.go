@@ -9,6 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gameinput"
@@ -359,9 +360,10 @@ type SelectButtonConfig struct {
 	Input     gameinput.Handler
 	Scene     *ge.Scene // If press sound is needed
 
-	Value      *int
-	Label      string
-	ValueNames []string
+	Value          *int
+	Label          string
+	ValueNames     []string
+	DisabledValues []int
 
 	OnPressed func()
 	OnHover   func()
@@ -396,12 +398,18 @@ func NewSelectButton(config SelectButtonConfig) widget.PreferredSizeLocateableWi
 			}
 		}
 
-		if increase {
-			slider.Inc()
-		} else {
-			slider.Dec()
+		for {
+			if increase {
+				slider.Inc()
+			} else {
+				slider.Dec()
+			}
+			*value = slider.Value()
+			if !xslices.Contains(config.DisabledValues, *value) {
+				break
+			}
 		}
-		*value = slider.Value()
+
 		button.Text().Label = makeLabel()
 		if config.Scene != nil {
 			config.Scene.Audio().PlaySound(assets.AudioClick)

@@ -6,7 +6,6 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
-	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type essenceSourceStats struct {
@@ -124,8 +123,7 @@ var bigScrapCreepSource = &essenceSourceStats{
 type essenceSourceNode struct {
 	scene *ge.Scene
 
-	camera *viewport.Camera
-	world  *worldState
+	world *worldState
 
 	stats *essenceSourceStats
 
@@ -145,10 +143,9 @@ type essenceSourceNode struct {
 
 func newEssenceSourceNode(world *worldState, stats *essenceSourceStats, pos gmath.Vec) *essenceSourceNode {
 	return &essenceSourceNode{
-		camera: world.camera,
-		world:  world,
-		stats:  stats,
-		pos:    pos,
+		world: world,
+		stats: stats,
+		pos:   pos,
 	}
 }
 
@@ -163,7 +160,7 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 		e.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageEssenceSourceDissolveMask)
 		e.sprite.Shader.Enabled = false
 	}
-	e.camera.AddSpriteBelow(e.sprite)
+	e.world.stage.AddSpriteBelow(e.sprite)
 
 	if e.stats.canRotate {
 		e.rotation = scene.Rand().Rad()

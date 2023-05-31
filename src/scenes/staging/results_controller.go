@@ -234,7 +234,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "solobase":
 			unlocked = c.results.ColoniesBuilt == 0
 		case "uiless":
-			unlocked = !c.config.ExtraUI
+			unlocked = c.config.InterfaceMode == 0
 		case "powerof3":
 			unlocked = !c.results.YellowFactionUsed || !c.results.RedFactionUsed || !c.results.GreenFactionUsed || !c.results.BlueFactionUsed
 		case "tinyradius":

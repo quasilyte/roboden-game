@@ -309,7 +309,11 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 	)
 
 	{
-		b := c.newOptionButton(&c.config.PlayersMode, "menu.lobby.players."+c.config.RawGameMode, []string{
+		disabled := []int{}
+		if c.state.Device.IsMobile {
+			disabled = []int{3} // Two players are not available on mobiles
+		}
+		b := c.newOptionButtonWithDisabled(&c.config.PlayersMode, "menu.lobby.players."+c.config.RawGameMode, disabled, []string{
 			d.Get("menu.lobby.player_mode.single_player"),
 			d.Get("menu.lobby.player_mode.single_bot"),
 			d.Get("menu.lobby.player_mode.player_and_bot"),
@@ -320,9 +324,14 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 	}
 
 	{
-		b := c.newBoolOptionButton(&c.config.ExtraUI, "menu.lobby.ui_mode", []string{
-			d.Get("menu.lobby.ui_immersive"),
-			d.Get("menu.lobby.ui_informative"),
+		disabled := []int{}
+		if c.config.RawGameMode == "arena" || c.config.RawGameMode == "inf_arena" {
+			disabled = []int{1}
+		}
+		b := c.newOptionButtonWithDisabled(&c.config.InterfaceMode, "menu.lobby.ui_mode", disabled, []string{
+			d.Get("menu.lobby.ui_minimal"),
+			d.Get("menu.lobby.ui_radar"),
+			d.Get("menu.lobby.ui_full"),
 		})
 		tab.AddChild(b)
 	}
@@ -471,14 +480,15 @@ func (c *LobbyMenuController) newBoolOptionButton(value *bool, key string, value
 	})
 }
 
-func (c *LobbyMenuController) newOptionButton(value *int, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
+func (c *LobbyMenuController) newOptionButtonWithDisabled(value *int, key string, disabled []int, valueNames []string) widget.PreferredSizeLocateableWidget {
 	return eui.NewSelectButton(eui.SelectButtonConfig{
-		Scene:      c.scene,
-		Resources:  c.state.Resources.UI,
-		Input:      c.state.MainInput,
-		Value:      value,
-		Label:      c.scene.Dict().Get(key),
-		ValueNames: valueNames,
+		Scene:          c.scene,
+		Resources:      c.state.Resources.UI,
+		Input:          c.state.MainInput,
+		Value:          value,
+		DisabledValues: disabled,
+		Label:          c.scene.Dict().Get(key),
+		ValueNames:     valueNames,
 		OnPressed: func() {
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		},
@@ -486,6 +496,10 @@ func (c *LobbyMenuController) newOptionButton(value *int, key string, valueNames
 			c.setHelpText(c.optionDescriptionText(key))
 		},
 	})
+}
+
+func (c *LobbyMenuController) newOptionButton(value *int, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
+	return c.newOptionButtonWithDisabled(value, key, nil, valueNames)
 }
 
 func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget.TabBookTab {

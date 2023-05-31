@@ -41,7 +41,7 @@ func (n *servantSpawnerNode) Init(scene *ge.Scene) {
 	}
 	n.sprite.Rotation = &n.rotation
 	n.sprite.Pos.Base = &n.pos
-	n.world.camera.AddGraphics(n.sprite)
+	n.world.stage.AddGraphics(n.sprite)
 }
 
 func (n *servantSpawnerNode) spawn() {

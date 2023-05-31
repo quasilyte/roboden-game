@@ -247,8 +247,9 @@ Survive for longer to get higher scores.
 ##menu.lobby.land_normal : balanced
 ##menu.lobby.land_mountains : mountain-heavy
 
-##menu.lobby.ui_immersive : minimal
-##menu.lobby.ui_informative : informative
+##menu.lobby.ui_minimal : minimal
+##menu.lobby.ui_radar : radar-only
+##menu.lobby.ui_full : full
 
 ##menu.lobby.tab.colony : Colony
 ##menu.lobby.tab.world : World
@@ -293,6 +294,7 @@ Select colony | Right stick click on the colony or L1 to switch between colonies
 Action card select | Right stick click on the card or Y, B, A, X and R1 buttons
 Pause | START toggles the pause
 Toggle evolution sheet | R2 button
+Toggle user interface | L2 button
 Exit/Back | BACK or SELECT button
 
 ##menu.overview.classic

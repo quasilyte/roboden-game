@@ -10,11 +10,14 @@ todo engine:
 - add LoadGameDataRaw
 
 computers and multi-players:
-- per-player uilayer
+- implement defeat condition again
+- "two bots" mode camera should be centered to the map
+- make turrets repairable for everyone
+- check whether recipe tab fits in split screen mode (spoiler: it does not)
+- fix tutorial
+- fix arena
 - fix exit button and its notification
-- fix simulation replay (it has a panic stub right now)
-- BUG sometimes damage highlight stays
-- don't show "colony under attack" in demo
+- BUG sometimes damage highlight stays (for colony only?)
 - manual camera in replay mode
 - update mode intro texts, add inf arena intro text
 - cinematic camera should prioritize boss events before choosing a random player

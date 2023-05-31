@@ -2,6 +2,7 @@ package staging
 
 import (
 	"fmt"
+	"image/color"
 	"math"
 	"os"
 	"runtime/pprof"
@@ -10,6 +11,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/gedraw"
+	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 
@@ -33,25 +36,25 @@ type Controller struct {
 	world  *worldState
 	config gamedata.LevelConfig
 
-	uiLayer *uiLayer
+	fogOfWar *ebiten.Image
 
 	musicPlayer *musicPlayer
 
-	exitNotice        *messageNode
+	exitNotices       []*messageNode
 	transitionQueued  bool
 	gameFinished      bool
 	victoryCheckDelay float64
 
-	camera *cameraManager
+	screenSeparator *ge.Line
+	camera          *cameraManager
+	secondCamera    *cameraManager
 
-	tutorialManager *tutorialManager
-	messageManager  *messageManager
+	// tutorialManager *tutorialManager
+	messageManagers []*messageManager
 	recipeTab       *recipeTabNode
 
 	arenaManager *arenaManager
 	nodeRunner   *nodeRunner
-
-	cursor *gameui.CursorNode
 
 	debugInfo        *ge.Label
 	debugUpdateDelay float64
@@ -62,10 +65,16 @@ type Controller struct {
 }
 
 func NewController(state *session.State, config gamedata.LevelConfig, back ge.SceneController) *Controller {
+	numScreens := 1
+	if config.PlayersMode == serverapi.PmodeTwoPlayers {
+		numScreens = 2
+	}
 	return &Controller{
-		state:          state,
-		backController: back,
-		config:         config,
+		state:           state,
+		backController:  back,
+		config:          config,
+		exitNotices:     make([]*messageNode, 0, numScreens),
+		messageManagers: make([]*messageManager, 0, numScreens),
 	}
 }
 
@@ -124,6 +133,7 @@ func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
 		numRepairs := 0
 		numRoombaMerges := 0
 		numAttacking := 0
+		numCloning := 0
 		colony.agents.Each(func(a *colonyAgentNode) {
 			if a.mode == agentModeMerging {
 				numMerges++
@@ -138,6 +148,8 @@ func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
 				numSuperElites++
 			}
 			switch a.mode {
+			case agentModeMakeClone:
+				numCloning++
 			case agentModeKamikazeAttack, agentModeConsumeDrone, agentModeCloakHide, agentModeCourierFlight:
 				numSpectacular++
 			case agentModeRepairBase, agentModeRepairTurret:
@@ -147,6 +159,9 @@ func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
 			}
 		})
 		if numAttacking >= 4 {
+			return colony.pos, true
+		}
+		if numCloning >= 2 {
 			return colony.pos, true
 		}
 		if numRoombaMerges >= 1 {
@@ -258,8 +273,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.musicPlayer = newMusicPlayer(scene)
 	c.musicPlayer.Start()
 
-	c.uiLayer = newUILayer()
-
 	if c.state.CPUProfile != "" {
 		f, err := os.Create(c.state.CPUProfile)
 		if err != nil {
@@ -312,7 +325,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	world := &worldState{
-		uiLayer:          c.uiLayer,
+		cameras:          make([]*viewport.Camera, 0, 2),
+		stage:            viewport.NewCameraStage(c.config.ExecMode == gamedata.ExecuteSimulation),
 		rootScene:        scene,
 		nodeRunner:       c.nodeRunner,
 		graphicsSettings: c.state.Persistent.Settings.Graphics,
@@ -349,6 +363,13 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.world = world
 	world.Init()
 
+	if c.config.FogOfWar {
+		fogOfWar := ebiten.NewImage(int(world.width), int(world.height))
+		gedraw.DrawRect(fogOfWar, world.rect, color.RGBA{A: 255})
+		c.world.stage.SetFogOfWar(fogOfWar)
+		c.fogOfWar = fogOfWar
+	}
+
 	// Background generation is an expensive operation.
 	// Don't do it inside simulation (headless) mode.
 	var bg *ge.TiledBackground
@@ -358,18 +379,9 @@ func (c *Controller) Init(scene *ge.Scene) {
 		bg = ge.NewTiledBackground(scene.Context())
 		bg.LoadTilesetWithRand(scene.Context(), &localRand, viewportWorld.Width, viewportWorld.Height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
 	}
-	{
-		cam := viewport.NewCamera(viewportWorld, c.config.ExecMode == gamedata.ExecuteSimulation, 1920/2, 1080/2)
-		cam.SetBackground(bg)
-		c.camera = newCameraManager(c.world, cam)
-		if c.config.ExecMode == gamedata.ExecuteDemo || c.config.ExecMode == gamedata.ExecuteReplay {
-			c.camera.InitCinematicMode()
-			c.camera.camera.CenterOn(c.world.rect.Center())
-		} else {
-			c.camera.InitManualMode(c.state.MainInput)
-		}
-	}
-	c.world.camera = c.camera.camera // FIXME
+	c.world.stage.SetBackground(bg)
+
+	c.camera = c.createCameraManager(viewportWorld, true)
 	if c.config.ExecMode == gamedata.ExecuteReplay {
 		c.CenterDemoCamera(c.world.rect.Center())
 	}
@@ -378,26 +390,33 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.nodeRunner.creepCoordinator = world.creepCoordinator
 
-	c.messageManager = newMessageManager(c.world, c.uiLayer)
-
 	c.world.EventColonyCreated.Connect(c, func(colony *colonyCoreNode) {
-		colony.EventUnderAttack.Connect(c, func(colony *colonyCoreNode) {
-			center := c.camera.camera.Offset.Add(c.camera.camera.Rect.Center())
-			if center.DistanceTo(colony.pos) < 250 {
-				return
-			}
-			c.messageManager.AddMessage(queuedMessageInfo{
-				text:          scene.Dict().Get("game.notice.base_under_attack"),
-				trackedObject: colony,
-				timer:         5,
-				targetPos:     ge.Pos{Base: colony.GetPos()},
+		if c.fogOfWar != nil {
+			colony.EventTeleported.Connect(c, func(colony *colonyCoreNode) {
+				c.updateFogOfWar(colony.pos)
 			})
-		})
+		}
+
+		if c.config.ExecMode == gamedata.ExecuteNormal {
+			colony.EventUnderAttack.Connect(c, func(colony *colonyCoreNode) {
+				cam := colony.player.GetState().camera
+				center := cam.AbsPos(cam.Rect.Center())
+				if center.DistanceTo(colony.pos) < 250 {
+					return
+				}
+				c.messageManagers[colony.player.GetState().id].AddMessage(queuedMessageInfo{
+					text:          scene.Dict().Get("game.notice.base_under_attack"),
+					trackedObject: colony,
+					timer:         5,
+					targetPos:     ge.Pos{Base: colony.GetPos()},
+				})
+			})
+		}
 	})
 
 	switch c.config.GameMode {
 	case gamedata.ModeArena, gamedata.ModeInfArena:
-		c.arenaManager = newArenaManager(world, c.uiLayer)
+		c.arenaManager = newArenaManager(world)
 		c.nodeRunner.AddObject(c.arenaManager)
 		c.arenaManager.EventVictory.Connect(c, c.onVictoryTrigger)
 	case gamedata.ModeClassic:
@@ -406,9 +425,11 @@ func (c *Controller) Init(scene *ge.Scene) {
 		// TODO: victory trigger should go to the classic manager
 	}
 
-	c.cursor = gameui.NewCursorNode(c.state.MainInput, c.camera.camera.Rect)
-
 	c.createPlayers()
+
+	for _, cam := range c.world.cameras {
+		c.messageManagers = append(c.messageManagers, newMessageManager(c.world, cam))
+	}
 
 	{
 		g := newLevelGenerator(scene, bg, c.world)
@@ -419,12 +440,9 @@ func (c *Controller) Init(scene *ge.Scene) {
 		p.Init()
 	}
 
-	scene.AddGraphics(c.camera.camera)
-
-	// if c.config.ExtraUI {
-	// 	c.rpanel = newRpanelNode(c.world, c.uiLayer)
-	// 	scene.AddObject(c.rpanel)
-	// }
+	for _, cam := range c.world.cameras {
+		scene.AddGraphics(cam)
+	}
 
 	// if c.world.IsTutorial() {
 	// 	c.tutorialManager = newTutorialManager(c.state.MainInput, c.world, c.uiLayer, c.messageManager)
@@ -436,13 +454,15 @@ func (c *Controller) Init(scene *ge.Scene) {
 	// }
 
 	if c.state.Persistent.Settings.ShowFPS || c.state.Persistent.Settings.ShowTimer {
-		c.debugInfo = scene.NewLabel(assets.FontSmall)
-		c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
-		c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
-		c.uiLayer.AddGraphics(c.debugInfo)
+		if len(c.world.cameras) != 0 {
+			c.debugInfo = scene.NewLabel(assets.FontSmall)
+			c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
+			c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
+			c.world.cameras[0].UI.AddGraphics(c.debugInfo)
+		}
 	}
 
-	c.camera.camera.SortBelowLayer()
+	c.world.stage.SortBelowLayer()
 
 	// {
 	// 	cols, rows := c.world.pathgrid.Size()
@@ -479,16 +499,64 @@ func (c *Controller) Init(scene *ge.Scene) {
 	// 	})
 	// }
 
-	{
+	if len(c.world.cameras) != 0 {
 		c.recipeTab = newRecipeTabNode(c.world)
 		c.recipeTab.Visible = false
-		c.uiLayer.AddGraphics(c.recipeTab)
+		c.world.cameras[0].UI.AddGraphics(c.recipeTab)
 		scene.AddObject(c.recipeTab)
 	}
 
-	scene.AddGraphics(c.uiLayer)
+	if len(c.world.cameras) == 2 {
+		begin := ge.Pos{Offset: gmath.Vec{X: 1920 / 4}}
+		end := ge.Pos{Offset: gmath.Vec{X: 1920 / 4, Y: 1080}}
+		c.screenSeparator = ge.NewLine(begin, end)
+		c.screenSeparator.SetColorScaleRGBA(0xa1, 0x9a, 0x9e, 255)
+		scene.AddGraphics(c.screenSeparator)
+	}
 
-	scene.AddObject(c.cursor)
+	if c.fogOfWar != nil {
+		for _, colony := range c.world.allColonies {
+			c.updateFogOfWar(colony.pos)
+		}
+	}
+}
+
+func (c *Controller) updateFogOfWar(pos gmath.Vec) {
+	var options ebiten.DrawImageOptions
+	options.CompositeMode = ebiten.CompositeModeDestinationOut
+	options.GeoM.Translate(pos.X-colonyVisionRadius, pos.Y-colonyVisionRadius)
+	c.fogOfWar.DrawImage(c.world.visionCircle, &options)
+}
+
+func (c *Controller) createCameraManager(viewportWorld *viewport.World, main bool) *cameraManager {
+	cam := c.createCamera(viewportWorld)
+	if !main {
+		cam.ScreenPos.X = (1920.0 / 2 / 2)
+	}
+	cm := newCameraManager(c.world, cam)
+	if c.config.ExecMode == gamedata.ExecuteDemo || c.config.ExecMode == gamedata.ExecuteReplay {
+		cm.InitCinematicMode()
+		cm.CenterOn(c.world.rect.Center())
+	} else {
+		if main {
+			cm.InitManualMode(c.state.MainInput)
+		} else {
+			cm.InitManualMode(c.state.SecondInput)
+		}
+	}
+	c.world.cameras = append(c.world.cameras, cam)
+	return cm
+}
+
+func (c *Controller) createCamera(viewportWorld *viewport.World) *viewport.Camera {
+	// FIXME: hardcoded screen size.
+	width := 1920.0 / 2
+	height := 1080.0 / 2
+	if c.config.PlayersMode == serverapi.PmodeTwoPlayers {
+		width /= 2
+	}
+	cam := viewport.NewCamera(viewportWorld, c.world.stage, width, height)
+	return cam
 }
 
 func (c *Controller) createPlayers() {
@@ -498,7 +566,7 @@ func (c *Controller) createPlayers() {
 	for i, pk := range c.config.Players {
 		choiceGen := newChoiceGenerator(c.world)
 		choiceGen.EventChoiceSelected.Connect(c, c.onChoiceSelected)
-		pstate := newPlayerState(c.camera)
+		pstate := newPlayerState()
 		pstate.id = i
 
 		var p player
@@ -508,7 +576,29 @@ func (c *Controller) createPlayers() {
 				p = newReplayPlayer(c.world, pstate, choiceGen)
 				pstate.replay = c.replayActions[i]
 			} else {
-				p = newHumanPlayer(c.world, pstate, c.state.MainInput, c.cursor, choiceGen)
+				playerInput := c.state.MainInput
+				pstate.camera = c.camera
+				if i != 0 {
+					c.secondCamera = c.createCameraManager(c.camera.World, false)
+					pstate.camera = c.secondCamera
+					playerInput = c.state.SecondInput
+				}
+				cursorRect := pstate.camera.Rect
+				cursorRect.Min = cursorRect.Min.Add(pstate.camera.ScreenPos)
+				cursorRect.Max = cursorRect.Max.Add(pstate.camera.ScreenPos)
+				cursor := gameui.NewCursorNode(playerInput, cursorRect)
+				human := newHumanPlayer(humanPlayerConfig{
+					world:     c.world,
+					state:     pstate,
+					input:     playerInput,
+					cursor:    cursor,
+					choiceGen: choiceGen,
+				})
+				human.EventExitPressed.Connect(c, func(arg gsignal.Void) {
+					c.onExitButtonClicked()
+				})
+				p = human
+				c.scene.AddObject(cursor)
 			}
 		case gamedata.PlayerComputer:
 			p = newComputerPlayer(c.world, pstate, choiceGen)
@@ -527,19 +617,26 @@ func (c *Controller) onVictoryTrigger(gsignal.Void) {
 }
 
 func (c *Controller) onExitButtonClicked() {
-	if c.exitNotice != nil {
+	if len(c.exitNotices) != 0 {
 		c.leaveScene(c.backController)
+		return
+	}
+	if c.transitionQueued {
 		return
 	}
 
 	d := c.scene.Dict()
-	c.uiLayer.Visible = true
-	c.nodeRunner.SetPaused(true)
-	c.exitNotice = newScreenTutorialHintNode(c.camera.camera, c.uiLayer, gmath.Vec{}, gmath.Vec{}, d.Get("game.exit.notice", c.world.inputMode))
-	c.scene.AddObject(c.exitNotice)
-	noticeSize := gmath.Vec{X: c.exitNotice.width, Y: c.exitNotice.height}
-	noticeCenterPos := c.camera.camera.Rect.Center().Sub(noticeSize.Mulf(0.5))
-	c.exitNotice.SetPos(noticeCenterPos)
+	for _, cam := range c.world.cameras {
+		cam.UI.Visible = true
+		c.nodeRunner.SetPaused(true)
+		exitNotice := newScreenTutorialHintNode(cam, gmath.Vec{}, gmath.Vec{}, d.Get("game.exit.notice", c.world.inputMode))
+		c.exitNotices = append(c.exitNotices, exitNotice)
+		c.scene.AddObject(exitNotice)
+		noticeSize := gmath.Vec{X: exitNotice.width, Y: exitNotice.height}
+		noticeCenterPos := cam.Rect.Center().Sub(noticeSize.Mulf(0.5))
+		exitNotice.SetPos(noticeCenterPos)
+	}
+
 }
 
 func (c *Controller) executeAction(choice selectedChoice) bool {
@@ -652,9 +749,9 @@ func (c *Controller) playPlayerSound(p player, sound resource.AudioID) {
 }
 
 func (c *Controller) onChoiceSelected(choice selectedChoice) {
-	if c.tutorialManager != nil {
-		c.tutorialManager.OnChoice(choice)
-	}
+	// if c.tutorialManager != nil {
+	// 	c.tutorialManager.OnChoice(choice)
+	// }
 
 	if c.executeAction(choice) {
 		c.playPlayerSound(choice.Player, assets.AudioChoiceMade)
@@ -813,6 +910,18 @@ func (c *Controller) handleReplayActions() {
 	}
 }
 
+func (c *Controller) sharedActionIsJustPressed(a input.Action) bool {
+	if c.state.MainInput.ActionIsJustPressed(a) {
+		return true
+	}
+	if c.world.config.PlayersMode == serverapi.PmodeTwoPlayers {
+		if c.state.SecondInput.ActionIsJustPressed(a) {
+			return true
+		}
+	}
+	return false
+}
+
 func (c *Controller) handleInput() {
 	mainInput := c.state.MainInput
 
@@ -825,8 +934,9 @@ func (c *Controller) handleInput() {
 		return
 	}
 
-	if mainInput.ActionIsJustPressed(controls.ActionToggleInterface) {
-		c.uiLayer.Visible = !c.uiLayer.Visible
+	if c.sharedActionIsJustPressed(controls.ActionPause) {
+		c.onPausePressed()
+		return
 	}
 
 	if mainInput.ActionIsJustPressed(controls.ActionShowRecipes) {
@@ -837,17 +947,15 @@ func (c *Controller) handleInput() {
 		c.world.result.OpenedEvolutionTab = true
 	}
 
-	if mainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.sharedActionIsJustPressed(controls.ActionBack) {
 		c.onExitButtonClicked()
 		return
 	}
 
-	if mainInput.ActionIsJustPressed(controls.ActionPause) {
-		c.nodeRunner.SetPaused(!c.nodeRunner.IsPaused())
-		return
-	}
-
 	c.camera.HandleInput()
+	if c.secondCamera != nil {
+		c.secondCamera.HandleInput()
+	}
 
 	for _, p := range c.world.players {
 		p.HandleInput()
@@ -899,34 +1007,48 @@ func (c *Controller) checkVictory() {
 	}
 }
 
+func (c *Controller) onPausePressed() {
+	if len(c.exitNotices) != 0 {
+		c.nodeRunner.SetPaused(false)
+		for _, n := range c.exitNotices {
+			n.Dispose()
+		}
+		c.exitNotices = c.exitNotices[:0]
+		return
+	}
+	c.nodeRunner.SetPaused(!c.nodeRunner.IsPaused())
+}
+
 func (c *Controller) Update(delta float64) {
 	computedDelta := c.nodeRunner.ComputeDelta(delta)
 
+	c.world.stage.Update()
 	c.camera.Update(delta)
+	if c.secondCamera != nil {
+		c.secondCamera.Update(delta)
+	}
+	for _, mm := range c.messageManagers {
+		mm.Update(delta)
+	}
 	c.musicPlayer.Update(delta)
-	c.messageManager.Update(delta)
 	c.nodeRunner.Update(computedDelta)
 
-	// if c.exitNotice != nil {
-	// 	if c.state.MainInput.ActionIsJustPressed(controls.ActionPause) {
-	// 		c.nodeRunner.SetPaused(false)
-	// 		c.exitNotice.Dispose()
-	// 		c.exitNotice = nil
-	// 	}
-	// 	clickPos, hasClick := c.cursor.ClickPos(controls.ActionClick)
-	// 	exitPressed := (hasClick && c.exitButtonRect.Contains(clickPos)) ||
-	// 		c.state.MainInput.ActionIsJustPressed(controls.ActionBack)
-	// 	if exitPressed {
-	// 		c.onExitButtonClicked()
-	// 	}
-	// 	return
-	// }
+	if !c.nodeRunner.IsPaused() {
+		if c.fogOfWar != nil {
+			for _, colony := range c.world.allColonies {
+				if !colony.IsFlying() {
+					continue
+				}
+				c.updateFogOfWar(colony.pos)
+			}
+		}
 
-	if !c.transitionQueued && !c.nodeRunner.IsPaused() {
-		c.victoryCheckDelay = gmath.ClampMin(c.victoryCheckDelay-delta, 0)
-		if c.victoryCheckDelay == 0 {
-			c.victoryCheckDelay = c.scene.Rand().FloatRange(2.0, 3.5)
-			c.checkVictory()
+		if !c.transitionQueued {
+			c.victoryCheckDelay = gmath.ClampMin(c.victoryCheckDelay-delta, 0)
+			if c.victoryCheckDelay == 0 {
+				c.victoryCheckDelay = c.scene.Rand().FloatRange(2.0, 3.5)
+				c.checkVictory()
+			}
 		}
 	}
 

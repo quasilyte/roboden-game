@@ -30,7 +30,8 @@ type State struct {
 
 	Device userdevice.Info
 
-	MainInput gameinput.Handler
+	MainInput   gameinput.Handler
+	SecondInput gameinput.Handler
 
 	LevelConfig         *gamedata.LevelConfig
 	ArenaLevelConfig    *gamedata.LevelConfig

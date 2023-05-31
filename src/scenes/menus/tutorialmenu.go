@@ -116,7 +116,7 @@ func (c *TutorialMenuController) initUI() {
 		c.config.Resources = tutorial.Resources
 		c.config.StartingResources = 0
 		c.config.Teleporters = 0
-		c.config.ExtraUI = true
+		c.config.InterfaceMode = 2
 		c.config.InitialCreeps = tutorial.InitialCreeps
 		c.config.EliteResources = tutorial.RedCrystals
 		c.config.AttackActionAvailable = tutorial.CanAttack

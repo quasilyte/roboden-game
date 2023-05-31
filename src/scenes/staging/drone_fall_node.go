@@ -40,12 +40,12 @@ func (d *droneFallNode) Init(scene *ge.Scene) {
 	d.sprite.Pos.Base = &d.pos
 	d.sprite.Rotation = &d.rotation
 	d.sprite.FrameOffset.Y = d.FrameOffsetY
-	d.world.camera.AddSprite(d.sprite)
+	d.world.stage.AddSprite(d.sprite)
 
 	if d.world.graphicsSettings.ShadowsEnabled {
 		d.shadow = scene.NewSprite(d.shadowImage)
 		d.shadow.Pos.Base = &d.pos
-		d.world.camera.AddSpriteBelow(d.shadow)
+		d.world.stage.AddSpriteBelow(d.shadow)
 	}
 
 	d.height -= 4

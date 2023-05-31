@@ -14,104 +14,96 @@ type World struct {
 }
 
 type cameraObject interface {
-	ge.SceneGraphics
+	DrawWithOffset(dst *ebiten.Image, offset gmath.Vec)
+	IsDisposed() bool
 	BoundsRect() gmath.Rect
 }
 
-type Camera struct {
-	World *World
-
-	Offset gmath.Vec
-
-	Rect       gmath.Rect
-	globalRect gmath.Rect
-
-	bg                   *ge.TiledBackground
-	fogOfWar             *ebiten.Image
+type LayerContainer struct {
 	belowObjects         layer
 	objects              layer
 	slightlyAboveObjects layer
 	aboveObjects         layer
 
-	screen *ebiten.Image
-
-	disposed bool
 	headless bool
 }
 
-func NewCamera(w *World, headless bool, width, height float64) *Camera {
-	c := &Camera{
-		World: w,
-		Rect: gmath.Rect{
-			Min: gmath.Vec{},
-			Max: gmath.Vec{X: width, Y: height},
-		},
-		headless: headless,
-	}
-	if !headless {
-		c.screen = ebiten.NewImage(int(w.Width), int(w.Height))
-	}
-	return c
-}
-
-func (c *Camera) Dispose() {
-	c.disposed = true
-}
-
-func (c *Camera) IsDisposed() bool {
-	return c.disposed
-}
-
-func (c *Camera) AddSprite(s *ge.Sprite) {
+func (c *LayerContainer) AddSprite(s *ge.Sprite) {
 	if c.headless {
 		return
 	}
 	c.objects.AddSprite(s)
 }
 
-func (c *Camera) AddGraphics(o cameraObject) {
+func (c *LayerContainer) AddGraphics(o cameraObject) {
 	if c.headless {
 		return
 	}
 	c.objects.Add(o)
 }
 
-func (c *Camera) AddSpriteSlightlyAbove(s *ge.Sprite) {
+func (c *LayerContainer) AddSpriteSlightlyAbove(s *ge.Sprite) {
 	if c.headless {
 		return
 	}
 	c.slightlyAboveObjects.AddSprite(s)
 }
 
-func (c *Camera) AddSpriteAbove(s *ge.Sprite) {
+func (c *LayerContainer) AddSpriteAbove(s *ge.Sprite) {
 	if c.headless {
 		return
 	}
 	c.aboveObjects.AddSprite(s)
 }
 
-func (c *Camera) AddGraphicsSlightlyAbove(o cameraObject) {
+func (c *LayerContainer) AddGraphicsSlightlyAbove(o cameraObject) {
 	if c.headless {
 		return
 	}
 	c.slightlyAboveObjects.Add(o)
 }
 
-func (c *Camera) AddGraphicsAbove(o cameraObject) {
+func (c *LayerContainer) AddGraphicsAbove(o cameraObject) {
 	if c.headless {
 		return
 	}
 	c.aboveObjects.Add(o)
 }
 
-func (c *Camera) AddSpriteBelow(s *ge.Sprite) {
+func (c *LayerContainer) AddSpriteBelow(s *ge.Sprite) {
 	if c.headless {
 		return
 	}
 	c.belowObjects.AddSprite(s)
 }
 
-func (c *Camera) SortBelowLayer() {
+type CameraStage struct {
+	LayerContainer
+
+	bg       *ge.TiledBackground
+	fogOfWar *ebiten.Image
+}
+
+func (c *CameraStage) Update() {
+	if c.headless {
+		return
+	}
+
+	c.belowObjects.filter()
+	c.objects.filter()
+	c.slightlyAboveObjects.filter()
+	c.aboveObjects.filter()
+}
+
+func (c *CameraStage) SetFogOfWar(img *ebiten.Image) {
+	c.fogOfWar = img
+}
+
+func (c *CameraStage) SetBackground(bg *ge.TiledBackground) {
+	c.bg = bg
+}
+
+func (c *CameraStage) SortBelowLayer() {
 	if c.headless {
 		return
 	}
@@ -125,39 +117,113 @@ func (c *Camera) SortBelowLayer() {
 	})
 }
 
-func (c *Camera) SetFogOfWar(img *ebiten.Image) {
-	c.fogOfWar = img
+type Camera struct {
+	World *World
+
+	stage *CameraStage
+
+	Offset    gmath.Vec
+	ScreenPos gmath.Vec
+
+	Rect       gmath.Rect
+	globalRect gmath.Rect
+
+	// A layer that is always on top of everything else.
+	// It's also position-independent.
+	UI *UserInterfaceLayer
+
+	// Objects that are only rendered for this player.
+	Private LayerContainer
+
+	screen *ebiten.Image
+
+	disposed bool
 }
 
-func (c *Camera) SetBackground(bg *ge.TiledBackground) {
-	c.bg = bg
+type UserInterfaceLayer struct {
+	belowObjects []ge.SceneGraphics
+	objects      []ge.SceneGraphics
+	aboveObjects []ge.SceneGraphics
+
+	Visible bool
 }
 
-func (c *Camera) drawLayer(screen *ebiten.Image, l *layer) {
-	liveSprites := l.sprites[:0]
-	for _, s := range l.sprites {
-		if s.IsDisposed() {
-			continue
-		}
-		if c.isVisible(s.BoundsRect()) {
-			s.Draw(screen)
-		}
-		liveSprites = append(liveSprites, s)
+func (l *UserInterfaceLayer) AddGraphicsBelow(o ge.SceneGraphics) {
+	if l.belowObjects == nil {
+		return
 	}
-	l.sprites = liveSprites
+	l.belowObjects = append(l.belowObjects, o)
+}
+
+func (l *UserInterfaceLayer) AddGraphics(o ge.SceneGraphics) {
+	if l.objects == nil {
+		return
+	}
+	l.objects = append(l.objects, o)
+}
+
+func (l *UserInterfaceLayer) AddGraphicsAbove(o ge.SceneGraphics) {
+	if l.aboveObjects == nil {
+		return
+	}
+	l.aboveObjects = append(l.aboveObjects, o)
+}
+
+func NewCameraStage(headless bool) *CameraStage {
+	stage := &CameraStage{}
+	stage.headless = headless
+	return stage
+}
+
+func NewCamera(w *World, stage *CameraStage, width, height float64) *Camera {
+	c := &Camera{
+		World: w,
+		Rect: gmath.Rect{
+			Min: gmath.Vec{},
+			Max: gmath.Vec{X: width, Y: height},
+		},
+		stage: stage,
+	}
+	c.Private.headless = stage.headless
+	if !stage.headless {
+		c.UI = &UserInterfaceLayer{
+			belowObjects: make([]ge.SceneGraphics, 0, 4),
+			objects:      make([]ge.SceneGraphics, 0, 4),
+			aboveObjects: make([]ge.SceneGraphics, 0, 4),
+			Visible:      true,
+		}
+	}
+	if !stage.headless {
+		c.screen = ebiten.NewImage(int(width), int(height))
+	}
+	return c
+}
+
+func (c *Camera) Dispose() {
+	c.disposed = true
+}
+
+func (c *Camera) AbsPos(relativePos gmath.Vec) gmath.Vec {
+	return relativePos.Add(c.Offset).Sub(c.ScreenPos)
+}
+
+func (c *Camera) IsDisposed() bool {
+	return c.disposed
+}
+
+func (c *Camera) drawLayer(screen *ebiten.Image, l *layer, drawOffset gmath.Vec) {
+	for _, s := range l.sprites {
+		if c.isVisible(s.BoundsRect()) {
+			s.DrawWithOffset(screen, drawOffset)
+		}
+	}
 
 	if len(l.objects) != 0 {
-		liveObjects := l.objects[:0]
 		for _, o := range l.objects {
-			if o.IsDisposed() {
-				continue
-			}
 			if c.isVisible(o.BoundsRect()) {
-				o.Draw(screen)
+				o.DrawWithOffset(screen, drawOffset)
 			}
-			liveObjects = append(liveObjects, o)
 		}
-		l.objects = liveObjects
 	}
 }
 
@@ -219,19 +285,38 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 	c.globalRect.Min = c.Offset
 	c.globalRect.Max = c.globalRect.Max.Add(c.Offset)
 
+	c.Private.belowObjects.filter()
+	c.Private.objects.filter()
+	c.Private.slightlyAboveObjects.filter()
+	c.Private.aboveObjects.filter()
+
 	c.screen.Clear()
-	c.bg.DrawPartial(c.screen, c.globalRect)
-	c.drawLayer(c.screen, &c.belowObjects)
-	c.drawLayer(c.screen, &c.objects)
-	c.drawLayer(c.screen, &c.slightlyAboveObjects)
-	c.drawLayer(c.screen, &c.aboveObjects)
-	if c.fogOfWar != nil {
+	drawOffset := gmath.Vec{
+		X: -c.Offset.X,
+		Y: -c.Offset.Y,
+	}
+	c.stage.bg.DrawPartialWithOffset(c.screen, c.globalRect, drawOffset)
+	c.drawLayer(c.screen, &c.stage.belowObjects, drawOffset)
+	c.drawLayer(c.screen, &c.Private.belowObjects, drawOffset)
+	c.drawLayer(c.screen, &c.stage.objects, drawOffset)
+	c.drawLayer(c.screen, &c.Private.objects, drawOffset)
+	c.drawLayer(c.screen, &c.stage.slightlyAboveObjects, drawOffset)
+	c.drawLayer(c.screen, &c.Private.slightlyAboveObjects, drawOffset)
+	c.drawLayer(c.screen, &c.stage.aboveObjects, drawOffset)
+	c.drawLayer(c.screen, &c.Private.aboveObjects, drawOffset)
+	if c.stage.fogOfWar != nil {
 		var options ebiten.DrawImageOptions
-		c.screen.DrawImage(c.fogOfWar, &options)
+		options.GeoM.Translate(drawOffset.X, drawOffset.Y)
+		c.screen.DrawImage(c.stage.fogOfWar, &options)
+	}
+	if c.UI != nil && c.UI.Visible {
+		c.UI.belowObjects = drawSlice(c.screen, c.UI.belowObjects)
+		c.UI.objects = drawSlice(c.screen, c.UI.objects)
+		c.UI.aboveObjects = drawSlice(c.screen, c.UI.aboveObjects)
 	}
 
 	var options ebiten.DrawImageOptions
-	options.GeoM.Translate(-c.Offset.X, -c.Offset.Y)
+	options.GeoM.Translate(c.ScreenPos.X, c.ScreenPos.Y)
 	screen.DrawImage(c.screen, &options)
 }
 
@@ -246,4 +331,38 @@ func (l *layer) Add(o cameraObject) {
 
 func (l *layer) AddSprite(s *ge.Sprite) {
 	l.sprites = append(l.sprites, s)
+}
+
+func (l *layer) filter() {
+	liveSprites := l.sprites[:0]
+	for _, s := range l.sprites {
+		if s.IsDisposed() {
+			continue
+		}
+		liveSprites = append(liveSprites, s)
+	}
+	l.sprites = liveSprites
+
+	if len(l.objects) != 0 {
+		liveObjects := l.objects[:0]
+		for _, o := range l.objects {
+			if o.IsDisposed() {
+				continue
+			}
+			liveObjects = append(liveObjects, o)
+		}
+		l.objects = liveObjects
+	}
+}
+
+func drawSlice(dst *ebiten.Image, slice []ge.SceneGraphics) []ge.SceneGraphics {
+	live := slice[:0]
+	for _, o := range slice {
+		if o.IsDisposed() {
+			continue
+		}
+		o.Draw(dst)
+		live = append(live, o)
+	}
+	return live
 }

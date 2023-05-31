@@ -3,18 +3,23 @@ package staging
 import (
 	"image/color"
 
-	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/viewport"
 )
+
+func setPriorityIconFrame(s *ge.Sprite, priority colonyPriority, faction gamedata.FactionTag) {
+	offsetX := float64(priority) * 16.0
+	offsetX += float64(faction) * (16.0 * 4)
+	s.FrameOffset.X = offsetX
+}
 
 type rpanelNode struct {
 	scene *ge.Scene
 
-	world   *worldState
-	uiLayer *uiLayer
+	cam *viewport.Camera
 
 	layerSprite1 *ge.Sprite
 	layerSprite2 *ge.Sprite
@@ -26,10 +31,9 @@ type rpanelNode struct {
 	priorityIcons []*ge.Sprite
 }
 
-func newRpanelNode(world *worldState, uiLayer *uiLayer) *rpanelNode {
+func newRpanelNode(cam *viewport.Camera) *rpanelNode {
 	return &rpanelNode{
-		world:   world,
-		uiLayer: uiLayer,
+		cam: cam,
 	}
 }
 
@@ -38,15 +42,39 @@ func (panel *rpanelNode) IsDisposed() bool { return false }
 func (panel *rpanelNode) Init(scene *ge.Scene) {
 	panel.scene = scene
 
+	cameraWidth := panel.cam.Rect.Width()
+
 	panel.layerSprite1 = scene.NewSprite(assets.ImageRightPanelLayer1)
-	panel.layerSprite1.Pos.Offset.X = 782
+	panel.layerSprite1.Pos.Offset.X = (cameraWidth - panel.layerSprite1.FrameWidth)
 	panel.layerSprite1.Centered = false
-	panel.uiLayer.AddGraphics(panel.layerSprite1)
+	panel.cam.UI.AddGraphicsBelow(panel.layerSprite1)
+
+	priorities := []colonyPriority{
+		priorityResources,
+		priorityGrowth,
+		priorityEvolution,
+		prioritySecurity,
+	}
+	for i, priority := range priorities {
+		bar := scene.NewSprite(assets.ImagePriorityBar)
+		bar.Pos.Offset = gmath.Vec{X: (cameraWidth - (panel.layerSprite1.FrameWidth - 16)) + ((18 + bar.FrameWidth) * float64(i))}
+		bar.Centered = false
+		panel.cam.UI.AddGraphics(bar)
+
+		icon := scene.NewSprite(assets.ImagePriorityIcons)
+		setPriorityIconFrame(icon, priority, gamedata.NeutralFactionTag)
+		icon.Pos.Offset = gmath.Vec{X: (cameraWidth - (panel.layerSprite1.FrameWidth - 16)) + ((18 + bar.FrameWidth) * float64(i))}
+		icon.Centered = false
+		panel.cam.UI.AddGraphicsAbove(icon)
+
+		panel.priorityBars = append(panel.priorityBars, bar)
+		panel.priorityIcons = append(panel.priorityIcons, icon)
+	}
 
 	panel.layerSprite2 = scene.NewSprite(assets.ImageRightPanelLayer2)
 	panel.layerSprite2.Pos = panel.layerSprite1.Pos
 	panel.layerSprite2.Centered = false
-	panel.uiLayer.AddGraphicsAbove(panel.layerSprite2)
+	panel.cam.UI.AddGraphicsAbove(panel.layerSprite2)
 
 	colors := [...]color.RGBA{
 		gamedata.FactionByTag(gamedata.YellowFactionTag).Color,
@@ -57,31 +85,10 @@ func (panel *rpanelNode) Init(scene *ge.Scene) {
 	for _, clr := range colors {
 		rect := ge.NewRect(scene.Context(), 5, 0)
 		rect.Centered = false
-		rect.Pos.Offset = gmath.Vec{X: 952}
+		rect.Pos.Offset = gmath.Vec{X: (cameraWidth - 8)}
 		rect.FillColorScale.SetColor(clr)
-		panel.uiLayer.AddGraphicsAbove(rect)
+		panel.cam.UI.AddGraphicsAbove(rect)
 		panel.factionRects = append(panel.factionRects, rect)
-	}
-
-	iconImages := []resource.ImageID{
-		assets.ImagePriorityResources,
-		assets.ImagePriorityGrowth,
-		assets.ImagePriorityEvolution,
-		assets.ImagePrioritySecurity,
-	}
-	for i, iconImageID := range iconImages {
-		bar := scene.NewSprite(assets.ImagePriorityBar)
-		bar.Pos.Offset = gmath.Vec{X: 805 + ((20 + bar.FrameWidth) * float64(i))}
-		bar.Centered = false
-		panel.uiLayer.AddGraphics(bar)
-
-		icon := scene.NewSprite(iconImageID)
-		icon.Pos.Offset = gmath.Vec{X: 805 + ((20 + bar.FrameWidth) * float64(i))}
-		icon.Centered = false
-		panel.uiLayer.AddGraphicsAbove(icon)
-
-		panel.priorityBars = append(panel.priorityBars, bar)
-		panel.priorityIcons = append(panel.priorityIcons, icon)
 	}
 }
 

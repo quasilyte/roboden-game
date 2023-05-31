@@ -9,7 +9,7 @@ import (
 )
 
 type effectNode struct {
-	camera *viewport.Camera
+	stage *viewport.CameraStage
 
 	pos     gmath.Vec
 	image   resource.ImageID
@@ -23,24 +23,24 @@ type effectNode struct {
 	EventCompleted gesignal.Event[gesignal.Void]
 }
 
-func newEffectNodeFromSprite(camera *viewport.Camera, above bool, sprite *ge.Sprite) *effectNode {
+func newEffectNodeFromSprite(stage *viewport.CameraStage, above bool, sprite *ge.Sprite) *effectNode {
 	e := &effectNode{
-		camera: camera,
-		above:  above,
-		anim:   ge.NewAnimation(sprite, -1),
-		scale:  1,
+		stage: stage,
+		above: above,
+		anim:  ge.NewAnimation(sprite, -1),
+		scale: 1,
 	}
 	e.anim.SetSecondsPerFrame(0.05)
 	return e
 }
 
-func newEffectNode(camera *viewport.Camera, pos gmath.Vec, above bool, image resource.ImageID) *effectNode {
+func newEffectNode(stage *viewport.CameraStage, pos gmath.Vec, above bool, image resource.ImageID) *effectNode {
 	return &effectNode{
-		camera: camera,
-		pos:    pos,
-		image:  image,
-		above:  above,
-		scale:  1,
+		stage: stage,
+		pos:   pos,
+		image: image,
+		above: above,
+		scale: 1,
 	}
 }
 
@@ -55,9 +55,9 @@ func (e *effectNode) Init(scene *ge.Scene) {
 	sprite.Rotation = &e.rotation
 	sprite.Scale = e.scale
 	if e.above {
-		e.camera.AddSpriteAbove(sprite)
+		e.stage.AddSpriteAbove(sprite)
 	} else {
-		e.camera.AddSprite(sprite)
+		e.stage.AddSprite(sprite)
 	}
 	if e.anim == nil {
 		e.anim = ge.NewAnimation(sprite, -1)

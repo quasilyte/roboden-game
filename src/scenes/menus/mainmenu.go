@@ -60,13 +60,12 @@ func (c *MainMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
-	bigFont := c.scene.Context().Loader.LoadFont(assets.FontBig).Face
 	smallFont := c.scene.Context().Loader.LoadFont(assets.FontSmall).Face
 
 	d := c.scene.Dict()
 
-	titleLabel := eui.NewCenteredLabel(d.Get("game.title"), bigFont)
-	rowContainer.AddChild(titleLabel)
+	logo := widget.NewGraphic(widget.GraphicOpts.Image(c.scene.LoadImage(assets.ImageLogo).Data))
+	rowContainer.AddChild(logo)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 

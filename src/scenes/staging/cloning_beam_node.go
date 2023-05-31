@@ -31,7 +31,7 @@ func (b *cloningBeamNode) Init(scene *ge.Scene) {
 	b.lines[2] = ge.NewLine(ge.Pos{}, ge.Pos{})
 
 	for i := range b.lines {
-		b.world.camera.AddGraphicsAbove(b.lines[i])
+		b.world.stage.AddGraphicsAbove(b.lines[i])
 		if b.merging {
 			b.lines[i].SetColorScaleRGBA(0xa2, 0x4c, 0xba, 255)
 		} else {

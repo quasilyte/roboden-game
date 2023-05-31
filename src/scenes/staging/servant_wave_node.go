@@ -31,7 +31,7 @@ func (e *servantWaveNode) Init(scene *ge.Scene) {
 	}
 	s := scene.NewSprite(img)
 	s.Pos.Base = &e.pos
-	e.owner.world.camera.AddSpriteAbove(s)
+	e.owner.world.stage.AddSpriteAbove(s)
 
 	e.anim = ge.NewAnimation(s, -1)
 	e.anim.SetAnimationSpan(0.03 * 6)

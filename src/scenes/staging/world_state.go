@@ -23,11 +23,9 @@ type worldState struct {
 
 	rootScene  *ge.Scene
 	nodeRunner *nodeRunner
-	uiLayer    *uiLayer
 
-	// TODO: this shared camera should go away to make
-	// split-screens work?
-	camera *viewport.Camera
+	stage   *viewport.CameraStage
+	cameras []*viewport.Camera
 
 	visionCircle *ebiten.Image
 

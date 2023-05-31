@@ -20,7 +20,7 @@ type teleporterNode struct {
 func (t *teleporterNode) Init(scene *ge.Scene) {
 	s := scene.NewSprite(assets.ImageTeleporter)
 	s.Pos.Offset = t.pos
-	t.world.camera.AddSpriteBelow(s)
+	t.world.stage.AddSpriteBelow(s)
 
 	lights := scene.NewSprite(assets.ImageTeleporterLights)
 	lights.Pos.Offset = t.pos
@@ -28,7 +28,7 @@ func (t *teleporterNode) Init(scene *ge.Scene) {
 	case 1:
 		lights.SetHue(-math.Pi)
 	}
-	t.world.camera.AddSpriteBelow(lights)
+	t.world.stage.AddSpriteBelow(lights)
 }
 
 func (t *teleporterNode) IsDisposed() bool { return false }

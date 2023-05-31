@@ -3,6 +3,7 @@ package staging
 import (
 	"math"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
@@ -142,6 +143,24 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	return c
 }
 
+func (c *colonyCoreNode) spriteWithAlliance(imageID resource.ImageID) *ge.Sprite {
+	if len(c.world.players) > 1 {
+		img := c.scene.LoadImage(imageID)
+		paintedImg := ebiten.NewImage(img.Data.Size())
+		var drawOptions ebiten.DrawImageOptions
+		paintedImg.DrawImage(img.Data, &drawOptions)
+		drawOptions.GeoM.Translate(0, 27)
+		if c.player.GetState().id != 0 {
+			drawOptions.ColorM.RotateHue(float64(gmath.DegToRad(-70)))
+		}
+		paintedImg.DrawImage(c.scene.LoadImage(assets.ImageColonyCoreAllianceColor).Data, &drawOptions)
+		sprite := ge.NewSprite(c.scene.Context())
+		sprite.SetImage(resource.Image{Data: paintedImg})
+		return sprite
+	}
+	return c.scene.NewSprite(imageID)
+}
+
 func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.scene = scene
 
@@ -157,27 +176,27 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.otherShader = scene.NewShader(assets.ShaderColonyTeleport)
 	}
 
-	c.sprite = scene.NewSprite(assets.ImageColonyCore)
+	c.sprite = c.spriteWithAlliance(assets.ImageColonyCore)
 	c.sprite.Pos.Base = &c.spritePos
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 		c.sprite.Shader.SetFloatValue("HP", 1.0)
 		c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
 	}
-	c.world.camera.AddSprite(c.sprite)
+	c.world.stage.AddSprite(c.sprite)
 
-	c.flyingSprite = scene.NewSprite(assets.ImageColonyCoreFlying)
+	c.flyingSprite = c.spriteWithAlliance(assets.ImageColonyCoreFlying)
 	c.flyingSprite.Pos.Base = &c.spritePos
 	c.flyingSprite.Visible = false
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.flyingSprite.Shader = c.sprite.Shader
 	}
-	c.world.camera.AddSpriteSlightlyAbove(c.flyingSprite)
+	c.world.stage.AddSpriteSlightlyAbove(c.flyingSprite)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
 	c.hatch.Pos.Base = &c.spritePos
 	c.hatch.Pos.Offset.Y = -20
-	c.world.camera.AddSprite(c.hatch)
+	c.world.stage.AddSprite(c.hatch)
 
 	c.flashComponent.sprite = c.sprite
 	c.hatchFlashComponent.sprite = c.hatch
@@ -185,13 +204,13 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
 	c.evoDiode.Pos.Base = &c.spritePos
 	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
-	c.world.camera.AddSprite(c.evoDiode)
+	c.world.stage.AddSprite(c.evoDiode)
 
 	if c.world.graphicsSettings.ShadowsEnabled {
 		c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
 		c.shadow.Pos.Base = &c.spritePos
 		c.shadow.Visible = false
-		c.world.camera.AddSprite(c.shadow)
+		c.world.stage.AddSprite(c.shadow)
 	}
 
 	c.resourceRects = make([]*ge.Sprite, 3)
@@ -206,9 +225,9 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 			rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
 			rects[i] = rect
 			if above {
-				c.world.camera.AddSpriteSlightlyAbove(rect)
+				c.world.stage.AddSpriteSlightlyAbove(rect)
 			} else {
-				c.world.camera.AddSprite(rect)
+				c.world.stage.AddSprite(rect)
 			}
 		}
 	}
@@ -481,7 +500,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 				return
 			}
 			a.pos = c.relocationPoint.Add(c.world.rand.Offset(-38, 38))
-			e := newEffectNode(c.world.camera, a.pos, true, assets.ImageTeleportEffect)
+			e := newEffectNode(c.world.stage, a.pos, true, assets.ImageTeleportEffect)
 			e.scale = 0.5
 			c.world.nodeRunner.AddObject(e)
 			a.AssignMode(agentModePosing, gmath.Vec{X: c.world.rand.FloatRange(0.5, 2.5)}, nil)
@@ -493,7 +512,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		c.markCells(c.pos)
 		c.stopTeleportationEffect()
 
-		c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, false, assets.ImageTeleportEffect))
+		c.world.nodeRunner.AddObject(newEffectNode(c.world.stage, c.pos, false, assets.ImageTeleportEffect))
 
 		c.EventTeleported.Emit(c)
 	}
@@ -833,7 +852,7 @@ func (c *colonyCoreNode) createLandingSmokeEffect() {
 		sprite := c.scene.NewSprite(info.image)
 		sprite.FlipHorizontal = info.flip
 		sprite.Pos.Offset = c.pos.Add(info.offset)
-		e := newEffectNodeFromSprite(c.world.camera, false, sprite)
+		e := newEffectNodeFromSprite(c.world.stage, false, sprite)
 		e.anim.SetAnimationSpan(0.3)
 		c.world.nodeRunner.AddObject(e)
 	}

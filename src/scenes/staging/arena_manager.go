@@ -42,9 +42,8 @@ type arenaManager struct {
 
 	waveInfo arenaWaveInfo
 
-	scene   *ge.Scene
-	world   *worldState
-	uiLayer *uiLayer
+	scene *ge.Scene
+	world *worldState
 
 	creepSelectionSlice      []*arenaCreepInfo
 	groupCreepSelectionSlice []*arenaCreepInfo
@@ -87,10 +86,9 @@ type arenaWaveInfo struct {
 	attackSides [4]bool
 }
 
-func newArenaManager(world *worldState, uiLayer *uiLayer) *arenaManager {
+func newArenaManager(world *worldState) *arenaManager {
 	return &arenaManager{
-		world:   world,
-		uiLayer: uiLayer,
+		world: world,
 		waveInfo: arenaWaveInfo{
 			groups: make([]arenaWaveGroup, 0, 8),
 		},
@@ -172,8 +170,10 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	m.infoUpdateDelay = 5
 	m.prepareWave()
 	m.overviewText = m.createWaveOverviewText()
-	m.info = m.createWaveInfoMessageNode()
-	m.world.nodeRunner.AddObject(m.info)
+	if len(m.world.cameras) != 0 {
+		m.info = m.createWaveInfoMessageNode()
+		m.world.nodeRunner.AddObject(m.info)
+	}
 }
 
 func (m *arenaManager) Update(delta float64) {
@@ -196,8 +196,10 @@ func (m *arenaManager) Update(delta float64) {
 		if m.info != nil {
 			m.info.Dispose()
 		}
-		m.info = m.createWaveInfoMessageNode()
-		m.world.nodeRunner.AddObject(m.info)
+		if len(m.world.cameras) != 0 {
+			m.info = m.createWaveInfoMessageNode()
+			m.world.nodeRunner.AddObject(m.info)
+		}
 	}
 
 	m.infoUpdateDelay -= delta
@@ -209,7 +211,7 @@ func (m *arenaManager) Update(delta float64) {
 
 func (m *arenaManager) createWaveInfoMessageNode() *messageNode {
 	s := m.createWaveInfoText()
-	message := newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
+	message := newScreenTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
 	message.xpadding = 20
 	return message
 }

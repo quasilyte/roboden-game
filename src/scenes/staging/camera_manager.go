@@ -18,10 +18,11 @@ const (
 )
 
 type cameraManager struct {
-	world  *worldState
-	camera *viewport.Camera
-	mode   cameraMode
-	input  gameinput.Handler
+	*viewport.Camera
+
+	world *worldState
+	mode  cameraMode
+	input gameinput.Handler
 
 	cameraPanDragPos         gmath.Vec
 	cameraPanSpeed           float64
@@ -38,7 +39,7 @@ type cameraManager struct {
 func newCameraManager(world *worldState, cam *viewport.Camera) *cameraManager {
 	m := &cameraManager{
 		world:  world,
-		camera: cam,
+		Camera: cam,
 	}
 
 	if m.world.deviceInfo.IsMobile {
@@ -111,17 +112,17 @@ func (m *cameraManager) HandleInput() {
 		}
 		if cameraPan.IsZero() {
 			if info, ok := m.input.PressedActionInfo(controls.ActionPanAlt); ok {
-				cameraCenter := m.camera.Rect.Center()
+				cameraCenter := m.Rect.Center()
 				cameraPan = gmath.RadToVec(cameraCenter.AngleToPoint(info.Pos)).Mulf(m.cameraPanSpeed * 0.8)
 			}
 		}
-		if cameraPan.IsZero() && m.cameraPanBoundary != 0 {
+		if cameraPan.IsZero() && m.cameraPanBoundary != 0 && m.ScreenPos.X == 0 {
 			// Mouse cursor can pan the camera too.
 			cursor := m.input.CursorPos()
-			if cursor.X > m.camera.Rect.Width()-m.cameraPanBoundary {
+			if cursor.X > m.Rect.Width()-m.cameraPanBoundary {
 				cameraPan.X += m.cameraPanSpeed
 			}
-			if cursor.Y > m.camera.Rect.Height()-m.cameraPanBoundary {
+			if cursor.Y > m.Rect.Height()-m.cameraPanBoundary {
 				cameraPan.Y += m.cameraPanSpeed
 			}
 			if cursor.X < m.cameraPanBoundary {
@@ -131,17 +132,17 @@ func (m *cameraManager) HandleInput() {
 				cameraPan.Y -= m.cameraPanSpeed
 			}
 		}
-		m.camera.Pan(cameraPan)
+		m.Pan(cameraPan)
 	} else {
 		// On mobile devices we expect a touch screen support.
 		// Instead of panning, we use dragging here.
 		if m.input.ActionIsJustPressed(controls.ActionPanDrag) {
-			m.cameraPanDragPos = m.camera.Offset
+			m.cameraPanDragPos = m.Offset
 		}
 		if info, ok := m.input.PressedActionInfo(controls.ActionPanDrag); ok {
 			posDelta := info.StartPos.Sub(info.Pos).Mulf(m.cameraPanSpeed)
 			newPos := m.cameraPanDragPos.Add(posDelta)
-			m.camera.SetOffset(newPos)
+			m.SetOffset(newPos)
 		}
 	}
 }
@@ -163,9 +164,9 @@ func (m *cameraManager) findTwoColonies(pstate *playerState, dist float64) [2]*c
 func (m *cameraManager) Update(delta float64) {
 	if !m.cameraToggleTarget.IsZero() {
 		m.cameraToggleProgress = gmath.ClampMax(m.cameraToggleProgress+(delta*m.cameraToggleSpeed), 1)
-		m.camera.CenterOn(m.camera.CenterPos().LinearInterpolate(m.cameraToggleTarget, m.cameraToggleProgress))
-		if m.cameraToggleProgress >= m.cameraToggleSnapProgress || m.camera.CenterPos().DistanceSquaredTo(m.cameraToggleTarget) < m.cameraToggleSnapDistSqr {
-			m.camera.CenterOn(m.cameraToggleTarget)
+		m.CenterOn(m.CenterPos().LinearInterpolate(m.cameraToggleTarget, m.cameraToggleProgress))
+		if m.cameraToggleProgress >= m.cameraToggleSnapProgress || m.CenterPos().DistanceSquaredTo(m.cameraToggleTarget) < m.cameraToggleSnapDistSqr {
+			m.CenterOn(m.cameraToggleTarget)
 			m.cameraToggleTarget = gmath.Vec{}
 		}
 	}

@@ -118,9 +118,9 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	c.sprite = scene.NewSprite(c.stats.image)
 	c.sprite.Pos.Base = &c.spritePos
 	if c.stats.shadowImage != assets.ImageNone {
-		c.world.camera.AddSpriteAbove(c.sprite)
+		c.world.stage.AddSpriteAbove(c.sprite)
 	} else {
-		c.world.camera.AddSprite(c.sprite)
+		c.world.stage.AddSprite(c.sprite)
 	}
 	if c.stats.animSpeed != 0 {
 		if c.stats.kind == creepHowitzer {
@@ -144,7 +144,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	if c.stats.shadowImage != assets.ImageNone && c.world.graphicsSettings.ShadowsEnabled {
 		c.shadow = scene.NewSprite(c.stats.shadowImage)
 		c.shadow.Pos.Base = &c.spritePos
-		c.world.camera.AddSprite(c.shadow)
+		c.world.stage.AddSprite(c.shadow)
 		c.shadow.Pos.Offset.Y = c.height
 		c.shadow.SetAlpha(0.5)
 		if c.spawnedFromBase {
@@ -160,7 +160,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.altSprite = scene.NewSprite(img)
 		c.altSprite.Visible = false
 		c.altSprite.Pos.Base = &c.spritePos
-		c.world.camera.AddSprite(c.altSprite)
+		c.world.stage.AddSprite(c.altSprite)
 		c.maxHealth *= c.world.bossHealthMultiplier
 	} else {
 		c.maxHealth *= c.world.creepHealthMultiplier
@@ -169,7 +169,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 			c.altSprite.Visible = false
 			c.altSprite.Pos.Base = &c.spritePos
 			c.altSprite.Pos.Offset.Y = -3
-			c.world.camera.AddSprite(c.altSprite)
+			c.world.stage.AddSprite(c.altSprite)
 		}
 	}
 	switch c.stats.kind {
@@ -186,7 +186,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		}
 	case creepHowitzer:
 		pos := ge.Pos{Base: &c.spritePos, Offset: gmath.Vec{Y: -10}}
-		trunk := newHowitzerTrunkNode(c.world.camera, pos)
+		trunk := newHowitzerTrunkNode(c.world.stage, pos)
 		c.specialTarget = trunk
 		c.world.nodeRunner.AddObject(trunk)
 		trunk.SetVisibility(false)
@@ -394,7 +394,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		disarmImmune := c.super && c.stats == crawlerCreepStats
 		if !disarmImmune && c.scene.Rand().Chance(damage.Disarm*0.1) {
 			c.disarm = 2.5
-			c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, c.IsFlying(), assets.ImageIonZap))
+			c.world.nodeRunner.AddObject(newEffectNode(c.world.stage, c.pos, c.IsFlying(), assets.ImageIonZap))
 			playIonExplosionSound(c.world, c.pos)
 		}
 	}
@@ -719,7 +719,7 @@ func (c *creepNode) updateBuilder(delta float64) {
 			turret.specialTarget = c
 			c.specialTarget = turret
 			c.world.nodeRunner.AddObject(turret)
-			lasers := newBuilderLaserNode(c.world.camera, c.pos)
+			lasers := newBuilderLaserNode(c.world.stage, c.pos)
 			c.EventBuildingStop.Connect(lasers, lasers.OnBuildingStop)
 			c.world.nodeRunner.AddObject(lasers)
 			return
@@ -1222,7 +1222,7 @@ func (c *creepNode) doUncloak() {
 func (c *creepNode) doCloak() {
 	c.cloaking = true
 	c.sprite.SetAlpha(0.2)
-	c.world.nodeRunner.AddObject(newEffectNode(c.world.camera, c.pos, true, assets.ImageCloakWave))
+	c.world.nodeRunner.AddObject(newEffectNode(c.world.stage, c.pos, true, assets.ImageCloakWave))
 }
 
 func (c *creepNode) movementSpeed() float64 {

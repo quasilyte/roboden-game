@@ -83,7 +83,9 @@ func main() {
 
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)
 	assets.RegisterRawResources(ctx)
-	state.MainInput = controls.BindKeymap(ctx)
+	primaryInput, secondaryInput := controls.BindKeymap(ctx)
+	state.MainInput = primaryInput
+	state.SecondInput = secondaryInput
 
 	if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
 		fmt.Printf("can't load game data: %v", err)
@@ -122,7 +124,7 @@ func newLevelConfig(config *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.AttackActionAvailable = true
 	config.RadiusActionAvailable = true
 
-	config.ExtraUI = true
+	config.InterfaceMode = 2
 	config.EliteResources = true
 
 	config.PlayersMode = serverapi.PmodeSinglePlayer

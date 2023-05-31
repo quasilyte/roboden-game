@@ -37,7 +37,7 @@ func (tether *tetherNode) Init(scene *ge.Scene) {
 		tether.line.Shader = scene.NewShader(assets.ShaderSlideX)
 		tether.line.Shader.SetFloatValue("Time", 0)
 	}
-	tether.world.camera.AddGraphics(tether.line)
+	tether.world.stage.AddGraphics(tether.line)
 }
 
 func (tether *tetherNode) IsDisposed() bool {

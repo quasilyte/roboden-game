@@ -42,30 +42,27 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 
 		ImageCursor: {Path: "image/cursor.png"},
 
-		ImageRadarlessButtons:  {Path: "image/ui/radarless_buttons.png"},
-		ImageRadar:             {Path: "image/ui/radar.png"},
-		ImageRadarWave:         {Path: "image/ui/radar_wave.png"},
-		ImageRadarBossFar:      {Path: "image/ui/radar_boss_far.png"},
-		ImageRadarBossNear:     {Path: "image/ui/radar_boss_near.png"},
-		ImageRightPanelLayer1:  {Path: "image/ui/right_panel_layer1.png"},
-		ImageRightPanelLayer2:  {Path: "image/ui/right_panel_layer2.png"},
-		ImagePriorityBar:       {Path: "image/ui/priority_bar.png"},
-		ImagePriorityResources: {Path: "image/ui/priority_icon_resources.png"},
-		ImagePriorityGrowth:    {Path: "image/ui/priority_icon_growth.png"},
-		ImagePriorityEvolution: {Path: "image/ui/priority_icon_evolution.png"},
-		ImagePrioritySecurity:  {Path: "image/ui/priority_icon_security.png"},
-		ImageObjectiveDisplay:  {Path: "image/ui/objective_display.png"},
+		ImageRadarlessButtons: {Path: "image/ui/radarless_buttons.png"},
+		ImageRadar:            {Path: "image/ui/radar.png"},
+		ImageRadarWave:        {Path: "image/ui/radar_wave.png"},
+		ImageRadarBossFar:     {Path: "image/ui/radar_boss_far.png"},
+		ImageRadarBossNear:    {Path: "image/ui/radar_boss_near.png"},
+		ImageRightPanelLayer1: {Path: "image/ui/right_panel_layer1.png"},
+		ImageRightPanelLayer2: {Path: "image/ui/right_panel_layer2.png"},
+		ImagePriorityBar:      {Path: "image/ui/priority_bar.png"},
+		ImagePriorityIcons:    {Path: "image/ui/priority_icons.png", FrameWidth: 16},
+		ImageObjectiveDisplay: {Path: "image/ui/objective_display.png"},
 
 		ImageFloppyYellow:     {Path: "image/ui/floppy_yellow.png"},
 		ImageFloppyRed:        {Path: "image/ui/floppy_red.png"},
 		ImageFloppyGreen:      {Path: "image/ui/floppy_green.png"},
 		ImageFloppyBlue:       {Path: "image/ui/floppy_blue.png"},
 		ImageFloppyGray:       {Path: "image/ui/floppy_gray.png"},
-		ImageFloppyYellowFlip: {Path: "image/ui/floppy_yellow_flip.png", FrameWidth: 144},
-		ImageFloppyRedFlip:    {Path: "image/ui/floppy_red_flip.png", FrameWidth: 144},
-		ImageFloppyGreenFlip:  {Path: "image/ui/floppy_green_flip.png", FrameWidth: 144},
-		ImageFloppyBlueFlip:   {Path: "image/ui/floppy_blue_flip.png", FrameWidth: 144},
-		ImageFloppyGrayFlip:   {Path: "image/ui/floppy_gray_flip.png", FrameWidth: 144},
+		ImageFloppyYellowFlip: {Path: "image/ui/floppy_yellow_flip.png", FrameWidth: 86},
+		ImageFloppyRedFlip:    {Path: "image/ui/floppy_red_flip.png", FrameWidth: 86},
+		ImageFloppyGreenFlip:  {Path: "image/ui/floppy_green_flip.png", FrameWidth: 86},
+		ImageFloppyBlueFlip:   {Path: "image/ui/floppy_blue_flip.png", FrameWidth: 86},
+		ImageFloppyGrayFlip:   {Path: "image/ui/floppy_gray_flip.png", FrameWidth: 86},
 
 		ImageActionBuildColony:    {Path: "image/ui/action_build_colony.png"},
 		ImageActionBuildTurret:    {Path: "image/ui/action_build_turret.png"},
@@ -102,17 +99,18 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageSmokeSide:                  {Path: "image/effects/smoke_side.png", FrameWidth: 15},
 		ImageRoombaSmoke:                {Path: "image/effects/roomba_smoke.png", FrameWidth: 8},
 
-		ImageFactionDiode:       {Path: "image/faction_diode.png"},
-		ImageColonyResourceBar1: {Path: "image/colony_resource_bar1.png"},
-		ImageColonyResourceBar2: {Path: "image/colony_resource_bar2.png"},
-		ImageColonyResourceBar3: {Path: "image/colony_resource_bar3.png"},
-		ImageColonyCoreSelector: {Path: "image/colony_core_selector.png"},
-		ImageColonyCore:         {Path: "image/colony_core.png"},
-		ImageColonyCoreFlying:   {Path: "image/colony_core_flying.png"},
-		ImageColonyCoreHatch:    {Path: "image/colony_core_hatch.png"},
-		ImageColonyCoreDiode:    {Path: "image/colony_core_diode.png", FrameWidth: 4},
-		ImageTeleporter:         {Path: "image/teleporter.png"},
-		ImageTeleporterLights:   {Path: "image/teleporter_lights.png"},
+		ImageFactionDiode:            {Path: "image/faction_diode.png"},
+		ImageColonyResourceBar1:      {Path: "image/colony_resource_bar1.png"},
+		ImageColonyResourceBar2:      {Path: "image/colony_resource_bar2.png"},
+		ImageColonyResourceBar3:      {Path: "image/colony_resource_bar3.png"},
+		ImageColonyCoreSelector:      {Path: "image/colony_core_selector.png"},
+		ImageColonyCoreAllianceColor: {Path: "image/colony_core_alliance_color.png"},
+		ImageColonyCore:              {Path: "image/colony_core.png"},
+		ImageColonyCoreFlying:        {Path: "image/colony_core_flying.png"},
+		ImageColonyCoreHatch:         {Path: "image/colony_core_hatch.png"},
+		ImageColonyCoreDiode:         {Path: "image/colony_core_diode.png", FrameWidth: 4},
+		ImageTeleporter:              {Path: "image/teleporter.png"},
+		ImageTeleporterLights:        {Path: "image/teleporter_lights.png"},
 
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
@@ -316,10 +314,7 @@ const (
 	ImageRightPanelLayer1
 	ImageRightPanelLayer2
 	ImagePriorityBar
-	ImagePriorityResources
-	ImagePriorityGrowth
-	ImagePriorityEvolution
-	ImagePrioritySecurity
+	ImagePriorityIcons
 	ImageObjectiveDisplay
 
 	ImageRoombaLaserTrail
@@ -385,6 +380,7 @@ const (
 	ImageColonyResourceBar2
 	ImageColonyResourceBar3
 	ImageColonyCoreSelector
+	ImageColonyCoreAllianceColor
 	ImageColonyCore
 	ImageColonyCoreFlying
 	ImageColonyCoreHatch

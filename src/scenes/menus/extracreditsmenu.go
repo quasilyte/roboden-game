@@ -53,7 +53,7 @@ func (c *ExtraCreditsMenuController) initUI() {
 
 	lines := []string{
 		"* Hajime Hoshi - Ebitengine creator and maintainer (@hajimehoshi)",
-		"* Mark Carpenter - ebitenui mainteiner (@mcarpenter622)",
+		"* Mark Carpenter - ebitenui maintainer (@mcarpenter622)",
 		"* Supportive Ebitengine community",
 	}
 

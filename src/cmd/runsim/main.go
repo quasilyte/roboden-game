@@ -49,7 +49,6 @@ func main() {
 
 	var progress float64
 	assets.RegisterImageResources(ctx, &progress)
-	assets.RegisterFontResources(ctx, &progress)
 	assets.RegisterRawResources(ctx)
 	assets.RegisterShaderResources(ctx, &progress)
 

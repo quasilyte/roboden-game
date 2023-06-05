@@ -2002,6 +2002,9 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 		a.world().nodeRunner.AddObject(clone)
 		a.world().result.DronesProduced++
 		clone.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		effect := newEffectNode(a.stage(), clone.pos, true, assets.ImageCloningComplete)
+		effect.rotates = true
+		a.world().nodeRunner.AddObject(effect)
 		return
 	}
 }

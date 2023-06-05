@@ -85,6 +85,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 
 		ImageTeleportEffect:             {Path: "image/effects/teleport.png", FrameWidth: 100},
 		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 50},
+		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 50},
 		ImageRoombaLaserTrail:           {Path: "image/effects/roomba_shot_trail.png", FrameWidth: 7},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
@@ -339,6 +340,7 @@ const (
 	ImageProjectileSmoke
 	ImageTeleportEffect
 	ImageMergingComplete
+	ImageCloningComplete
 	ImageStealthLaserExplosion
 	ImageRoombaShotExplosion
 	ImageScarabShotExplosion

@@ -164,7 +164,7 @@ func (c *LobbyMenuController) initUI() {
 
 	leftRows := eui.NewRowLayoutContainer(4, nil)
 	rootGrid.AddChild(leftRows)
-	rightRows := eui.NewRowLayoutContainer(4, []bool{false, true, false, false})
+	rightRows := eui.NewRowLayoutContainer(4, []bool{false, true, false})
 	rootGrid.AddChild(rightRows)
 
 	tabs := c.createTabs(uiResources)

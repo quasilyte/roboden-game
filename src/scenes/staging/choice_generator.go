@@ -1,8 +1,6 @@
 package staging
 
 import (
-	"strings"
-
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -21,6 +19,26 @@ const (
 	specialBuildColony
 	specialAttack
 	specialChoiceMoveColony
+
+	// These are the actions for the creeps.
+	specialSendCreeps
+	specialSpawnCrawlers
+	specialBossAttack
+	specialIncreaseTech
+
+	// These are also for the creeps.
+	_creepCardFirst
+	specialBuyCrawlers
+	specialBuyWanderers
+	specialBuyEliteCrawlers
+	specialBuyStunners
+	specialBuyStealthCrawlers
+	specialBuyHeavyCrawlers
+	specialBuyBuilders
+	specialBuyAssaults
+	specialBuyDominator
+	specialBuyHowitzer
+	_creepCardLast
 )
 
 type selectedChoice struct {
@@ -33,11 +51,11 @@ type selectedChoice struct {
 }
 
 type choiceOption struct {
-	text    string
-	effects []choiceOptionEffect
-	special specialChoiceKind
-	icon    resource.ImageID
-	cost    float64
+	effects   []choiceOptionEffect
+	special   specialChoiceKind
+	direction int
+	icon      resource.ImageID
+	cost      float64
 }
 
 type choiceOptionEffect struct {
@@ -52,102 +70,201 @@ type choiceSelection struct {
 
 var specialChoicesTable = [...]choiceOption{
 	specialAttack: {
-		text:    "attack",
 		special: specialAttack,
 		cost:    5,
 		icon:    assets.ImageActionAttack,
 	},
 
 	specialBuildColony: {
-		text:    "build_colony",
 		special: specialBuildColony,
 		cost:    25,
 		icon:    assets.ImageActionBuildColony,
 	},
 	specialBuildGunpoint: {
-		text:    "build_gunpoint",
 		special: specialBuildGunpoint,
 		cost:    10,
 		icon:    assets.ImageActionBuildTurret,
 	},
 
 	specialIncreaseRadius: {
-		text:    "increase_radius",
 		special: specialIncreaseRadius,
 		cost:    15,
 		icon:    assets.ImageActionIncreaseRadius,
 	},
 	specialDecreaseRadius: {
-		text:    "decrease_radius",
 		special: specialDecreaseRadius,
 		cost:    4,
 		icon:    assets.ImageActionDecreaseRadius,
 	},
+
+	specialSendCreeps: {
+		special: specialSendCreeps,
+		cost:    15,
+		icon:    assets.ImageActionSendCreeps,
+	},
+	specialSpawnCrawlers: {
+		special: specialSpawnCrawlers,
+		cost:    20,
+		icon:    assets.ImageActionSpawnCrawlers,
+	},
+	specialBossAttack: {
+		special: specialBossAttack,
+		cost:    50,
+		icon:    assets.ImageActionBossAttack,
+	},
+	specialIncreaseTech: {
+		special: specialIncreaseTech,
+		cost:    20,
+		icon:    assets.ImageActionIncreaseTech,
+	},
+}
+
+type creepOptionInfo struct {
+	special      specialChoiceKind
+	stats        *creepStats
+	minTechLevel float64
+	maxUnits     int
+	cooldown     float64
+}
+
+var creepOptionInfoList = func() []creepOptionInfo {
+	list := []creepOptionInfo{
+		{
+			maxUnits:     10,
+			special:      specialBuyCrawlers,
+			minTechLevel: 0,
+			stats:        crawlerCreepStats,
+		},
+		{
+			maxUnits:     7,
+			special:      specialBuyWanderers,
+			minTechLevel: 0,
+			stats:        wandererCreepStats,
+		},
+		{
+			maxUnits:     8,
+			special:      specialBuyEliteCrawlers,
+			minTechLevel: 0.1,
+			stats:        eliteCrawlerCreepStats,
+		},
+		{
+			maxUnits:     5,
+			special:      specialBuyStunners,
+			minTechLevel: 0.2,
+			stats:        stunnerCreepStats,
+		},
+		{
+			maxUnits:     7,
+			special:      specialBuyStealthCrawlers,
+			minTechLevel: 0.3,
+			stats:        stealthCrawlerCreepStats,
+		},
+		{
+			maxUnits:     6,
+			special:      specialBuyHeavyCrawlers,
+			minTechLevel: 0.4,
+			stats:        heavyCrawlerCreepStats,
+		},
+		{
+			maxUnits:     2,
+			special:      specialBuyBuilders,
+			minTechLevel: 0.5,
+			stats:        builderCreepStats,
+		},
+		{
+			maxUnits:     3,
+			special:      specialBuyAssaults,
+			minTechLevel: 0.6,
+			stats:        assaultCreepStats,
+		},
+		{
+			maxUnits:     2,
+			special:      specialBuyDominator,
+			minTechLevel: 0.8,
+			stats:        dominatorCreepStats,
+		},
+		{
+			maxUnits:     1,
+			special:      specialBuyHowitzer,
+			minTechLevel: 1.0,
+			stats:        howitzerCreepStats,
+		},
+	}
+
+	for i := range list {
+		e := &list[i]
+		cooldown := float64(creepCost(e.stats, false)) * (float64(e.maxUnits) * 0.5) * 0.85
+		switch {
+		case e.stats.kind == creepHowitzer:
+			cooldown *= 1.5
+		case e.stats.kind == creepDominator:
+			cooldown *= 0.9
+		case !e.stats.flying:
+			cooldown *= 0.75
+		}
+		e.cooldown = cooldown
+	}
+
+	return list
+}()
+
+func creepCardID(k specialChoiceKind) int {
+	return int(k-_creepCardFirst) - 1
 }
 
 var choiceOptionList = []choiceOption{
 	{
-		text: "resources",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.2},
 		},
 	},
 	{
-		text: "growth",
 		effects: []choiceOptionEffect{
 			{priority: priorityGrowth, value: 0.2},
 		},
 	},
 	{
-		text: "security",
 		effects: []choiceOptionEffect{
 			{priority: prioritySecurity, value: 0.2},
 		},
 	},
 	{
-		text: "evolution",
 		effects: []choiceOptionEffect{
 			{priority: priorityEvolution, value: 0.2},
 		},
 	},
 
 	{
-		text: "resources+growth",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.15},
 			{priority: priorityGrowth, value: 0.15},
 		},
 	},
 	{
-		text: "resources+security",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.15},
 			{priority: prioritySecurity, value: 0.15},
 		},
 	},
 	{
-		text: "resources+evolution",
 		effects: []choiceOptionEffect{
 			{priority: priorityResources, value: 0.15},
 			{priority: priorityEvolution, value: 0.15},
 		},
 	},
 	{
-		text: "growth+security",
 		effects: []choiceOptionEffect{
 			{priority: priorityGrowth, value: 0.15},
 			{priority: prioritySecurity, value: 0.15},
 		},
 	},
 	{
-		text: "growth+evolution",
 		effects: []choiceOptionEffect{
 			{priority: priorityGrowth, value: 0.15},
 			{priority: priorityEvolution, value: 0.15},
 		},
 	},
 	{
-		text: "security+evolution",
 		effects: []choiceOptionEffect{
 			{priority: prioritySecurity, value: 0.15},
 			{priority: priorityEvolution, value: 0.15},
@@ -179,58 +296,41 @@ type choiceGenerator struct {
 	buildTurret          bool
 	increaseRadius       bool
 	specialChoiceKinds   []specialChoiceKind
-	specialChoices       []choiceOption
+
+	creepsState *creepsPlayerState
 
 	EventChoiceReady    gsignal.Event[choiceSelection]
 	EventChoiceSelected gsignal.Event[selectedChoice]
 }
 
-func newChoiceGenerator(world *worldState) *choiceGenerator {
+func newChoiceGenerator(world *worldState, creepsState *creepsPlayerState) *choiceGenerator {
 	g := &choiceGenerator{
-		world: world,
+		world:       world,
+		creepsState: creepsState,
 	}
 
-	g.shuffledOptions = make([]choiceOption, len(choiceOptionList))
-	copy(g.shuffledOptions, choiceOptionList)
+	if creepsState != nil {
+		g.shuffledOptions = make([]choiceOption, 4)
 
-	d := world.rootScene.Dict()
-
-	translateText := func(s string) string {
-		keys := strings.Split(s, "+")
-		for _, k := range keys {
-			s = strings.Replace(s, k, d.Get("game.choice", k), 1)
+		g.specialChoiceKinds = []specialChoiceKind{
+			specialSendCreeps,
+			specialBossAttack,
+			specialSpawnCrawlers,
+			specialIncreaseTech,
 		}
-		s = strings.ReplaceAll(s, "+", "\n+\n")
-		s = strings.ReplaceAll(s, " ", "\n")
-		return s
-	}
+	} else {
+		g.shuffledOptions = make([]choiceOption, len(choiceOptionList))
+		copy(g.shuffledOptions, choiceOptionList)
 
-	// Now translate the options.
-	for i := range g.shuffledOptions {
-		o := &g.shuffledOptions[i]
-		o.text = translateText(o.text)
-	}
-
-	g.specialChoiceKinds = []specialChoiceKind{
-		specialBuildColony,
-	}
-
-	if world.config.AttackActionAvailable {
-		g.specialChoiceKinds = append(g.specialChoiceKinds, specialAttack)
-	}
-	if world.config.RadiusActionAvailable {
-		g.specialChoiceKinds = append(g.specialChoiceKinds, specialDecreaseRadius)
-	}
-
-	// Now translate the special choices.
-	g.specialChoices = make([]choiceOption, len(specialChoicesTable))
-	copy(g.specialChoices, specialChoicesTable[:])
-	for i := range g.specialChoices {
-		o := &g.specialChoices[i]
-		if o.text == "" {
-			continue
+		g.specialChoiceKinds = []specialChoiceKind{
+			specialBuildColony,
 		}
-		o.text = translateText(o.text)
+		if world.config.AttackActionAvailable {
+			g.specialChoiceKinds = append(g.specialChoiceKinds, specialAttack)
+		}
+		if world.config.RadiusActionAvailable {
+			g.specialChoiceKinds = append(g.specialChoiceKinds, specialDecreaseRadius)
+		}
 	}
 
 	return g
@@ -257,6 +357,10 @@ func (g *choiceGenerator) Update(delta float64) {
 }
 
 func (g *choiceGenerator) TryExecute(cardIndex int, pos gmath.Vec) bool {
+	if g.creepsState != nil {
+		return g.activateChoice(cardIndex)
+	}
+
 	if g.player.GetState().selectedColony.mode != colonyModeNormal {
 		return false
 	}
@@ -295,9 +399,23 @@ func (g *choiceGenerator) activateChoice(i int) bool {
 	cooldown := 10.0
 	if i == 4 {
 		// A special action is selected.
-		cooldown = g.specialChoices[g.specialOptionIndex].cost
-		choice.Option = g.specialChoices[g.specialOptionIndex]
+		choice.Option = specialChoicesTable[g.specialOptionIndex]
+		cooldown = choice.Option.cost
+		if choice.Option.special == specialIncreaseTech {
+			div := 0.6 + (0.1 * float64(g.world.config.TechProgressRate))
+			cooldown *= (1.0 + 1.75*g.world.creepsPlayerState.techLevel)
+			cooldown /= div
+		}
 	} else {
+		if g.creepsState != nil {
+			info := creepOptionInfoList[creepCardID(g.shuffledOptions[i].special)]
+			extraTech := g.world.creepsPlayerState.techLevel - info.minTechLevel
+			multiplier := 1.0
+			if extraTech > 0 {
+				multiplier = gmath.ClampMin(1.0-(extraTech*0.2), 0.8)
+			}
+			cooldown = (g.shuffledOptions[i].cost * multiplier)
+		}
 		choice.Option = g.shuffledOptions[i]
 	}
 	choice.Cooldown = cooldown
@@ -314,10 +432,47 @@ func (g *choiceGenerator) startCharging(targetValue float64) {
 	g.state = choiceCharging
 }
 
+func (g *choiceGenerator) generateChoicesForCreeps() {
+	techLevel := g.creepsState.techLevel
+	maxIndexAvailable := len(creepOptionInfoList) - 1
+	for i := 0; i < len(creepOptionInfoList); i++ {
+		info := creepOptionInfoList[i]
+		if info.minTechLevel > (techLevel + gmath.Epsilon) {
+			maxIndexAvailable = i - 1
+			break
+		}
+	}
+
+	const numCards = (_creepCardLast - _creepCardFirst) - 1
+	const numDirections = 4
+	var combinationsSet [numCards][numDirections]bool
+	for i := range g.shuffledOptions {
+		for {
+			creepIndex := g.world.rand.IntRange(0, maxIndexAvailable)
+			cardID := creepOptionInfoList[creepIndex].special - _creepCardFirst - 1
+			dir := g.world.rand.IntRange(0, 3)
+			if combinationsSet[cardID][dir] {
+				continue
+			}
+			o := &g.shuffledOptions[i]
+			o.special = creepOptionInfoList[creepIndex].special
+			o.icon = creepOptionInfoList[creepIndex].stats.image
+			o.cost = creepOptionInfoList[creepIndex].cooldown
+			o.direction = dir
+			combinationsSet[cardID][dir] = true
+			break
+		}
+	}
+}
+
 func (g *choiceGenerator) generateChoices() {
 	g.state = choiceReady
 
-	gmath.Shuffle(g.world.rand, g.shuffledOptions)
+	if g.creepsState != nil {
+		g.generateChoicesForCreeps()
+	} else {
+		gmath.Shuffle(g.world.rand, g.shuffledOptions)
+	}
 
 	if g.beforeSpecialShuffle == 0 {
 		g.buildTurret = !g.buildTurret
@@ -343,6 +498,6 @@ func (g *choiceGenerator) generateChoices() {
 
 	g.EventChoiceReady.Emit(choiceSelection{
 		cards:   g.shuffledOptions[:4],
-		special: g.specialChoices[g.specialOptionIndex],
+		special: specialChoicesTable[g.specialOptionIndex],
 	})
 }

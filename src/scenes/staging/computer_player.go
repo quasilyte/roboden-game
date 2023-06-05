@@ -15,6 +15,7 @@ import (
 // - attack enemy bases when strong
 // - use teleporters, when beneficial
 // - return to unbuilt bases
+// - do not start building turrets in the middle of nowhere (beginning of the game)
 
 type computerPlayer struct {
 	world *worldState
@@ -133,22 +134,22 @@ func (p *computerPlayer) GetState() *playerState { return p.state }
 
 func (p *computerPlayer) IsDisposed() bool { return false }
 
-func (p *computerPlayer) Update(delta float64) {
+func (p *computerPlayer) Update(computedDelta, delta float64) {
 	if p.world.nodeRunner.IsPaused() || len(p.state.colonies) == 0 {
 		return
 	}
 
 	p.state.selectedColony = p.state.colonies[0]
 
-	p.actionDelay = gmath.ClampMin(p.actionDelay-delta, 0)
-	p.buildColonyDelay = gmath.ClampMin(p.buildColonyDelay-delta, 0)
-	p.buildTurretDelay = gmath.ClampMin(p.buildTurretDelay-delta, 0)
+	p.actionDelay = gmath.ClampMin(p.actionDelay-computedDelta, 0)
+	p.buildColonyDelay = gmath.ClampMin(p.buildColonyDelay-computedDelta, 0)
+	p.buildTurretDelay = gmath.ClampMin(p.buildTurretDelay-computedDelta, 0)
 
 	for _, c := range p.colonies {
-		c.defendDelay = gmath.ClampMin(c.defendDelay-delta, 0)
-		c.moveDelay = gmath.ClampMin(c.moveDelay-delta, 0)
-		c.factionDelay = gmath.ClampMin(c.factionDelay-delta, 0)
-		c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+		c.defendDelay = gmath.ClampMin(c.defendDelay-computedDelta, 0)
+		c.moveDelay = gmath.ClampMin(c.moveDelay-computedDelta, 0)
+		c.factionDelay = gmath.ClampMin(c.factionDelay-computedDelta, 0)
+		c.specialDelay = gmath.ClampMin(c.specialDelay-computedDelta, 0)
 	}
 }
 
@@ -303,15 +304,39 @@ func (p *computerPlayer) maybeRetreatFromBoss(colony *computerColony) bool {
 	if boss.waypoint.IsZero() {
 		return false
 	}
+
 	bossDist := boss.pos.DistanceTo(colony.node.pos)
-	if bossDist > 800 {
+	if bossDist > colony.node.PatrolRadius()+400 {
 		return false
 	}
+
 	dangerousDist := uberBossCreepStats.weapon.AttackRange + colony.node.PatrolRadius()
 	pathDist := pointToLineDistance(colony.node.pos, boss.pos, boss.waypoint)
 	if pathDist > dangerousDist {
 		return false
 	}
+
+	if p.world.rand.Chance(0.9) {
+		// Try to get out of the boss movement trajectory.
+		bossDir := boss.waypoint.DirectionTo(boss.pos)
+		probe1 := bossDir.Rotated(gmath.Rad(p.world.rand.FloatRange(0.45, 1.1))).Mulf(colony.node.MaxFlyDistance()).Add(colony.node.pos)
+		danger1, _ := calcPosDanger(p.world, p.state, probe1, colony.node.realRadius)
+		probe2 := bossDir.Rotated(gmath.Rad(-p.world.rand.FloatRange(0.45, 1.1))).Mulf(colony.node.MaxFlyDistance()).Add(colony.node.pos)
+		danger2, _ := calcPosDanger(p.world, p.state, probe2, colony.node.realRadius)
+		if danger1 == danger2 && p.world.rand.Bool() {
+			danger1, probe1 = danger2, probe2
+		}
+		bestProbe := probe1
+		lowestDanger := danger1
+		if danger2 < danger1 {
+			bestProbe = probe2
+			lowestDanger = danger2
+		}
+		if lowestDanger == 0 || lowestDanger < 2*p.selectedColonyPower() {
+			return p.tryExecuteAction(colony.node, -1, bestProbe)
+		}
+	}
+
 	return p.maybeRetreatFrom(colony, boss.pos)
 }
 
@@ -581,12 +606,12 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) bool {
 	}
 
 	// Reason to move 2: swarmed by enemies.
-	danger, dangerousPos := calcPosDanger(p.world, p.state, colony.node.pos, colony.node.PatrolRadius()+100)
+	danger, dangerousPos := calcPosDanger(p.world, p.state, colony.node.pos, colony.node.realRadius+100)
 	if danger >= p.world.rand.IntRange(700, 1000) {
 		p.maybeRetreatFrom(colony, dangerousPos)
 	}
-	if danger > 100 {
-		power := int(float64(p.calcColonyPower(colony.node)) * p.world.rand.FloatRange(0.75, 1.1))
+	if danger > 150 && colony.node.resources > 200 {
+		power := int(float64(p.selectedColonyPower()) * p.world.rand.FloatRange(0.9, 1.1))
 		if power < danger {
 			p.maybeRetreatFrom(colony, dangerousPos)
 		}

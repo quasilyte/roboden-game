@@ -28,7 +28,7 @@ func (p *replayPlayer) Init() {
 	p.state.selectedColony = p.state.colonies[0]
 }
 
-func (p *replayPlayer) Update(delta float64) {}
+func (p *replayPlayer) Update(computedDelta, delta float64) {}
 
 func (p *replayPlayer) GetState() *playerState { return p.state }
 

@@ -144,7 +144,7 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 }
 
 func (c *colonyCoreNode) spriteWithAlliance(imageID resource.ImageID) *ge.Sprite {
-	if len(c.world.players) > 1 {
+	if len(c.world.players) > 1 && c.world.config.GameMode != gamedata.ModeReverse {
 		img := c.scene.LoadImage(imageID)
 		paintedImg := ebiten.NewImage(img.Data.Size())
 		var drawOptions ebiten.DrawImageOptions

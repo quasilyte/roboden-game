@@ -18,6 +18,7 @@ const (
 	ModeClassic Mode = iota
 	ModeArena
 	ModeInfArena
+	ModeReverse
 
 	ModeTutorial
 
@@ -32,6 +33,8 @@ func (m Mode) String() string {
 		return "arena"
 	case ModeInfArena:
 		return "inf_arena"
+	case ModeReverse:
+		return "reverse"
 	case ModeTutorial:
 		return "tutorial"
 	default:

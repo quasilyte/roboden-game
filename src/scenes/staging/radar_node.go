@@ -4,9 +4,15 @@ import (
 	"math"
 
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 )
+
+type radarColonySpot struct {
+	colony *colonyCoreNode
+	spot   *ge.Sprite
+}
 
 type radarNode struct {
 	sprite *ge.Sprite
@@ -21,8 +27,13 @@ type radarNode struct {
 	diameter       float64
 	scaleRatio     float64
 
+	dark bool
+
 	bossSpot *ge.Sprite
 	bossPath *ge.Line
+
+	cameraRect *ge.Rect
+	colonies   []radarColonySpot
 
 	pos       gmath.Vec
 	direction gmath.Rad
@@ -31,15 +42,44 @@ type radarNode struct {
 	colony *colonyCoreNode
 }
 
-func newRadarNode(world *worldState, p *humanPlayer) *radarNode {
+func newRadarNode(world *worldState, p *humanPlayer, dark bool) *radarNode {
 	return &radarNode{
 		world:    world,
 		nearDist: 1536,
 		player:   p,
+		dark:     dark,
 	}
 }
 
+func (r *radarNode) RemoveColony(colony *colonyCoreNode) {
+	index := xslices.IndexWhere(r.colonies, func(elem radarColonySpot) bool {
+		return elem.colony == colony
+	})
+	if index == -1 {
+		return
+	}
+	c := r.colonies[index]
+	c.spot.Dispose()
+	r.colonies = xslices.RemoveAt(r.colonies, index)
+}
+
+func (r *radarNode) AddColony(colony *colonyCoreNode) {
+	spot := r.scene.NewSprite(assets.ImageRadarBossNear)
+	spot.Pos.Base = &r.pos
+	r.updateDark()
+	r.player.state.camera.UI.AddGraphics(spot)
+
+	r.colonies = append(r.colonies, radarColonySpot{
+		colony: colony,
+		spot:   spot,
+	})
+}
+
 func (r *radarNode) SetBase(colony *colonyCoreNode) {
+	if r.dark {
+		panic("setting a base for a dark radar")
+	}
+
 	r.colony = colony
 	r.bossSpot.Visible = false
 	r.bossPath.Visible = false
@@ -50,7 +90,11 @@ func (r *radarNode) IsDisposed() bool { return false }
 func (r *radarNode) Init(scene *ge.Scene) {
 	r.scene = scene
 
-	r.sprite = scene.NewSprite(assets.ImageRadar)
+	img := assets.ImageRadar
+	if r.dark {
+		img = assets.ImageDarkRadar
+	}
+	r.sprite = scene.NewSprite(img)
 	r.sprite.Pos.Offset = gmath.Vec{
 		X: 8 + r.sprite.ImageWidth()/2,
 		Y: 1080/2 - (8 + r.sprite.ImageHeight()/2),
@@ -67,23 +111,45 @@ func (r *radarNode) Init(scene *ge.Scene) {
 		Y: 1080/2 - r.sprite.ImageHeight() - 8,
 	})
 
-	r.wave = scene.NewSprite(assets.ImageRadarWave)
-	r.wave.Pos.Base = &r.pos
-	r.wave.Rotation = &r.direction
-	r.player.state.camera.UI.AddGraphics(r.wave)
+	if !r.dark {
+		r.wave = scene.NewSprite(assets.ImageRadarWave)
+		r.wave.Pos.Base = &r.pos
+		r.wave.Rotation = &r.direction
+		r.player.state.camera.UI.AddGraphics(r.wave)
 
-	r.bossPath = ge.NewLine(ge.Pos{}, ge.Pos{})
-	var pathColor ge.ColorScale
-	pathColor.SetColor(ge.RGB(0x91234e))
-	r.bossPath.SetColorScale(pathColor)
-	r.bossPath.Visible = false
-	r.player.state.camera.UI.AddGraphics(r.bossPath)
+		r.bossPath = ge.NewLine(ge.Pos{}, ge.Pos{})
+		var pathColor ge.ColorScale
+		pathColor.SetColor(ge.RGB(0x91234e))
+		r.bossPath.SetColorScale(pathColor)
+		r.bossPath.Visible = false
+		r.player.state.camera.UI.AddGraphics(r.bossPath)
+	}
 
 	r.bossSpot = ge.NewSprite(scene.Context())
 	r.bossSpot.Pos.Base = &r.pos
-	r.bossSpot.Centered = false
 	r.bossSpot.Visible = false
+	r.bossSpot.Centered = false
 	r.player.state.camera.UI.AddGraphics(r.bossSpot)
+
+	if r.dark {
+		r.scaleRatio = r.diameter / r.world.width
+
+		r.bossSpot.SetImage(r.scene.LoadImage(assets.ImageRadarAlliedSpot))
+		r.bossSpot.Visible = true
+		r.bossSpot.Centered = true
+
+		cam := r.player.state.camera.Rect
+		r.cameraRect = ge.NewRect(scene.Context(),
+			math.Round(cam.Width()*r.scaleRatio),
+			math.Round(cam.Height()*r.scaleRatio))
+		r.cameraRect.OutlineWidth = 1
+		r.cameraRect.FillColorScale.SetRGBA(0, 0, 0, 0)
+		r.cameraRect.OutlineColorScale.SetColor(dpadBarColorNormal)
+		r.cameraRect.Pos.Base = &r.pos
+		r.player.state.camera.UI.AddGraphics(r.cameraRect)
+
+		r.updateDark()
+	}
 }
 
 func (r *radarNode) setBossVisibility(visible bool) {
@@ -92,6 +158,37 @@ func (r *radarNode) setBossVisibility(visible bool) {
 }
 
 func (r *radarNode) Update(delta float64) {
+	if r.dark {
+		r.updateDark()
+	} else {
+		r.update(delta)
+	}
+}
+
+func (r *radarNode) translatePosToOffset(pos gmath.Vec) gmath.Vec {
+	local := gmath.Vec{
+		X: pos.X * r.scaleRatio,
+		Y: pos.Y * r.scaleRatio,
+	}
+	return local.Sub(gmath.Vec{X: r.radius, Y: r.radius})
+}
+
+func (r *radarNode) updateDark() {
+	cameraOffset := r.player.state.camera.CenterPos()
+	r.cameraRect.Pos.Offset = r.translatePosToOffset(cameraOffset)
+
+	if r.world.boss != nil {
+		r.bossSpot.Pos.Offset = r.translatePosToOffset(r.world.boss.pos)
+	} else {
+		r.bossSpot.Visible = false
+	}
+
+	for _, c := range r.colonies {
+		c.spot.Pos.Offset = r.translatePosToOffset(c.colony.pos)
+	}
+}
+
+func (r *radarNode) update(delta float64) {
 	r.sprite.Visible = r.colony != nil
 	r.wave.Visible = r.colony != nil
 	if r.bossSpot.Visible && r.colony == nil {

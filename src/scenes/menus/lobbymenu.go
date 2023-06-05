@@ -17,6 +17,7 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes/staging"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 )
 
@@ -32,6 +33,9 @@ type LobbyMenuController struct {
 	difficultyLabel      *widget.Text
 
 	seedInput *widget.TextInput
+
+	colonyTab *widget.TabBookTab
+	worldTab  *widget.TabBookTab
 
 	helpPanel         *widget.Container
 	helpLabel         *widget.Text
@@ -61,16 +65,7 @@ func NewLobbyMenuController(state *session.State, mode gamedata.Mode) *LobbyMenu
 func (c *LobbyMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 
-	switch c.mode {
-	case gamedata.ModeArena:
-		c.config = c.state.ArenaLevelConfig.Clone()
-	case gamedata.ModeInfArena:
-		c.config = c.state.InfArenaLevelConfig.Clone()
-	case gamedata.ModeClassic:
-		c.config = c.state.LevelConfig.Clone()
-	default:
-		panic("unexpected game mode")
-	}
+	c.config = *c.getConfigForMode()
 	c.config.Tutorial = nil
 
 	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
@@ -172,7 +167,8 @@ func (c *LobbyMenuController) initUI() {
 	rightRows := eui.NewRowLayoutContainer(4, []bool{false, true, false, false})
 	rootGrid.AddChild(rightRows)
 
-	leftRows.AddChild(c.createTabs(uiResources))
+	tabs := c.createTabs(uiResources)
+	leftRows.AddChild(tabs)
 
 	rightRows.AddChild(c.createSeedPanel(uiResources))
 	rightRows.AddChild(c.createHelpPanel(uiResources))
@@ -185,14 +181,23 @@ func (c *LobbyMenuController) initUI() {
 	c.updateDifficultyScore(c.calcDifficultyScore())
 }
 
-func (c *LobbyMenuController) saveConfig() {
-	clonedConfig := c.config.Clone()
+func (c *LobbyMenuController) getConfigForMode() *gamedata.LevelConfig {
 	switch c.mode {
 	case gamedata.ModeArena:
-		c.state.ArenaLevelConfig = &clonedConfig
+		return c.state.ArenaLevelConfig
+	case gamedata.ModeInfArena:
+		return c.state.InfArenaLevelConfig
+	case gamedata.ModeClassic:
+		return c.state.ClassicLevelConfig
+	case gamedata.ModeReverse:
+		return c.state.ReverseLevelConfig
 	default:
-		c.state.LevelConfig = &clonedConfig
+		panic("unexpected game mode")
 	}
+}
+
+func (c *LobbyMenuController) saveConfig() {
+	*c.getConfigForMode() = c.config.Clone()
 }
 
 func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *widget.Container {
@@ -221,6 +226,10 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			c.config.Seed = c.randomSeed()
 		}
 
+		if c.config.PlayersMode == serverapi.PmodeSinglePlayer {
+			c.config.Tier2Recipes = gamedata.CreateDroneBuild(c.scene.Rand())
+		}
+
 		c.config.Finalize()
 
 		var seenFlag *bool
@@ -231,6 +240,8 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			seenFlag = &c.state.Persistent.SeenArenaMode
 		case gamedata.ModeInfArena:
 			seenFlag = &c.state.Persistent.SeenInfArenaMode
+		case gamedata.ModeReverse:
+			seenFlag = &c.state.Persistent.SeenReverseMode
 		}
 		if !*seenFlag {
 			*seenFlag = true
@@ -274,12 +285,19 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 func (c *LobbyMenuController) createTabs(uiResources *eui.Resources) *widget.TabBook {
 	tabs := []*widget.TabBookTab{}
 
-	tabs = append(tabs, c.createColonyTab(uiResources))
-	tabs = append(tabs, c.createWorldTab(uiResources))
+	colonyTab := c.createColonyTab(uiResources)
+	tabs = append(tabs, colonyTab)
+	worldTab := c.createWorldTab(uiResources)
+	tabs = append(tabs, worldTab)
 	tabs = append(tabs, c.createDifficultyTab(uiResources))
 	tabs = append(tabs, c.createExtraTab(uiResources))
 
+	if c.config.RawGameMode == "reverse" {
+		c.maybeDisableColonyTab(c.config.PlayersMode != serverapi.PmodeTwoPlayers)
+	}
+
 	t := widget.NewTabBook(
+		// widget.TabBookOpts.InitialTab(worldTab),
 		widget.TabBookOpts.Tabs(tabs...),
 		widget.TabBookOpts.TabButtonImage(uiResources.TabButton.Image),
 		widget.TabBookOpts.TabButtonText(uiResources.TabButton.FontFace, uiResources.TabButton.TextColors),
@@ -297,6 +315,13 @@ func (c *LobbyMenuController) createTabs(uiResources *eui.Resources) *widget.Tab
 	return t
 }
 
+func (c *LobbyMenuController) maybeDisableColonyTab(disable bool) {
+	if c.config.RawGameMode != "reverse" {
+		return
+	}
+	c.colonyTab.Disabled = disable
+}
+
 func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget.TabBookTab {
 	d := c.scene.Dict()
 
@@ -311,8 +336,11 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 
 	{
 		disabled := []int{}
+		if c.config.RawGameMode == "reverse" {
+			disabled = append(disabled, 1, 2, 4) // These combinations are not supported for this mode
+		}
 		if c.state.Device.IsMobile {
-			disabled = []int{3} // Two players are not available on mobiles
+			disabled = append(disabled, 3) // Two players are not available on mobiles
 		}
 		b := c.newOptionButtonWithDisabled(&c.config.PlayersMode, "menu.lobby.players."+c.config.RawGameMode, disabled, []string{
 			d.Get("menu.lobby.player_mode.single_player"),
@@ -322,9 +350,13 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 			d.Get("menu.lobby.player_mode.two_bots"),
 		})
 		tab.AddChild(b)
+		b.PressedEvent.AddHandler(func(args interface{}) {
+			// This handler is called before the config value is changed.
+			c.maybeDisableColonyTab(c.config.PlayersMode == serverapi.PmodeTwoPlayers)
+		})
 	}
 
-	{
+	if c.config.RawGameMode != "reverse" {
 		disabled := []int{}
 		if c.config.RawGameMode == "arena" || c.config.RawGameMode == "inf_arena" {
 			disabled = []int{1}
@@ -346,7 +378,7 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		tab.AddChild(b)
 	}
 
-	{
+	if c.config.RawGameMode != "reverse" {
 		b := c.newBoolOptionButton(&c.config.FogOfWar, "menu.lobby.fog_of_war", []string{
 			d.Get("menu.option.off"),
 			d.Get("menu.option.on"),
@@ -400,6 +432,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 
 	{
 		b := c.newOptionButton(&c.config.CreepDifficulty, "menu.lobby.creeps_difficulty", []string{
+			"40%",
 			"60%",
 			"80%",
 			"100%",
@@ -410,6 +443,30 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"200%",
 		})
 		tab.AddChild(b)
+	}
+
+	{
+		b := c.newOptionButton(&c.config.DronesPower, "menu.lobby.drones_power", []string{
+			"80%",
+			"100%",
+			"120%",
+			"140%",
+			"160%",
+			"180%",
+			"200%",
+		})
+		tab.AddChild(b)
+	}
+
+	if c.mode == gamedata.ModeReverse {
+		tab.AddChild(c.newOptionButton(&c.config.TechProgressRate, "menu.lobby.tech_progress_rate", []string{
+			"60%",
+			"70%",
+			"80%",
+			"90%",
+			"100%",
+			"110%",
+		}))
 	}
 
 	if c.mode == gamedata.ModeClassic {
@@ -481,7 +538,7 @@ func (c *LobbyMenuController) newBoolOptionButton(value *bool, key string, value
 	})
 }
 
-func (c *LobbyMenuController) newOptionButtonWithDisabled(value *int, key string, disabled []int, valueNames []string) widget.PreferredSizeLocateableWidget {
+func (c *LobbyMenuController) newOptionButtonWithDisabled(value *int, key string, disabled []int, valueNames []string) *widget.Button {
 	return eui.NewSelectButton(eui.SelectButtonConfig{
 		Scene:          c.scene,
 		Resources:      c.state.Resources.UI,
@@ -555,6 +612,8 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 		tab.AddChild(b)
 	}
 
+	c.worldTab = tab
+
 	return tab
 }
 
@@ -585,6 +644,8 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 	tab.AddChild(c.createDronesPanel(uiResources))
 
 	c.updateAllocatedPoints(c.calcAllocatedPoints())
+
+	c.colonyTab = tab
 
 	return tab
 }

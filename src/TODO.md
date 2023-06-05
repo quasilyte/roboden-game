@@ -8,6 +8,10 @@ todo engine:
 - add Midpoint to gmath
 - add distance between line and point to gmath
 - add LoadGameDataRaw
+- gmath DirectionTo works in counter-intuitive way
+
+reverse mode:
+- enable replays?
 
 computers and multi-players:
 - implement defeat condition again

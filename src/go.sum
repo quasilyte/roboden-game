@@ -26,8 +26,8 @@ github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8/go.mod h1:HKlIX3XHQyzL
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e h1:P56RXrUSBSZY0OvMTu9yxIGjlZSo6O87H+Hm29Hvb/M=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
-github.com/quasilyte/ge v0.0.0-20230528170445-fc49d24b9f31 h1:1xkO+fPsbGwe6Rcbn7ciqY+2JRA3XraxUAxqllTbRZc=
-github.com/quasilyte/ge v0.0.0-20230528170445-fc49d24b9f31/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
+github.com/quasilyte/ge v0.0.0-20230602233021-0e7f85c2e3e7 h1:FBtFWeUZOIpHhWV5f0y7hYFR5WEbaNpToYZI4qJgDNQ=
+github.com/quasilyte/ge v0.0.0-20230602233021-0e7f85c2e3e7/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
 github.com/quasilyte/gmath v0.0.0-20230428180022-2163470ca0a9 h1:a7LbchKx0dyxohIASRHDr16ylkxlfZ3XGeqzwd09J+Q=
 github.com/quasilyte/gmath v0.0.0-20230428180022-2163470ca0a9/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gsignal v0.0.0-20230130114532-ff67b4bb9e15 h1:7JgEJ6KA+VQtt+Bbx2MpV4LttBOJTLH4ehB/R3DfijM=

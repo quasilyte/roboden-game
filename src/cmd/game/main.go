@@ -105,6 +105,10 @@ func main() {
 	fmt.Println("is mobile?", state.Device.IsMobile)
 	fmt.Println("game commit version:", CommitHash)
 
+	ctx.NewPanicController = func(panicInfo *ge.PanicInfo) ge.SceneController {
+		return menus.NewPanicController(panicInfo)
+	}
+
 	if err := ge.RunGame(ctx, menus.NewBootloadController(state)); err != nil {
 		panic(err)
 	}
@@ -144,7 +148,7 @@ func newLevelConfig(config *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.Terrain = 1
 	config.Resources = 2
 	config.WorldSize = 2
-	config.CreepDifficulty = 2
+	config.CreepDifficulty = 3
 	config.BossDifficulty = 1
 
 	return config
@@ -152,11 +156,22 @@ func newLevelConfig(config *gamedata.LevelConfig) *gamedata.LevelConfig {
 
 func getDefaultSessionState() *session.State {
 	state := &session.State{
+		ReverseLevelConfig: newLevelConfig(&gamedata.LevelConfig{
+			EnemyBoss: true,
+			ReplayLevelConfig: serverapi.ReplayLevelConfig{
+				Teleporters:      1,
+				RawGameMode:      "reverse",
+				TechProgressRate: 4,
+				DronesPower:      1,
+				InitialCreeps:    1,
+			},
+		}),
 		ArenaLevelConfig: newLevelConfig(&gamedata.LevelConfig{
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				ArenaProgression: 1,
 				Teleporters:      1,
 				RawGameMode:      "arena",
+				DronesPower:      1,
 			},
 		}),
 		InfArenaLevelConfig: newLevelConfig(&gamedata.LevelConfig{
@@ -164,9 +179,10 @@ func getDefaultSessionState() *session.State {
 				ArenaProgression: 1,
 				Teleporters:      1,
 				RawGameMode:      "inf_arena",
+				DronesPower:      1,
 			},
 		}),
-		LevelConfig: newLevelConfig(&gamedata.LevelConfig{
+		ClassicLevelConfig: newLevelConfig(&gamedata.LevelConfig{
 			EnemyBoss: true,
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				SuperCreeps:    false,
@@ -181,7 +197,7 @@ func getDefaultSessionState() *session.State {
 		Device:     userdevice.GetInfo(),
 	}
 
-	tutorialConfig := state.LevelConfig.Clone()
+	tutorialConfig := state.ClassicLevelConfig.Clone()
 	state.TutorialLevelConfig = &tutorialConfig
 	state.TutorialLevelConfig.Tutorial = gamedata.Tutorials[0]
 

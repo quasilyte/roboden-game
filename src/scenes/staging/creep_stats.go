@@ -118,7 +118,7 @@ var turretConstructionCreepStats = &creepStats{
 
 var wandererCreepStats = &creepStats{
 	kind:        creepPrimitiveWanderer,
-	image:       assets.ImagePrimitiveCreep,
+	image:       assets.ImageCreepTier1,
 	shadowImage: assets.ImageSmallShadow,
 	tier:        1,
 	speed:       40,
@@ -229,12 +229,12 @@ var heavyCrawlerCreepStats = &creepStats{
 		BurstSize:       5,
 		BurstDelay:      0.1,
 		AttackSound:     assets.AudioHeavyCrawlerShot,
-		AttackRange:     240,
+		AttackRange:     260,
 		ImpactArea:      12,
 		ProjectileSpeed: 280,
 		Damage:          gamedata.DamageValue{Health: 2},
 		ProjectileImage: assets.ImageHeavyCrawlerProjectile,
-		Reload:          2.5,
+		Reload:          2.4,
 		TargetFlags:     gamedata.TargetFlying | gamedata.TargetGround,
 		FireOffset:      gmath.Vec{Y: -2},
 		Explosion:       gamedata.ProjectileExplosionHeavyCrawlerLaser,
@@ -353,7 +353,7 @@ var dominatorCreepStats = &creepStats{
 	shadowImage: assets.ImageBigShadow,
 	tier:        3,
 	speed:       35,
-	maxHealth:   190,
+	maxHealth:   200,
 	weapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{
 		MaxTargets:  1,
 		BurstSize:   1,
@@ -420,8 +420,8 @@ var stunnerCreepStats = &creepStats{
 		BurstSize:   1,
 		AttackSound: assets.AudioStunBeam,
 		AttackRange: 230,
-		Damage:      gamedata.DamageValue{Health: 2, Energy: 40},
-		Reload:      2.6,
+		Damage:      gamedata.DamageValue{Health: 1, Energy: 40},
+		Reload:      2.8,
 		TargetFlags: gamedata.TargetFlying | gamedata.TargetGround,
 	}),
 	superWeapon: gamedata.InitWeaponStats(&gamedata.WeaponStats{

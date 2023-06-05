@@ -193,7 +193,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	if a.cloneGen == 0 {
 		a.energyRegenRate = 1 + a.stats.EnergyRegenRateBonus
 		a.healthRegen = a.stats.SelfRepair
-		a.maxHealth = a.stats.MaxHealth * scene.Rand().FloatRange(0.9, 1.1)
+		a.maxHealth = a.stats.MaxHealth * scene.Rand().FloatRange(0.9, 1.1) * a.world().droneHealthMultiplier
 		a.maxEnergy = scene.Rand().FloatRange(120, 200)
 		a.speed = a.stats.Speed * scene.Rand().FloatRange(0.8, 1.1)
 

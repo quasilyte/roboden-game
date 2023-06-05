@@ -37,8 +37,9 @@ type worldState struct {
 	walls          []*wallClusterNode
 	teleporters    []*teleporterNode
 
-	boss             *creepNode
-	creepCoordinator *creepCoordinator
+	boss              *creepNode
+	creepCoordinator  *creepCoordinator
+	creepsPlayerState *creepsPlayerState
 
 	creepClusterSize       float64
 	creepClusterMultiplier float64
@@ -54,11 +55,13 @@ type worldState struct {
 	evolutionEnabled bool
 	movementEnabled  bool
 
-	width     float64
-	height    float64
-	rect      gmath.Rect
-	innerRect gmath.Rect
+	width      float64
+	height     float64
+	rect       gmath.Rect
+	innerRect  gmath.Rect
+	spawnAreas []gmath.Rect
 
+	droneHealthMultiplier float64
 	creepHealthMultiplier float64
 	bossHealthMultiplier  float64
 	oilRegenMultiplier    float64
@@ -157,6 +160,21 @@ func (w *worldState) UnmarkCell(coord pathing.GridCoord) {
 func (w *worldState) Init() {
 	w.gridCounters = make(map[int]uint8)
 
+	{
+		pad := 160.0
+		offscreenPad := 160.0
+		w.spawnAreas = []gmath.Rect{
+			// right border (east)
+			{Min: gmath.Vec{X: w.width, Y: pad}, Max: gmath.Vec{X: w.width + offscreenPad, Y: w.height - pad}},
+			// bottom border (south)
+			{Min: gmath.Vec{X: pad, Y: w.height}, Max: gmath.Vec{X: w.width - pad, Y: w.height + offscreenPad}},
+			// left border (west)
+			{Min: gmath.Vec{X: -offscreenPad, Y: pad}, Max: gmath.Vec{X: 0, Y: w.height - pad}},
+			// top border (north)
+			{Min: gmath.Vec{X: pad, Y: -offscreenPad}, Max: gmath.Vec{X: w.width - pad, Y: 0}},
+		}
+	}
+
 	w.creepClusterSize = w.width * 0.125
 	w.creepClusterMultiplier = 1.0 / w.creepClusterSize
 	w.fallbackCreepCluster = make([]*creepNode, 0, 32)
@@ -202,7 +220,8 @@ func (w *worldState) Init() {
 		}
 	}
 
-	w.creepHealthMultiplier = 0.6 + (float64(w.config.CreepDifficulty) * 0.2)
+	w.droneHealthMultiplier = 0.8 + (float64(w.config.DronesPower) * 0.2)
+	w.creepHealthMultiplier = 0.4 + (float64(w.config.CreepDifficulty) * 0.2)
 	w.bossHealthMultiplier = 0.7 + (float64(w.config.BossDifficulty) * 0.3)
 	w.oilRegenMultiplier = float64(w.config.OilRegenRate) * 0.5
 

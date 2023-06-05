@@ -78,6 +78,19 @@ func (c *PlayMenuController) initUI() {
 		rowContainer.AddChild(b)
 	}
 
+	{
+		label := d.Get("menu.play.reverse")
+		unlocked := score >= gamedata.ReverseModeCost
+		if !unlocked {
+			label += fmt.Sprintf(" [%d/%d]", score, gamedata.ReverseModeCost)
+		}
+		b := eui.NewButton(uiResources, c.scene, label, func() {
+			c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeReverse))
+		})
+		b.GetWidget().Disabled = !unlocked
+		rowContainer.AddChild(b)
+	}
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.tutorial"), func() {
 		c.scene.Context().ChangeScene(NewTutorialMenuController(c.state))
 	}))

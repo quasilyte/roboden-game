@@ -16,6 +16,8 @@ import (
 	"github.com/quasilyte/roboden-game/timeutil"
 )
 
+const maxArenaGroupBudget = 110
+
 type arenaCreepInfo struct {
 	stats    *creepStats
 	cost     int
@@ -37,8 +39,6 @@ type arenaManager struct {
 	infArena bool
 
 	attackSides []int
-
-	spawnAreas []gmath.Rect
 
 	waveInfo arenaWaveInfo
 
@@ -63,13 +63,15 @@ type arenaManager struct {
 }
 
 type arenaWaveUnit struct {
-	stats *creepStats
-	super bool
+	stats     *creepStats
+	super     bool
+	fragScore int
 }
 
 type arenaWaveGroup struct {
-	units []arenaWaveUnit
-	side  int
+	units     []arenaWaveUnit
+	totalCost int
+	side      int
 }
 
 type arenaWaveInfo struct {
@@ -163,8 +165,6 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		m.stealthCrawlerCreepInfo,
 		m.heavyCrawlerCreepInfo,
 	}
-
-	m.spawnAreas = creepSpawnAreas(m.world)
 
 	m.budgetStepMultiplier = 0.80 + (float64(m.world.config.ArenaProgression) * 0.2)
 	m.infoUpdateDelay = 5
@@ -323,45 +323,13 @@ func (m *arenaManager) spawnCreeps() {
 	isLastLevel := !m.infArena && m.level == m.lastLevel
 
 	for _, g := range m.waveInfo.groups {
-		sector := m.spawnAreas[g.side]
-		spawnPos := randomSectorPos(m.world.rand, sector)
-		targetPos := correctedPos(m.world.rect, randomSectorPos(m.world.rand, sector), 520)
-		for _, u := range g.units {
-			creepStats := u.stats
-			creepPos := spawnPos
-			spawnDelay := 0.0
-			if creepStats.shadowImage == assets.ImageNone {
-				creepPos, spawnDelay = groundCreepSpawnPos(m.world, creepPos, creepStats)
-				if creepPos.IsZero() {
-					continue
-				}
-			} else {
-				creepPos = creepPos.Add(m.world.rand.Offset(-60, 60))
-			}
-
-			fragScore := 0
-			if isLastLevel {
-				fragScore = creepFragScore(creepStats)
-				if u.super {
-					fragScore *= superCreepCostMultiplier(creepStats)
-				}
-			}
-
-			creepTargetPos := targetPos.Add(m.world.rand.Offset(-60, 60))
-			m.world.result.CreepTotalValue += fragScore
-			if spawnDelay > 0 {
-				spawner := newCreepSpawnerNode(m.world, spawnDelay, creepPos, creepTargetPos, creepStats)
-				spawner.fragScore = fragScore
-				spawner.super = u.super
-				m.world.nodeRunner.AddObject(spawner)
-			} else {
-				creep := m.world.NewCreepNode(creepPos, creepStats)
-				creep.super = u.super
-				m.world.nodeRunner.AddObject(creep)
-				creep.SendTo(creepTargetPos)
-				creep.fragScore = fragScore
+		if isLastLevel {
+			for i := range g.units {
+				u := &g.units[i]
+				u.fragScore = creepCost(u.stats, u.super)
 			}
 		}
+		sendCreeps(m.world, g)
 	}
 }
 
@@ -445,14 +413,13 @@ func (m *arenaManager) prepareWave() {
 			creepSelection = append(creepSelection, m.builderCreepInfo)
 		}
 
-		const maxGroupBudget = 110
 		for sideBudget > 0 {
 			groupCreepSelection := m.groupCreepSelectionSlice[:0]
 			groupCreepSelection = append(groupCreepSelection, creepSelection...)
 			g := arenaWaveGroup{side: side}
 			localBudget := sideBudget
-			if localBudget > maxGroupBudget {
-				localBudget = maxGroupBudget
+			if localBudget > maxArenaGroupBudget {
+				localBudget = maxArenaGroupBudget
 			}
 			sideBudget -= localBudget
 			for {

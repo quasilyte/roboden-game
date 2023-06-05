@@ -2,12 +2,18 @@ package staging
 
 import (
 	"image/color"
+	"math"
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/viewport"
+)
+
+var (
+	dpadBarColorBright = ge.RGB(0x48d35d)
+	dpadBarColorNormal = ge.RGB(0x3ea24d)
 )
 
 func setPriorityIconFrame(s *ge.Sprite, priority colonyPriority, faction gamedata.FactionTag) {
@@ -24,11 +30,26 @@ type rpanelNode struct {
 	layerSprite1 *ge.Sprite
 	layerSprite2 *ge.Sprite
 
-	colony *colonyCoreNode
+	// 4 rects for colonies.
+	// 1 rect for creeps.
+	factionRects []*ge.Rect
 
-	factionRects  []*ge.Rect
-	priorityBars  []*ge.Sprite
+	// For colonies.
+	colony        *colonyCoreNode
 	priorityIcons []*ge.Sprite
+	priorityBars  []*ge.Sprite
+
+	// For creeps.
+	creepsState *creepsPlayerState
+	dpad        *ge.Sprite
+	dpadRects   []*ge.Rect
+}
+
+func newCreepsRpanelNode(cam *viewport.Camera, creepsState *creepsPlayerState) *rpanelNode {
+	return &rpanelNode{
+		cam:         cam,
+		creepsState: creepsState,
+	}
 }
 
 func newRpanelNode(cam *viewport.Camera) *rpanelNode {
@@ -39,16 +60,44 @@ func newRpanelNode(cam *viewport.Camera) *rpanelNode {
 
 func (panel *rpanelNode) IsDisposed() bool { return false }
 
-func (panel *rpanelNode) Init(scene *ge.Scene) {
-	panel.scene = scene
+func (panel *rpanelNode) initFactionsForColonies() {
+	cameraWidth := panel.cam.Rect.Width()
+	colors := [...]color.RGBA{
+		gamedata.FactionByTag(gamedata.YellowFactionTag).Color,
+		gamedata.FactionByTag(gamedata.RedFactionTag).Color,
+		gamedata.FactionByTag(gamedata.GreenFactionTag).Color,
+		gamedata.FactionByTag(gamedata.BlueFactionTag).Color,
+	}
+	for _, clr := range colors {
+		rect := ge.NewRect(panel.scene.Context(), 5, 0)
+		rect.Centered = false
+		rect.Pos.Offset = gmath.Vec{X: (cameraWidth - 8)}
+		rect.FillColorScale.SetColor(clr)
+		panel.cam.UI.AddGraphicsAbove(rect)
+		panel.factionRects = append(panel.factionRects, rect)
+	}
+}
 
+func (panel *rpanelNode) initFactionsForCreeps() {
 	cameraWidth := panel.cam.Rect.Width()
 
-	panel.layerSprite1 = scene.NewSprite(assets.ImageRightPanelLayer1)
-	panel.layerSprite1.Pos.Offset.X = (cameraWidth - panel.layerSprite1.FrameWidth)
-	panel.layerSprite1.Centered = false
-	panel.cam.UI.AddGraphicsBelow(panel.layerSprite1)
+	rect := ge.NewRect(panel.scene.Context(), 5, 0)
+	rect.Centered = false
+	rect.Pos.Offset = gmath.Vec{X: (cameraWidth - 8)}
+	rect.FillColorScale.SetColor(dpadBarColorNormal)
+	panel.cam.UI.AddGraphicsAbove(rect)
+	panel.factionRects = append(panel.factionRects, rect)
 
+	rect2 := ge.NewRect(panel.scene.Context(), 5, 0)
+	rect2.Centered = false
+	rect2.Pos.Offset = gmath.Vec{X: (cameraWidth - 8)}
+	rect2.FillColorScale.SetColor(dpadBarColorBright)
+	panel.cam.UI.AddGraphicsAbove(rect2)
+	panel.factionRects = append(panel.factionRects, rect2)
+}
+
+func (panel *rpanelNode) initPrioritiesForColonies() {
+	cameraWidth := panel.cam.Rect.Width()
 	priorities := []colonyPriority{
 		priorityResources,
 		priorityGrowth,
@@ -56,12 +105,12 @@ func (panel *rpanelNode) Init(scene *ge.Scene) {
 		prioritySecurity,
 	}
 	for i, priority := range priorities {
-		bar := scene.NewSprite(assets.ImagePriorityBar)
+		bar := panel.scene.NewSprite(assets.ImagePriorityBar)
 		bar.Pos.Offset = gmath.Vec{X: (cameraWidth - (panel.layerSprite1.FrameWidth - 16)) + ((18 + bar.FrameWidth) * float64(i))}
 		bar.Centered = false
 		panel.cam.UI.AddGraphics(bar)
 
-		icon := scene.NewSprite(assets.ImagePriorityIcons)
+		icon := panel.scene.NewSprite(assets.ImagePriorityIcons)
 		setPriorityIconFrame(icon, priority, gamedata.NeutralFactionTag)
 		icon.Pos.Offset = gmath.Vec{X: (cameraWidth - (panel.layerSprite1.FrameWidth - 16)) + ((18 + bar.FrameWidth) * float64(i))}
 		icon.Centered = false
@@ -70,25 +119,63 @@ func (panel *rpanelNode) Init(scene *ge.Scene) {
 		panel.priorityBars = append(panel.priorityBars, bar)
 		panel.priorityIcons = append(panel.priorityIcons, icon)
 	}
+}
 
-	panel.layerSprite2 = scene.NewSprite(assets.ImageRightPanelLayer2)
+func (panel *rpanelNode) initPrioritiesForCreeps() {
+	cameraWidth := panel.cam.Rect.Width()
+
+	dpadOffset := gmath.Vec{
+		X: (cameraWidth - (panel.layerSprite1.FrameWidth - 85)),
+		Y: panel.layerSprite1.FrameHeight - 94,
+	}
+
+	panel.dpad = panel.scene.NewSprite(assets.ImageDarkDPad)
+	panel.dpad.Centered = false
+	panel.dpad.Pos.Offset = dpadOffset
+	panel.cam.UI.AddGraphicsAbove(panel.dpad)
+
+	panel.dpadRects = make([]*ge.Rect, 4)
+	for i := range panel.dpadRects {
+		rect := ge.NewRect(panel.scene.Context(), 0, 0)
+		rect.FillColorScale.SetColor(ge.RGB(0x3ea24d))
+		rect.Centered = false
+		panel.dpadRects[i] = rect
+		panel.cam.UI.AddGraphicsAbove(rect)
+	}
+}
+
+func (panel *rpanelNode) Init(scene *ge.Scene) {
+	panel.scene = scene
+
+	cameraWidth := panel.cam.Rect.Width()
+
+	layer1image := assets.ImageRightPanelLayer1
+	layer2image := assets.ImageRightPanelLayer2
+	if panel.creepsState != nil {
+		layer1image = assets.ImageDarkRightPanelLayer1
+		layer2image = assets.ImageDarkRightPanelLayer2
+	}
+
+	panel.layerSprite1 = scene.NewSprite(layer1image)
+	panel.layerSprite1.Pos.Offset.X = (cameraWidth - panel.layerSprite1.FrameWidth)
+	panel.layerSprite1.Centered = false
+	panel.cam.UI.AddGraphicsBelow(panel.layerSprite1)
+
+	if panel.creepsState != nil {
+		panel.initPrioritiesForCreeps()
+	} else {
+		panel.initPrioritiesForColonies()
+	}
+
+	panel.layerSprite2 = scene.NewSprite(layer2image)
 	panel.layerSprite2.Pos = panel.layerSprite1.Pos
 	panel.layerSprite2.Centered = false
 	panel.cam.UI.AddGraphicsAbove(panel.layerSprite2)
 
-	colors := [...]color.RGBA{
-		gamedata.FactionByTag(gamedata.YellowFactionTag).Color,
-		gamedata.FactionByTag(gamedata.RedFactionTag).Color,
-		gamedata.FactionByTag(gamedata.GreenFactionTag).Color,
-		gamedata.FactionByTag(gamedata.BlueFactionTag).Color,
-	}
-	for _, clr := range colors {
-		rect := ge.NewRect(scene.Context(), 5, 0)
-		rect.Centered = false
-		rect.Pos.Offset = gmath.Vec{X: (cameraWidth - 8)}
-		rect.FillColorScale.SetColor(clr)
-		panel.cam.UI.AddGraphicsAbove(rect)
-		panel.factionRects = append(panel.factionRects, rect)
+	if panel.creepsState != nil {
+		panel.initFactionsForCreeps()
+	} else {
+		panel.initFactionsForColonies()
 	}
 }
 
@@ -103,6 +190,14 @@ func (panel *rpanelNode) SetBase(colony *colonyCoreNode) {
 }
 
 func (panel *rpanelNode) UpdateMetrics() {
+	if panel.creepsState != nil {
+		panel.updateMetricsForCreeps()
+	} else {
+		panel.updateMetricsForColony()
+	}
+}
+
+func (panel *rpanelNode) updateMetricsForColony() {
 	if panel.colony == nil {
 		return
 	}
@@ -127,6 +222,62 @@ func (panel *rpanelNode) UpdateMetrics() {
 		bar.Pos.Offset.Y = fullPriorityOffset + ((bar.FrameHeight - 8) * (1.0 - kv.Weight))
 		icon := panel.priorityIcons[i]
 		icon.Pos.Offset.Y = fullPriorityOffset + ((bar.FrameHeight - 8) * (1.0 - kv.Weight)) - icon.FrameHeight - 1
+	}
+}
+
+func (panel *rpanelNode) updateMetricsForCreeps() {
+	topOffset := 8.0
+	totalHeight := 344.0
+
+	{
+		rect := panel.factionRects[0]
+		rect.Height = gmath.ClampMax(panel.creepsState.techLevel, 1) * totalHeight
+		rect.Visible = rect.Height > 0
+		rect.Pos.Offset.Y = topOffset + totalHeight - rect.Height
+	}
+	{
+		rect := panel.factionRects[1]
+		rect.Height = gmath.Clamp(panel.creepsState.techLevel-1, 0, 1) * totalHeight
+		rect.Visible = rect.Height > 0
+		rect.Pos.Offset.Y = topOffset + totalHeight - rect.Height
+	}
+
+	const rectWidth float64 = 4
+	const maxSize float64 = 24
+	offsets := [...]gmath.Vec{
+		{X: 12, Y: 0},
+		{X: 0, Y: 12},
+		{X: -(12 - rectWidth), Y: 0},
+		{X: 0, Y: -(12 - rectWidth)},
+	}
+	fullPowerValue := panel.creepsState.maxSideCost
+	centerOffset := panel.dpad.Pos.Offset.Add(gmath.Vec{X: 35, Y: 35})
+	for dir, rect := range panel.dpadRects {
+		isHorizontal := dir%2 == 0
+		reversed := dir >= 2
+		dirValue := panel.creepsState.attackSides[dir].totalCost
+		dirPercentage := float64(dirValue) / float64(fullPowerValue)
+		color := dpadBarColorNormal
+		if dirPercentage >= 1 {
+			dirPercentage = 1
+			color = dpadBarColorBright
+		}
+		size := math.Ceil(maxSize * dirPercentage)
+		rect.Pos.Offset = centerOffset.Add(offsets[dir])
+		rect.FillColorScale.SetColor(color)
+		if isHorizontal {
+			rect.Width = size
+			rect.Height = rectWidth
+			if reversed {
+				rect.Pos.Offset = rect.Pos.Offset.Sub(gmath.Vec{X: size})
+			}
+		} else {
+			rect.Width = rectWidth
+			rect.Height = size
+			if reversed {
+				rect.Pos.Offset = rect.Pos.Offset.Sub(gmath.Vec{Y: size})
+			}
+		}
 	}
 }
 

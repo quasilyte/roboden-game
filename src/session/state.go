@@ -34,9 +34,10 @@ type State struct {
 	MainInput   gameinput.Handler
 	SecondInput gameinput.Handler
 
-	LevelConfig         *gamedata.LevelConfig
+	ClassicLevelConfig  *gamedata.LevelConfig
 	ArenaLevelConfig    *gamedata.LevelConfig
 	InfArenaLevelConfig *gamedata.LevelConfig
+	ReverseLevelConfig  *gamedata.LevelConfig
 	TutorialLevelConfig *gamedata.LevelConfig
 
 	Persistent PersistentData
@@ -58,6 +59,7 @@ type PersistentData struct {
 	SeenClassicMode  bool
 	SeenArenaMode    bool
 	SeenInfArenaMode bool
+	SeenReverseMode  bool
 
 	PlayerName string
 
@@ -111,6 +113,7 @@ type GameSettings struct {
 	ShowTimer          bool
 	DebugLogs          bool
 	Demo               bool
+	SwapGamepads       bool
 	Graphics           GraphicsSettings
 }
 

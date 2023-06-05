@@ -39,7 +39,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.scene.Audio().SetGroupVolume(assets.SoundGroupMusic, 0)
 	c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, 0)
 
-	config := c.state.LevelConfig.Clone()
+	config := c.state.ClassicLevelConfig.Clone()
 	switch turretRoll := c.scene.Rand().Float(); {
 	case turretRoll < 0.4:
 		config.TurretDesign = "BeamTower" // 40%
@@ -55,6 +55,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	config.PlayersMode = serverapi.PmodeSingleBot
 	config.WorldSize = 2
 	config.Resources = 4
+	config.DronesPower = 1
 	config.CreepDifficulty = 0
 	config.BossDifficulty = 0
 	config.NumCreepBases = 1
@@ -99,6 +100,10 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.darkRect.Centered = false
 	c.darkRect.FillColorScale.SetRGBA(0, 0, 0, 0xff)
 	scene.AddGraphics(c.darkRect)
+}
+
+func (c *SplashScreenController) GetSessionState() *session.State {
+	return c.state
 }
 
 func (c *SplashScreenController) Update(delta float64) {

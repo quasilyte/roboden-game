@@ -201,8 +201,7 @@ func NewCamera(w *World, stage *CameraStage, width, height float64) *Camera {
 
 func (c *Camera) RenderToImage() *ebiten.Image {
 	result := ebiten.NewImage(c.screen.Size())
-	var options ebiten.DrawImageOptions
-	result.DrawImage(c.screen, &options)
+	c.Draw(result)
 	return result
 }
 

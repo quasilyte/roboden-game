@@ -12,6 +12,7 @@ import (
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
+//go:generate stringer -type=creepKind -trimprefix=creep
 type creepKind int
 
 const (
@@ -739,23 +740,51 @@ func (c *creepNode) crawlerSpawnPos() gmath.Vec {
 }
 
 func (c *creepNode) maybeSpawnCrawlers() bool {
-	if c.world.NumActiveCrawlers() >= c.world.MaxActiveCrawlers() {
-		return false
+	var minCrawlers int
+	var maxCrawlers int
+	if c.world.config.GameMode == gamedata.ModeReverse {
+		techLevel := c.world.creepsPlayerState.techLevel
+		switch {
+		case techLevel < 0.05:
+			minCrawlers = 1
+			maxCrawlers = 1
+		case techLevel < 0.2:
+			minCrawlers = 1
+			maxCrawlers = 2
+		case techLevel < 0.4:
+			minCrawlers = 2
+			maxCrawlers = 3
+		case techLevel < 0.5:
+			minCrawlers = 2
+			maxCrawlers = 4
+		case techLevel < 0.7:
+			minCrawlers = 3
+			maxCrawlers = 4
+		case techLevel < 1:
+			minCrawlers = 4
+			maxCrawlers = 5
+		default:
+			minCrawlers = 5
+			maxCrawlers = 5
+		}
+	} else {
+		if c.world.NumActiveCrawlers() >= c.world.MaxActiveCrawlers() {
+			return false
+		}
+		minCrawlers = 2
+		maxCrawlers = 3
+		switch c.world.config.BossDifficulty {
+		case 2:
+			maxCrawlers = 5
+		case 3:
+			minCrawlers = 3
+			maxCrawlers = 5
+		}
 	}
 
 	spawnPos := c.crawlerSpawnPos()
 	if !posIsFree(c.world, nil, spawnPos, 64) {
 		return false
-	}
-
-	minCrawlers := 2
-	maxCrawlers := 3
-	switch c.world.config.BossDifficulty {
-	case 2:
-		maxCrawlers = 5
-	case 3:
-		minCrawlers = 3
-		maxCrawlers = 5
 	}
 
 	c.specialModifier = float64(c.scene.Rand().IntRange(minCrawlers, maxCrawlers)) + 1
@@ -1128,7 +1157,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			// Time until the first crawler is spawned.
 			c.specialDelay = c.scene.Rand().FloatRange(7, 10)
 		} else {
-			c.specialDelay = c.scene.Rand().FloatRange(6, 16)
+			c.specialDelay = c.scene.Rand().FloatRange(3, 7)
 		}
 	}
 
@@ -1173,7 +1202,11 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			}
 		}
 		if c.specialModifier == 0 {
-			c.specialDelay = c.scene.Rand().FloatRange(50, 70)
+			if c.world.config.GameMode == gamedata.ModeReverse {
+				c.specialDelay = 60 * 60 * 60 // ~never
+			} else {
+				c.specialDelay = c.scene.Rand().FloatRange(50, 70)
+			}
 			c.sprite.Visible = true
 			c.altSprite.Visible = false
 			c.flashComponent.sprite = c.sprite

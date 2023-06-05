@@ -67,7 +67,9 @@ type ReplayLevelConfig struct {
 	InitialCreeps     int `json:"initial_creeps"`
 	NumCreepBases     int `json:"num_creep_bases"`
 	CreepDifficulty   int `json:"creep_difficulty"`
+	DronesPower       int `json:"drones_power"`
 	CreepSpawnRate    int `json:"creep_spawn_rate"`
+	TechProgressRate  int `json:"tech_progress_rate"`
 	BossDifficulty    int `json:"boss_difficulty"`
 	ArenaProgression  int `json:"arena_progression"`
 	StartingResources int `json:"starting_resources"`

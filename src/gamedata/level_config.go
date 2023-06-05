@@ -64,24 +64,38 @@ func (config *LevelConfig) Finalize() {
 		config.GameMode = ModeArena
 	case "classic":
 		config.GameMode = ModeClassic
+	case "reverse":
+		config.GameMode = ModeReverse
 	default:
 		panic(fmt.Sprintf("unexpected game mode: %q", config.RawGameMode))
 	}
 
-	switch config.PlayersMode {
-	case serverapi.PmodeSinglePlayer:
-		config.Players = []PlayerKind{PlayerHuman}
-	case serverapi.PmodeSingleBot:
-		config.Players = []PlayerKind{PlayerComputer}
-	case serverapi.PmodePlayerAndBot:
-		config.Players = []PlayerKind{PlayerHuman, PlayerComputer}
-	case serverapi.PmodeTwoPlayers:
-		config.Players = []PlayerKind{PlayerHuman, PlayerHuman}
-	case serverapi.PmodeTwoBots:
-		config.Players = []PlayerKind{PlayerComputer, PlayerComputer}
-	default:
-		panic(fmt.Sprintf("unexpected mode: %d", config.PlayersMode))
+	if config.GameMode == ModeReverse {
+		switch config.PlayersMode {
+		case serverapi.PmodeSinglePlayer:
+			config.Players = []PlayerKind{PlayerHuman, PlayerComputer}
+		case serverapi.PmodeTwoPlayers:
+			config.Players = []PlayerKind{PlayerHuman, PlayerHuman}
+		default:
+			panic(fmt.Sprintf("unexpected mode: %d", config.PlayersMode))
+		}
+	} else {
+		switch config.PlayersMode {
+		case serverapi.PmodeSinglePlayer:
+			config.Players = []PlayerKind{PlayerHuman}
+		case serverapi.PmodeSingleBot:
+			config.Players = []PlayerKind{PlayerComputer}
+		case serverapi.PmodePlayerAndBot:
+			config.Players = []PlayerKind{PlayerHuman, PlayerComputer}
+		case serverapi.PmodeTwoPlayers:
+			config.Players = []PlayerKind{PlayerHuman, PlayerHuman}
+		case serverapi.PmodeTwoBots:
+			config.Players = []PlayerKind{PlayerComputer, PlayerComputer}
+		default:
+			panic(fmt.Sprintf("unexpected mode: %d", config.PlayersMode))
+		}
 	}
+
 }
 
 func (config *LevelConfig) Clone() LevelConfig {

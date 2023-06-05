@@ -30,7 +30,7 @@ func newCreepCoordinator(world *worldState) *creepCoordinator {
 	return &creepCoordinator{
 		world:         world,
 		crawlers:      make([]*creepNode, 0, 16),
-		groupSlice:    make([]*creepNode, 0, 32),
+		groupSlice:    make([]*creepNode, 0, 40),
 		attackDelay:   world.rand.FloatRange(10, 30),
 		scatterDelay:  world.rand.FloatRange(2*60, 3*60),
 		relocateDelay: world.rand.FloatRange(1*60, 3*60),
@@ -204,7 +204,7 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 
 func (c *creepCoordinator) collectGroup(leader *creepNode, maxGroupSize int) []*creepNode {
 	const (
-		maxUnitRange    float64 = 196
+		maxUnitRange    float64 = 300
 		maxUnitRangeSqr float64 = maxUnitRange * maxUnitRange
 	)
 

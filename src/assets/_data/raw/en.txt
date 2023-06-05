@@ -57,6 +57,7 @@
 ##menu.play.classic : Classic Mode
 ##menu.play.arena : Arena Mode
 ##menu.play.inf_arena : Infinite Arena Mode
+##menu.play.reverse : Reverse Mode
 ##menu.play.tutorial : Tutorial
 
 ##menu.profile.achievements : Achievements
@@ -91,6 +92,8 @@
 ##menu.terminal : Terminal
 ##menu.terminal.command_output_label : Command output
 ##menu.terminal.placeholder : type commands in here
+
+##menu.controls_swap_gamepads : Swap gamepads
 
 ##menu.option.on : on
 ##menu.option.off : off
@@ -163,6 +166,14 @@ You will need at least 1 gamepad to play in the split-screen mode.
 If any of the allied players is defeated, the game ends.
 Only the single player mode score is ranked and can be published.
 
+##menu.lobby.players.reverse : Players
+##menu.lobby.players.reverse.description
+In reverse game mode, it's possible to have a player-versus-player experience when split-screen is enabled.
+One player controls the creeps while another player controls the usual colony.
+You will need at least 1 gamepad to play in the split-screen mode.
+If any of the allied players is defeated, the game ends.
+Only the single player mode score is ranked and can be published.
+
 ##menu.lobby.player_mode.single_player : single player
 ##menu.lobby.player_mode.single_bot : single bot
 ##menu.lobby.player_mode.player_and_bot : player and bot
@@ -194,16 +205,26 @@ This option can be used to completely disable that regeneration or make it faste
 The number of drone-producing bases the enemy has.
 These bases produce more and more units over time, but they can't be replaced after being destroyed.
 
+##menu.lobby.tech_progress_rate : Tech progress rate
+##menu.lobby.tech_progress_rate.description
+Tech progress rate specifies how much creeps tech level increase when they use a dedicated card.
+Faster tech progress rate makes the game easier for the creeps.
+
 ##menu.lobby.creep_spawn_rate : Creep spawn rate
 ##menu.lobby.creep_spawn_rate.description
 This option controls the enemy unit spawn frequency.
 It affects the late-game out-of-screen spawns only.
 The enemy factories will produce units at the same speed.
 
+##menu.lobby.drones_power : Colony drones power
+##menu.lobby.drones_power.description
+The colony drones health multiplier.
+Higher values make the game for the creeps harder.
+
 ##menu.lobby.creeps_difficulty : Creeps power
 ##menu.lobby.creeps_difficulty.description
-The enemy units' power multiplier.
-It mostly affects the amount of durability enemy units have.
+The creep units' power multiplier.
+It mostly affects the amount of durability these units have.
 
 ##menu.lobby.arena_progression : Wave difficulty progression
 ##menu.lobby.arena_progression.description
@@ -212,8 +233,8 @@ Every wave is harder than the previous one and this option controls by how much.
 
 ##menu.lobby.initial_creeps : Initial creeps count
 ##menu.lobby.initial_creeps.description
-How many enemy units will be placed on the map from the very beginning.
-This option affects how easy the early game exploration will be.
+How many creep units will be placed on the map from the very beginning.
+This option affects how easy the early game exploration for the colonies will be.
 
 ##menu.lobby.boss_difficulty : Enemy colony power
 ##menu.lobby.boss_difficulty.description
@@ -228,8 +249,8 @@ Turning it on makes the game significantly harder.
 
 ##menu.lobby.starting_resources : Starting resources
 ##menu.lobby.starting_resources.description
-This defines whether your initial colony will have any starting resources.
-Some builds can benefit from the early game advantage.
+This defines whether starting colony will have any starting resources.
+Some drone builds can benefit from this early game advantage.
 
 ##menu.lobby.land : Terrain
 ##menu.lobby.land.description

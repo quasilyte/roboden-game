@@ -7,6 +7,22 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
+func numCreepsPerCard(state *creepsPlayerState, info creepOptionInfo) int {
+	if info.maxUnits == 1 {
+		return 1
+	}
+	techLevel := state.techLevel
+	if !info.stats.flying {
+		techLevel += 0.2
+	}
+	extraTech := gmath.Clamp(techLevel-info.minTechLevel, 0, 1.0)
+	if extraTech == 0 {
+		return 1
+	}
+	numUnits := gmath.Clamp(1+int(float64(info.maxUnits)*extraTech), 1, info.maxUnits)
+	return numUnits
+}
+
 func getTurretPower(stats *gamedata.AgentStats) int {
 	switch stats {
 	case gamedata.GunpointAgentStats:
@@ -96,6 +112,14 @@ func superCreepCostMultiplier(stats *creepStats) int {
 	return 4
 }
 
+func creepCost(stats *creepStats, super bool) int {
+	fragScore := creepFragScore(stats)
+	if super {
+		fragScore *= superCreepCostMultiplier(stats)
+	}
+	return fragScore
+}
+
 func creepFragScore(stats *creepStats) int {
 	switch stats {
 	case crawlerCreepStats:
@@ -105,7 +129,7 @@ func creepFragScore(stats *creepStats) int {
 	case stealthCrawlerCreepStats:
 		return 7
 	case heavyCrawlerCreepStats:
-		return 9
+		return 8
 
 	case wandererCreepStats:
 		return 6
@@ -114,7 +138,7 @@ func creepFragScore(stats *creepStats) int {
 	case assaultCreepStats:
 		return 15
 	case builderCreepStats:
-		return 25
+		return 30
 
 	case turretCreepStats:
 		return 20
@@ -122,7 +146,7 @@ func creepFragScore(stats *creepStats) int {
 	case servantCreepStats:
 		return 30
 	case dominatorCreepStats:
-		return 75
+		return 60
 	case howitzerCreepStats:
 		return 85
 

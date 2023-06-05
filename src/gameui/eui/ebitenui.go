@@ -374,7 +374,7 @@ type SelectButtonConfig struct {
 	OnHover   func()
 }
 
-func NewSelectButton(config SelectButtonConfig) widget.PreferredSizeLocateableWidget {
+func NewSelectButton(config SelectButtonConfig) *widget.Button {
 	maxValue := len(config.ValueNames) - 1
 	value := config.Value
 	key := config.Label

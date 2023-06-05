@@ -8,8 +8,6 @@ import (
 type classicManager struct {
 	world *worldState
 
-	spawnAreas []gmath.Rect
-
 	spawnDelayMultiplier float64
 
 	scene *ge.Scene
@@ -18,6 +16,8 @@ type classicManager struct {
 	tier3spawnRate  float64
 
 	crawlersDelay float64
+
+	attackGroup arenaWaveGroup
 }
 
 func newClassicManager(world *worldState) *classicManager {
@@ -29,8 +29,6 @@ func newClassicManager(world *worldState) *classicManager {
 
 func (m *classicManager) Init(scene *ge.Scene) {
 	m.scene = scene
-
-	m.spawnAreas = creepSpawnAreas(m.world)
 
 	m.spawnDelayMultiplier = 0.75 + (0.25 * float64(m.world.config.CreepSpawnRate))
 
@@ -60,37 +58,30 @@ func (m *classicManager) Update(delta float64) {
 }
 
 func (m *classicManager) spawnCrawlers() {
+	units := m.attackGroup.units[:0]
+
 	nextAttackDelay := 0.0
-	numCreeps := 1
-	creepStats := howitzerCreepStats
 	if m.world.rand.Chance(0.75) {
-		nextAttackDelay = m.world.rand.FloatRange(80, 140) * m.spawnDelayMultiplier
-		numCreeps = m.world.rand.IntRange(1, 5) + m.world.config.CreepSpawnRate
-		creepStats = stealthCrawlerCreepStats
-	} else {
-		nextAttackDelay = m.world.rand.FloatRange(210, 250) * m.spawnDelayMultiplier
-	}
-	m.crawlersDelay = nextAttackDelay
-
-	sector := gmath.RandElem(m.world.rand, m.spawnAreas)
-	spawnPos := randomSectorPos(m.world.rand, sector)
-	targetPos := correctedPos(m.world.rect, randomSectorPos(m.world.rand, sector), 520)
-
-	for i := 0; i < numCreeps; i++ {
-		super := m.world.config.SuperCreeps && m.world.rand.Chance(0.3)
-		creepPos, spawnDelay := groundCreepSpawnPos(m.world, spawnPos, creepStats)
-		creepTargetPos := targetPos.Add(m.world.rand.Offset(-60, 60))
-		if spawnDelay > 0 {
-			spawner := newCreepSpawnerNode(m.world, spawnDelay, creepPos, creepTargetPos, creepStats)
-			spawner.super = super
-			m.world.nodeRunner.AddObject(spawner)
-		} else {
-			creep := m.world.NewCreepNode(creepPos, creepStats)
-			creep.super = super
-			m.world.nodeRunner.AddObject(creep)
-			creep.SendTo(creepTargetPos)
+		nextAttackDelay = m.world.rand.FloatRange(80, 140)
+		numCreeps := m.world.rand.IntRange(1, 5) + m.world.config.CreepSpawnRate
+		for i := 0; i < numCreeps; i++ {
+			units = append(units, arenaWaveUnit{
+				stats: stealthCrawlerCreepStats,
+				super: m.world.config.SuperCreeps && m.world.rand.Chance(0.3),
+			})
 		}
+	} else {
+		nextAttackDelay = m.world.rand.FloatRange(210, 250)
+		units = append(units, arenaWaveUnit{
+			stats: howitzerCreepStats,
+			super: m.world.config.SuperCreeps && m.world.rand.Chance(0.3),
+		})
 	}
+
+	m.crawlersDelay = nextAttackDelay * m.spawnDelayMultiplier
+
+	m.attackGroup.units = units
+	sendCreeps(m.world, m.attackGroup)
 }
 
 func (m *classicManager) spawnTier3Creep() {

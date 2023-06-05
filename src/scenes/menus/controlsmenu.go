@@ -59,6 +59,17 @@ func (c *ControlsMenuController) initUI() {
 	touchButton.GetWidget().Disabled = true
 	rowContainer.AddChild(touchButton)
 
+	rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+		Scene:     c.scene,
+		Resources: uiResources,
+		Value:     &c.state.Persistent.Settings.SwapGamepads,
+		Label:     d.Get("menu.controls_swap_gamepads"),
+		ValueNames: []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		},
+	}))
+
 	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.controls.notice"), smallFont))
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))

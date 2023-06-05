@@ -42,33 +42,46 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 
 		ImageCursor: {Path: "image/cursor.png"},
 
-		ImageRadarlessButtons: {Path: "image/ui/radarless_buttons.png"},
-		ImageRadar:            {Path: "image/ui/radar.png"},
-		ImageRadarWave:        {Path: "image/ui/radar_wave.png"},
-		ImageRadarBossFar:     {Path: "image/ui/radar_boss_far.png"},
-		ImageRadarBossNear:    {Path: "image/ui/radar_boss_near.png"},
-		ImageRightPanelLayer1: {Path: "image/ui/right_panel_layer1.png"},
-		ImageRightPanelLayer2: {Path: "image/ui/right_panel_layer2.png"},
-		ImagePriorityBar:      {Path: "image/ui/priority_bar.png"},
-		ImagePriorityIcons:    {Path: "image/ui/priority_icons.png", FrameWidth: 16},
-		ImageObjectiveDisplay: {Path: "image/ui/objective_display.png"},
+		ImageRadarlessButtons:     {Path: "image/ui/radarless_buttons.png"},
+		ImageDarkRadar:            {Path: "image/ui/dark_radar.png"},
+		ImageRadar:                {Path: "image/ui/radar.png"},
+		ImageRadarWave:            {Path: "image/ui/radar_wave.png"},
+		ImageRadarAlliedSpot:      {Path: "image/ui/radar_allied_spot.png"},
+		ImageRadarBossFar:         {Path: "image/ui/radar_boss_far.png"},
+		ImageRadarBossNear:        {Path: "image/ui/radar_boss_near.png"},
+		ImageRightPanelLayer1:     {Path: "image/ui/right_panel_layer1.png"},
+		ImageRightPanelLayer2:     {Path: "image/ui/right_panel_layer2.png"},
+		ImageDarkDPad:             {Path: "image/ui/dark_dpad.png"},
+		ImageDarkRightPanelLayer1: {Path: "image/ui/dark_right_panel_layer1.png"},
+		ImageDarkRightPanelLayer2: {Path: "image/ui/dark_right_panel_layer2.png"},
+		ImagePriorityBar:          {Path: "image/ui/priority_bar.png"},
+		ImagePriorityIcons:        {Path: "image/ui/priority_icons.png", FrameWidth: 16},
+		ImageObjectiveDisplay:     {Path: "image/ui/objective_display.png"},
 
 		ImageFloppyYellow:     {Path: "image/ui/floppy_yellow.png"},
 		ImageFloppyRed:        {Path: "image/ui/floppy_red.png"},
 		ImageFloppyGreen:      {Path: "image/ui/floppy_green.png"},
 		ImageFloppyBlue:       {Path: "image/ui/floppy_blue.png"},
 		ImageFloppyGray:       {Path: "image/ui/floppy_gray.png"},
+		ImageFloppyDark:       {Path: "image/ui/floppy_dark.png"},
 		ImageFloppyYellowFlip: {Path: "image/ui/floppy_yellow_flip.png", FrameWidth: 86},
 		ImageFloppyRedFlip:    {Path: "image/ui/floppy_red_flip.png", FrameWidth: 86},
 		ImageFloppyGreenFlip:  {Path: "image/ui/floppy_green_flip.png", FrameWidth: 86},
 		ImageFloppyBlueFlip:   {Path: "image/ui/floppy_blue_flip.png", FrameWidth: 86},
 		ImageFloppyGrayFlip:   {Path: "image/ui/floppy_gray_flip.png", FrameWidth: 86},
+		ImageFloppyDarkFlip:   {Path: "image/ui/floppy_dark_flip.png", FrameWidth: 86},
+
+		ImageAttackDirections: {Path: "image/ui/attack_directions.png", FrameWidth: 30},
 
 		ImageActionBuildColony:    {Path: "image/ui/action_build_colony.png"},
 		ImageActionBuildTurret:    {Path: "image/ui/action_build_turret.png"},
 		ImageActionAttack:         {Path: "image/ui/action_attack.png"},
 		ImageActionIncreaseRadius: {Path: "image/ui/action_increase_radius.png"},
 		ImageActionDecreaseRadius: {Path: "image/ui/action_decrease_radius.png"},
+		ImageActionSendCreeps:     {Path: "image/ui/action_send_creeps.png"},
+		ImageActionSpawnCrawlers:  {Path: "image/ui/action_spawn_crawlers.png"},
+		ImageActionBossAttack:     {Path: "image/ui/action_boss_attack.png"},
+		ImageActionIncreaseTech:   {Path: "image/ui/action_increase_tech.png"},
 
 		ImageTeleportEffect:             {Path: "image/effects/teleport.png", FrameWidth: 100},
 		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 50},
@@ -171,7 +184,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageStealthCrawlerCreep: {Path: "image/creeps/stealth_crawler_creep.png", FrameWidth: 19, FrameHeight: 16},
 		ImageEliteCrawlerCreep:   {Path: "image/creeps/elite_crawler_creep.png", FrameWidth: 23, FrameHeight: 17},
 		ImageCrawlerCreep:        {Path: "image/creeps/crawler_creep.png", FrameWidth: 23, FrameHeight: 16},
-		ImagePrimitiveCreep:      {Path: "image/creeps/tier1_creep.png", FrameHeight: 9},
+		ImageCreepTier1:          {Path: "image/creeps/tier1_creep.png", FrameHeight: 9},
 		ImageServantCreep:        {Path: "image/creeps/servant_creep.png", FrameWidth: 15, FrameHeight: 13},
 		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png", FrameHeight: 16},
 		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25, FrameHeight: 22},
@@ -311,8 +324,13 @@ const (
 	ImageRadarWave
 	ImageRadarBossFar
 	ImageRadarBossNear
+	ImageRadarAlliedSpot
+	ImageDarkRadar
+	ImageDarkDPad
 	ImageRightPanelLayer1
 	ImageRightPanelLayer2
+	ImageDarkRightPanelLayer1
+	ImageDarkRightPanelLayer2
 	ImagePriorityBar
 	ImagePriorityIcons
 	ImageObjectiveDisplay
@@ -358,17 +376,25 @@ const (
 	ImageFloppyGreen
 	ImageFloppyBlue
 	ImageFloppyGray
+	ImageFloppyDark
 	ImageFloppyYellowFlip
 	ImageFloppyRedFlip
 	ImageFloppyGreenFlip
 	ImageFloppyBlueFlip
 	ImageFloppyGrayFlip
+	ImageFloppyDarkFlip
+
+	ImageAttackDirections
 
 	ImageActionBuildColony
 	ImageActionBuildTurret
 	ImageActionAttack
 	ImageActionIncreaseRadius
 	ImageActionDecreaseRadius
+	ImageActionSendCreeps
+	ImageActionSpawnCrawlers
+	ImageActionBossAttack
+	ImageActionIncreaseTech
 
 	ImageFactionDiode
 	ImageUberBoss
@@ -438,7 +464,7 @@ const (
 	ImageHowitzerPreparing
 	ImageHowitzerTrunk
 	ImageStealthCrawlerCreep
-	ImagePrimitiveCreep
+	ImageCreepTier1
 	ImageServantCreep
 	ImageCreepTier2
 	ImageCreepTier3

@@ -187,6 +187,12 @@ func (g *levelGenerator) placeTeleporters() {
 }
 
 func (g *levelGenerator) placePlayers() {
+	if g.world.config.GameMode == gamedata.ModeReverse {
+		// In reverse mode, there is always only 1 player controlling the colony.
+		g.createBase(g.world.players[1], g.playerSpawn, true)
+		return
+	}
+
 	switch len(g.world.config.Players) {
 	case 1:
 		g.createBase(g.world.players[0], g.playerSpawn, true)
@@ -431,7 +437,11 @@ func (g *levelGenerator) placeBoss() {
 	}
 	pos := gmath.RandElem(&g.rng, spawnLocations)
 	boss := g.world.NewCreepNode(pos, uberBossCreepStats)
-	// boss.specialDelay = g.rng.FloatRange(3*60, 4*60)
+	if g.world.config.GameMode == gamedata.ModeReverse {
+		boss.specialDelay = 60 * 60 * 60 // ~never
+	} else {
+		boss.specialDelay = g.rng.FloatRange(3*60, 4*60)
+	}
 	boss.super = g.world.config.SuperCreeps
 	g.world.nodeRunner.AddObject(boss)
 

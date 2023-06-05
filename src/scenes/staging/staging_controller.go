@@ -19,6 +19,7 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/pathing"
 	"github.com/quasilyte/roboden-game/serverapi"
@@ -96,7 +97,11 @@ func (c *Controller) CenterDemoCamera(pos gmath.Vec) {
 }
 
 func (c *Controller) RenderDemoFrame() *ebiten.Image {
-	return c.camera.RenderToImage()
+	visible := c.camera.UI.Visible
+	c.camera.UI.Visible = false
+	img := c.camera.RenderToImage()
+	c.camera.UI.Visible = visible
+	return img
 }
 
 func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
@@ -387,7 +392,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 	c.world.stage.SetBackground(bg)
 
-	c.camera = c.createCameraManager(viewportWorld, true)
+	c.camera = c.createCameraManager(viewportWorld, true, c.getPlayerInput(0))
 	if c.config.ExecMode == gamedata.ExecuteReplay {
 		c.CenterDemoCamera(c.world.rect.Center())
 	}
@@ -403,7 +408,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 			})
 		}
 
-		if c.config.ExecMode == gamedata.ExecuteNormal {
+		if c.config.ExecMode == gamedata.ExecuteNormal && isHumanPlayer(colony.player) {
 			colony.EventUnderAttack.Connect(c, func(colony *colonyCoreNode) {
 				cam := colony.player.GetState().camera
 				center := cam.AbsPos(cam.Rect.Center())
@@ -462,8 +467,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 	if c.state.Persistent.Settings.ShowFPS || c.state.Persistent.Settings.ShowTimer {
 		if len(c.world.cameras) != 0 {
 			c.debugInfo = ge.NewLabel(assets.BitmapFont1)
-			c.debugInfo.ColorScale.SetColor(ge.RGB(0xffffff))
-			c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 10}
+			c.debugInfo.ColorScale.SetRGBA(0x9d, 0xd7, 0x93, 0xff)
+			c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 20}
 			c.world.cameras[0].UI.AddGraphics(c.debugInfo)
 		}
 	}
@@ -534,7 +539,7 @@ func (c *Controller) updateFogOfWar(pos gmath.Vec) {
 	c.fogOfWar.DrawImage(c.world.visionCircle, &options)
 }
 
-func (c *Controller) createCameraManager(viewportWorld *viewport.World, main bool) *cameraManager {
+func (c *Controller) createCameraManager(viewportWorld *viewport.World, main bool, h gameinput.Handler) *cameraManager {
 	cam := c.createCamera(viewportWorld)
 	if !main {
 		cam.ScreenPos.X = (1920.0 / 2 / 2)
@@ -544,11 +549,7 @@ func (c *Controller) createCameraManager(viewportWorld *viewport.World, main boo
 		cm.InitCinematicMode()
 		cm.CenterOn(c.world.rect.Center())
 	} else {
-		if main {
-			cm.InitManualMode(c.state.MainInput)
-		} else {
-			cm.InitManualMode(c.state.SecondInput)
-		}
+		cm.InitManualMode(h)
 	}
 	c.world.cameras = append(c.world.cameras, cam)
 	return cm
@@ -565,12 +566,35 @@ func (c *Controller) createCamera(viewportWorld *viewport.World) *viewport.Camer
 	return cam
 }
 
+func (c *Controller) maybeSwapID(id int) int {
+	if c.state.Persistent.Settings.SwapGamepads && c.config.PlayersMode == serverapi.PmodeTwoPlayers {
+		if id == 0 {
+			return 1
+		}
+		return 0
+	}
+	return id
+}
+
+func (c *Controller) getPlayerInput(id int) gameinput.Handler {
+	id = c.maybeSwapID(id)
+	if id == 0 {
+		return c.state.MainInput
+	}
+	return c.state.SecondInput
+}
+
 func (c *Controller) createPlayers() {
 	c.world.players = make([]player, 0, len(c.config.Players))
 	isSimulation := c.world.config.ExecMode == gamedata.ExecuteReplay ||
 		c.world.config.ExecMode == gamedata.ExecuteSimulation
 	for i, pk := range c.config.Players {
-		choiceGen := newChoiceGenerator(c.world)
+		var creepsState *creepsPlayerState
+		if i == 0 && c.world.config.GameMode == gamedata.ModeReverse {
+			creepsState = newCreepsPlayerState()
+			c.world.creepsPlayerState = creepsState
+		}
+		choiceGen := newChoiceGenerator(c.world, creepsState)
 		choiceGen.EventChoiceSelected.Connect(c, c.onChoiceSelected)
 		pstate := newPlayerState()
 		pstate.id = i
@@ -582,23 +606,23 @@ func (c *Controller) createPlayers() {
 				p = newReplayPlayer(c.world, pstate, choiceGen)
 				pstate.replay = c.replayActions[i]
 			} else {
-				playerInput := c.state.MainInput
+				playerInput := c.getPlayerInput(i)
 				pstate.camera = c.camera
 				if i != 0 {
-					c.secondCamera = c.createCameraManager(c.camera.World, false)
+					c.secondCamera = c.createCameraManager(c.camera.World, false, playerInput)
 					pstate.camera = c.secondCamera
-					playerInput = c.state.SecondInput
 				}
 				cursorRect := pstate.camera.Rect
 				cursorRect.Min = cursorRect.Min.Add(pstate.camera.ScreenPos)
 				cursorRect.Max = cursorRect.Max.Add(pstate.camera.ScreenPos)
 				cursor := gameui.NewCursorNode(playerInput, cursorRect)
 				human := newHumanPlayer(humanPlayerConfig{
-					world:     c.world,
-					state:     pstate,
-					input:     playerInput,
-					cursor:    cursor,
-					choiceGen: choiceGen,
+					world:       c.world,
+					state:       pstate,
+					input:       playerInput,
+					cursor:      cursor,
+					choiceGen:   choiceGen,
+					creepsState: creepsState,
 				})
 				human.EventExitPressed.Connect(c, func(arg gsignal.Void) {
 					c.onExitButtonClicked()
@@ -650,17 +674,20 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 	selectedColony := pstate.selectedColony
 
 	if c.config.ExecMode == gamedata.ExecuteNormal {
-		kind := serverapi.PlayerActionKind(choice.Index + 1)
-		if choice.Option.special == specialChoiceMoveColony {
-			kind = serverapi.ActionMove
+		// FIXME: replays should work in reverse mode too.
+		if c.config.GameMode != gamedata.ModeReverse {
+			kind := serverapi.PlayerActionKind(choice.Index + 1)
+			if choice.Option.special == specialChoiceMoveColony {
+				kind = serverapi.ActionMove
+			}
+			a := serverapi.PlayerAction{
+				Kind:           kind,
+				Pos:            [2]float64{choice.Pos.X, choice.Pos.Y},
+				SelectedColony: c.world.GetColonyIndex(selectedColony),
+				Tick:           c.nodeRunner.ticks,
+			}
+			pstate.replay = append(pstate.replay, a)
 		}
-		a := serverapi.PlayerAction{
-			Kind:           kind,
-			Pos:            [2]float64{choice.Pos.X, choice.Pos.Y},
-			SelectedColony: c.world.GetColonyIndex(selectedColony),
-			Tick:           c.nodeRunner.ticks,
-		}
-		pstate.replay = append(pstate.replay, a)
 	}
 
 	if choice.Option.special == specialChoiceNone {
@@ -743,13 +770,79 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 			return true
 		}
 		return false
+
+	case specialSendCreeps:
+		c.doSendCreeps()
+		return true
+
+	case specialSpawnCrawlers:
+		return c.doSpawnCrawlers()
+
+	case specialIncreaseTech:
+		c.world.creepsPlayerState.techLevel += 0.1
+		return true
+
+	case specialBossAttack:
+		return c.doBossAttack()
+
+	default:
+		if choice.Option.special > _creepCardFirst && choice.Option.special < _creepCardLast {
+			info := creepOptionInfoList[creepCardID(choice.Option.special)]
+			return c.world.creepsPlayerState.AddUnits(c.world, choice.Option.direction, info)
+		}
+
+		panic("unexpected action ID")
+	}
+}
+
+func (c *Controller) doSpawnCrawlers() bool {
+	if c.world.boss == nil {
+		return false
+	}
+	c.world.boss.specialDelay = 0
+	return true
+}
+
+func (c *Controller) doBossAttack() bool {
+	if c.world.boss == nil {
+		return false
+	}
+	var closestColony *colonyCoreNode
+	closestDist := math.MaxFloat64
+	for _, colony := range c.world.allColonies {
+		dist := colony.pos.DistanceTo(c.world.boss.pos)
+		if dist < closestDist {
+			closestDist = dist
+			closestColony = colony
+		}
+	}
+	if closestColony == nil {
+		return false
+	}
+	dir := closestColony.pos.Add(c.world.rand.Offset(-60, 60)).DirectionTo(c.world.boss.pos)
+	targetPos := dir.Mulf(c.world.rand.FloatRange(200, 400)).Add(c.world.boss.pos)
+	c.world.boss.waypoint = targetPos
+	return true
+}
+
+func (c *Controller) doSendCreeps() {
+	for dir := range c.world.creepsPlayerState.attackSides {
+		cg := c.world.creepsPlayerState.attackSides[dir]
+		for i := range cg.groups {
+			g := cg.groups[i]
+			if len(g.units) == 0 {
+				continue
+			}
+			sendCreeps(c.world, g)
+		}
 	}
 
-	return false
+	c.world.creepsPlayerState.ResetGroups()
+	c.world.creepsPlayerState.RecalcMaxCost()
 }
 
 func (c *Controller) playPlayerSound(p player, sound resource.AudioID) {
-	if _, ok := p.(*humanPlayer); ok {
+	if isHumanPlayer(p) {
 		c.scene.Audio().PlaySound(sound)
 	}
 }
@@ -954,8 +1047,7 @@ func (c *Controller) handleInput() {
 	}
 
 	if c.sharedActionIsJustPressed(controls.ActionBack) {
-		// c.onExitButtonClicked()
-		c.victory()
+		c.onExitButtonClicked()
 		return
 	}
 
@@ -1026,6 +1118,10 @@ func (c *Controller) onPausePressed() {
 	c.nodeRunner.SetPaused(!c.nodeRunner.IsPaused())
 }
 
+func (c *Controller) GetSessionState() *session.State {
+	return c.state
+}
+
 func (c *Controller) Update(delta float64) {
 	computedDelta := c.nodeRunner.ComputeDelta(delta)
 
@@ -1062,7 +1158,7 @@ func (c *Controller) Update(delta float64) {
 	c.handleInput()
 
 	for _, p := range c.world.players {
-		p.Update(computedDelta)
+		p.Update(computedDelta, delta)
 	}
 
 	if c.debugInfo != nil {

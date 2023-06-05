@@ -26,6 +26,7 @@ type choiceWindowNode struct {
 	Enabled bool
 
 	charging    bool
+	creeps      bool
 	targetValue float64
 	value       float64
 
@@ -49,13 +50,14 @@ type choiceOptionSlot struct {
 	option   choiceOption
 }
 
-func newChoiceWindowNode(cam *viewport.Camera, world *worldState, h gameinput.Handler, cursor *gameui.CursorNode) *choiceWindowNode {
+func newChoiceWindowNode(cam *viewport.Camera, world *worldState, h gameinput.Handler, cursor *gameui.CursorNode, creeps bool) *choiceWindowNode {
 	return &choiceWindowNode{
 		cam:           cam,
 		input:         h,
 		cursor:        cursor,
 		selectedIndex: -1,
 		world:         world,
+		creeps:        creeps,
 	}
 }
 
@@ -81,12 +83,19 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 	offset := gmath.Vec{X: w.floppyOffsetX, Y: 8}
 	w.choices = make([]*choiceOptionSlot, 5)
 	for i := range w.choices {
-		floppy := scene.NewSprite(floppies[i])
+		floppyImageID := floppies[i]
+		floppyFlipImageID := flipSprites[i]
+		if w.creeps {
+			floppyImageID = assets.ImageFloppyDark
+			floppyFlipImageID = assets.ImageFloppyDarkFlip
+		}
+
+		floppy := scene.NewSprite(floppyImageID)
 		floppy.Centered = false
 		floppy.Pos.Offset = offset
 		w.cam.UI.AddGraphics(floppy)
 
-		flipSprite := scene.NewSprite(flipSprites[i])
+		flipSprite := scene.NewSprite(floppyFlipImageID)
 		flipSprite.Centered = false
 		flipSprite.Pos.Offset = offset
 		flipSprite.Visible = false
@@ -96,13 +105,23 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 
 		label1 := scene.NewSprite(assets.ImagePriorityIcons)
 		label1.Pos.Base = &floppy.Pos.Offset
-		label1.Centered = false
 		label1.Visible = false
 
-		label2 := scene.NewSprite(assets.ImagePriorityIcons)
-		label2.Pos.Base = &floppy.Pos.Offset
+		var label2 *ge.Sprite
+		if w.creeps {
+			if i != 4 {
+				label1.SetAlpha(0.8)
+			}
+			label2 = scene.NewSprite(assets.ImageAttackDirections)
+			label2.Pos.Base = &floppy.Pos.Offset
+			label2.Visible = false
+		} else {
+			label1.Centered = false
+			label2 = scene.NewSprite(assets.ImagePriorityIcons)
+			label2.Pos.Base = &floppy.Pos.Offset
+			label2.Visible = false
+		}
 		label2.Centered = false
-		label2.Visible = false
 
 		w.cam.UI.AddGraphics(label1)
 		w.cam.UI.AddGraphics(label2)
@@ -112,7 +131,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 			icon = ge.NewSprite(scene.Context())
 			icon.Centered = false
 			icon.Pos.Base = &floppy.Pos.Offset
-			icon.Pos.Offset = gmath.Vec{X: 46, Y: 24}
+			icon.Pos.Offset = gmath.Vec{X: 48, Y: 24}
 			w.cam.UI.AddGraphics(icon)
 		}
 
@@ -155,21 +174,34 @@ func (w *choiceWindowNode) RevealChoices(selection choiceSelection) {
 		}
 	}
 
-	for i, o := range selection.cards {
-		faction := gamedata.FactionTag(i + 1)
-		choice := w.choices[i]
-		choice.option = o
-		if len(o.effects) == 1 {
+	if w.creeps {
+		for i, o := range selection.cards {
+			choice := w.choices[i]
+			choice.option = o
 			choice.label1.Visible = true
-			choice.label1.Pos.Offset = gmath.Vec{X: 55, Y: 32}
-			setPriorityIconFrame(choice.label1, o.effects[0].priority, faction)
-		} else {
-			choice.label1.Visible = true
-			choice.label1.Pos.Offset = gmath.Vec{X: 55, Y: 32 - 10}
-			setPriorityIconFrame(choice.label1, o.effects[0].priority, faction)
+			choice.label1.Pos.Offset = gmath.Vec{X: 66, Y: 40}
+			choice.label1.SetImage(w.scene.LoadImage(o.icon))
 			choice.label2.Visible = true
-			choice.label2.Pos.Offset = gmath.Vec{X: 55, Y: 32 + 10}
-			setPriorityIconFrame(choice.label2, o.effects[1].priority, faction)
+			choice.label2.Pos.Offset = gmath.Vec{X: 6, Y: 28}
+			choice.label2.FrameOffset.X = float64(o.direction) * choice.label2.FrameWidth
+		}
+	} else {
+		for i, o := range selection.cards {
+			faction := gamedata.FactionTag(i + 1)
+			choice := w.choices[i]
+			choice.option = o
+			if len(o.effects) == 1 {
+				choice.label1.Visible = true
+				choice.label1.Pos.Offset = gmath.Vec{X: 55, Y: 32}
+				setPriorityIconFrame(choice.label1, o.effects[0].priority, faction)
+			} else {
+				choice.label1.Visible = true
+				choice.label1.Pos.Offset = gmath.Vec{X: 55, Y: 32 - 10}
+				setPriorityIconFrame(choice.label1, o.effects[0].priority, faction)
+				choice.label2.Visible = true
+				choice.label2.Pos.Offset = gmath.Vec{X: 55, Y: 32 + 10}
+				setPriorityIconFrame(choice.label2, o.effects[1].priority, faction)
+			}
 		}
 	}
 

@@ -56,7 +56,6 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageDarkRightPanelLayer2: {Path: "image/ui/dark_right_panel_layer2.png"},
 		ImagePriorityBar:          {Path: "image/ui/priority_bar.png"},
 		ImagePriorityIcons:        {Path: "image/ui/priority_icons.png", FrameWidth: 16},
-		ImageObjectiveDisplay:     {Path: "image/ui/objective_display.png"},
 
 		ImageFloppyYellow:     {Path: "image/ui/floppy_yellow.png"},
 		ImageFloppyRed:        {Path: "image/ui/floppy_red.png"},
@@ -334,7 +333,6 @@ const (
 	ImageDarkRightPanelLayer2
 	ImagePriorityBar
 	ImagePriorityIcons
-	ImageObjectiveDisplay
 
 	ImageRoombaLaserTrail
 	ImageProjectileSmoke

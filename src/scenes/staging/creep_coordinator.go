@@ -142,9 +142,22 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 
 func (c *creepCoordinator) Rally(pos gmath.Vec) {
 	group := c.collectGroup(pos, 400, cap(c.groupSlice))
-	target := c.findColonyToAttack(pos, 1500.0)
-	if target != nil {
-		c.sendCreepsToAttack(group, target)
+
+	maxAttackDistSqr := 1500.0 * 1500.0
+	var closestTarget *colonyCoreNode
+	var closestDistSqr float64
+	for _, colony := range c.world.allColonies {
+		distSqr := colony.pos.DistanceSquaredTo(pos)
+		if distSqr > maxAttackDistSqr {
+			continue
+		}
+		if closestTarget == nil || distSqr < closestDistSqr {
+			closestDistSqr = distSqr
+			closestTarget = colony
+		}
+	}
+	if closestTarget != nil {
+		c.sendCreepsToAttack(group, closestTarget)
 		return
 	}
 	c.scatterCreeps(group)

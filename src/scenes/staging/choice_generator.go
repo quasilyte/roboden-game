@@ -104,7 +104,7 @@ var specialChoicesTable = [...]choiceOption{
 	},
 	specialSpawnCrawlers: {
 		special: specialSpawnCrawlers,
-		cost:    20,
+		cost:    10,
 		icon:    assets.ImageActionSpawnCrawlers,
 	},
 	specialBossAttack: {

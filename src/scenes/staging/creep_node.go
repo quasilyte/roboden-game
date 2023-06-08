@@ -745,22 +745,13 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 	if c.world.config.GameMode == gamedata.ModeReverse {
 		techLevel := c.world.creepsPlayerState.techLevel
 		switch {
-		case techLevel < 0.05:
-			minCrawlers = 1
-			maxCrawlers = 1
-		case techLevel < 0.2:
-			minCrawlers = 1
-			maxCrawlers = 2
-		case techLevel < 0.4:
-			minCrawlers = 2
-			maxCrawlers = 3
-		case techLevel < 0.5:
+		case techLevel < 0.1:
 			minCrawlers = 2
 			maxCrawlers = 4
-		case techLevel < 0.7:
+		case techLevel < 0.2:
 			minCrawlers = 3
 			maxCrawlers = 4
-		case techLevel < 1:
+		case techLevel < 0.3:
 			minCrawlers = 4
 			maxCrawlers = 5
 		default:

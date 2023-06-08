@@ -25,7 +25,9 @@ func newReplayPlayer(world *worldState, state *playerState, choiceGen *choiceGen
 }
 
 func (p *replayPlayer) Init() {
-	p.state.selectedColony = p.state.colonies[0]
+	if p.choiceGen.creepsState == nil {
+		p.state.selectedColony = p.state.colonies[0]
+	}
 }
 
 func (p *replayPlayer) Update(computedDelta, delta float64) {}
@@ -49,11 +51,13 @@ func (p *replayPlayer) HandleInput() {
 	}
 	p.state.replay = p.state.replay[1:]
 
-	if a.SelectedColony < 0 || a.SelectedColony >= len(p.state.colonies) {
-		panic(errInvalidColonyIndex)
-	}
-	if p.world.GetColonyIndex(p.state.selectedColony) != a.SelectedColony {
-		p.state.selectedColony = p.state.colonies[a.SelectedColony]
+	if p.choiceGen.creepsState == nil {
+		if a.SelectedColony < 0 || a.SelectedColony >= len(p.state.colonies) {
+			panic(errInvalidColonyIndex)
+		}
+		if p.world.GetColonyIndex(p.state.selectedColony) != a.SelectedColony {
+			p.state.selectedColony = p.state.colonies[a.SelectedColony]
+		}
 	}
 
 	ok := false

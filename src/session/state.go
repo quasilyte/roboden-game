@@ -124,8 +124,9 @@ type GraphicsSettings struct {
 }
 
 type SavedReplay struct {
-	Date   time.Time
-	Replay serverapi.GameReplay
+	Date      time.Time
+	ResultTag string
+	Replay    serverapi.GameReplay
 }
 
 func (state *State) ReloadLanguage(ctx *ge.Context) {

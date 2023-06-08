@@ -7,6 +7,7 @@ import (
 
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/timeutil"
 )
@@ -24,16 +25,24 @@ func ReplayText(d *langs.Dictionary, r *session.SavedReplay) string {
 	}
 	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.lobby.players"), playerModeValues[r.Replay.Config.PlayersMode]))
 	if r.Replay.Config.RawGameMode != "inf_arena" {
-		resultsKey := "menu.results.defeat"
-		if r.Replay.Results.Victory {
-			resultsKey = "menu.results.victory"
-		}
+		resultsKey := r.ResultTag
 		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.replay.game_result"), strings.ToLower(d.Get(resultsKey))))
 	}
 	lines = append(lines, fmt.Sprintf("%s: %d%%", d.Get("menu.lobby.tab.difficulty"), r.Replay.Config.DifficultyScore))
-	if r.Replay.Results.Score != 0 {
+
+	showScore := false
+	switch r.Replay.Config.RawGameMode {
+	case "arena", "classic":
+		showScore = r.Replay.Results.Victory
+	case "inf_arena":
+		showScore = true
+	case "reverse":
+		showScore = r.Replay.Config.PlayersMode == serverapi.PmodeSinglePlayer
+	}
+	if showScore {
 		lines = append(lines, fmt.Sprintf("%s: %d", d.Get("menu.results.score"), r.Replay.Results.Score))
 	}
+
 	timePlayed := time.Second * time.Duration(r.Replay.Results.Time)
 	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.time_played"), timeutil.FormatDurationCompact(timePlayed)))
 	gameSpeedValues := []string{"x1.0", "x1.2", "x1.5"}

@@ -8,7 +8,7 @@ import (
 
 func IsRunnableReplay(r serverapi.GameReplay) bool {
 	switch r.Config.RawGameMode {
-	case "classic", "arena", "inf_arena":
+	case "classic", "arena", "inf_arena", "reverse":
 		return true
 	default:
 		return false

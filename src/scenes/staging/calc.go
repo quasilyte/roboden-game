@@ -181,6 +181,17 @@ func calcScore(world *worldState) int {
 		}
 		return int(math.Round(float64(score) * multiplier))
 
+	case gamedata.ModeReverse:
+		score := world.config.DifficultyScore * 10
+		if world.boss != nil {
+			score += int((world.boss.health / world.boss.maxHealth) * 500.0)
+		}
+		multiplier := 1.0 - (0.000347222 * (world.result.TimePlayed.Seconds() / 5))
+		if multiplier < 0 {
+			multiplier = 0.001
+		}
+		return int(math.Round(float64(score) * multiplier))
+
 	case gamedata.ModeClassic:
 		score := world.config.DifficultyScore * 10
 		crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)

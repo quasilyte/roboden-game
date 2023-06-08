@@ -26,6 +26,7 @@ type resultsController struct {
 	scene          *ge.Scene
 	backController ge.SceneController
 
+	resultTag string
 	highScore bool
 	rewards   *gameRewards
 
@@ -35,6 +36,7 @@ type resultsController struct {
 type battleResults struct {
 	Victory          bool
 	GroundBossDefeat bool
+	BossDefeated     bool
 	TimePlayed       time.Duration
 	Ticks            int
 
@@ -275,6 +277,23 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 	return newAchievements, upgradedAchievements
 }
 
+func (c *resultsController) calcResultTag() (string, bool) {
+	if c.config.GameMode == gamedata.ModeReverse && c.config.PlayersMode == serverapi.PmodeTwoPlayers {
+		if c.results.BossDefeated {
+			return "menu.results.player2_win", false
+		}
+		return "menu.results.player1_win", false
+	}
+	switch {
+	case c.results.Victory:
+		return "menu.results.victory", true
+	case c.config.GameMode == gamedata.ModeInfArena:
+		return "menu.results.the_end", false
+	default:
+		return "menu.results.defeat", false
+	}
+}
+
 func (c *resultsController) initUI() {
 	uiResources := c.state.Resources.UI
 
@@ -286,15 +305,13 @@ func (c *resultsController) initUI() {
 
 	d := c.scene.Dict()
 
-	var titleString string
-	switch {
-	case c.results.Victory:
-		titleString = d.Get("menu.results.victory") + "!"
-	case c.config.GameMode == gamedata.ModeInfArena:
-		titleString = d.Get("menu.results.the_end")
-	default:
-		titleString = d.Get("menu.results.defeat")
+	var victory bool
+	c.resultTag, victory = c.calcResultTag()
+	titleString := d.Get(c.resultTag)
+	if victory {
+		titleString += "!"
 	}
+
 	titleLabel := eui.NewCenteredLabel(titleString, assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
@@ -341,8 +358,9 @@ func (c *resultsController) initUI() {
 	}
 	if gamedata.IsRunnableReplay(replay) {
 		r := session.SavedReplay{
-			Date:   time.Now(),
-			Replay: replay,
+			Date:      time.Now(),
+			ResultTag: c.resultTag,
+			Replay:    replay,
 		}
 		recentReplayKey := c.state.ReplayDataKey(0)
 		c.scene.Context().SaveGameData(recentReplayKey, r)

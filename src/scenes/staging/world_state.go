@@ -86,7 +86,8 @@ type worldState struct {
 
 	inputMode string
 
-	EventColonyCreated gsignal.Event[*colonyCoreNode]
+	EventCheckDefeatState gsignal.Event[gsignal.Void]
+	EventColonyCreated    gsignal.Event[*colonyCoreNode]
 
 	// EventUnmarked gsignal.Event[gmath.Vec]
 	// EventMarked   gsignal.Event[gmath.Vec]
@@ -297,6 +298,7 @@ func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	n.EventDestroyed.Connect(nil, func(x *colonyCoreNode) {
 		w.allColonies = xslices.Remove(w.allColonies, x)
 		playerState.colonies = xslices.Remove(playerState.colonies, x)
+		w.EventCheckDefeatState.Emit(gsignal.Void{})
 	})
 	w.allColonies = append(w.allColonies, n)
 	playerState.colonies = append(playerState.colonies, n)
@@ -372,6 +374,7 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 				w.result.GroundBossDefeat = true
 			}
 			w.boss = nil
+			w.EventCheckDefeatState.Emit(gsignal.Void{})
 		default:
 			w.result.CreepsDefeated++
 		}

@@ -284,6 +284,8 @@ You can make them really rare or appear almost everywhere.
 ##menu.results.the_end : The End
 ##menu.results.victory : Victory
 ##menu.results.defeat : Defeat
+##menu.results.player1_win : Player 1 wins
+##menu.results.player2_win : Player 2 wins
 ##menu.results.time_played : Time played
 ##menu.results.resources_gathered : Resources gathered
 ##menu.results.drones_total : Drones produced

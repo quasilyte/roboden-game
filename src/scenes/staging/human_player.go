@@ -57,6 +57,13 @@ func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
 	return p
 }
 
+func (p *humanPlayer) addColonyToCreepsRadar(colony *colonyCoreNode) {
+	p.radar.AddColony(colony)
+	colony.EventDestroyed.Connect(p, func(colony *colonyCoreNode) {
+		p.radar.RemoveColony(colony)
+	})
+}
+
 func (p *humanPlayer) Init() {
 	p.state.Init(p.world)
 
@@ -78,14 +85,9 @@ func (p *humanPlayer) Init() {
 		p.radar.Init(p.world.rootScene)
 		if p.creepsState != nil {
 			for _, c := range p.world.allColonies {
-				p.radar.AddColony(c)
+				p.addColonyToCreepsRadar(c)
 			}
-			p.world.EventColonyCreated.Connect(p, func(colony *colonyCoreNode) {
-				p.radar.AddColony(colony)
-				colony.EventDestroyed.Connect(p, func(colony *colonyCoreNode) {
-					p.radar.RemoveColony(colony)
-				})
-			})
+			p.world.EventColonyCreated.Connect(p, p.addColonyToCreepsRadar)
 		}
 	} else {
 		buttonsPos = gmath.Vec{X: 8, Y: 470}

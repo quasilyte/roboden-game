@@ -37,6 +37,8 @@ func (pk PlayerKind) String() string {
 }
 
 func MakeLevelConfig(mode ExecutionMode, config serverapi.ReplayLevelConfig) LevelConfig {
+	enemyBoss := config.RawGameMode == "classic" ||
+		config.RawGameMode == "reverse"
 	return LevelConfig{
 		ReplayLevelConfig:          config,
 		ExecMode:                   mode,
@@ -44,7 +46,7 @@ func MakeLevelConfig(mode ExecutionMode, config serverapi.ReplayLevelConfig) Lev
 		BuildTurretActionAvailable: true,
 		RadiusActionAvailable:      true,
 		EliteResources:             true,
-		EnemyBoss:                  config.RawGameMode == "classic",
+		EnemyBoss:                  enemyBoss,
 	}
 }
 
@@ -107,7 +109,6 @@ func (config *LevelConfig) Finalize() {
 			panic(fmt.Sprintf("unexpected mode: %d", config.PlayersMode))
 		}
 	}
-
 }
 
 func (config *LevelConfig) Clone() LevelConfig {

@@ -154,7 +154,6 @@ func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
 func getDefaultSessionState() *session.State {
 	state := &session.State{
 		ReverseLevelConfig: newLevelConfig(&gamedata.LevelConfig{
-			EnemyBoss: true,
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				Teleporters:      1,
 				RawGameMode:      "reverse",
@@ -180,7 +179,6 @@ func getDefaultSessionState() *session.State {
 			},
 		}),
 		ClassicLevelConfig: newLevelConfig(&gamedata.LevelConfig{
-			EnemyBoss: true,
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				SuperCreeps:    false,
 				InitialCreeps:  1,

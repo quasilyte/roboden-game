@@ -374,6 +374,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.world = world
 	world.Init()
 
+	world.EventCheckDefeatState.Connect(c, func(gsignal.Void) {
+		c.checkDefeat()
+	})
+
 	if c.config.FogOfWar {
 		fogOfWar := ebiten.NewImage(int(world.width), int(world.height))
 		gedraw.DrawRect(fogOfWar, world.rect, color.RGBA{A: 255})
@@ -560,7 +564,9 @@ func (c *Controller) createCamera(viewportWorld *viewport.World) *viewport.Camer
 	width := 1920.0 / 2
 	height := 1080.0 / 2
 	if c.config.PlayersMode == serverapi.PmodeTwoPlayers {
-		width /= 2
+		if c.config.ExecMode != gamedata.ExecuteReplay {
+			width /= 2
+		}
 	}
 	cam := viewport.NewCamera(viewportWorld, c.world.stage, width, height)
 	return cam
@@ -674,20 +680,21 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 	selectedColony := pstate.selectedColony
 
 	if c.config.ExecMode == gamedata.ExecuteNormal {
-		// FIXME: replays should work in reverse mode too.
-		if c.config.GameMode != gamedata.ModeReverse {
-			kind := serverapi.PlayerActionKind(choice.Index + 1)
-			if choice.Option.special == specialChoiceMoveColony {
-				kind = serverapi.ActionMove
-			}
-			a := serverapi.PlayerAction{
-				Kind:           kind,
-				Pos:            [2]float64{choice.Pos.X, choice.Pos.Y},
-				SelectedColony: c.world.GetColonyIndex(selectedColony),
-				Tick:           c.nodeRunner.ticks,
-			}
-			pstate.replay = append(pstate.replay, a)
+		kind := serverapi.PlayerActionKind(choice.Index + 1)
+		if choice.Option.special == specialChoiceMoveColony {
+			kind = serverapi.ActionMove
 		}
+		colonyIndex := -1
+		if selectedColony != nil {
+			colonyIndex = c.world.GetColonyIndex(selectedColony)
+		}
+		a := serverapi.PlayerAction{
+			Kind:           kind,
+			Pos:            [2]float64{choice.Pos.X, choice.Pos.Y},
+			SelectedColony: colonyIndex,
+			Tick:           c.nodeRunner.ticks,
+		}
+		pstate.replay = append(pstate.replay, a)
 	}
 
 	if choice.Option.special == specialChoiceNone {
@@ -922,23 +929,6 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gm
 	return false
 }
 
-func (c *Controller) defeat() {
-	if c.transitionQueued {
-		return
-	}
-
-	c.transitionQueued = true
-
-	c.prepareBattleResults()
-	c.scene.DelayedCall(2.0, func() {
-		c.gameFinished = true
-		c.world.result.Victory = false
-		if c.config.ExecMode != gamedata.ExecuteSimulation {
-			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result, nil))
-		}
-	})
-}
-
 func (c *Controller) prepareBattleResults() {
 	if c.config.ExecMode == gamedata.ExecuteNormal {
 		c.world.result.Replay = make([][]serverapi.PlayerAction, len(c.world.players))
@@ -946,6 +936,8 @@ func (c *Controller) prepareBattleResults() {
 			c.world.result.Replay[i] = p.GetState().replay
 		}
 	}
+
+	c.world.result.BossDefeated = c.world.boss == nil
 
 	c.world.result.Ticks = c.nodeRunner.ticks
 	c.world.result.TimePlayed = time.Second * time.Duration(c.nodeRunner.timePlayed)
@@ -964,6 +956,26 @@ func (c *Controller) prepareBattleResults() {
 	c.world.result.DronePointsAllocated = c.config.DronePointsAllocated
 }
 
+func (c *Controller) defeat() {
+	if c.transitionQueued {
+		return
+	}
+
+	c.transitionQueued = true
+
+	c.prepareBattleResults()
+	c.world.result.Victory = false
+	c.scene.DelayedCall(2.0, func() {
+		c.gameFinished = true
+		switch c.config.ExecMode {
+		case gamedata.ExecuteNormal:
+			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result, nil))
+		case gamedata.ExecuteDemo, gamedata.ExecuteReplay:
+			c.leaveScene(c.backController)
+		}
+	})
+}
+
 func (c *Controller) victory() {
 	if c.transitionQueued {
 		return
@@ -973,9 +985,9 @@ func (c *Controller) victory() {
 
 	c.scene.Audio().PlaySound(assets.AudioVictory)
 	c.prepareBattleResults()
+	c.world.result.Victory = true
 	c.scene.DelayedCall(5.0, func() {
 		c.gameFinished = true
-		c.world.result.Victory = true
 		switch c.config.ExecMode {
 		case gamedata.ExecuteNormal:
 			t3set := map[gamedata.ColonyAgentKind]struct{}{}
@@ -1068,18 +1080,64 @@ func (c *Controller) handleInput() {
 	}
 }
 
+func (c *Controller) isDefeatState() bool {
+	switch c.config.GameMode {
+	case gamedata.ModeClassic, gamedata.ModeArena, gamedata.ModeInfArena:
+		for _, p := range c.world.players {
+			if len(p.GetState().colonies) == 0 {
+				return true
+			}
+		}
+
+	case gamedata.ModeReverse:
+		if c.config.PlayersMode == serverapi.PmodeTwoPlayers {
+			colonyPlayer := c.world.players[1]
+			if len(colonyPlayer.GetState().colonies) == 0 {
+				return true
+			}
+		}
+		if c.world.boss == nil {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (c *Controller) checkDefeat() {
+	if c.transitionQueued {
+		return
+	}
+
+	if c.isDefeatState() {
+		c.defeat()
+	}
+}
+
 func (c *Controller) checkVictory() {
 	if c.transitionQueued {
 		return
 	}
 
 	victory := false
+
 	switch c.config.GameMode {
 	case gamedata.ModeClassic:
 		victory = c.world.boss == nil
 
 	case gamedata.ModeArena:
+		// Do nothing. This mode is ended with a trigger.
+
+	case gamedata.ModeInfArena:
 		// Do nothing. This mode is endless.
+
+	case gamedata.ModeReverse:
+		// In two players mode, the only way to finish a match
+		// is to trigger a defeat to either players.
+		if c.config.PlayersMode == serverapi.PmodeSinglePlayer {
+			colonyPlayer := c.world.players[1]
+			victory = len(colonyPlayer.GetState().colonies) == 0
+		}
 
 	case gamedata.ModeTutorial:
 		switch c.config.Tutorial.Objective {

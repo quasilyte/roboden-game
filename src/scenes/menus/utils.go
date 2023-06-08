@@ -12,7 +12,7 @@ func addDemoBackground(state *session.State, scene *ge.Scene) {
 	}
 	s := ge.NewSprite(scene.Context())
 	s.Centered = false
-	s.SetColorScale(ge.ColorScale{R: 0.30, G: 0.30, B: 0.30, A: 1})
+	s.SetColorScale(ge.ColorScale{R: 0.35, G: 0.35, B: 0.35, A: 1})
 	s.SetImage(resource.Image{Data: state.DemoFrame})
 	scene.AddGraphics(s)
 }

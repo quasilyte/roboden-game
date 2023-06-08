@@ -22,6 +22,7 @@ const (
 
 	// These are the actions for the creeps.
 	specialSendCreeps
+	specialRally
 	specialSpawnCrawlers
 	specialBossAttack
 	specialIncreaseTech
@@ -101,6 +102,11 @@ var specialChoicesTable = [...]choiceOption{
 		special: specialSendCreeps,
 		cost:    15,
 		icon:    assets.ImageActionSendCreeps,
+	},
+	specialRally: {
+		special: specialRally,
+		cost:    25,
+		icon:    assets.ImageActionRally,
 	},
 	specialSpawnCrawlers: {
 		special: specialSpawnCrawlers,
@@ -295,6 +301,7 @@ type choiceGenerator struct {
 	specialOptionIndex   int
 	buildTurret          bool
 	increaseRadius       bool
+	spawnCrawlers        bool
 	specialChoiceKinds   []specialChoiceKind
 
 	creepsState *creepsPlayerState
@@ -315,7 +322,7 @@ func newChoiceGenerator(world *worldState, creepsState *creepsPlayerState) *choi
 		g.specialChoiceKinds = []specialChoiceKind{
 			specialSendCreeps,
 			specialBossAttack,
-			specialSpawnCrawlers,
+			specialRally,
 			specialIncreaseTech,
 		}
 	} else {
@@ -475,6 +482,7 @@ func (g *choiceGenerator) generateChoices() {
 	}
 
 	if g.beforeSpecialShuffle == 0 {
+		g.spawnCrawlers = !g.spawnCrawlers
 		g.buildTurret = !g.buildTurret
 		g.increaseRadius = !g.increaseRadius
 		gmath.Shuffle(g.world.rand, g.specialChoiceKinds)
@@ -485,6 +493,10 @@ func (g *choiceGenerator) generateChoices() {
 
 	specialOptionKind := g.specialChoiceKinds[specialIndex]
 	switch specialOptionKind {
+	case specialRally:
+		if g.spawnCrawlers {
+			specialOptionKind = specialSpawnCrawlers
+		}
 	case specialBuildColony:
 		if g.buildTurret && g.world.config.BuildTurretActionAvailable {
 			specialOptionKind = specialBuildGunpoint

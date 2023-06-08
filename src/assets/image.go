@@ -79,6 +79,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageActionDecreaseRadius: {Path: "image/ui/action_decrease_radius.png"},
 		ImageActionSendCreeps:     {Path: "image/ui/action_send_creeps.png"},
 		ImageActionSpawnCrawlers:  {Path: "image/ui/action_spawn_crawlers.png"},
+		ImageActionRally:          {Path: "image/ui/action_rally.png"},
 		ImageActionBossAttack:     {Path: "image/ui/action_boss_attack.png"},
 		ImageActionIncreaseTech:   {Path: "image/ui/action_increase_tech.png"},
 
@@ -393,6 +394,7 @@ const (
 	ImageActionDecreaseRadius
 	ImageActionSendCreeps
 	ImageActionSpawnCrawlers
+	ImageActionRally
 	ImageActionBossAttack
 	ImageActionIncreaseTech
 

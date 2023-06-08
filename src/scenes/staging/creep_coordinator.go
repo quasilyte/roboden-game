@@ -95,7 +95,7 @@ func (c *creepCoordinator) tryLaunchingRelocation() {
 		return
 	}
 
-	group := c.collectGroup(leader, 20)
+	group := c.collectGroup(leader.pos, 300, 20)
 	if len(group) < 2 {
 		c.relocateDelay = c.world.rand.FloatRange(4, 10)
 		return
@@ -125,7 +125,7 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 		return
 	}
 
-	group := c.collectGroup(leader, 10)
+	group := c.collectGroup(leader.pos, 300, 10)
 	if len(group) < 2 {
 		c.scatterDelay = c.world.rand.FloatRange(8, 14)
 		return
@@ -137,15 +137,27 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 		c.scatterDelay = c.world.rand.FloatRange(70, 90)
 	}
 
-	for _, creep := range group {
-		dist := c.world.rand.FloatRange(96, 256)
-		targetPos := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(creep.pos)
+	c.scatterCreeps(group)
+}
 
-		creep.specialModifier = crawlerMove
-		p := c.world.BuildPath(creep.pos, targetPos)
-		creep.path = p.Steps
-		creep.waypoint = c.world.pathgrid.AlignPos(creep.pos)
+func (c *creepCoordinator) Rally(pos gmath.Vec) {
+	group := c.collectGroup(pos, 400, cap(c.groupSlice))
+	target := c.findColonyToAttack(pos, 1500.0)
+	if target != nil {
+		c.sendCreepsToAttack(group, target)
+		return
 	}
+	c.scatterCreeps(group)
+}
+
+func (c *creepCoordinator) findColonyToAttack(pos gmath.Vec, r float64) *colonyCoreNode {
+	if len(c.world.allColonies) == 0 {
+		return nil
+	}
+	rSqr := r * r
+	return randIterate(c.world.rand, c.world.allColonies, func(c *colonyCoreNode) bool {
+		return c.pos.DistanceSquaredTo(pos) <= rSqr
+	})
 }
 
 func (c *creepCoordinator) tryLaunchingAttack() {
@@ -157,29 +169,15 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 		return
 	}
 
-	const (
-		maxAttackRange    float64 = 1024.0
-		maxAttackRangeSqr float64 = maxAttackRange * maxAttackRange
-	)
+	group := c.collectGroup(leader.pos, 300, cap(c.groupSlice))
 
-	group := c.collectGroup(leader, cap(c.groupSlice))
-
-	attackRangeSqr := maxAttackRangeSqr * c.world.rand.FloatRange(0.8, 1.2)
+	maxAttackRange := 1024.0 * c.world.rand.FloatRange(0.8, 1.2)
 	if c.world.config.GameMode == gamedata.ModeArena {
-		attackRangeSqr *= 1.5
+		maxAttackRange *= 1.5
 	}
 
 	// Now try to find a suitable target.
-	p := gmath.RandElem(c.world.rand, c.world.players)
-	var target *colonyCoreNode
-	for _, colony := range p.GetState().colonies {
-		if colony.pos.DistanceSquaredTo(leader.pos) > attackRangeSqr {
-			continue
-		}
-		target = colony
-		break
-	}
-
+	target := c.findColonyToAttack(leader.pos, maxAttackRange)
 	if target == nil {
 		// No reachable targets for this group, try later.
 		c.attackDelay = c.world.rand.FloatRange(4.5, 6.5)
@@ -195,6 +193,18 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 		c.attackDelay = c.world.rand.FloatRange(30.0, 70.0)
 	}
 
+	c.sendCreepsToAttack(group, target)
+}
+
+func (c *creepCoordinator) scatterCreeps(group []*creepNode) {
+	for _, creep := range group {
+		dist := c.world.rand.FloatRange(128, 400)
+		targetPos := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(creep.pos)
+		creep.SendTo(targetPos)
+	}
+}
+
+func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, target *colonyCoreNode) {
 	for _, creep := range group {
 		dist := c.world.rand.FloatRange(creep.stats.weapon.AttackRange*0.5, creep.stats.weapon.AttackRange*0.8)
 		targetPos := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(target.pos)
@@ -202,11 +212,8 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 	}
 }
 
-func (c *creepCoordinator) collectGroup(leader *creepNode, maxGroupSize int) []*creepNode {
-	const (
-		maxUnitRange    float64 = 300
-		maxUnitRangeSqr float64 = maxUnitRange * maxUnitRange
-	)
+func (c *creepCoordinator) collectGroup(pos gmath.Vec, r float64, maxGroupSize int) []*creepNode {
+	rSqr := r * r
 
 	if maxGroupSize > cap(c.groupSlice) {
 		maxGroupSize = cap(c.groupSlice)
@@ -214,15 +221,14 @@ func (c *creepCoordinator) collectGroup(leader *creepNode, maxGroupSize int) []*
 	// Try to build a group of at least 2 units.
 	groupSize := c.world.rand.IntRange(2, maxGroupSize)
 	group := c.groupSlice[:0]
-	group = append(group, leader)
 	for _, creep := range c.crawlers {
 		if len(group) >= groupSize {
 			break
 		}
-		if creep == leader || creep.specialModifier != crawlerIdle {
+		if creep.specialModifier != crawlerIdle {
 			continue
 		}
-		if creep.pos.DistanceSquaredTo(leader.pos) > maxUnitRangeSqr {
+		if creep.pos.DistanceSquaredTo(pos) > rSqr {
 			continue
 		}
 		group = append(group, creep)

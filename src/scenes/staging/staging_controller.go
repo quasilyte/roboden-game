@@ -785,6 +785,9 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 	case specialSpawnCrawlers:
 		return c.doSpawnCrawlers()
 
+	case specialRally:
+		return c.doRally()
+
 	case specialIncreaseTech:
 		c.world.creepsPlayerState.techLevel += 0.1
 		return true
@@ -800,6 +803,15 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 
 		panic("unexpected action ID")
 	}
+}
+
+func (c *Controller) doRally() bool {
+	if c.world.boss == nil {
+		return false
+	}
+	c.scene.Audio().PlaySound(assets.AudioWaveStart)
+	c.world.creepCoordinator.Rally(c.world.boss.pos)
+	return true
 }
 
 func (c *Controller) doSpawnCrawlers() bool {

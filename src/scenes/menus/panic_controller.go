@@ -47,6 +47,8 @@ func (c *PanicController) Init(scene *ge.Scene) {
 		text = "A critical error has occured.\nPress ENTER to continue."
 	}
 
+	fmt.Println(c.panicInfo.Trace)
+
 	errorLabel := ge.NewLabel(assets.BitmapFont1)
 	errorLabel.Width = scene.Context().WindowWidth
 	errorLabel.Height = scene.Context().WindowHeight

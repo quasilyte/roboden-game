@@ -339,7 +339,27 @@ func (c *resultsController) initUI() {
 		key := c.config.RawGameMode + "_highscore"
 		c.scene.Context().SaveGameData(key, replay)
 	}
-	if c.config.Tutorial == nil && gamedata.IsSendableReplay(replay) {
+	if gamedata.IsRunnableReplay(replay) {
+		r := session.SavedReplay{
+			Date:   time.Now(),
+			Replay: replay,
+		}
+		recentReplayKey := c.state.ReplayDataKey(0)
+		c.scene.Context().SaveGameData(recentReplayKey, r)
+
+		saved := false
+		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.save_replay"), func() {
+			// Let the user press button several times, but don't do any extra
+			// work if we already saved the replay data.
+			if saved {
+				return
+			}
+			saved = true
+			k := c.state.ReplayDataKey(c.state.FindNextReplayIndex())
+			c.scene.Context().SaveGameData(k, r)
+		}))
+	}
+	if gamedata.IsSendableReplay(replay) {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.publish_score"), func() {
 			if c.state.Persistent.PlayerName == "" {
 				backController := newResultsController(c.state, c.config, c.backController, c.results, c.rewards)

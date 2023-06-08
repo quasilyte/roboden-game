@@ -394,7 +394,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.camera = c.createCameraManager(viewportWorld, true, c.getPlayerInput(0))
 	if c.config.ExecMode == gamedata.ExecuteReplay {
-		c.CenterDemoCamera(c.world.rect.Center())
+		c.camera.CenterOn(c.world.rect.Center())
 	}
 
 	c.nodeRunner.world = world
@@ -545,7 +545,7 @@ func (c *Controller) createCameraManager(viewportWorld *viewport.World, main boo
 		cam.ScreenPos.X = (1920.0 / 2 / 2)
 	}
 	cm := newCameraManager(c.world, cam)
-	if c.config.ExecMode == gamedata.ExecuteDemo || c.config.ExecMode == gamedata.ExecuteReplay {
+	if c.config.ExecMode == gamedata.ExecuteDemo {
 		cm.InitCinematicMode()
 		cm.CenterOn(c.world.rect.Center())
 	} else {
@@ -991,7 +991,7 @@ func (c *Controller) victory() {
 				c.world.result.Tier3Drones = append(c.world.result.Tier3Drones, k)
 			}
 			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result, nil))
-		case gamedata.ExecuteDemo:
+		case gamedata.ExecuteDemo, gamedata.ExecuteReplay:
 			c.leaveScene(c.backController)
 		}
 	})
@@ -1025,16 +1025,33 @@ func (c *Controller) handleInput() {
 	mainInput := c.state.MainInput
 
 	switch c.config.ExecMode {
-	case gamedata.ExecuteReplay, gamedata.ExecuteSimulation:
+	case gamedata.ExecuteSimulation:
 		c.handleReplayActions()
 		return
 	case gamedata.ExecuteDemo:
 		c.handleDemoInput()
 		return
+	case gamedata.ExecuteReplay:
+		c.handleReplayActions()
+		// And then do a some more common stuff and return from the function.
 	}
 
 	if c.sharedActionIsJustPressed(controls.ActionPause) {
 		c.onPausePressed()
+		return
+	}
+
+	c.camera.HandleInput()
+	if c.secondCamera != nil {
+		c.secondCamera.HandleInput()
+	}
+
+	if c.sharedActionIsJustPressed(controls.ActionBack) {
+		c.onExitButtonClicked()
+		return
+	}
+
+	if c.config.ExecMode == gamedata.ExecuteReplay {
 		return
 	}
 
@@ -1044,16 +1061,6 @@ func (c *Controller) handleInput() {
 		}
 		c.recipeTab.Visible = !c.recipeTab.Visible
 		c.world.result.OpenedEvolutionTab = true
-	}
-
-	if c.sharedActionIsJustPressed(controls.ActionBack) {
-		c.onExitButtonClicked()
-		return
-	}
-
-	c.camera.HandleInput()
-	if c.secondCamera != nil {
-		c.secondCamera.HandleInput()
 	}
 
 	for _, p := range c.world.players {

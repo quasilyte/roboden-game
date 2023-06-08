@@ -123,6 +123,11 @@ type GraphicsSettings struct {
 	FullscreenEnabled bool
 }
 
+type SavedReplay struct {
+	Date   time.Time
+	Replay serverapi.GameReplay
+}
+
 func (state *State) ReloadLanguage(ctx *ge.Context) {
 	var id resource.RawID
 	lang := state.Persistent.Settings.Lang
@@ -156,4 +161,30 @@ func (state *State) DetectInputMode() string {
 		inputMode = "gamepad"
 	}
 	return inputMode
+}
+
+func (state *State) FindNextReplayIndex() int {
+	var minDate time.Time
+	minIndex := 0
+	for i := 1; i < 10; i++ {
+		k := state.ReplayDataKey(i)
+		if !state.Context.CheckGameData(k) {
+			return i
+		}
+		var r SavedReplay
+		if err := state.Context.LoadGameData(k, &r); err != nil {
+			if minIndex == 0 || r.Date.Before(minDate) {
+				minDate = r.Date
+				minIndex = i
+			}
+		}
+	}
+	if minIndex != 0 {
+		return minIndex
+	}
+	return 1
+}
+
+func (state *State) ReplayDataKey(i int) string {
+	return fmt.Sprintf("saved_replay_%d", i)
 }

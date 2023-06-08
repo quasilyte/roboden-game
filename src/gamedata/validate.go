@@ -6,7 +6,19 @@ import (
 	"github.com/quasilyte/roboden-game/serverapi"
 )
 
+func IsRunnableReplay(r serverapi.GameReplay) bool {
+	switch r.Config.RawGameMode {
+	case "classic", "arena", "inf_arena":
+		return true
+	default:
+		return false
+	}
+}
+
 func IsSendableReplay(r serverapi.GameReplay) bool {
+	if !IsRunnableReplay(r) {
+		return false
+	}
 	if r.Results.Score <= 0 {
 		return false
 	}

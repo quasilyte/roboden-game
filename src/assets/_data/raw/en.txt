@@ -37,6 +37,7 @@
 ##menu.leaderboard.col_score : score
 ##menu.leaderboard.col_time : time
 
+##menu.save_replay : Save Replay
 ##menu.publish_score : Publish Score
 ##menu.publish_high_score : Publish Highscores
 ##menu.save : Save
@@ -64,6 +65,12 @@
 ##menu.profile.stats : Stats
 ##menu.profile.progress : Progress
 ##menu.profile.dronebook : Drone Collection
+##menu.profile.watch_replay : Watch Replay
+
+##menu.replay.game_result : Result
+##menu.replay.last_played : Last played
+##menu.replay.empty : Empty Slot
+##menu.replay.notice : Replays are experimental and lack convenience options
 
 ##menu.profile.stats.totalscore : Total Score
 ##menu.profile.stats.classic_highscore : Classic Highest Score
@@ -158,8 +165,8 @@ If turned on, you won't have an entire map revealed from the start.
 How many pairs of teleporters will be placed on the map.
 If your colony lands on a teleportation platform, it will be transported to the connected teleporter.
 
-##menu.lobby.players.classic : Players
-##menu.lobby.players.classic.description
+##menu.lobby.players : Players
+##menu.lobby.players.description
 This option controls the number of allied colonies on the map and who controls them.
 Selecting two players will enable a split-screen local multiplayer.
 You will need at least 1 gamepad to play in the split-screen mode.
@@ -277,16 +284,16 @@ You can make them really rare or appear almost everywhere.
 ##menu.results.the_end : The End
 ##menu.results.victory : Victory
 ##menu.results.defeat : Defeat
-##menu.results.time_played : Time Played
-##menu.results.resources_gathered : Resources Gathered
-##menu.results.drones_total : Drones Produced
-##menu.results.creeps_defeated : Creeps Defeated
+##menu.results.time_played : Time played
+##menu.results.resources_gathered : Resources gathered
+##menu.results.drones_total : Drones produced
+##menu.results.creeps_defeated : Creeps defeated
 ##menu.results.score : Score
-##menu.results.new_achievement : New Achievement
-##menu.results.upgraded_achievement : Upgraded Achievement
+##menu.results.new_achievement : New achievement
+##menu.results.upgraded_achievement : Upgraded achievement
 ##menu.results.new_record : local record
-##menu.results.new_drone : Drone Unlocked
-##menu.results.new_turret : Turret Unlocked
+##menu.results.new_drone : Drone unlocked
+##menu.results.new_turret : Turret unlocked
 
 ##menu.controls.keyboard : Keyboard
 ##menu.controls.gamepad : Gamepad

@@ -3,11 +3,44 @@ package descriptions
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/timeutil"
 )
+
+func ReplayText(d *langs.Dictionary, r *session.SavedReplay) string {
+	var lines []string
+	lines = append(lines, fmt.Sprintf("%s [%s]", d.Get("menu.play", r.Replay.Config.RawGameMode), timeutil.FormatDateISO8601(r.Date, true)))
+	lines = append(lines, "")
+	playerModeValues := []string{
+		d.Get("menu.lobby.player_mode.single_player"),
+		d.Get("menu.lobby.player_mode.single_bot"),
+		d.Get("menu.lobby.player_mode.player_and_bot"),
+		d.Get("menu.lobby.player_mode.two_players"),
+		d.Get("menu.lobby.player_mode.two_bots"),
+	}
+	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.lobby.players"), playerModeValues[r.Replay.Config.PlayersMode]))
+	if r.Replay.Config.RawGameMode != "inf_arena" {
+		resultsKey := "menu.results.defeat"
+		if r.Replay.Results.Victory {
+			resultsKey = "menu.results.victory"
+		}
+		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.replay.game_result"), strings.ToLower(d.Get(resultsKey))))
+	}
+	lines = append(lines, fmt.Sprintf("%s: %d%%", d.Get("menu.lobby.tab.difficulty"), r.Replay.Config.DifficultyScore))
+	if r.Replay.Results.Score != 0 {
+		lines = append(lines, fmt.Sprintf("%s: %d", d.Get("menu.results.score"), r.Replay.Results.Score))
+	}
+	timePlayed := time.Second * time.Duration(r.Replay.Results.Time)
+	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.time_played"), timeutil.FormatDurationCompact(timePlayed)))
+	gameSpeedValues := []string{"x1.0", "x1.2", "x1.5"}
+	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.lobby.game_speed"), gameSpeedValues[r.Replay.Config.GameSpeed]))
+
+	return strings.Join(lines, "\n")
+}
 
 func LockedDroneText(d *langs.Dictionary, stats *session.PlayerStats, drone *gamedata.AgentStats) string {
 	textLines := make([]string, 0, 4)

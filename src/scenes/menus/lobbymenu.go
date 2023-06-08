@@ -342,7 +342,11 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		if c.state.Device.IsMobile {
 			disabled = append(disabled, 3) // Two players are not available on mobiles
 		}
-		b := c.newOptionButtonWithDisabled(&c.config.PlayersMode, "menu.lobby.players."+c.config.RawGameMode, disabled, []string{
+		key := "menu.lobby.players"
+		if c.config.RawGameMode == "reverse" {
+			key += ".reverse"
+		}
+		b := c.newOptionButtonWithDisabled(&c.config.PlayersMode, key, disabled, []string{
 			d.Get("menu.lobby.player_mode.single_player"),
 			d.Get("menu.lobby.player_mode.single_bot"),
 			d.Get("menu.lobby.player_mode.player_and_bot"),
@@ -445,7 +449,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		tab.AddChild(b)
 	}
 
-	{
+	if c.mode == gamedata.ModeReverse {
 		b := c.newOptionButton(&c.config.DronesPower, "menu.lobby.drones_power", []string{
 			"80%",
 			"100%",

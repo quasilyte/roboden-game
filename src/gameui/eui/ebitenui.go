@@ -345,13 +345,21 @@ func NewItemButton(res *Resources, img *ebiten.Image, ff font.Face, label string
 	return result
 }
 
+func NewSmallButton(res *Resources, scene *ge.Scene, text string, onclick func()) *widget.Button {
+	return newButton(res, assets.BitmapFont1, scene, text, onclick)
+}
+
 func NewButton(res *Resources, scene *ge.Scene, text string, onclick func()) *widget.Button {
+	return newButton(res, res.Button.FontFace, scene, text, onclick)
+}
+
+func newButton(res *Resources, ff font.Face, scene *ge.Scene, text string, onclick func()) *widget.Button {
 	return widget.NewButton(
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 			Stretch: true,
 		})),
 		widget.ButtonOpts.Image(res.Button.Image),
-		widget.ButtonOpts.Text(text, res.Button.FontFace, res.Button.TextColors),
+		widget.ButtonOpts.Text(text, ff, res.Button.TextColors),
 		widget.ButtonOpts.TextPadding(res.Button.Padding),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
 			scene.Audio().PlaySound(assets.AudioClick)

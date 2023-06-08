@@ -36,6 +36,18 @@ func (pk PlayerKind) String() string {
 	}
 }
 
+func MakeLevelConfig(mode ExecutionMode, config serverapi.ReplayLevelConfig) LevelConfig {
+	return LevelConfig{
+		ReplayLevelConfig:          config,
+		ExecMode:                   mode,
+		AttackActionAvailable:      true,
+		BuildTurretActionAvailable: true,
+		RadiusActionAvailable:      true,
+		EliteResources:             true,
+		EnemyBoss:                  config.RawGameMode == "classic",
+	}
+}
+
 type LevelConfig struct {
 	serverapi.ReplayLevelConfig
 

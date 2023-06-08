@@ -31,15 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	config := gamedata.LevelConfig{
-		ReplayLevelConfig:          replayData.Config,
-		ExecMode:                   gamedata.ExecuteSimulation,
-		AttackActionAvailable:      true,
-		BuildTurretActionAvailable: true,
-		RadiusActionAvailable:      true,
-		EliteResources:             true,
-		EnemyBoss:                  replayData.Config.RawGameMode == "classic",
-	}
+	config := gamedata.MakeLevelConfig(gamedata.ExecuteSimulation, replayData.Config)
 	ctx := ge.NewContext(ge.ContextConfig{
 		Mute:       true,
 		FixedDelta: true,

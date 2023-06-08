@@ -123,13 +123,10 @@ func registerScenes(state *session.State) {
 	}
 }
 
-func newLevelConfig(config *gamedata.LevelConfig) *gamedata.LevelConfig {
-	config.BuildTurretActionAvailable = true
-	config.AttackActionAvailable = true
-	config.RadiusActionAvailable = true
+func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
+	config := gamedata.MakeLevelConfig(gamedata.ExecuteNormal, options.ReplayLevelConfig)
 
 	config.InterfaceMode = 2
-	config.EliteResources = true
 
 	config.PlayersMode = serverapi.PmodeSinglePlayer
 
@@ -151,7 +148,7 @@ func newLevelConfig(config *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.CreepDifficulty = 3
 	config.BossDifficulty = 1
 
-	return config
+	return &config
 }
 
 func getDefaultSessionState() *session.State {
@@ -191,6 +188,7 @@ func getDefaultSessionState() *session.State {
 				CreepSpawnRate: 1,
 				Teleporters:    1,
 				RawGameMode:    "classic",
+				DronesPower:    1,
 			},
 		}),
 		Persistent: contentlock.GetDefaultData(),

@@ -388,7 +388,6 @@ var builderCreepStats = &creepStats{
 var uberBossCreepStats = &creepStats{
 	kind:        creepUberBoss,
 	image:       assets.ImageUberBoss,
-	animSpeed:   0.5,
 	shadowImage: assets.ImageUberBossShadow,
 	speed:       10,
 	maxHealth:   600,

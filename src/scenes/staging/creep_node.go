@@ -154,13 +154,10 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 
 	if c.stats.kind == creepUberBoss {
-		img := assets.ImageUberBossOpen
-		if c.super {
-			img = assets.ImageSuperUberBossOpen
-		}
-		c.altSprite = scene.NewSprite(img)
+		c.altSprite = scene.NewSprite(assets.ImageUberBossDoor)
 		c.altSprite.Visible = false
 		c.altSprite.Pos.Base = &c.spritePos
+		c.altSprite.Pos.Offset.Y = 13
 		c.world.stage.AddSprite(c.altSprite)
 		c.maxHealth *= c.world.bossHealthMultiplier
 	} else {
@@ -1131,8 +1128,6 @@ func (c *creepNode) updateServant(delta float64) {
 }
 
 func (c *creepNode) updateUberBoss(delta float64) {
-	c.anim.Tick(delta)
-
 	if c.shadow != nil {
 		roundedHeight := math.Round(c.height)
 		c.shadow.Pos.Offset.Y = roundedHeight + 4
@@ -1163,7 +1158,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 		c.pos.Y += delta * 5
 		if c.height <= crawlersSpawnHeight {
 			c.height = crawlersSpawnHeight
-			c.sprite.Visible = false
+			c.sprite.FrameOffset.X = c.sprite.FrameWidth
 			c.altSprite.Visible = true
 			c.flashComponent.sprite = c.altSprite
 		}
@@ -1198,7 +1193,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			} else {
 				c.specialDelay = c.scene.Rand().FloatRange(50, 70)
 			}
-			c.sprite.Visible = true
+			c.sprite.FrameOffset.X = 0
 			c.altSprite.Visible = false
 			c.flashComponent.sprite = c.sprite
 			return

@@ -1008,7 +1008,7 @@ func (c *creepNode) updateCreepCrawlerBase(delta float64) {
 		Y: c.scene.Rand().FloatRange(-160, 160),
 	}
 	dstPos := spawnPos.Add(dstOffset)
-	c.attackDelay = c.scene.Rand().FloatRange(25, 55) * productionDelay
+	c.attackDelay = c.scene.Rand().FloatRange(20, 35) * productionDelay
 	c.specialModifier++
 
 	crawler := c.world.NewCreepNode(spawnPos, crawlerCreepStats)

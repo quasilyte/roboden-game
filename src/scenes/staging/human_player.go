@@ -29,6 +29,7 @@ type humanPlayer struct {
 	screenButtons        *screenButtonsNode
 	colonySelector       *ge.Sprite
 	flyingColonySelector *ge.Sprite
+	screenSeparator      *ge.Line
 
 	creepsState *creepsPlayerState
 
@@ -119,6 +120,15 @@ func (p *humanPlayer) Init() {
 			p.rpanel.UpdateMetrics()
 		}
 	})
+
+	if len(p.world.cameras) == 2 {
+		begin := ge.Pos{Offset: gmath.Vec{X: (1920 / 4)}}
+		end := ge.Pos{Offset: gmath.Vec{X: (1920 / 4), Y: 1080}}
+		p.screenSeparator = ge.NewLine(begin, end)
+		p.screenSeparator.SetColorScaleRGBA(0xa1, 0x9a, 0x9e, 255)
+		p.screenSeparator.Visible = p.rpanel == nil || !p.state.camera.UI.Visible
+		p.scene.AddGraphicsAbove(p.screenSeparator, 1)
+	}
 }
 
 func (p *humanPlayer) IsDisposed() bool { return false }
@@ -150,6 +160,9 @@ func (p *humanPlayer) HandleInput() {
 
 	if p.input.ActionIsJustPressed(controls.ActionToggleInterface) {
 		p.state.camera.UI.Visible = !p.state.camera.UI.Visible
+		if p.screenSeparator != nil {
+			p.screenSeparator.Visible = p.rpanel == nil || !p.state.camera.UI.Visible
+		}
 	}
 
 	if selectedColony != nil || p.creepsState != nil {
@@ -165,7 +178,7 @@ func (p *humanPlayer) HandleInput() {
 	clickPos, hasClick := p.cursor.ClickPos(controls.ActionClick)
 	if len(p.state.colonies) > 1 {
 		if hasClick {
-			globalClickPos := p.state.camera.AbsPos(clickPos)
+			globalClickPos := p.state.camera.AbsClickPos(clickPos)
 			selectDist := 40.0
 			if p.world.deviceInfo.IsMobile {
 				selectDist = 80.0
@@ -197,7 +210,7 @@ func (p *humanPlayer) HandleInput() {
 
 	if selectedColony != nil && p.world.movementEnabled {
 		if pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice); ok {
-			globalClickPos := p.state.camera.AbsPos(pos)
+			globalClickPos := p.state.camera.AbsClickPos(pos)
 			if globalClickPos.DistanceTo(selectedColony.pos) > 28 {
 				if !p.choiceGen.TryExecute(-1, globalClickPos) {
 					p.scene.Audio().PlaySound(assets.AudioError)

@@ -254,6 +254,7 @@ func (w *choiceWindowNode) Update(delta float64) {
 
 func (w *choiceWindowNode) HandleInput() int {
 	if pos, ok := w.cursor.ClickPos(controls.ActionClick); ok {
+		pos = pos.Sub(w.cam.ScreenPos)
 		for i, choice := range w.choices {
 			if choice.rect.Contains(pos) {
 				return i

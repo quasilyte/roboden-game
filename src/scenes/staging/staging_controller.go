@@ -46,9 +46,8 @@ type Controller struct {
 	gameFinished      bool
 	victoryCheckDelay float64
 
-	screenSeparator *ge.Line
-	camera          *cameraManager
-	secondCamera    *cameraManager
+	camera       *cameraManager
+	secondCamera *cameraManager
 
 	// tutorialManager *tutorialManager
 	messageManagers []*messageManager
@@ -519,14 +518,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.recipeTab.Visible = false
 		c.world.cameras[0].UI.AddGraphics(c.recipeTab)
 		scene.AddObject(c.recipeTab)
-	}
-
-	if len(c.world.cameras) == 2 {
-		begin := ge.Pos{Offset: gmath.Vec{X: 1920 / 4}}
-		end := ge.Pos{Offset: gmath.Vec{X: 1920 / 4, Y: 1080}}
-		c.screenSeparator = ge.NewLine(begin, end)
-		c.screenSeparator.SetColorScaleRGBA(0xa1, 0x9a, 0x9e, 255)
-		scene.AddGraphics(c.screenSeparator)
 	}
 
 	if c.fogOfWar != nil {

@@ -209,8 +209,12 @@ func (c *Camera) Dispose() {
 	c.disposed = true
 }
 
-func (c *Camera) AbsPos(relativePos gmath.Vec) gmath.Vec {
+func (c *Camera) AbsClickPos(relativePos gmath.Vec) gmath.Vec {
 	return relativePos.Add(c.Offset).Sub(c.ScreenPos)
+}
+
+func (c *Camera) AbsPos(relativePos gmath.Vec) gmath.Vec {
+	return relativePos.Add(c.Offset)
 }
 
 func (c *Camera) IsDisposed() bool {

@@ -6,6 +6,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type servantSpawnerNode struct {
@@ -45,7 +46,7 @@ func (n *servantSpawnerNode) Init(scene *ge.Scene) {
 }
 
 func (n *servantSpawnerNode) spawn() {
-	creep := n.world.NewCreepNode(n.pos, servantCreepStats)
+	creep := n.world.NewCreepNode(n.pos, gamedata.ServantCreepStats)
 	creep.super = n.super
 	creep.specialTarget = n.target
 	n.world.nodeRunner.AddObject(creep)

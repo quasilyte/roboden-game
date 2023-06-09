@@ -242,21 +242,21 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 	}
 }
 
-func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stats *creepStats) int {
+func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stats *gamedata.CreepStats) int {
 	rand := &g.rng
 	placed := 0
 	pos := correctedPos(sector, g.randomPos(sector), 128)
 	initialPos := pos
 	unitPos := pos
 	for i := 0; i < maxSize; i++ {
-		if stats.building {
+		if stats.Building {
 			pos = g.world.AdjustCellPos(pos, 6)
 		}
 		if !posIsFree(g.world, nil, pos, 24) || pos.DistanceTo(g.playerSpawn) < 520 {
 			break
 		}
 		creep := g.world.NewCreepNode(pos, stats)
-		if stats.kind == creepCrawler {
+		if stats.Kind == gamedata.CreepCrawler {
 			creep.specialModifier = crawlerGuard
 		}
 		g.world.nodeRunner.AddObject(creep)
@@ -436,7 +436,7 @@ func (g *levelGenerator) placeBoss() {
 		{X: g.world.width - 196, Y: g.world.height - 196},
 	}
 	pos := gmath.RandElem(&g.rng, spawnLocations)
-	boss := g.world.NewCreepNode(pos, uberBossCreepStats)
+	boss := g.world.NewCreepNode(pos, gamedata.UberBossCreepStats)
 	if g.world.config.GameMode == gamedata.ModeReverse {
 		boss.specialDelay = 60 * 60 * 60 // ~never
 	} else {
@@ -472,26 +472,26 @@ func (g *levelGenerator) placeCreeps() {
 	for numTurrets > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numTurrets -= g.placeCreepsCluster(sector, 1, turretCreepStats)
+		numTurrets -= g.placeCreepsCluster(sector, 1, gamedata.TurretCreepStats)
 	}
 
 	numCrawlers := int(math.Round(float64(rand.IntRange(8, 12)) * multiplier))
 	for numCrawlers > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		stats := crawlerCreepStats
+		stats := gamedata.CrawlerCreepStats
 		if g.rng.Chance(0.4) {
-			stats = heavyCrawlerCreepStats
+			stats = gamedata.HeavyCrawlerCreepStats
 		}
 		numCrawlers -= g.placeCreepsCluster(sector, 1, stats)
 	}
 
 	numSpecial := 0
-	specialStats := howitzerCreepStats
+	specialStats := gamedata.HowitzerCreepStats
 	if g.world.config.InitialCreeps > 1 {
 		numSpecial = 1
 		if g.world.rand.Bool() {
-			specialStats = builderCreepStats
+			specialStats = gamedata.BuilderCreepStats
 		}
 	}
 	for numSpecial > 0 {
@@ -532,8 +532,8 @@ func (g *levelGenerator) placeCreepBases() {
 			Min: basePos.Sub(gmath.Vec{X: 96, Y: 96}),
 			Max: basePos.Add(gmath.Vec{X: 96, Y: 96}),
 		}
-		g.placeCreepsCluster(baseRegion, 1, turretCreepStats)
-		base := g.world.NewCreepNode(basePos, baseCreepStats)
+		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats)
+		base := g.world.NewCreepNode(basePos, gamedata.BaseCreepStats)
 		base.super = i == 0 && g.world.config.SuperCreeps
 		if i == 1 || i == 3 {
 			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)

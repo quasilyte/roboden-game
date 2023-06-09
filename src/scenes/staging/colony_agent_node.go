@@ -1693,8 +1693,8 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 
 	// Try to find a new target.
 	newTarget := randIterate(a.scene.Rand(), a.world().creeps, func(creep *creepNode) bool {
-		switch creep.stats.kind {
-		case creepBase, creepCrawlerBase, creepTurret, creepHowitzer:
+		switch creep.stats.Kind {
+		case gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepTurret, gamedata.CreepHowitzer:
 			return true
 		default:
 			return false

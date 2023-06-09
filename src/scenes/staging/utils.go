@@ -7,6 +7,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
@@ -170,10 +171,10 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 
 	skipSmall := flags&collisionSkipSmallCrawlers != 0
 	for _, creep := range world.creeps {
-		if skipSmall && creep.stats.kind == creepCrawler {
+		if skipSmall && creep.stats.Kind == gamedata.CreepCrawler {
 			continue
 		}
-		if creep.stats.shadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+creep.stats.size) {
+		if creep.stats.ShadowImage == assets.ImageNone && creep.pos.DistanceTo(pos) < (radius+creep.stats.Size) {
 			return false
 		}
 	}

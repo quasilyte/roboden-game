@@ -122,7 +122,7 @@ func (state *creepsPlayerState) AddUnits(world *worldState, side int, info creep
 	return unitsAdded > 0
 }
 
-func (state *creepsPlayerState) addUnit(side int, stats *creepStats, super bool) bool {
+func (state *creepsPlayerState) addUnit(side int, stats *gamedata.CreepStats, super bool) bool {
 	var dst *arenaWaveGroup
 	cg := state.attackSides[side]
 	if cg.totalCost >= state.maxSideCost {

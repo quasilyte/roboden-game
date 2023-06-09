@@ -112,15 +112,28 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, progress *float64) {
 	}{
 		{gamedata.RepairAgentStats, assets.ImageRepairLine, gamedata.RepairAgentStats.SupportRange * 1.3},
 		{gamedata.RechargerAgentStats, assets.ImageRechargerLine, gamedata.RepairAgentStats.SupportRange * 1.3},
-		{gamedata.DefenderAgentStats, assets.ImageDefenderLine, gamedata.DefenderAgentStats.Weapon.AttackRange},
-		{gamedata.GuardianAgentStats, assets.ImageDefenderLine, gamedata.GuardianAgentStats.Weapon.AttackRange},
-		{gamedata.BeamTowerAgentStats, assets.ImageBeamtowerLine, gamedata.BeamTowerAgentStats.Weapon.AttackRange},
+		{gamedata.DefenderAgentStats, assets.ImageDefenderLine, gamedata.DefenderAgentStats.Weapon.AttackRange * 1.05},
+		{gamedata.GuardianAgentStats, assets.ImageDefenderLine, gamedata.GuardianAgentStats.Weapon.AttackRange * 1.05},
+		{gamedata.BeamTowerAgentStats, assets.ImageBeamtowerLine, gamedata.BeamTowerAgentStats.Weapon.AttackRange * 1.05},
 		{gamedata.TetherBeaconAgentStats, assets.ImageTetherLine, gamedata.TetherBeaconAgentStats.SupportRange * 1.5},
 	}
+	creepSteps := []struct {
+		creep   *gamedata.CreepStats
+		imageID resource.ImageID
+		length  float64
+	}{
+		{gamedata.StunnerCreepStats, assets.ImageStunnerLine, gamedata.StunnerCreepStats.Weapon.AttackRange * 1.05},
+		{gamedata.UberBossCreepStats, assets.ImageBossLaserLine, gamedata.UberBossCreepStats.Weapon.AttackRange * 1.05},
+	}
 
-	progressPerItem := 1.0 / float64(len(steps))
+	progressPerItem := 1.0 / float64(len(steps)+len(creepSteps))
+
 	for _, step := range steps {
 		step.agent.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(step.imageID), step.length)
+		*progress += progressPerItem
+	}
+	for _, step := range creepSteps {
+		step.creep.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(step.imageID), step.length)
 		*progress += progressPerItem
 	}
 }

@@ -219,7 +219,7 @@ func (c *creepCoordinator) scatterCreeps(group []*creepNode) {
 
 func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, target *colonyCoreNode) {
 	for _, creep := range group {
-		dist := c.world.rand.FloatRange(creep.stats.weapon.AttackRange*0.5, creep.stats.weapon.AttackRange*0.8)
+		dist := c.world.rand.FloatRange(creep.stats.Weapon.AttackRange*0.5, creep.stats.Weapon.AttackRange*0.8)
 		targetPos := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(target.pos)
 		creep.SendTo(targetPos)
 	}

@@ -3,6 +3,7 @@ package staging
 import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 func sendCreeps(world *worldState, g arenaWaveGroup) {
@@ -13,7 +14,7 @@ func sendCreeps(world *worldState, g arenaWaveGroup) {
 	for _, u := range g.units {
 		creepPos := spawnPos
 		spawnDelay := 0.0
-		if u.stats.shadowImage == assets.ImageNone {
+		if u.stats.ShadowImage == assets.ImageNone {
 			creepPos, spawnDelay = groundCreepSpawnPos(world, creepPos, u.stats)
 			if creepPos.IsZero() {
 				continue
@@ -38,23 +39,23 @@ func sendCreeps(world *worldState, g arenaWaveGroup) {
 	}
 }
 
-func groundCreepSpawnPos(world *worldState, pos gmath.Vec, stats *creepStats) (gmath.Vec, float64) {
+func groundCreepSpawnPos(world *worldState, pos gmath.Vec, stats *gamedata.CreepStats) (gmath.Vec, float64) {
 	creepPos := pos
 	spawnDelay := 0.0
 	attemptPos := creepPos.Add(world.rand.Offset(-60, 60))
 	for i := 0; i < 4; i++ {
 		if attemptPos.X <= 0 {
-			spawnDelay = (-attemptPos.X) / stats.speed
+			spawnDelay = (-attemptPos.X) / stats.Speed
 			attemptPos.X = 1
 		} else if attemptPos.X >= world.width {
-			spawnDelay = (attemptPos.X - world.width) / stats.speed
+			spawnDelay = (attemptPos.X - world.width) / stats.Speed
 			attemptPos.X = world.width - 1
 		}
 		if attemptPos.Y <= 0 {
-			spawnDelay = (-attemptPos.Y) / stats.speed
+			spawnDelay = (-attemptPos.Y) / stats.Speed
 			attemptPos.Y = 1
 		} else if attemptPos.Y >= world.height {
-			spawnDelay = (attemptPos.Y - world.height) / stats.speed
+			spawnDelay = (attemptPos.Y - world.height) / stats.Speed
 			attemptPos.Y = world.height - 1
 		}
 		coord := world.pathgrid.PosToCoord(attemptPos)

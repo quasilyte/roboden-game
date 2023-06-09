@@ -355,21 +355,21 @@ func (w *worldState) MaxActiveCrawlers() int {
 	}
 }
 
-func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
+func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *creepNode {
 	n := newCreepNode(w, stats, pos)
 	n.EventDestroyed.Connect(nil, func(x *creepNode) {
-		if stats.building {
+		if stats.Building {
 			w.UnmarkPos(pos)
 		}
 		w.creeps = xslices.Remove(w.creeps, x)
-		if x.stats.kind == creepCrawler {
+		if x.stats.Kind == gamedata.CreepCrawler {
 			w.creepCoordinator.crawlers = xslices.Remove(w.creepCoordinator.crawlers, x)
 		}
 		w.result.CreepFragScore += x.fragScore
-		switch x.stats.kind {
-		case creepBase:
+		switch x.stats.Kind {
+		case gamedata.CreepBase:
 			w.result.CreepBasesDestroyed++
-		case creepUberBoss:
+		case gamedata.CreepUberBoss:
 			if !x.IsFlying() {
 				w.result.GroundBossDefeat = true
 			}
@@ -379,11 +379,11 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *creepStats) *creepNode {
 			w.result.CreepsDefeated++
 		}
 	})
-	if stats.building {
+	if stats.Building {
 		w.MarkPos(pos)
 	}
 	w.creeps = append(w.creeps, n)
-	if stats.kind == creepCrawler {
+	if stats.Kind == gamedata.CreepCrawler {
 		w.creepCoordinator.crawlers = append(w.creepCoordinator.crawlers, n)
 	}
 	return n

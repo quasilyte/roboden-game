@@ -127,7 +127,7 @@ var specialChoicesTable = [...]choiceOption{
 
 type creepOptionInfo struct {
 	special      specialChoiceKind
-	stats        *creepStats
+	stats        *gamedata.CreepStats
 	minTechLevel float64
 	maxUnits     int
 	cooldown     float64
@@ -139,61 +139,61 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			maxUnits:     10,
 			special:      specialBuyCrawlers,
 			minTechLevel: 0,
-			stats:        crawlerCreepStats,
+			stats:        gamedata.CrawlerCreepStats,
 		},
 		{
 			maxUnits:     7,
 			special:      specialBuyWanderers,
 			minTechLevel: 0,
-			stats:        wandererCreepStats,
+			stats:        gamedata.WandererCreepStats,
 		},
 		{
 			maxUnits:     8,
 			special:      specialBuyEliteCrawlers,
 			minTechLevel: 0.1,
-			stats:        eliteCrawlerCreepStats,
+			stats:        gamedata.EliteCrawlerCreepStats,
 		},
 		{
 			maxUnits:     5,
 			special:      specialBuyStunners,
 			minTechLevel: 0.2,
-			stats:        stunnerCreepStats,
+			stats:        gamedata.StunnerCreepStats,
 		},
 		{
 			maxUnits:     7,
 			special:      specialBuyStealthCrawlers,
 			minTechLevel: 0.3,
-			stats:        stealthCrawlerCreepStats,
+			stats:        gamedata.StealthCrawlerCreepStats,
 		},
 		{
 			maxUnits:     6,
 			special:      specialBuyHeavyCrawlers,
 			minTechLevel: 0.4,
-			stats:        heavyCrawlerCreepStats,
+			stats:        gamedata.HeavyCrawlerCreepStats,
 		},
 		{
 			maxUnits:     2,
 			special:      specialBuyBuilders,
 			minTechLevel: 0.5,
-			stats:        builderCreepStats,
+			stats:        gamedata.BuilderCreepStats,
 		},
 		{
 			maxUnits:     3,
 			special:      specialBuyAssaults,
 			minTechLevel: 0.6,
-			stats:        assaultCreepStats,
+			stats:        gamedata.AssaultCreepStats,
 		},
 		{
 			maxUnits:     2,
 			special:      specialBuyDominator,
 			minTechLevel: 0.8,
-			stats:        dominatorCreepStats,
+			stats:        gamedata.DominatorCreepStats,
 		},
 		{
 			maxUnits:     1,
 			special:      specialBuyHowitzer,
 			minTechLevel: 1.0,
-			stats:        howitzerCreepStats,
+			stats:        gamedata.HowitzerCreepStats,
 		},
 	}
 
@@ -201,11 +201,11 @@ var creepOptionInfoList = func() []creepOptionInfo {
 		e := &list[i]
 		cooldown := float64(creepCost(e.stats, false)) * (float64(e.maxUnits) * 0.5) * 0.85
 		switch {
-		case e.stats.kind == creepHowitzer:
+		case e.stats.Kind == gamedata.CreepHowitzer:
 			cooldown *= 1.5
-		case e.stats.kind == creepDominator:
+		case e.stats.Kind == gamedata.CreepDominator:
 			cooldown *= 0.9
-		case !e.stats.flying:
+		case !e.stats.Flying:
 			cooldown *= 0.75
 		}
 		e.cooldown = cooldown
@@ -463,7 +463,7 @@ func (g *choiceGenerator) generateChoicesForCreeps() {
 			}
 			o := &g.shuffledOptions[i]
 			o.special = creepOptionInfoList[creepIndex].special
-			o.icon = creepOptionInfoList[creepIndex].stats.image
+			o.icon = creepOptionInfoList[creepIndex].stats.Image
 			o.cost = creepOptionInfoList[creepIndex].cooldown
 			o.direction = dir
 			combinationsSet[cardID][dir] = true

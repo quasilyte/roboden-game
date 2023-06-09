@@ -5,6 +5,7 @@ import (
 
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/viewport"
 )
@@ -222,12 +223,12 @@ func (m *cameraManager) Update(delta float64) {
 			case roll < 0.9: // 20%
 				// Show an interesting creep.
 				creep := randIterate(m.world.localRand, m.world.creeps, func(creep *creepNode) bool {
-					switch creep.stats.kind {
-					case creepHowitzer, creepBuilder, creepServant:
+					switch creep.stats.Kind {
+					case gamedata.CreepHowitzer, gamedata.CreepBuilder, gamedata.CreepServant:
 						return true
-					case creepCrawlerBase, creepBase:
+					case gamedata.CreepCrawlerBase, gamedata.CreepBase:
 						return m.world.localRand.Chance(0.35)
-					case creepCrawler:
+					case gamedata.CreepCrawler:
 						if m.world.localRand.Chance(0.8) {
 							return !creep.waypoint.IsZero()
 						}

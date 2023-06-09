@@ -814,11 +814,12 @@ func (c *colonyCoreNode) maybeTeleport() {
 }
 
 func (c *colonyCoreNode) crushCrawlers() {
+	// FIXME: use a grid here.
 	const crushRangeSqr = 24.0 * 24.0
 	const explodeRangeSqr = 38.0 * 38.0
 	crushPos := c.pos.Add(gmath.Vec{Y: 4})
 	for _, creep := range c.world.creeps {
-		if creep.stats.kind != creepCrawler {
+		if creep.stats.Kind != gamedata.CreepCrawler {
 			continue
 		}
 		distSqr := creep.pos.DistanceSquaredTo(crushPos)

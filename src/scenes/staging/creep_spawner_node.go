@@ -3,6 +3,7 @@ package staging
 import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type creepSpawnerNode struct {
@@ -11,13 +12,13 @@ type creepSpawnerNode struct {
 	delay      float64
 	pos        gmath.Vec
 	creepDest  gmath.Vec
-	creepStats *creepStats
+	creepStats *gamedata.CreepStats
 	fragScore  int
 	super      bool
 	disposed   bool
 }
 
-func newCreepSpawnerNode(world *worldState, delay float64, pos, dest gmath.Vec, stats *creepStats) *creepSpawnerNode {
+func newCreepSpawnerNode(world *worldState, delay float64, pos, dest gmath.Vec, stats *gamedata.CreepStats) *creepSpawnerNode {
 	return &creepSpawnerNode{
 		world:      world,
 		delay:      delay,

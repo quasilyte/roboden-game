@@ -84,11 +84,6 @@ func (c *Controller) SetReplayActions(actions [][]serverapi.PlayerAction) {
 	c.replayActions = actions
 }
 
-func (c *Controller) initTextures() {
-	stunnerCreepStats.beamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageStunnerLine), stunnerCreepStats.weapon.AttackRange)
-	uberBossCreepStats.beamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(assets.ImageBossLaserLine), uberBossCreepStats.weapon.AttackRange)
-}
-
 func (c *Controller) CenterDemoCamera(pos gmath.Vec) {
 	c.camera.ToggleCamera(pos)
 	c.camera.cinematicSwitchDelay = c.world.localRand.FloatRange(20, 30)
@@ -108,7 +103,7 @@ func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
 
 	if c.world.boss != nil && c.world.boss.bossStage != 0 {
 		for _, creep := range c.world.creeps {
-			if creep.stats.kind == creepServant {
+			if creep.stats.Kind == gamedata.CreepServant {
 				return creep.pos, true
 			}
 		}
@@ -277,8 +272,6 @@ func (c *Controller) GetSimulationResult() (serverapi.GameResults, bool) {
 func (c *Controller) Init(scene *ge.Scene) {
 	scene.Context().Rand.SetSeed((c.config.Seed + 42) * 21917)
 	c.scene = scene
-
-	c.initTextures()
 
 	c.musicPlayer = newMusicPlayer(scene)
 	c.musicPlayer.Start()
@@ -948,7 +941,7 @@ func (c *Controller) prepareBattleResults() {
 		c.world.result.ArenaLevel = c.arenaManager.level
 		if c.config.GameMode == gamedata.ModeArena {
 			for _, creep := range c.world.creeps {
-				if creep.stats == dominatorCreepStats {
+				if creep.stats == gamedata.DominatorCreepStats {
 					c.world.result.DominatorsSurvived++
 				}
 			}
@@ -1151,7 +1144,7 @@ func (c *Controller) checkVictory() {
 		case gamedata.ObjectiveDestroyCreepBases:
 			numBases := 0
 			for _, creep := range c.world.creeps {
-				if creep.stats.kind == creepBase {
+				if creep.stats.Kind == gamedata.CreepBase {
 					numBases++
 				}
 			}

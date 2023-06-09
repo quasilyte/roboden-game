@@ -98,8 +98,7 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 			if !ok {
 				return
 			}
-			switch creep.stats.kind {
-			case creepHowitzer:
+			if creep.stats.Kind == gamedata.CreepHowitzer {
 				wrapped.howitzerAttacker = creep
 			}
 		})
@@ -310,7 +309,7 @@ func (p *computerPlayer) maybeRetreatFromBoss(colony *computerColony) bool {
 		return false
 	}
 
-	dangerousDist := uberBossCreepStats.weapon.AttackRange + colony.node.PatrolRadius()
+	dangerousDist := gamedata.UberBossCreepStats.Weapon.AttackRange + colony.node.PatrolRadius()
 	pathDist := pointToLineDistance(colony.node.pos, boss.pos, boss.waypoint)
 	if pathDist > dangerousDist {
 		return false

@@ -19,7 +19,7 @@ import (
 const maxArenaGroupBudget = 110
 
 type arenaCreepInfo struct {
-	stats    *creepStats
+	stats    *gamedata.CreepStats
 	cost     int
 	minLevel int
 }
@@ -63,7 +63,7 @@ type arenaManager struct {
 }
 
 type arenaWaveUnit struct {
-	stats     *creepStats
+	stats     *gamedata.CreepStats
 	super     bool
 	fragScore int
 }
@@ -115,42 +115,42 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	m.level = 1
 
 	m.crawlerCreepInfo = &arenaCreepInfo{
-		stats: crawlerCreepStats,
-		cost:  creepFragScore(crawlerCreepStats),
+		stats: gamedata.CrawlerCreepStats,
+		cost:  creepFragScore(gamedata.CrawlerCreepStats),
 	}
 	m.eliteCrawlerCreepInfo = &arenaCreepInfo{
-		stats:    eliteCrawlerCreepStats,
-		cost:     creepFragScore(eliteCrawlerCreepStats),
+		stats:    gamedata.EliteCrawlerCreepStats,
+		cost:     creepFragScore(gamedata.EliteCrawlerCreepStats),
 		minLevel: 2,
 	}
 	m.stealthCrawlerCreepInfo = &arenaCreepInfo{
-		stats:    stealthCrawlerCreepStats,
-		cost:     creepFragScore(stealthCrawlerCreepStats),
+		stats:    gamedata.StealthCrawlerCreepStats,
+		cost:     creepFragScore(gamedata.StealthCrawlerCreepStats),
 		minLevel: 3,
 	}
 	m.heavyCrawlerCreepInfo = &arenaCreepInfo{
-		stats:    heavyCrawlerCreepStats,
+		stats:    gamedata.HeavyCrawlerCreepStats,
 		minLevel: 9,
-		cost:     creepFragScore(heavyCrawlerCreepStats),
+		cost:     creepFragScore(gamedata.HeavyCrawlerCreepStats),
 	}
 
 	m.wandererCreepInfo = &arenaCreepInfo{
-		stats: wandererCreepStats,
-		cost:  creepFragScore(wandererCreepStats),
+		stats: gamedata.WandererCreepStats,
+		cost:  creepFragScore(gamedata.WandererCreepStats),
 	}
 	m.stunnerCreepInfo = &arenaCreepInfo{
-		stats:    stunnerCreepStats,
-		cost:     creepFragScore(stunnerCreepStats),
+		stats:    gamedata.StunnerCreepStats,
+		cost:     creepFragScore(gamedata.StunnerCreepStats),
 		minLevel: 2,
 	}
 	m.assaultCreepInfo = &arenaCreepInfo{
-		stats:    assaultCreepStats,
-		cost:     creepFragScore(assaultCreepStats),
+		stats:    gamedata.AssaultCreepStats,
+		cost:     creepFragScore(gamedata.AssaultCreepStats),
 		minLevel: 6,
 	}
 	m.builderCreepInfo = &arenaCreepInfo{
-		stats:    builderCreepStats,
-		cost:     creepFragScore(builderCreepStats),
+		stats:    gamedata.BuilderCreepStats,
+		cost:     creepFragScore(gamedata.BuilderCreepStats),
 		minLevel: 7,
 	}
 
@@ -427,7 +427,7 @@ func (m *arenaManager) prepareWave() {
 				if !ok {
 					break
 				}
-				if creep.stats.kind == creepBuilder {
+				if creep.stats.Kind == gamedata.CreepBuilder {
 					m.waveInfo.builders = true
 					groupCreepSelection = xslices.Remove(groupCreepSelection, m.builderCreepInfo)
 				}
@@ -450,7 +450,7 @@ func (m *arenaManager) prepareWave() {
 		g.units = make([]arenaWaveUnit, numAttackers)
 		for i := range g.units {
 			super := i == 0
-			g.units[i] = arenaWaveUnit{super: super, stats: servantCreepStats}
+			g.units[i] = arenaWaveUnit{super: super, stats: gamedata.ServantCreepStats}
 		}
 		groups = append(groups, g)
 	}
@@ -460,18 +460,18 @@ func (m *arenaManager) prepareWave() {
 		m.waveInfo.isLast = true
 		for i := 0; i < 3; i++ {
 			super := i == 0
-			groups[0].units = append(groups[0].units, arenaWaveUnit{super: super, stats: dominatorCreepStats})
+			groups[0].units = append(groups[0].units, arenaWaveUnit{super: super, stats: gamedata.DominatorCreepStats})
 		}
 		for i := 0; i < 2; i++ {
 			index := gmath.RandIndex(m.world.rand, groups)
-			groups[index].units = append(groups[index].units, arenaWaveUnit{stats: howitzerCreepStats})
+			groups[index].units = append(groups[index].units, arenaWaveUnit{stats: gamedata.HowitzerCreepStats})
 		}
 		var groupSlider gmath.Slider
 		groupSlider.SetBounds(0, len(groups)-1)
 		for i := 0; i < 7; i++ {
 			super := i <= 1
 			index := groupSlider.Value()
-			groups[index].units = append(groups[index].units, arenaWaveUnit{super: super, stats: servantCreepStats})
+			groups[index].units = append(groups[index].units, arenaWaveUnit{super: super, stats: gamedata.ServantCreepStats})
 			groupSlider.Inc()
 		}
 	} else if m.level%5 == 0 {
@@ -487,10 +487,10 @@ func (m *arenaManager) prepareWave() {
 			super := i == 1
 			groupIndex := gmath.RandIndex(m.world.rand, groups)
 			if m.world.rand.Bool() {
-				groups[groupIndex].units = append(groups[groupIndex].units, arenaWaveUnit{super: super, stats: howitzerCreepStats})
+				groups[groupIndex].units = append(groups[groupIndex].units, arenaWaveUnit{super: super, stats: gamedata.HowitzerCreepStats})
 				m.waveInfo.howitzer = true
 			} else {
-				groups[groupIndex].units = append(groups[groupIndex].units, arenaWaveUnit{super: super, stats: dominatorCreepStats})
+				groups[groupIndex].units = append(groups[groupIndex].units, arenaWaveUnit{super: super, stats: gamedata.DominatorCreepStats})
 				m.waveInfo.dominator = true
 			}
 		}

@@ -3,6 +3,7 @@ package staging
 import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type classicManager struct {
@@ -66,14 +67,14 @@ func (m *classicManager) spawnCrawlers() {
 		numCreeps := m.world.rand.IntRange(1, 5) + m.world.config.CreepSpawnRate
 		for i := 0; i < numCreeps; i++ {
 			units = append(units, arenaWaveUnit{
-				stats: stealthCrawlerCreepStats,
+				stats: gamedata.StealthCrawlerCreepStats,
 				super: m.world.config.SuperCreeps && m.world.rand.Chance(0.3),
 			})
 		}
 	} else {
 		nextAttackDelay = m.world.rand.FloatRange(210, 250)
 		units = append(units, arenaWaveUnit{
-			stats: howitzerCreepStats,
+			stats: gamedata.HowitzerCreepStats,
 			super: m.world.config.SuperCreeps && m.world.rand.Chance(0.3),
 		})
 	}
@@ -105,9 +106,9 @@ func (m *classicManager) spawnTier3Creep() {
 		spawnPos.Y = 4
 	}
 	spawnPos = roundedPos(spawnPos)
-	stats := assaultCreepStats
+	stats := gamedata.AssaultCreepStats
 	if m.world.rand.Chance(0.3) {
-		stats = builderCreepStats
+		stats = gamedata.BuilderCreepStats
 	}
 	creep := m.world.NewCreepNode(spawnPos, stats)
 	creep.super = m.world.config.SuperCreeps && m.world.rand.Chance(superChance)

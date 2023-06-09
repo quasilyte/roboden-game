@@ -24,7 +24,6 @@ type beamNode struct {
 }
 
 var (
-	dominatorBeamColorCenter = ge.RGB(0x7a51f2)
 	dominatorBeamColorRear   = ge.RGB(0x5433c3)
 	builderBeamColor         = color.RGBA{R: 0xae, G: 0x4c, B: 0x78, A: 150}
 	destroyerBeamColor       = ge.RGB(0xf58f54)

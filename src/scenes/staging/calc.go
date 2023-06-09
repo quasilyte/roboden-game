@@ -12,7 +12,7 @@ func numCreepsPerCard(state *creepsPlayerState, info creepOptionInfo) int {
 		return 1
 	}
 	techLevel := state.techLevel
-	if !info.stats.flying {
+	if !info.stats.Flying {
 		techLevel += 0.2
 	}
 	extraTech := gmath.Clamp(techLevel-info.minTechLevel, 0, 1.0)
@@ -39,7 +39,7 @@ func calcCreepPower(world *worldState, creep *creepNode) int {
 	if creep.super {
 		power *= float64(superCreepCostMultiplier(creep.stats))
 	}
-	if creep.stats.kind == creepUberBoss {
+	if creep.stats.Kind == gamedata.CreepUberBoss {
 		power = float64(power) * world.bossHealthMultiplier
 	} else {
 		power = float64(power) * world.creepHealthMultiplier
@@ -100,19 +100,19 @@ func damageMultiplier(target targetable, weapon *gamedata.WeaponStats) float64 {
 	return weapon.GroundTargetDamageMult
 }
 
-func superCreepCostMultiplier(stats *creepStats) int {
-	switch stats.kind {
-	case creepCrawler:
+func superCreepCostMultiplier(stats *gamedata.CreepStats) int {
+	switch stats.Kind {
+	case gamedata.CreepCrawler:
 		return 3
-	case creepTurret, creepBase, creepCrawlerBase, creepHowitzer, creepDominator, creepServant:
+	case gamedata.CreepTurret, gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepHowitzer, gamedata.CreepDominator, gamedata.CreepServant:
 		return 5
-	case creepUberBoss:
+	case gamedata.CreepUberBoss:
 		return 2
 	}
 	return 4
 }
 
-func creepCost(stats *creepStats, super bool) int {
+func creepCost(stats *gamedata.CreepStats, super bool) int {
 	fragScore := creepFragScore(stats)
 	if super {
 		fragScore *= superCreepCostMultiplier(stats)
@@ -120,37 +120,37 @@ func creepCost(stats *creepStats, super bool) int {
 	return fragScore
 }
 
-func creepFragScore(stats *creepStats) int {
+func creepFragScore(stats *gamedata.CreepStats) int {
 	switch stats {
-	case crawlerCreepStats:
+	case gamedata.CrawlerCreepStats:
 		return 4
-	case eliteCrawlerCreepStats:
+	case gamedata.EliteCrawlerCreepStats:
 		return 6
-	case stealthCrawlerCreepStats:
+	case gamedata.StealthCrawlerCreepStats:
 		return 7
-	case heavyCrawlerCreepStats:
+	case gamedata.HeavyCrawlerCreepStats:
 		return 8
 
-	case wandererCreepStats:
+	case gamedata.WandererCreepStats:
 		return 6
-	case stunnerCreepStats:
+	case gamedata.StunnerCreepStats:
 		return 9
-	case assaultCreepStats:
+	case gamedata.AssaultCreepStats:
 		return 15
-	case builderCreepStats:
+	case gamedata.BuilderCreepStats:
 		return 30
 
-	case turretCreepStats:
+	case gamedata.TurretCreepStats:
 		return 20
 
-	case servantCreepStats:
+	case gamedata.ServantCreepStats:
 		return 30
-	case dominatorCreepStats:
+	case gamedata.DominatorCreepStats:
 		return 60
-	case howitzerCreepStats:
+	case gamedata.HowitzerCreepStats:
 		return 85
 
-	case uberBossCreepStats:
+	case gamedata.UberBossCreepStats:
 		return 200
 
 	default:

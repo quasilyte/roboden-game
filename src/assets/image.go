@@ -43,6 +43,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageCursor: {Path: "image/cursor.png"},
 
 		ImageRadarlessButtons:     {Path: "image/ui/radarless_buttons.png"},
+		ImageDarkRadarlessButtons: {Path: "image/ui/dark_radarless_buttons.png"},
 		ImageDarkRadar:            {Path: "image/ui/dark_radar.png"},
 		ImageRadar:                {Path: "image/ui/radar.png"},
 		ImageRadarWave:            {Path: "image/ui/radar_wave.png"},
@@ -321,6 +322,7 @@ const (
 	ImageCursor
 
 	ImageRadarlessButtons
+	ImageDarkRadarlessButtons
 	ImageRadar
 	ImageRadarWave
 	ImageRadarBossFar

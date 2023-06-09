@@ -15,14 +15,17 @@ type screenButtonsNode struct {
 	cam *viewport.Camera
 	pos gmath.Vec
 
+	dark bool
+
 	EventToggleButtonPressed gsignal.Event[gsignal.Void]
 	EventExitButtonPressed   gsignal.Event[gsignal.Void]
 }
 
-func newScreenButtonsNode(cam *viewport.Camera, pos gmath.Vec) *screenButtonsNode {
+func newScreenButtonsNode(cam *viewport.Camera, pos gmath.Vec, dark bool) *screenButtonsNode {
 	return &screenButtonsNode{
-		pos: pos,
-		cam: cam,
+		pos:  pos,
+		cam:  cam,
+		dark: dark,
 	}
 }
 
@@ -35,7 +38,11 @@ func (n *screenButtonsNode) Init(scene *ge.Scene) {
 	exitButtonOffset := n.pos.Add(gmath.Vec{X: 68, Y: 28})
 	n.exitButtonRect = gmath.Rect{Min: exitButtonOffset, Max: exitButtonOffset.Add(buttonSize)}
 
-	sprite := scene.NewSprite(assets.ImageRadarlessButtons)
+	img := assets.ImageRadarlessButtons
+	if n.dark {
+		img = assets.ImageDarkRadarlessButtons
+	}
+	sprite := scene.NewSprite(img)
 	sprite.Pos.Base = &n.pos
 	sprite.Centered = false
 	n.cam.UI.AddGraphics(sprite)

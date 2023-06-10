@@ -111,7 +111,7 @@ func (state *creepsPlayerState) AddUnits(world *worldState, side int, info creep
 		case state.techLevel >= 2:
 			super = true
 		case state.techLevel > 1:
-			super = world.rand.Chance(1.0 - state.techLevel)
+			super = world.rand.Chance(state.techLevel - 1.0)
 		}
 		if !state.addUnit(side, info.stats, super) {
 			break

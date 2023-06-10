@@ -35,8 +35,9 @@ type radarNode struct {
 	cameraRect *ge.Rect
 	colonies   []radarColonySpot
 
-	pos       gmath.Vec
-	direction gmath.Rad
+	minimapRect gmath.Rect
+	pos         gmath.Vec
+	direction   gmath.Rad
 
 	world  *worldState
 	colony *colonyCoreNode
@@ -149,7 +150,24 @@ func (r *radarNode) Init(scene *ge.Scene) {
 		r.player.state.camera.UI.AddGraphics(r.cameraRect)
 
 		r.updateDark()
+
+		r.minimapRect = r.sprite.BoundsRect()
+		r.minimapRect.Min = r.minimapRect.Min.Add(gmath.Vec{X: 11, Y: 20})
+		r.minimapRect.Max = r.minimapRect.Max.Sub(gmath.Vec{X: 11, Y: 9})
 	}
+}
+
+func (r *radarNode) ResolveClick(clickPos gmath.Vec) (gmath.Vec, bool) {
+	if !r.dark {
+		return gmath.Vec{}, false
+	}
+
+	if r.minimapRect.Contains(clickPos) {
+		p := clickPos.Sub(r.minimapRect.Min)
+		return p.Mulf(r.world.width / r.diameter), true
+	}
+
+	return gmath.Vec{}, false
 }
 
 func (r *radarNode) setBossVisibility(visible bool) {

@@ -208,6 +208,14 @@ func (p *humanPlayer) HandleInput() {
 		return
 	}
 
+	if p.radar != nil {
+		requestedCameraPos, ok := p.radar.ResolveClick(clickPos)
+		if ok {
+			p.state.camera.CenterOn(requestedCameraPos)
+			return
+		}
+	}
+
 	if selectedColony != nil && p.world.movementEnabled {
 		if pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice); ok {
 			globalClickPos := p.state.camera.AbsClickPos(pos)

@@ -92,7 +92,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 			// Boss only gets a bit of extra health.
 			c.maxHealth *= 1.3
 		} else {
-			c.maxHealth *= 2
+			c.maxHealth = (c.maxHealth * 2) + 10
 		}
 	}
 

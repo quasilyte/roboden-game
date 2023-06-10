@@ -5,11 +5,10 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/gesignal"
 	"github.com/quasilyte/gmath"
-	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type effectNode struct {
-	stage *viewport.CameraStage
+	world *worldState
 
 	pos     gmath.Vec
 	image   resource.ImageID
@@ -23,9 +22,9 @@ type effectNode struct {
 	EventCompleted gesignal.Event[gesignal.Void]
 }
 
-func newEffectNodeFromSprite(stage *viewport.CameraStage, above bool, sprite *ge.Sprite) *effectNode {
+func newEffectNodeFromSprite(world *worldState, above bool, sprite *ge.Sprite) *effectNode {
 	e := &effectNode{
-		stage: stage,
+		world: world,
 		above: above,
 		anim:  ge.NewAnimation(sprite, -1),
 		scale: 1,
@@ -34,9 +33,9 @@ func newEffectNodeFromSprite(stage *viewport.CameraStage, above bool, sprite *ge
 	return e
 }
 
-func newEffectNode(stage *viewport.CameraStage, pos gmath.Vec, above bool, image resource.ImageID) *effectNode {
+func newEffectNode(world *worldState, pos gmath.Vec, above bool, image resource.ImageID) *effectNode {
 	return &effectNode{
-		stage: stage,
+		world: world,
 		pos:   pos,
 		image: image,
 		above: above,
@@ -54,10 +53,11 @@ func (e *effectNode) Init(scene *ge.Scene) {
 	}
 	sprite.Rotation = &e.rotation
 	sprite.Scale = e.scale
+	sprite.FlipHorizontal = e.world.localRand.Bool()
 	if e.above {
-		e.stage.AddSpriteAbove(sprite)
+		e.world.stage.AddSpriteAbove(sprite)
 	} else {
-		e.stage.AddSprite(sprite)
+		e.world.stage.AddSprite(sprite)
 	}
 	if e.anim == nil {
 		e.anim = ge.NewAnimation(sprite, -1)

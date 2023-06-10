@@ -500,7 +500,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 				return
 			}
 			a.pos = c.relocationPoint.Add(c.world.rand.Offset(-38, 38))
-			e := newEffectNode(c.world.stage, a.pos, true, assets.ImageTeleportEffect)
+			e := newEffectNode(c.world, a.pos, true, assets.ImageTeleportEffect)
 			e.scale = 0.5
 			c.world.nodeRunner.AddObject(e)
 			a.AssignMode(agentModePosing, gmath.Vec{X: c.world.rand.FloatRange(0.5, 2.5)}, nil)
@@ -512,7 +512,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		c.markCells(c.pos)
 		c.stopTeleportationEffect()
 
-		c.world.nodeRunner.AddObject(newEffectNode(c.world.stage, c.pos, false, assets.ImageTeleportEffect))
+		c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, false, assets.ImageTeleportEffect))
 
 		c.EventTeleported.Emit(c)
 	}
@@ -853,7 +853,7 @@ func (c *colonyCoreNode) createLandingSmokeEffect() {
 		sprite := c.scene.NewSprite(info.image)
 		sprite.FlipHorizontal = info.flip
 		sprite.Pos.Offset = c.pos.Add(info.offset)
-		e := newEffectNodeFromSprite(c.world.stage, false, sprite)
+		e := newEffectNodeFromSprite(c.world, false, sprite)
 		e.anim.SetAnimationSpan(0.3)
 		c.world.nodeRunner.AddObject(e)
 	}

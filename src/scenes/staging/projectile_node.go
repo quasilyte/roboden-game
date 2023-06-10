@@ -178,12 +178,12 @@ func (p *projectileNode) Update(delta float64) {
 		case gamedata.ProjectileTrailSmoke:
 			if p.trailCounter <= 0 {
 				p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
-				p.world.nodeRunner.AddObject(newEffectNode(p.world.stage, p.pos, true, assets.ImageProjectileSmoke))
+				p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, true, assets.ImageProjectileSmoke))
 			}
 		case gamedata.ProjectileTrailRoomba:
 			if p.trailCounter <= 0 {
 				p.trailCounter = p.world.localRand.FloatRange(0.1, 0.2)
-				effect := newEffectNode(p.world.stage, p.pos, true, assets.ImageRoombaLaserTrail)
+				effect := newEffectNode(p.world, p.pos, true, assets.ImageRoombaLaserTrail)
 				effect.rotation = p.rotation
 				p.world.nodeRunner.AddObject(effect)
 			}
@@ -239,35 +239,35 @@ func (p *projectileNode) createExplosion() {
 	case gamedata.ProjectileExplosionBigVertical:
 		createBigVerticalExplosion(p.world, explosionPos)
 	case gamedata.ProjectileExplosionCripplerBlaster:
-		effect := newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImageCripplerBlasterExplosion)
+		effect := newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageCripplerBlasterExplosion)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionGreenZap:
-		effect := newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImageGreenZap)
+		effect := newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageGreenZap)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionScoutIon:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImageScoutIonExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageScoutIonExplosion))
 	case gamedata.ProjectileExplosionRoombaShot:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImageRoombaShotExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageRoombaShotExplosion))
 	case gamedata.ProjectileExplosionScarab:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImageScarabShotExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageScarabShotExplosion))
 	case gamedata.ProjectileExplosionShocker:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImageShockerExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageShockerExplosion))
 	case gamedata.ProjectileExplosionStealthLaser:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImageStealthLaserExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageStealthLaserExplosion))
 	case gamedata.ProjectileExplosionFighterLaser:
-		effect := newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImageFighterLaserExplosion)
+		effect := newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageFighterLaserExplosion)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionHeavyCrawlerLaser:
-		effect := newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImageHeavyCrawlerLaserExplosion)
+		effect := newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageHeavyCrawlerLaserExplosion)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionPurple:
 		soundIndex := p.world.localRand.IntRange(0, 2)
 		sound := assets.AudioPurpleExplosion1 + resource.AudioID(soundIndex)
-		p.world.nodeRunner.AddObject(newEffectNode(p.world.stage, explosionPos, p.target.IsFlying(), assets.ImagePurpleExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImagePurpleExplosion))
 		playSound(p.world, sound, explosionPos)
 	}
 }

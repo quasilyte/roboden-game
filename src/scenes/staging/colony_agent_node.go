@@ -12,7 +12,6 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
-	"github.com/quasilyte/roboden-game/viewport"
 )
 
 const (
@@ -277,9 +276,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.sprite = scene.NewSprite(a.stats.Image)
 	a.sprite.Pos.Base = &a.spritePos
 	if a.IsFlying() {
-		a.stage().AddSpriteAbove(a.sprite)
+		a.world().stage.AddSpriteAbove(a.sprite)
 	} else {
-		a.stage().AddSprite(a.sprite)
+		a.world().stage.AddSprite(a.sprite)
 		// Turret damage is an optional shader.
 		if a.IsTurret() && a.world().graphicsSettings.AllShadersEnabled {
 			a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
@@ -301,9 +300,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.diode.SetColorScale(colorScale)
 
 		if a.IsFlying() {
-			a.stage().AddSpriteAbove(a.diode)
+			a.world().stage.AddSpriteAbove(a.diode)
 		} else {
-			a.stage().AddSprite(a.diode)
+			a.world().stage.AddSprite(a.diode)
 		}
 	}
 
@@ -317,7 +316,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		}
 		a.shadow = scene.NewSprite(shadowImage)
 		a.shadow.Pos.Base = &a.spritePos
-		a.stage().AddSprite(a.shadow)
+		a.world().stage.AddSprite(a.shadow)
 	}
 
 	if a.world().config.ExecMode != gamedata.ExecuteSimulation {
@@ -788,7 +787,7 @@ func (a *colonyAgentNode) doUncloak() {
 func (a *colonyAgentNode) doCloak(d float64) {
 	a.cloaking = d
 	a.sprite.SetAlpha(0.2)
-	a.world().nodeRunner.AddObject(newEffectNode(a.stage(), a.pos, true, assets.ImageCloakWave))
+	a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageCloakWave))
 	playSound(a.world(), assets.AudioStealth, a.pos)
 }
 
@@ -1206,7 +1205,7 @@ func (a *colonyAgentNode) doDisintegratorAttack() {
 	a.world().nodeRunner.AddProjectile(p)
 	a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
 	playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
-	a.world().nodeRunner.AddObject(newEffectNode(a.stage(), a.pos, true, assets.ImagePurpleIonZap))
+	a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImagePurpleIonZap))
 	a.specialDelay = a.scene.Rand().FloatRange(9, 12)
 }
 
@@ -1646,7 +1645,7 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 					a.dist = a.scene.Rand().FloatRange(4, 10)
 					a.waypoint = gmath.Vec{}
 					if !a.world().simulation {
-						smokeEffect := newEffectNode(a.stage(), a.pos.Add(gmath.Vec{Y: -10}), false, assets.ImageRoombaSmoke)
+						smokeEffect := newEffectNode(a.world(), a.pos.Add(gmath.Vec{Y: -10}), false, assets.ImageRoombaSmoke)
 						a.world().nodeRunner.AddObject(smokeEffect)
 						smokeEffect.anim.SetSecondsPerFrame(0.08)
 					}
@@ -1733,7 +1732,7 @@ func (a *colonyAgentNode) updateConsumeDrone(delta float64) {
 		}
 		a.health = gmath.ClampMax(a.health+target.maxHealth*2, a.maxHealth)
 		target.Destroy()
-		a.world().nodeRunner.AddObject(newEffectNode(a.stage(), a.pos, true, assets.ImageDroneConsumed))
+		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageDroneConsumed))
 	}
 }
 
@@ -1764,7 +1763,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 			a.waypoint = gmath.Vec{}
 			return
 		}
-		a.world().nodeRunner.AddObject(newEffectNode(a.stage(), a.pos, true, assets.ImageBigVerticalExplosion))
+		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageBigVerticalExplosion))
 		playExplosionSound(a.world(), a.pos)
 		creep.OnDamage(gamedata.DamageValue{Health: explosionDamage}, a)
 		for _, otherCreep := range a.world().creeps {
@@ -1966,7 +1965,7 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		}
 		target.Destroy()
 		a.Destroy()
-		effect := newEffectNode(a.stage(), newAgent.pos, newAgent.stats != gamedata.RoombaAgentStats, assets.ImageMergingComplete)
+		effect := newEffectNode(a.world(), newAgent.pos, newAgent.stats != gamedata.RoombaAgentStats, assets.ImageMergingComplete)
 		effect.rotates = true
 		a.world().nodeRunner.AddObject(effect)
 		return
@@ -2002,7 +2001,7 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 		a.world().nodeRunner.AddObject(clone)
 		a.world().result.DronesProduced++
 		clone.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-		effect := newEffectNode(a.stage(), clone.pos, true, assets.ImageCloningComplete)
+		effect := newEffectNode(a.world(), clone.pos, true, assets.ImageCloningComplete)
 		effect.rotates = true
 		a.world().nodeRunner.AddObject(effect)
 		return
@@ -2236,10 +2235,6 @@ func (a *colonyAgentNode) updateReturn(delta float64) {
 		}
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
-}
-
-func (a *colonyAgentNode) stage() *viewport.CameraStage {
-	return a.world().stage
 }
 
 func (a *colonyAgentNode) world() *worldState {

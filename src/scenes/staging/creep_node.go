@@ -372,7 +372,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		disarmImmune := c.super && c.stats == gamedata.CrawlerCreepStats
 		if !disarmImmune && c.scene.Rand().Chance(damage.Disarm*0.1) {
 			c.disarm = 2.5
-			c.world.nodeRunner.AddObject(newEffectNode(c.world.stage, c.pos, c.IsFlying(), assets.ImageIonZap))
+			c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, c.IsFlying(), assets.ImageIonZap))
 			playIonExplosionSound(c.world, c.pos)
 		}
 	}
@@ -1221,7 +1221,7 @@ func (c *creepNode) doUncloak() {
 func (c *creepNode) doCloak() {
 	c.cloaking = true
 	c.sprite.SetAlpha(0.2)
-	c.world.nodeRunner.AddObject(newEffectNode(c.world.stage, c.pos, true, assets.ImageCloakWave))
+	c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, true, assets.ImageCloakWave))
 }
 
 func (c *creepNode) movementSpeed() float64 {

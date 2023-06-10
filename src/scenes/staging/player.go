@@ -87,7 +87,7 @@ func (state *creepsPlayerState) RecalcMaxCost() {
 	const maxCost = maxArenaGroupBudget * maxCreepGroupsPerSide
 	const maxCostTechRequired = 2.0
 	const multiplier = 1.0 / maxCostTechRequired
-	cost := ((state.techLevel * multiplier) * maxCost) + 10
+	cost := ((state.techLevel * multiplier) * maxCost) + 15
 	state.maxSideCost = int(gmath.ClampMax(cost, maxCost))
 }
 

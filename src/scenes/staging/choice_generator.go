@@ -136,49 +136,49 @@ type creepOptionInfo struct {
 var creepOptionInfoList = func() []creepOptionInfo {
 	list := []creepOptionInfo{
 		{
-			maxUnits:     10,
+			maxUnits:     13,
 			special:      specialBuyCrawlers,
 			minTechLevel: 0,
 			stats:        gamedata.CrawlerCreepStats,
 		},
 		{
-			maxUnits:     7,
+			maxUnits:     9,
 			special:      specialBuyWanderers,
 			minTechLevel: 0,
 			stats:        gamedata.WandererCreepStats,
 		},
 		{
-			maxUnits:     8,
+			maxUnits:     10,
 			special:      specialBuyEliteCrawlers,
 			minTechLevel: 0.1,
 			stats:        gamedata.EliteCrawlerCreepStats,
 		},
 		{
-			maxUnits:     5,
+			maxUnits:     6,
 			special:      specialBuyStunners,
 			minTechLevel: 0.2,
 			stats:        gamedata.StunnerCreepStats,
 		},
 		{
-			maxUnits:     7,
+			maxUnits:     9,
 			special:      specialBuyStealthCrawlers,
 			minTechLevel: 0.3,
 			stats:        gamedata.StealthCrawlerCreepStats,
 		},
 		{
-			maxUnits:     6,
+			maxUnits:     8,
 			special:      specialBuyHeavyCrawlers,
 			minTechLevel: 0.4,
 			stats:        gamedata.HeavyCrawlerCreepStats,
 		},
 		{
-			maxUnits:     2,
+			maxUnits:     3,
 			special:      specialBuyBuilders,
 			minTechLevel: 0.5,
 			stats:        gamedata.BuilderCreepStats,
 		},
 		{
-			maxUnits:     3,
+			maxUnits:     4,
 			special:      specialBuyAssaults,
 			minTechLevel: 0.6,
 			stats:        gamedata.AssaultCreepStats,
@@ -199,12 +199,12 @@ var creepOptionInfoList = func() []creepOptionInfo {
 
 	for i := range list {
 		e := &list[i]
-		cooldown := float64(creepCost(e.stats, false)) * (float64(e.maxUnits) * 0.5) * 0.85
+		cooldown := float64(creepCost(e.stats, false)) * (float64(e.maxUnits) * 0.4) * 0.75
 		switch {
 		case e.stats.Kind == gamedata.CreepHowitzer:
 			cooldown *= 1.5
 		case e.stats.Kind == gamedata.CreepDominator:
-			cooldown *= 0.9
+			cooldown *= 0.7
 		case !e.stats.Flying:
 			cooldown *= 0.75
 		}
@@ -419,7 +419,7 @@ func (g *choiceGenerator) activateChoice(i int) bool {
 			extraTech := g.world.creepsPlayerState.techLevel - info.minTechLevel
 			multiplier := 1.0
 			if extraTech > 0 {
-				multiplier = gmath.ClampMin(1.0-(extraTech*0.2), 0.8)
+				multiplier = gmath.ClampMin(1.0-(extraTech*0.25), 0.75)
 			}
 			cooldown = (g.shuffledOptions[i].cost * multiplier)
 		}

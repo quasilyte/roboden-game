@@ -40,15 +40,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, 0)
 
 	config := c.state.ClassicLevelConfig.Clone()
-	switch turretRoll := c.scene.Rand().Float(); {
-	case turretRoll < 0.4:
-		config.TurretDesign = "BeamTower" // 40%
-	case turretRoll < 0.65:
-		config.TurretDesign = "Gunpoint" // 25%
-	default:
-		_ = turretRoll
-		config.TurretDesign = "TetherBeacon" // 35%
-	}
+	config.TurretDesign = gamedata.PickTurretDesign(scene.Rand())
 	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())
 	config.RawGameMode = "classic"
 	config.ExecMode = gamedata.ExecuteDemo

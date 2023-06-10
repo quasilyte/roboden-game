@@ -227,6 +227,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		}
 
 		if c.config.PlayersMode == serverapi.PmodeSinglePlayer {
+			c.config.TurretDesign = gamedata.PickTurretDesign(c.scene.Rand())
 			c.config.Tier2Recipes = gamedata.CreateDroneBuild(c.scene.Rand())
 		}
 

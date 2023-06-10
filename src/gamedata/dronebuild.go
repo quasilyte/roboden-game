@@ -7,6 +7,17 @@ import (
 	"github.com/quasilyte/gmath"
 )
 
+func PickTurretDesign(rng *gmath.Rand) string {
+	switch turretRoll := rng.Float(); {
+	case turretRoll < 0.4:
+		return "BeamTower" // 40%
+	case turretRoll < 0.65:
+		return "Gunpoint" // 25%
+	default:
+		return "TetherBeacon" // 35%
+	}
+}
+
 func CreateDroneBuild(rng *gmath.Rand) []string {
 	points := ClassicModePoints
 

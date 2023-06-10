@@ -97,6 +97,9 @@ func main() {
 	}
 	state.ReloadLanguage(ctx)
 
+	state.MainInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[0].DeadzoneLevel)
+	state.SecondInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[1].DeadzoneLevel)
+
 	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
 
 	registerScenes(state)

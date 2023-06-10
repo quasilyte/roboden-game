@@ -22,6 +22,10 @@ func GetDefaultData() session.PersistentData {
 				AllShadersEnabled: true,
 				FullscreenEnabled: true,
 			},
+			GamepadSettings: [2]session.GamepadSettings{
+				{DeadzoneLevel: 1},
+				{DeadzoneLevel: 1},
+			},
 		},
 	}
 }

@@ -302,6 +302,8 @@ You can make them really rare or appear almost everywhere.
 ##menu.controls.touch : Touchscreen
 ##menu.controls.notice : Controls remapping is coming soon!
 
+##menu.controls.gamepad_deadzone : Joystick deadzone
+
 ##menu.controls.keyboard.text
 Pan camera | Middle mouse button + move, edge scroll or WASD keys
 Move colony | RMB click on the destination

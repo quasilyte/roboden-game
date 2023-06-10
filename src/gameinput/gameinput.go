@@ -14,6 +14,11 @@ type Handler struct {
 	virtualCursorPos gmath.Vec
 }
 
+func (h *Handler) SetGamepadDeadzoneLevel(level int) {
+	value := (0.05 * float64(level)) + 0.055
+	h.GamepadDeadzone = value
+}
+
 func (h *Handler) UpdateVirtualCursorPos(pos gmath.Vec) {
 	h.virtualCursorPos = pos
 }

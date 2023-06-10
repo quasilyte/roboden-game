@@ -53,6 +53,13 @@ type State struct {
 	SentHighscores bool
 }
 
+func (state *State) GetInput(id int) *gameinput.Handler {
+	if id == 0 {
+		return &state.MainInput
+	}
+	return &state.SecondInput
+}
+
 type PersistentData struct {
 	Settings GameSettings
 
@@ -103,6 +110,10 @@ type Resources struct {
 	UI *eui.Resources
 }
 
+type GamepadSettings struct {
+	DeadzoneLevel int
+}
+
 type GameSettings struct {
 	Lang               string
 	MusicVolumeLevel   int
@@ -114,6 +125,7 @@ type GameSettings struct {
 	DebugLogs          bool
 	Demo               bool
 	SwapGamepads       bool
+	GamepadSettings    [2]GamepadSettings
 	Graphics           GraphicsSettings
 }
 

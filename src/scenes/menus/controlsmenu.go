@@ -50,8 +50,11 @@ func (c *ControlsMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewControlsKeyboardMenuController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.gamepad"), func() {
-		c.scene.Context().ChangeScene(NewControlsGamepadMenuController(c.state))
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.gamepad")+" 1", func() {
+		c.scene.Context().ChangeScene(NewControlsGamepadMenuController(c.state, 0))
+	}))
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.gamepad")+" 2", func() {
+		c.scene.Context().ChangeScene(NewControlsGamepadMenuController(c.state, 1))
 	}))
 
 	touchButton := eui.NewButton(uiResources, c.scene, d.Get("menu.controls.touch"), func() {

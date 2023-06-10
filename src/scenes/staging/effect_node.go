@@ -52,7 +52,7 @@ func (e *effectNode) Init(scene *ge.Scene) {
 		sprite = e.anim.Sprite()
 	}
 	sprite.Rotation = &e.rotation
-	sprite.Scale = e.scale
+	sprite.SetScale(e.scale, e.scale)
 	sprite.FlipHorizontal = e.world.localRand.Bool()
 	if e.above {
 		e.world.stage.AddSpriteAbove(sprite)

@@ -1,6 +1,7 @@
 package menus
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/ebitenui/ebitenui/widget"
@@ -14,11 +15,16 @@ import (
 type ControlsGamepadMenuController struct {
 	state *session.State
 
+	id int
+
 	scene *ge.Scene
 }
 
-func NewControlsGamepadMenuController(state *session.State) *ControlsGamepadMenuController {
-	return &ControlsGamepadMenuController{state: state}
+func NewControlsGamepadMenuController(state *session.State, id int) *ControlsGamepadMenuController {
+	return &ControlsGamepadMenuController{
+		id:    id,
+		state: state,
+	}
 }
 
 func (c *ControlsGamepadMenuController) Init(scene *ge.Scene) {
@@ -45,7 +51,9 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	smallFont := assets.BitmapFont1
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.gamepad"), assets.BitmapFont3)
+	options := &c.state.Persistent.Settings
+
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.gamepad")+fmt.Sprintf(" %d", c.id+1), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
@@ -65,6 +73,17 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
+	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+		Resources:  uiResources,
+		Input:      c.state.MainInput,
+		Value:      &options.GamepadSettings[c.id].DeadzoneLevel,
+		Label:      d.Get("menu.controls.gamepad_deadzone"),
+		ValueNames: []string{"0.05", "0.10", "0.15", "0.20", "0.25", "0.30", "0.35", "0.40"},
+		OnPressed: func() {
+			c.state.GetInput(c.id).SetGamepadDeadzoneLevel(options.GamepadSettings[c.id].DeadzoneLevel)
+		},
+	}))
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
@@ -75,5 +94,6 @@ func (c *ControlsGamepadMenuController) initUI() {
 }
 
 func (c *ControlsGamepadMenuController) back() {
+	c.scene.Context().SaveGameData("save", c.state.Persistent)
 	c.scene.Context().ChangeScene(NewControlsMenuController(c.state))
 }

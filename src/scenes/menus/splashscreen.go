@@ -54,6 +54,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	config.Seed = int64(scene.Rand().IntRange(0, math.MaxInt-10))
 	config.StartingResources = 2
 	config.InitialCreeps = 2
+	config.Teleporters = 2
 	for i := 0; i < 3; i++ {
 		config.ExtraDrones = append(config.ExtraDrones, gamedata.WorkerAgentStats)
 	}

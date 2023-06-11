@@ -240,7 +240,7 @@ var EliteCrawlerCreepStats = &CreepStats{
 var HeavyCrawlerCreepStats = &CreepStats{
 	Kind:      CreepCrawler,
 	Image:     assets.ImageHeavyCrawlerCreep,
-	AnimSpeed: 0.15,
+	AnimSpeed: 0.16,
 	Speed:     30,
 	MaxHealth: 50,
 	Weapon: InitWeaponStats(&WeaponStats{

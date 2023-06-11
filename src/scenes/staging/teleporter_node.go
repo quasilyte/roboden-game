@@ -34,3 +34,19 @@ func (t *teleporterNode) Init(scene *ge.Scene) {
 func (t *teleporterNode) IsDisposed() bool { return false }
 
 func (t *teleporterNode) Update(delta float64) {}
+
+func (t *teleporterNode) CanBeUsedBy(user *colonyCoreNode) bool {
+	target := t.other
+	for _, c := range t.world.allColonies {
+		if c != user {
+			if c.pos.DistanceSquaredTo(t.pos) < (40 * 40) {
+				return false
+			}
+		}
+		if target.pos.DistanceSquaredTo(c.pos) <= (40 * 40) {
+			// There is a colony on the other side that blocks the teleporter.
+			return false
+		}
+	}
+	return true
+}

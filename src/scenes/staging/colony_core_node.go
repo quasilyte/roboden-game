@@ -488,7 +488,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 	c.sprite.Shader.SetFloatValue("Time", 20-(c.teleportDelay*10))
 
 	if c.teleportDelay <= 0 {
-		if !c.canTeleportTo(c.relocationPoint) {
+		if !c.activatedTeleport.CanBeUsedBy(c) {
 			c.mode = colonyModeNormal
 			c.stopTeleportationEffect()
 			return
@@ -773,19 +773,6 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 	}
 }
 
-func (c *colonyCoreNode) canTeleportTo(pos gmath.Vec) bool {
-	for _, otherColony := range c.world.allColonies {
-		if otherColony == c {
-			continue
-		}
-		if pos.DistanceSquaredTo(otherColony.pos) <= (40 * 40) {
-			// There is a colony on the other side that blocks the teleporter.
-			return false
-		}
-	}
-	return true
-}
-
 func (c *colonyCoreNode) maybeTeleport() {
 	var teleporter *teleporterNode
 	for _, tp := range c.world.teleporters {
@@ -798,7 +785,7 @@ func (c *colonyCoreNode) maybeTeleport() {
 		return
 	}
 	// Is that teleporter already occupied?
-	if !c.canTeleportTo(teleporter.other.pos) {
+	if !teleporter.CanBeUsedBy(c) {
 		return
 	}
 

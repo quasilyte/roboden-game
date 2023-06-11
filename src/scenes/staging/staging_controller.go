@@ -119,6 +119,17 @@ func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
 			return colony.pos, true
 		}
 
+		if colony.mode == colonyModeTeleporting {
+			return colony.pos, true
+		}
+		if colony.mode == colonyModeRelocating {
+			for _, tp := range c.world.teleporters {
+				if tp.pos.DistanceSquaredTo(colony.relocationPoint) < (40 * 40) {
+					return tp.pos, true
+				}
+			}
+		}
+
 		// Maybe tether tower is around?
 		if c.world.turretDesign == gamedata.TetherBeaconAgentStats {
 			for _, turret := range colony.turrets {

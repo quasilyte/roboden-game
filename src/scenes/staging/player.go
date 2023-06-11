@@ -71,7 +71,7 @@ type creepsCombinedGroup struct {
 }
 
 func newCreepsPlayerState() *creepsPlayerState {
-	state := &creepsPlayerState{}
+	state := &creepsPlayerState{techLevel: 0.5}
 	for i := range state.attackSides {
 		cg := &creepsCombinedGroup{}
 		state.attackSides[i] = cg

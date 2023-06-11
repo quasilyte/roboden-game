@@ -11,7 +11,6 @@ import (
 )
 
 // TODO:
-// - use teleporters, when beneficial
 // - do not start building turrets in the middle of nowhere (beginning of the game)
 
 type computerPlayer struct {
@@ -467,6 +466,16 @@ func (p *computerPlayer) maybeRetreatFrom(colony *computerColony, pos gmath.Vec)
 		}
 	}
 
+	if p.world.rand.Chance(0.8) {
+		tp := p.findUsableTeleporter(colony.node, func(tp *teleporterNode) bool {
+			danger, _ := calcPosDanger(p.world, p.state, tp.other.pos, colony.node.PatrolRadius()+260)
+			return 3*danger < p.selectedColonyPower()
+		})
+		if tp != nil {
+			return p.tryExecuteAction(colony.node, -1, tp.pos)
+		}
+	}
+
 	// Just run away from the immediate threat.
 	if p.world.rand.Chance(0.2) {
 		retreatAngle := pos.AngleToPoint(colony.node.pos) + gmath.Rad(p.world.rand.FloatRange(-0.35, 0.35))
@@ -814,12 +823,26 @@ func (p *computerPlayer) findBestResourcesSpot(colony *computerColony, maxDanger
 		}
 		currentDist += r / 4
 	}
+
+	// Now check if there are any teleporters around.
+	// Maybe jumping there could be a good decision.
+	p.findUsableTeleporter(colony.node, func(tp *teleporterNode) bool {
+		danger, _ := calcPosDanger(p.world, p.state, tp.other.pos, colony.node.PatrolRadius()+260)
+		if danger > maxDanger {
+			return false
+		}
+		score, _ := p.calcPosResources(colony.node, tp.other.pos, resourcesReach)
+		if score > bestScore {
+			bestScore = score
+			bestScorePos = tp.pos
+		}
+		return false
+	})
+
 	return bestScorePos
 }
 
 func (p *computerPlayer) moveColonyToResources(currentResourcesScore int, colony *computerColony) bool {
-	// TODO: if teleporter is nearby, see whether using it may be beneficial.
-
 	resourcesReach := colony.node.MaxFlyDistance() + 60
 	currentSpotScore := int(float64(currentResourcesScore) * p.world.rand.FloatRange(0.9, 1.25))
 
@@ -845,4 +868,16 @@ func (p *computerPlayer) tryExecuteAction(colony *colonyCoreNode, cardIndex int,
 	result := p.choiceGen.TryExecute(cardIndex, pos)
 	p.state.selectedColony = prevSelected
 	return result
+}
+
+func (p *computerPlayer) findUsableTeleporter(colony *colonyCoreNode, f func(*teleporterNode) bool) *teleporterNode {
+	return randIterate(p.world.rand, p.world.teleporters, func(tp *teleporterNode) bool {
+		if tp.pos.DistanceSquaredTo(colony.pos) > 0.9*colony.MaxFlyDistanceSqr() {
+			return false
+		}
+		if !tp.CanBeUsedBy(colony) {
+			return false
+		}
+		return f(tp)
+	})
 }

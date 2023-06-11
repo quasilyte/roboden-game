@@ -513,6 +513,10 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
+		if a.stats.Kind == gamedata.AgentMarauder && a.specialDelay == 0 {
+			a.doCloak(20)
+			a.specialDelay = 10
+		}
 		a.energyBill += energyCost
 		a.mode = agentModeMineEssence
 		a.waypoint = roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8)))
@@ -1249,10 +1253,6 @@ func (a *colonyAgentNode) doScavenge() {
 	}
 	if bestSource != nil {
 		a.AssignMode(agentModeScavenge, gmath.Vec{}, bestSource)
-		if a.stats.Kind == gamedata.AgentMarauder && a.specialDelay == 0 {
-			a.doCloak(20)
-			a.specialDelay = 10
-		}
 	}
 }
 

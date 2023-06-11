@@ -843,6 +843,7 @@ func (c *colonyCoreNode) createLandingSmokeEffect() {
 		sprite.FlipHorizontal = info.flip
 		sprite.Pos.Offset = c.pos.Add(info.offset)
 		e := newEffectNodeFromSprite(c.world, false, sprite)
+		e.noFlip = true
 		e.anim.SetAnimationSpan(0.3)
 		c.world.nodeRunner.AddObject(e)
 	}

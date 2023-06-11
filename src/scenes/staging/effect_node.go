@@ -15,6 +15,7 @@ type effectNode struct {
 	anim    *ge.Animation
 	above   bool
 	rotates bool
+	noFlip  bool
 
 	rotation gmath.Rad
 	scale    float64
@@ -53,7 +54,9 @@ func (e *effectNode) Init(scene *ge.Scene) {
 	}
 	sprite.Rotation = &e.rotation
 	sprite.SetScale(e.scale, e.scale)
-	sprite.FlipHorizontal = e.world.localRand.Bool()
+	if !e.noFlip {
+		sprite.FlipHorizontal = e.world.localRand.Bool()
+	}
 	if e.above {
 		e.world.stage.AddSpriteAbove(sprite)
 	} else {

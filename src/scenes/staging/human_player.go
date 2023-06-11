@@ -127,7 +127,7 @@ func (p *humanPlayer) Init() {
 		}
 	})
 
-	if len(p.world.cameras) == 2 {
+	if len(p.world.cameras) == 2 && p.state.id == 0 {
 		begin := ge.Pos{Offset: gmath.Vec{X: (1920 / 4)}}
 		end := ge.Pos{Offset: gmath.Vec{X: (1920 / 4), Y: 1080}}
 		p.screenSeparator = ge.NewLine(begin, end)

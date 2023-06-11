@@ -253,6 +253,10 @@ func (w *choiceWindowNode) Update(delta float64) {
 }
 
 func (w *choiceWindowNode) HandleInput() int {
+	if w.charging {
+		return -1
+	}
+
 	if pos, ok := w.cursor.ClickPos(controls.ActionClick); ok {
 		pos = pos.Sub(w.cam.ScreenPos)
 		for i, choice := range w.choices {

@@ -184,6 +184,10 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 	var newAchievements []string
 	var upgradedAchievements []string
 
+	if c.config.PlayersMode == serverapi.PmodeTwoPlayers && c.config.GameMode == gamedata.ModeReverse {
+		return nil, nil
+	}
+
 	stats := &c.state.Persistent.PlayerStats
 
 	alreadyAchieved := map[string]int{}
@@ -213,11 +217,11 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 
 		switch a.Name {
 		case "t3engineer":
-			unlocked = len(stats.Tier3DronesSeen) >= len(gamedata.Tier3agentMergeRecipes)
+			unlocked = len(stats.Tier3DronesSeen) >= len(gamedata.Tier3agentMergeRecipes) && c.config.GameMode != gamedata.ModeReverse
 		case "trample":
-			unlocked = c.results.CreepsStomped != 0
+			unlocked = c.results.CreepsStomped != 0 && c.config.GameMode != gamedata.ModeReverse
 		case "nopeeking":
-			unlocked = !c.results.OpenedEvolutionTab
+			unlocked = !c.results.OpenedEvolutionTab && c.config.GameMode != gamedata.ModeReverse
 
 		case "impossible":
 			unlocked = c.results.DifficultyScore > 200

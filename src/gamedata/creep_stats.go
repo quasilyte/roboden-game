@@ -166,7 +166,7 @@ var ServantCreepStats = &CreepStats{
 	ShadowImage: assets.ImageMediumShadow,
 	Tier:        2,
 	Speed:       70,
-	MaxHealth:   65,
+	MaxHealth:   70,
 	AnimSpeed:   0.15,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:      1,

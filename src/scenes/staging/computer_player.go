@@ -11,10 +11,7 @@ import (
 )
 
 // TODO:
-// - attack enemy colony when strong
-// - attack enemy bases when strong
 // - use teleporters, when beneficial
-// - return to unbuilt bases
 // - do not start building turrets in the middle of nowhere (beginning of the game)
 
 type computerPlayer struct {
@@ -43,12 +40,15 @@ type computerPlayer struct {
 }
 
 type computerColony struct {
+	attackDelay  float64
 	moveDelay    float64
 	factionDelay float64
 	specialDelay float64
 	defendDelay  float64
 	node         *colonyCoreNode
 	maxTurrets   int
+
+	attacking int
 
 	howitzerAttacker *creepNode
 }
@@ -145,6 +145,7 @@ func (p *computerPlayer) Update(computedDelta, delta float64) {
 	p.buildTurretDelay = gmath.ClampMin(p.buildTurretDelay-computedDelta, 0)
 
 	for _, c := range p.colonies {
+		c.attackDelay = gmath.ClampMin(c.attackDelay-computedDelta, 0)
 		c.defendDelay = gmath.ClampMin(c.defendDelay-computedDelta, 0)
 		c.moveDelay = gmath.ClampMin(c.moveDelay-computedDelta, 0)
 		c.factionDelay = gmath.ClampMin(c.factionDelay-computedDelta, 0)
@@ -173,6 +174,21 @@ func (p *computerPlayer) HandleInput() {
 
 func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 	p.state.selectedColony = colony.node
+
+	if colony.attacking != 0 {
+		colony.attacking--
+		if p.maybeDoAttacking(colony) {
+			return true
+		}
+	}
+
+	if colony.attackDelay == 0 {
+		if p.maybeDoAttackAction(colony) {
+			colony.attackDelay = p.world.rand.FloatRange(60, 120)
+			return true
+		}
+		colony.attackDelay = p.world.rand.FloatRange(15, 30)
+	}
 
 	if colony.defendDelay == 0 {
 		if p.maybeDoDefensiveAction(colony) {
@@ -244,6 +260,60 @@ func (p *computerPlayer) maybeDoAction() bool {
 func (p *computerPlayer) colonyCantRecover(colony *colonyCoreNode) bool {
 	return colony.resources < gamedata.WorkerAgentStats.Cost &&
 		len(colony.agents.workers) == 0
+}
+
+func (p *computerPlayer) maybeDoAttacking(colony *computerColony) bool {
+	if p.world.boss == nil {
+		return false
+	}
+	if p.selectedColonyPower() < 100 {
+		return false
+	}
+
+	dist := p.world.boss.pos.DistanceTo(colony.node.pos)
+	if p.choiceSelection.special.special == specialAttack && dist < 0.9*colony.node.AttackRadius() {
+		return p.tryExecuteAction(colony.node, 4, gmath.Vec{})
+	}
+	if dist < 0.8*colony.node.PatrolRadius() {
+		return false
+	}
+
+	return p.tryExecuteAction(colony.node, -1, p.world.boss.pos.Add(p.world.rand.Offset(-128, 128)))
+}
+
+func (p *computerPlayer) maybeDoAttackAction(colony *computerColony) bool {
+	if p.world.boss == nil {
+		return false
+	}
+	distSqr := p.world.boss.pos.DistanceSquaredTo(colony.node.pos)
+	jumpDistSqr := colony.node.MaxFlyDistanceSqr() + 100
+	if distSqr > 2.75*jumpDistSqr {
+		return false
+	}
+	numJumps := distSqr / jumpDistSqr
+
+	colonyPower := p.selectedColonyPower()
+	bossDanger, _ := calcPosDanger(p.world, p.state, p.world.boss.pos, 200)
+	bossDanger = int(float64(bossDanger) * p.world.rand.FloatRange(0.9, 1.5))
+	if colonyPower < bossDanger {
+		return false
+	}
+
+	colony.attacking = int(math.Ceil(numJumps))
+	for _, otherColony := range p.colonies {
+		if otherColony.node == colony.node {
+			continue
+		}
+		if otherColony.node.pos.DistanceSquaredTo(p.world.boss.pos) > 1.5*otherColony.node.MaxFlyDistanceSqr() {
+			continue
+		}
+		colonyPower := p.calcColonyPower(otherColony.node)
+		if colonyPower < 120 {
+			continue
+		}
+		otherColony.attacking = 1
+	}
+	return true
 }
 
 func (p *computerPlayer) maybeDoDefensiveAction(colony *computerColony) bool {

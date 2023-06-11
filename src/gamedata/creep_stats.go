@@ -377,7 +377,7 @@ var DominatorCreepStats = &CreepStats{
 		MaxTargets:  1,
 		BurstSize:   1,
 		AttackSound: assets.AudioDominatorShot,
-		AttackRange: 265,
+		AttackRange: 280,
 		Damage:      DamageValue{Health: 8, Morale: 4},
 		Reload:      1.65,
 		TargetFlags: TargetFlying | TargetGround,

@@ -229,8 +229,10 @@ func (c *creepNode) Update(delta float64) {
 	}
 
 	switch c.stats.Kind {
-	case gamedata.CreepPrimitiveWanderer, gamedata.CreepStunner, gamedata.CreepAssault, gamedata.CreepDominator:
+	case gamedata.CreepPrimitiveWanderer, gamedata.CreepStunner, gamedata.CreepAssault:
 		c.updatePrimitiveWanderer(delta)
+	case gamedata.CreepDominator:
+		c.updateDominator(delta)
 	case gamedata.CreepBuilder:
 		c.updateBuilder(delta)
 	case gamedata.CreepUberBoss:
@@ -396,8 +398,18 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 			return
 		}
 		if c.scene.Rand().Chance(damage.Morale * 0.15) {
-			c.wasAttacking = true
-			c.retreatFrom(*source.GetPos())
+			c.wasRetreating = true
+			c.retreatFrom(*source.GetPos(), 150, 200)
+		}
+	}
+
+	if c.stats.Kind == gamedata.CreepDominator && damage.Health != 0 {
+		if c.wasRetreating {
+			return
+		}
+		if c.scene.Rand().Chance(0.4) {
+			c.wasRetreating = true
+			c.retreatFrom(*source.GetPos(), 100, 150)
 		}
 	}
 
@@ -511,8 +523,8 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 	target.OnDamage(weapon.Damage, c)
 }
 
-func (c *creepNode) retreatFrom(pos gmath.Vec) {
-	c.setWaypoint(retreatPos(c.scene.Rand(), c.scene.Rand().FloatRange(300, 500), c.pos, pos))
+func (c *creepNode) retreatFrom(pos gmath.Vec, minRange, maxRange float64) {
+	c.setWaypoint(retreatPos(c.scene.Rand(), c.scene.Rand().FloatRange(minRange, maxRange), c.pos, pos))
 	c.wasAttacking = false
 }
 
@@ -610,7 +622,7 @@ func (c *creepNode) wandererMovement(delta float64) {
 		// Choose a waypoint.
 		if c.wasAttacking && c.scene.Rand().Chance(0.8) {
 			// Go away from the colony.
-			c.retreatFrom(c.pos)
+			c.retreatFrom(c.pos, 300, 500)
 		} else if c.scene.Rand().Chance(0.4) {
 			// Go somewhere near a random colony.
 			if len(c.world.allColonies) == 0 {
@@ -646,6 +658,17 @@ func (c *creepNode) updatePrimitiveWanderer(delta float64) {
 	if c.anim != nil {
 		c.anim.Tick(delta)
 	}
+	c.wandererMovement(delta)
+}
+
+func (c *creepNode) updateDominator(delta float64) {
+	if c.world.boss != nil && c.waypoint.IsZero() {
+		if c.world.rand.Chance(0.6) {
+			wp := c.world.boss.pos.Add(c.world.rand.Offset(-180, 180))
+			c.setWaypoint(wp)
+		}
+	}
+
 	c.wandererMovement(delta)
 }
 

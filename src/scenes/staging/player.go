@@ -106,7 +106,7 @@ func (state *creepsPlayerState) AddUnits(world *worldState, side int, info creep
 	unitsAdded := 0
 	numUnits := numCreepsPerCard(state, info)
 	extraTech := state.techLevel - info.minTechLevel
-	superChance := gmath.Clamp(extraTech*0.8, 0, 1.0)
+	superChance := gmath.Clamp((extraTech-0.1)*0.8, 0, 1.0)
 
 	for i := 0; i < numUnits; i++ {
 		super := false

@@ -60,6 +60,12 @@ func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
 
 func (p *humanPlayer) addColonyToCreepsRadar(colony *colonyCoreNode) {
 	p.radar.AddColony(colony)
+	colony.EventTurretAccepted.Connect(p, func(turret *colonyAgentNode) {
+		p.radar.AddTurret(turret)
+		turret.EventDestroyed.Connect(p, func(turret *colonyAgentNode) {
+			p.radar.RemoveTurret(turret)
+		})
+	})
 	colony.EventDestroyed.Connect(p, func(colony *colonyCoreNode) {
 		p.radar.RemoveColony(colony)
 	})

@@ -203,6 +203,8 @@ var creepOptionInfoList = func() []creepOptionInfo {
 		switch {
 		case e.stats.Kind == gamedata.CreepHowitzer:
 			cooldown *= 1.5
+		case e.stats.Kind == gamedata.CreepBuilder:
+			cooldown *= 0.85
 		case e.stats.Kind == gamedata.CreepDominator:
 			cooldown *= 0.7
 		case !e.stats.Flying:

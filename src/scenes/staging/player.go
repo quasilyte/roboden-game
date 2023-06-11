@@ -87,7 +87,7 @@ func (state *creepsPlayerState) RecalcMaxCost() {
 	const maxCost = maxArenaGroupBudget * maxCreepGroupsPerSide
 	const maxCostTechRequired = 2.0
 	const multiplier = 1.0 / maxCostTechRequired
-	cost := ((state.techLevel * multiplier) * maxCost) + 15
+	cost := ((state.techLevel * multiplier) * maxCost) + 10
 	state.maxSideCost = int(gmath.ClampMax(cost, maxCost))
 }
 
@@ -105,13 +105,13 @@ func (state *creepsPlayerState) ResetGroups() {
 func (state *creepsPlayerState) AddUnits(world *worldState, side int, info creepOptionInfo) bool {
 	unitsAdded := 0
 	numUnits := numCreepsPerCard(state, info)
+	extraTech := state.techLevel - info.minTechLevel
+	superChance := gmath.Clamp(extraTech*0.8, 0, 1.0)
+
 	for i := 0; i < numUnits; i++ {
 		super := false
-		switch {
-		case state.techLevel >= 2:
-			super = true
-		case state.techLevel > 1:
-			super = world.rand.Chance(state.techLevel - 1.0)
+		if superChance > 0 {
+			super = world.rand.Chance(superChance)
 		}
 		if !state.addUnit(side, info.stats, super) {
 			break

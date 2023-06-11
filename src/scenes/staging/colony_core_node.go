@@ -106,6 +106,7 @@ type colonyCoreNode struct {
 
 	factionWeights *weightContainer[gamedata.FactionTag]
 
+	EventTurretAccepted    gsignal.Event[*colonyAgentNode]
 	EventTeleported        gsignal.Event[*colonyCoreNode]
 	EventUnderAttack       gsignal.Event[*colonyCoreNode]
 	EventOnDamage          gsignal.Event[targetable]
@@ -393,6 +394,7 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	c.world.MarkPos(turret.pos)
 	c.turrets = append(c.turrets, turret)
 	turret.colonyCore = c
+	c.EventTurretAccepted.Emit(turret)
 }
 
 func (c *colonyCoreNode) AcceptAgent(a *colonyAgentNode) {

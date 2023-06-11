@@ -182,7 +182,7 @@ func calcScore(world *worldState) int {
 		return int(math.Round(float64(score) * multiplier))
 
 	case gamedata.ModeReverse:
-		score := world.config.DifficultyScore * 10
+		score := world.config.DifficultyScore * 8
 		if world.boss != nil {
 			score += int((world.boss.health / world.boss.maxHealth) * 500.0)
 		}

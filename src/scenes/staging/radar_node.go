@@ -14,6 +14,11 @@ type radarColonySpot struct {
 	spot   *ge.Sprite
 }
 
+type radarTurretSpot struct {
+	turret *colonyAgentNode
+	spot   *ge.Sprite
+}
+
 type radarNode struct {
 	sprite *ge.Sprite
 	wave   *ge.Sprite
@@ -34,6 +39,7 @@ type radarNode struct {
 
 	cameraRect *ge.Rect
 	colonies   []radarColonySpot
+	turrets    []radarTurretSpot
 
 	minimapRect gmath.Rect
 	pos         gmath.Vec
@@ -64,10 +70,34 @@ func (r *radarNode) RemoveColony(colony *colonyCoreNode) {
 	r.colonies = xslices.RemoveAt(r.colonies, index)
 }
 
+func (r *radarNode) RemoveTurret(turret *colonyAgentNode) {
+	index := xslices.IndexWhere(r.turrets, func(elem radarTurretSpot) bool {
+		return elem.turret == turret
+	})
+	if index == -1 {
+		return
+	}
+	t := r.turrets[index]
+	t.spot.Dispose()
+	r.turrets = xslices.RemoveAt(r.turrets, index)
+}
+
+func (r *radarNode) AddTurret(turret *colonyAgentNode) {
+	spot := r.scene.NewSprite(assets.ImageRadarBossFar)
+	spot.Pos.Base = &r.pos
+	r.updateDarkTurrets()
+	r.player.state.camera.UI.AddGraphics(spot)
+
+	r.turrets = append(r.turrets, radarTurretSpot{
+		turret: turret,
+		spot:   spot,
+	})
+}
+
 func (r *radarNode) AddColony(colony *colonyCoreNode) {
 	spot := r.scene.NewSprite(assets.ImageRadarBossNear)
 	spot.Pos.Base = &r.pos
-	r.updateDark()
+	r.updateDarkColonies()
 	r.player.state.camera.UI.AddGraphics(spot)
 
 	r.colonies = append(r.colonies, radarColonySpot{
@@ -191,6 +221,18 @@ func (r *radarNode) translatePosToOffset(pos gmath.Vec) gmath.Vec {
 	return local.Sub(gmath.Vec{X: r.radius, Y: r.radius})
 }
 
+func (r *radarNode) updateDarkColonies() {
+	for _, c := range r.colonies {
+		c.spot.Pos.Offset = r.translatePosToOffset(c.colony.pos)
+	}
+}
+
+func (r *radarNode) updateDarkTurrets() {
+	for _, t := range r.turrets {
+		t.spot.Pos.Offset = r.translatePosToOffset(t.turret.pos)
+	}
+}
+
 func (r *radarNode) updateDark() {
 	cameraOffset := r.player.state.camera.CenterPos()
 	r.cameraRect.Pos.Offset = r.translatePosToOffset(cameraOffset)
@@ -201,8 +243,10 @@ func (r *radarNode) updateDark() {
 		r.bossSpot.Visible = false
 	}
 
-	for _, c := range r.colonies {
-		c.spot.Pos.Offset = r.translatePosToOffset(c.colony.pos)
+	r.updateDarkColonies()
+	r.updateDarkTurrets()
+	for _, t := range r.turrets {
+		t.spot.Pos.Offset = r.translatePosToOffset(t.turret.pos)
 	}
 }
 

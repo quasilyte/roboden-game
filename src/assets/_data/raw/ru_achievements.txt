@@ -77,7 +77,6 @@
 ##achievement.infinite : Бесконечное Сражение
 ##achievement.infinite.description
 Переживи как минимум 35 волн в бесконечном режиме арены.
-Бесконечный режим включается во вкладке "доп" на экране настроек режима арены.
 
 ##achievement.nopeeking : Не Подглядывать
 ##achievement.nopeeking.description

@@ -1,6 +1,8 @@
 ##achievement.game_mode : Game mode
 ##achievement.mode.classic : classic
 ##achievement.mode.arena : arena
+##achievement.mode.inf_arena : infinite arena
+##achievement.mode.reverse : reverse
 
 ##achievement.grade.none : not achived yet
 ##achievement.grade.normal : normal grade
@@ -77,7 +79,6 @@ Destroy all dominator class enemies before the final wave countdown reaches zero
 ##achievement.infinite : Infinite Battle
 ##achievement.infinite.description
 Survive for at least 35 waves in infinite arena mode.
-The infinite mode is toggled in "extra" tab inside the arena mode.
 
 ##achievement.nopeeking : No Peeking
 ##achievement.nopeeking.description

@@ -135,9 +135,11 @@ var AchievementList = []*Achievement{
 		Mode: ModeArena,
 		Icon: assets.ImageAchievementAntiDominator,
 	},
+
+	// Infinite arena mode achievements.
 	{
 		Name: "infinite",
-		Mode: ModeArena,
+		Mode: ModeInfArena,
 		Icon: assets.ImageAchievementInfinite,
 	},
 }

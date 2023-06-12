@@ -78,7 +78,9 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 		p.maxColonies = 4
 	}
 
-	fmt.Println("max colonies:", p.maxColonies)
+	if p.world.debugLogs {
+		fmt.Println("max colonies:", p.maxColonies)
+	}
 
 	p.world.EventColonyCreated.Connect(p, func(colony *colonyCoreNode) {
 		if colony.player != p {

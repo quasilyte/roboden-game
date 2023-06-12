@@ -68,7 +68,12 @@ func (c *ProfileStatsMenuController) initUI() {
 	}
 	if stats.TotalScore >= gamedata.ArenaModeCost {
 		lines = append(lines, [2]string{d.Get("menu.profile.stats.arena_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestArenaScore, stats.HighestArenaScoreDifficulty)})
+	}
+	if stats.TotalScore >= gamedata.InfArenaModeCost {
 		lines = append(lines, [2]string{d.Get("menu.profile.stats.inf_arena_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestInfArenaScore, stats.HighestInfArenaScoreDifficulty)})
+	}
+	if stats.TotalScore >= gamedata.ReverseModeCost {
+		lines = append(lines, [2]string{d.Get("menu.profile.stats.reverse_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestReverseScore, stats.HighestReverseScoreDifficulty)})
 	}
 	for _, pair := range lines {
 		grid.AddChild(eui.NewLabel(pair[0], smallFont))
@@ -100,7 +105,8 @@ func (c *ProfileStatsMenuController) initUI() {
 	sendScoreButton.GetWidget().Disabled = c.state.SentHighscores ||
 		(c.state.Persistent.PlayerStats.HighestClassicScore == 0 &&
 			c.state.Persistent.PlayerStats.HighestArenaScore == 0 &&
-			c.state.Persistent.PlayerStats.HighestInfArenaScore == 0)
+			c.state.Persistent.PlayerStats.HighestInfArenaScore == 0 &&
+			c.state.Persistent.PlayerStats.HighestReverseScore == 0)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
@@ -116,6 +122,7 @@ func (c *ProfileStatsMenuController) prepareHighscoreReplays() []serverapi.GameR
 		"classic_highscore",
 		"arena_highscore",
 		"inf_arena_highscore",
+		"reverse_highscore",
 	}
 	var replays []serverapi.GameReplay
 	for _, key := range keys {

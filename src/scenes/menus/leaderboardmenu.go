@@ -56,6 +56,10 @@ func (c *LeaderboardMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, "inf_arena"))
 	}))
 
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.reverse"), func() {
+		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, "reverse"))
+	}))
+
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {

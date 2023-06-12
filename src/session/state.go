@@ -77,6 +77,7 @@ type PersistentData struct {
 	CachedClassicLeaderboard  serverapi.LeaderboardResp
 	CachedArenaLeaderboard    serverapi.LeaderboardResp
 	CachedInfArenaLeaderboard serverapi.LeaderboardResp
+	CachedReverseLeaderboard  serverapi.LeaderboardResp
 }
 
 type PlayerStats struct {
@@ -99,6 +100,9 @@ type PlayerStats struct {
 
 	HighestInfArenaScore           int
 	HighestInfArenaScoreDifficulty int
+
+	HighestReverseScore           int
+	HighestReverseScoreDifficulty int
 }
 
 type Achievement struct {

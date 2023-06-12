@@ -29,6 +29,7 @@
 ##menu.leaderboard.classic : Classic
 ##menu.leaderboard.arena : Arena
 ##menu.leaderboard.inf_arena : Infinite Arena
+##menu.leaderboard.reverse : Reverse
 ##menu.leaderboard.season : Season
 ##menu.leaderboard.num_players : Players
 ##menu.leaderboard.col_rank : rank
@@ -72,18 +73,19 @@
 ##menu.replay.empty : Empty Slot
 ##menu.replay.notice : Replays are experimental and lack convenience options
 
-##menu.profile.stats.totalscore : Total Score
-##menu.profile.stats.classic_highscore : Classic Highest Score
-##menu.profile.stats.arena_highscore : Arena Highest Score
-##menu.profile.stats.inf_arena_highscore : Infinite Arena Highest Score
+##menu.profile.stats.totalscore : Total score
+##menu.profile.stats.classic_highscore : Classic highest score
+##menu.profile.stats.arena_highscore : Arena highest score
+##menu.profile.stats.inf_arena_highscore : Infinite arena highest score
+##menu.profile.stats.reverse_highscore : Reverse highest score
 
 ##menu.profile.progress.achievements : Achievements
-##menu.profile.progress.modes_unlocked : Game Modes Unlocked
-##menu.profile.progress.bases_unlocked : Colonies Unlocked
-##menu.profile.progress.turrets_unlocked : Turrets Unlocked
-##menu.profile.progress.drones_unlocked : Tier 2 Drones Unlocked
-##menu.profile.progress.t3drones_seen : Tier 3 Drones Discovered
-##menu.profile.progress.tutorials_completed : Tutorial Missions Completed
+##menu.profile.progress.modes_unlocked : Game modes unlocked
+##menu.profile.progress.bases_unlocked : Colonies unlocked
+##menu.profile.progress.turrets_unlocked : Turrets unlocked
+##menu.profile.progress.drones_unlocked : Tier 2 drones unlocked
+##menu.profile.progress.t3drones_seen : Tier 3 drones discovered
+##menu.profile.progress.tutorials_completed : Tutorial missions completed
 
 ##menu.tier : tier
 ##menu.back : Back

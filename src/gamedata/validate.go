@@ -26,7 +26,7 @@ func IsSendableReplay(r serverapi.GameReplay) bool {
 		return false
 	}
 	switch r.Config.RawGameMode {
-	case "classic", "arena":
+	case "classic", "arena", "reverse":
 		// There is no point in running a non-victory game replay
 		// for a mode that can be won.
 		if !r.Results.Victory {
@@ -57,7 +57,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 	}
 
 	switch replay.Config.RawGameMode {
-	case "classic", "arena", "inf_arena":
+	case "classic", "arena", "inf_arena", "reverse":
 		// OK.
 	default:
 		return false

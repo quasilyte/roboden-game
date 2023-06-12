@@ -165,6 +165,12 @@ func (c *resultsController) updateProgress() {
 			stats.HighestArenaScore = c.results.Score
 			stats.HighestArenaScoreDifficulty = c.results.DifficultyScore
 		}
+	case gamedata.ModeReverse:
+		if stats.HighestReverseScore < c.results.Score {
+			c.highScore = true
+			stats.HighestReverseScore = c.results.Score
+			stats.HighestReverseScoreDifficulty = c.results.DifficultyScore
+		}
 	}
 
 	contentUpdates := contentlock.Update(c.state)
@@ -328,10 +334,14 @@ func (c *resultsController) initUI() {
 
 	lines := [][2]string{
 		{d.Get("menu.results.time_played"), timeutil.FormatDuration(d, c.results.TimePlayed)},
-		{d.Get("menu.results.resources_gathered"), itoa(int(c.results.ResourcesGathered))},
-		{d.Get("menu.results.drones_total"), itoa(c.results.DronesProduced)},
-		{d.Get("menu.results.creeps_defeated"), itoa(c.results.CreepsDefeated)},
 	}
+	if c.config.GameMode != gamedata.ModeReverse {
+		lines = append(lines, [2]string{d.Get("menu.results.resources_gathered"), itoa(int(c.results.ResourcesGathered))})
+	}
+	lines = append(lines,
+		[2]string{d.Get("menu.results.drones_total"), itoa(c.results.DronesProduced)},
+		[2]string{d.Get("menu.results.creeps_defeated"), itoa(c.results.CreepsDefeated)},
+	)
 	if c.config.GameMode != gamedata.ModeTutorial {
 		if (c.config.GameMode == gamedata.ModeInfArena) || c.results.Victory {
 			if c.highScore {

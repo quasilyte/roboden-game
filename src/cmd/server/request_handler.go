@@ -32,7 +32,7 @@ func (h *requestHandler) HandleGetPlayerBoard(r *http.Request) (any, error) {
 	}
 	modeParam := r.URL.Query().Get("mode")
 	switch modeParam {
-	case "classic", "arena", "inf_arena":
+	case "classic", "arena", "inf_arena", "reverse":
 		// OK
 	default:
 		return nil, errBadParams
@@ -110,7 +110,7 @@ func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 	// Check if we have the right runsim binary for this match.
 	runsimBinaryName := filepath.Join(h.server.runsimFolder, fmt.Sprintf("runsim_%d", gameReplay.GameVersion))
 	if !fileExists(runsimBinaryName) {
-		h.server.logger.Info("unsupported game build %q is requested", gameReplay.GameVersion)
+		h.server.logger.Info("unsupported game build %v is requested", gameReplay.GameVersion)
 		return nil, errUnsupportedBuild
 	}
 

@@ -22,6 +22,10 @@ type seasonDB struct {
 	infArenaPlayerScore *sql.Stmt
 	infArenaFetchAll    *sql.Stmt
 	infArenaUpsert      *sql.Stmt
+
+	reversePlayerScore *sql.Stmt
+	reverseFetchAll    *sql.Stmt
+	reverseUpsert      *sql.Stmt
 }
 
 func withTransaction(conn *sql.DB, f func(tx *sql.Tx) error) (err error) {
@@ -155,6 +159,42 @@ func (db *seasonDB) PrepareQueries() error {
 		db.infArenaUpsert = stmt
 	}
 
+	{
+		q := "SELECT score FROM reverse_scores WHERE player_name = ?"
+		stmt, err := db.conn.Prepare(q)
+		if err != nil {
+			return err
+		}
+		db.reversePlayerScore = stmt
+	}
+
+	if db.id == currentSeason {
+		q := `
+			SELECT player_name, score, difficulty, time_seconds
+			FROM reverse_scores
+			ORDER BY score DESC
+		`
+		stmt, err := db.conn.Prepare(q)
+		if err != nil {
+			return err
+		}
+		db.reverseFetchAll = stmt
+	}
+
+	{
+		q := `
+		INSERT OR REPLACE INTO reverse_scores
+			('player_name', 'score', 'difficulty', 'time_seconds')
+		VALUES
+			(?, ?, ?, ?)
+		`
+		stmt, err := db.conn.Prepare(q)
+		if err != nil {
+			return err
+		}
+		db.reverseUpsert = stmt
+	}
+
 	return nil
 }
 
@@ -167,6 +207,8 @@ func (db *seasonDB) UpdatePlayerScore(mode, name, drones string, score, difficul
 		_, err = db.arenaUpsert.Exec(name, score, difficulty, drones)
 	case "inf_arena":
 		_, err = db.infArenaUpsert.Exec(name, score, difficulty, drones, timeSeconds)
+	case "reverse":
+		_, err = db.reverseUpsert.Exec(name, score, difficulty, timeSeconds)
 	}
 	return err
 }
@@ -181,6 +223,8 @@ func (db *seasonDB) PlayerScore(mode, name string) int {
 		err = db.arenaPlayerScore.QueryRow(name).Scan(&result)
 	case "inf_arena":
 		err = db.infArenaPlayerScore.QueryRow(name).Scan(&result)
+	case "reverse":
+		err = db.reversePlayerScore.QueryRow(name).Scan(&result)
 	}
 	if err != nil {
 		return -1
@@ -198,6 +242,8 @@ func (db *seasonDB) AllScores(mode string) ([]serverapi.LeaderboardEntry, error)
 		rows, err = db.arenaFetchAll.Query()
 	case "inf_arena":
 		rows, err = db.infArenaFetchAll.Query()
+	case "reverse":
+		rows, err = db.reverseFetchAll.Query()
 	}
 	if err != nil {
 		return nil, err
@@ -213,6 +259,8 @@ func (db *seasonDB) AllScores(mode string) ([]serverapi.LeaderboardEntry, error)
 			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Drones, &e.Time)
 		case "arena":
 			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Drones)
+		case "reverse":
+			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Time)
 		}
 		if err != nil {
 			return nil, err

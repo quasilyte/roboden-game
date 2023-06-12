@@ -49,6 +49,8 @@ func (c *LeaderboardLoadingController) getBoardCache() *serverapi.LeaderboardRes
 		return &c.state.Persistent.CachedArenaLeaderboard
 	case "inf_arena":
 		return &c.state.Persistent.CachedInfArenaLeaderboard
+	case "reverse":
+		return &c.state.Persistent.CachedReverseLeaderboard
 	default:
 		return nil
 	}

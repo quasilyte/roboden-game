@@ -63,6 +63,7 @@
 ##menu.profile.stats.classic_highscore : Рекорд в классическом режиме
 ##menu.profile.stats.arena_highscore : Рекорд в арене
 ##menu.profile.stats.inf_arena_highscore : Рекорд в бесконечной арене
+##menu.profile.stats.reverse_highscore : Рекорд в реверсивном режиме
 
 ##menu.profile.progress.achievements : Достижений получено
 ##menu.profile.progress.modes_unlocked : Режимов игры открыто

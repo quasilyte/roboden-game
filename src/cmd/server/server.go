@@ -47,6 +47,7 @@ type apiServer struct {
 	classicLeaderboard  []serverapi.LeaderboardEntry
 	arenaLeaderboard    []serverapi.LeaderboardEntry
 	infArenaLeaderboard []serverapi.LeaderboardEntry
+	reverseLeaderboard  []serverapi.LeaderboardEntry
 }
 
 type serverConfig struct {
@@ -96,6 +97,9 @@ func (s *apiServer) Preload() error {
 		return err
 	}
 	if err := s.reloadLeaderboard(&s.infArenaLeaderboard, "inf_arena"); err != nil {
+		return err
+	}
+	if err := s.reloadLeaderboard(&s.reverseLeaderboard, "reverse"); err != nil {
 		return err
 	}
 	return nil
@@ -167,6 +171,7 @@ func (s *apiServer) BackgroundTask() {
 	untilClassicLeaderboardUpdate := s.intervalLeaderboardUpdate()
 	untilArenaLeaderboardUpdate := s.intervalLeaderboardUpdate()
 	untilInfArenaLeaderboardUpdate := s.intervalLeaderboardUpdate()
+	untilReverseLeaderboardUpdate := s.intervalLeaderboardUpdate()
 	untilMetricsFlush := s.intervalMetricsFlush()
 	untilLogRotate := s.intervalLogRotate()
 	untilRunReplay := s.intervalRunReplay()
@@ -219,6 +224,18 @@ func (s *apiServer) BackgroundTask() {
 				s.logger.Info("reloaded inf_arena leaderboard")
 			}
 			untilInfArenaLeaderboardUpdate = s.intervalLeaderboardUpdate() * delayMultiplier
+			continue
+		}
+		untilReverseLeaderboardUpdate -= secondsSlept
+		if untilReverseLeaderboardUpdate <= 0 {
+			delayMultiplier := 1.0
+			if err := s.reloadLeaderboard(&s.reverseLeaderboard, "reverse"); err != nil {
+				s.logger.Error("reverse leaderboard reload: %v", err)
+				delayMultiplier += floatRange(s.rand, 0.5, 1.5)
+			} else {
+				s.logger.Info("reloaded reverse leaderboard")
+			}
+			untilReverseLeaderboardUpdate = s.intervalLeaderboardUpdate() * delayMultiplier
 			continue
 		}
 
@@ -428,6 +445,8 @@ func (s *apiServer) getBoardForMode(mode string) []serverapi.LeaderboardEntry {
 		return s.arenaLeaderboard
 	case "inf_arena":
 		return s.infArenaLeaderboard
+	case "reverse":
+		return s.reverseLeaderboard
 	}
 	return nil
 }

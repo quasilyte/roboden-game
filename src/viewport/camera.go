@@ -149,21 +149,21 @@ type UserInterfaceLayer struct {
 }
 
 func (l *UserInterfaceLayer) AddGraphicsBelow(o ge.SceneGraphics) {
-	if l.belowObjects == nil {
+	if l == nil {
 		return
 	}
 	l.belowObjects = append(l.belowObjects, o)
 }
 
 func (l *UserInterfaceLayer) AddGraphics(o ge.SceneGraphics) {
-	if l.objects == nil {
+	if l == nil {
 		return
 	}
 	l.objects = append(l.objects, o)
 }
 
 func (l *UserInterfaceLayer) AddGraphicsAbove(o ge.SceneGraphics) {
-	if l.aboveObjects == nil {
+	if l == nil {
 		return
 	}
 	l.aboveObjects = append(l.aboveObjects, o)

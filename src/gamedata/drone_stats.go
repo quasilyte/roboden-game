@@ -468,7 +468,7 @@ var CripplerAgentStats = InitDroneStats(&AgentStats{
 		ImpactArea:      10,
 		ProjectileSpeed: 250,
 		Damage:          DamageValue{Health: 1, Slow: 2},
-		MaxTargets:      3,
+		MaxTargets:      5,
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
 		Explosion:       ProjectileExplosionCripplerBlaster,

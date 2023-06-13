@@ -1460,11 +1460,17 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		numReflections := 0
 		pos := &a.pos
 		const maxReflections = 4
+		// Prism damage:
+		//   0 => 4
+		//   1 => 6
+		//   2 => 8
+		//   3 => 10
+		//   4 => 14 (max)
 		a.colonyCore.agents.Find(searchFighters|searchRandomized, func(ally *colonyAgentNode) bool {
 			if ally.stats.Kind != gamedata.AgentPrism || ally == a {
 				return false
 			}
-			if ally.pos.DistanceSquaredTo(*pos) > (196 * 196) {
+			if ally.pos.DistanceSquaredTo(*pos) > (96 * 96) {
 				return false
 			}
 			ally.attackDelay += float64(numReflections) * 0.1
@@ -1472,7 +1478,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			beam.width = width
 			a.world().nodeRunner.AddObject(beam)
 			numReflections++
-			damage.Health += 1.5
+			damage.Health += 2
 			if numReflections < maxReflections {
 				width++
 			}
@@ -1480,7 +1486,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			return numReflections >= maxReflections
 		})
 		if numReflections == maxReflections {
-			damage.Health++
+			damage.Health += 2
 		}
 		beam := newBeamNode(a.world(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
 		beam.width = width

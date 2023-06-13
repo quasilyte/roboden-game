@@ -36,6 +36,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioWaveStart:           {Path: "$sfx/wave_start.wav", Volume: 0},
 		AudioError:               {Path: "$sfx/error.wav", Volume: -0.25},
 		AudioClick:               {Path: "$sfx/button_click.wav", Volume: -0.3},
+		AudioPing:                {Path: "$sfx/ping.wav", Volume: 0},
 		AudioBaseSelect:          {Path: "$sfx/base_select.wav", Volume: -0.55},
 		AudioChoiceMade:          {Path: "$sfx/choice_made.wav", Volume: -0.45},
 		AudioChoiceReady:         {Path: "$sfx/choice_ready.wav", Volume: -0.55},
@@ -123,6 +124,7 @@ const (
 	AudioWaveStart
 	AudioError
 	AudioClick
+	AudioPing
 	AudioBaseSelect
 	AudioChoiceMade
 	AudioChoiceReady

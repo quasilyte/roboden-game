@@ -9,8 +9,10 @@ import (
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui"
+	"github.com/quasilyte/roboden-game/serverapi"
 )
 
 const colonyVisionRadius float64 = 500.0
@@ -33,7 +35,11 @@ type humanPlayer struct {
 
 	creepsState *creepsPlayerState
 
+	canPing   bool
+	pingDelay float64
+
 	EventExitPressed gsignal.Event[gsignal.Void]
+	EventPing        gsignal.Event[gmath.Vec]
 }
 
 type humanPlayerConfig struct {
@@ -46,6 +52,9 @@ type humanPlayerConfig struct {
 }
 
 func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
+	canPing := config.world.config.GameMode != gamedata.ModeReverse &&
+		config.world.config.PlayersMode == serverapi.PmodeTwoPlayers &&
+		config.world.config.ExecMode == gamedata.ExecuteNormal
 	p := &humanPlayer{
 		world:       config.world,
 		state:       config.state,
@@ -54,6 +63,7 @@ func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
 		input:       config.input,
 		cursor:      config.cursor,
 		creepsState: config.creepsState,
+		canPing:     canPing,
 	}
 	return p
 }
@@ -69,6 +79,10 @@ func (p *humanPlayer) addColonyToCreepsRadar(colony *colonyCoreNode) {
 	colony.EventDestroyed.Connect(p, func(colony *colonyCoreNode) {
 		p.radar.RemoveColony(colony)
 	})
+}
+
+func (p *humanPlayer) CanPing() bool {
+	return p.canPing
 }
 
 func (p *humanPlayer) Init() {
@@ -145,6 +159,10 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 	p.choiceWindow.Enabled = p.state.selectedColony != nil &&
 		p.state.selectedColony.mode == colonyModeNormal
 
+	if p.canPing {
+		p.pingDelay = gmath.ClampMin(p.pingDelay-delta, 0)
+	}
+
 	if p.state.selectedColony != nil {
 		flying := p.state.selectedColony.IsFlying()
 		p.colonySelector.Visible = !flying
@@ -158,6 +176,15 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 
 func (p *humanPlayer) HandleInput() {
 	selectedColony := p.state.selectedColony
+
+	if p.canPing && p.pingDelay == 0 {
+		if clickPos, ok := p.cursor.ClickPos(controls.ActionPing); ok {
+			p.pingDelay = 5.0
+			globalClickPos := p.state.camera.AbsClickPos(clickPos)
+			p.EventPing.Emit(globalClickPos)
+			return
+		}
+	}
 
 	if p.input.ActionIsJustPressed(controls.ActionToggleColony) {
 		p.onToggleButtonClicked(gsignal.Void{})

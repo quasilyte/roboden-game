@@ -28,6 +28,8 @@ const (
 
 	ActionToggleColony
 
+	ActionPing
+
 	ActionShowRecipes
 
 	ActionToggleInterface
@@ -58,6 +60,8 @@ func BindKeymap(ctx *ge.Context) (gameinput.Handler, gameinput.Handler) {
 		ActionPanUp:    {input.KeyGamepadLStickUp, input.KeyGamepadUp},
 
 		ActionToggleColony: {input.KeyGamepadL1},
+
+		ActionPing: {input.KeyGamepadLStick},
 
 		ActionShowRecipes: {input.KeyGamepadR2},
 
@@ -94,6 +98,8 @@ func BindKeymap(ctx *ge.Context) (gameinput.Handler, gameinput.Handler) {
 		ActionPanDrag:  {input.KeyTouchDrag},
 
 		ActionToggleColony: {input.KeyTab},
+
+		ActionPing: {input.KeyWithModifier(input.KeyMouseLeft, input.ModControl)},
 
 		ActionShowRecipes: {input.KeyAlt},
 

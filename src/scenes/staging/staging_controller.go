@@ -628,6 +628,18 @@ func (c *Controller) createPlayers() {
 				human.EventExitPressed.Connect(c, func(arg gsignal.Void) {
 					c.onExitButtonClicked()
 				})
+				if human.CanPing() {
+					human.EventPing.Connect(c, func(pingPos gmath.Vec) {
+						c.scene.Audio().PlaySound(assets.AudioPing)
+						dst := c.world.GetPingDst(human)
+						c.messageManagers[dst.GetState().id].AddMessage(queuedMessageInfo{
+							text:          c.scene.Dict().Get("game.notice.ping"),
+							timer:         5,
+							targetPos:     ge.Pos{Offset: pingPos},
+							forceWorldPos: true,
+						})
+					})
+				}
 				p = human
 				c.scene.AddObject(cursor)
 			}

@@ -344,6 +344,9 @@ Exit/Back | BACK or SELECT button
 
 ##menu.overview.inf_arena
 
+##game.notice.ping
+Your ally marked this spot
+
 ##game.notice.base_under_attack
 Your colony is under attack!
 

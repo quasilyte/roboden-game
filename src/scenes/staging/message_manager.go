@@ -18,6 +18,7 @@ type messageManager struct {
 }
 
 type queuedMessageInfo struct {
+	forceWorldPos bool
 	targetPos     ge.Pos
 	trackedObject ge.SceneObject
 	text          string
@@ -65,7 +66,8 @@ func (m *messageManager) nextMessage() {
 	m.messageTimer = 0
 	m.messageTimeLimit = info.timer
 	messagePos := gmath.Vec{X: 16, Y: 202}
-	if info.targetPos.Base != nil {
+	worldPos := info.forceWorldPos || info.targetPos.Base != nil
+	if worldPos {
 		m.message = newWorldTutorialHintNode(m.cam, messagePos, info.targetPos, info.text)
 	} else {
 		m.message = newScreenTutorialHintNode(m.cam, messagePos, info.targetPos.Offset, info.text)

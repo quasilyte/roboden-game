@@ -258,6 +258,16 @@ func (w *worldState) GetPosCell(pos gmath.Vec) (x int, y int) {
 	return cellX, cellY
 }
 
+func (w *worldState) GetPingDst(src *humanPlayer) *humanPlayer {
+	if len(w.players) < 2 {
+		return nil
+	}
+	if w.players[0] == src {
+		return w.players[1].(*humanPlayer)
+	}
+	return w.players[0].(*humanPlayer)
+}
+
 func (w *worldState) Update() {
 	w.fallbackCreepCluster = w.fallbackCreepCluster[:0]
 	for y := range w.creepClusters {

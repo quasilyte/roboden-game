@@ -340,6 +340,10 @@ func (w *worldState) NumActiveCrawlers() int {
 }
 
 func (w *worldState) EliteCrawlerChance() float64 {
+	if w.creepsPlayerState != nil {
+		return gmath.ClampMax(w.creepsPlayerState.techLevel+0.2, 1.0)
+	}
+
 	switch w.config.BossDifficulty {
 	case 0:
 		return 0

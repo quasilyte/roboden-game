@@ -7,7 +7,7 @@ In addition to that, there are creep-specific bonuses.
 | Creep Type | Bonus |
 |---|---|
 | Crawler | Slow and disarm condition immunity |
-| Elite Crawler | +1 attack target (2 -> 3) |
+| Elite Crawler | +3 attack targets (6 -> 9) |
 | Heavy Crawler | +20% attack range |
 | Stealth Crawler | +2 projectiles in a burst (3 -> 5) |
 | Crawler Factory | +5 max units, +25% production speed, spawns super crawlers sometimes (20%) |

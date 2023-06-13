@@ -560,7 +560,7 @@ func (c *creepNode) findTargets() []targetable {
 			attackRangeSqr *= 1.3
 		case gamedata.CreepCrawler:
 			if c.stats == gamedata.EliteCrawlerCreepStats {
-				maxTargets++
+				maxTargets += 3
 			} else if c.stats == gamedata.HeavyCrawlerCreepStats {
 				attackRangeSqr *= 1.2
 			}

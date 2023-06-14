@@ -330,6 +330,11 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	}
 
 	a.supportDelay = scene.Rand().FloatRange(0.8, 2)
+
+	if a.world().droneLabels {
+		l := newDebugDroneLabelNode(a.colonyCore.player.GetState(), a)
+		a.world().nodeRunner.AddObject(l)
+	}
 }
 
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }

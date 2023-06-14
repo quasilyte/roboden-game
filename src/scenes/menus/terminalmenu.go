@@ -140,6 +140,10 @@ func (c *TerminalMenu) initUI() {
 			handler: c.onDebugLogs,
 		},
 		{
+			key:     "debug.drone_labels",
+			handler: c.onDebugDroneLabels,
+		},
+		{
 			key:     "replay.dump",
 			handler: c.onReplayDump,
 		},
@@ -453,7 +457,7 @@ func (c *TerminalMenu) onBalanceDronesCalc(*terminalCommandContext) (string, err
 	c.sortDroneScoreList(tier3)
 	c.dumpList("tier 3", tier3)
 
-	return "drones balance report is dumped to the console", nil
+	return "Drones balance report is dumped to the console", nil
 }
 
 func (c *TerminalMenu) onCheatAddScore(ctx *terminalCommandContext) (string, error) {
@@ -470,6 +474,22 @@ func (c *TerminalMenu) onCheatAddScore(ctx *terminalCommandContext) (string, err
 	c.state.Persistent.PlayerStats.TotalScore += args.amount
 	contentlock.Update(c.state)
 	return fmt.Sprintf("Added %d to the total score.", args.amount), nil
+}
+
+func (c *TerminalMenu) onDebugDroneLabels(ctx *terminalCommandContext) (string, error) {
+	type argsType struct {
+		enable bool
+	}
+	if ctx.parsedArgs == nil {
+		args := &argsType{}
+		ctx.parsedArgs = args
+		ctx.fs.BoolVar(&args.enable, "enable", false, "whether to enable the debug drone labels")
+		return "", nil
+	}
+	args := ctx.parsedArgs.(*argsType)
+	oldValue := c.state.Persistent.Settings.DebugLogs
+	c.state.Persistent.Settings.DebugDroneLabels = args.enable
+	return fmt.Sprintf("Set debug.drone_labels to %v (was %v)", args.enable, oldValue), nil
 }
 
 func (c *TerminalMenu) onDebugLogs(ctx *terminalCommandContext) (string, error) {

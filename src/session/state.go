@@ -127,6 +127,7 @@ type GameSettings struct {
 	ShowFPS            bool
 	ShowTimer          bool
 	DebugLogs          bool
+	DebugDroneLabels   bool
 	Demo               bool
 	SwapGamepads       bool
 	GamepadSettings    [2]GamepadSettings

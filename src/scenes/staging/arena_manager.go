@@ -327,6 +327,7 @@ func (m *arenaManager) spawnCreeps() {
 			for i := range g.units {
 				u := &g.units[i]
 				u.fragScore = creepCost(u.stats, u.super)
+				m.world.result.CreepTotalValue += u.fragScore
 			}
 		}
 		sendCreeps(m.world, g)

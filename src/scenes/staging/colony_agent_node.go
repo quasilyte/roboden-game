@@ -331,7 +331,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 	a.supportDelay = scene.Rand().FloatRange(0.8, 2)
 
-	if a.world().droneLabels {
+	if a.world().droneLabels && isHumanPlayer(a.colonyCore.player) {
 		l := newDebugDroneLabelNode(a.colonyCore.player.GetState(), a)
 		a.world().nodeRunner.AddObject(l)
 	}

@@ -176,7 +176,7 @@ func calcScore(world *worldState) int {
 		crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)
 		score += crystalsCollected * 3
 		var multiplier float64
-		if world.result.CreepFragScore != 0 {
+		if world.result.CreepTotalValue != 0 {
 			multiplier = float64(world.result.CreepFragScore) / float64(world.result.CreepTotalValue)
 		}
 		return int(math.Round(float64(score) * multiplier))

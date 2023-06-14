@@ -684,7 +684,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 		c.shadow.Visible = true
 	}
 	c.flyingSprite.Visible = true
-	c.flashComponent.sprite = c.flyingSprite
+	c.flashComponent.ChangeSprite(c.flyingSprite)
 	c.sprite.Visible = false
 	c.hatch.Visible = false
 	c.evoDiode.Visible = false
@@ -755,7 +755,8 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.height = 0
 		c.mode = colonyModeNormal
 		c.flyingSprite.Visible = false
-		c.flashComponent.sprite = c.sprite
+		c.hatchFlashComponent.resetColors()
+		c.flashComponent.ChangeSprite(c.sprite)
 		if c.shadow != nil {
 			c.shadow.Visible = false
 		}

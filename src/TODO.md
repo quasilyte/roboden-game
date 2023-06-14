@@ -25,7 +25,6 @@ todo:
 - remove beam/projectile creating code duplication from drone-vs-creep
 - fireoffset is duplicated in weapon and drone stats
 - check if all victory conditions play a chime
-- lose all evo points when moving a base?
 - play error sound if can't build turret or colony
 - make building construction cost more obvious and easy to balance
 - make disintegrators prefer flying targets

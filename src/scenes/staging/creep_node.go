@@ -970,9 +970,10 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	}
 
 	if c.specialModifier >= 1 {
-		resultStats := gamedata.TurretCreepStats
-		if c.stats.Kind == gamedata.CreepCrawlerBaseConstruction {
-			resultStats = gamedata.CrawlerBaseCreepStats
+		resultStats := gamedata.CrawlerBaseCreepStats
+		if c.stats.Kind == gamedata.CreepTurretConstruction {
+			resultStats = gamedata.TurretCreepStats
+			c.world.onCreepTurretBuild()
 		}
 		result := c.world.NewCreepNode(c.pos, resultStats)
 		result.super = c.super

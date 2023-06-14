@@ -349,6 +349,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		gameSettings:     &c.state.Persistent.Settings,
 		deviceInfo:       c.state.Device,
 		debugLogs:        c.state.Persistent.Settings.DebugLogs,
+		droneLabels:      c.state.Persistent.Settings.DebugDroneLabels && c.config.ExecMode == gamedata.ExecuteNormal,
 		rand:             scene.Rand(),
 		localRand:        &localRand,
 		tmpTargetSlice:   make([]targetable, 0, 20),
@@ -795,8 +796,11 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 	case specialRally:
 		return c.doRally()
 
+	case specialAtomicBomb:
+		return c.launchAbomb()
+
 	case specialIncreaseTech:
-		c.world.creepsPlayerState.techLevel += 0.1
+		c.world.creepsPlayerState.techLevel = gmath.ClampMax(c.world.creepsPlayerState.techLevel+0.1, 2.0)
 		return true
 
 	case specialBossAttack:
@@ -810,6 +814,26 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 
 		panic("unexpected action ID")
 	}
+}
+
+func (c *Controller) launchAbomb() bool {
+	if len(c.world.allColonies) == 0 {
+		return false
+	}
+	if c.world.boss == nil {
+		return false
+	}
+	target := gmath.RandElem(c.world.rand, c.world.allColonies)
+	abomb := c.world.newProjectileNode(projectileConfig{
+		World:      c.world,
+		Weapon:     gamedata.AtomicBombWeapon,
+		Attacker:   c.world.boss,
+		ToPos:      target.pos.Add(c.scene.Rand().Offset(-10, 10)).Add(gmath.Vec{Y: 16}),
+		Target:     target,
+		FireOffset: gmath.Vec{Y: -20},
+	})
+	c.nodeRunner.AddProjectile(abomb)
+	return true
 }
 
 func (c *Controller) doRally() bool {

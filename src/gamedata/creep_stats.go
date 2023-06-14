@@ -60,6 +60,22 @@ type CreepStats struct {
 	Building      bool
 }
 
+var AtomicBombWeapon = InitWeaponStats(&WeaponStats{
+	MaxTargets:          1,
+	BurstSize:           1,
+	AttackRange:         99999,
+	ImpactArea:          150,
+	ProjectileSpeed:     120,
+	AttackSound:         assets.AudioAbombLaunch,
+	ProjectileFireSound: true,
+	Damage:              DamageValue{Health: 300},
+	ProjectileImage:     assets.ImageAbombMissile,
+	ArcPower:            15,
+	TrailEffect:         ProjectileTrailFire,
+	Explosion:           ProjectileExplosionAbomb,
+	AlwaysExplodes:      true,
+})
+
 var TurretCreepStats = &CreepStats{
 	Kind:      CreepTurret,
 	Image:     assets.ImageTurretCreep,

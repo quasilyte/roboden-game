@@ -34,11 +34,13 @@ type resultsController struct {
 }
 
 type battleResults struct {
-	Victory          bool
-	GroundBossDefeat bool
-	BossDefeated     bool
-	TimePlayed       time.Duration
-	Ticks            int
+	Victory           bool
+	GroundBossDefeat  bool
+	BossDefeated      bool
+	GroundControl     bool
+	AtomicBombVictory bool
+	TimePlayed        time.Duration
+	Ticks             int
 
 	ResourcesGathered      float64
 	EliteResourcesGathered float64
@@ -63,6 +65,7 @@ type battleResults struct {
 	GreenFactionUsed   bool
 	BlueFactionUsed    bool
 	OpenedEvolutionTab bool
+	Paused             bool
 
 	RedCrystalsCollected int
 
@@ -228,6 +231,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = c.results.CreepsStomped != 0 && c.config.GameMode != gamedata.ModeReverse
 		case "nopeeking":
 			unlocked = !c.results.OpenedEvolutionTab && c.config.GameMode != gamedata.ModeReverse
+		case "nonstop":
+			unlocked = !c.results.Paused && c.config.GameMode != gamedata.ModeReverse
 
 		case "impossible":
 			unlocked = c.results.DifficultyScore > 200
@@ -258,10 +263,18 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "turretdamage":
 			unlocked = c.results.EnemyColonyDamageFromTurrets >= (c.results.EnemyColonyDamage * 0.25)
 
-		case "infinite":
-			unlocked = c.config.GameMode == gamedata.ModeInfArena && c.results.ArenaLevel >= 35
 		case "antidominator":
-			unlocked = c.config.GameMode == gamedata.ModeArena && c.results.DominatorsSurvived == 0
+			unlocked = c.results.DominatorsSurvived == 0
+
+		case "infinite":
+			unlocked = c.results.ArenaLevel >= 35
+
+		case "colonyhunter":
+			unlocked = c.results.ColoniesBuilt >= 3
+		case "groundcontrol":
+			unlocked = c.results.GroundControl
+		case "atomicfinisher":
+			unlocked = c.results.AtomicBombVictory
 		}
 
 		if !unlocked {

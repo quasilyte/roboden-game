@@ -53,6 +53,7 @@ const (
 	ProjectileTrailNone ProjectileTrailEffect = iota
 	ProjectileTrailSmoke
 	ProjectileTrailRoomba
+	ProjectileTrailFire
 )
 
 type ProjectileExplosionKind int
@@ -60,6 +61,7 @@ type ProjectileExplosionKind int
 const (
 	ProjectileExplosionNone ProjectileExplosionKind = iota
 	ProjectileExplosionNormal
+	ProjectileExplosionAbomb
 	ProjectileExplosionBigVertical
 	ProjectileExplosionPurple
 	ProjectileExplosionHeavyCrawlerLaser

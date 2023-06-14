@@ -12,6 +12,7 @@ import (
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
+	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/userdevice"
 	"github.com/quasilyte/roboden-game/viewport"
@@ -51,6 +52,7 @@ type worldState struct {
 	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
 	turretDesign     *gamedata.AgentStats
 
+	droneLabels      bool
 	debugLogs        bool
 	evolutionEnabled bool
 	movementEnabled  bool
@@ -612,4 +614,27 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, 
 
 func (w *worldState) GetColonyIndex(colony *colonyCoreNode) int {
 	return xslices.Index(colony.player.GetState().colonies, colony)
+}
+
+func (w *worldState) onCreepTurretBuild() {
+	if w.config.ExecMode != gamedata.ExecuteNormal {
+		return
+	}
+	if w.config.GameMode != gamedata.ModeReverse {
+		return
+	}
+	if w.config.PlayersMode != serverapi.PmodeSinglePlayer {
+		return
+	}
+	if w.result.GroundControl {
+		return
+	}
+	turrets := 0
+	for _, creep := range w.creeps {
+		if creep.stats != gamedata.TurretCreepStats {
+			continue
+		}
+		turrets++
+	}
+	w.result.GroundControl = turrets >= 20
 }

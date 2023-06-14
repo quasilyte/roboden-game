@@ -187,6 +187,13 @@ func (p *projectileNode) Update(delta float64) {
 				effect.rotation = p.rotation
 				p.world.nodeRunner.AddObject(effect)
 			}
+		case gamedata.ProjectileTrailFire:
+			if p.trailCounter <= 0 {
+				p.trailCounter = p.world.localRand.FloatRange(0.06, 0.1)
+				effect := newEffectNode(p.world, p.pos, true, assets.ImageFireTrail)
+				effect.rotation = p.rotation
+				p.world.nodeRunner.AddObject(effect)
+			}
 		}
 	}
 
@@ -238,6 +245,9 @@ func (p *projectileNode) createExplosion() {
 		createExplosion(p.world, p.target.IsFlying(), explosionPos)
 	case gamedata.ProjectileExplosionBigVertical:
 		createBigVerticalExplosion(p.world, explosionPos)
+	case gamedata.ProjectileExplosionAbomb:
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, false, assets.ImageBigVerticalExplosion))
+		playSound(p.world, assets.AudioAbombExplosion, explosionPos)
 	case gamedata.ProjectileExplosionCripplerBlaster:
 		effect := newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageCripplerBlasterExplosion)
 		p.world.nodeRunner.AddObject(effect)
@@ -290,4 +300,10 @@ func (p *projectileNode) detonate() {
 	}
 	p.target.OnDamage(dmg, p.attacker)
 	p.createExplosion()
+
+	if p.weapon == gamedata.AtomicBombWeapon {
+		if len(p.world.allColonies) == 0 {
+			p.world.result.AtomicBombVictory = true
+		}
+	}
 }

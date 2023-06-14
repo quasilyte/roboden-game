@@ -94,6 +94,8 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioPurpleExplosion1:    {Path: "$sfx/purple_explosion1.wav", Volume: -0.4},
 		AudioPurpleExplosion2:    {Path: "$sfx/purple_explosion2.wav", Volume: -0.4},
 		AudioPurpleExplosion3:    {Path: "$sfx/purple_explosion3.wav", Volume: -0.4},
+		AudioAbombLaunch:         {Path: "$sfx/abomb_launch.wav", Volume: -0.2},
+		AudioAbombExplosion:      {Path: "$sfx/abomb_explosion.wav", Volume: -0.1},
 		AudioExplosion1:          {Path: "$sfx/explosion1.wav", Volume: -0.4},
 		AudioExplosion2:          {Path: "$sfx/explosion2.wav", Volume: -0.4},
 		AudioExplosion3:          {Path: "$sfx/explosion3.wav", Volume: -0.4},
@@ -182,6 +184,8 @@ const (
 	AudioPurpleExplosion1
 	AudioPurpleExplosion2
 	AudioPurpleExplosion3
+	AudioAbombLaunch
+	AudioAbombExplosion
 	AudioExplosion1
 	AudioExplosion2
 	AudioExplosion3

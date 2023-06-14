@@ -184,6 +184,7 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 		turret.mode = agentModeGuardForever
 
 	case constructBase:
+		c.world.result.ColoniesBuilt++
 		core := c.world.NewColonyCoreNode(colonyConfig{
 			World:  c.world,
 			Radius: 128,

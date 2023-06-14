@@ -60,6 +60,11 @@ var AchievementList = []*Achievement{
 		Mode: ModeAny,
 		Icon: assets.ImageAchievementNoPeeking,
 	},
+	{
+		Name: "nonstop",
+		Mode: ModeAny,
+		Icon: assets.ImageAchievementNonstop,
+	},
 
 	// Classic mode achievements.
 	{
@@ -141,5 +146,22 @@ var AchievementList = []*Achievement{
 		Name: "infinite",
 		Mode: ModeInfArena,
 		Icon: assets.ImageAchievementInfinite,
+	},
+
+	// Reverse mode achievements.
+	{
+		Name: "colonyhunter",
+		Mode: ModeReverse,
+		Icon: assets.ImageAchievementColonyHunter,
+	},
+	{
+		Name: "groundcontrol",
+		Mode: ModeReverse,
+		Icon: assets.ImageAchievementGroundControl,
+	},
+	{
+		Name: "atomicfinisher",
+		Mode: ModeReverse,
+		Icon: assets.ImageAchievementAtomicFinisher,
 	},
 }

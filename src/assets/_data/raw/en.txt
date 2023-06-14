@@ -314,6 +314,7 @@ Action card select | LMB click on the card or press 1-5 on a keyboard
 Pause | SPACE button toggles the pause
 Toggle evolution sheet | ALT button
 Toggle user interface | F11 button
+Ping (Coop only) | ctrl + LMB click
 Exit/Back | ESC button
 
 ##menu.controls.gamepad.text
@@ -324,6 +325,7 @@ Action card select | Right stick click on the card or Y, B, A, X and R1 buttons
 Pause | START toggles the pause
 Toggle evolution sheet | R2 button
 Toggle user interface | L2 button
+Ping (Coop only) | Left stick click
 Exit/Back | BACK or SELECT button
 
 ##menu.overview.classic

@@ -39,6 +39,9 @@ func (r *nodeRunner) Init(scene *ge.Scene) {
 }
 
 func (r *nodeRunner) SetPaused(paused bool) {
+	if paused {
+		r.world.result.Paused = true
+	}
 	r.paused = paused
 }
 

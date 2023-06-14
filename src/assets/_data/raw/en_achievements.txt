@@ -84,3 +84,20 @@ Survive for at least 35 waves in infinite arena mode.
 ##achievement.nopeeking.description
 Win a game without looking at the evolution tab even once.
 In other words, don't press ALT (on keyboard) or R2 (on gamepad) during the entire match.
+
+##achievement.colonyhunter : Colony Hunter
+##achievement.colonyhunter.description
+Destroy at least 3 colonies during the victorious reverse match.
+
+##achievement.groundcontrol : Ground Control
+##achievement.groundcontrol.description
+During any moment of the victorious reverse match, have at least 20 rocket turrets exist on the battlefield.
+
+##achievement.atomicfinisher : A-bomb Launch Detected
+##achievement.atomicfinisher.description
+Win a game by launching an atomic bomb. An atomic bomb is available at 200% tech progress level.
+
+##achievement.nonstop : Nonstop
+##achievement.nonstop.description
+Get to a victory in any mode without using a pause feature.
+Using the exit button to activate a pause counts as pausing too.

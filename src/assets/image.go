@@ -13,24 +13,28 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 	imageResources := map[resource.ImageID]resource.ImageInfo{
 		ImageLogo: {Path: "image/logo.png"},
 
-		ImageAchievementImpossible:    {Path: "image/achievement/impossible.png"},
-		ImageAchievementCheapBuild10:  {Path: "image/achievement/cheapbuild10.png"},
-		ImageAchievementT3Engineer:    {Path: "image/achievement/t3engineer.png"},
-		ImageAchievementHighTension:   {Path: "image/achievement/hightension.png"},
-		ImageAchievementSoloBase:      {Path: "image/achievement/solobase.png"},
-		ImageAchievementUILess:        {Path: "image/achievement/uiless.png"},
-		ImageAchievementTinyRadius:    {Path: "image/achievement/tinyradius.png"},
-		ImageAchievementT1Army:        {Path: "image/achievement/t1army.png"},
-		ImageAchievementGroundWin:     {Path: "image/achievement/groundwin.png"},
-		ImageAchievementSpeedrunning:  {Path: "image/achievement/speedrunning.png"},
-		ImageAchievementVictoryDrag:   {Path: "image/achievement/victorydrag.png"},
-		ImageAchievementT3Less:        {Path: "image/achievement/t3less.png"},
-		ImageAchievementTurretDamage:  {Path: "image/achievement/turretdamage.png"},
-		ImageAchievementPowerOf3:      {Path: "image/achievement/powerof3.png"},
-		ImageAchievementInfinite:      {Path: "image/achievement/infinite.png"},
-		ImageAchievementAntiDominator: {Path: "image/achievement/antidominator.png"},
-		ImageAchievementTrample:       {Path: "image/achievement/trample.png"},
-		ImageAchievementNoPeeking:     {Path: "image/achievement/no_peeking.png"},
+		ImageAchievementImpossible:     {Path: "image/achievement/impossible.png"},
+		ImageAchievementNonstop:        {Path: "image/achievement/nonstop.png"},
+		ImageAchievementCheapBuild10:   {Path: "image/achievement/cheapbuild10.png"},
+		ImageAchievementT3Engineer:     {Path: "image/achievement/t3engineer.png"},
+		ImageAchievementHighTension:    {Path: "image/achievement/hightension.png"},
+		ImageAchievementSoloBase:       {Path: "image/achievement/solobase.png"},
+		ImageAchievementUILess:         {Path: "image/achievement/uiless.png"},
+		ImageAchievementTinyRadius:     {Path: "image/achievement/tinyradius.png"},
+		ImageAchievementT1Army:         {Path: "image/achievement/t1army.png"},
+		ImageAchievementGroundWin:      {Path: "image/achievement/groundwin.png"},
+		ImageAchievementSpeedrunning:   {Path: "image/achievement/speedrunning.png"},
+		ImageAchievementVictoryDrag:    {Path: "image/achievement/victorydrag.png"},
+		ImageAchievementT3Less:         {Path: "image/achievement/t3less.png"},
+		ImageAchievementTurretDamage:   {Path: "image/achievement/turretdamage.png"},
+		ImageAchievementPowerOf3:       {Path: "image/achievement/powerof3.png"},
+		ImageAchievementInfinite:       {Path: "image/achievement/infinite.png"},
+		ImageAchievementAntiDominator:  {Path: "image/achievement/antidominator.png"},
+		ImageAchievementTrample:        {Path: "image/achievement/trample.png"},
+		ImageAchievementNoPeeking:      {Path: "image/achievement/no_peeking.png"},
+		ImageAchievementColonyHunter:   {Path: "image/achievement/colonyhunter.png"},
+		ImageAchievementGroundControl:  {Path: "image/achievement/groundcontrol.png"},
+		ImageAchievementAtomicFinisher: {Path: "image/achievement/atomicfinisher.png"},
 
 		ImageLock: {Path: "image/ui/lock.png"},
 
@@ -83,10 +87,12 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageActionRally:          {Path: "image/ui/action_rally.png"},
 		ImageActionBossAttack:     {Path: "image/ui/action_boss_attack.png"},
 		ImageActionIncreaseTech:   {Path: "image/ui/action_increase_tech.png"},
+		ImageActionAbomb:          {Path: "image/ui/action_abomb.png"},
 
 		ImageTeleportEffect:             {Path: "image/effects/teleport.png", FrameWidth: 100},
 		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 50},
 		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 50},
+		ImageFireTrail:                  {Path: "image/effects/fire_trail.png", FrameWidth: 7},
 		ImageRoombaLaserTrail:           {Path: "image/effects/roomba_shot_trail.png", FrameWidth: 7},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
@@ -232,6 +238,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageMortarProjectile:         {Path: "image/projectile/mortar_projectile.png"},
 		ImageHowitzerProjectile:       {Path: "image/projectile/howitzer_projectile.png"},
 		ImageHowitzerLaserProjectile:  {Path: "image/projectile/howitzer_laser_projectile.png"},
+		ImageAbombMissile:             {Path: "image/projectile/abomb.png"},
 		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                  {Path: "image/projectile/missile.png"},
 
@@ -294,6 +301,7 @@ const (
 	ImageLogo
 
 	ImageAchievementAntiDominator
+	ImageAchievementNonstop
 	ImageAchievementImpossible
 	ImageAchievementCheapBuild10
 	ImageAchievementT3Engineer
@@ -311,6 +319,9 @@ const (
 	ImageAchievementInfinite
 	ImageAchievementNoPeeking
 	ImageAchievementTrample
+	ImageAchievementColonyHunter
+	ImageAchievementGroundControl
+	ImageAchievementAtomicFinisher
 
 	ImageLock
 
@@ -336,6 +347,7 @@ const (
 	ImagePriorityBar
 	ImagePriorityIcons
 
+	ImageFireTrail
 	ImageRoombaLaserTrail
 	ImageProjectileSmoke
 	ImageTeleportEffect
@@ -398,6 +410,7 @@ const (
 	ImageActionRally
 	ImageActionBossAttack
 	ImageActionIncreaseTech
+	ImageActionAbomb
 
 	ImageFactionDiode
 	ImageUberBoss
@@ -509,6 +522,7 @@ const (
 	ImageMortarProjectile
 	ImageHowitzerProjectile
 	ImageHowitzerLaserProjectile
+	ImageAbombMissile
 	ImageAntiAirMissile
 	ImageMissile
 

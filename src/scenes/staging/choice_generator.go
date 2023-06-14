@@ -26,6 +26,7 @@ const (
 	specialSpawnCrawlers
 	specialBossAttack
 	specialIncreaseTech
+	specialAtomicBomb
 
 	// These are also for the creeps.
 	_creepCardFirst
@@ -122,6 +123,11 @@ var specialChoicesTable = [...]choiceOption{
 		special: specialIncreaseTech,
 		cost:    20,
 		icon:    assets.ImageActionIncreaseTech,
+	},
+	specialAtomicBomb: {
+		special: specialAtomicBomb,
+		cost:    20,
+		icon:    assets.ImageActionAbomb,
 	},
 }
 
@@ -497,7 +503,11 @@ func (g *choiceGenerator) generateChoices() {
 	switch specialOptionKind {
 	case specialRally:
 		if g.spawnCrawlers {
-			specialOptionKind = specialSpawnCrawlers
+			if g.creepsState.techLevel >= 2 {
+				specialOptionKind = specialAtomicBomb
+			} else {
+				specialOptionKind = specialSpawnCrawlers
+			}
 		}
 	case specialBuildColony:
 		if g.buildTurret && g.world.config.BuildTurretActionAvailable {

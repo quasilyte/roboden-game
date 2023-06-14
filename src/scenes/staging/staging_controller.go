@@ -401,7 +401,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.world.stage.SetBackground(bg)
 
 	c.camera = c.createCameraManager(viewportWorld, true, c.getPlayerInput(0))
-	if c.config.ExecMode == gamedata.ExecuteReplay {
+
+	forceCenter := c.config.ExecMode == gamedata.ExecuteReplay ||
+		c.config.PlayersMode == serverapi.PmodeTwoBots
+	if forceCenter {
 		c.camera.CenterOn(c.world.rect.Center())
 	}
 

@@ -10,20 +10,9 @@ todo engine:
 - add LoadGameDataRaw
 - gmath DirectionTo works in counter-intuitive way
 
-reverse mode:
-- enable replays?
-
 computers and multi-players:
-- implement defeat condition again
-- "two bots" mode camera should be centered to the map
 - make turrets repairable for everyone
 - check whether recipe tab fits in split screen mode (spoiler: it does not)
-- fix tutorial
-- fix arena
-- fix exit button and its notification
-- BUG sometimes damage highlight stays (for colony only?)
-- manual camera in replay mode
-- update mode intro texts, add inf arena intro text
 - cinematic camera should prioritize boss events before choosing a random player
 
 optimizations:
@@ -63,6 +52,5 @@ next release:
   - bonuses and disadvantages
   - ground base (can't pass hard terrain)
   - tier 4 units for bases
-- game lore
 - weather
 - random events

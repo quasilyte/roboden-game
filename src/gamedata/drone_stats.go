@@ -397,7 +397,7 @@ var GuardianAgentStats = InitDroneStats(&AgentStats{
 	CanPatrol:   true,
 	Speed:       55,
 	MaxHealth:   50,
-	SelfRepair:  1,
+	SelfRepair:  0.75,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange: 260,
 		Reload:      3.2,
@@ -605,7 +605,7 @@ var SkirmisherAgentStats = InitDroneStats(&AgentStats{
 	CanPatrol:   true,
 	Speed:       80,
 	MaxHealth:   22,
-	SelfRepair:  0.75,
+	SelfRepair:  0.5,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:       160,
 		Reload:            2,

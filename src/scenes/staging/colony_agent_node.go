@@ -1543,6 +1543,10 @@ func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {
 }
 
 func (a *colonyAgentNode) updatePatrol(delta float64) {
+	if a.healthRegen != 0 {
+		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
+	}
+
 	if a.moveTowards(delta, a.waypoint) {
 		a.dist = a.colonyCore.PatrolRadius()
 		a.waypoint = a.orbitingWaypoint()

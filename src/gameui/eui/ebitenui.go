@@ -543,13 +543,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 		mobile: device.IsMobile,
 	}
 
-	newNineSlice := func(img *ebiten.Image, centerWidth, centerHeight int) *image.NineSlice {
-		w, h := img.Size()
-		return image.NewNineSlice(img,
-			[3]int{(w - centerWidth) / 2, centerWidth, w - (w-centerWidth)/2 - centerWidth},
-			[3]int{(h - centerHeight) / 2, centerHeight, h - (h-centerHeight)/2 - centerHeight})
-	}
-
 	{
 		idle := loader.LoadImage(assets.ImageUITextInputIdle).Data
 		disabled := loader.LoadImage(assets.ImageUITextInputIdle).Data
@@ -577,7 +570,7 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 	{
 		idle := loader.LoadImage(assets.ImageUIPanelIdle).Data
 		result.Panel = &PanelResource{
-			Image: newNineSlice(idle, 10, 10),
+			Image: nineSliceImage(idle, 10, 10),
 			Padding: widget.Insets{
 				Left:   16,
 				Right:  16,

@@ -106,7 +106,7 @@ func (c *UserNameMenu) initUI() {
 			return good, nil
 		}),
 	)
-	textinput.InputText = c.state.Persistent.PlayerName
+	textinput.SetText(c.state.Persistent.PlayerName)
 	rowContainer.AddChild(textinput)
 
 	normalContainer := eui.NewAnchorContainer()
@@ -117,7 +117,7 @@ func (c *UserNameMenu) initUI() {
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.save"), func() {
-		c.save(textinput.InputText)
+		c.save(textinput.GetText())
 		c.next()
 	}))
 

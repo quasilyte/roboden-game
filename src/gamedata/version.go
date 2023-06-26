@@ -147,5 +147,11 @@ const SeasonNumber = 0
 // * Visuals:
 //   - Generate less looped land cracks.
 //
-// # Version 13
+// # Version 13 (Steam-focused build)
+//
+// * Bug fixes:
+//   - "Colony" settings tab is not properly disabled in Reverse mode
+//
+// * Misc:
+//   - Updated ebitenui library version
 const BuildNumber int = 13

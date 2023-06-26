@@ -159,6 +159,10 @@ func NewHorizontalContainer() *widget.Container {
 		)))
 }
 
+func DebugContainerColor() widget.ContainerOpt {
+	return widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.NRGBA{255, 0, 0, 255}))
+}
+
 func NewRowLayoutContainerWithMinWidth(minWidth, spacing int, rowscale []bool) *widget.Container {
 	return widget.NewContainer(
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{

@@ -148,13 +148,17 @@ func (c *LobbyMenuController) initUI() {
 	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
 
-	root := eui.NewAnchorContainer()
+	root := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+	)
 
 	rootGrid := widget.NewContainer(
-		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-			HorizontalPosition: widget.AnchorLayoutPositionCenter,
-			VerticalPosition:   widget.AnchorLayoutPositionCenter,
-		})),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+				HorizontalPosition: widget.AnchorLayoutPositionCenter,
+				VerticalPosition:   widget.AnchorLayoutPositionCenter,
+			}),
+		),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(2),
 			widget.GridLayoutOpts.Stretch([]bool{false, false}, nil),
@@ -162,8 +166,28 @@ func (c *LobbyMenuController) initUI() {
 
 	root.AddChild(rootGrid)
 
-	leftRows := eui.NewRowLayoutContainer(4, nil)
-	rootGrid.AddChild(leftRows)
+	leftRowsContainer := widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.GridLayoutData{
+			VerticalPosition: widget.GridLayoutPositionStart,
+		})),
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()))
+	leftRows := widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+				StretchHorizontal: true,
+				StretchVertical:   true,
+			}),
+			widget.WidgetOpts.MinSize(0, (1080/2)-47),
+		),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
+			widget.GridLayoutOpts.Spacing(4, 4),
+		)),
+	)
+	leftRowsContainer.AddChild(leftRows)
+	rootGrid.AddChild(leftRowsContainer)
+
 	rightRows := eui.NewRowLayoutContainer(4, []bool{false, true, false})
 	rootGrid.AddChild(rightRows)
 
@@ -216,8 +240,8 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		c.config.GameMode = c.mode
 		c.config.DifficultyScore = c.calcDifficultyScore()
 		c.config.DronePointsAllocated = c.calcAllocatedPoints()
-		if c.seedInput.InputText != "" {
-			seed, err := strconv.ParseInt(c.seedInput.InputText, 10, 64)
+		if c.seedInput.GetText() != "" {
+			seed, err := strconv.ParseInt(c.seedInput.GetText(), 10, 64)
 			if err != nil {
 				panic(err)
 			}
@@ -704,7 +728,7 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 	normalFont := assets.BitmapFont2
 
 	label := eui.NewLabel("", tinyFont)
-	label.MaxWidth = 320
+	label.MaxWidth = 300
 	c.helpLabel = label
 	panel.AddChild(label)
 
@@ -778,7 +802,7 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 				}
 				return onlyDigits, nil
 			}))
-		textinput.InputText = strconv.FormatInt(c.randomSeed(), 10)
+		textinput.SetText(strconv.FormatInt(c.randomSeed(), 10))
 		c.seedInput = textinput
 		grid.AddChild(textinput)
 		label := widget.NewLabel(

@@ -2,6 +2,7 @@ package menus
 
 import (
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 
 	"github.com/quasilyte/roboden-game/assets"
@@ -83,6 +84,9 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			ValueNames: []string{
 				d.Get("menu.option.off"),
 				d.Get("menu.option.on"),
+			},
+			OnPressed: func() {
+				ebiten.SetFullscreen(options.Graphics.FullscreenEnabled)
 			},
 		}))
 	}

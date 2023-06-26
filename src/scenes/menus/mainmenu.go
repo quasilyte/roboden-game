@@ -97,7 +97,7 @@ func (c *MainMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d (beta testing)", d.Get("menu.main.build"), gamedata.BuildNumber), assets.BitmapFont1)
+	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d", d.Get("menu.main.build"), gamedata.BuildNumber), assets.BitmapFont1)
 	rowContainer.AddChild(buildVersionLabel)
 
 	uiObject := eui.NewSceneObject(root)

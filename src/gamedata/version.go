@@ -145,5 +145,7 @@ const SeasonNumber = 0
 //   - Terrain is drawn as a single texture instead of a set of sprites
 //
 // * Visuals:
-//   - Generate less looped land cracks
-const BuildNumber int = 12
+//   - Generate less looped land cracks.
+//
+// # Version 13
+const BuildNumber int = 13

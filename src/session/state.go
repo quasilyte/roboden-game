@@ -63,11 +63,6 @@ func (state *State) GetInput(id int) *gameinput.Handler {
 type PersistentData struct {
 	Settings GameSettings
 
-	SeenClassicMode  bool
-	SeenArenaMode    bool
-	SeenInfArenaMode bool
-	SeenReverseMode  bool
-
 	PlayerName string
 
 	NumPendingSubmissions int

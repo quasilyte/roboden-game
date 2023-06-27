@@ -257,25 +257,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		}
 
 		c.config.Finalize()
-
-		var seenFlag *bool
-		switch c.mode {
-		case gamedata.ModeClassic:
-			seenFlag = &c.state.Persistent.SeenClassicMode
-		case gamedata.ModeArena:
-			seenFlag = &c.state.Persistent.SeenArenaMode
-		case gamedata.ModeInfArena:
-			seenFlag = &c.state.Persistent.SeenInfArenaMode
-		case gamedata.ModeReverse:
-			seenFlag = &c.state.Persistent.SeenReverseMode
-		}
-		if !*seenFlag {
-			*seenFlag = true
-			c.scene.Context().SaveGameData("save", c.state.Persistent)
-			c.scene.Context().ChangeScene(NewHintScreen(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
-		} else {
-			c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
-		}
+		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
 	}))
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {

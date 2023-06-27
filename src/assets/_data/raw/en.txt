@@ -117,6 +117,11 @@
 ##menu.option.mandatory : only mandatory
 ##menu.option.all : all
 
+##menu.power.weak : weak
+##menu.power.normal : normal
+##menu.power.tough : tough
+##menu.power.very_tough : very tough
+
 ##menu.option.very_easy : very easy
 ##menu.option.easy : easy
 ##menu.option.hard : hard

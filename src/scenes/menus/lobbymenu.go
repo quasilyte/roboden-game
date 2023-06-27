@@ -476,19 +476,21 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		}))
 	}
 
+	if c.mode == gamedata.ModeClassic || c.mode == gamedata.ModeReverse {
+		tab.AddChild(c.newOptionButton(&c.config.BossDifficulty, "menu.lobby.boss_difficulty", []string{
+			d.Get("menu.power.weak"),
+			d.Get("menu.power.normal"),
+			d.Get("menu.power.tough"),
+			d.Get("menu.power.very_tough"),
+		}))
+	}
+
 	if c.mode == gamedata.ModeClassic {
 		tab.AddChild(c.newOptionButton(&c.config.CreepSpawnRate, "menu.lobby.creep_spawn_rate", []string{
 			"75%",
 			"100%",
 			"125%",
 			"150%",
-		}))
-
-		tab.AddChild(c.newOptionButton(&c.config.BossDifficulty, "menu.lobby.boss_difficulty", []string{
-			d.Get("menu.option.easy"),
-			d.Get("menu.option.normal"),
-			d.Get("menu.option.hard"),
-			d.Get("menu.option.very_hard"),
 		}))
 
 		if c.state.Persistent.PlayerStats.TotalScore >= gamedata.ArenaModeCost {

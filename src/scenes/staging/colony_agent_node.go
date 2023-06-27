@@ -1243,11 +1243,8 @@ func (a *colonyAgentNode) doScavenge() {
 	var bestSource *essenceSourceNode
 	bestScore := 0.0
 	for _, source := range a.world().essenceSources {
-		switch source.stats {
-		case smallScrapCreepSource, scrapCreepSource, bigScrapCreepSource, smallScrapSource, scrapSource:
-			// OK
-		default:
-			continue // Not a scrap resource
+		if !source.stats.scrap {
+			continue
 		}
 		distSqr := a.pos.DistanceSquaredTo(source.pos)
 		if distSqr > maxDistSqr {

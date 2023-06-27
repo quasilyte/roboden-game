@@ -1,19 +1,20 @@
 package gamedata
 
 const (
-	ArenaModeCost    int = 1500
-	InfArenaModeCost int = 3500
-	ReverseModeCost  int = 7000
+	ClassicModeCost  int = 500
+	ArenaModeCost    int = 2000
+	InfArenaModeCost int = 4000
+	ReverseModeCost  int = 7500
 
-	RoombaDroneCost        int = 500
-	MortarDroneCost        int = 1000
-	AntiAirDroneCost       int = 2000
-	DisintegratorDroneCost int = 3000
-	PrismDroneCost         int = 4000
-	DefenderDroneCost      int = 5000
-	SkirmisherDroneCost    int = 6000
-	KamikazeDroneCost      int = 7000
-	ScarabDroneCost        int = 8000
+	RoombaDroneCost        int = 1000
+	MortarDroneCost        int = 1500
+	AntiAirDroneCost       int = 2500
+	DisintegratorDroneCost int = 3500
+	PrismDroneCost         int = 4500
+	DefenderDroneCost      int = 5500
+	SkirmisherDroneCost    int = 6500
+	KamikazeDroneCost      int = 7500
+	ScarabDroneCost        int = 8500
 
-	BeamTowerTurretCost int = 2500
+	BeamTowerTurretCost int = 3000
 )

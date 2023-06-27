@@ -80,7 +80,6 @@ func (c *ProfileProgressMenuController) initUI() {
 		{d.Get("menu.profile.progress.drones_unlocked"), fmt.Sprintf("%d/%d", len(stats.DronesUnlocked), numDrones)},
 		{d.Get("menu.profile.progress.t3drones_seen"), fmt.Sprintf("%d/%d", len(stats.Tier3DronesSeen), len(gamedata.Tier3agentMergeRecipes))},
 		{d.Get("menu.profile.progress.modes_unlocked"), fmt.Sprintf("%d/%d", modesUnlocked, modesTotal)},
-		{d.Get("menu.profile.progress.tutorials_completed"), fmt.Sprintf("%d/%d", len(stats.TutorialsCompleted), len(gamedata.Tutorials))},
 	}
 	for _, pair := range lines {
 		grid.AddChild(eui.NewLabel(pair[0], smallFont))

@@ -1,6 +1,3 @@
-//go:build ignore
-// +build ignore
-
 package staging
 
 import (
@@ -22,10 +19,6 @@ import (
 // in a declarative way, so we'll have to hardcode every one of
 // them here in the most adhoc way possible.
 
-type tutorialRunner struct {
-	updateFunc func() bool
-}
-
 type tutorialManager struct {
 	input gameinput.Handler
 
@@ -36,69 +29,55 @@ type tutorialManager struct {
 	choice selectedChoice
 
 	world        *worldState
-	uiLayer      *uiLayer
 	config       *gamedata.LevelConfig
 	tutorialStep int
-	drone        *colonyAgentNode
-	creep        *creepNode
-	resource     *essenceSourceNode
 	stepTicks    int
 
-	explainedResourcePool  bool
-	explainedWorker        bool
-	explainedScout         bool
-	explainedServoBots     bool
-	explainedRepairBots    bool
-	explainedFreighterBots bool
-	explainedSuperElites   bool
+	targetPos ge.Pos
+	drone     *colonyAgentNode
+	creep     *creepNode
+
+	explainedAttack           bool
+	explainedDecreaseRadius   bool
+	explainedResourcePool     bool
+	explainedBaseConstruction bool
+	explainedSecondBase       bool
+
+	attackCountdown float64
+	attackNum       int
+
+	nextPressed bool
 
 	hint *messageNode
 
 	updateDelay float64
 
-	runner *tutorialRunner
-
-	EventRequestPanelUpdate gsignal.Event[gsignal.Void]
-	EventTriggerVictory     gsignal.Event[gsignal.Void]
+	EventEnableChoices  gsignal.Event[gsignal.Void]
+	EventTriggerVictory gsignal.Event[gsignal.Void]
 }
 
-func newTutorialManager(h gameinput.Handler, world *worldState, uiLayer *uiLayer, messageManager *messageManager) *tutorialManager {
+func newTutorialManager(h gameinput.Handler, world *worldState, messageManager *messageManager) *tutorialManager {
 	return &tutorialManager{
-		input:          h,
-		world:          world,
-		uiLayer:        uiLayer,
-		config:         world.config,
-		updateDelay:    2,
-		messageManager: messageManager,
+		input:           h,
+		world:           world,
+		config:          world.config,
+		updateDelay:     2,
+		messageManager:  messageManager,
+		attackCountdown: 5 * 60,
 	}
 }
 
 func (m *tutorialManager) Init(scene *ge.Scene) {
 	m.scene = scene
-
-	runners := [...]tutorialRunner{
-		{
-			updateFunc: m.updateTutorial1,
-		},
-
-		{
-			updateFunc: m.updateTutorial2,
-		},
-
-		{
-			updateFunc: m.updateTutorial3,
-		},
-
-		{
-			updateFunc: m.updateTutorial4,
-		},
-	}
-
-	m.runner = &runners[m.config.Tutorial.ID]
 }
 
 func (m *tutorialManager) IsDisposed() bool {
 	return false
+}
+
+func (m *tutorialManager) OnNextPressed() {
+	m.nextPressed = true
+	m.runUpdateFunc()
 }
 
 func (m *tutorialManager) Update(delta float64) {
@@ -109,11 +88,17 @@ func (m *tutorialManager) Update(delta float64) {
 		m.creep = nil
 	}
 
+	m.attackCountdown = gmath.ClampMin(m.attackCountdown-delta, 0)
+	if m.attackCountdown == 0 {
+		m.attackCountdown = m.world.rand.FloatRange(2.0*60, 3.0*60)
+		m.spawnAttack()
+	}
+
 	m.updateDelay = gmath.ClampMin(m.updateDelay-delta, 0)
 	if m.updateDelay != 0 {
 		return
 	}
-	m.updateDelay = m.scene.Rand().FloatRange(1.5, 4.5)
+	m.updateDelay = m.scene.Rand().FloatRange(0.75, 1.25)
 
 	m.stepTicks = gmath.ClampMin(m.stepTicks-1, 0)
 
@@ -121,12 +106,40 @@ func (m *tutorialManager) Update(delta float64) {
 	m.runUpdateFunc()
 }
 
+func (m *tutorialManager) spawnAttack() {
+	m.attackNum++
+	var creeps []arenaWaveUnit
+	if m.world.rand.Bool() {
+		numCreeps := m.world.rand.IntRange(3, 5)
+		for i := 0; i < numCreeps; i++ {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.WandererCreepStats})
+		}
+	} else {
+		numCreeps := m.world.rand.IntRange(5, 7)
+		for i := 0; i < numCreeps; i++ {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.EliteCrawlerCreepStats})
+		}
+	}
+	if m.attackNum >= 3 {
+		if m.world.rand.Bool() {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.AssaultCreepStats})
+		} else {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.BuilderCreepStats})
+		}
+	}
+	creeps = append(creeps, arenaWaveUnit{stats: gamedata.StunnerCreepStats})
+	sendCreeps(m.world, arenaWaveGroup{
+		side:  m.world.rand.IntRange(0, 3),
+		units: creeps,
+	})
+}
+
 func (m *tutorialManager) runUpdateFunc() {
 	if len(m.world.allColonies) == 0 {
 		return
 	}
 	hintOpen := m.hint != nil
-	if m.runner.updateFunc() {
+	if m.maybeCompleteStep() {
 		m.tutorialStep++
 		if hintOpen && m.hint != nil {
 			m.hint.Dispose()
@@ -140,735 +153,334 @@ func (m *tutorialManager) OnChoice(choice selectedChoice) {
 	m.runUpdateFunc()
 }
 
-func (m *tutorialManager) updateTutorial1() bool {
-	if !m.explainedResourcePool && m.world.allColonies[0].resources > 100 {
+func (m *tutorialManager) maybeCompleteStep() bool {
+	if !m.explainedAttack && m.choice.Option.special == specialAttack {
+		m.explainedAttack = true
+		m.messageManager.AddMessage(queuedMessageInfo{
+			text:  m.scene.Dict().Get("tutorial.context.attack_action"),
+			timer: 20,
+		})
+	}
+
+	if !m.explainedDecreaseRadius && m.choice.Option.special == specialDecreaseRadius {
+		m.explainedDecreaseRadius = true
+		m.messageManager.AddMessage(queuedMessageInfo{
+			text:  m.scene.Dict().Get("tutorial.context.decrease_radius"),
+			timer: 20,
+		})
+	}
+
+	if !m.explainedResourcePool && m.world.allColonies[0].resources > 120 {
 		m.explainedResourcePool = true
 		m.messageManager.AddMessage(queuedMessageInfo{
 			targetPos:     ge.Pos{Base: &m.world.allColonies[0].spritePos, Offset: gmath.Vec{X: -3, Y: 18}},
 			trackedObject: m.world.allColonies[0],
-			text:          m.scene.Dict().Get("tutorial1.resource_bar"),
-			timer:         20,
+			text:          m.scene.Dict().Get("tutorial.context.resource_bar"),
+			timer:         25,
 		})
 	}
-	if m.messageManager.MessageIsEmpty() && !m.explainedWorker && m.tutorialStep >= 19 {
-		worker := m.findDrone(searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
-			return a.stats.Kind == gamedata.AgentWorker
-		})
-		if worker != nil {
-			m.explainDrone(worker, "tutorial1.hint_worker")
-			worker.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
-			m.explainedWorker = true
+
+	if !m.explainedBaseConstruction && len(m.world.constructions) != 0 {
+		var colonyConstruction *constructionNode
+		for _, c := range m.world.constructions {
+			if c.stats == colonyCoreConstructionStats {
+				colonyConstruction = c
+				break
+			}
 		}
-	}
-	if m.messageManager.MessageIsEmpty() && !m.explainedScout && m.tutorialStep >= 19 {
-		scout := m.findDrone(searchFighters|searchOnlyAvailable, func(a *colonyAgentNode) bool {
-			return a.stats.Kind == gamedata.AgentScout
-		})
-		if scout != nil {
-			m.explainDrone(scout, "tutorial1.hint_scout")
-			scout.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
-			m.explainedScout = true
+		if colonyConstruction != nil {
+			m.explainedBaseConstruction = true
+			m.messageManager.AddMessage(queuedMessageInfo{
+				targetPos:     ge.Pos{Base: &colonyConstruction.pos, Offset: gmath.Vec{Y: 6}},
+				trackedObject: colonyConstruction,
+				text:          m.scene.Dict().Get("tutorial.context.colony_construction"),
+				timer:         25,
+			})
 		}
 	}
 
+	if !m.explainedSecondBase && len(m.world.allColonies) > 1 {
+		m.explainedSecondBase = true
+		m.messageManager.AddMessage(queuedMessageInfo{
+			text:  m.scene.Dict().Get("tutorial.context.second_base", m.world.inputMode),
+			timer: 25,
+		})
+	}
+
+	d := m.scene.Dict()
+
 	switch m.tutorialStep {
 	case 0:
-		s := m.scene.Dict().Get("tutorial1.your_colony")
-		targetPos := ge.Pos{Base: &m.world.allColonies[0].spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 5
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.greeting"))
+		m.nextPressed = false
 		return true
 	case 1:
-		return m.stepTicks == 0
+		return m.nextPressed
+
 	case 2:
-		// Explain the action cards.
-		s := m.scene.Dict().Get("tutorial1.action_cards", m.world.inputMode)
-		targetPos := gmath.Vec{X: 812, Y: 50}
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.targetPos = m.findResourceStash(300)
+		m.addHintNode(m.targetPos, d.Get("tutorial.camera", m.world.inputMode))
+		m.nextPressed = false
 		return true
+
 	case 3:
-		ok := (m.choice.Option.special != specialChoiceNone && m.choice.Option.special != specialChoiceMoveColony) ||
-			(m.choice.Option.special == specialChoiceNone && len(m.choice.Option.effects) != 0)
-		if ok {
-			return true
-		}
+		return m.nextPressed
+
 	case 4:
-		// Explain the resources priority.
-		s := m.scene.Dict().Get("tutorial1.resources_priority")
-		targetPos := gmath.Vec{X: 812 + (36 * 0), Y: 516}
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.move", m.world.inputMode))
 		return true
+
 	case 5:
-		for _, effect := range m.choice.Option.effects {
-			if effect.priority == priorityResources {
-				return true
-			}
-		}
+		return m.choice.Option.special == specialChoiceMoveColony
+
 	case 6:
-		// Explain the growth priority.
-		s := m.scene.Dict().Get("tutorial1.growth_priority")
-		targetPos := gmath.Vec{X: 812 + (36 * 1), Y: 516}
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 7:
-		for _, effect := range m.choice.Option.effects {
-			if effect.priority == priorityGrowth {
-				return true
-			}
-		}
-	case 8:
-		// Explain the evolution priority.
-		s := m.scene.Dict().Get("tutorial1.evolution_priority")
-		targetPos := gmath.Vec{X: 812 + (36 * 2), Y: 516}
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 9:
-		for _, effect := range m.choice.Option.effects {
-			if effect.priority == priorityEvolution {
-				return true
-			}
-		}
-	case 10:
-		// Explain the security priority.
-		s := m.scene.Dict().Get("tutorial1.security_priority")
-		targetPos := gmath.Vec{X: 812 + (36 * 3), Y: 516}
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 11:
-		for _, effect := range m.choice.Option.effects {
-			if effect.priority == prioritySecurity {
-				return true
-			}
-		}
-	case 12:
-		s := m.scene.Dict().Get("tutorial1.camera", m.world.inputMode)
-		targetPos := ge.Pos{Offset: gmath.Vec{X: 1160, Y: 530}}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 13:
-		targetPos := ge.Pos{Offset: gmath.Vec{X: 1160, Y: 530}}
-		cameraCenter := m.world.camera.Offset.Add(m.world.camera.Rect.Center())
-		if targetPos.Resolve().DistanceSquaredTo(cameraCenter) <= (280 * 280) {
-			return true
-		}
-	case 14:
-		s := m.scene.Dict().Get("tutorial1.move", m.world.inputMode)
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 15:
-		if m.choice.Option.special == specialChoiceMoveColony {
-			return true
-		}
-	case 16:
 		return !m.world.allColonies[0].IsFlying()
-	case 17:
-		s := m.scene.Dict().Get("tutorial1.fill_resources")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 18:
-		if m.world.allColonies[0].resources > (maxVisualResources * 0.5) {
-			return true
-		}
-	case 19:
-		s := m.scene.Dict().Get("tutorial1.build_action")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 20:
-		if len(m.world.constructions) != 0 {
-			return true
-		}
-	case 21:
-		s := m.scene.Dict().Get("tutorial1.base_construction")
-		targetPos := ge.Pos{Base: &m.world.constructions[0].pos, Offset: gmath.Vec{Y: 14}}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 22:
-		if len(m.world.constructions) == 0 || m.world.constructions[0].progress >= 0.2 {
-			return true
-		}
-	case 23:
-		s := m.scene.Dict().Get("tutorial1.finish_construction")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		return true
-	}
 
-	return false
-}
-
-func (m *tutorialManager) updateTutorial2() bool {
-	switch m.tutorialStep {
-	case 0:
-		m.world.evolutionEnabled = false
-		s := m.scene.Dict().Get("tutorial2.factions_first_choice")
-		targetPos := gmath.Vec{X: 812, Y: 224}
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 1:
-		if m.choice.Option.text != "" && m.choice.Faction != gamedata.GreenFactionTag {
-			m.hint.HideLines()
-		}
-		return m.choice.Faction == gamedata.GreenFactionTag
-	case 2:
-		s := m.scene.Dict().Get("tutorial2.factions_second_choice")
-		targetPos := gmath.Vec{X: 956, Y: 340}
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 3:
-		if m.choice.Option.special == specialChoiceNone && len(m.choice.Option.effects) != 0 {
-			return true
-		}
-	case 4:
-		for _, colony := range m.world.allColonies {
-			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
-				return a.faction != gamedata.NeutralFactionTag && a.mode == agentModeStandby
-			})
-			if drone != nil {
-				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
-				return true
-			}
-		}
-	case 5:
-		s := m.scene.Dict().Get("tutorial2.faction_drone")
-		targetPos := ge.Pos{Base: &m.drone.spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 5
-		return true
-	case 6:
-		return m.stepTicks == 0
 	case 7:
-		s := m.scene.Dict().Get("tutorial2.yellow_faction")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 3
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.resources"))
+		m.nextPressed = false
 		return true
 	case 8:
-		if m.stepTicks > 0 {
-			return false
-		}
-		for _, colony := range m.world.allColonies {
-			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
-				return a.faction == gamedata.YellowFactionTag && a.mode == agentModeStandby
-			})
-			if drone != nil {
-				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
-				return true
-			}
-		}
+		return m.nextPressed
+
 	case 9:
-		s := m.scene.Dict().Get("tutorial2.yellow_faction_done")
-		targetPos := ge.Pos{Base: &m.drone.spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 7
+		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 0), Y: 516}, d.Get("tutorial.resources_priority"))
+		m.nextPressed = false
 		return true
 	case 10:
-		if m.stepTicks > 0 {
-			return false
-		}
-		for _, colony := range m.world.allColonies {
-			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
-				return a.faction == gamedata.RedFactionTag && a.mode == agentModeStandby
-			})
-			if drone != nil {
-				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
-				return true
-			}
-		}
+		return m.nextPressed
+
 	case 11:
-		s := m.scene.Dict().Get("tutorial2.red_faction_done")
-		targetPos := ge.Pos{Base: &m.drone.spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 7
+		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 1), Y: 516}, d.Get("tutorial.growth_priority"))
+		m.nextPressed = false
 		return true
 	case 12:
-		if m.stepTicks > 0 {
-			return false
-		}
-		for _, colony := range m.world.allColonies {
-			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
-				return a.faction == gamedata.GreenFactionTag && a.mode == agentModeStandby
-			})
-			if drone != nil {
-				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
-				return true
-			}
-		}
+		return m.nextPressed
+
 	case 13:
-		s := m.scene.Dict().Get("tutorial2.green_faction_done")
-		targetPos := ge.Pos{Base: &m.drone.spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 7
+		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 2), Y: 516}, d.Get("tutorial.evolution_priority"))
+		m.nextPressed = false
 		return true
 	case 14:
-		if m.stepTicks > 0 {
-			return false
-		}
-		for _, colony := range m.world.allColonies {
-			drone := colony.agents.Find(searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
-				return a.faction == gamedata.BlueFactionTag && a.mode == agentModeStandby
-			})
-			if drone != nil {
-				m.drone = drone
-				drone.AssignMode(agentModePosing, gmath.Vec{X: 16}, nil)
-				return true
-			}
-		}
+		return m.nextPressed
+
 	case 15:
-		m.world.movementEnabled = false
-		s := m.scene.Dict().Get("tutorial2.blue_faction_done")
-		targetPos := ge.Pos{Base: &m.drone.spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 7
+		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 3), Y: 516}, d.Get("tutorial.security_priority"))
+		m.nextPressed = false
 		return true
 	case 16:
-		return m.stepTicks == 0
+		return m.nextPressed
+
 	case 17:
-		s := m.scene.Dict().Get("tutorial2.recycle_drones")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 5
-		for _, colony := range m.world.allColonies {
-			colony.factionWeights.SetWeight(gamedata.YellowFactionTag, 0)
-			colony.factionWeights.SetWeight(gamedata.RedFactionTag, 0)
-			colony.factionWeights.SetWeight(gamedata.GreenFactionTag, 0)
-			colony.factionWeights.SetWeight(gamedata.BlueFactionTag, 0)
-			colony.factionWeights.SetWeight(gamedata.NeutralFactionTag, 1)
-			colony.agents.Each(func(a *colonyAgentNode) {
-				if a.stats.Tier != 1 {
-					return
-				}
-				a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
-			})
-		}
-		m.EventRequestPanelUpdate.Emit(gsignal.Void{})
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.enable_choices", m.world.inputMode))
+		m.EventEnableChoices.Emit(gsignal.Void{})
 		return true
 	case 18:
-		return m.stepTicks == 0
+		return len(m.choice.Option.effects) != 0
+
 	case 19:
-		m.world.movementEnabled = true
-		s := m.scene.Dict().Get("tutorial2.request_cloner")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 6
+		m.stepTicks = 10
 		return true
 	case 20:
-		if m.stepTicks > 0 {
-			return false
-		}
-		m.world.evolutionEnabled = true
-		for _, colony := range m.world.allColonies {
-			cloner := colony.agents.Find(searchWorkers, func(a *colonyAgentNode) bool {
-				return a.stats.Kind == gamedata.AgentCloner
-			})
-			if cloner != nil {
-				m.drone = cloner
-				return true
-			}
-		}
+		return m.stepTicks == 0
+
 	case 21:
-		s := m.scene.Dict().Get("tutorial2.cloner_ability")
-		targetPos := ge.Pos{Base: &m.drone.spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 5
-		return true
-	case 22:
-		return m.stepTicks == 0
-	case 23:
-		// tutorial2.recipe_hint
-		s := m.scene.Dict().Get("tutorial2.recipe_hint", m.world.inputMode)
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 6
-		return true
-	case 24:
-		return m.stepTicks == 0
-	case 25:
-		s := m.scene.Dict().Get("tutorial2.tier3_intro")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 5
-		return true
-	case 26:
-		return m.stepTicks == 0
-	case 27:
-		s := m.scene.Dict().Get("tutorial2.request_destroyer")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 5
-		return true
-	case 28:
-		if m.stepTicks > 0 {
-			return false
+		var creeps []arenaWaveUnit
+		for i := 0; i < 6; i++ {
+			super := i == 0
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.WandererCreepStats, super: super})
 		}
-		numFighters := 0
-		m.world.allColonies[0].agents.Find(searchFighters, func(a *colonyAgentNode) bool {
-			if a.stats.Kind == gamedata.AgentFighter {
-				numFighters++
-			}
-			return false
+		sendCreeps(m.world, arenaWaveGroup{
+			side:  m.world.rand.IntRange(0, 3),
+			units: creeps,
 		})
-		return numFighters >= 2
-	case 29:
-		s := m.scene.Dict().Get("tutorial2.evo_points")
-		targetPos := ge.Pos{Base: &m.world.allColonies[0].spritePos, Offset: gmath.Vec{X: -19, Y: -30}}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 30:
-		return m.world.allColonies[0].evoPoints >= blueEvoThreshold
-	case 31:
-		for _, colony := range m.world.allColonies {
-			destroyer := colony.agents.Find(searchFighters, func(a *colonyAgentNode) bool {
-				return a.stats.Kind == gamedata.AgentDestroyer
-			})
-			if destroyer != nil {
-				m.drone = destroyer
-				return true
-			}
-		}
-	case 32:
-		s := m.scene.Dict().Get("tutorial2.destroyer_ability")
-		targetPos := ge.Pos{Base: &m.drone.spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 4
-		return true
-	case 33:
-		return m.stepTicks == 0
-	case 34:
-		m.EventTriggerVictory.Emit(gsignal.Void{})
-		return true
-	}
-
-	return false
-}
-
-func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
-	m.messageManager.AddMessage(queuedMessageInfo{
-		targetPos:     ge.Pos{Base: &drone.spritePos, Offset: gmath.Vec{Y: -4}},
-		text:          m.scene.Dict().Get(textKey),
-		trackedObject: drone,
-		timer:         20,
-	})
-}
-
-func (m *tutorialManager) updateTutorial3() bool {
-	var freighter *colonyAgentNode
-	var servoBot *colonyAgentNode
-	var repairBot *colonyAgentNode
-	for _, colony := range m.world.allColonies {
-		colony.agents.Find(searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
-			switch a.stats.Kind {
-			case gamedata.AgentFreighter:
-				freighter = a
-			case gamedata.AgentServo:
-				servoBot = a
-			case gamedata.AgentRepair:
-				repairBot = a
-			}
-			return false
-		})
-	}
-	if m.messageManager.MessageIsEmpty() && freighter != nil && !m.explainedFreighterBots {
-		m.explainDrone(freighter, "tutorial3.hint_freighter")
-		m.explainedFreighterBots = true
-	}
-	if m.messageManager.MessageIsEmpty() && servoBot != nil && !m.explainedServoBots {
-		m.explainDrone(servoBot, "tutorial3.hint_servobot")
-		m.explainedServoBots = true
-	}
-	if m.messageManager.MessageIsEmpty() && repairBot != nil && !m.explainedRepairBots {
-		m.explainDrone(repairBot, "tutorial3.hint_repairbot")
-		m.explainedRepairBots = true
-	}
-
-	switch m.tutorialStep {
-	case 0:
-		s := m.scene.Dict().Get("tutorial3.base_select", m.world.inputMode)
-		targetPos := ge.Pos{Base: &m.world.allColonies[1].spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 1:
-		return m.world.players[0].GetState().selectedColony != m.world.allColonies[0]
-	case 2:
-		s := m.scene.Dict().Get("tutorial3.base_controls")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 3:
-		if m.choice.Option.special == specialChoiceMoveColony {
-			return true
-		}
-	case 4:
-		s := m.scene.Dict().Get("tutorial3.shared_actions")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 6
-		return true
-	case 5:
-		return m.stepTicks == 0
-	case 6:
 		for _, creep := range m.world.creeps {
-			switch creep.stats.kind {
-			case creepBase, creepTurret:
-				// Ignore
-			default:
-				m.creep = creep
-				return true
-			}
-		}
-	case 7:
-		if m.creep.IsDisposed() {
-			m.tutorialStep = 6
-			m.creep = nil
-			return false
-		}
-		s := m.scene.Dict().Get("tutorial3.enemy_drone")
-		targetPos := ge.Pos{Base: &m.creep.pos, Offset: gmath.Vec{Y: -4}}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.creep
-		m.scene.AddObject(m.hint)
-		return true
-	case 8:
-		return m.creep == nil
-	case 9:
-		for _, creep := range m.world.creeps {
-			if creep.stats.kind == creepBase {
+			if creep.super {
 				m.creep = creep
 				break
 			}
 		}
-		if m.creep == nil {
-			return true
-		}
-		s := m.scene.Dict().Get("tutorial3.locate_base")
-		targetPos := ge.Pos{Base: &m.creep.pos, Offset: gmath.Vec{Y: 14}}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.creep
-		m.scene.AddObject(m.hint)
+		m.addHintNode(ge.Pos{Base: &m.creep.pos}, d.Get("tutorial.enemy_scouts"))
 		return true
-	case 10:
-		if m.creep == nil {
-			return true
-		}
-		targetPos := ge.Pos{Base: &m.creep.pos, Offset: gmath.Vec{Y: 8}}
-		cameraCenter := m.world.camera.Offset.Add(m.world.camera.Rect.Center())
-		if targetPos.Resolve().DistanceSquaredTo(cameraCenter) <= (280 * 280) {
-			return true
-		}
-	case 11:
-		s := m.scene.Dict().Get("tutorial3.attack_action")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 6
-		return true
-	case 12:
-		return m.stepTicks == 0
-	case 13:
-		s := m.scene.Dict().Get("tutorial3.radius_action")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 6
-		return true
-	case 14:
-		return m.stepTicks == 0
-	case 15:
-		s := m.scene.Dict().Get("tutorial3.final_goal")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 12
-		return true
-	case 16:
-		return m.stepTicks == 0
-	}
+	case 22:
+		return m.creep == nil
 
-	return false
-}
+	case 23:
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.factions"))
+		return true
+	case 24:
+		return len(m.choice.Option.effects) != 0
 
-func (m *tutorialManager) updateTutorial4() bool {
-	if !m.explainedSuperElites {
-		superElite := m.findDrone(searchFighters|searchWorkers|searchOnlyAvailable, func(a *colonyAgentNode) bool {
-			return a.rank == 2
+	case 25:
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.factions2", m.world.inputMode))
+		m.nextPressed = false
+		return true
+	case 26:
+		return m.nextPressed
+
+	case 27:
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.crawlers_attack_notice"))
+		m.stepTicks = 20
+		return true
+	case 28:
+		return m.stepTicks == 0
+
+	case 29:
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.build_turret", m.world.inputMode))
+		m.stepTicks = 40
+		return true
+	case 30:
+		return m.stepTicks == 0
+
+	case 31:
+		var creeps []arenaWaveUnit
+		for i := 0; i < 5; i++ {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.CrawlerCreepStats})
+		}
+		for i := 0; i < 3; i++ {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.EliteCrawlerCreepStats})
+		}
+		for i := 0; i < 2; i++ {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.HeavyCrawlerCreepStats})
+		}
+		spawnPos := sendCreeps(m.world, arenaWaveGroup{
+			side:  3,
+			units: creeps,
 		})
-		if superElite != nil {
-			m.explainDrone(superElite, "tutorial4.hint_superelite")
-			m.explainedSuperElites = true
-		}
-	}
-
-	switch m.tutorialStep {
-	case 0:
-		s := m.scene.Dict().Get("tutorial4.locate_boss")
-		targetPos := ge.Pos{Base: &m.world.boss.pos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.world.boss
-		m.scene.AddObject(m.hint)
+		m.addHintNode(ge.Pos{Offset: spawnPos}, d.Get("tutorial.crawlers_attack"))
+		m.stepTicks = 15
 		return true
-	case 1:
-		targetPos := ge.Pos{Base: &m.world.boss.pos}
-		cameraCenter := m.world.camera.Offset.Add(m.world.camera.Rect.Center())
-		if targetPos.Resolve().DistanceSquaredTo(cameraCenter) <= (280 * 280) {
+	case 32:
+		return m.stepTicks == 0
+
+	case 33:
+		m.stepTicks = 30
+		return true
+	case 34:
+		return len(m.world.creeps) == 0 || m.stepTicks == 0
+
+	case 35:
+		var creeps []arenaWaveUnit
+		for i := 0; i < 3; i++ {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.BuilderCreepStats})
+		}
+		spawnPos := sendCreeps(m.world, arenaWaveGroup{
+			side:  m.world.rand.IntRange(0, 3),
+			units: creeps,
+		})
+		m.addHintNode(ge.Pos{Offset: spawnPos}, d.Get("tutorial.builders_attack"))
+		m.stepTicks = 10
+		return true
+	case 36:
+		return m.stepTicks == 0
+
+	case 37:
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.increase_radius"))
+		return true
+	case 38:
+		return m.choice.Option.special == specialIncreaseRadius
+
+	case 39:
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.base_leveling"))
+		m.nextPressed = false
+		return true
+	case 40:
+		return m.nextPressed
+
+	case 41:
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_attack_warning"))
+		m.stepTicks = 20
+		return true
+	case 42:
+		return m.stepTicks == 0
+
+	case 43:
+		m.stepTicks = 80
+		return true
+
+	case 44:
+		var creeps []arenaWaveUnit
+		for i := 0; i < 6; i++ {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.WandererCreepStats})
+		}
+		for i := 0; i < 3; i++ {
+			creeps = append(creeps, arenaWaveUnit{stats: gamedata.StunnerCreepStats})
+		}
+		creeps = append(creeps, arenaWaveUnit{stats: gamedata.BuilderCreepStats})
+		creeps = append(creeps, arenaWaveUnit{stats: gamedata.HowitzerCreepStats})
+		spawnPos := sendCreeps(m.world, arenaWaveGroup{
+			side:  m.world.rand.IntRange(0, 3),
+			units: creeps,
+		})
+		m.addHintNode(ge.Pos{Offset: spawnPos}, d.Get("tutorial.final_attack"))
+		m.stepTicks = 15
+		return true
+	case 45:
+		return m.stepTicks == 0
+
+	case 46:
+		var howitzer *creepNode
+		for _, creep := range m.world.creeps {
+			if creep.stats.Kind == gamedata.CreepHowitzer {
+				howitzer = creep
+				break
+			}
+		}
+		m.creep = howitzer
+		return true
+
+	case 47:
+		if m.creep == nil {
 			return true
 		}
-	case 2:
-		s := m.scene.Dict().Get("tutorial4.radar")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 6
+		m.addHintNode(ge.Pos{Base: &m.creep.pos}, d.Get("tutorial.final_goal"))
 		return true
-	case 3:
-		return m.stepTicks == 0
-	case 4:
-		s := m.scene.Dict().Get("tutorial4.boss_warning")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 6
-		return true
-	case 5:
-		return m.stepTicks == 0
-	case 6:
-		var redCrystal *essenceSourceNode
-		closestDist := math.MaxFloat64
-		for _, e := range m.world.essenceSources {
-			if e.stats != redCrystalSource {
-				continue
+	case 48:
+		return m.creep == nil
 
-			}
-			dist := e.pos.DistanceSquaredTo(m.world.allColonies[0].pos)
-			if dist < closestDist {
-				closestDist = dist
-				redCrystal = e
-			}
-		}
-		s := m.scene.Dict().Get("tutorial4.red_crystals")
-		targetPos := ge.Pos{Base: &redCrystal.pos, Offset: gmath.Vec{Y: -4}}
-		m.resource = redCrystal
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = redCrystal
-		m.scene.AddObject(m.hint)
+	case 49:
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_message"))
+		m.nextPressed = false
 		return true
-	case 7:
-		return m.resource.IsDisposed()
-	case 8:
-		for _, colony := range m.world.allColonies {
-			elite := colony.agents.Find(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
-				return a.rank > 0
-			})
-			if elite != nil {
-				m.drone = elite
-				return true
-			}
-		}
-	case 9:
-		s := m.scene.Dict().Get("tutorial4.elite_drone")
-		targetPos := ge.Pos{Base: &m.drone.spritePos, Offset: gmath.Vec{Y: -6}}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 6
-		return true
-	case 10:
-		return m.stepTicks == 0
-	case 11:
-		s := m.scene.Dict().Get("tutorial4.red_miner_request")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		return true
-	case 12:
-		for _, colony := range m.world.allColonies {
-			redminer := colony.agents.Find(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
-				return a.stats.Kind == gamedata.AgentRedminer
-			})
-			if redminer != nil {
-				m.drone = redminer
-				return true
-			}
-		}
-	case 13:
-		s := m.scene.Dict().Get("tutorial4.red_miner_done")
-		targetPos := ge.Pos{Base: &m.drone.spritePos}
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = m.drone
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 6
-		return true
-	case 14:
-		return m.stepTicks == 0
-	case 15:
-		var redOil *essenceSourceNode
-		closestDist := math.MaxFloat64
-		for _, e := range m.world.essenceSources {
-			if e.stats != redOilSource {
-				continue
+	case 50:
+		return m.nextPressed
 
-			}
-			dist := e.pos.DistanceSquaredTo(m.world.allColonies[0].pos)
-			if dist < closestDist {
-				closestDist = dist
-				redOil = e
-			}
-		}
-		s := m.scene.Dict().Get("tutorial4.red_oil")
-		targetPos := ge.Pos{Base: &redOil.pos}
-		m.resource = redOil
-		m.hint = newWorldTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, targetPos, s)
-		m.hint.trackedObject = redOil
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 14
-		return true
-	case 16:
-		return m.stepTicks == 0 ||
-			(m.stepTicks < 8 && m.world.allColonies[0].pos.DistanceSquaredTo(m.resource.pos) <= (280*280))
-	case 17:
-		s := m.scene.Dict().Get("tutorial4.final_goal")
-		m.hint = newScreenTutorialHintNode(m.world.camera, m.uiLayer, gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
-		m.scene.AddObject(m.hint)
-		m.stepTicks = 12
-		return true
-	case 18:
-		return m.stepTicks == 0
+	case 51:
+		m.EventTriggerVictory.Emit(gsignal.Void{})
 	}
 
 	return false
 }
 
-func (m *tutorialManager) findDrone(flags agentSearchFlags, f func(a *colonyAgentNode) bool) *colonyAgentNode {
-	for _, colony := range m.world.allColonies {
-		drone := colony.agents.Find(flags, f)
-		if drone != nil {
-			return drone
+func (m *tutorialManager) addScreenHintNode(targetPos gmath.Vec, msg string) {
+	m.hint = newScreenTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, targetPos, msg)
+	m.scene.AddObject(m.hint)
+}
+
+func (m *tutorialManager) addHintNode(targetPos ge.Pos, msg string) {
+	m.hint = newWorldTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, targetPos, msg)
+	m.scene.AddObject(m.hint)
+}
+
+func (m *tutorialManager) findResourceStash(minDist float64) ge.Pos {
+	var pos gmath.Vec
+	closestDist := math.MaxFloat64
+	colony := m.world.allColonies[0]
+
+	for _, res := range m.world.essenceSources {
+		if res.stats.scrap || res.stats == redOilSource {
+			continue
+		}
+		dist := res.pos.DistanceTo(colony.pos)
+		if dist < minDist {
+			continue
+		}
+		if dist < closestDist {
+			closestDist = dist
+			pos = res.pos
 		}
 	}
-	return nil
+
+	pos = pos.DirectionTo(colony.pos).Mulf(40).Add(pos)
+	return ge.Pos{Offset: pos}
 }

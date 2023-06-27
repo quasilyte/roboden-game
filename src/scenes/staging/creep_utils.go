@@ -6,7 +6,7 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
-func sendCreeps(world *worldState, g arenaWaveGroup) {
+func sendCreeps(world *worldState, g arenaWaveGroup) gmath.Vec {
 	sector := world.spawnAreas[g.side]
 	spawnPos := randomSectorPos(world.rand, sector)
 	targetPos := correctedPos(world.rect, randomSectorPos(world.rand, sector), 520)
@@ -37,6 +37,8 @@ func sendCreeps(world *worldState, g arenaWaveGroup) {
 			creep.SendTo(creepTargetPos)
 		}
 	}
+
+	return spawnPos
 }
 
 func groundCreepSpawnPos(world *worldState, pos gmath.Vec, stats *gamedata.CreepStats) (gmath.Vec, float64) {

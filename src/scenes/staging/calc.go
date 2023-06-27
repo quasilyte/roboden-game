@@ -160,6 +160,9 @@ func creepFragScore(stats *gamedata.CreepStats) int {
 
 func calcScore(world *worldState) int {
 	switch world.config.GameMode {
+	case gamedata.ModeTutorial:
+		return 500
+
 	case gamedata.ModeInfArena:
 		score := world.config.DifficultyScore * 7
 		timePlayed := world.result.TimePlayed.Seconds()

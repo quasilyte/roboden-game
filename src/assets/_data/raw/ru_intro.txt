@@ -1,0 +1,16 @@
+##tutorial.greeting
+Enemies have been spotted in this sector.
+This threat needs to be neutralized, but
+first, your colony would need some resources.
+
+##tutorial.camera.keyboard
+To pan the camera, use the WASD keys.
+The mouse scrolling works near the camera edges
+or when the middle mouse button is pressed.
+Locate a resource stash by following a marker.
+
+##tutorial1.move.keyboard
+The right mouse click sends the selected colony
+towards destination.
+The colony will fly towards the spot,
+but its max jump distance is limited.

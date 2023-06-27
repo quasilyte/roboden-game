@@ -203,10 +203,6 @@ func (g *levelGenerator) placePlayers() {
 	default:
 		panic(fmt.Sprintf("invalid number of players: %d", len(g.world.config.Players)))
 	}
-
-	if g.world.config.SecondBase {
-		g.createBase(g.world.players[0], g.playerSpawn.Add(gmath.Vec{X: 160, Y: 96}), false)
-	}
 }
 
 func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
@@ -390,6 +386,23 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		numCrystals -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numCrystals), crystalSource)
 	}
 
+	if g.world.config.GameMode != gamedata.ModeTutorial {
+		g.deployStartingResources()
+	}
+
+	// Now sort all resources by their Y coordinate and only
+	// then add them to the scene.
+	sort.Slice(g.pendingResources, func(i, j int) bool {
+		return g.pendingResources[i].pos.Y < g.pendingResources[j].pos.Y
+	})
+	for _, source := range g.pendingResources {
+		g.world.nodeRunner.AddObject(source)
+	}
+}
+
+func (g *levelGenerator) deployStartingResources() {
+	rand := &g.rng
+
 	// If there are no resources near the colony spawn pos,
 	// place something in there.
 	for _, core := range g.world.allColonies {
@@ -412,15 +425,6 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 				}
 			}
 		}
-	}
-
-	// Now sort all resources by their Y coordinate and only
-	// then add them to the scene.
-	sort.Slice(g.pendingResources, func(i, j int) bool {
-		return g.pendingResources[i].pos.Y < g.pendingResources[j].pos.Y
-	})
-	for _, source := range g.pendingResources {
-		g.world.nodeRunner.AddObject(source)
 	}
 }
 

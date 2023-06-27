@@ -87,7 +87,7 @@ type PlayerStats struct {
 	DronesUnlocked  []string
 	Tier3DronesSeen []string
 
-	TutorialsCompleted []int
+	TutorialCompleted bool
 
 	TotalPlayTime time.Duration
 	TotalScore    int

@@ -66,11 +66,11 @@ In other words, you should not create any tier 2 or 3 combat units during the ga
 
 ##achievement.groundwin : Ground Salvo
 ##achievement.groundwin.description
-Destroy the enemy colony in the moment when it's close to the ground.
+Destroy the dreadnought in the moment when it's close to the ground.
 
 ##achievement.turretdamage : Turret Barrage
 ##achievement.turretdamage.description
-Deal at least 25% damage to the enemy colony using ground turrets.
+Deal at least 25% damage to the dreadnought using ground turrets.
 
 ##achievement.antidominator : Anti-domination
 ##achievement.antidominator.description

@@ -54,13 +54,12 @@
 ##tutorial.reward_claimed : claimed
 
 ##ui.mission_objective : Mission objective
-##objective.boss : Defeat the enemy colony
 
+##menu.play.intro_mission : Intro Mission
 ##menu.play.classic : Classic Mode
 ##menu.play.arena : Arena Mode
 ##menu.play.inf_arena : Infinite Arena Mode
 ##menu.play.reverse : Reverse Mode
-##menu.play.tutorial : Tutorial
 
 ##menu.profile.achievements : Achievements
 ##menu.profile.stats : Stats
@@ -85,7 +84,6 @@
 ##menu.profile.progress.turrets_unlocked : Turrets unlocked
 ##menu.profile.progress.drones_unlocked : Tier 2 drones unlocked
 ##menu.profile.progress.t3drones_seen : Tier 3 drones discovered
-##menu.profile.progress.tutorials_completed : Tutorial missions completed
 
 ##menu.tier : tier
 ##menu.back : Back
@@ -245,9 +243,9 @@ Every wave is harder than the previous one and this option controls by how much.
 How many creep units will be placed on the map from the very beginning.
 This option affects how easy the early game exploration for the colonies will be.
 
-##menu.lobby.boss_difficulty : Enemy colony power
+##menu.lobby.boss_difficulty : Dreadnought power
 ##menu.lobby.boss_difficulty.description
-The enemy colony's power level.
+The dreadnought power level.
 It affects the number of units it will produce and how hard it will be to defeat it in battle.
 
 ##menu.lobby.super_creeps : Super enemies
@@ -328,23 +326,46 @@ Toggle user interface | L2 button
 Ping (Coop only) | Left stick click
 Exit/Back | BACK or SELECT button
 
+##menu.overview.intro_mission
+Intro mission (est. time: 15 minutes)
+
+This is a guided quick-start mode. Learn the gameplay fundamentals and defeat the opposing force.
+
+Complete this mission to unlock other game modes.
+
 ##menu.overview.classic
->> In Classic game mode, you need to defeat the enemy colony.
+Classic mode  (est. time: 35 minutes)
 
->> The enemy has several drone factories; destroy them to decrease the number of attackers.
+Win by defeating the enemy flagship, the dreadnought.
 
->> The opposing colony is powerful, make sure you're strong enough before confronting it.
+The dreadnought is very powerful. Evade the combat with it until allied colonies are evolved enough.
 
->> Collect resources, increase the influence radius, build colonies.
+Split-screen multiplayer: cooperative.
 
 ##menu.overview.arena
->> In Arena game mode, you need to survive the attacks that come in waves.
+Arena mode (est. time: 60 minutes)
 
->> There are 20 waves in total, the last wave being the most challenging.
+Win by surviving for 20 waves.
 
->> Do not attack large groups of enemies: let them spread a little.
+Split-screen multiplayer: cooperative.
 
 ##menu.overview.inf_arena
+Infinite arena mode (est. time: 90 minutes)
+
+Stand the ground for as long as possible.
+
+It's not possible to win in this mode, but the score is based on the playtime.
+
+Split-screen multiplayer: cooperative.
+
+##menu.overview.reverse
+Reverse mode (est. time: 40 minutes)
+
+Play as the other side and lead the dreadnought.
+
+Win by destroying all colonies.
+
+Split-screen multiplayer: competitive (PvP).
 
 ##game.notice.ping
 Your ally marked this spot

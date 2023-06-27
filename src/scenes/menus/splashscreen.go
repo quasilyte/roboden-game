@@ -1,8 +1,6 @@
 package menus
 
 import (
-	"math"
-
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
@@ -51,7 +49,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	config.CreepDifficulty = 0
 	config.BossDifficulty = 0
 	config.NumCreepBases = 1
-	config.Seed = int64(scene.Rand().IntRange(0, math.MaxInt-10))
+	config.Seed = scene.Rand().PositiveInt64()
 	config.StartingResources = 2
 	config.InitialCreeps = 2
 	config.Teleporters = 2

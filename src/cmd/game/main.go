@@ -196,9 +196,35 @@ func getDefaultSessionState() *session.State {
 		Device:     userdevice.GetInfo(),
 	}
 
-	tutorialConfig := state.ClassicLevelConfig.Clone()
-	state.TutorialLevelConfig = &tutorialConfig
-	state.TutorialLevelConfig.Tutorial = gamedata.Tutorials[0]
+	{
+		config := state.ClassicLevelConfig.Clone()
+		config.RawGameMode = "tutorial"
+		state.TutorialLevelConfig = &config
+		config.WorldSize = 0
+		config.Resources = 1
+		config.StartingResources = 0
+		config.Teleporters = 1
+		config.InterfaceMode = 2
+		config.InitialCreeps = 0
+		config.EliteResources = true
+		config.EnemyBoss = false
+		config.CreepDifficulty = 0
+		config.BossDifficulty = 0
+		config.NumCreepBases = 0
+
+		config.ExtraDrones = []*gamedata.AgentStats{}
+		for i := 0; i < 2; i++ {
+			config.ExtraDrones = append(config.ExtraDrones, gamedata.ServoAgentStats)
+		}
+		for i := 0; i < 5; i++ {
+			config.ExtraDrones = append(config.ExtraDrones, gamedata.WorkerAgentStats)
+		}
+		for i := 0; i < 3; i++ {
+			config.ExtraDrones = append(config.ExtraDrones, gamedata.ScoutAgentStats)
+		}
+
+		config.Finalize()
+	}
 
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {
 		drone := recipe.Result

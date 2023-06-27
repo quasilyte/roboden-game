@@ -17,6 +17,7 @@ type essenceSourceStats struct {
 	spritesheet bool
 	canRotate   bool
 	passable    bool
+	scrap       bool
 	size        float64
 }
 
@@ -82,6 +83,7 @@ var smallScrapSource = &essenceSourceStats{
 	value:      1, // 4-5
 	size:       14,
 	passable:   true,
+	scrap:      true,
 }
 
 var scrapSource = &essenceSourceStats{
@@ -91,6 +93,7 @@ var scrapSource = &essenceSourceStats{
 	value:      1, // 8-12
 	size:       16,
 	passable:   true,
+	scrap:      true,
 }
 
 var smallScrapCreepSource = &essenceSourceStats{
@@ -100,6 +103,7 @@ var smallScrapCreepSource = &essenceSourceStats{
 	value:      2, // 10-14
 	size:       14,
 	passable:   true,
+	scrap:      true,
 }
 
 var scrapCreepSource = &essenceSourceStats{
@@ -109,6 +113,7 @@ var scrapCreepSource = &essenceSourceStats{
 	value:      2, // 16-28
 	size:       16,
 	passable:   true,
+	scrap:      true,
 }
 
 var bigScrapCreepSource = &essenceSourceStats{
@@ -118,6 +123,7 @@ var bigScrapCreepSource = &essenceSourceStats{
 	value:      2, // 24-40
 	size:       20,
 	passable:   true,
+	scrap:      true,
 }
 
 type essenceSourceNode struct {

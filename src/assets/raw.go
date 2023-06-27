@@ -12,12 +12,12 @@ func RegisterRawResources(ctx *ge.Context) {
 		RawTilesJSON: {Path: "raw/tiles.json"},
 
 		RawDictEn:             {Path: "raw/en.txt"},
-		RawDictTutorialEn:     {Path: "raw/en_tutorial.txt"},
+		RawDictTutorialEn:     {Path: "raw/en_intro.txt"},
 		RawDictAchievementsEn: {Path: "raw/en_achievements.txt"},
 		RawDictDronesEn:       {Path: "raw/en_drones.txt"},
 
 		RawDictRu:             {Path: "raw/ru.txt"},
-		RawDictTutorialRu:     {Path: "raw/ru_tutorial.txt"},
+		RawDictTutorialRu:     {Path: "raw/ru_intro.txt"},
 		RawDictAchievementsRu: {Path: "raw/ru_achievements.txt"},
 		RawDictDronesRu:       {Path: "raw/ru_drones.txt"},
 	}

@@ -77,7 +77,7 @@ func (m *messageNode) Init(scene *ge.Scene) {
 		m.targetLine = ge.NewLine(ge.Pos{}, ge.Pos{})
 		m.targetLine.Width = 1
 		var clr ge.ColorScale
-		clr.SetColor(ge.RGB(0x9dd793))
+		clr.SetRGBA(0x9d, 0xd7, 0x93, 100)
 		m.targetLine.SetColorScale(clr)
 		m.camera.Private.AddGraphicsAbove(m.targetLine)
 

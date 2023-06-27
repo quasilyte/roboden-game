@@ -126,14 +126,9 @@ func (c *resultsController) updateProgress() {
 
 	stats.TotalPlayTime += c.results.TimePlayed
 
-	if c.config.Tutorial != nil {
-		if !xslices.Contains(stats.TutorialsCompleted, c.config.Tutorial.ID) {
-			stats.TutorialsCompleted = append(stats.TutorialsCompleted, c.config.Tutorial.ID)
-			stats.TotalScore += c.config.Tutorial.ScoreReward
-		}
-		if c.config.Tutorial.ID+1 < len(gamedata.Tutorials) {
-			c.state.TutorialLevelConfig.Tutorial = gamedata.Tutorials[c.config.Tutorial.ID+1]
-		}
+	if c.config.GameMode == gamedata.ModeTutorial {
+		stats.TutorialCompleted = true
+		stats.TotalScore += c.results.Score
 		return
 	}
 
@@ -378,7 +373,7 @@ func (c *resultsController) initUI() {
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	replay := c.makeGameReplay()
-	if c.config.Tutorial == nil && c.highScore {
+	if c.config.GameMode != gamedata.ModeTutorial && c.highScore {
 		c.state.SentHighscores = false
 		key := c.config.RawGameMode + "_highscore"
 		c.scene.Context().SaveGameData(key, replay)

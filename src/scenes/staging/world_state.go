@@ -294,10 +294,6 @@ func (w *worldState) freeProjectileNode(p *projectileNode) {
 	w.projectilePool = append(w.projectilePool, p)
 }
 
-func (w *worldState) IsTutorial() bool {
-	return w.config.Tutorial != nil
-}
-
 func (w *worldState) NewWallClusterNode(config wallClusterConfig) *wallClusterNode {
 	n := newWallClusterNode(config)
 	w.walls = append(w.walls, n)

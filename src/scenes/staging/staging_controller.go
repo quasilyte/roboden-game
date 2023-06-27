@@ -49,7 +49,7 @@ type Controller struct {
 	camera       *cameraManager
 	secondCamera *cameraManager
 
-	// tutorialManager *tutorialManager
+	tutorialManager *tutorialManager
 	messageManagers []*messageManager
 	recipeTab       *recipeTabNode
 
@@ -466,14 +466,14 @@ func (c *Controller) Init(scene *ge.Scene) {
 		scene.AddGraphics(cam)
 	}
 
-	// if c.world.IsTutorial() {
-	// 	c.tutorialManager = newTutorialManager(c.state.MainInput, c.world, c.uiLayer, c.messageManager)
-	// 	c.nodeRunner.AddObject(c.tutorialManager)
-	// 	if c.rpanel != nil {
-	// 		c.tutorialManager.EventRequestPanelUpdate.Connect(c, c.onPanelUpdateRequested)
-	// 	}
-	// 	c.tutorialManager.EventTriggerVictory.Connect(c, c.onVictoryTrigger)
-	// }
+	if c.world.config.GameMode == gamedata.ModeTutorial {
+		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world, c.messageManagers[0])
+		c.nodeRunner.AddObject(c.tutorialManager)
+		c.tutorialManager.EventTriggerVictory.Connect(c, c.onVictoryTrigger)
+		c.tutorialManager.EventEnableChoices.Connect(c, func(gsignal.Void) {
+			c.world.players[0].(*humanPlayer).CreateChoiceWindow()
+		})
+	}
 
 	if c.state.Persistent.Settings.ShowFPS || c.state.Persistent.Settings.ShowTimer {
 		if len(c.world.cameras) != 0 {
@@ -901,9 +901,9 @@ func (c *Controller) playPlayerSound(p player, sound resource.AudioID) {
 }
 
 func (c *Controller) onChoiceSelected(choice selectedChoice) {
-	// if c.tutorialManager != nil {
-	// 	c.tutorialManager.OnChoice(choice)
-	// }
+	if c.tutorialManager != nil {
+		c.tutorialManager.OnChoice(choice)
+	}
 
 	if c.executeAction(choice) {
 		c.playPlayerSound(choice.Player, assets.AudioChoiceMade)
@@ -1124,6 +1124,12 @@ func (c *Controller) handleInput() {
 	for _, p := range c.world.players {
 		p.HandleInput()
 	}
+
+	if c.tutorialManager != nil {
+		if mainInput.ActionIsJustPressed(controls.ActionNextTutorialMessage) {
+			c.tutorialManager.OnNextPressed()
+		}
+	}
 }
 
 func (c *Controller) isDefeatState() bool {
@@ -1171,7 +1177,7 @@ func (c *Controller) checkVictory() {
 	case gamedata.ModeClassic:
 		victory = c.world.boss == nil
 
-	case gamedata.ModeArena:
+	case gamedata.ModeArena, gamedata.ModeTutorial:
 		// Do nothing. This mode is ended with a trigger.
 
 	case gamedata.ModeInfArena:
@@ -1183,32 +1189,6 @@ func (c *Controller) checkVictory() {
 		if c.config.PlayersMode == serverapi.PmodeSinglePlayer {
 			colonyPlayer := c.world.players[1]
 			victory = len(colonyPlayer.GetState().colonies) == 0
-		}
-
-	case gamedata.ModeTutorial:
-		switch c.config.Tutorial.Objective {
-		case gamedata.ObjectiveBoss:
-			victory = c.world.boss == nil
-		case gamedata.ObjectiveBuildBase:
-			victory = len(c.world.allColonies) >= 2
-		case gamedata.ObjectiveDestroyCreepBases:
-			numBases := 0
-			for _, creep := range c.world.creeps {
-				if creep.stats.Kind == gamedata.CreepBase {
-					numBases++
-				}
-			}
-			victory = numBases == 0
-		case gamedata.ObjectiveAcquireSuperElite:
-			for _, colony := range c.world.allColonies {
-				superElite := colony.agents.Find(searchFighters|searchWorkers, func(a *colonyAgentNode) bool {
-					return a.rank == 2
-				})
-				if superElite != nil {
-					victory = true
-					break
-				}
-			}
 		}
 	}
 

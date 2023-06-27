@@ -40,13 +40,10 @@ func MakeLevelConfig(mode ExecutionMode, config serverapi.ReplayLevelConfig) Lev
 	enemyBoss := config.RawGameMode == "classic" ||
 		config.RawGameMode == "reverse"
 	return LevelConfig{
-		ReplayLevelConfig:          config,
-		ExecMode:                   mode,
-		AttackActionAvailable:      true,
-		BuildTurretActionAvailable: true,
-		RadiusActionAvailable:      true,
-		EliteResources:             true,
-		EnemyBoss:                  enemyBoss,
+		ReplayLevelConfig: config,
+		ExecMode:          mode,
+		EliteResources:    true,
+		EnemyBoss:         enemyBoss,
 	}
 }
 
@@ -59,14 +56,9 @@ type LevelConfig struct {
 
 	ExecMode ExecutionMode
 
-	AttackActionAvailable      bool
-	BuildTurretActionAvailable bool
-	RadiusActionAvailable      bool
-	EliteResources             bool
-	EnemyBoss                  bool
+	EliteResources bool
+	EnemyBoss      bool
 
-	Tutorial    *TutorialData
-	SecondBase  bool
 	ExtraDrones []*AgentStats
 }
 
@@ -80,11 +72,15 @@ func (config *LevelConfig) Finalize() {
 		config.GameMode = ModeClassic
 	case "reverse":
 		config.GameMode = ModeReverse
+	case "tutorial":
+		config.GameMode = ModeTutorial
 	default:
 		panic(fmt.Sprintf("unexpected game mode: %q", config.RawGameMode))
 	}
 
-	if config.GameMode == ModeReverse {
+	if config.GameMode == ModeTutorial {
+		config.Players = []PlayerKind{PlayerHuman}
+	} else if config.GameMode == ModeReverse {
 		switch config.PlayersMode {
 		case serverapi.PmodeSinglePlayer:
 			config.Players = []PlayerKind{PlayerHuman, PlayerComputer}

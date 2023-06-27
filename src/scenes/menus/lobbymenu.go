@@ -66,7 +66,6 @@ func (c *LobbyMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 
 	c.config = *c.getConfigForMode()
-	c.config.Tutorial = nil
 
 	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
 		scene.Audio().ContinueMusic(assets.AudioMusicTrack3)
@@ -215,6 +214,8 @@ func (c *LobbyMenuController) getConfigForMode() *gamedata.LevelConfig {
 		return c.state.ClassicLevelConfig
 	case gamedata.ModeReverse:
 		return c.state.ReverseLevelConfig
+	case gamedata.ModeTutorial:
+		return c.state.TutorialLevelConfig
 	default:
 		panic("unexpected game mode")
 	}
@@ -273,29 +274,6 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			c.scene.Context().SaveGameData("save", c.state.Persistent)
 			c.scene.Context().ChangeScene(NewHintScreen(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
 		} else {
-			// replayData, err := os.ReadFile("./replay.json")
-			// if err != nil {
-			// 	panic(err)
-			// }
-			// var replay serverapi.GameReplay
-			// if err := json.Unmarshal(replayData, &replay); err != nil {
-			// 	panic(err)
-			// }
-			// config2 := gamedata.LevelConfig{
-			// 	ReplayLevelConfig:          replay.Config,
-			// 	GameMode:                   gamedata.ModeClassic,
-			// 	ExecMode:                   gamedata.ExecuteReplay,
-			// 	AttackActionAvailable:      true,
-			// 	BuildTurretActionAvailable: true,
-			// 	RadiusActionAvailable:      true,
-			// 	EliteResources:             true,
-			// 	EnemyBoss:                  replay.Config.RawGameMode == "classic",
-			// }
-			// config2.Finalize()
-			// controller := staging.NewController(c.state, config2, NewLobbyMenuController(c.state, c.mode))
-			// controller.SetReplayActions(replay.Actions)
-			// c.scene.Context().ChangeScene(controller)
-
 			c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
 		}
 	}))
@@ -765,7 +743,7 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 }
 
 func (c *LobbyMenuController) randomSeed() int64 {
-	return int64(c.scene.Rand().IntRange(0, 1e15-1))
+	return c.scene.Rand().PositiveInt64()
 }
 
 func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widget.Container {

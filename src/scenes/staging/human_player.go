@@ -85,11 +85,25 @@ func (p *humanPlayer) CanPing() bool {
 	return p.canPing
 }
 
-func (p *humanPlayer) Init() {
-	p.state.Init(p.world)
-
+func (p *humanPlayer) CreateChoiceWindow() {
 	p.choiceWindow = newChoiceWindowNode(p.state.camera.Camera, p.world, p.input, p.cursor, p.creepsState != nil)
 	p.world.nodeRunner.AddObject(p.choiceWindow)
+
+	p.choiceGen.EventChoiceReady.Connect(p, p.choiceWindow.RevealChoices)
+	p.choiceGen.EventChoiceSelected.Connect(p, func(choice selectedChoice) {
+		p.choiceWindow.StartCharging(choice.Cooldown, choice.Index)
+		if p.rpanel != nil && choice.Index != -1 {
+			p.rpanel.UpdateMetrics()
+		}
+	})
+
+	if p.choiceGen.IsReady() {
+		p.choiceWindow.RevealChoices(p.choiceGen.GetChoices())
+	}
+}
+
+func (p *humanPlayer) Init() {
+	p.state.Init(p.world)
 
 	if p.world.config.InterfaceMode >= 2 {
 		if p.creepsState != nil {
@@ -133,13 +147,9 @@ func (p *humanPlayer) Init() {
 		p.state.camera.CenterOn(p.state.selectedColony.pos)
 	}
 
-	p.choiceGen.EventChoiceReady.Connect(p, p.choiceWindow.RevealChoices)
-	p.choiceGen.EventChoiceSelected.Connect(p, func(choice selectedChoice) {
-		p.choiceWindow.StartCharging(choice.Cooldown, choice.Index)
-		if p.rpanel != nil && choice.Index != -1 {
-			p.rpanel.UpdateMetrics()
-		}
-	})
+	if p.world.config.GameMode != gamedata.ModeTutorial {
+		p.CreateChoiceWindow()
+	}
 
 	if len(p.world.cameras) == 2 && p.state.id == 0 {
 		begin := ge.Pos{Offset: gmath.Vec{X: (1920 / 4)}}
@@ -156,8 +166,10 @@ func (p *humanPlayer) IsDisposed() bool { return false }
 func (p *humanPlayer) GetState() *playerState { return p.state }
 
 func (p *humanPlayer) Update(computedDelta, delta float64) {
-	p.choiceWindow.Enabled = p.state.selectedColony != nil &&
-		p.state.selectedColony.mode == colonyModeNormal
+	if p.choiceWindow != nil {
+		p.choiceWindow.Enabled = p.state.selectedColony != nil &&
+			p.state.selectedColony.mode == colonyModeNormal
+	}
 
 	if p.canPing {
 		p.pingDelay = gmath.ClampMin(p.pingDelay-delta, 0)
@@ -198,7 +210,7 @@ func (p *humanPlayer) HandleInput() {
 		}
 	}
 
-	if selectedColony != nil || p.creepsState != nil {
+	if (selectedColony != nil || p.creepsState != nil) && p.choiceWindow != nil {
 		if cardIndex := p.choiceWindow.HandleInput(); cardIndex != -1 {
 			if !p.choiceGen.TryExecute(cardIndex, gmath.Vec{}) {
 				p.scene.Audio().PlaySound(assets.AudioError)

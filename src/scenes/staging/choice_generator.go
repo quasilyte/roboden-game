@@ -339,12 +339,8 @@ func newChoiceGenerator(world *worldState, creepsState *creepsPlayerState) *choi
 
 		g.specialChoiceKinds = []specialChoiceKind{
 			specialBuildColony,
-		}
-		if world.config.AttackActionAvailable {
-			g.specialChoiceKinds = append(g.specialChoiceKinds, specialAttack)
-		}
-		if world.config.RadiusActionAvailable {
-			g.specialChoiceKinds = append(g.specialChoiceKinds, specialDecreaseRadius)
+			specialAttack,
+			specialDecreaseRadius,
 		}
 	}
 
@@ -480,6 +476,13 @@ func (g *choiceGenerator) generateChoicesForCreeps() {
 	}
 }
 
+func (g *choiceGenerator) GetChoices() choiceSelection {
+	return choiceSelection{
+		cards:   g.shuffledOptions[:4],
+		special: specialChoicesTable[g.specialOptionIndex],
+	}
+}
+
 func (g *choiceGenerator) generateChoices() {
 	g.state = choiceReady
 
@@ -510,7 +513,7 @@ func (g *choiceGenerator) generateChoices() {
 			}
 		}
 	case specialBuildColony:
-		if g.buildTurret && g.world.config.BuildTurretActionAvailable {
+		if g.buildTurret {
 			specialOptionKind = specialBuildGunpoint
 		}
 	case specialDecreaseRadius:
@@ -520,8 +523,5 @@ func (g *choiceGenerator) generateChoices() {
 	}
 	g.specialOptionIndex = int(specialOptionKind)
 
-	g.EventChoiceReady.Emit(choiceSelection{
-		cards:   g.shuffledOptions[:4],
-		special: specialChoicesTable[g.specialOptionIndex],
-	})
+	g.EventChoiceReady.Emit(g.GetChoices())
 }

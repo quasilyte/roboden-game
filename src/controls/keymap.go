@@ -12,6 +12,8 @@ const (
 
 	ActionSkipDemo
 
+	ActionNextTutorialMessage
+
 	ActionPanRight
 	ActionPanDown
 	ActionPanLeft
@@ -89,6 +91,8 @@ func BindKeymap(ctx *ge.Context) (gameinput.Handler, gameinput.Handler) {
 
 	mainKeymap := input.Keymap{
 		ActionSkipDemo: {input.KeyEnter},
+
+		ActionNextTutorialMessage: {input.KeyEnter},
 
 		ActionPanRight: {input.KeyD, input.KeyRight},
 		ActionPanDown:  {input.KeyS, input.KeyDown},

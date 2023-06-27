@@ -349,27 +349,65 @@ func NewItemButton(res *Resources, img *ebiten.Image, ff font.Face, label string
 	return result
 }
 
+type ButtonConfig struct {
+	Scene *ge.Scene
+
+	Font font.Face
+
+	Text string
+
+	OnPressed func()
+	OnHover   func()
+}
+
 func NewSmallButton(res *Resources, scene *ge.Scene, text string, onclick func()) *widget.Button {
-	return newButton(res, assets.BitmapFont1, scene, text, onclick)
+	return NewButtonWithConfig(res, ButtonConfig{
+		Font:      assets.BitmapFont1,
+		Scene:     scene,
+		Text:      text,
+		OnPressed: onclick,
+	})
 }
 
 func NewButton(res *Resources, scene *ge.Scene, text string, onclick func()) *widget.Button {
-	return newButton(res, res.Button.FontFace, scene, text, onclick)
+	return NewButtonWithConfig(res, ButtonConfig{
+		Font:      res.Button.FontFace,
+		Scene:     scene,
+		Text:      text,
+		OnPressed: onclick,
+	})
 }
 
-func newButton(res *Resources, ff font.Face, scene *ge.Scene, text string, onclick func()) *widget.Button {
-	return widget.NewButton(
+func NewButtonWithConfig(res *Resources, config ButtonConfig) *widget.Button {
+	ff := config.Font
+	if ff == nil {
+		ff = res.Button.FontFace
+	}
+
+	options := []widget.ButtonOpt{
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 			Stretch: true,
 		})),
 		widget.ButtonOpts.Image(res.Button.Image),
-		widget.ButtonOpts.Text(text, ff, res.Button.TextColors),
+		widget.ButtonOpts.Text(config.Text, ff, res.Button.TextColors),
 		widget.ButtonOpts.TextPadding(res.Button.Padding),
 		widget.ButtonOpts.ClickedHandler(func(args *widget.ButtonClickedEventArgs) {
-			scene.Audio().PlaySound(assets.AudioClick)
-			onclick()
+			if config.Scene != nil {
+				config.Scene.Audio().PlaySound(assets.AudioClick)
+			}
+			if config.OnPressed != nil {
+				config.OnPressed()
+			}
 		}),
-	)
+	}
+
+	if config.OnHover != nil {
+		options = append(options, widget.ButtonOpts.CursorEnteredHandler(func(args *widget.ButtonHoverEventArgs) {
+			config.OnHover()
+		}))
+	}
+
+	return widget.NewButton(options...)
 }
 
 type SelectButtonConfig struct {

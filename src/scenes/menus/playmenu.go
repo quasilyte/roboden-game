@@ -9,6 +9,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/session"
 )
 
@@ -16,6 +17,8 @@ type PlayMenuController struct {
 	state *session.State
 
 	scene *ge.Scene
+
+	helpLabel *widget.Text
 }
 
 func NewPlayMenuController(state *session.State) *PlayMenuController {
@@ -34,6 +37,22 @@ func (c *PlayMenuController) Update(delta float64) {
 	}
 }
 
+func (c *PlayMenuController) modeDescriptionText(name string, cost int) string {
+	d := c.scene.Dict()
+	score := c.state.Persistent.PlayerStats.TotalScore
+	s := d.Get("menu.overview", name)
+	if score >= cost {
+		return s
+	}
+	s += "\n\n"
+	s += fmt.Sprintf("%s: %d/%d", d.Get("drone.score_required"), score, cost)
+	return s
+}
+
+func (c *PlayMenuController) setHelpText(s string) {
+	c.helpLabel.Label = s
+}
+
 func (c *PlayMenuController) initUI() {
 	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
@@ -47,55 +66,113 @@ func (c *PlayMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.play"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.classic"), func() {
-		c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeClassic))
-	}))
+	rootGrid := widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+			Stretch: true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(2),
+			widget.GridLayoutOpts.Stretch([]bool{false, true}, nil),
+			widget.GridLayoutOpts.Spacing(4, 4))))
+	rowContainer.AddChild(rootGrid)
+
+	buttonsContainer := widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
+		),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
+			widget.GridLayoutOpts.Spacing(4, 4),
+		)),
+	)
+
+	leftPanel := eui.NewPanel(uiResources, 352, 0)
+	leftPanel.AddChild(buttonsContainer)
+	rootGrid.AddChild(leftPanel)
+
+	helpLabel := eui.NewLabel(d.Get("menu.overview.intro_mission"), assets.BitmapFont1)
+	helpLabel.MaxWidth = 320
+	c.helpLabel = helpLabel
+
+	rightPanel := eui.NewPanel(uiResources, 352, 0)
+	rightPanel.AddChild(helpLabel)
+	rootGrid.AddChild(rightPanel)
+
+	{
+		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+			Scene: c.scene,
+			Text:  d.Get("menu.play.intro_mission"),
+			OnPressed: func() {
+				back := NewPlayMenuController(c.state)
+				config := c.state.TutorialLevelConfig.Clone()
+				config.Seed = c.scene.Rand().PositiveInt64()
+				c.scene.Context().ChangeScene(staging.NewController(c.state, config, back))
+			},
+			OnHover: func() { c.setHelpText(d.Get("menu.overview.intro_mission")) },
+		})
+		buttonsContainer.AddChild(b)
+	}
 
 	score := c.state.Persistent.PlayerStats.TotalScore
+
+	{
+		label := d.Get("menu.play.classic")
+		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+			Scene: c.scene,
+			Text:  label,
+			OnPressed: func() {
+				c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeClassic))
+			},
+			OnHover: func() { c.setHelpText(c.modeDescriptionText("classic", gamedata.ClassicModeCost)) },
+		})
+		b.GetWidget().Disabled = score < gamedata.ClassicModeCost
+		buttonsContainer.AddChild(b)
+	}
+
 	{
 		label := d.Get("menu.play.arena")
-		unlocked := score >= gamedata.ArenaModeCost
-		if !unlocked {
-			label += fmt.Sprintf(" [%d/%d]", score, gamedata.ArenaModeCost)
-		}
-		b := eui.NewButton(uiResources, c.scene, label, func() {
-			c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeArena))
+		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+			Scene: c.scene,
+			Text:  label,
+			OnPressed: func() {
+				c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeArena))
+			},
+			OnHover: func() { c.setHelpText(c.modeDescriptionText("arena", gamedata.ArenaModeCost)) },
 		})
-		b.GetWidget().Disabled = !unlocked
-		rowContainer.AddChild(b)
+		b.GetWidget().Disabled = score < gamedata.ArenaModeCost
+		buttonsContainer.AddChild(b)
 	}
 
 	{
 		label := d.Get("menu.play.inf_arena")
-		unlocked := score >= gamedata.InfArenaModeCost
-		if !unlocked {
-			label += fmt.Sprintf(" [%d/%d]", score, gamedata.InfArenaModeCost)
-		}
-		b := eui.NewButton(uiResources, c.scene, label, func() {
-			c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeInfArena))
+		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+			Scene: c.scene,
+			Text:  label,
+			OnPressed: func() {
+				c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeInfArena))
+			},
+			OnHover: func() { c.setHelpText(c.modeDescriptionText("inf_arena", gamedata.InfArenaModeCost)) },
 		})
-		b.GetWidget().Disabled = !unlocked
-		rowContainer.AddChild(b)
+		b.GetWidget().Disabled = score < gamedata.InfArenaModeCost
+		buttonsContainer.AddChild(b)
 	}
 
 	{
 		label := d.Get("menu.play.reverse")
-		unlocked := score >= gamedata.ReverseModeCost
-		if !unlocked {
-			label += fmt.Sprintf(" [%d/%d]", score, gamedata.ReverseModeCost)
-		}
-		b := eui.NewButton(uiResources, c.scene, label, func() {
-			c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeReverse))
+		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+			Scene: c.scene,
+			Text:  label,
+			OnPressed: func() {
+				c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeReverse))
+			},
+			OnHover: func() { c.setHelpText(c.modeDescriptionText("reverse", gamedata.ReverseModeCost)) },
 		})
-		b.GetWidget().Disabled = !unlocked
-		rowContainer.AddChild(b)
+		b.GetWidget().Disabled = score < gamedata.ReverseModeCost
+		buttonsContainer.AddChild(b)
 	}
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.play.tutorial"), func() {
-		c.scene.Context().ChangeScene(NewTutorialMenuController(c.state))
-	}))
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

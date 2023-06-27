@@ -149,6 +149,9 @@ const SeasonNumber = 0
 //
 // # Version 13 (Steam-focused build)
 //
+// * Gameplay:
+//   - Reworked the tutorial
+//
 // * Bug fixes:
 //   - "Colony" settings tab is not properly disabled in Reverse mode
 //

@@ -81,7 +81,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioSkirmisherShot:      {Path: "$sfx/skirmisher_shot.wav", Volume: -0.3},
 		AudioScarabShot:          {Path: "$sfx/scarab_shot.wav", Volume: -0.4},
 		AudioRailgun:             {Path: "$sfx/railgun.wav", Volume: -0.3},
-		AudioAntiAirMissiles:     {Path: "$sfx/aa_missiles.wav", Volume: -0.4},
+		AudioAntiAirMissiles:     {Path: "$sfx/aa_missiles.wav", Volume: -0.45},
 		AudioMissile:             {Path: "$sfx/missile.wav", Volume: -0.3},
 		AudioTankShot:            {Path: "$sfx/tank_shot.wav", Volume: -0.3},
 		AudioHeavyCrawlerShot:    {Path: "$sfx/heavy_crawler_shot.wav", Volume: -0.25},

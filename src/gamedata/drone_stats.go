@@ -216,7 +216,7 @@ var TargeterAgentStats = InitDroneStats(&AgentStats{
 	Image:       assets.ImageTargeterAgent,
 	Size:        SizeMedium,
 	PointCost:   3,
-	DiodeOffset: 5,
+	DiodeOffset: 4,
 	Tier:        2,
 	Cost:        25,
 	Upkeep:      10,

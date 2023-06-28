@@ -29,6 +29,7 @@ type projectileNode struct {
 	arcFrom               gmath.Vec
 	arcTo                 gmath.Vec
 
+	guided   bool
 	disposed bool
 	sprite   *ge.Sprite
 }
@@ -49,6 +50,7 @@ type projectileConfig struct {
 	Target     targetable
 	FireDelay  float64
 	FireOffset gmath.Vec
+	Guided     bool
 }
 
 func initProjectileNode(p *projectileNode, config projectileConfig) {
@@ -60,6 +62,7 @@ func initProjectileNode(p *projectileNode, config projectileConfig) {
 		target:    config.Target,
 		fireDelay: config.FireDelay,
 		world:     config.World,
+		guided:    config.Guided,
 	}
 }
 
@@ -119,7 +122,7 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 		p.sprite.Visible = false
 	}
 
-	if p.weapon.Accuracy != 1.0 {
+	if p.weapon.Accuracy != 1.0 && !p.guided {
 		missChance := 1.0 - p.weapon.Accuracy
 		if missChance != 0 && scene.Rand().Chance(missChance) {
 			dist := p.pos.DistanceTo(p.toPos)
@@ -266,6 +269,10 @@ func (p *projectileNode) createExplosion() {
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageShockerExplosion))
 	case gamedata.ProjectileExplosionStealthLaser:
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageStealthLaserExplosion))
+	case gamedata.ProjectileExplosionCommanderLaser:
+		effect := newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageCommanderShotExplosion)
+		p.world.nodeRunner.AddObject(effect)
+		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionFighterLaser:
 		effect := newEffectNode(p.world, explosionPos, p.target.IsFlying(), assets.ImageFighterLaserExplosion)
 		p.world.nodeRunner.AddObject(effect)

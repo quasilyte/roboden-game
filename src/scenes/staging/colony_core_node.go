@@ -667,12 +667,13 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.unmarkCells(c.pos)
 
 	c.agents.Each(func(a *colonyAgentNode) {
-		if a.mode == agentModeKamikazeAttack {
-			return
-		}
 		a.clearCargo()
 		if a.IsCloaked() {
 			a.doUncloak()
+		}
+		switch a.mode {
+		case agentModeKamikazeAttack, agentModeFollowCommander:
+			return
 		}
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	})
@@ -1114,6 +1115,11 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			c.evoPoints = gmath.ClampMin(c.evoPoints-action.Value3, 0)
 			c.updateEvoDiode()
 		}
+		return true
+
+	case actionAttachToCommander:
+		follower := action.Value2.(*colonyAgentNode)
+		follower.AssignMode(agentModeFollowCommander, gmath.Vec{}, action.Value)
 		return true
 
 	case actionSetPatrol:

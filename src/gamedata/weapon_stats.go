@@ -67,6 +67,7 @@ const (
 	ProjectileExplosionHeavyCrawlerLaser
 	ProjectileExplosionFighterLaser
 	ProjectileExplosionScoutIon
+	ProjectileExplosionCommanderLaser
 	ProjectileExplosionShocker
 	ProjectileExplosionCripplerBlaster
 	ProjectileExplosionStealthLaser

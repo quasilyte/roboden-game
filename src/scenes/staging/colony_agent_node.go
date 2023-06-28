@@ -64,6 +64,7 @@ const (
 	agentModeRoombaWait
 	agentModeKamikazeAttack
 	agentModeConsumeDrone
+	agentModeFollowCommander
 )
 
 type agentTraitBits uint64
@@ -108,7 +109,7 @@ type colonyAgentNode struct {
 	payload         int
 	cloneGen        int
 	rank            int
-	devourerLevel   int
+	extraLevel      int // Devourer level, commander ID
 	faction         gamedata.FactionTag
 	cargoValue      float64
 	cargoEliteValue float64
@@ -164,7 +165,9 @@ func (a *colonyAgentNode) Clone() *colonyAgentNode {
 	}
 	cloned := newColonyAgentNode(a.colonyCore, a.stats, a.pos)
 	cloned.speed = a.speed
-	cloned.devourerLevel = a.devourerLevel
+	if a.stats.Kind == gamedata.AgentDevourer {
+		cloned.extraLevel = a.extraLevel
+	}
 	cloned.maxHealth = a.maxHealth
 	cloned.maxEnergy = a.maxEnergy
 	cloned.reloadRate = a.reloadRate
@@ -391,7 +394,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModePatrol:
 		a.mode = mode
 		a.dist = a.colonyCore.PatrolRadius()
-		a.waypoint = a.orbitingWaypoint()
+		a.waypoint = a.orbitingWaypoint(a.colonyCore.pos, a.dist)
 		a.waypointsLeft = a.scene.Rand().IntRange(40, 70)
 		return true
 
@@ -458,7 +461,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			maxDist *= 0.65
 		}
 		a.dist = a.scene.Rand().FloatRange(40, maxDist)
-		a.waypoint = a.orbitingWaypoint()
+		a.waypoint = a.orbitingWaypoint(a.colonyCore.pos, a.dist)
 		a.waypointsLeft = 0
 		return true
 
@@ -632,23 +635,39 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.mode = mode
 		a.target = target
 		return true
+
+	case agentModeFollowCommander:
+		a.mode = mode
+		a.target = target
+		a.waypoint = target.(*colonyAgentNode).pos.Add(a.scene.Rand().Offset(-16, 16))
+		a.waypointsLeft = a.scene.Rand().IntRange(60, 100)
+		weaponRange := a.stats.Weapon.AttackRange
+		switch {
+		case weaponRange <= 150:
+			a.dist = 70
+		case weaponRange <= 200:
+			a.dist = 60
+		default:
+			a.dist = 50
+		}
+		return true
 	}
 
 	return false
 }
 
-func (a *colonyAgentNode) orbitingWaypoint() gmath.Vec {
+func (a *colonyAgentNode) orbitingWaypoint(center gmath.Vec, dist float64) gmath.Vec {
 	var direction gmath.Vec
-	if a.pos == a.colonyCore.pos {
+	if a.pos == center {
 		direction = gmath.RadToVec(a.scene.Rand().Rad())
 	} else {
-		direction = a.pos.DirectionTo(a.colonyCore.pos)
+		direction = a.pos.DirectionTo(center)
 	}
 	angle := gmath.Rad(0.4)
 	if a.hasTrait(traitCounterClocwiseOrbiting) {
 		angle = -0.4
 	}
-	return direction.Rotated(angle).Mulf(a.dist).Add(a.colonyCore.pos)
+	return direction.Rotated(angle).Mulf(dist).Add(center)
 }
 
 func (a *colonyAgentNode) Update(delta float64) {
@@ -723,6 +742,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateReturn(delta)
 	case agentModePatrol:
 		a.updatePatrol(delta)
+	case agentModeFollowCommander:
+		a.updateFollowCommander(delta)
 	case agentModeMove:
 		a.updateMove(delta)
 	case agentModePanic:
@@ -986,7 +1007,9 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 		return
 	}
 
-	if damage.Morale != 0 {
+	if damage.Morale != 0 && a.stats.Kind != gamedata.AgentCommander {
+		// Note that agentModeFollowCommander is not listed here.
+		// A commanded unit is immune to the panic effect.
 		switch a.mode {
 		case agentModeMineEssence:
 			a.clearCargo()
@@ -1065,7 +1088,7 @@ func (a *colonyAgentNode) doConsumeDrone() {
 		return
 	}
 
-	if a.devourerLevel >= gamedata.DevourerMaxLevel {
+	if a.extraLevel >= gamedata.DevourerMaxLevel {
 		// A max-developed devourer will only consume for healing.
 		if a.health >= (a.maxHealth * 0.6) {
 			return
@@ -1393,6 +1416,7 @@ func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
 						ToPos:     toPos,
 						Target:    target,
 						FireDelay: fireDelay,
+						Guided:    a.mode == agentModeFollowCommander,
 					})
 					a.world().nodeRunner.AddProjectile(p)
 				}
@@ -1502,7 +1526,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	case gamedata.AgentDevourer:
 		// Every consumed drone gives +1 to the power level.
 		// Every power level gives +1 projectile (burst size).
-		burstSize := a.stats.Weapon.BurstSize + a.devourerLevel
+		burstSize := a.stats.Weapon.BurstSize + a.extraLevel
 		a.attackTargets(targets, burstSize)
 
 	default:
@@ -1515,6 +1539,8 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 func (a *colonyAgentNode) movementSpeed() float64 {
 	var baseSpeed float64
 	switch a.mode {
+	case agentModeFollowCommander:
+		baseSpeed = a.speed + 25
 	case agentModeKamikazeAttack:
 		return 2 * a.speed
 	case agentModeTakeoff, agentModeRecycleLanding:
@@ -1547,19 +1573,41 @@ func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {
 	return a.moveTowardsWithSpeed(delta, a.movementSpeed(), pos)
 }
 
+func (a *colonyAgentNode) updateFollowCommander(delta float64) {
+	if a.healthRegen != 0 {
+		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
+	}
+
+	commander := a.target.(*colonyAgentNode)
+	if commander.IsDisposed() {
+		a.target = nil
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		return
+	}
+
+	if a.moveTowards(delta, a.waypoint) {
+		a.waypointsLeft--
+		if a.waypointsLeft == 0 {
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+			return
+		}
+		a.waypoint = a.orbitingWaypoint(commander.pos, a.dist)
+	}
+}
+
 func (a *colonyAgentNode) updatePatrol(delta float64) {
 	if a.healthRegen != 0 {
 		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
 	}
 
 	if a.moveTowards(delta, a.waypoint) {
-		a.dist = a.colonyCore.PatrolRadius()
-		a.waypoint = a.orbitingWaypoint()
 		a.waypointsLeft--
 		if a.waypointsLeft == 0 {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
+		a.dist = a.colonyCore.PatrolRadius()
+		a.waypoint = a.orbitingWaypoint(a.colonyCore.pos, a.dist)
 	}
 }
 
@@ -1741,8 +1789,8 @@ func (a *colonyAgentNode) updateConsumeDrone(delta float64) {
 		playSound(a.world(), assets.AudioAgentConsumed, a.pos)
 		a.colonyCore.resources += target.stats.Cost * 0.5
 		a.colonyCore.eliteResources += float64(target.rank)
-		if a.devourerLevel < gamedata.DevourerMaxLevel {
-			a.devourerLevel++
+		if a.extraLevel < gamedata.DevourerMaxLevel {
+			a.extraLevel++
 			a.maxHealth += 5
 		}
 		a.health = gmath.ClampMax(a.health+target.maxHealth*2, a.maxHealth)
@@ -2135,7 +2183,7 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 			a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
 			return
 		}
-		a.waypoint = a.orbitingWaypoint()
+		a.waypoint = a.orbitingWaypoint(a.colonyCore.pos, a.dist)
 		if a.hasTrait(traitAdventurer) {
 			a.waypointsLeft++
 			if a.waypointsLeft > 10 {

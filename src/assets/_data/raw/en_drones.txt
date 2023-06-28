@@ -117,6 +117,11 @@ The mortar drone is also quite durable itself.
 A drone with an anti-air missile launcher as a weapon.
 It's highly effective, but also quite fragile and it can't attack the ground targets.
 
+##drone.commander : Commander
+##drone.commander.description
+A special combat drone that will lead a small group of units on its own.
+The drones under its control get a fire accuracy bonus and panic status effect immunity.
+
 ##drone.trucker : Trucker
 ##drone.trucker.description
 An improved version of courier drone.

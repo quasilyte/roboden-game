@@ -49,6 +49,7 @@ const (
 	AgentSkirmisher
 	AgentScarab
 	AgentRoomba
+	AgentCommander
 
 	// Tier3
 	AgentGuardian
@@ -206,6 +207,35 @@ var WorkerAgentStats = InitDroneStats(&AgentStats{
 	MaxHealth:   12,
 })
 
+var CommanderAgentStats = InitDroneStats(&AgentStats{
+	ScoreCost:   CommanderDroneCost,
+	Kind:        AgentCommander,
+	IsFlying:    true,
+	Image:       assets.ImageCommanderAgent,
+	Size:        SizeMedium,
+	PointCost:   2,
+	DiodeOffset: 5,
+	Tier:        2,
+	Cost:        28,
+	Upkeep:      10,
+	CanPatrol:   true,
+	Speed:       40,
+	MaxHealth:   30,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange:     180,
+		Reload:          2.2,
+		AttackSound:     assets.AudioCommanderShot,
+		ProjectileImage: assets.ImageCommanderProjectile,
+		ImpactArea:      14,
+		ProjectileSpeed: 240,
+		Damage:          DamageValue{Health: 3},
+		MaxTargets:      1,
+		BurstSize:       1,
+		TargetFlags:     TargetFlying | TargetGround,
+		Explosion:       ProjectileExplosionCommanderLaser,
+	}),
+})
+
 var ScoutAgentStats = InitDroneStats(&AgentStats{
 	Kind:        AgentScout,
 	IsFlying:    true,
@@ -230,6 +260,7 @@ var ScoutAgentStats = InitDroneStats(&AgentStats{
 		BurstSize:       1,
 		TargetFlags:     TargetFlying | TargetGround,
 		Explosion:       ProjectileExplosionScoutIon,
+		RoundProjectile: true,
 	}),
 })
 
@@ -680,6 +711,7 @@ var ScavengerAgentStats = InitDroneStats(&AgentStats{
 		MaxTargets:      1,
 		BurstSize:       2,
 		BurstDelay:      0.12,
+		Accuracy:        0.9,
 		TargetFlags:     TargetFlying | TargetGround,
 	}),
 })
@@ -714,6 +746,7 @@ var ScarabAgentStats = InitDroneStats(&AgentStats{
 		RandArc:         true,
 		RoundProjectile: true,
 		BurstSize:       2,
+		Accuracy:        0.95,
 		TargetFlags:     TargetGround,
 		Explosion:       ProjectileExplosionScarab,
 	}),
@@ -749,6 +782,7 @@ var DevourerAgentStats = InitDroneStats(&AgentStats{
 		ImpactArea:          10,
 		ProjectileSpeed:     350,
 		Damage:              DamageValue{Health: 1.5},
+		Accuracy:            0.95,
 		MaxTargets:          1,
 		AttacksPerBurst:     3,
 		ArcPower:            1,
@@ -789,7 +823,7 @@ var AntiAirAgentStats = InitDroneStats(&AgentStats{
 		Explosion:       ProjectileExplosionNormal,
 		TrailEffect:     ProjectileTrailSmoke,
 		ArcPower:        2,
-		Accuracy:        0.95,
+		Accuracy:        0.9,
 		TargetFlags:     TargetFlying,
 		FireOffset:      gmath.Vec{Y: -8},
 	}),
@@ -876,6 +910,7 @@ var MarauderAgentStats = InitDroneStats(&AgentStats{
 		Damage:          DamageValue{Health: 3.5, Slow: 2},
 		BurstSize:       1,
 		MaxTargets:      3,
+		Accuracy:        0.9,
 		TargetFlags:     TargetFlying | TargetGround,
 		Explosion:       ProjectileExplosionCripplerBlaster,
 	}),

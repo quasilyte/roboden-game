@@ -29,6 +29,7 @@ const (
 	actionCloneAgent
 	actionProduceAgent
 	actionSetPatrol
+	actionAttachToCommander
 	actionDefenceGarrison
 	actionDefencePatrol
 	actionDefencePanic

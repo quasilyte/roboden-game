@@ -149,6 +149,9 @@ const SeasonNumber = 0
 //
 // # Version 13 (Steam-focused build)
 //
+// * New content:
+//   - Added Commander tier 2 drone
+//
 // * Gameplay:
 //   - Reworked the tutorial
 //

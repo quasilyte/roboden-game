@@ -25,7 +25,14 @@ type colonyActionPlanner struct {
 
 	world *worldState
 
+	commanders []commanderDroneInfo
+
 	priorityPicker *gmath.RandPicker[colonyPriority]
+}
+
+type commanderDroneInfo struct {
+	leader   *colonyAgentNode
+	numUnits int
 }
 
 func newColonyActionPlanner(colony *colonyCoreNode, rand *gmath.Rand) *colonyActionPlanner {
@@ -45,6 +52,7 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 
 	p.colony.agents.Update()
 
+	p.commanders = p.commanders[:0]
 	p.colony.agents.Each(func(a *colonyAgentNode) {
 		p.agentCountTable[a.stats.Kind]++
 		switch a.stats.Tier {
@@ -54,6 +62,14 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 				p.numTier1CombatAgents++
 			} else {
 				p.numTier1WorkerAgents++
+			}
+		case 2:
+			if a.stats.Kind == gamedata.AgentCommander {
+				id := len(p.commanders)
+				a.extraLevel = id
+				p.commanders = append(p.commanders, commanderDroneInfo{
+					leader: a,
+				})
 			}
 		}
 		if !a.stats.CanPatrol {
@@ -461,19 +477,61 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 			break
 		}
 	}
+
 	if numAttackers == 0 {
+		if p.agentCountTable[gamedata.AgentCommander] != 0 && p.world.rand.Chance(0.6) {
+			commander, follower := p.maybeAttachToCommander()
+			if commander != nil {
+				return colonyAction{
+					Kind:     actionAttachToCommander,
+					TimeCost: 0.2,
+					Value:    commander,
+					Value2:   follower,
+				}
+			}
+		}
 		numPatrolWanted := int(p.colony.PatrolRadius() / 40)
 		if p.numGarrisonAgents != 0 && p.numPatrolAgents < numPatrolWanted {
 			return colonyAction{Kind: actionSetPatrol, TimeCost: 0.25}
 		}
 		return colonyAction{}
 	}
+
 	if numAttackers <= 5 {
 		if numAttackers*3 < p.numGarrisonAgents {
 			return colonyAction{Kind: actionDefenceGarrison, Value: closestAttacker, TimeCost: 0.5}
 		}
 	}
 	return colonyAction{Kind: actionDefencePatrol, Value: closestAttacker, TimeCost: 0.5}
+}
+
+func (p *colonyActionPlanner) maybeAttachToCommander() (commander, follower *colonyAgentNode) {
+	// Calculate how many units each commander has right now.
+	for _, u := range p.colony.agents.fighters {
+		if u.mode != agentModeFollowCommander {
+			continue
+		}
+		p.commanders[u.target.(*colonyAgentNode).extraLevel].numUnits++
+	}
+
+	const maxUnitsPerCommander = 4
+	commanderCandidate := randIterate(p.world.rand, p.commanders, func(c commanderDroneInfo) bool {
+		return c.numUnits < maxUnitsPerCommander
+	})
+	if commanderCandidate.leader == nil {
+		return nil, nil
+	}
+	commander = commanderCandidate.leader
+
+	// We have a commander. Do we have a follower to assign to it?
+	follower = p.colony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
+		return a != commander && a.stats.Kind != gamedata.AgentCommander && !a.stats.CanGather
+	})
+	if follower == nil {
+		return nil, nil
+	}
+
+	return commander, follower
 }
 
 func (p *colonyActionPlanner) pickMergeRecipe(list []gamedata.AgentMergeRecipe, tier int) gamedata.AgentMergeRecipe {

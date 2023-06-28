@@ -98,6 +98,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
 		ImageRoombaShotExplosion:        {Path: "image/effects/roomba_shot_explosion.png", FrameWidth: 11},
 		ImageScarabShotExplosion:        {Path: "image/effects/scarab_projectile_explosion.png", FrameWidth: 11},
+		ImageCommanderShotExplosion:     {Path: "image/effects/commander_shot_explosion.png", FrameWidth: 10},
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
 		ImageScoutIonExplosion:          {Path: "image/effects/scout_ion_explosion.png", FrameWidth: 5},
 		ImageShockerExplosion:           {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
@@ -165,6 +166,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageSkirmisherAgent:    {Path: "image/drones/skirmisher_agent.png", FrameWidth: 19, FrameHeight: 12},
 		ImageScarabAgent:        {Path: "image/drones/scarab_agent.png", FrameWidth: 23, FrameHeight: 12},
 		ImageDevourerAgent:      {Path: "image/drones/devourer_agent.png", FrameWidth: 23, FrameHeight: 22},
+		ImageCommanderAgent:     {Path: "image/drones/commander_agent.png", FrameWidth: 17, FrameHeight: 14},
 
 		ImageColonyDamageMask:  {Path: "image/shaders/colony_damage_mask.png"},
 		ImageTurretDamageMask1: {Path: "image/shaders/turret_damage_mask1.png"},
@@ -215,6 +217,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
+		ImageCommanderProjectile:      {Path: "image/projectile/commander_projectile.png"},
 		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
 		ImageScarabProjectile:         {Path: "image/projectile/scarab_projectile.png"},
 		ImageSkirmisherProjectile:     {Path: "image/projectile/skirmisher_projectile.png"},
@@ -353,6 +356,7 @@ const (
 	ImageTeleportEffect
 	ImageMergingComplete
 	ImageCloningComplete
+	ImageCommanderShotExplosion
 	ImageStealthLaserExplosion
 	ImageRoombaShotExplosion
 	ImageScarabShotExplosion
@@ -461,6 +465,7 @@ const (
 	ImageRepellerAgent
 	ImageServoAgent
 	ImageFreighterAgent
+	ImageCommanderAgent
 	ImageEssenceRedCrystalSource
 	ImageEssenceCrystalSource
 	ImageEssenceGoldSource
@@ -499,6 +504,7 @@ const (
 	ImageLandCrack3
 	ImageLandCrack4
 
+	ImageCommanderProjectile
 	ImageRoombaProjectile
 	ImageScarabProjectile
 	ImageSkirmisherProjectile

@@ -12,10 +12,11 @@ const (
 	DisintegratorDroneCost int = 3500
 	CommanderDroneCost     int = 4500
 	PrismDroneCost         int = 5500
-	DefenderDroneCost      int = 6500
-	SkirmisherDroneCost    int = 7500
-	KamikazeDroneCost      int = 8500
-	ScarabDroneCost        int = 9500
+	TargeterDronecost      int = 6500
+	DefenderDroneCost      int = 7500
+	SkirmisherDroneCost    int = 8500
+	KamikazeDroneCost      int = 9500
+	ScarabDroneCost        int = 10500
 
 	BeamTowerTurretCost int = 3000
 )

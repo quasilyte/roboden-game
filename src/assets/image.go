@@ -100,6 +100,8 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageScarabShotExplosion:        {Path: "image/effects/scarab_projectile_explosion.png", FrameWidth: 11},
 		ImageCommanderShotExplosion:     {Path: "image/effects/commander_shot_explosion.png", FrameWidth: 10},
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
+		ImageTargeterShotExplosion:      {Path: "image/effects/targeter_shot_explosion.png", FrameWidth: 15},
+		ImagePrismShotExplosion:         {Path: "image/effects/prism_shot_explosion.png", FrameWidth: 15},
 		ImageScoutIonExplosion:          {Path: "image/effects/scout_ion_explosion.png", FrameWidth: 5},
 		ImageShockerExplosion:           {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
 		ImageFighterLaserExplosion:      {Path: "image/effects/fighter_laser_explosion.png", FrameWidth: 14},
@@ -167,6 +169,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageScarabAgent:        {Path: "image/drones/scarab_agent.png", FrameWidth: 23, FrameHeight: 12},
 		ImageDevourerAgent:      {Path: "image/drones/devourer_agent.png", FrameWidth: 23, FrameHeight: 22},
 		ImageCommanderAgent:     {Path: "image/drones/commander_agent.png", FrameWidth: 17, FrameHeight: 14},
+		ImageTargeterAgent:      {Path: "image/drones/targeter_agent.png", FrameWidth: 15, FrameHeight: 14},
 
 		ImageColonyDamageMask:  {Path: "image/shaders/colony_damage_mask.png"},
 		ImageTurretDamageMask1: {Path: "image/shaders/turret_damage_mask1.png"},
@@ -245,6 +248,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                  {Path: "image/projectile/missile.png"},
 
+		ImageTargeterLine:  {Path: "image/lines/targeter_line.png"},
 		ImageStunnerLine:   {Path: "image/lines/stunner_line.png"},
 		ImageBossLaserLine: {Path: "image/lines/boss_laser_line.png"},
 		ImageRepairLine:    {Path: "image/lines/repair_line.png"},
@@ -356,7 +360,9 @@ const (
 	ImageTeleportEffect
 	ImageMergingComplete
 	ImageCloningComplete
+	ImagePrismShotExplosion
 	ImageCommanderShotExplosion
+	ImageTargeterShotExplosion
 	ImageStealthLaserExplosion
 	ImageRoombaShotExplosion
 	ImageScarabShotExplosion
@@ -466,6 +472,7 @@ const (
 	ImageServoAgent
 	ImageFreighterAgent
 	ImageCommanderAgent
+	ImageTargeterAgent
 	ImageEssenceRedCrystalSource
 	ImageEssenceCrystalSource
 	ImageEssenceGoldSource
@@ -533,6 +540,7 @@ const (
 	ImageMissile
 
 	ImageBossLaserLine
+	ImageTargeterLine
 	ImageStunnerLine
 	ImageRepairLine
 	ImageRechargerLine

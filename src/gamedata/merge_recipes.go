@@ -8,8 +8,8 @@ import "fmt"
 // yellow scout  ++++++
 // red worker    ++++++
 // red scout     +++++++
-// green worker  ++++
-// green scout   +++++
+// green worker  +++++
+// green scout   ++++++
 // blue worker   +++++
 // blue scout    ++++++
 //
@@ -36,6 +36,7 @@ import "fmt"
 // skirmisher: green scout + blue scout
 // scarab: yellow worker + red scout
 // commander: red worker + yellow scout
+// targeter: green worker + green scout [! a non-standard combination]
 //
 // Unused:
 // yellow worker + green scout
@@ -135,6 +136,11 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Drone1: RecipeSubject{YellowFactionTag, AgentScout},
 		Drone2: RecipeSubject{BlueFactionTag, AgentScout},
 		Result: PrismAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{GreenFactionTag, AgentWorker},
+		Drone2: RecipeSubject{GreenFactionTag, AgentScout},
+		Result: TargeterAgentStats,
 	},
 	{
 		Drone1: RecipeSubject{YellowFactionTag, AgentScout},

@@ -122,6 +122,11 @@ It's highly effective, but also quite fragile and it can't attack the ground tar
 A special combat drone that will lead a small group of units on its own.
 The drones under its control get a fire accuracy bonus and panic status effect immunity.
 
+##drone.targeter : Targeter
+##drone.targeter.description
+A support combat drone that marks its targets.
+A marked target can be attacked by other drones from a much longer distance.
+
 ##drone.trucker : Trucker
 ##drone.trucker.description
 An improved version of courier drone.

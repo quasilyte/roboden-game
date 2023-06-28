@@ -151,6 +151,10 @@ const SeasonNumber = 0
 //
 // * New content:
 //   - Added Commander tier 2 drone
+//   - Added Targeter tier 2 drone
+//
+// * Visual improvements:
+//   - Prism drone attack now has a hit impact effect
 //
 // * Gameplay:
 //   - Reworked the tutorial

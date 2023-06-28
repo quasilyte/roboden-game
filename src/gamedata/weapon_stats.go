@@ -12,31 +12,33 @@ type DamageValue struct {
 	Energy float64
 	Slow   float64
 	Aggro  float64
+	Mark   float64
 }
 
 type WeaponStats struct {
-	MaxTargets            int
-	ProjectileImage       resource.ImageID
-	ProjectileSpeed       float64
-	ProjectileRotateSpeed float64
-	ProjectileFireSound   bool
-	ImpactArea            float64
-	ImpactAreaSqr         float64 // A precomputed ImpactArea*ImpactArea value
-	AttackRange           float64
-	AttackRangeSqr        float64 // A precomputed AttackRange*AttackRange value
-	Damage                DamageValue
-	Explosion             ProjectileExplosionKind
-	TrailEffect           ProjectileTrailEffect
-	AlwaysExplodes        bool
-	BurstSize             int
-	AttacksPerBurst       int
-	BurstDelay            float64
-	Reload                float64
-	AttackSound           resource.AudioID
-	FireOffset            gmath.Vec
-	ArcPower              float64
-	Accuracy              float64
-	TargetFlags           TargetKind
+	MaxTargets                int
+	ProjectileImage           resource.ImageID
+	ProjectileSpeed           float64
+	ProjectileRotateSpeed     float64
+	ProjectileFireSound       bool
+	ImpactArea                float64
+	ImpactAreaSqr             float64 // A precomputed ImpactArea*ImpactArea value
+	AttackRange               float64
+	AttackRangeSqr            float64 // A precomputed AttackRange*AttackRange value
+	AttackRangeMarkMultiplier float64
+	Damage                    DamageValue
+	Explosion                 ProjectileExplosionKind
+	TrailEffect               ProjectileTrailEffect
+	AlwaysExplodes            bool
+	BurstSize                 int
+	AttacksPerBurst           int
+	BurstDelay                float64
+	Reload                    float64
+	AttackSound               resource.AudioID
+	FireOffset                gmath.Vec
+	ArcPower                  float64
+	Accuracy                  float64
+	TargetFlags               TargetKind
 
 	GroundDamageBonus      float64
 	FlyingDamageBonus      float64
@@ -94,6 +96,9 @@ func InitWeaponStats(stats *WeaponStats) *WeaponStats {
 	}
 	if stats.AttacksPerBurst == 0 {
 		stats.AttacksPerBurst = 1
+	}
+	if stats.AttackRangeMarkMultiplier == 0 {
+		stats.AttackRangeMarkMultiplier = 1
 	}
 	stats.ImpactAreaSqr = stats.ImpactArea * stats.ImpactArea
 	stats.AttackRangeSqr = stats.AttackRange * stats.AttackRange

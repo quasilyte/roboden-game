@@ -279,11 +279,13 @@ func (w *worldState) Update() {
 	}
 
 	for _, creep := range w.creeps {
-		x, y := w.GetPosCell(creep.pos)
-		if y < len(w.creepClusters) {
-			if x < len(w.creepClusters[y]) {
-				w.creepClusters[y][x] = append(w.creepClusters[y][x], creep)
-				continue
+		if creep.marked == 0 {
+			x, y := w.GetPosCell(creep.pos)
+			if y < len(w.creepClusters) {
+				if x < len(w.creepClusters[y]) {
+					w.creepClusters[y][x] = append(w.creepClusters[y][x], creep)
+					continue
+				}
 			}
 		}
 		w.fallbackCreepCluster = append(w.fallbackCreepCluster, creep)

@@ -59,6 +59,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioScavengerShot:       {Path: "$sfx/scavenger_shot.wav", Volume: -0.3},
 		AudioCourierShot:         {Path: "$sfx/courier_shot.wav", Volume: 0},
 		AudioDisintegratorShot:   {Path: "$sfx/disintegrator_shot.wav", Volume: -0.2},
+		AudioTargeterShot:        {Path: "$sfx/targeter_shot.wav", Volume: -0.8},
 		AudioMortarShot:          {Path: "$sfx/mortar_shot.wav", Volume: -0.3},
 		AudioCommanderShot:       {Path: "$sfx/commander_shot.wav", Volume: +0.2},
 		AudioRoombaShot:          {Path: "$sfx/roomba_shot.wav", Volume: 0.2},
@@ -152,6 +153,7 @@ const (
 	AudioScavengerShot
 	AudioCourierShot
 	AudioDisintegratorShot
+	AudioTargeterShot
 	AudioStealth
 	AudioMarauderShot
 	AudioScoutShot

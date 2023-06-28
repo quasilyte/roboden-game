@@ -1389,7 +1389,11 @@ func (a *colonyAgentNode) isValidTarget(creep *creepNode) bool {
 	if !a.CanAttack(creep.TargetKind()) {
 		return false
 	}
-	if creep.pos.DistanceSquaredTo(a.pos) > a.stats.Weapon.AttackRangeSqr {
+	attackRangeSqr := a.stats.Weapon.AttackRangeSqr
+	if creep.marked > 0 {
+		attackRangeSqr *= a.stats.Weapon.AttackRangeMarkMultiplier
+	}
+	if creep.pos.DistanceSquaredTo(a.pos) > attackRangeSqr {
 		return false
 	}
 	return true
@@ -1424,13 +1428,19 @@ func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
 			}
 		} else {
 			// TODO: this code is duplited with creep node.
-			if a.stats.BeamTexture == nil {
-				beam := newBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamColor)
-				beam.width = a.stats.BeamWidth
-				a.world().nodeRunner.AddObject(beam)
-			} else {
-				beam := newTextureBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamTexture, a.stats.BeamSlideSpeed, a.stats.BeamOpaqueTime)
-				a.world().nodeRunner.AddObject(beam)
+			if !a.world().simulation {
+				if a.stats.BeamTexture == nil {
+					beam := newBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamColor)
+					beam.width = a.stats.BeamWidth
+					a.world().nodeRunner.AddObject(beam)
+				} else {
+					beam := newTextureBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamTexture, a.stats.BeamSlideSpeed, a.stats.BeamOpaqueTime)
+					a.world().nodeRunner.AddObject(beam)
+					if a.stats.BeamExplosion != assets.ImageNone {
+						effect := newEffectNode(a.world(), target.GetPos().Add(a.world().localRand.Offset(-6, 6)), target.IsFlying(), a.stats.BeamExplosion)
+						a.world().nodeRunner.AddObject(effect)
+					}
+				}
 			}
 			target.OnDamage(multipliedDamage(target, a.stats.Weapon), a)
 		}
@@ -1522,6 +1532,8 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		a.world().nodeRunner.AddObject(beam)
 		damage.Health *= damageMultiplier(target, a.stats.Weapon)
 		target.OnDamage(damage, a)
+		effect := newEffectNode(a.world(), target.GetPos().Add(a.world().localRand.Offset(-6, 6)), target.IsFlying(), a.stats.BeamExplosion)
+		a.world().nodeRunner.AddObject(effect)
 
 	case gamedata.AgentDevourer:
 		// Every consumed drone gives +1 to the power level.

@@ -56,6 +56,7 @@ type creepNode struct {
 	health    float64
 	maxHealth float64
 	height    float64
+	marked    float64
 
 	attackDelay float64
 
@@ -207,6 +208,7 @@ func (c *creepNode) Update(delta float64) {
 		c.spritePos.Y = math.Round(c.pos.Y)
 	}
 
+	c.marked = gmath.ClampMin(c.marked-delta, 0)
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
 	c.aggro = gmath.ClampMin(c.aggro-delta, 0)
 	c.disarm = gmath.ClampMin(c.disarm-delta, 0)
@@ -361,6 +363,10 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 			c.aggroTarget = source
 			c.aggro = 3.0
 		}
+	}
+
+	if damage.Mark != 0 {
+		c.marked = gmath.ClampMax(c.marked+damage.Mark, 12)
 	}
 
 	if damage.Slow != 0 {

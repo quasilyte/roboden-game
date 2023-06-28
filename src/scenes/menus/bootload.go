@@ -116,6 +116,7 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, progress *float64) {
 		{gamedata.GuardianAgentStats, assets.ImageDefenderLine, gamedata.GuardianAgentStats.Weapon.AttackRange * 1.05},
 		{gamedata.BeamTowerAgentStats, assets.ImageBeamtowerLine, gamedata.BeamTowerAgentStats.Weapon.AttackRange * 1.05},
 		{gamedata.TetherBeaconAgentStats, assets.ImageTetherLine, gamedata.TetherBeaconAgentStats.SupportRange * 1.5},
+		{gamedata.TargeterAgentStats, assets.ImageTargeterLine, gamedata.TargeterAgentStats.Weapon.AttackRange * 1.15},
 	}
 	creepSteps := []struct {
 		creep   *gamedata.CreepStats

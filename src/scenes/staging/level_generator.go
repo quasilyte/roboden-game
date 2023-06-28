@@ -229,26 +229,6 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 		g.world.nodeRunner.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
-	for i := 0; i < 10; i++ {
-		a := core.NewColonyAgentNode(gamedata.ScoutAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
-		g.world.nodeRunner.AddObject(a)
-		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-	}
-	for i := 0; i < 2; i++ {
-		a := core.NewColonyAgentNode(gamedata.CommanderAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
-		g.world.nodeRunner.AddObject(a)
-		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-	}
-	for i := 0; i < 2; i++ {
-		a := core.NewColonyAgentNode(gamedata.FighterAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
-		g.world.nodeRunner.AddObject(a)
-		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-	}
-	for i := 0; i < 2; i++ {
-		a := core.NewColonyAgentNode(gamedata.AntiAirAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
-		g.world.nodeRunner.AddObject(a)
-		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-	}
 	if mainBase {
 		for _, stats := range g.world.config.ExtraDrones {
 			a := core.NewColonyAgentNode(stats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))

@@ -63,6 +63,7 @@ func CreateDroneBuild(rng *gmath.Rand) []string {
 		GeneratorAgentStats,
 		DefenderAgentStats,
 		CommanderAgentStats,
+		TargeterAgentStats,
 	}
 	for round := 0; round < 3; round++ {
 		if points <= 0 {

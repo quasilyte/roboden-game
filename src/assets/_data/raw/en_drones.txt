@@ -154,6 +154,12 @@ It attacks up to three targets and inflicts slow condition.
 A defender that has self-repair capabilities.
 It has lower offensive capabilities than skirmisher, although its survivability is improved.
 
+##turret.harvester : Harvester
+##turret.harvester.description
+A heavily armored truck that drives around and gathers resources.
+It can only harvest minerals, not oil-like or scrap resources.
+It doesn't have any weapons.
+
 ##turret.gunpoint : Bunker
 ##turret.gunpoint.description
 A sturdy defense that is fast and cheap to build.

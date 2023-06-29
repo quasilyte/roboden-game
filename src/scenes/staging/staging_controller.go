@@ -486,41 +486,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.world.stage.SortBelowLayer()
 
-	// {
-	// 	cols, rows := c.world.pathgrid.Size()
-	// 	for row := 0; row < rows; row++ {
-	// 		for col := 0; col < cols; col++ {
-	// 			coord := pathing.GridCoord{X: col, Y: row}
-	// 			if c.world.pathgrid.CellIsFree(coord) {
-	// 				continue
-	// 			}
-	// 			rect := ge.NewRect(scene.Context(), pathing.CellSize, pathing.CellSize)
-	// 			rect.FillColorScale.SetRGBA(200, 50, 50, 100)
-	// 			rect.Pos.Offset = c.world.pathgrid.CoordToPos(coord)
-	// 			c.camera.AddGraphics(rect)
-	// 			c.rects = append(c.rects, rect)
-	// 		}
-	// 	}
-	// 	c.world.EventUnmarked.Connect(c, func(pos gmath.Vec) {
-	// 		index := xslices.IndexWhere(c.rects, func(rect *ge.Rect) bool {
-	// 			return rect.Pos.Offset == pos
-	// 		})
-	// 		if index == -1 {
-	// 			panic("??")
-	// 		}
-	// 		c.rects[index].Dispose()
-	// 		c.rects[index] = c.rects[len(c.rects)-1]
-	// 		c.rects = c.rects[:len(c.rects)-1]
-	// 	})
-	// 	c.world.EventMarked.Connect(c, func(pos gmath.Vec) {
-	// 		rect := ge.NewRect(scene.Context(), pathing.CellSize, pathing.CellSize)
-	// 		rect.FillColorScale.SetRGBA(200, 50, 50, 100)
-	// 		rect.Pos.Offset = c.world.pathgrid.CoordToPos(c.world.pathgrid.PosToCoord(pos))
-	// 		c.camera.AddGraphics(rect)
-	// 		c.rects = append(c.rects, rect)
-	// 	})
-	// }
-
 	if len(c.world.cameras) != 0 {
 		c.recipeTab = newRecipeTabNode(c.world)
 		c.recipeTab.Visible = false
@@ -758,6 +723,8 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 			stats = beamTowerConstructionStats
 		case gamedata.TetherBeaconAgentStats:
 			stats = tetherBeaconConstructionStats
+		case gamedata.HarvesterAgentStats:
+			stats = harvesterConstructionStats
 		}
 		coord := c.world.pathgrid.PosToCoord(selectedColony.pos)
 		freeCoord := randIterate(c.world.rand, colonyNearCellOffsets, func(offset pathing.GridCoord) bool {
@@ -1134,7 +1101,7 @@ func (c *Controller) handleInput() {
 
 func (c *Controller) isDefeatState() bool {
 	switch c.config.GameMode {
-	case gamedata.ModeClassic, gamedata.ModeArena, gamedata.ModeInfArena:
+	case gamedata.ModeTutorial, gamedata.ModeClassic, gamedata.ModeArena, gamedata.ModeInfArena:
 		for _, p := range c.world.players {
 			if len(p.GetState().colonies) == 0 {
 				return true

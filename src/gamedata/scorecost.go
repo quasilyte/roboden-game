@@ -19,4 +19,5 @@ const (
 	ScarabDroneCost        int = 10500
 
 	BeamTowerTurretCost int = 3000
+	HarvesterTurretCost int = 5000
 )

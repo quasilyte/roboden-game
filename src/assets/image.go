@@ -136,6 +136,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageTeleporter:              {Path: "image/teleporter.png"},
 		ImageTeleporterLights:        {Path: "image/teleporter_lights.png"},
 
+		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
 		ImageTetherBeaconAgent:  {Path: "image/drones/tether_beacon_agent.png"},
@@ -439,6 +440,7 @@ const (
 	ImageColonyCoreShadow
 	ImageTeleporter
 	ImageTeleporterLights
+	ImageHarvesterAgent
 	ImageGunpointAgent
 	ImageBeamtowerAgent
 	ImageTetherBeaconAgent

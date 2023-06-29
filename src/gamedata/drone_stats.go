@@ -66,6 +66,7 @@ const (
 	AgentGunpoint
 	AgentTetherBeacon
 	AgentBeamTower
+	AgentHarvester
 
 	agentLast
 )
@@ -109,6 +110,7 @@ type AgentStats struct {
 	CanCloak   bool
 	HasSupport bool
 	IsFlying   bool
+	IsTurret   bool
 	MaxPayload int
 
 	SelfRepair float64
@@ -134,11 +136,13 @@ var TurretStatsList = []*AgentStats{
 	GunpointAgentStats,
 	TetherBeaconAgentStats,
 	BeamTowerAgentStats,
+	HarvesterAgentStats,
 }
 
 var GunpointAgentStats = InitDroneStats(&AgentStats{
 	Kind:      AgentGunpoint,
 	IsFlying:  false,
+	IsTurret:  true,
 	Image:     assets.ImageGunpointAgent,
 	Size:      SizeLarge,
 	Upkeep:    12,
@@ -159,10 +163,23 @@ var GunpointAgentStats = InitDroneStats(&AgentStats{
 	}),
 })
 
+var HarvesterAgentStats = InitDroneStats(&AgentStats{
+	ScoreCost: HarvesterTurretCost,
+	Kind:      AgentHarvester,
+	IsFlying:  false,
+	IsTurret:  true,
+	Image:     assets.ImageHarvesterAgent,
+	Size:      SizeLarge,
+	Upkeep:    12,
+	MaxHealth: 70,
+	Speed:     8,
+})
+
 var BeamTowerAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost: BeamTowerTurretCost,
 	Kind:      AgentBeamTower,
 	IsFlying:  false,
+	IsTurret:  true,
 	Image:     assets.ImageBeamtowerAgent,
 	Size:      SizeLarge,
 	Upkeep:    14,
@@ -184,10 +201,11 @@ var BeamTowerAgentStats = InitDroneStats(&AgentStats{
 var TetherBeaconAgentStats = InitDroneStats(&AgentStats{
 	Kind:           AgentTetherBeacon,
 	IsFlying:       false,
+	IsTurret:       true,
 	Image:          assets.ImageTetherBeaconAgent,
 	Size:           SizeLarge,
 	Upkeep:         8,
-	MaxHealth:      70,
+	MaxHealth:      75,
 	SupportReload:  10,
 	SupportRange:   450,
 	BeamSlideSpeed: 0.4,
@@ -613,7 +631,7 @@ var RoombaAgentStats = InitDroneStats(&AgentStats{
 	Cost:        20,
 	Upkeep:      3,
 	Speed:       40,
-	MaxHealth:   50,
+	MaxHealth:   55,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:         200,
 		Reload:              2,
@@ -826,7 +844,7 @@ var DevourerAgentStats = InitDroneStats(&AgentStats{
 		ProjectileFireSound:       true,
 		ImpactArea:                10,
 		ProjectileSpeed:           350,
-		Damage:                    DamageValue{Health: 1.5},
+		Damage:                    DamageValue{Health: 1.75},
 		Accuracy:                  0.95,
 		MaxTargets:                1,
 		AttacksPerBurst:           3,

@@ -9,12 +9,14 @@ import (
 
 func PickTurretDesign(rng *gmath.Rand) string {
 	switch turretRoll := rng.Float(); {
-	case turretRoll < 0.4:
-		return "BeamTower" // 40%
-	case turretRoll < 0.65:
+	case turretRoll < 0.35:
+		return "BeamTower" // 35%
+	case turretRoll < 0.60:
 		return "Gunpoint" // 25%
+	case turretRoll < 0.75:
+		return "Harvester" // 15%
 	default:
-		return "TetherBeacon" // 35%
+		return "TetherBeacon" // 25%
 	}
 }
 

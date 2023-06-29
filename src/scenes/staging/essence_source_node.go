@@ -140,6 +140,7 @@ type essenceSourceNode struct {
 	percengage        float64
 	recoverDelay      float64 // a ticker before the next regen
 	recoverDelayTimer float64 // how much time it takes to reach a regen tick
+	beingHarvested    bool
 
 	rotation gmath.Rad
 	pos      gmath.Vec

@@ -117,6 +117,8 @@ func (p *computerPlayer) maxTurretsForColony() int {
 		return p.world.rand.IntRange(1, 4)
 	case gamedata.TetherBeaconAgentStats:
 		return p.world.rand.IntRange(0, 2)
+	case gamedata.HarvesterAgentStats:
+		return p.world.rand.IntRange(1, 2)
 	default:
 		return 0
 	}

@@ -31,6 +31,14 @@ var colonyCoreConstructionStats = &constructionStats{
 	Image:             assets.ImageColonyCore,
 }
 
+var harvesterConstructionStats = &constructionStats{
+	ConstructionSpeed: 0.03,
+	DamageModifier:    0.05,
+	Kind:              constructTurret,
+	TurretStats:       gamedata.HarvesterAgentStats,
+	Image:             assets.ImageHarvesterAgent,
+}
+
 var gunpointConstructionStats = &constructionStats{
 	ConstructionSpeed: 0.04,
 	DamageModifier:    0.03,
@@ -181,7 +189,6 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 		builder.AcceptTurret(turret)
 		c.world.nodeRunner.AddObject(turret)
 		turret.sprite.Pos.Offset = c.spriteOffset
-		turret.mode = agentModeGuardForever
 
 	case constructBase:
 		c.world.result.ColoniesBuilt++

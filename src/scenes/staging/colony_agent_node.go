@@ -57,6 +57,7 @@ const (
 	agentModeMergingRoomba
 	agentModeBuildBuilding
 	agentModeGuardForever
+	agentModeHarvester
 	agentModeRoombaGuard
 	agentModeRoombaAttack
 	agentModeRoombaPatrol
@@ -346,12 +347,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
 
 func (a *colonyAgentNode) IsTurret() bool {
-	switch a.stats.Kind {
-	case gamedata.AgentGunpoint, gamedata.AgentBeamTower, gamedata.AgentTetherBeacon:
-		return true
-	default:
-		return false
-	}
+	return a.stats.IsTurret
 }
 
 func (a *colonyAgentNode) applyRankBonuses() {
@@ -780,6 +776,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRoombaPatrol(delta)
 	case agentModeRoombaWait, agentModeRoombaCombatWait:
 		a.updateRoombaWait(delta)
+	case agentModeHarvester:
+		a.updateHarvester(delta)
 	case agentModeGuardForever:
 		// Just chill.
 	}
@@ -1672,9 +1670,130 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) updateHarvester(delta float64) {
+	var target *essenceSourceNode
+	if a.target != nil {
+		target = a.target.(*essenceSourceNode)
+		if target.IsDisposed() {
+			a.target = nil
+			a.waypoint = gmath.Vec{}
+			a.specialDelay = a.world().rand.FloatRange(4, 8)
+			return
+		}
+	}
+
+	if !a.waypoint.IsZero() {
+		if a.moveTowards(delta, a.waypoint) {
+			if a.path.HasNext() {
+				// TODO: remove code duplication with crawlers and roombas.
+				d := a.path.Next()
+				aligned := a.world().pathgrid.AlignPos(a.pos)
+				a.waypoint = posMove(aligned, d).Add(a.world().rand.Offset(-4, 4))
+				return
+			}
+			a.path = pathing.GridPath{}
+			dist := a.waypoint.DistanceTo(target.pos)
+			if dist < 10 {
+				a.waypoint = gmath.Vec{}
+			} else {
+				a.waypoint = target.pos.Add(a.world().rand.Offset(-4, 4))
+			}
+		}
+		return
+	}
+
+	if a.specialDelay > 0 {
+		return
+	}
+
+	if target != nil {
+		if a.colonyCore.resources >= maxVisualResources {
+			a.specialDelay = 4
+			return
+		}
+
+		a.specialDelay = a.world().rand.FloatRange(3.5, 6)
+		harvested := target.Harvest(2)
+		value := float64(harvested) * target.stats.value
+		a.colonyCore.AddGatheredResources(value)
+		if a.health < a.maxHealth {
+			a.OnBuildingRepair(1)
+		}
+
+		if !a.world().simulation {
+			smokeRoll := a.world().localRand.Float()
+			var sprite *ge.Sprite
+			switch {
+			case smokeRoll < 0.3:
+				sprite = a.scene.NewSprite(assets.ImageSmokeDown)
+				sprite.Pos.Offset = a.spritePos.Add(gmath.Vec{X: 1, Y: 16})
+			case smokeRoll < 0.6:
+				sprite = a.scene.NewSprite(assets.ImageSmokeSide)
+				sprite.Pos.Offset = a.spritePos.Add(gmath.Vec{X: 20, Y: 11})
+			case smokeRoll < 0.9:
+				sprite = a.scene.NewSprite(assets.ImageSmokeSide)
+				sprite.FlipHorizontal = true
+				sprite.Pos.Offset = a.spritePos.Add(gmath.Vec{X: -16, Y: 11})
+			default:
+				// No smoke.
+			}
+			if sprite != nil {
+				e := newEffectNodeFromSprite(a.world(), false, sprite)
+				e.noFlip = true
+				e.anim.SetAnimationSpan(0.3)
+				a.world().nodeRunner.AddObject(e)
+				playSound(a.world(), assets.AudioHarvesterEffect, a.pos)
+			}
+		}
+
+		return
+	}
+
+	var closestTarget *essenceSourceNode
+	var closestSpot gmath.Vec
+	closestDistSqr := math.MaxFloat64
+	randIterate(a.world().rand, a.world().essenceSources, func(e *essenceSourceNode) bool {
+		if e.stats.scrap || e.stats.regenDelay != 0 || e.stats == redCrystalSource || e.beingHarvested {
+			return false
+		}
+		coord := a.world().pathgrid.PosToCoord(e.pos)
+		// Find a nearby closest cell.
+		freeOffset := randIterate(a.world().rand, resourceNearOffsets, func(offset pathing.GridCoord) bool {
+			probe := coord.Add(offset)
+			return a.world().pathgrid.CellIsFree(probe)
+		})
+		if freeOffset.IsZero() {
+			return false
+		}
+		distSqr := e.pos.DistanceSquaredTo(a.pos)
+		if distSqr < closestDistSqr {
+			closestDistSqr = distSqr
+			closestTarget = e
+			closestSpot = a.world().pathgrid.CoordToPos(coord.Add(freeOffset))
+		}
+		return false
+	})
+	if closestTarget == nil {
+		a.specialDelay = a.world().rand.FloatRange(10, 30)
+		return
+	}
+
+	a.specialDelay = 5
+	a.target = closestTarget
+	a.sendTo(closestSpot)
+	closestTarget.beingHarvested = true
+	a.EventDestroyed.Connect(nil, func(*colonyAgentNode) {
+		closestTarget.beingHarvested = false
+	})
+}
+
 func (a *colonyAgentNode) updateRoombaWait(delta float64) {
+	if a.healthRegen != 0 {
+		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
+	}
+
 	a.dist -= delta
-	a.health = gmath.ClampMax(a.health+(delta*0.2), a.maxHealth)
+	a.health = gmath.ClampMax(a.health+(delta*0.3), a.maxHealth)
 	a.energy = gmath.ClampMax(a.energy+(delta*2.5), a.maxEnergy)
 	if a.dist <= 0 {
 		a.mode = agentModeRoombaPatrol
@@ -1715,7 +1834,7 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 			}
 			if a.path.HasNext() {
 				if a.mode == agentModeRoombaPatrol && a.health < a.maxHealth*0.8 && a.scene.Rand().Chance(0.1) {
-					a.health = gmath.ClampMax(a.health+1, a.maxHealth)
+					a.health = gmath.ClampMax(a.health+2, a.maxHealth)
 					a.mode = agentModeRoombaWait
 					a.dist = a.scene.Rand().FloatRange(4, 10)
 					a.waypoint = gmath.Vec{}
@@ -2301,8 +2420,7 @@ func (a *colonyAgentNode) updateReturn(delta float64) {
 			a.doUncloak()
 		}
 		if a.payload != 0 {
-			a.colonyCore.resources += a.cargoValue
-			a.world().result.ResourcesGathered += a.cargoValue
+			a.colonyCore.AddGatheredResources(a.cargoValue)
 			a.colonyCore.eliteResources += a.cargoEliteValue
 			a.world().result.EliteResourcesGathered = a.cargoEliteValue
 			a.clearCargo()

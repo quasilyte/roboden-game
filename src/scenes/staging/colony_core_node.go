@@ -386,6 +386,11 @@ func (c *colonyCoreNode) AcceptRoomba(roomba *colonyAgentNode) {
 	roomba.colonyCore = c
 }
 
+func (c *colonyCoreNode) AddGatheredResources(value float64) {
+	c.resources += value
+	c.world.result.ResourcesGathered += value
+}
+
 func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	turret.EventDestroyed.Connect(c, func(x *colonyAgentNode) {
 		c.world.UnmarkPos(x.pos)
@@ -395,6 +400,12 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	c.turrets = append(c.turrets, turret)
 	turret.colonyCore = c
 	c.EventTurretAccepted.Emit(turret)
+
+	if turret.stats.Kind == gamedata.AgentHarvester {
+		turret.mode = agentModeHarvester
+	} else {
+		turret.mode = agentModeGuardForever
+	}
 }
 
 func (c *colonyCoreNode) AcceptAgent(a *colonyAgentNode) {
@@ -828,6 +839,10 @@ func (c *colonyCoreNode) crushCrawlers() {
 }
 
 func (c *colonyCoreNode) createLandingSmokeEffect() {
+	if c.world.simulation {
+		return
+	}
+
 	type effectInfo struct {
 		image  resource.ImageID
 		offset gmath.Vec

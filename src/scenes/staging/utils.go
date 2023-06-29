@@ -21,6 +21,20 @@ func midpoint(a, b gmath.Vec) gmath.Vec {
 	return a.Add(b).Mulf(0.5)
 }
 
+// ? ? ?
+// ? x ?
+// ? ? ?
+var resourceNearOffsets = []pathing.GridCoord{
+	{X: -1, Y: -1},
+	{X: 0, Y: -1},
+	{X: 1, Y: -1},
+	{X: 1, Y: -1},
+	{X: 1, Y: 1},
+	{X: 0, Y: 1},
+	{X: -1, Y: 1},
+	{X: -1, Y: 0},
+}
+
 // ? ? ? ?
 // ? o o ?
 // ? o x ?
@@ -296,6 +310,7 @@ func playSound(world *worldState, id resource.AudioID, pos gmath.Vec) {
 	for _, cam := range world.cameras {
 		if cam.ContainsPos(pos) {
 			world.rootScene.Audio().PlaySound(id)
+			return
 		}
 	}
 }

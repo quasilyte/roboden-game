@@ -137,7 +137,7 @@ func (c *SplashScreenController) Update(delta float64) {
 }
 
 func (c *SplashScreenController) handleInput() {
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionSkipDemo) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionSkipDemo) {
 		c.stopDemo()
 		return
 	}

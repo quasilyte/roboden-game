@@ -400,7 +400,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 	c.world.stage.SetBackground(bg)
 
-	c.camera = c.createCameraManager(viewportWorld, true, c.getPlayerInput(0))
+	c.camera = c.createCameraManager(viewportWorld, true, c.state.GetInput(0))
 
 	forceCenter := c.config.ExecMode == gamedata.ExecuteReplay ||
 		c.config.PlayersMode == serverapi.PmodeTwoBots
@@ -467,7 +467,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	if c.world.config.GameMode == gamedata.ModeTutorial {
-		c.tutorialManager = newTutorialManager(c.state.MainInput, c.world, c.messageManagers[0])
+		c.tutorialManager = newTutorialManager(c.state.GetInput(0), c.world, c.messageManagers[0])
 		c.nodeRunner.AddObject(c.tutorialManager)
 		c.tutorialManager.EventTriggerVictory.Connect(c, c.onVictoryTrigger)
 		c.tutorialManager.EventEnableChoices.Connect(c, func(gsignal.Void) {
@@ -507,7 +507,7 @@ func (c *Controller) updateFogOfWar(pos gmath.Vec) {
 	c.fogOfWar.DrawImage(c.world.visionCircle, &options)
 }
 
-func (c *Controller) createCameraManager(viewportWorld *viewport.World, main bool, h gameinput.Handler) *cameraManager {
+func (c *Controller) createCameraManager(viewportWorld *viewport.World, main bool, h *gameinput.Handler) *cameraManager {
 	cam := c.createCamera(viewportWorld)
 	if !main {
 		cam.ScreenPos.X = (1920.0 / 2 / 2)
@@ -536,24 +536,6 @@ func (c *Controller) createCamera(viewportWorld *viewport.World) *viewport.Camer
 	return cam
 }
 
-func (c *Controller) maybeSwapID(id int) int {
-	if c.state.Persistent.Settings.SwapGamepads && c.config.PlayersMode == serverapi.PmodeTwoPlayers {
-		if id == 0 {
-			return 1
-		}
-		return 0
-	}
-	return id
-}
-
-func (c *Controller) getPlayerInput(id int) gameinput.Handler {
-	id = c.maybeSwapID(id)
-	if id == 0 {
-		return c.state.MainInput
-	}
-	return c.state.SecondInput
-}
-
 func (c *Controller) createPlayers() {
 	c.world.players = make([]player, 0, len(c.config.Players))
 	isSimulation := c.world.config.ExecMode == gamedata.ExecuteReplay ||
@@ -576,7 +558,7 @@ func (c *Controller) createPlayers() {
 				p = newReplayPlayer(c.world, pstate, choiceGen)
 				pstate.replay = c.replayActions[i]
 			} else {
-				playerInput := c.getPlayerInput(i)
+				playerInput := c.state.GetInput(i)
 				pstate.camera = c.camera
 				if i != 0 {
 					c.secondCamera = c.createCameraManager(c.camera.World, false, playerInput)
@@ -1035,11 +1017,11 @@ func (c *Controller) handleReplayActions() {
 }
 
 func (c *Controller) sharedActionIsJustPressed(a input.Action) bool {
-	if c.state.MainInput.ActionIsJustPressed(a) {
+	if c.state.GetInput(0).ActionIsJustPressed(a) {
 		return true
 	}
 	if c.world.config.PlayersMode == serverapi.PmodeTwoPlayers {
-		if c.state.SecondInput.ActionIsJustPressed(a) {
+		if c.state.GetInput(1).ActionIsJustPressed(a) {
 			return true
 		}
 	}
@@ -1047,8 +1029,6 @@ func (c *Controller) sharedActionIsJustPressed(a input.Action) bool {
 }
 
 func (c *Controller) handleInput() {
-	mainInput := c.state.MainInput
-
 	switch c.config.ExecMode {
 	case gamedata.ExecuteSimulation:
 		c.handleReplayActions()
@@ -1080,7 +1060,7 @@ func (c *Controller) handleInput() {
 		return
 	}
 
-	if mainInput.ActionIsJustPressed(controls.ActionShowRecipes) {
+	if c.sharedActionIsJustPressed(controls.ActionShowRecipes) {
 		if c.debugInfo != nil {
 			c.debugInfo.Visible = c.recipeTab.Visible
 		}
@@ -1093,7 +1073,8 @@ func (c *Controller) handleInput() {
 	}
 
 	if c.tutorialManager != nil {
-		if mainInput.ActionIsJustPressed(controls.ActionNextTutorialMessage) {
+		// Tutorial is a single player only experience.
+		if c.state.GetInput(0).ActionIsJustPressed(controls.ActionNextTutorialMessage) {
 			c.tutorialManager.OnNextPressed()
 		}
 	}

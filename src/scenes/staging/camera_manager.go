@@ -23,7 +23,7 @@ type cameraManager struct {
 
 	world *worldState
 	mode  cameraMode
-	input gameinput.Handler
+	input *gameinput.Handler
 
 	cameraPanDragPos         gmath.Vec
 	cameraPanSpeed           float64
@@ -75,7 +75,7 @@ func newCameraManager(world *worldState, cam *viewport.Camera) *cameraManager {
 	return m
 }
 
-func (m *cameraManager) InitManualMode(h gameinput.Handler) {
+func (m *cameraManager) InitManualMode(h *gameinput.Handler) {
 	m.mode = camManual
 	m.input = h
 	m.cameraToggleSpeed = 1

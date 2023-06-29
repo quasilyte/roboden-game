@@ -11,12 +11,12 @@ import (
 
 type CursorNode struct {
 	sprite *ge.Sprite
-	input  gameinput.Handler
+	input  *gameinput.Handler
 	pos    gmath.Vec
 	rect   gmath.Rect
 }
 
-func NewCursorNode(h gameinput.Handler, rect gmath.Rect) *CursorNode {
+func NewCursorNode(h *gameinput.Handler, rect gmath.Rect) *CursorNode {
 	return &CursorNode{
 		input: h,
 		rect:  rect,

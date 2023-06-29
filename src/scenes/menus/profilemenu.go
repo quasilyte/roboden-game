@@ -25,7 +25,7 @@ func (c *ProfileMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *ProfileMenuController) Update(delta float64) {
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}

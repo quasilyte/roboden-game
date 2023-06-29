@@ -83,9 +83,11 @@ func main() {
 
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)
 	assets.RegisterRawResources(ctx)
-	primaryInput, secondaryInput := controls.BindKeymap(ctx)
-	state.MainInput = primaryInput
-	state.SecondInput = secondaryInput
+	keymaps := controls.BindKeymap(ctx)
+	state.CombinedInput = keymaps.CombinedInput
+	state.KeyboardInput = keymaps.KeyboardInput
+	state.FirstGamepadInput = keymaps.FirstGamepadInput
+	state.SecondGamepadInput = keymaps.SecondGamepadInput
 
 	if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
 		fmt.Printf("can't load game data: %v", err)
@@ -95,10 +97,12 @@ func main() {
 	} else {
 		contentlock.Update(state)
 	}
+	state.ReloadInputs()
 	state.ReloadLanguage(ctx)
 
-	state.MainInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[0].DeadzoneLevel)
-	state.SecondInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[1].DeadzoneLevel)
+	state.CombinedInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[0].DeadzoneLevel)
+	state.FirstGamepadInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[1].DeadzoneLevel)
+	state.SecondGamepadInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[1].DeadzoneLevel)
 
 	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
 

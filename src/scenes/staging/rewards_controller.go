@@ -61,7 +61,7 @@ func (c *rewardsController) Init(scene *ge.Scene) {
 }
 
 func (c *rewardsController) Update(delta float64) {
-	if c.finished && c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.finished && c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}

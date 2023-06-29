@@ -21,7 +21,7 @@ type choiceWindowNode struct {
 
 	cam *viewport.Camera
 
-	input gameinput.Handler
+	input *gameinput.Handler
 
 	Enabled bool
 
@@ -50,7 +50,7 @@ type choiceOptionSlot struct {
 	option   choiceOption
 }
 
-func newChoiceWindowNode(cam *viewport.Camera, world *worldState, h gameinput.Handler, cursor *gameui.CursorNode, creeps bool) *choiceWindowNode {
+func newChoiceWindowNode(cam *viewport.Camera, world *worldState, h *gameinput.Handler, cursor *gameui.CursorNode, creeps bool) *choiceWindowNode {
 	return &choiceWindowNode{
 		cam:           cam,
 		input:         h,

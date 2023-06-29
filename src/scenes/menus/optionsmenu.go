@@ -27,7 +27,7 @@ func (c *OptionsMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *OptionsMenuController) Update(delta float64) {
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}
@@ -76,7 +76,7 @@ func (c *OptionsMenuController) initUI() {
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:      c.scene,
 			Resources:  uiResources,
-			Input:      c.state.MainInput,
+			Input:      c.state.CombinedInput,
 			Value:      &langIndex,
 			Label:      "Language/Язык",
 			ValueNames: langOptions,

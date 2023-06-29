@@ -25,7 +25,7 @@ func (c *ControlsMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *ControlsMenuController) Update(delta float64) {
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}
@@ -39,9 +39,9 @@ func (c *ControlsMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
 	root.AddChild(rowContainer)
 
-	d := c.scene.Dict()
+	options := &c.state.Persistent.Settings
 
-	smallFont := assets.BitmapFont1
+	d := c.scene.Dict()
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
@@ -57,23 +57,36 @@ func (c *ControlsMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewControlsGamepadMenuController(c.state, 1))
 	}))
 
-	touchButton := eui.NewButton(uiResources, c.scene, d.Get("menu.controls.touch"), func() {
-	})
-	touchButton.GetWidget().Disabled = true
-	rowContainer.AddChild(touchButton)
+	// TODO: show it for mobile devices.
+	// touchButton := eui.NewButton(uiResources, c.scene, d.Get("menu.controls.touch"), func() {
+	// })
+	// touchButton.GetWidget().Disabled = true
+	// rowContainer.AddChild(touchButton)
 
-	rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-		Scene:     c.scene,
-		Resources: uiResources,
-		Value:     &c.state.Persistent.Settings.SwapGamepads,
-		Label:     d.Get("menu.controls_swap_gamepads"),
-		ValueNames: []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		},
-	}))
-
-	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.controls.notice"), smallFont))
+	if !c.state.Device.IsMobile {
+		inputMethods := []string{
+			d.Get("menu.controls.method_combined"),
+			d.Get("menu.controls.method_keyboard"),
+			d.Get("menu.controls.method_gamepad") + " 1",
+			d.Get("menu.controls.method_gamepad") + " 2",
+		}
+		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+			Resources:  uiResources,
+			Input:      c.state.CombinedInput,
+			Scene:      c.scene,
+			Value:      &options.Player1InputMethod,
+			ValueNames: inputMethods,
+			Label:      d.Get("menu.controls.player_label") + " 1",
+		}))
+		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+			Resources:  uiResources,
+			Input:      c.state.CombinedInput,
+			Scene:      c.scene,
+			Value:      &options.Player2InputMethod,
+			ValueNames: inputMethods,
+			Label:      d.Get("menu.controls.player_label") + " 2",
+		}))
+	}
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
@@ -87,5 +100,7 @@ func (c *ControlsMenuController) initUI() {
 }
 
 func (c *ControlsMenuController) back() {
+	c.state.ReloadInputs()
+	c.scene.Context().SaveGameData("save", c.state.Persistent)
 	c.scene.Context().ChangeScene(NewOptionsController(c.state))
 }

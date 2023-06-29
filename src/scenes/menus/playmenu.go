@@ -31,7 +31,7 @@ func (c *PlayMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *PlayMenuController) Update(delta float64) {
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}

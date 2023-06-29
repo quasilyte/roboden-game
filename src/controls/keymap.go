@@ -52,7 +52,14 @@ const (
 	ActionMoveChoice
 )
 
-func BindKeymap(ctx *ge.Context) (gameinput.Handler, gameinput.Handler) {
+type KeymapSet struct {
+	CombinedInput      gameinput.Handler
+	KeyboardInput      gameinput.Handler
+	FirstGamepadInput  gameinput.Handler
+	SecondGamepadInput gameinput.Handler
+}
+
+func BindKeymap(ctx *ge.Context) KeymapSet {
 	gamepadKeymap := input.Keymap{
 		ActionSkipDemo: {input.KeyGamepadStart},
 
@@ -89,7 +96,7 @@ func BindKeymap(ctx *ge.Context) (gameinput.Handler, gameinput.Handler) {
 		ActionClick: {input.KeyGamepadRStick},
 	}
 
-	mainKeymap := input.Keymap{
+	keyboardKeymap := input.Keymap{
 		ActionSkipDemo: {input.KeyEnter},
 
 		ActionNextTutorialMessage: {input.KeyEnter},
@@ -124,20 +131,28 @@ func BindKeymap(ctx *ge.Context) (gameinput.Handler, gameinput.Handler) {
 		ActionChoice3:    {input.Key3},
 		ActionChoice4:    {input.Key4},
 		ActionChoice5:    {input.Key5},
-		ActionMoveChoice: {input.KeyMouseRight, input.KeyTouchTap},
+		ActionMoveChoice: {input.KeyMouseRight},
 
-		ActionClick: {input.KeyMouseLeft, input.KeyTouchTap},
+		ActionClick: {input.KeyMouseLeft},
+	}
+
+	mainKeymap := input.Keymap{
+		ActionMoveChoice: {input.KeyTouchTap},
+
+		ActionClick: {input.KeyTouchTap},
 	}
 
 	for a, keys := range gamepadKeymap {
 		mainKeymap[a] = append(mainKeymap[a], keys...)
 	}
+	for a, keys := range keyboardKeymap {
+		mainKeymap[a] = append(mainKeymap[a], keys...)
+	}
 
-	primary := gameinput.Handler{
-		Handler: ctx.Input.NewHandler(0, mainKeymap),
+	return KeymapSet{
+		CombinedInput:      gameinput.Handler{Handler: ctx.Input.NewHandler(0, mainKeymap)},
+		KeyboardInput:      gameinput.Handler{Handler: ctx.Input.NewHandler(0, keyboardKeymap)},
+		FirstGamepadInput:  gameinput.Handler{Handler: ctx.Input.NewHandler(0, gamepadKeymap)},
+		SecondGamepadInput: gameinput.Handler{Handler: ctx.Input.NewHandler(1, gamepadKeymap)},
 	}
-	second := gameinput.Handler{
-		Handler: ctx.Input.NewHandler(1, gamepadKeymap),
-	}
-	return primary, second
 }

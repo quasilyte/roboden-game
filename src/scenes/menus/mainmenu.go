@@ -30,7 +30,7 @@ func NewMainMenuController(state *session.State) *MainMenuController {
 func (c *MainMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 
-	c.cursor = gameui.NewCursorNode(c.state.MainInput, scene.Context().WindowRect())
+	c.cursor = gameui.NewCursorNode(&c.state.CombinedInput, scene.Context().WindowRect())
 	scene.AddObject(c.cursor)
 
 	scene.Audio().SetGroupVolume(assets.SoundGroupMusic,
@@ -46,7 +46,7 @@ func (c *MainMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *MainMenuController) Update(delta float64) {
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.scene.Audio().PauseCurrentMusic()
 		c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
 		return

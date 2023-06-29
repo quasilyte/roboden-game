@@ -100,8 +100,6 @@
 ##menu.terminal.command_output_label : Command output
 ##menu.terminal.placeholder : type commands in here
 
-##menu.controls_swap_gamepads : Swap gamepads
-
 ##menu.option.on : on
 ##menu.option.off : off
 
@@ -305,8 +303,10 @@ You can make them really rare or appear almost everywhere.
 ##menu.controls.keyboard : Keyboard
 ##menu.controls.gamepad : Gamepad
 ##menu.controls.touch : Touchscreen
-##menu.controls.notice : Controls remapping is coming soon!
-
+##menu.controls.method_combined : combined
+##menu.controls.method_keyboard : keyboard
+##menu.controls.method_gamepad : gamepad
+##menu.controls.player_label : Player
 ##menu.controls.gamepad_deadzone : Joystick deadzone
 
 ##menu.controls.keyboard.text

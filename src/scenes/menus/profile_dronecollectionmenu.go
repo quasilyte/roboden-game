@@ -33,7 +33,7 @@ func (c *ProfileDroneCollectionMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *ProfileDroneCollectionMenuController) Update(delta float64) {
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}

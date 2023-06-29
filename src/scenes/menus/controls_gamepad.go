@@ -33,7 +33,7 @@ func (c *ControlsGamepadMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *ControlsGamepadMenuController) Update(delta float64) {
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}
@@ -75,7 +75,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
-		Input:      c.state.MainInput,
+		Input:      c.state.CombinedInput,
 		Value:      &options.GamepadSettings[c.id].DeadzoneLevel,
 		Label:      d.Get("menu.controls.gamepad_deadzone"),
 		ValueNames: []string{"0.05", "0.10", "0.15", "0.20", "0.25", "0.30", "0.35", "0.40"},

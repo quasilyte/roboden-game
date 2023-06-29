@@ -35,7 +35,7 @@ func (c *UserNameMenu) Init(scene *ge.Scene) {
 
 func (c *UserNameMenu) Update(delta float64) {
 	c.errorSoundDelay = gmath.ClampMin(c.errorSoundDelay-delta, 0)
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}

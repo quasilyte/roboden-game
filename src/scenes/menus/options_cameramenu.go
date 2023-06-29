@@ -26,7 +26,7 @@ func (c *OptionsCameraMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *OptionsCameraMenuController) Update(delta float64) {
-	if c.state.MainInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
 		c.back()
 		return
 	}
@@ -50,7 +50,7 @@ func (c *OptionsCameraMenuController) initUI() {
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:      c.scene,
 			Resources:  uiResources,
-			Input:      c.state.MainInput,
+			Input:      c.state.CombinedInput,
 			Value:      &options.ScrollingSpeed,
 			Label:      d.Get("menu.options.scroll_speed"),
 			ValueNames: []string{"1", "2", "3", "4", "5"},
@@ -61,7 +61,7 @@ func (c *OptionsCameraMenuController) initUI() {
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:      c.scene,
 			Resources:  uiResources,
-			Input:      c.state.MainInput,
+			Input:      c.state.CombinedInput,
 			Value:      &options.EdgeScrollRange,
 			Label:      d.Get("menu.options.edge_scroll_range"),
 			ValueNames: []string{"0", "1", "2", "3", "4"},

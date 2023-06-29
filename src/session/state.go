@@ -31,8 +31,12 @@ type State struct {
 
 	Device userdevice.Info
 
-	MainInput   gameinput.Handler
-	SecondInput gameinput.Handler
+	CombinedInput      gameinput.Handler
+	KeyboardInput      gameinput.Handler
+	FirstGamepadInput  gameinput.Handler
+	SecondGamepadInput gameinput.Handler
+
+	BoundInputs [2]*gameinput.Handler
 
 	ClassicLevelConfig  *gamedata.LevelConfig
 	ArenaLevelConfig    *gamedata.LevelConfig
@@ -54,10 +58,7 @@ type State struct {
 }
 
 func (state *State) GetInput(id int) *gameinput.Handler {
-	if id == 0 {
-		return &state.MainInput
-	}
-	return &state.SecondInput
+	return state.BoundInputs[id]
 }
 
 type PersistentData struct {
@@ -113,6 +114,15 @@ type GamepadSettings struct {
 	DeadzoneLevel int
 }
 
+type PlayerInputMethod int
+
+const (
+	InputMethodCombined PlayerInputMethod = iota
+	InputMethodKeyboard
+	InputMethodGamepad1
+	InputMethodGamepad2
+)
+
 type GameSettings struct {
 	Lang               string
 	MusicVolumeLevel   int
@@ -124,9 +134,10 @@ type GameSettings struct {
 	DebugLogs          bool
 	DebugDroneLabels   bool
 	Demo               bool
-	SwapGamepads       bool
 	GamepadSettings    [2]GamepadSettings
 	Graphics           GraphicsSettings
+	Player1InputMethod int
+	Player2InputMethod int
 }
 
 type GraphicsSettings struct {
@@ -139,6 +150,26 @@ type SavedReplay struct {
 	Date      time.Time
 	ResultTag string
 	Replay    serverapi.GameReplay
+}
+
+func (state *State) ReloadInputs() {
+	state.BoundInputs[0] = state.resolveInputMethod(PlayerInputMethod(state.Persistent.Settings.Player1InputMethod))
+	state.BoundInputs[1] = state.resolveInputMethod(PlayerInputMethod(state.Persistent.Settings.Player2InputMethod))
+}
+
+func (state *State) resolveInputMethod(method PlayerInputMethod) *gameinput.Handler {
+	switch method {
+	case InputMethodCombined:
+		return &state.CombinedInput
+	case InputMethodKeyboard:
+		return &state.KeyboardInput
+	case InputMethodGamepad1:
+		return &state.FirstGamepadInput
+	case InputMethodGamepad2:
+		return &state.SecondGamepadInput
+	default:
+		return &state.CombinedInput
+	}
 }
 
 func (state *State) ReloadLanguage(ctx *ge.Context) {
@@ -170,7 +201,7 @@ func (state *State) ReloadLanguage(ctx *ge.Context) {
 
 func (state *State) DetectInputMode() string {
 	inputMode := "keyboard"
-	if state.MainInput.GamepadConnected() {
+	if state.CombinedInput.GamepadConnected() {
 		inputMode = "gamepad"
 	}
 	return inputMode

@@ -20,7 +20,7 @@ import (
 // them here in the most adhoc way possible.
 
 type tutorialManager struct {
-	input gameinput.Handler
+	input *gameinput.Handler
 
 	scene *ge.Scene
 
@@ -56,7 +56,7 @@ type tutorialManager struct {
 	EventTriggerVictory gsignal.Event[gsignal.Void]
 }
 
-func newTutorialManager(h gameinput.Handler, world *worldState, messageManager *messageManager) *tutorialManager {
+func newTutorialManager(h *gameinput.Handler, world *worldState, messageManager *messageManager) *tutorialManager {
 	return &tutorialManager{
 		input:           h,
 		world:           world,

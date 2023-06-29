@@ -61,7 +61,7 @@ func (c *PanicController) Init(scene *ge.Scene) {
 
 func (c *PanicController) Update(delta float64) {
 	if c.state != nil {
-		if c.state.MainInput.ActionIsJustPressed(controls.ActionSkipDemo) {
+		if c.state.CombinedInput.ActionIsJustPressed(controls.ActionSkipDemo) {
 			c.scene.Context().ChangeScene(NewMainMenuController(c.state))
 			return
 		}

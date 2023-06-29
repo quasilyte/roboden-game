@@ -10,6 +10,8 @@ func GetDefaultData() session.PersistentData {
 	return session.PersistentData{
 		// The default settings.
 		Settings: session.GameSettings{
+			Player1InputMethod: int(session.InputMethodCombined),
+			Player2InputMethod: int(session.InputMethodGamepad2),
 			EffectsVolumeLevel: 2,
 			MusicVolumeLevel:   2,
 			ScrollingSpeed:     2,

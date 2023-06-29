@@ -21,7 +21,7 @@ type humanPlayer struct {
 	world     *worldState
 	state     *playerState
 	scene     *ge.Scene
-	input     gameinput.Handler
+	input     *gameinput.Handler
 	choiceGen *choiceGenerator
 
 	choiceWindow         *choiceWindowNode
@@ -45,7 +45,7 @@ type humanPlayer struct {
 type humanPlayerConfig struct {
 	world       *worldState
 	state       *playerState
-	input       gameinput.Handler
+	input       *gameinput.Handler
 	cursor      *gameui.CursorNode
 	choiceGen   *choiceGenerator
 	creepsState *creepsPlayerState

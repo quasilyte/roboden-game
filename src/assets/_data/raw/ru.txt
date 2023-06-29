@@ -249,7 +249,6 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.controls.keyboard : Клавиатура
 ##menu.controls.gamepad : Геймпад
 ##menu.controls.touch : Тачскрин
-##menu.controls.notice : Изменение схемы управления уже в разработке!
 
 ##menu.controls.keyboard.text
 Управление камерой | Колёсико + перемещение, скролл у края экрана, WASD

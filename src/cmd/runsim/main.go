@@ -56,7 +56,7 @@ func main() {
 			},
 		},
 	}
-	state.MainInput = gameinput.Handler{
+	state.CombinedInput = gameinput.Handler{
 		Handler: ctx.Input.NewHandler(0, nil),
 	}
 

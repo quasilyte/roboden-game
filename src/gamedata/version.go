@@ -152,6 +152,7 @@ const SeasonNumber = 0
 // * New content:
 //   - Added Commander tier 2 drone
 //   - Added Targeter tier 2 drone
+//   - Added Firebug tier 2 drone
 //   - Added Harvester turret
 //
 // * Visual improvements:

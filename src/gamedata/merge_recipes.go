@@ -1,17 +1,19 @@
 package gamedata
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Merge usage:
 //
 // yellow worker +++++
-// yellow scout  ++++++
+// yellow scout  +++++++
 // red worker    ++++++
 // red scout     +++++++
-// green worker  +++++
+// green worker  ++++++
 // green scout   ++++++
-// blue worker   +++++
-// blue scout    ++++++
+// blue worker   ++++++
+// blue scout    +++++++
 //
 // Used:
 // mortar: green worker + red scout
@@ -37,15 +39,14 @@ import "fmt"
 // scarab: yellow worker + red scout
 // commander: red worker + yellow scout
 // targeter: green worker + green scout [! a non-standard combination]
+// firebug: blue worker + yellow scout
 //
 // Unused:
 // yellow worker + green scout
 // red worker + green worker
 // red worker + green scout
-// green worker + blue scout
 // blue worker + red scout
-// blue worker + green scout
-// blue worker + yellow scout
+// green worker + blue scout
 var Tier2agentMergeRecipes = []AgentMergeRecipe{
 	{
 		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
@@ -161,6 +162,11 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
 		Drone2: RecipeSubject{RedFactionTag, AgentScout},
 		Result: ScarabAgentStats,
+	},
+	{
+		Drone1: RecipeSubject{BlueFactionTag, AgentWorker},
+		Drone2: RecipeSubject{YellowFactionTag, AgentScout},
+		Result: FirebugAgentStats,
 	},
 }
 

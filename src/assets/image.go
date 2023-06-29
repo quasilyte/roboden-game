@@ -143,6 +143,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageRoombaAgent:        {Path: "image/drones/roomba_agent.png", FrameWidth: 17, FrameHeight: 13},
 		ImageWorkerAgent:        {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
 		ImageScoutAgent:         {Path: "image/drones/scout_agent.png", FrameWidth: 11, FrameHeight: 13},
+		ImageFirebugAgent:       {Path: "image/drones/firebug_agent.png", FrameWidth: 19, FrameHeight: 19},
 		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 13},
 		ImageScavengerAgent:     {Path: "image/drones/scavenger_agent.png", FrameWidth: 15, FrameHeight: 12},
 		ImageCourierAgent:       {Path: "image/drones/courier_agent.png", FrameWidth: 15, FrameHeight: 15},
@@ -249,6 +250,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                  {Path: "image/projectile/missile.png"},
 
+		ImageFlamerLine:    {Path: "image/lines/flamer_line.png"},
 		ImageTargeterLine:  {Path: "image/lines/targeter_line.png"},
 		ImageStunnerLine:   {Path: "image/lines/stunner_line.png"},
 		ImageBossLaserLine: {Path: "image/lines/boss_laser_line.png"},
@@ -448,6 +450,7 @@ const (
 	ImageWorkerAgent
 	ImageGeneratorAgent
 	ImageSkirmisherAgent
+	ImageFirebugAgent
 	ImageScarabAgent
 	ImageDevourerAgent
 	ImageScoutAgent
@@ -542,6 +545,7 @@ const (
 	ImageMissile
 
 	ImageBossLaserLine
+	ImageFlamerLine
 	ImageTargeterLine
 	ImageStunnerLine
 	ImageRepairLine

@@ -51,6 +51,7 @@ const (
 	AgentRoomba
 	AgentCommander
 	AgentTargeter
+	AgentFirebug
 
 	// Tier3
 	AgentGuardian
@@ -91,6 +92,7 @@ func FindTurretByName(turretName string) *AgentStats {
 type AgentStats struct {
 	Kind      ColonyAgentKind
 	Image     resource.ImageID
+	AnimSpeed float64
 	Tier      int
 	PointCost int
 	ScoreCost int
@@ -742,6 +744,34 @@ var DefenderAgentStats = InitDroneStats(&AgentStats{
 	}),
 	BeamOpaqueTime: 0.1,
 	BeamSlideSpeed: -1.6,
+})
+
+var FirebugAgentStats = InitDroneStats(&AgentStats{
+	ScoreCost:   FirebugDroneCost,
+	IsFlying:    true,
+	Kind:        AgentFirebug,
+	Image:       assets.ImageFirebugAgent,
+	AnimSpeed:   0.1,
+	Size:        SizeMedium,
+	DiodeOffset: -1,
+	Tier:        2,
+	PointCost:   2,
+	Cost:        30,
+	Upkeep:      10,
+	CanPatrol:   true,
+	Speed:       85,
+	MaxHealth:   30,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange: 55,
+		Reload:      2.4,
+		AttackSound: assets.AudioFirebugShot,
+		Damage:      DamageValue{Health: 12},
+		MaxTargets:  1,
+		BurstSize:   1,
+		TargetFlags: TargetFlying | TargetGround,
+	}),
+	BeamOpaqueTime: 0.15,
+	BeamSlideSpeed: 2.2,
 })
 
 var ScavengerAgentStats = InitDroneStats(&AgentStats{

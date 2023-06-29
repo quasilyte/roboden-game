@@ -55,6 +55,7 @@ func CreateDroneBuild(rng *gmath.Rand) []string {
 		DisintegratorAgentStats,
 		MortarAgentStats,
 		AntiAirAgentStats,
+		FirebugAgentStats,
 	}
 	extraDrones := []*AgentStats{
 		RoombaAgentStats,

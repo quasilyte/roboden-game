@@ -331,6 +331,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		// not create the animation object.
 		if a.sprite.FrameWidth != a.sprite.ImageWidth() {
 			a.anim = ge.NewRepeatedAnimation(a.sprite, -1)
+			if a.stats.AnimSpeed != 0 {
+				a.anim.SetSecondsPerFrame(a.stats.AnimSpeed)
+			}
 			a.anim.Tick(a.world().localRand.FloatRange(0, 0.7))
 			a.anim.SetOffsetY(float64(a.rank) * a.sprite.FrameHeight)
 		}

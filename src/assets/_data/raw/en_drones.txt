@@ -127,6 +127,12 @@ The drones under its control get a fire accuracy bonus and panic status effect i
 A support combat drone that marks its targets.
 A marked target can be attacked by other drones from a much longer distance.
 
+##drone.firebug : Firebug
+##drone.firebug.description
+A combat drone with an extremely low attack range.
+It's essential to command these drones to attack to realize their full potential.
+The weapon they're wielding is deadly, and their armor is solid.
+
 ##drone.trucker : Trucker
 ##drone.trucker.description
 An improved version of courier drone.

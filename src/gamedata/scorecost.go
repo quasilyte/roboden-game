@@ -17,6 +17,7 @@ const (
 	SkirmisherDroneCost    int = 8500
 	KamikazeDroneCost      int = 9500
 	ScarabDroneCost        int = 10500
+	FirebugDroneCost       int = 11500
 
 	BeamTowerTurretCost int = 3000
 	HarvesterTurretCost int = 5000

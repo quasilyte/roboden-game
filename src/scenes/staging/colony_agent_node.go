@@ -2060,7 +2060,7 @@ func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
 
 func (a *colonyAgentNode) updateMerging(delta float64) {
 	target := a.target.(*colonyAgentNode)
-	if target.IsDisposed() {
+	if target.IsDisposed() || target.mode != a.mode {
 		if a.cloningBeam != nil {
 			a.cloningBeam.Dispose()
 		}

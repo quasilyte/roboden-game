@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 )
 
@@ -40,6 +41,23 @@ func (c *LayerContainer) AddGraphics(o cameraObject) {
 		return
 	}
 	c.objects.Add(o)
+}
+
+func (c *LayerContainer) MoveSlightlyAboveSpriteDown(s *ge.Sprite) {
+	if c.headless {
+		return
+	}
+	index := xslices.Index(c.slightlyAboveObjects.sprites, s)
+	if index == -1 {
+		return
+	}
+	if index == 0 {
+		return // Already at the bottom (in terms of the rendering order)
+	}
+	// Since this "slightly above" layer is only used for colony cores (and their selectors),
+	// this slice is very small. If that will change, we'll need to find a different approach.
+	copy(c.slightlyAboveObjects.sprites[1:], c.slightlyAboveObjects.sprites[:index])
+	c.slightlyAboveObjects.sprites[0] = s
 }
 
 func (c *LayerContainer) AddSpriteSlightlyAbove(s *ge.Sprite) {

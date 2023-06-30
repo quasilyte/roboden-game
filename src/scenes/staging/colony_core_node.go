@@ -720,6 +720,10 @@ func (c *colonyCoreNode) startLanding() {
 	c.waypoint = c.relocationPoint
 	c.mode = colonyModeLanding
 	c.markCells(c.relocationPoint)
+	for _, rect := range c.flyingResourceRects {
+		c.world.stage.MoveSlightlyAboveSpriteDown(rect)
+	}
+	c.world.stage.MoveSlightlyAboveSpriteDown(c.flyingSprite)
 }
 
 func (c *colonyCoreNode) updateRelocating(delta float64) {

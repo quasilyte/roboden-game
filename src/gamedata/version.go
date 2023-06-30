@@ -163,6 +163,8 @@ const SeasonNumber = 0
 //
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect
+//   - Better layers for colonies (especially when they're landing)
+//   - Better layers for explosions (they're above dreadnought now, as they should be)
 //
 // * Gameplay:
 //   - Reworked the tutorial

@@ -726,7 +726,7 @@ func (c *creepNode) updateBuilder(delta float64) {
 			turret.specialTarget = c
 			c.specialTarget = turret
 			c.world.nodeRunner.AddObject(turret)
-			lasers := newBuilderLaserNode(c.world.stage, c.pos)
+			lasers := newBuilderLaserNode(c.world, c.pos)
 			c.EventBuildingStop.Connect(lasers, lasers.OnBuildingStop)
 			c.world.nodeRunner.AddObject(lasers)
 			return

@@ -116,6 +116,8 @@ func main() {
 		return menus.NewPanicController(panicInfo)
 	}
 
+	gamedata.Validate()
+
 	if err := ge.RunGame(ctx, menus.NewBootloadController(state)); err != nil {
 		panic(err)
 	}

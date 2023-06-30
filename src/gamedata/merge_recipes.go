@@ -6,14 +6,14 @@ import (
 
 // Merge usage:
 //
-// yellow worker +++++
-// yellow scout  +++++++
-// red worker    ++++++
+// yellow worker ++++++
+// yellow scout  ++++++
+// red worker    +++++
 // red scout     +++++++
-// green worker  ++++++
-// green scout   ++++++
+// green worker  +++++
+// green scout   +++++++
 // blue worker   ++++++
-// blue scout    +++++++
+// blue scout    ++++++
 //
 // Used:
 // mortar: green worker + red scout
@@ -37,14 +37,12 @@ import (
 // roomba: red scout + red scout [! a non-standard combination]
 // skirmisher: green scout + blue scout
 // scarab: yellow worker + red scout
-// commander: red worker + yellow scout
+// commander: yellow worker + green scout
 // targeter: green worker + green scout [! a non-standard combination]
 // firebug: blue worker + yellow scout
 //
 // Unused:
-// yellow worker + green scout
 // red worker + green worker
-// red worker + green scout
 // blue worker + red scout
 // green worker + blue scout
 var Tier2agentMergeRecipes = []AgentMergeRecipe{
@@ -129,8 +127,8 @@ var Tier2agentMergeRecipes = []AgentMergeRecipe{
 		Result: DisintegratorAgentStats,
 	},
 	{
-		Drone1: RecipeSubject{RedFactionTag, AgentWorker},
-		Drone2: RecipeSubject{YellowFactionTag, AgentScout},
+		Drone1: RecipeSubject{YellowFactionTag, AgentWorker},
+		Drone2: RecipeSubject{GreenFactionTag, AgentScout},
 		Result: CommanderAgentStats,
 	},
 	{

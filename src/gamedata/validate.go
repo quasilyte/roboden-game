@@ -1,10 +1,31 @@
 package gamedata
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/quasilyte/roboden-game/serverapi"
 )
+
+func Validate() {
+	recipes := map[[2]RecipeSubject]string{}
+	for _, r := range Tier2agentMergeRecipes {
+		k1 := [2]RecipeSubject{r.Drone1, r.Drone2}
+		k2 := [2]RecipeSubject{r.Drone2, r.Drone1}
+		var resultName string
+		if name, ok := recipes[k1]; ok {
+			resultName = name
+		}
+		if name, ok := recipes[k2]; ok {
+			resultName = name
+		}
+		if resultName != "" {
+			panic(fmt.Sprintf("%s and %s recipe conflict", r.Result.Kind, resultName))
+		}
+		recipes[k1] = r.Result.Kind.String()
+		recipes[k2] = r.Result.Kind.String()
+	}
+}
 
 func IsRunnableReplay(r serverapi.GameReplay) bool {
 	switch r.Config.RawGameMode {

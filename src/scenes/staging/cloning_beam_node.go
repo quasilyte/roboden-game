@@ -45,8 +45,8 @@ func (b *cloningBeamNode) Update(delta float64) {
 	b.soundDelay -= delta
 	if b.delay <= 0 {
 		b.delay = 0.06
-		offset1 := b.world.rand.Offset(-6, 6)
-		offset2 := b.world.rand.Offset(-6, 6)
+		offset1 := b.world.localRand.Offset(-6, 6)
+		offset2 := b.world.localRand.Offset(-6, 6)
 		b.lines[0].EndPos.Offset = b.to.Offset.Add(offset1)
 		b.lines[1].EndPos.Offset = b.to.Offset.Add(offset2)
 		b.lines[2].BeginPos.Offset = b.lines[0].EndPos.Resolve()
@@ -55,19 +55,19 @@ func (b *cloningBeamNode) Update(delta float64) {
 
 	if b.soundDelay <= 0 {
 		if b.merging {
-			if b.world.rand.Bool() {
-				b.soundDelay = b.world.rand.FloatRange(0.5, 0.75)
+			if b.world.localRand.Bool() {
+				b.soundDelay = b.world.localRand.FloatRange(0.5, 0.75)
 				playSound(b.world, assets.AudioMerging1, *b.from)
 			} else {
-				b.soundDelay = b.world.rand.FloatRange(0.55, 0.9)
+				b.soundDelay = b.world.localRand.FloatRange(0.55, 0.9)
 				playSound(b.world, assets.AudioMerging2, *b.from)
 			}
 		} else {
-			if b.world.rand.Bool() {
-				b.soundDelay = b.world.rand.FloatRange(0.3, 0.7)
+			if b.world.localRand.Bool() {
+				b.soundDelay = b.world.localRand.FloatRange(0.3, 0.7)
 				playSound(b.world, assets.AudioCloning1, *b.from)
 			} else {
-				b.soundDelay = b.world.rand.FloatRange(0.25, 0.6)
+				b.soundDelay = b.world.localRand.FloatRange(0.25, 0.6)
 				playSound(b.world, assets.AudioCloning2, *b.from)
 			}
 		}

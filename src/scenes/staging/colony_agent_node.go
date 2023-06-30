@@ -1294,8 +1294,10 @@ func (a *colonyAgentNode) doRecharge() {
 			x.pos.DistanceSquaredTo(a.pos) < gamedata.RechargerAgentStats.SupportRangeSqr
 	})
 	if target != nil {
+		if !a.world().simulation {
+			a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RechargerAgentStats))
+		}
 		target.energy = gmath.ClampMax(target.energy+rechargerEnergyRecorery, target.maxEnergy)
-		a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RechargerAgentStats))
 		playSound(a.world(), assets.AudioRechargerBeam, a.pos)
 	}
 }
@@ -1319,7 +1321,9 @@ func (a *colonyAgentNode) doRepair() {
 			x.pos.DistanceSquaredTo(a.pos) < gamedata.RepairAgentStats.SupportRangeSqr
 	})
 	if target != nil {
-		a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RepairAgentStats))
+		if !a.world().simulation {
+			a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RepairAgentStats))
+		}
 		target.health = gmath.ClampMax(target.health+3, target.maxHealth)
 		playSound(a.world(), assets.AudioRepairBeam, a.pos)
 	}

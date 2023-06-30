@@ -4,12 +4,11 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
-	"github.com/quasilyte/roboden-game/viewport"
 )
 
 type builderLaserNode struct {
 	scene        *ge.Scene
-	stage        *viewport.CameraStage
+	world        *worldState
 	pos          gmath.Vec
 	disposed     bool
 	arms         []*ge.Line
@@ -18,9 +17,9 @@ type builderLaserNode struct {
 	armMoveDelay float64
 }
 
-func newBuilderLaserNode(stage *viewport.CameraStage, pos gmath.Vec) *builderLaserNode {
+func newBuilderLaserNode(world *worldState, pos gmath.Vec) *builderLaserNode {
 	return &builderLaserNode{
-		stage: stage,
+		world: world,
 		pos:   pos,
 	}
 }
@@ -58,7 +57,7 @@ func (laser *builderLaserNode) Init(scene *ge.Scene) {
 		var colorScale ge.ColorScale
 		colorScale.SetColor(builderBeamColor)
 		arm.SetColorScale(colorScale)
-		laser.stage.AddGraphics(arm)
+		laser.world.stage.AddGraphics(arm)
 		laser.arms[i] = arm
 	}
 }
@@ -70,9 +69,9 @@ func (laser *builderLaserNode) OnBuildingStop(gsignal.Void) {
 func (laser *builderLaserNode) Update(delta float64) {
 	laser.armMoveDelay = gmath.ClampMin(laser.armMoveDelay-delta, 0)
 	if laser.armMoveDelay == 0 {
-		laser.armMoveDelay = laser.scene.Rand().FloatRange(0.05, 0.1)
-		armMoved := laser.scene.Rand().IntRange(0, 4)
+		laser.armMoveDelay = laser.world.localRand.FloatRange(0.05, 0.1)
+		armMoved := laser.world.localRand.IntRange(0, 4)
 
-		laser.arms[armMoved].EndPos.Offset = laser.scene.Rand().Offset(-2, 2)
+		laser.arms[armMoved].EndPos.Offset = laser.world.localRand.Offset(-2, 2)
 	}
 }

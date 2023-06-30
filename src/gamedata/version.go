@@ -170,6 +170,9 @@ const SeasonNumber = 0
 // * Bug fixes:
 //   - "Colony" settings tab is not properly disabled in Reverse mode
 //
+// * Performance:
+//   - Precompute waypoint direction once for colony agents
+//
 // * Misc:
 //   - Updated ebitenui library version
 const BuildNumber int = 13

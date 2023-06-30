@@ -105,6 +105,7 @@ type colonyAgentNode struct {
 
 	mode     colonyAgentMode
 	waypoint gmath.Vec
+	dir      gmath.Vec
 	target   any
 
 	payload         int
@@ -386,21 +387,21 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	switch mode {
 	case agentModeReturn:
 		entranceNum := a.scene.Rand().IntRange(0, 2)
-		a.waypoint = a.colonyCore.GetStoragePos().Add(gmath.Vec{Y: float64(entranceNum) * 8})
+		a.setWaypoint(a.colonyCore.GetStoragePos().Add(gmath.Vec{Y: float64(entranceNum) * 8}))
 		a.mode = mode
 		return true
 
 	case agentModePatrol:
 		a.mode = mode
 		a.dist = a.colonyCore.PatrolRadius()
-		a.waypoint = a.orbitingWaypoint(a.colonyCore.pos, a.dist)
+		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
 		a.waypointsLeft = a.scene.Rand().IntRange(40, 70)
 		return true
 
 	case agentModeWaitCloning:
 		a.mode = mode
 		a.target = target
-		a.waypoint = gmath.Vec{}
+		a.clearWaypoint()
 		return true
 
 	case agentModeMakeClone:
@@ -409,14 +410,14 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.dist = a.scene.Rand().FloatRange(1.2, 2) // cloning time
 		a.energyBill += 20
 		targetPos := target.(*colonyAgentNode).pos
-		a.waypoint = a.pos.DirectionTo(targetPos).Mulf(110).Add(targetPos).Add(a.scene.Rand().Offset(-20, 20))
+		a.setWaypoint(a.pos.DirectionTo(targetPos).Mulf(110).Add(targetPos).Add(a.scene.Rand().Offset(-20, 20)))
 		return true
 
 	case agentModeMerging, agentModeMergingRoomba:
 		a.mode = mode
 		a.target = target
 		a.dist = a.scene.Rand().FloatRange(8, 10) // merging time
-		a.waypoint = pos
+		a.setWaypoint(pos)
 		if mode == agentModeMergingRoomba {
 			a.dist *= 1.5
 		}
@@ -432,17 +433,17 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		}
 		a.sprite.SetColorScale(ge.ColorScale{R: 1, G: 1, B: 1, A: 1})
 		a.mode = mode
-		a.waypoint = a.pos.Sub(gmath.Vec{Y: agentFlightHeight - a.height})
+		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight - a.height}))
 		return true
 
 	case agentModeMove:
 		a.mode = mode
-		a.waypoint = pos
+		a.setWaypoint(pos)
 		return true
 
 	case agentModePanic:
 		a.mode = mode
-		a.waypoint = a.pos
+		a.setWaypoint(a.pos)
 		a.waypointsLeft = a.scene.Rand().IntRange(4, 9)
 		return true
 
@@ -460,7 +461,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			maxDist *= 0.65
 		}
 		a.dist = a.scene.Rand().FloatRange(40, maxDist)
-		a.waypoint = a.orbitingWaypoint(a.colonyCore.pos, a.dist)
+		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
 		a.waypointsLeft = 0
 		return true
 
@@ -468,7 +469,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		isPatrol := a.mode == agentModePatrol
 		a.mode = agentModeFollow // attack is a long-range follow
 		a.target = target
-		a.waypoint = a.followWaypoint(target.(*creepNode).pos)
+		a.setWaypoint(a.followWaypoint(target.(*creepNode).pos))
 		if isPatrol {
 			a.waypointsLeft = a.scene.Rand().IntRange(4, 6)
 		} else {
@@ -484,18 +485,18 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModeCloakHide:
 		a.mode = mode
-		a.waypoint = gmath.Vec{}
+		a.clearWaypoint()
 		return true
 
 	case agentModeCharging, agentModeForcedCharging:
 		a.mode = mode
-		a.waypoint = gmath.Vec{}
+		a.clearWaypoint()
 		return true
 
 	case agentModePosing:
 		a.mode = mode
 		a.dist = pos.X // idle time
-		a.waypoint = gmath.Vec{}
+		a.clearWaypoint()
 		return true
 
 	case agentModeCourierFlight:
@@ -511,7 +512,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.energyBill += energyCost
 		a.target = target
 		a.mode = mode
-		a.waypoint = a.pos
+		a.setWaypoint(a.pos)
 		return true
 
 	case agentModeScavenge:
@@ -529,7 +530,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		}
 		a.energyBill += energyCost
 		a.mode = agentModeMineEssence
-		a.waypoint = roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8)))
+		a.setWaypoint(roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8))))
 		a.target = target
 		return true
 
@@ -557,13 +558,13 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		}
 		a.energyBill += energyCost
 		a.mode = mode
-		a.waypoint = roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8)))
+		a.setWaypoint(roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8))))
 		a.target = target
 		return true
 
 	case agentModeTakeoff:
 		a.mode = mode
-		a.waypoint = a.pos.Sub(gmath.Vec{Y: agentFlightHeight})
+		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
 		if a.shadow != nil {
 			a.shadow.Visible = false
 		}
@@ -571,17 +572,17 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModePickup:
 		a.mode = mode
-		a.waypoint = a.pos.Add(gmath.Vec{Y: agentFlightHeight})
+		a.setWaypoint(a.pos.Add(gmath.Vec{Y: agentFlightHeight}))
 		return true
 
 	case agentModeRecycleReturn:
 		a.mode = mode
-		a.waypoint = a.colonyCore.GetEntrancePos().Sub(gmath.Vec{Y: agentFlightHeight})
+		a.setWaypoint(a.colonyCore.GetEntrancePos().Sub(gmath.Vec{Y: agentFlightHeight}))
 		return true
 
 	case agentModeRecycleLanding:
 		a.mode = mode
-		a.waypoint = a.colonyCore.GetEntrancePos()
+		a.setWaypoint(a.colonyCore.GetEntrancePos())
 		if a.shadow != nil {
 			a.shadow.Visible = false
 		}
@@ -596,7 +597,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.mode = mode
 		a.energyBill += energyCost
 		a.dist = a.scene.Rand().FloatRange(3, 4) // repair time
-		a.waypoint = gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(target.(*colonyAgentNode).pos)
+		a.setWaypoint(gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(target.(*colonyAgentNode).pos))
 		return true
 
 	case agentModeRepairBase:
@@ -607,7 +608,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.mode = mode
 		a.energyBill += energyCost
 		a.dist = a.scene.Rand().FloatRange(3, 4) // repair time
-		a.waypoint = gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(a.colonyCore.pos)
+		a.setWaypoint(gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(a.colonyCore.pos))
 		return true
 
 	case agentModeBuildBuilding:
@@ -620,17 +621,17 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.energyBill += energyCost
 		a.dist = a.scene.Rand().FloatRange(5, 7) // build time
 		a.target = target
-		a.waypoint = gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(construction.pos)
+		a.setWaypoint(gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(construction.pos))
 		return true
 
 	case agentModeKamikazeAttack:
-		a.waypoint = gmath.Vec{}
+		a.clearWaypoint()
 		a.mode = mode
 		a.target = target
 		return true
 
 	case agentModeConsumeDrone:
-		a.waypoint = target.(*colonyAgentNode).pos.Add(a.scene.Rand().Offset(-4, 4))
+		a.setWaypoint(target.(*colonyAgentNode).pos.Add(a.scene.Rand().Offset(-4, 4)))
 		a.mode = mode
 		a.target = target
 		return true
@@ -638,7 +639,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModeFollowCommander:
 		a.mode = mode
 		a.target = target
-		a.waypoint = target.(*colonyAgentNode).pos.Add(a.scene.Rand().Offset(-16, 16))
+		a.setWaypoint(target.(*colonyAgentNode).pos.Add(a.scene.Rand().Offset(-16, 16)))
 		a.waypointsLeft = a.scene.Rand().IntRange(60, 100)
 		weaponRange := a.stats.Weapon.AttackRange
 		switch {
@@ -986,7 +987,7 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 				if source.GetPos().DistanceSquaredTo(a.pos) < a.stats.Weapon.AttackRangeSqr && a.scene.Rand().Chance(0.2) {
 					a.mode = agentModeRoombaCombatWait
 					a.dist = a.scene.Rand().FloatRange(6, 10)
-					a.waypoint = gmath.Vec{}
+					a.clearWaypoint()
 					return
 				}
 			case agentModeRoombaWait:
@@ -1034,10 +1035,10 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 func (a *colonyAgentNode) GetPos() *gmath.Vec { return &a.pos }
 
 func (a *colonyAgentNode) GetVelocity() gmath.Vec {
-	if a.waypoint.IsZero() {
+	if !a.hasWaypoint() {
 		return gmath.Vec{}
 	}
-	return a.pos.VecTowards(a.waypoint, a.movementSpeed())
+	return a.dir.Mulf(a.movementSpeed())
 }
 
 func (a *colonyAgentNode) processSupport(delta float64) {
@@ -1580,14 +1581,20 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 	return baseSpeed * multiplier
 }
 
-func (a *colonyAgentNode) moveTowardsWithSpeed(delta, speed float64, pos gmath.Vec) bool {
-	var reached bool
-	a.pos, reached = moveTowardsWithSpeed(a.pos, pos, delta, speed)
-	return reached
+func (a *colonyAgentNode) moveTowardsWithSpeed(delta, speed float64) bool {
+	// This method is slightly more optimized that from.MoveTowards(dest).
+	travelled := speed * delta
+	distSqr := a.pos.DistanceSquaredTo(a.waypoint)
+	if distSqr < travelled*travelled || distSqr < gmath.Epsilon*gmath.Epsilon {
+		a.pos = a.waypoint
+		return true
+	}
+	a.pos = a.pos.Add(a.dir.Mulf(travelled))
+	return false
 }
 
-func (a *colonyAgentNode) moveTowards(delta float64, pos gmath.Vec) bool {
-	return a.moveTowardsWithSpeed(delta, a.movementSpeed(), pos)
+func (a *colonyAgentNode) moveTowards(delta float64) bool {
+	return a.moveTowardsWithSpeed(delta, a.movementSpeed())
 }
 
 func (a *colonyAgentNode) updateFollowCommander(delta float64) {
@@ -1602,13 +1609,13 @@ func (a *colonyAgentNode) updateFollowCommander(delta float64) {
 		return
 	}
 
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		a.waypointsLeft--
 		if a.waypointsLeft == 0 {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
-		a.waypoint = a.orbitingWaypoint(commander.pos, a.dist)
+		a.setWaypoint(a.orbitingWaypoint(commander.pos, a.dist))
 	}
 }
 
@@ -1617,14 +1624,14 @@ func (a *colonyAgentNode) updatePatrol(delta float64) {
 		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
 	}
 
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		a.waypointsLeft--
 		if a.waypointsLeft == 0 {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
 		a.dist = a.colonyCore.PatrolRadius()
-		a.waypoint = a.orbitingWaypoint(a.colonyCore.pos, a.dist)
+		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
 	}
 }
 
@@ -1638,7 +1645,7 @@ func (a *colonyAgentNode) updateWaitCloning(delta float64) {
 
 func (a *colonyAgentNode) updateTakeoff(delta float64) {
 	a.height += delta * 30
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		a.height = agentFlightHeight
 		if a.shadow != nil {
 			a.shadow.Visible = true
@@ -1648,16 +1655,16 @@ func (a *colonyAgentNode) updateTakeoff(delta float64) {
 }
 
 func (a *colonyAgentNode) updateRecycleReturn(delta float64) {
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		a.colonyCore.openHatchTime = 1.5
 		a.AssignMode(agentModeRecycleLanding, gmath.Vec{}, nil)
 	}
 }
 
 func (a *colonyAgentNode) updateRepairBase(delta float64) {
-	if !a.waypoint.IsZero() {
-		if a.moveTowards(delta, a.waypoint) {
-			a.waypoint = gmath.Vec{}
+	if a.hasWaypoint() {
+		if a.moveTowards(delta) {
+			a.clearWaypoint()
 			buildPos := ge.Pos{
 				Base:   &a.colonyCore.pos,
 				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-18, 18)},
@@ -1683,27 +1690,27 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 		target = a.target.(*essenceSourceNode)
 		if target.IsDisposed() {
 			a.target = nil
-			a.waypoint = gmath.Vec{}
+			a.clearWaypoint()
 			a.specialDelay = a.world().rand.FloatRange(4, 8)
 			return
 		}
 	}
 
-	if !a.waypoint.IsZero() {
-		if a.moveTowards(delta, a.waypoint) {
+	if a.hasWaypoint() {
+		if a.moveTowards(delta) {
 			if a.path.HasNext() {
 				// TODO: remove code duplication with crawlers and roombas.
 				d := a.path.Next()
 				aligned := a.world().pathgrid.AlignPos(a.pos)
-				a.waypoint = posMove(aligned, d).Add(a.world().rand.Offset(-4, 4))
+				a.setWaypoint(posMove(aligned, d).Add(a.world().rand.Offset(-4, 4)))
 				return
 			}
 			a.path = pathing.GridPath{}
 			dist := a.waypoint.DistanceTo(target.pos)
 			if dist < 10 {
-				a.waypoint = gmath.Vec{}
+				a.clearWaypoint()
 			} else {
-				a.waypoint = target.pos.Add(a.world().rand.Offset(-4, 4))
+				a.setWaypoint(target.pos.Add(a.world().rand.Offset(-4, 4)))
 			}
 		}
 		return
@@ -1810,7 +1817,20 @@ func (a *colonyAgentNode) updateRoombaWait(delta float64) {
 func (a *colonyAgentNode) sendTo(pos gmath.Vec) {
 	p := a.world().BuildPath(a.pos, pos)
 	a.path = p.Steps
-	a.waypoint = a.world().pathgrid.AlignPos(a.pos)
+	a.setWaypoint(a.world().pathgrid.AlignPos(a.pos))
+}
+
+func (a *colonyAgentNode) clearWaypoint() {
+	a.waypoint = gmath.Vec{}
+}
+
+func (a *colonyAgentNode) hasWaypoint() bool {
+	return !a.waypoint.IsZero()
+}
+
+func (a *colonyAgentNode) setWaypoint(pos gmath.Vec) {
+	a.waypoint = pos
+	a.dir = pos.DirectionTo(a.pos)
 }
 
 func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
@@ -1818,15 +1838,15 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 		// Discharged. It needs some time to recover.
 		a.mode = agentModeRoombaWait
 		a.dist = a.scene.Rand().FloatRange(5, 25)
-		a.waypoint = gmath.Vec{}
+		a.clearWaypoint()
 		a.energy = a.scene.Rand().FloatRange(10, 20)
 		return
 	}
 
 	// Moving towards destination (or a target).
-	if !a.waypoint.IsZero() {
+	if a.hasWaypoint() {
 		a.energy -= 2.5 * delta
-		if a.moveTowards(delta, a.waypoint) {
+		if a.moveTowards(delta) {
 			if a.target != nil {
 				target := a.target.(*creepNode)
 				if target.IsDisposed() {
@@ -1834,7 +1854,7 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 				} else if a.pos.DistanceSquaredTo(target.pos) <= (a.stats.Weapon.AttackRangeSqr * a.supportDelay) {
 					a.mode = agentModeRoombaCombatWait
 					a.dist = a.scene.Rand().FloatRange(7, 16)
-					a.waypoint = gmath.Vec{}
+					a.clearWaypoint()
 					a.target = nil
 					return
 				}
@@ -1844,7 +1864,7 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 					a.health = gmath.ClampMax(a.health+2, a.maxHealth)
 					a.mode = agentModeRoombaWait
 					a.dist = a.scene.Rand().FloatRange(4, 10)
-					a.waypoint = gmath.Vec{}
+					a.clearWaypoint()
 					if !a.world().simulation {
 						smokeEffect := newEffectNode(a.world(), a.pos.Add(gmath.Vec{Y: -10}), false, assets.ImageRoombaSmoke)
 						a.world().nodeRunner.AddObject(smokeEffect)
@@ -1855,10 +1875,10 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 				// TODO: remove code duplication with crawlers.
 				d := a.path.Next()
 				aligned := a.world().pathgrid.AlignPos(a.pos)
-				a.waypoint = posMove(aligned, d).Add(a.world().rand.Offset(-4, 4))
+				a.setWaypoint(posMove(aligned, d).Add(a.world().rand.Offset(-4, 4)))
 				return
 			}
-			a.waypoint = gmath.Vec{}
+			a.clearWaypoint()
 		}
 		return
 	}
@@ -1922,7 +1942,7 @@ func (a *colonyAgentNode) updateConsumeDrone(delta float64) {
 		return
 	}
 
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		// Give a partial drone cost refund.
 		playSound(a.world(), assets.AudioAgentConsumed, a.pos)
 		a.colonyCore.resources += target.stats.Cost * 0.5
@@ -1953,15 +1973,15 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 		}
 	}
 
-	if a.waypoint.IsZero() {
-		a.waypoint = a.getCloserWaypoint(creep.pos, 4, 16)
+	if !a.hasWaypoint() {
+		a.setWaypoint(a.getCloserWaypoint(creep.pos, 4, 16))
 	}
 
 	const explosionRangeSqr float64 = 34 * 34
 	const explosionDamage float64 = 35.0
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		if a.pos.DistanceSquaredTo(creep.pos) > explosionRangeSqr {
-			a.waypoint = gmath.Vec{}
+			a.clearWaypoint()
 			return
 		}
 		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageBigVerticalExplosion))
@@ -1988,9 +2008,9 @@ func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		return
 	}
-	if !a.waypoint.IsZero() {
-		if a.moveTowards(delta, a.waypoint) {
-			a.waypoint = gmath.Vec{}
+	if a.hasWaypoint() {
+		if a.moveTowards(delta) {
+			a.clearWaypoint()
 			buildPos := ge.Pos{
 				Base:   &target.pos,
 				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-10, 10)},
@@ -2023,10 +2043,10 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		return
 	}
-	if !a.waypoint.IsZero() {
-		if a.moveTowards(delta, a.waypoint) {
+	if a.hasWaypoint() {
+		if a.moveTowards(delta) {
 			target.attention += 2
-			a.waypoint = gmath.Vec{}
+			a.clearWaypoint()
 			buildPos := target.GetConstructPos()
 			beam := newCloningBeamNode(a.world(), false, &a.pos, buildPos)
 			a.cloningBeam = beam
@@ -2055,7 +2075,7 @@ func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
 	if height >= 3 && a.height < 3 {
 		a.sprite.SetColorScaleRGBA(200, 200, 200, 255)
 	}
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		a.colonyCore.resources += a.stats.Cost * 0.9
 		if a.rank != 0 {
 			a.colonyCore.eliteResources += float64(a.rank)
@@ -2074,16 +2094,16 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		return
 	}
-	if a.waypoint.IsZero() {
+	if !a.hasWaypoint() {
 		dist := target.pos.DistanceTo(a.pos)
 		if dist > 64 {
-			a.waypoint = a.pos.MoveTowards(target.pos, dist-20).Add(a.scene.Rand().Offset(-8, 8))
+			a.setWaypoint(a.pos.MoveTowards(target.pos, dist-20).Add(a.scene.Rand().Offset(-8, 8)))
 			return
 		}
 	}
-	if !a.waypoint.IsZero() {
-		if a.moveTowards(delta, a.waypoint) {
-			a.waypoint = gmath.Vec{}
+	if a.hasWaypoint() {
+		if a.moveTowards(delta) {
+			a.clearWaypoint()
 		}
 		return
 	}
@@ -2182,9 +2202,9 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		return
 	}
-	if !a.waypoint.IsZero() {
-		if a.moveTowards(delta, a.waypoint) {
-			a.waypoint = gmath.Vec{}
+	if a.hasWaypoint() {
+		if a.moveTowards(delta) {
+			a.clearWaypoint()
 			beam := newCloningBeamNode(a.world(), false, &a.pos, ge.Pos{Base: &target.pos})
 			a.cloningBeam = beam
 			a.world().nodeRunner.AddObject(beam)
@@ -2227,29 +2247,29 @@ func (a *colonyAgentNode) followWaypoint(targetPos gmath.Vec) gmath.Vec {
 }
 
 func (a *colonyAgentNode) updateMove(delta float64) {
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }
 
 func (a *colonyAgentNode) updatePanic(delta float64) {
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		a.waypointsLeft--
-		a.waypoint = gmath.Vec{}
+		a.clearWaypoint()
 	}
 
-	if a.waypoint.IsZero() {
+	if !a.hasWaypoint() {
 		if a.waypointsLeft <= 0 {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
 		waypoint := a.pos.Add(a.scene.Rand().Offset(-32, 32))
-		a.waypoint = correctedPos(a.world().rect, waypoint, 64)
+		a.setWaypoint(correctedPos(a.world().rect, waypoint, 64))
 	}
 }
 
 func (a *colonyAgentNode) updateCourierFlight(delta float64) {
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		target := a.target.(*colonyCoreNode)
 		if target.IsDisposed() || target.mode != colonyModeNormal {
 			if a.payload != 0 {
@@ -2285,26 +2305,26 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 			return
 		}
 		// TODO: use a followPos here?
-		a.waypoint = a.pos.DirectionTo(target.pos).Mulf(60).Add(target.pos).Add(a.scene.Rand().Offset(-20, 20))
+		a.setWaypoint(a.pos.DirectionTo(target.pos).Mulf(60).Add(target.pos).Add(a.scene.Rand().Offset(-20, 20)))
 	}
 }
 
 func (a *colonyAgentNode) updateFollow(delta float64) {
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		target := a.target.(*creepNode)
 		if a.waypointsLeft == 0 || target.IsDisposed() {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
 		a.waypointsLeft--
-		a.waypoint = a.followWaypoint(target.pos)
+		a.setWaypoint(a.followWaypoint(target.pos))
 	}
 }
 
 func (a *colonyAgentNode) updateAlignStandby(delta float64) {
 	speed := a.movementSpeed()
 	a.height += delta * speed
-	if a.moveTowardsWithSpeed(delta, speed, a.waypoint) {
+	if a.moveTowardsWithSpeed(delta, speed) {
 		a.height = agentFlightHeight
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
@@ -2316,12 +2336,12 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 	}
 
 	a.energy = gmath.ClampMax(a.energy+delta*0.5*a.energyRegenRate, a.maxEnergy)
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		if a.stats.Tier == 1 && a.lifetime < 0 && a.colonyCore.mode == colonyModeNormal {
 			a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
 			return
 		}
-		a.waypoint = a.orbitingWaypoint(a.colonyCore.pos, a.dist)
+		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
 		if a.hasTrait(traitAdventurer) {
 			a.waypointsLeft++
 			if a.waypointsLeft > 10 {
@@ -2378,7 +2398,7 @@ func (a *colonyAgentNode) updateForcedCharging(delta float64) {
 }
 
 func (a *colonyAgentNode) updateMineEssence(delta float64) {
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		source := a.target.(*essenceSourceNode)
 		if source.IsDisposed() {
 			if a.IsCloaked() {
@@ -2394,10 +2414,10 @@ func (a *colonyAgentNode) updateMineEssence(delta float64) {
 func (a *colonyAgentNode) updatePickup(delta float64) {
 	speed := a.movementSpeed()
 	a.height -= delta * speed
-	if a.moveTowardsWithSpeed(delta, speed, a.waypoint) {
+	if a.moveTowardsWithSpeed(delta, speed) {
 		a.height = 0
 		a.mode = agentModeResourceTakeoff
-		a.waypoint = a.pos.Sub(gmath.Vec{Y: agentFlightHeight})
+		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
 		source := a.target.(*essenceSourceNode)
 		harvested := source.Harvest(a.maxPayload())
 		a.payload = harvested
@@ -2409,7 +2429,7 @@ func (a *colonyAgentNode) updatePickup(delta float64) {
 func (a *colonyAgentNode) updateResourceTakeoff(delta float64) {
 	speed := a.movementSpeed()
 	a.height += delta * speed
-	if a.moveTowardsWithSpeed(delta, speed, a.waypoint) {
+	if a.moveTowardsWithSpeed(delta, speed) {
 		a.height = agentFlightHeight
 		a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
 	}
@@ -2422,7 +2442,7 @@ func (a *colonyAgentNode) clearCargo() {
 }
 
 func (a *colonyAgentNode) updateReturn(delta float64) {
-	if a.moveTowards(delta, a.waypoint) {
+	if a.moveTowards(delta) {
 		if a.IsCloaked() {
 			a.doUncloak()
 		}

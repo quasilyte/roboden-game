@@ -155,6 +155,9 @@ const SeasonNumber = 0
 //   - Added Firebug tier 2 drone
 //   - Added Harvester turret
 //
+// * Balance:
+//   - Freighter: now has a zero upkeep
+//
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect
 //

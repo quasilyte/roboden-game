@@ -524,7 +524,7 @@ var FreighterAgentStats = InitDroneStats(&AgentStats{
 	Tier:                 2,
 	PointCost:            1,
 	Cost:                 18,
-	Upkeep:               3,
+	Upkeep:               0,
 	CanGather:            true,
 	MaxPayload:           3,
 	Speed:                70,

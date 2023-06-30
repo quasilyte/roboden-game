@@ -46,6 +46,7 @@ Cloning drones requires less resources than normal production.
 ##drone.freighter.description
 A drone with extra carrying capacity.
 This worker will collect more resources per flight than any other drone model.
+The freighter is the only drone with zero upkeep costs.
 
 ##drone.redminer : Red Miner
 ##drone.redminer.description

@@ -524,9 +524,12 @@ func (g *levelGenerator) placeCreepBases() {
 		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
 	}
 	gmath.Shuffle(&g.rng, borders)
+	var borderSlider gmath.Slider
+	borderSlider.SetBounds(0, len(borders)-1)
 	numBases := g.world.config.NumCreepBases
 	for i := 0; i < numBases; i++ {
-		border := borders[i]
+		border := borders[borderSlider.Value()]
+		borderSlider.Inc()
 		basePos := g.randomFreePos(border, 48, 16)
 		basePos = g.world.AdjustCellPos(basePos, 6)
 		if g.world.debugLogs {

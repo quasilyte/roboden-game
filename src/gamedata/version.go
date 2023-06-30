@@ -155,6 +155,9 @@ const SeasonNumber = 0
 //   - Added Firebug tier 2 drone
 //   - Added Harvester turret
 //
+// * Difficulty settings:
+//   - Up to 5 creep bases in Classic mode (the previous limit was 4)
+//
 // * Balance:
 //   - Freighter: now has a zero upkeep
 //

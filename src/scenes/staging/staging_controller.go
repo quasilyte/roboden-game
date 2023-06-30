@@ -382,7 +382,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.checkDefeat()
 	})
 
-	if c.config.FogOfWar {
+	if c.config.FogOfWar && !c.world.simulation {
 		fogOfWar := ebiten.NewImage(int(world.width), int(world.height))
 		gedraw.DrawRect(fogOfWar, world.rect, color.RGBA{A: 255})
 		c.world.stage.SetFogOfWar(fogOfWar)

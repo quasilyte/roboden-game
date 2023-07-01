@@ -166,6 +166,9 @@ const SeasonNumber = 0
 //   - Freighter: now has a zero upkeep
 //   - Roomba: increase upkeep (3 -> 9)
 //
+// * UX:
+//   - Fixed camera snapping issue near the borders of the map
+//
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect
 //   - Better layers for colonies (especially when they're landing)

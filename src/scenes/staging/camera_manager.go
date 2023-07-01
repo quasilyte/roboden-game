@@ -133,6 +133,9 @@ func (m *cameraManager) HandleInput() {
 				cameraPan.Y -= m.cameraPanSpeed
 			}
 		}
+		if !cameraPan.IsZero() {
+			m.cameraToggleTarget = gmath.Vec{}
+		}
 		m.Pan(cameraPan)
 	} else {
 		// On mobile devices we expect a touch screen support.
@@ -141,6 +144,7 @@ func (m *cameraManager) HandleInput() {
 			m.cameraPanDragPos = m.Offset
 		}
 		if info, ok := m.input.PressedActionInfo(controls.ActionPanDrag); ok {
+			m.cameraToggleTarget = gmath.Vec{}
 			posDelta := info.StartPos.Sub(info.Pos).Mulf(m.cameraPanSpeed)
 			newPos := m.cameraPanDragPos.Add(posDelta)
 			m.SetOffset(newPos)

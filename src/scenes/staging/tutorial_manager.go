@@ -38,10 +38,13 @@ type tutorialManager struct {
 	creep     *creepNode
 
 	explainedAttack           bool
+	explainedIncreaseRadius   bool
 	explainedDecreaseRadius   bool
 	explainedResourcePool     bool
 	explainedBaseConstruction bool
 	explainedSecondBase       bool
+	explainedFighter          bool
+	explainedDestroyer        bool
 
 	attackCountdown float64
 	attackNum       int
@@ -90,7 +93,7 @@ func (m *tutorialManager) Update(delta float64) {
 
 	m.attackCountdown = gmath.ClampMin(m.attackCountdown-delta, 0)
 	if m.attackCountdown == 0 {
-		m.attackCountdown = m.world.rand.FloatRange(2.0*60, 3.0*60)
+		m.attackCountdown = m.world.rand.FloatRange(3.0*60, 5*60)
 		m.spawnAttack()
 	}
 
@@ -153,11 +156,34 @@ func (m *tutorialManager) OnChoice(choice selectedChoice) {
 	m.runUpdateFunc()
 }
 
+func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
+	m.messageManager.AddMessage(queuedMessageInfo{
+		targetPos:     ge.Pos{Base: &drone.spritePos, Offset: gmath.Vec{Y: -4}},
+		text:          m.scene.Dict().Get(textKey),
+		trackedObject: drone,
+		timer:         20,
+		onReady: func() {
+			if drone.IsDisposed() {
+				return
+			}
+			drone.AssignMode(agentModePosing, gmath.Vec{X: 15}, nil)
+		},
+	})
+}
+
 func (m *tutorialManager) maybeCompleteStep() bool {
 	if !m.explainedAttack && m.choice.Option.special == specialAttack {
 		m.explainedAttack = true
 		m.messageManager.AddMessage(queuedMessageInfo{
 			text:  m.scene.Dict().Get("tutorial.context.attack_action"),
+			timer: 20,
+		})
+	}
+
+	if !m.explainedIncreaseRadius && m.choice.Option.special == specialIncreaseRadius {
+		m.explainedIncreaseRadius = true
+		m.messageManager.AddMessage(queuedMessageInfo{
+			text:  m.scene.Dict().Get("tutorial.context.increase_radius"),
 			timer: 20,
 		})
 	}
@@ -205,6 +231,28 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 			text:  m.scene.Dict().Get("tutorial.context.second_base", m.world.inputMode),
 			timer: 25,
 		})
+	}
+
+	if !m.explainedDestroyer || !m.explainedFighter {
+		var fighter *colonyAgentNode
+		var destroyer *colonyAgentNode
+		for _, c := range m.world.allColonies {
+			c.agents.Each(func(a *colonyAgentNode) {
+				switch a.stats.Kind {
+				case gamedata.AgentFighter:
+					fighter = a
+				case gamedata.AgentDestroyer:
+					destroyer = a
+				}
+			})
+		}
+		if !m.explainedFighter && fighter != nil {
+			m.explainedFighter = true
+			m.explainDrone(fighter, "tutorial.context.fighter_drone")
+		} else if !m.explainedDestroyer && destroyer != nil {
+			m.explainedDestroyer = true
+			m.explainDrone(destroyer, "tutorial.context.destroyer_drone")
+		}
 	}
 
 	d := m.scene.Dict()
@@ -327,10 +375,25 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 29:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.build_turret", m.world.inputMode))
-		m.stepTicks = 40
+		m.stepTicks = 70
 		return true
 	case 30:
-		return m.stepTicks == 0
+		foundTurret := false
+		for _, c := range m.world.constructions {
+			if c.stats.Kind == constructTurret {
+				foundTurret = true
+				break
+			}
+		}
+		if !foundTurret {
+			for _, c := range m.world.allColonies {
+				if len(c.turrets) != 0 {
+					foundTurret = true
+					break
+				}
+			}
+		}
+		return m.stepTicks == 0 || foundTurret
 
 	case 31:
 		var creeps []arenaWaveUnit
@@ -389,7 +452,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 41:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_attack_warning"))
-		m.stepTicks = 20
+		m.stepTicks = 25
 		return true
 	case 42:
 		return m.stepTicks == 0
@@ -399,6 +462,9 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return true
 
 	case 44:
+		return m.stepTicks == 0
+
+	case 45:
 		var creeps []arenaWaveUnit
 		for i := 0; i < 6; i++ {
 			creeps = append(creeps, arenaWaveUnit{stats: gamedata.WandererCreepStats})
@@ -415,10 +481,10 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		m.addHintNode(ge.Pos{Offset: spawnPos}, d.Get("tutorial.final_attack"))
 		m.stepTicks = 15
 		return true
-	case 45:
+	case 46:
 		return m.stepTicks == 0
 
-	case 46:
+	case 47:
 		var howitzer *creepNode
 		for _, creep := range m.world.creeps {
 			if creep.stats.Kind == gamedata.CreepHowitzer {
@@ -429,23 +495,23 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		m.creep = howitzer
 		return true
 
-	case 47:
+	case 48:
 		if m.creep == nil {
 			return true
 		}
 		m.addHintNode(ge.Pos{Base: &m.creep.pos}, d.Get("tutorial.final_goal"))
 		return true
-	case 48:
+	case 49:
 		return m.creep == nil
 
-	case 49:
+	case 50:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_message"))
 		m.nextPressed = false
 		return true
-	case 50:
+	case 51:
 		return m.nextPressed
 
-	case 51:
+	case 52:
 		m.EventTriggerVictory.Emit(gsignal.Void{})
 	}
 

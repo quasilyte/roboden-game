@@ -23,6 +23,7 @@ type queuedMessageInfo struct {
 	trackedObject ge.SceneObject
 	text          string
 	timer         float64
+	onReady       func()
 }
 
 func newMessageManager(world *worldState, cam *viewport.Camera) *messageManager {
@@ -74,4 +75,7 @@ func (m *messageManager) nextMessage() {
 	}
 	m.message.trackedObject = info.trackedObject
 	m.world.rootScene.AddObject(m.message)
+	if info.onReady != nil {
+		info.onReady()
+	}
 }

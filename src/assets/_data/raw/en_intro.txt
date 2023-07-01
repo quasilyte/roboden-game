@@ -11,8 +11,8 @@ will need a lot of resources.
 To pan the camera, use the WASD keys.
 The mouse scrolling works near the camera edges
 or when the middle mouse button is pressed.
-
 Locate a resource stash by following a marker.
+
 [press ENTER to continue]
 
 ##tutorial.move.keyboard
@@ -120,7 +120,7 @@ are the two main ways to create a stronger colony.
 [press ENTER to continue]
 
 ##tutorial.final_attack_warning
-The final attack will be much more threatening.
+The final attack will be much more serious.
 
 Try to make the colony stronger or build another
 one if there are enough resources.
@@ -138,9 +138,9 @@ to destroy it, so be careful.
 ##tutorial.final_message
 Victory!
 
-Remember: collect resources, increase the
-radius and growth, combine the right drones
-via evolution.
+Remember this victory recipe: collect resources,
+increase the colony's radius and growth,
+and combine the right drones via evolution.
 
 [press ENTER to continue]
 
@@ -153,8 +153,13 @@ all three segments are filled.
 The attack action makes most colony combat
 drones seek for the targets nearby.
 
+##tutorial.context.increase_radius
+The selected colony's influence radius is increased.
+Drones will cover more territory now,
+and the colony will build more of them.
+
 ##tutorial.context.decrease_radius
-Decreasing the colony influence radius is
+Decreasing the colony's influence radius is
 useful after it reached the desired drone count.
 Closer ranks serve as a better battle formation.
 
@@ -172,3 +177,13 @@ a colony that should be selected.
 
 The colonies share the disk selection,
 but not priorities.
+
+##tutorial.context.fighter_drone
+This is a tier 2 combat drone, the Fighter.
+It's created out of a pair of tier 1
+combat drones of the red faction.
+
+##tutorial.context.destroyer_drone
+This is a tier 3 combat drone, the Destroyer.
+It's created out of a pair of tier 2
+Fighter class drones.

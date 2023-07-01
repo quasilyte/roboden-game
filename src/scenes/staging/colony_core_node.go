@@ -17,7 +17,7 @@ import (
 
 const (
 	coreFlightHeight   float64 = 50
-	maxUpkeepValue     int     = 400
+	maxUpkeepValue     int     = 800
 	maxEvoPoints       float64 = 20
 	maxEvoGain         float64 = 1.0
 	blueEvoThreshold   float64 = 15.0
@@ -648,10 +648,18 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 		resourcePrice = 9
 	case upkeepTotal <= 300:
 		resourcePrice = 12
-	case upkeepTotal < maxUpkeepValue:
+	case upkeepTotal <= 400:
 		resourcePrice = 15
-	default:
+	case upkeepTotal <= 500:
 		resourcePrice = 20
+	case upkeepTotal <= 600:
+		resourcePrice = 25
+	case upkeepTotal <= 700:
+		resourcePrice = 35
+	case upkeepTotal <= maxUpkeepValue:
+		resourcePrice = 50
+	default:
+		resourcePrice = 65
 	}
 	return resourcePrice, upkeepTotal
 }

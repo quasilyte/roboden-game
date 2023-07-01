@@ -159,7 +159,9 @@ const SeasonNumber = 0
 //   - Up to 5 creep bases in Classic mode (the previous limit was 4)
 //
 // * Balance:
+//   - Increased the max upkeep resources cost
 //   - Freighter: now has a zero upkeep
+//   - Roomba: increase upkeep (3 -> 9)
 //
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect

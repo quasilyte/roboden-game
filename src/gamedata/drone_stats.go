@@ -631,7 +631,7 @@ var RoombaAgentStats = InitDroneStats(&AgentStats{
 	Tier:        2,
 	PointCost:   2,
 	Cost:        20,
-	Upkeep:      3,
+	Upkeep:      9,
 	Speed:       40,
 	MaxHealth:   55,
 	Weapon: InitWeaponStats(&WeaponStats{

@@ -37,22 +37,12 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.scene.Audio().SetGroupVolume(assets.SoundGroupMusic, 0)
 	c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, 0)
 
-	config := c.state.ClassicLevelConfig.Clone()
+	config := c.state.SplashLevelConfig.Clone()
 	config.TurretDesign = gamedata.PickTurretDesign(scene.Rand())
 	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())
-	config.RawGameMode = "classic"
 	config.ExecMode = gamedata.ExecuteDemo
 	config.PlayersMode = serverapi.PmodeSingleBot
-	config.WorldSize = 2
-	config.Resources = 4
-	config.DronesPower = 1
-	config.CreepDifficulty = 0
-	config.BossDifficulty = 0
-	config.NumCreepBases = 1
 	config.Seed = scene.Rand().PositiveInt64()
-	config.StartingResources = 2
-	config.InitialCreeps = 2
-	config.Teleporters = 2
 	for i := 0; i < 3; i++ {
 		config.ExtraDrones = append(config.ExtraDrones, gamedata.WorkerAgentStats)
 	}

@@ -204,6 +204,22 @@ func getDefaultSessionState() *session.State {
 
 	{
 		config := state.ClassicLevelConfig.Clone()
+		config.WorldSize = 2
+		config.Resources = 4
+		config.DronesPower = 1
+		config.CreepDifficulty = 1
+		config.BossDifficulty = 0
+		config.NumCreepBases = 1
+		config.FogOfWar = false
+		config.StartingResources = 2
+		config.InitialCreeps = 2
+		config.Teleporters = 2
+
+		state.SplashLevelConfig = &config
+	}
+
+	{
+		config := state.ClassicLevelConfig.Clone()
 		config.RawGameMode = "tutorial"
 		state.TutorialLevelConfig = &config
 		config.WorldSize = 0

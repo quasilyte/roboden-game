@@ -38,6 +38,7 @@ type State struct {
 
 	BoundInputs [2]*gameinput.Handler
 
+	SplashLevelConfig   *gamedata.LevelConfig
 	ClassicLevelConfig  *gamedata.LevelConfig
 	ArenaLevelConfig    *gamedata.LevelConfig
 	InfArenaLevelConfig *gamedata.LevelConfig

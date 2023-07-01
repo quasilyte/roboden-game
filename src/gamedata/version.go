@@ -150,6 +150,7 @@ const SeasonNumber = 0
 // # Version 13 (Steam-focused build)
 //
 // * New content:
+//   - A completely new tutorial mode (the intro mission)
 //   - Added Commander tier 2 drone
 //   - Added Targeter tier 2 drone
 //   - Added Firebug tier 2 drone

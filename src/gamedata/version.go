@@ -157,6 +157,8 @@ const SeasonNumber = 0
 //
 // * Difficulty settings:
 //   - Up to 5 creep bases in Classic mode (the previous limit was 4)
+//   - Enable arena progression setting in infinite arena mode
+//   - Change arena-related settings scaling (20% -> 25%)
 //
 // * Balance:
 //   - Increased the max upkeep resources cost

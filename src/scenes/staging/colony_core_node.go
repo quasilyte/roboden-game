@@ -289,7 +289,7 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable
 				shadowImg = c.shadow.ImageID()
 			}
 
-			fall := newDroneFallNode(c.world, nil, c.sprite.ImageID(), shadowImg, c.pos, c.height)
+			fall := newDroneFallNode(c.world, nil, assets.ImageColonyCore, shadowImg, c.pos, c.height)
 			c.world.nodeRunner.AddObject(fall)
 			fall.sprite.Shader = c.sprite.Shader
 		}

@@ -224,7 +224,7 @@ func (w *worldState) Init() {
 	}
 
 	w.droneHealthMultiplier = 0.8 + (float64(w.config.DronesPower) * 0.2)
-	w.creepHealthMultiplier = 0.4 + (float64(w.config.CreepDifficulty) * 0.2)
+	w.creepHealthMultiplier = 0.25 + (float64(w.config.CreepDifficulty) * 0.25)
 	w.bossHealthMultiplier = 0.7 + (float64(w.config.BossDifficulty) * 0.3)
 	w.oilRegenMultiplier = float64(w.config.OilRegenRate) * 0.5
 

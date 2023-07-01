@@ -166,7 +166,7 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		m.heavyCrawlerCreepInfo,
 	}
 
-	m.budgetStepMultiplier = 0.80 + (float64(m.world.config.ArenaProgression) * 0.2)
+	m.budgetStepMultiplier = 0.75 + (float64(m.world.config.ArenaProgression) * 0.25)
 	m.infoUpdateDelay = 5
 	m.prepareWave()
 	m.overviewText = m.createWaveOverviewText()

@@ -48,10 +48,16 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if config.InterfaceMode == 0 {
 			score += 5
 		}
-		score += 20 - (config.Resources * 10)
+		if config.RawGameMode == "inf_arena" {
+			score += (config.ArenaProgression - 1) * 15
+			score += 30 - (config.Resources * 15)
+			score += config.InitialCreeps * 5
+		} else {
+			score += (config.ArenaProgression - 1) * 10
+			score += 20 - (config.Resources * 10)
+			score += config.InitialCreeps * 10
+		}
 		score += (config.CreepDifficulty - 3) * 20
-		score += config.InitialCreeps * 5
-		score += (config.ArenaProgression - 1) * 10
 		score -= config.StartingResources * 2
 		score += 5 - (config.Teleporters * 5)
 		score += 10 - (config.OilRegenRate * 5)

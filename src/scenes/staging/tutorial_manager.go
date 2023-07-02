@@ -2,6 +2,7 @@ package staging
 
 import (
 	"math"
+	"strings"
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -533,13 +534,23 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 	return false
 }
 
+func (m *tutorialManager) processMessageText(s string) string {
+	switch m.world.inputMode {
+	case "gamepad":
+		d := m.scene.Dict()
+		return strings.Replace(s, d.Get("tutorial.next.keyboard"), d.Get("tutorial.next.gamepad"), 1)
+	default:
+		return s // Do nothing
+	}
+}
+
 func (m *tutorialManager) addScreenHintNode(targetPos gmath.Vec, msg string) {
-	m.hint = newScreenTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, targetPos, msg)
+	m.hint = newScreenTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, targetPos, m.processMessageText(msg))
 	m.scene.AddObject(m.hint)
 }
 
 func (m *tutorialManager) addHintNode(targetPos ge.Pos, msg string) {
-	m.hint = newWorldTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, targetPos, msg)
+	m.hint = newWorldTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, targetPos, m.processMessageText(msg))
 	m.scene.AddObject(m.hint)
 }
 

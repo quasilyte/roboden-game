@@ -63,6 +63,8 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 	gamepadKeymap := input.Keymap{
 		ActionSkipDemo: {input.KeyGamepadStart},
 
+		ActionNextTutorialMessage: {input.KeyGamepadLStick},
+
 		ActionPanRight: {input.KeyGamepadLStickRight, input.KeyGamepadRight},
 		ActionPanDown:  {input.KeyGamepadLStickDown, input.KeyGamepadDown},
 		ActionPanLeft:  {input.KeyGamepadLStickLeft, input.KeyGamepadLeft},

@@ -1,3 +1,8 @@
+##tutorial.next.keyboard
+[press ENTER to continue]
+##tutorial.next.gamepad
+[click left joystick to continue]
+
 ##tutorial.greeting
 Enemies are planning to capture this sector.
 Prepare and repel the attack.

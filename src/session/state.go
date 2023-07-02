@@ -201,11 +201,19 @@ func (state *State) ReloadLanguage(ctx *ge.Context) {
 }
 
 func (state *State) DetectInputMode() string {
-	inputMode := "keyboard"
-	if state.CombinedInput.GamepadConnected() {
-		inputMode = "gamepad"
+	switch PlayerInputMethod(state.Persistent.Settings.Player1InputMethod) {
+	case InputMethodKeyboard:
+		return "keyboard"
+	case InputMethodGamepad1, InputMethodGamepad2:
+		return "gamepad"
+	case InputMethodCombined:
+		if state.CombinedInput.GamepadConnected() {
+			return "gamepad"
+		}
+		return "keyboard"
+	default:
+		return "keyboard"
 	}
-	return inputMode
 }
 
 func (state *State) FindNextReplayIndex() int {

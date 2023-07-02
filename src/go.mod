@@ -8,7 +8,7 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.5.4
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e
-	github.com/quasilyte/ge v0.0.0-20230614081121-ca050b0c82ca
+	github.com/quasilyte/ge v0.0.0-20230622182349-2aabe773b84f
 	github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef
 	github.com/quasilyte/gsignal v0.0.0-20230130114532-ff67b4bb9e15
 	golang.org/x/image v0.7.0

@@ -176,7 +176,7 @@ func (c *LobbyMenuController) initUI() {
 				StretchHorizontal: true,
 				StretchVertical:   true,
 			}),
-			widget.WidgetOpts.MinSize(0, (1080/2)-47),
+			widget.WidgetOpts.MinSize(572, (1080/2)-47),
 		),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),

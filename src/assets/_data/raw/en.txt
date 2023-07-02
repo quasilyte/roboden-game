@@ -392,7 +392,7 @@ To resume the game, press START.
 ##game.wave_special_units : Special units
 ##game.wave_direction : Attack directions
 ##game.wave_builders : builder
-##game.wave_task_force : raiders
+##game.wave_task_force : raider
 ##game.wave_dominator : dominator
 ##game.wave_howitzer : howitzer
 ##game.side.all : all

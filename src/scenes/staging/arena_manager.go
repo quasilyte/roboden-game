@@ -16,7 +16,7 @@ import (
 	"github.com/quasilyte/roboden-game/timeutil"
 )
 
-const maxArenaGroupBudget = 110
+const maxArenaGroupBudget = 120
 
 type arenaCreepInfo struct {
 	stats    *gamedata.CreepStats

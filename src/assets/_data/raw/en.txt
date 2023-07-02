@@ -53,8 +53,6 @@
 ##tutorial.reward : Score reward
 ##tutorial.reward_claimed : claimed
 
-##ui.mission_objective : Mission objective
-
 ##menu.play.intro_mission : Intro Mission
 ##menu.play.classic : Classic Mode
 ##menu.play.arena : Arena Mode
@@ -147,8 +145,6 @@
 ##menu.credits.assets : assets
 ##menu.credits.thank_player : And thank you, dear player <3
 
-##menu.lobby.difficulty_very
-
 ##menu.lobby.points_allocated : Points allocated
 ##menu.lobby.game_seed : Game seed
 
@@ -179,7 +175,7 @@ Only the single player mode score is ranked and can be published.
 ##menu.lobby.players.reverse : Players
 ##menu.lobby.players.reverse.description
 In reverse game mode, it's possible to have a player-versus-player experience when split-screen is enabled.
-One player controls the creeps while another player controls the usual colony.
+One player controls the dreadnought while another player controls the usual colony.
 You will need at least 1 gamepad to play in the split-screen mode.
 If any of the allied players is defeated, the game ends.
 Only the single player mode score is ranked and can be published.
@@ -218,7 +214,7 @@ These bases produce more and more units over time, but they can't be replaced af
 ##menu.lobby.tech_progress_rate : Tech progress rate
 ##menu.lobby.tech_progress_rate.description
 Tech progress rate specifies how much creeps tech level increase when they use a dedicated card.
-Faster tech progress rate makes the game easier for the creeps.
+Faster tech progress rate makes the game easier for the dreadnought.
 
 ##menu.lobby.creep_spawn_rate : Creep spawn rate
 ##menu.lobby.creep_spawn_rate.description

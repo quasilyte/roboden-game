@@ -1,6 +1,8 @@
 ##achievement.game_mode : Режим игры
 ##achievement.mode.classic : классический
 ##achievement.mode.arena : арена
+##achievement.mode.inf_arena : бесконечная арена
+##achievement.mode.reverse : реверсивный
 
 ##achievement.grade.none : не достигнуто
 ##achievement.grade.normal : серебро
@@ -82,3 +84,20 @@
 ##achievement.nopeeking.description
 Победи в игре ни разу не открывая таблицы эволюции.
 Иначе говоря, не нажимайте ALT (на клавиатуре) или R2 (на геймпаде) на протяжении всего матча.
+
+##achievement.colonyhunter : Разрушитель Колоний
+##achievement.colonyhunter.description
+Уничтожь как минимум 3 колонии в рамках одной партии в реверсивном режиме.
+
+##achievement.groundcontrol : Контроль Территорий
+##achievement.groundcontrol.description
+Во время реверсивного матча, достигни момента, когда на карте есть как минимум 20 ракетных турелей.
+
+##achievement.atomicfinisher : Ядерный Финал
+##achievement.atomicfinisher.description
+Победи в реверсивном матче путём запуска атомной бомбы. Атомная бомба доступна на 200% технологического прогресса дрендоута.
+
+##achievement.nonstop : Без Остановок
+##achievement.nonstop.description
+Выиграй в любом режиме без использования паузы.
+Пауза, активируемая кнопокой выхода, тоже считается.

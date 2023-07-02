@@ -20,8 +20,22 @@ Locate a resource stash by following a marker.
 
 [press ENTER to continue]
 
+##tutorial.camera.gamepad
+To pan the camera, use the D-pad or left joystick.
+Locate a resource stash by following a marker.
+
+[press ENTER to continue]
+
 ##tutorial.move.keyboard
 The right mouse click sends the selected colony
+to the destination. The colony will fly toward
+the spot, but its max jump distance is limited.
+
+Move the colony closer to the resources.
+
+##tutorial.move.gamepad
+The right joystick controls the virtual cursor.
+Right joystick click sends the selected colony
 to the destination. The colony will fly toward
 the spot, but its max jump distance is limited.
 
@@ -70,6 +84,14 @@ decreasing the others.
 Try activating them. Use a left mouse click
 on the disk or press a hotkey: 1-4.
 
+##tutorial.enable_choices.gamepad
+These disks on the right will affect these priorities.
+Keep in mind that increasing one priority always means
+decreasing the others.
+
+Try activating them. Use a right stick click
+on the disk or press Y/B/A/X.
+
 ##tutorial.enemy_scouts
 A small squad of enemy scouts entered the sector.
 The colony should be able to defend itself.
@@ -88,7 +110,14 @@ Select a disk and see how the distribution changes.
 ##tutorial.factions2.keyboard
 Factions are important to get tier 2 drones.
 When two tier 1 drones combine, a tier 2 drone emerges.
-To see what drones you can get, press ALT.
+To see what drones you can get, press ALT key.
+
+[press ENTER to continue]
+
+##tutorial.factions2.gamepad
+Factions are important to get tier 2 drones.
+When two tier 1 drones combine, a tier 2 drone emerges.
+To see what drones you can get, press R2 button.
 
 [press ENTER to continue]
 
@@ -104,6 +133,13 @@ Construct a turret to make this battle easier.
 
 The turret construction disk can appear
 as a fifth disk and is activated by the 5 key.
+
+##tutorial.build_turret.gamepad
+The next enemy group consist of ground units.
+Construct a turret to make this battle easier.
+
+The turret construction disk can appear
+as a fifth disk and is activated by the R1 button.
 
 ##tutorial.crawlers_attack
 Enemy ground units detected!
@@ -176,7 +212,15 @@ The other colony should be nearby to
 complete this process.
 
 ##tutorial.context.second_base.keyboard
-To switch between the colonies, press TAB.
+To switch between the colonies, press TAB key.
+Alternatively, do a left mouse click over
+a colony that should be selected.
+
+The colonies share the disk selection,
+but not priorities.
+
+##tutorial.context.second_base.gamepad
+To switch between the colonies, press L1 button.
 Alternatively, do a left mouse click over
 a colony that should be selected.
 

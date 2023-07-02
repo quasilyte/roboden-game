@@ -279,7 +279,15 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return true
 
 	case 5:
-		return m.choice.Option.special == specialChoiceMoveColony
+		if m.choice.Option.special != specialChoiceMoveColony {
+			return false
+		}
+		for _, res := range m.world.essenceSources {
+			if res.pos.DistanceSquaredTo(m.choice.Pos) < (128 * 128) {
+				return true
+			}
+		}
+		return false
 
 	case 6:
 		return !m.world.allColonies[0].IsFlying()

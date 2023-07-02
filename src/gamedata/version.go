@@ -147,7 +147,7 @@ const SeasonNumber = 0
 // * Visuals:
 //   - Generate less looped land cracks.
 //
-// # Version 13 (Steam-focused build)
+// # Version 13 (pre-Steam itchio early access release)
 //
 // * New content:
 //   - A completely new tutorial mode (the intro mission)

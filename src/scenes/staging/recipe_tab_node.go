@@ -104,7 +104,7 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 	tab.rect.Pos.Offset = gmath.Vec{X: 8, Y: 8}
 	tab.rect.OutlineColorScale.SetColor(ge.RGB(0x5e5a5d))
 	tab.rect.OutlineWidth = 1
-	tab.rect.FillColorScale.SetRGBA(0x13, 0x1a, 0x22, 230)
+	tab.rect.FillColorScale.SetRGBA(0x13, 0x1a, 0x22, 160)
 }
 
 func (tab *recipeTabNode) Draw(screen *ebiten.Image) {

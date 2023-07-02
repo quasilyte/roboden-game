@@ -188,7 +188,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 	var newAchievements []string
 	var upgradedAchievements []string
 
-	if c.config.PlayersMode == serverapi.PmodeTwoPlayers && c.config.GameMode == gamedata.ModeReverse {
+	if c.config.PlayersMode != serverapi.PmodeSinglePlayer {
 		return nil, nil
 	}
 

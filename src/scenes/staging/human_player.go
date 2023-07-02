@@ -85,7 +85,7 @@ func (p *humanPlayer) CanPing() bool {
 	return p.canPing
 }
 
-func (p *humanPlayer) CreateChoiceWindow() {
+func (p *humanPlayer) CreateChoiceWindow(disableSpecial bool) {
 	p.choiceWindow = newChoiceWindowNode(p.state.camera.Camera, p.world, p.input, p.cursor, p.creepsState != nil)
 	p.world.nodeRunner.AddObject(p.choiceWindow)
 
@@ -97,9 +97,21 @@ func (p *humanPlayer) CreateChoiceWindow() {
 		}
 	})
 
+	if disableSpecial {
+		p.choiceWindow.SetSpecialChoiceEnabled(false)
+	}
+
 	if p.choiceGen.IsReady() {
 		p.choiceWindow.RevealChoices(p.choiceGen.GetChoices())
 	}
+}
+
+func (p *humanPlayer) EnableSpecialChoices() {
+	p.choiceWindow.SetSpecialChoiceEnabled(true)
+}
+
+func (p *humanPlayer) ForceSpecialChoice(kind specialChoiceKind) {
+	p.choiceGen.ForceSpecialChoice(kind)
 }
 
 func (p *humanPlayer) Init() {
@@ -148,7 +160,7 @@ func (p *humanPlayer) Init() {
 	}
 
 	if p.world.config.GameMode != gamedata.ModeTutorial {
-		p.CreateChoiceWindow()
+		p.CreateChoiceWindow(false)
 	}
 
 	if len(p.world.cameras) == 2 && p.state.id == 0 {

@@ -471,7 +471,13 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.nodeRunner.AddObject(c.tutorialManager)
 		c.tutorialManager.EventTriggerVictory.Connect(c, c.onVictoryTrigger)
 		c.tutorialManager.EventEnableChoices.Connect(c, func(gsignal.Void) {
-			c.world.players[0].(*humanPlayer).CreateChoiceWindow()
+			c.world.players[0].(*humanPlayer).CreateChoiceWindow(true)
+		})
+		c.tutorialManager.EventEnableSpecialChoices.Connect(c, func(gsignal.Void) {
+			c.world.players[0].(*humanPlayer).EnableSpecialChoices()
+		})
+		c.tutorialManager.EventForceSpecialChoice.Connect(c, func(kind specialChoiceKind) {
+			c.world.players[0].(*humanPlayer).ForceSpecialChoice(kind)
 		})
 	}
 

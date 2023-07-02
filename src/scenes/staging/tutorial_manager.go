@@ -55,8 +55,10 @@ type tutorialManager struct {
 
 	updateDelay float64
 
-	EventEnableChoices  gsignal.Event[gsignal.Void]
-	EventTriggerVictory gsignal.Event[gsignal.Void]
+	EventEnableChoices        gsignal.Event[gsignal.Void]
+	EventEnableSpecialChoices gsignal.Event[gsignal.Void]
+	EventForceSpecialChoice   gsignal.Event[specialChoiceKind]
+	EventTriggerVictory       gsignal.Event[gsignal.Void]
 }
 
 func newTutorialManager(h *gameinput.Handler, world *worldState, messageManager *messageManager) *tutorialManager {
@@ -383,21 +385,25 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 29:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.build_turret", m.world.inputMode))
+		m.EventEnableSpecialChoices.Emit(gsignal.Void{})
+		m.EventForceSpecialChoice.Emit(specialBuildGunpoint)
 		m.stepTicks = 70
 		return true
 	case 30:
 		foundTurret := false
-		for _, c := range m.world.constructions {
-			if c.stats.Kind == constructTurret {
-				foundTurret = true
-				break
-			}
-		}
-		if !foundTurret {
-			for _, c := range m.world.allColonies {
-				if len(c.turrets) != 0 {
+		if m.stepTicks <= 50 {
+			for _, c := range m.world.constructions {
+				if c.stats.Kind == constructTurret {
 					foundTurret = true
 					break
+				}
+			}
+			if !foundTurret {
+				for _, c := range m.world.allColonies {
+					if len(c.turrets) != 0 {
+						foundTurret = true
+						break
+					}
 				}
 			}
 		}
@@ -447,6 +453,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 37:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.increase_radius"))
+		m.EventForceSpecialChoice.Emit(specialIncreaseRadius)
 		return true
 	case 38:
 		return m.choice.Option.special == specialIncreaseRadius

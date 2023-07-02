@@ -25,6 +25,8 @@ type choiceWindowNode struct {
 
 	Enabled bool
 
+	specialChoiceEnabled bool
+
 	charging    bool
 	creeps      bool
 	targetValue float64
@@ -52,12 +54,21 @@ type choiceOptionSlot struct {
 
 func newChoiceWindowNode(cam *viewport.Camera, world *worldState, h *gameinput.Handler, cursor *gameui.CursorNode, creeps bool) *choiceWindowNode {
 	return &choiceWindowNode{
-		cam:           cam,
-		input:         h,
-		cursor:        cursor,
-		selectedIndex: -1,
-		world:         world,
-		creeps:        creeps,
+		cam:                  cam,
+		input:                h,
+		cursor:               cursor,
+		selectedIndex:        -1,
+		world:                world,
+		creeps:               creeps,
+		specialChoiceEnabled: true,
+	}
+}
+
+func (w *choiceWindowNode) SetSpecialChoiceEnabled(enabled bool) {
+	w.specialChoiceEnabled = enabled
+	if w.charging == false {
+		w.choices[4].icon.Visible = true
+		w.choices[4].floppy.Visible = true
 	}
 }
 
@@ -160,17 +171,24 @@ func (w *choiceWindowNode) IsDisposed() bool {
 	return false
 }
 
+func (w *choiceWindowNode) getFloppyVisibility(i int) bool {
+	if i < 4 {
+		return true
+	}
+	return w.specialChoiceEnabled
+}
+
 func (w *choiceWindowNode) RevealChoices(selection choiceSelection) {
 	w.charging = false
 
-	for _, o := range w.choices {
+	for i, o := range w.choices {
 		o.floppy.Pos.Offset.X = w.floppyOffsetX
-		o.floppy.Visible = true
+		o.floppy.Visible = w.getFloppyVisibility(i)
 		o.label1.Visible = false
 		o.label2.Visible = false
 		o.flipAnim.Sprite().Visible = false
 		if o.icon != nil {
-			o.icon.Visible = true
+			o.icon.Visible = w.getFloppyVisibility(i)
 		}
 	}
 
@@ -222,7 +240,7 @@ func (w *choiceWindowNode) StartCharging(targetValue float64, cardIndex int) {
 			continue
 		}
 		o.flipAnim.Rewind()
-		o.flipAnim.Sprite().Visible = true
+		o.flipAnim.Sprite().Visible = w.getFloppyVisibility(i)
 		o.floppy.Visible = false
 		o.label1.Visible = false
 		o.label2.Visible = false
@@ -260,6 +278,9 @@ func (w *choiceWindowNode) HandleInput() int {
 	if pos, ok := w.cursor.ClickPos(controls.ActionClick); ok {
 		pos = pos.Sub(w.cam.ScreenPos)
 		for i, choice := range w.choices {
+			if !w.specialChoiceEnabled && i == 4 {
+				continue
+			}
 			if choice.rect.Contains(pos) {
 				return i
 			}
@@ -274,6 +295,9 @@ func (w *choiceWindowNode) HandleInput() int {
 		controls.ActionChoice5,
 	}
 	for i, a := range actions {
+		if !w.specialChoiceEnabled && i == 4 {
+			continue
+		}
 		if w.input.ActionIsJustPressed(a) {
 			return i
 		}

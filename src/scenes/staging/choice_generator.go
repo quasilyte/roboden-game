@@ -483,9 +483,16 @@ func (g *choiceGenerator) GetChoices() choiceSelection {
 	}
 }
 
-func (g *choiceGenerator) generateChoices() {
-	g.state = choiceReady
+func (g *choiceGenerator) ForceSpecialChoice(kind specialChoiceKind) {
+	if g.state != choiceReady {
+		g.state = choiceReady
+		g.prepareChoiceOptions()
+	}
+	g.specialOptionIndex = int(kind)
+	g.EventChoiceReady.Emit(g.GetChoices())
+}
 
+func (g *choiceGenerator) prepareChoiceOptions() {
 	if g.creepsState != nil {
 		g.generateChoicesForCreeps()
 	} else {
@@ -522,6 +529,10 @@ func (g *choiceGenerator) generateChoices() {
 		}
 	}
 	g.specialOptionIndex = int(specialOptionKind)
+}
 
+func (g *choiceGenerator) generateChoices() {
+	g.state = choiceReady
+	g.prepareChoiceOptions()
 	g.EventChoiceReady.Emit(g.GetChoices())
 }

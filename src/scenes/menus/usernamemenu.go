@@ -48,7 +48,7 @@ func (c *UserNameMenu) isValidChar(ch byte) bool {
 	isDigit := func(ch byte) bool {
 		return ch >= '0' && ch <= '9'
 	}
-	return isLetter(ch) || isDigit(ch) || ch == ' '
+	return isLetter(ch) || isDigit(ch) || ch == ' ' || ch == '_'
 }
 
 func (c *UserNameMenu) isValidUsername(s string) bool {

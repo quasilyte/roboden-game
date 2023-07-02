@@ -45,7 +45,7 @@
 ##menu.set_user_name : Change Player Name
 ##menu.user_name : Player Name
 ##menu.user_name_rules
-* Only English letters, digits and spaces are allowed
+* Only English letters, digits, spaces, and underscores are allowed
 * Has to contain at least one non-space character
 * No longer than 20 characters
 * Empty username => can't submit scores

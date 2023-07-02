@@ -188,4 +188,5 @@ const SeasonNumber = 0
 //
 // * Misc:
 //   - Updated ebitenui library version
+//   - Underscore character '_' is now allowed in the username
 const BuildNumber int = 13

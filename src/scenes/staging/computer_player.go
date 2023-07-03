@@ -750,6 +750,9 @@ func (p *computerPlayer) calcPosResources(colony *colonyCoreNode, pos gmath.Vec,
 	var bestResourcePos gmath.Vec
 	rSqr := r * r
 	for _, res := range p.world.essenceSources {
+		if res.beingHarvested {
+			continue
+		}
 		if res.pos.DistanceSquaredTo(pos) > rSqr {
 			continue
 		}

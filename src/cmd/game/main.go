@@ -155,7 +155,9 @@ func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.Resources = 2
 	config.WorldSize = 2
 	config.CreepDifficulty = 3
-	config.BossDifficulty = 1
+	if config.BossDifficulty == 0 {
+		config.BossDifficulty = 1
+	}
 
 	return &config
 }
@@ -169,6 +171,7 @@ func getDefaultSessionState() *session.State {
 				TechProgressRate: 4,
 				DronesPower:      1,
 				InitialCreeps:    1,
+				BossDifficulty:   2,
 			},
 		}),
 		ArenaLevelConfig: newLevelConfig(&gamedata.LevelConfig{

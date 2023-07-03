@@ -10,7 +10,7 @@
 
 ##achievement.trample : Stompy
 ##achievement.trample.description
-Crush at least 1 enemy ground robot by landing your colony on it.
+Crush at least 1 enemy ground robot by landing a colony on it.
 
 ##achievement.impossible : Impossibly Difficult
 ##achievement.impossible.description
@@ -49,7 +49,7 @@ Toggle the "user interface mode" in "extra" tab into "minimal".
 ##achievement.powerof3 : A Power of Three
 ##achievement.powerof3.description
 Win a battle without using one of the four factions.
-In other words, you can use only three factions during the battle.
+In other words, use only three factions during the battle.
 
 ##achievement.victorydrag : Dragged Victory
 ##achievement.victorydrag.description
@@ -62,7 +62,7 @@ Clear the level without ever increasing the influence radius.
 ##achievement.t1army : T1 Army
 ##achievement.t1army.description
 Clear the level without having only tier 1 combat units.
-In other words, you should not create any tier 2 or 3 combat units during the game to get this achievement.
+In other words, do not create any tier 2 or 3 combat units during the game to get this achievement.
 
 ##achievement.groundwin : Ground Salvo
 ##achievement.groundwin.description

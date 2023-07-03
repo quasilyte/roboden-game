@@ -157,18 +157,18 @@ In other words, 10 minutes of the actual gameplay will progress the game time by
 ##menu.lobby.fog_of_war : Fog of war
 ##menu.lobby.fog_of_war.description
 This options toggles the fog of war.
-If turned on, you won't have an entire map revealed from the start.
+If turned on, the map is not revealed from the start.
 
 ##menu.lobby.num_teleporters : Teleporters
 ##menu.lobby.num_teleporters.description
 How many pairs of teleporters will be placed on the map.
-If your colony lands on a teleportation platform, it will be transported to the connected teleporter.
+If a colony lands on a teleportation platform, it will be transported to the connected teleporter.
 
 ##menu.lobby.players : Players
 ##menu.lobby.players.description
 This option controls the number of allied colonies on the map and who controls them.
 Selecting two players will enable a split-screen local multiplayer.
-You will need at least 1 gamepad to play in the split-screen mode.
+At least 1 gamepad is needed to play in the split-screen mode.
 If any of the allied players is defeated, the game ends.
 Only the single player mode score is ranked and can be published.
 
@@ -176,7 +176,7 @@ Only the single player mode score is ranked and can be published.
 ##menu.lobby.players.reverse.description
 In reverse game mode, it's possible to have a player-versus-player experience when split-screen is enabled.
 One player controls the dreadnought while another player controls the usual colony.
-You will need at least 1 gamepad to play in the split-screen mode.
+At least 1 gamepad is needed to play in the split-screen mode.
 If any of the allied players is defeated, the game ends.
 Only the single player mode score is ranked and can be published.
 
@@ -261,7 +261,7 @@ Some drone builds can benefit from this early game advantage.
 ##menu.lobby.land : Terrain
 ##menu.lobby.land.description
 Choose how many mountains and landcracks the map will have.
-You can make them really rare or appear almost everywhere.
+Make them really rare or appear almost everywhere.
 
 ##menu.lobby.go : Go!
 
@@ -369,10 +369,10 @@ Win by destroying all colonies.
 Split-screen multiplayer: competitive (PvP).
 
 ##game.notice.ping
-Your ally marked this spot
+An ally has marked this place
 
 ##game.notice.base_under_attack
-Your colony is under attack!
+A colony is under attack!
 
 ##game.exit.notice.keyboard
 Press the button again to quit.

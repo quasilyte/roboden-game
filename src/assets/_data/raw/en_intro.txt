@@ -110,14 +110,14 @@ Select a disk and see how the distribution changes.
 ##tutorial.factions2.keyboard
 Factions are important to get tier 2 drones.
 When two tier 1 drones combine, a tier 2 drone emerges.
-To see what drones you can get, press ALT key.
+To see what drones are available, press the ALT key.
 
 [press ENTER to continue]
 
 ##tutorial.factions2.gamepad
 Factions are important to get tier 2 drones.
 When two tier 1 drones combine, a tier 2 drone emerges.
-To see what drones you can get, press R2 button.
+To see what drones are available, press the R2 button.
 
 [press ENTER to continue]
 
@@ -212,7 +212,7 @@ The other colony should be nearby to
 complete this process.
 
 ##tutorial.context.second_base.keyboard
-To switch between the colonies, press TAB key.
+To switch between the colonies, press the TAB key.
 Alternatively, do a left mouse click over
 a colony that should be selected.
 
@@ -220,7 +220,7 @@ The colonies share the disk selection,
 but not priorities.
 
 ##tutorial.context.second_base.gamepad
-To switch between the colonies, press L1 button.
+To switch between the colonies, press the L1 button.
 Alternatively, do a left mouse click over
 a colony that should be selected.
 

@@ -56,7 +56,8 @@ func (c *ControlsGamepadMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.gamepad")+fmt.Sprintf(" %d", c.id+1), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel := eui.NewPanel(uiResources, 0, 0)
+	rowContainer.AddChild(panel)
 
 	controlsText := d.Get("menu.controls.gamepad.text")
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
@@ -69,9 +70,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 		rightLabel := eui.NewLabel(right, smallFont)
 		grid.AddChild(rightLabel)
 	}
-	rowContainer.AddChild(grid)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,

@@ -48,7 +48,8 @@ func (c *ControlsKeyboardMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.keyboard"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel := eui.NewPanel(uiResources, 0, 0)
+	rowContainer.AddChild(panel)
 
 	controlsText := d.Get("menu.controls.keyboard.text")
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
@@ -61,9 +62,7 @@ func (c *ControlsKeyboardMenuController) initUI() {
 		rightLabel := eui.NewLabel(right, smallFont)
 		grid.AddChild(rightLabel)
 	}
-	rowContainer.AddChild(grid)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

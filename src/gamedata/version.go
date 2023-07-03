@@ -169,6 +169,7 @@ const SeasonNumber = 0
 // * UX:
 //   - Fixed camera snapping issue near the borders of the map
 //   - The message window is not half-transparent
+//   - Better gamepad configuration screen
 //
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect

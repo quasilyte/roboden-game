@@ -260,6 +260,9 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageBeamtowerLine: {Path: "image/lines/beamtower_line.png"},
 		ImageTetherLine:    {Path: "image/lines/tether_line.png"},
 
+		ImageUIGamepadRadar:    {Path: "image/ui/gamepad_radar.png"},
+		ImageUIGamepadRadarDot: {Path: "image/ui/gamepad_radar_dot.png"},
+
 		ImageUIButtonIdle:               {Path: "image/ebitenui/button-idle.png"},
 		ImageUIButtonHover:              {Path: "image/ebitenui/button-hover.png"},
 		ImageUIButtonPressed:            {Path: "image/ebitenui/button-pressed.png"},
@@ -554,6 +557,8 @@ const (
 	ImageBeamtowerLine
 	ImageTetherLine
 
+	ImageUIGamepadRadar
+	ImageUIGamepadRadarDot
 	ImageUIButtonIdle
 	ImageUIButtonHover
 	ImageUIButtonPressed

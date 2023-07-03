@@ -43,6 +43,7 @@ const (
 	ActionDebug
 
 	ActionMoveCursor
+	ActionTestLeftStick
 
 	ActionChoice1
 	ActionChoice2
@@ -93,7 +94,8 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 		ActionChoice5:    {input.KeyGamepadR1},
 		ActionMoveChoice: {input.KeyGamepadRStick},
 
-		ActionMoveCursor: {input.KeyGamepadRStickMotion},
+		ActionTestLeftStick: {input.KeyGamepadLStickMotion},
+		ActionMoveCursor:    {input.KeyGamepadRStickMotion},
 
 		ActionClick: {input.KeyGamepadRStick},
 	}

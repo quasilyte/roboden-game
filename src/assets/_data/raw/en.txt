@@ -305,6 +305,15 @@ Make them really rare or appear almost everywhere.
 ##menu.controls.player_label : Player
 ##menu.controls.gamepad_deadzone : Joystick deadzone
 
+##menu.controls.gamepad_status : Controller status
+##menu.controls.gamepad_status.checking : checking
+##menu.controls.gamepad_status.not_connected : not connected
+##menu.controls.gamepad_status.connected : connected
+
+##menu.controls.gamepad.calibrate
+The red dot should be still and centered when the associated stick is in its home position.
+Increase the deadzone if it's not the case.
+
 ##menu.controls.keyboard.text
 Pan camera | Middle mouse button + move, edge scroll or WASD keys
 Move colony | RMB click on the destination

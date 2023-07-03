@@ -5,9 +5,12 @@ import (
 	"strings"
 
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 )
@@ -16,6 +19,14 @@ type ControlsGamepadMenuController struct {
 	state *session.State
 
 	id int
+
+	updateDelay float64
+
+	statusText *widget.Text
+	leftRadar  *widget.Graphic
+	rightRadar *widget.Graphic
+	leftStick  *ge.Sprite
+	rightStick *ge.Sprite
 
 	scene *ge.Scene
 }
@@ -30,6 +41,7 @@ func NewControlsGamepadMenuController(state *session.State, id int) *ControlsGam
 func (c *ControlsGamepadMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 	c.initUI()
+	c.updateDelay = 0.4
 }
 
 func (c *ControlsGamepadMenuController) Update(delta float64) {
@@ -37,6 +49,72 @@ func (c *ControlsGamepadMenuController) Update(delta float64) {
 		c.back()
 		return
 	}
+
+	c.updateDelay = gmath.ClampMin(c.updateDelay-delta, 0)
+	if c.updateDelay == 0 {
+		c.updateDelay = 0.05
+		c.checkGamepad()
+	}
+}
+
+func (c *ControlsGamepadMenuController) checkGamepad() {
+	var h *gameinput.Handler
+	if c.id == 0 {
+		h = &c.state.FirstGamepadInput
+	} else {
+		h = &c.state.SecondGamepadInput
+	}
+
+	d := c.scene.Dict()
+
+	if !h.GamepadConnected() {
+		c.statusText.Label = fmt.Sprintf("%s: %s", d.Get("menu.controls.gamepad_status"), d.Get("menu.controls.gamepad_status.not_connected"))
+		if c.leftStick != nil {
+			c.leftStick.Dispose()
+			c.rightStick.Dispose()
+			c.leftStick = nil
+			c.rightStick = nil
+		}
+		return
+	}
+
+	if c.leftStick == nil {
+		leftRadarRect := c.leftRadar.GetWidget().Rect
+		rightRadarRect := c.rightRadar.GetWidget().Rect
+		dotOffset := gmath.Vec{
+			X: float64(leftRadarRect.Dx() / 2),
+			Y: float64(leftRadarRect.Dy() / 2),
+		}
+
+		leftStickPos := dotOffset
+		leftStickPos.X += float64(leftRadarRect.Min.X)
+		leftStickPos.Y += float64(leftRadarRect.Min.Y)
+		c.leftStick = c.scene.NewSprite(assets.ImageUIGamepadRadarDot)
+		c.leftStick.Pos.Base = &leftStickPos
+		c.scene.AddGraphicsAbove(c.leftStick, 1)
+
+		rightStickPos := dotOffset
+		rightStickPos.X += float64(rightRadarRect.Min.X)
+		rightStickPos.Y += float64(rightRadarRect.Min.Y)
+		c.rightStick = c.scene.NewSprite(assets.ImageUIGamepadRadarDot)
+		c.rightStick.Pos.Base = &rightStickPos
+		c.scene.AddGraphicsAbove(c.rightStick, 1)
+	}
+
+	const radarScale = 40
+	c.leftStick.Pos.Offset = gmath.Vec{}
+	c.rightStick.Pos.Offset = gmath.Vec{}
+	if info, ok := h.PressedActionInfo(controls.ActionTestLeftStick); ok {
+		c.leftStick.Pos.Offset = info.Pos.Mulf(radarScale)
+	}
+	if info, ok := h.PressedActionInfo(controls.ActionMoveCursor); ok {
+		c.rightStick.Pos.Offset = info.Pos.Mulf(radarScale)
+	}
+
+	c.statusText.Label = fmt.Sprintf("%s: %s\n\n%s",
+		d.Get("menu.controls.gamepad_status"),
+		d.Get("menu.controls.gamepad_status.connected"),
+		d.Get("menu.controls.gamepad.calibrate"))
 }
 
 func (c *ControlsGamepadMenuController) initUI() {
@@ -72,12 +150,35 @@ func (c *ControlsGamepadMenuController) initUI() {
 	}
 	panel.AddChild(grid)
 
+	{
+		checkerContainer := eui.NewGridContainer(3, widget.GridLayoutOpts.Spacing(10, 4),
+			widget.GridLayoutOpts.Stretch([]bool{false, false, true}, nil))
+
+		leftRadarWidget := widget.NewGraphic(widget.GraphicOpts.Image(c.createRadarImage()))
+		c.leftRadar = leftRadarWidget
+		checkerContainer.AddChild(leftRadarWidget)
+
+		rightRadarWidget := widget.NewGraphic(widget.GraphicOpts.Image(c.createRadarImage()))
+		c.rightRadar = rightRadarWidget
+		checkerContainer.AddChild(rightRadarWidget)
+
+		panel := eui.NewPanel(uiResources, 0, 0)
+		statusText := eui.NewLabel(fmt.Sprintf("%s: %s", d.Get("menu.controls.gamepad_status"), d.Get("menu.controls.gamepad_status.checking")), smallFont)
+		statusText.MaxWidth = 320
+		panel.AddChild(statusText)
+		checkerContainer.AddChild(panel)
+
+		c.statusText = statusText
+
+		rowContainer.AddChild(checkerContainer)
+	}
+
 	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
 		Input:      c.state.CombinedInput,
 		Value:      &options.GamepadSettings[c.id].DeadzoneLevel,
 		Label:      d.Get("menu.controls.gamepad_deadzone"),
-		ValueNames: []string{"0.05", "0.10", "0.15", "0.20", "0.25", "0.30", "0.35", "0.40"},
+		ValueNames: []string{"0.05", "0.10", "0.15", "0.20", "0.25", "0.30", "0.35", "0.40", "0.45", "0.50", "0.55", "0.60"},
 		OnPressed: func() {
 			c.state.GetInput(c.id).SetGamepadDeadzoneLevel(options.GamepadSettings[c.id].DeadzoneLevel)
 		},
@@ -90,6 +191,10 @@ func (c *ControlsGamepadMenuController) initUI() {
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
+}
+
+func (c *ControlsGamepadMenuController) createRadarImage() *ebiten.Image {
+	return c.scene.LoadImage(assets.ImageUIGamepadRadar).Data
 }
 
 func (c *ControlsGamepadMenuController) back() {

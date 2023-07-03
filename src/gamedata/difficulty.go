@@ -10,7 +10,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 
 	switch config.RawGameMode {
 	case "reverse":
-		score -= (config.BossDifficulty - 1) * 20
+		score -= (config.BossDifficulty - 2) * 20
 		score += (3 - config.CreepDifficulty) * 15
 		score += (config.DronesPower - 1) * 15
 		score += config.StartingResources * 5

@@ -183,6 +183,7 @@ const SeasonNumber = 0
 //   - "Colony" settings tab is not properly disabled in Reverse mode
 //   - Splash screen no longer depends on the classic mode fog of war settings
 //   - No achievements in coop mode (this would be too easy)
+//   - Fixed uncentered camera in a single bot mode
 //
 // * Performance:
 //   - Precompute waypoint direction once for colony agents

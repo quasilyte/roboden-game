@@ -403,7 +403,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 	c.camera = c.createCameraManager(viewportWorld, true, c.state.GetInput(0))
 
 	forceCenter := c.config.ExecMode == gamedata.ExecuteReplay ||
-		c.config.PlayersMode == serverapi.PmodeTwoBots
+		c.config.PlayersMode == serverapi.PmodeTwoBots ||
+		c.config.PlayersMode == serverapi.PmodeSingleBot
 	if forceCenter {
 		c.camera.CenterOn(c.world.rect.Center())
 	}

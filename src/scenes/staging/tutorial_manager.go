@@ -392,7 +392,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return true
 	case 30:
 		foundTurret := false
-		if m.stepTicks <= 50 {
+		if m.stepTicks <= 40 {
 			for _, c := range m.world.constructions {
 				if c.stats.Kind == constructTurret {
 					foundTurret = true
@@ -432,7 +432,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return m.stepTicks == 0
 
 	case 33:
-		m.stepTicks = 30
+		m.stepTicks = 40
 		return true
 	case 34:
 		return len(m.world.creeps) == 0 || m.stepTicks == 0
@@ -501,6 +501,12 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return m.stepTicks == 0
 
 	case 47:
+		m.stepTicks = 25
+		return true
+	case 48:
+		return m.stepTicks == 0
+
+	case 49:
 		var howitzer *creepNode
 		for _, creep := range m.world.creeps {
 			if creep.stats.Kind == gamedata.CreepHowitzer {
@@ -511,23 +517,23 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		m.creep = howitzer
 		return true
 
-	case 48:
+	case 50:
 		if m.creep == nil {
 			return true
 		}
 		m.addHintNode(ge.Pos{Base: &m.creep.pos}, d.Get("tutorial.final_goal"))
 		return true
-	case 49:
+	case 51:
 		return m.creep == nil
 
-	case 50:
+	case 52:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_message"))
 		m.nextPressed = false
 		return true
-	case 51:
+	case 53:
 		return m.nextPressed
 
-	case 52:
+	case 54:
 		m.EventTriggerVictory.Emit(gsignal.Void{})
 	}
 

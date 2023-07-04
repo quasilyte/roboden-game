@@ -310,6 +310,8 @@ Make them really rare or appear almost everywhere.
 ##menu.controls.method_gamepad : gamepad
 ##menu.controls.player_label : Player
 ##menu.controls.gamepad_deadzone : Joystick deadzone
+##menu.controls.gamepad_layout : Layout
+##menu.controls.gamepad_cursor_speed : Virtual cursor speed
 
 ##menu.controls.gamepad_status : Controller status
 ##menu.controls.gamepad_status.checking : checking

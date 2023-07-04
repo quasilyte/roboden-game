@@ -7,6 +7,11 @@ import (
 )
 
 func GetDefaultData() session.PersistentData {
+	defaultGamepadSettings := session.GamepadSettings{
+		Layout:        int(session.GamepadLayoutXbox),
+		DeadzoneLevel: 1,
+		CursorSpeed:   3,
+	}
 	return session.PersistentData{
 		// The default settings.
 		Settings: session.GameSettings{
@@ -25,8 +30,8 @@ func GetDefaultData() session.PersistentData {
 				FullscreenEnabled: true,
 			},
 			GamepadSettings: [2]session.GamepadSettings{
-				{DeadzoneLevel: 1},
-				{DeadzoneLevel: 1},
+				defaultGamepadSettings,
+				defaultGamepadSettings,
 			},
 		},
 	}

@@ -134,8 +134,18 @@ func (c *ControlsGamepadMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.gamepad")+fmt.Sprintf(" %d", c.id+1), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
+	rootGrid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(8, 4),
+		widget.GridLayoutOpts.Stretch(nil, nil))
+	rowContainer.AddChild(rootGrid)
+
+	calibrationPanel := eui.NewTextPanel(uiResources, 0, 0)
+	rootGrid.AddChild(calibrationPanel)
+
+	rightContainer := eui.NewRowLayoutContainer(10, nil)
+	rootGrid.AddChild(rightContainer)
+
 	panel := eui.NewTextPanel(uiResources, 0, 0)
-	rowContainer.AddChild(panel)
+	rightContainer.AddChild(panel)
 
 	controlsText := d.Get("menu.controls.gamepad.text")
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
@@ -150,30 +160,29 @@ func (c *ControlsGamepadMenuController) initUI() {
 	}
 	panel.AddChild(grid)
 
-	{
-		checkerContainer := eui.NewGridContainer(3, widget.GridLayoutOpts.Spacing(10, 4),
-			widget.GridLayoutOpts.Stretch([]bool{false, false, true}, nil))
+	rightContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+		Resources:  uiResources,
+		Input:      c.state.CombinedInput,
+		Value:      &options.GamepadSettings[c.id].Layout,
+		Label:      d.Get("menu.controls.gamepad_layout"),
+		ValueNames: []string{"Xbox", "PlayStation", "Nintendo"},
+		OnPressed: func() {
+			// TODO: update bindings text.
+		},
+	}))
 
-		leftRadarWidget := widget.NewGraphic(widget.GraphicOpts.Image(c.createRadarImage()))
-		c.leftRadar = leftRadarWidget
-		checkerContainer.AddChild(leftRadarWidget)
+	rightContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+		Resources:  uiResources,
+		Input:      c.state.CombinedInput,
+		Value:      &options.GamepadSettings[c.id].CursorSpeed,
+		Label:      d.Get("menu.controls.gamepad_cursor_speed"),
+		ValueNames: []string{"-80", "-50%", "-20%", "+0%", "+20%", "+50%", "+80%", "+100%"},
+		OnPressed: func() {
+			c.state.GetInput(c.id).SetVirtualCursorSpeed(options.GamepadSettings[c.id].CursorSpeed)
+		},
+	}))
 
-		rightRadarWidget := widget.NewGraphic(widget.GraphicOpts.Image(c.createRadarImage()))
-		c.rightRadar = rightRadarWidget
-		checkerContainer.AddChild(rightRadarWidget)
-
-		panel := eui.NewTextPanel(uiResources, 0, 0)
-		statusText := eui.NewLabel(fmt.Sprintf("%s: %s", d.Get("menu.controls.gamepad_status"), d.Get("menu.controls.gamepad_status.checking")), smallFont)
-		statusText.MaxWidth = 320
-		panel.AddChild(statusText)
-		checkerContainer.AddChild(panel)
-
-		c.statusText = statusText
-
-		rowContainer.AddChild(checkerContainer)
-	}
-
-	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+	rightContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
 		Input:      c.state.CombinedInput,
 		Value:      &options.GamepadSettings[c.id].DeadzoneLevel,
@@ -183,6 +192,30 @@ func (c *ControlsGamepadMenuController) initUI() {
 			c.state.GetInput(c.id).SetGamepadDeadzoneLevel(options.GamepadSettings[c.id].DeadzoneLevel)
 		},
 	}))
+
+	{
+		calibrationContentsContainer := eui.NewRowLayoutContainer(10, nil)
+
+		radarsContainer := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(10, 4),
+			widget.GridLayoutOpts.Stretch([]bool{false, false, true}, nil))
+		calibrationContentsContainer.AddChild(radarsContainer)
+
+		leftRadarWidget := widget.NewGraphic(widget.GraphicOpts.Image(c.createRadarImage()))
+		c.leftRadar = leftRadarWidget
+		radarsContainer.AddChild(leftRadarWidget)
+
+		rightRadarWidget := widget.NewGraphic(widget.GraphicOpts.Image(c.createRadarImage()))
+		c.rightRadar = rightRadarWidget
+		radarsContainer.AddChild(rightRadarWidget)
+
+		statusText := eui.NewLabel(fmt.Sprintf("%s: %s", d.Get("menu.controls.gamepad_status"), d.Get("menu.controls.gamepad_status.checking")), smallFont)
+		statusText.MaxWidth = 240
+		calibrationContentsContainer.AddChild(statusText)
+
+		c.statusText = statusText
+
+		calibrationPanel.AddChild(calibrationContentsContainer)
+	}
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

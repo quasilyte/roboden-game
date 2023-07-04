@@ -303,6 +303,8 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.controls.method_gamepad : геймпад
 ##menu.controls.player_label : Игрок
 ##menu.controls.gamepad_deadzone : Мёртвая зона джойстика
+##menu.controls.gamepad_layout : Раскладка
+##menu.controls.gamepad_cursor_speed : Скорость виртуального курсора
 
 ##menu.controls.gamepad_status : Статус контроллера
 ##menu.controls.gamepad_status.checking : загрузка

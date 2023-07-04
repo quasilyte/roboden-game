@@ -101,8 +101,12 @@ func main() {
 	state.ReloadLanguage(ctx)
 
 	state.CombinedInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[0].DeadzoneLevel)
-	state.FirstGamepadInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[1].DeadzoneLevel)
+	state.FirstGamepadInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[0].DeadzoneLevel)
 	state.SecondGamepadInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[1].DeadzoneLevel)
+
+	state.CombinedInput.SetVirtualCursorSpeed(state.Persistent.Settings.GamepadSettings[0].CursorSpeed)
+	state.FirstGamepadInput.SetVirtualCursorSpeed(state.Persistent.Settings.GamepadSettings[0].CursorSpeed)
+	state.SecondGamepadInput.SetVirtualCursorSpeed(state.Persistent.Settings.GamepadSettings[1].CursorSpeed)
 
 	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
 

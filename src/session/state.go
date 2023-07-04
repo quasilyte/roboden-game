@@ -111,8 +111,18 @@ type Resources struct {
 	UI *eui.Resources
 }
 
+type GamepadLayoutKind int
+
+const (
+	GamepadLayoutXbox GamepadLayoutKind = iota
+	GamepadLayoutPlayStation
+	GamepadLayoutNintendoSwitch
+)
+
 type GamepadSettings struct {
+	Layout        int
 	DeadzoneLevel int
+	CursorSpeed   int
 }
 
 type PlayerInputMethod int

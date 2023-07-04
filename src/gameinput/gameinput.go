@@ -11,7 +11,27 @@ type Cursor interface {
 
 type Handler struct {
 	*input.Handler
+
 	virtualCursorPos gmath.Vec
+
+	virtualCursorSpeedMultiplier float64
+}
+
+func (h *Handler) GetVirtualCursorSpeedMultiplier() float64 {
+	return h.virtualCursorSpeedMultiplier
+}
+
+func (h *Handler) SetVirtualCursorSpeed(level int) {
+	h.virtualCursorSpeedMultiplier = ([...]float64{
+		0.2,
+		0.5,
+		0.8,
+		1.0,
+		1.2,
+		1.5,
+		1.8,
+		2.0,
+	})[level]
 }
 
 func (h *Handler) SetGamepadDeadzoneLevel(level int) {

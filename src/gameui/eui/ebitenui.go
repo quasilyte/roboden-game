@@ -420,6 +420,8 @@ type SelectButtonConfig struct {
 	ValueNames     []string
 	DisabledValues []int
 
+	LayoutData any
+
 	OnPressed func()
 	OnHover   func()
 }
@@ -440,7 +442,11 @@ func NewSelectButton(config SelectButtonConfig) *widget.Button {
 		return key + ": " + valueNames[slider.Value()]
 	}
 
-	button := newButtonSelected(config.Resources, makeLabel())
+	buttonOpts := []widget.ButtonOpt{}
+	if config.LayoutData != nil {
+		buttonOpts = append(buttonOpts, widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(config.LayoutData)))
+	}
+	button := newButtonSelected(config.Resources, makeLabel(), buttonOpts...)
 
 	button.ClickedEvent.AddHandler(func(args interface{}) {
 		increase := false
@@ -527,15 +533,17 @@ func NewBoolSelectButton(config BoolSelectButtonConfig) widget.PreferredSizeLoca
 	return button
 }
 
-func newButtonSelected(res *Resources, text string) *widget.Button {
-	return widget.NewButton(
+func newButtonSelected(res *Resources, text string, opts ...widget.ButtonOpt) *widget.Button {
+	options := []widget.ButtonOpt{
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 			Stretch: true,
 		})),
 		widget.ButtonOpts.Image(res.ButtonSelected.Image),
 		widget.ButtonOpts.Text(text, res.ButtonSelected.FontFace, res.ButtonSelected.TextColors),
 		widget.ButtonOpts.TextPadding(res.ButtonSelected.Padding),
-	)
+	}
+	options = append(options, opts...)
+	return widget.NewButton(options...)
 }
 
 func NewTextPanel(res *Resources, minWidth, minHeight int) *widget.Container {

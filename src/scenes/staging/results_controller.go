@@ -333,10 +333,11 @@ func (c *resultsController) initUI() {
 	titleLabel := eui.NewCenteredLabel(titleString, assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel := eui.NewTextPanel(uiResources, 0, 0)
 
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
 		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
+	panel.AddChild(grid)
 
 	itoa := strconv.Itoa
 
@@ -368,9 +369,7 @@ func (c *resultsController) initUI() {
 		grid.AddChild(eui.NewLabel(pair[1], smallFont))
 	}
 
-	rowContainer.AddChild(grid)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(panel)
 
 	replay := c.makeGameReplay()
 	if c.config.GameMode != gamedata.ModeTutorial && c.highScore {

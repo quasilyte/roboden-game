@@ -111,7 +111,7 @@ func (c *rewardsController) initUI() {
 
 	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.results.rewards"), assets.BitmapFont3))
 
-	panel := eui.NewPanel(uiResources, 500, 0)
+	panel := eui.NewTextPanel(uiResources, 580, 0)
 	c.panel = panel
 
 	c.grid = widget.NewContainer(

@@ -381,6 +381,8 @@ x1.5 означает, что игра будет работать на 50% бы
 
 ##game.notice.base_under_attack
 Ваша колония атакована!
+##game.notice.base_destroyed
+Ваша колония уничтожена!
 
 ##game.exit.notice.keyboard
 Нажмите ещё раз, чтобы выйти.

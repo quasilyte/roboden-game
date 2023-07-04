@@ -421,6 +421,19 @@ func (c *Controller) Init(scene *ge.Scene) {
 		}
 
 		if c.config.ExecMode == gamedata.ExecuteNormal && isHumanPlayer(colony.player) {
+			colony.EventDestroyed.Connect(c, func(colony *colonyCoreNode) {
+				cam := colony.player.GetState().camera
+				center := cam.AbsPos(cam.Rect.Center())
+				if center.DistanceTo(colony.pos) < 300 {
+					return
+				}
+				c.messageManagers[colony.player.GetState().id].AddMessage(queuedMessageInfo{
+					text:          scene.Dict().Get("game.notice.base_destroyed"),
+					timer:         8,
+					targetPos:     ge.Pos{Offset: *colony.GetPos()},
+					forceWorldPos: true,
+				})
+			})
 			colony.EventUnderAttack.Connect(c, func(colony *colonyCoreNode) {
 				cam := colony.player.GetState().camera
 				center := cam.AbsPos(cam.Rect.Center())
@@ -430,7 +443,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 				c.messageManagers[colony.player.GetState().id].AddMessage(queuedMessageInfo{
 					text:          scene.Dict().Get("game.notice.base_under_attack"),
 					trackedObject: colony,
-					timer:         5,
+					timer:         8,
 					targetPos:     ge.Pos{Base: colony.GetPos()},
 				})
 			})

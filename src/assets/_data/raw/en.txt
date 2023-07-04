@@ -388,6 +388,8 @@ An ally has marked this place
 
 ##game.notice.base_under_attack
 A colony is under attack!
+##game.notice.base_destroyed
+A colony has been destroyed!
 
 ##game.exit.notice.keyboard
 Press the button again to quit.

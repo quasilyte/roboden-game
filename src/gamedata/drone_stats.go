@@ -172,8 +172,8 @@ var HarvesterAgentStats = InitDroneStats(&AgentStats{
 	IsTurret:  true,
 	Image:     assets.ImageHarvesterAgent,
 	Size:      SizeLarge,
-	Upkeep:    12,
-	MaxHealth: 70,
+	Upkeep:    14,
+	MaxHealth: 60,
 	Speed:     8,
 })
 

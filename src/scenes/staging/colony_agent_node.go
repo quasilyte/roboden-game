@@ -1726,7 +1726,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 			return
 		}
 
-		a.specialDelay = a.world().rand.FloatRange(3.5, 6)
+		a.specialDelay = a.world().rand.FloatRange(4.5, 6.5)
 		harvested := target.Harvest(2)
 		value := float64(harvested) * target.stats.value
 		a.colonyCore.AddGatheredResources(value)

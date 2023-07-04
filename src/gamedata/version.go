@@ -171,6 +171,7 @@ const SeasonNumber = 0
 //   - The message window is not half-transparent
 //   - Better gamepad configuration screen
 //   - Better drones overview (with stats)
+//   - Added seed option help on-hover text
 //
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect

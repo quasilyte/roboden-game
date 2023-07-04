@@ -754,6 +754,11 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 
 		const maxSeedLen = 16
 		textinput := eui.NewTextInput(uiResources, tinyFont,
+			widget.TextInputOpts.WidgetOpts(
+				widget.WidgetOpts.CursorEnterHandler(func(args *widget.WidgetCursorEnterEventArgs) {
+					c.setHelpText(c.optionDescriptionText("menu.lobby.game_seed"))
+				}),
+			),
 			widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
 				if len(newInputText) > maxSeedLen {
 					return false, nil

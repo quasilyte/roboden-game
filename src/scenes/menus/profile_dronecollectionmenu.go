@@ -82,14 +82,7 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 			Max: image.Point{X: int(img.DefaultFrameWidth), Y: int(img.DefaultFrameHeight)},
 		}).(*ebiten.Image)
 	}
-	var drones []*gamedata.AgentStats
-	drones = append(drones, gamedata.WorkerAgentStats, gamedata.ScoutAgentStats)
-	for _, recipe := range gamedata.Tier2agentMergeRecipes {
-		drones = append(drones, recipe.Result)
-	}
-	for _, recipe := range gamedata.Tier3agentMergeRecipes {
-		drones = append(drones, recipe.Result)
-	}
+	drones := gamedata.AllDroneStats()
 	droneIsUnlocked := func(d *gamedata.AgentStats) bool {
 		switch d.Tier {
 		case 2:
@@ -103,12 +96,13 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 	for i := range drones {
 		drone := drones[i]
 		available := droneIsUnlocked(drone)
+		available = true
 		frame := droneImage(drone, available)
 		b := eui.NewItemButton(uiResources, frame, tinyFont, "", 0, func() {})
 		b.SetDisabled(true)
 		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
 			if available {
-				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, true)
+				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, true, true)
 			} else if drone.Tier == 2 {
 				c.helpLabel.Label = descriptions.LockedDroneText(c.scene.Dict(), &c.state.Persistent.PlayerStats, drone)
 			} else {

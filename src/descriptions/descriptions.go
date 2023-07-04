@@ -97,7 +97,13 @@ func TurretText(d *langs.Dictionary, turret *gamedata.AgentStats) string {
 	return strings.Join(textLines, "\n")
 }
 
-func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier bool) string {
+func RatingBar(value int) string {
+	full := value
+	empty := 10 - full
+	return strings.Repeat("●", full) + strings.Repeat("◌", empty)
+}
+
+func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier, globalStats bool) string {
 	tag := ""
 	switch {
 	case drone.CanGather && drone.CanPatrol:
@@ -116,14 +122,27 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier bool) s
 	textLines := make([]string, 0, 6)
 
 	if showTier {
-		textLines = append(textLines, fmt.Sprintf("%s (%s %d)\n", d.Get("drone", key), d.Get("menu.tier"), drone.Tier))
+		textLines = append(textLines, fmt.Sprintf("%s (%s, %s %d)\n", d.Get("drone", key), tag, d.Get("menu.tier"), drone.Tier))
 	} else {
-		textLines = append(textLines, d.Get("drone", key)+"\n")
+		textLines = append(textLines, fmt.Sprintf("%s (%s)\n", d.Get("drone", key), tag))
 	}
-	textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.function"), tag))
-	textLines = append(textLines, d.Get("drone", key, "description")+"\n")
 
+	var docStats *gamedata.DroneDocs
+	if globalStats {
+		docStats = &drone.GlobalDocs
+	} else {
+		docStats = &drone.Docs
+	}
 	if drone.Weapon != nil {
+		damageSuffix := ""
+		if drone.Weapon.MaxTargets != 1 {
+			damageSuffix = " (" + d.Get("drone.attack_rating_multi") + ")"
+		}
+		textLines = append(textLines, fmt.Sprintf("%s %s%s", RatingBar(docStats.DamageRating), d.Get("drone.dps_rating"), damageSuffix))
+		textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(docStats.AttackRangeRating), d.Get("drone.attack_range_rating")))
+		textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(docStats.DefenseRating), d.Get("drone.defense_rating")))
+		textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(docStats.UpkeepRating), d.Get("drone.upkeep_cost")))
+
 		parts := make([]string, 0, 2)
 		if drone.Weapon.TargetFlags&gamedata.TargetGround != 0 {
 			p := d.Get("drone.target.ground")
@@ -139,7 +158,89 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier bool) s
 			}
 			parts = append(parts, p)
 		}
-		textLines = append(textLines, fmt.Sprintf("%s: %s\n", d.Get("drone.target"), strings.Join(parts, ", ")))
+		textLines = append(textLines, "")
+		textLines = append(textLines, fmt.Sprintf("%s: %s", d.Get("drone.target"), strings.Join(parts, ", ")))
+	} else {
+		textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(0), d.Get("drone.dps_rating")))
+		textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(0), d.Get("drone.attack_range_rating")))
+		textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(docStats.DefenseRating), d.Get("drone.defense_rating")))
+		textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(docStats.UpkeepRating), d.Get("drone.upkeep_cost")))
+		textLines = append(textLines, "")
+		textLines = append(textLines, fmt.Sprintf("%s: %s", d.Get("drone.target"), d.Get("menu.option.none")))
+	}
+
+	var traits []string
+	switch drone.Kind {
+	case gamedata.AgentCloner:
+		traits = append(traits, d.Get("drone.ability.cloning"))
+	case gamedata.AgentRepair:
+		traits = append(traits, d.Get("drone.ability.repair"))
+	case gamedata.AgentRecharger:
+		traits = append(traits, d.Get("drone.ability.recharge"))
+	case gamedata.AgentRedminer:
+		traits = append(traits, d.Get("drone.ability.red_oil_scavenge"))
+	case gamedata.AgentServo:
+		traits = append(traits, d.Get("drone.ability.colony_speed"))
+		traits = append(traits, d.Get("drone.ability.colony_jump"))
+	case gamedata.AgentScavenger:
+		traits = append(traits, d.Get("drone.ability.scrap_scavenge"))
+	case gamedata.AgentCourier, gamedata.AgentTrucker:
+		traits = append(traits, d.Get("drone.ability.courier"))
+	case gamedata.AgentFreighter:
+		traits = append(traits, d.Get("drone.ability.zero_upkeep"))
+	case gamedata.AgentGenerator, gamedata.AgentStormbringer:
+		traits = append(traits, d.Get("drone.ability.upkeep_decrease"))
+	case gamedata.AgentRoomba:
+		traits = append(traits, d.Get("drone.ability.ground"))
+		traits = append(traits, d.Get("drone.ability.map_patrol"))
+	case gamedata.AgentDisintegrator:
+		traits = append(traits, d.Get("drone.ability.discharged_after_attack"))
+	case gamedata.AgentCommander:
+		traits = append(traits, d.Get("drone.ability.group_command"))
+		traits = append(traits, d.Get("drone.ability.group_buff"))
+	case gamedata.AgentTargeter:
+		traits = append(traits, d.Get("drone.ability.target_marking"))
+	case gamedata.AgentKamikaze:
+		traits = append(traits, d.Get("drone.ability.kamikaze"))
+	case gamedata.AgentPrism:
+		traits = append(traits, d.Get("drone.ability.prism_reflect"))
+	case gamedata.AgentScarab:
+		traits = append(traits, d.Get("drone.ability.scarab_potential"))
+	case gamedata.AgentDevourer:
+		traits = append(traits, d.Get("drone.ability.consume_for_heal"))
+		traits = append(traits, d.Get("drone.ability.consume_for_power"))
+	}
+	if drone.MaxPayload > 1 {
+		traits = append(traits, fmt.Sprintf("%s (%d%%)", d.Get("drone.ability.extra_payload"), 100*drone.MaxPayload))
+	}
+	if drone.SelfRepair != 0 {
+		traits = append(traits, d.Get("drone.ability.self_repair"))
+	}
+	if drone.Weapon != nil {
+		if drone.Weapon.MaxTargets > 1 {
+			traits = append(traits, fmt.Sprintf(d.Get("drone.ability.num_targets_f"), drone.Weapon.MaxTargets))
+		}
+		if drone.Weapon.Damage.Aggro > 0 {
+			traits = append(traits, d.Get("drone.ability.aggro"))
+		}
+		if drone.Weapon.Damage.Disarm > 0 {
+			traits = append(traits, d.Get("drone.ability.disarm"))
+		}
+		if drone.Weapon.Damage.Slow > 0 {
+			traits = append(traits, d.Get("drone.ability.slow"))
+		}
+	}
+	if drone.CanCloak {
+		traits = append(traits, d.Get("drone.ability.cloak_hide"))
+		if drone.Kind == gamedata.AgentMarauder {
+			traits = append(traits, d.Get("drone.ability.cloak_hide"))
+		}
+	}
+	if len(traits) != 0 {
+		textLines = append(textLines, "")
+	}
+	for _, t := range traits {
+		textLines = append(textLines, "> "+t)
 	}
 
 	return strings.Join(textLines, "\n")

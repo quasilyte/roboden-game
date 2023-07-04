@@ -693,7 +693,7 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 	normalFont := assets.BitmapFont2
 
 	label := eui.NewLabel("", tinyFont)
-	label.MaxWidth = 300
+	label.MaxWidth = 305
 	c.helpLabel = label
 	panel.AddChild(label)
 
@@ -926,7 +926,7 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 		})
 		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
 			if available {
-				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, false)
+				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, false, false)
 			} else {
 				c.helpLabel.Label = descriptions.LockedDroneText(c.scene.Dict(), &c.state.Persistent.PlayerStats, drone)
 			}

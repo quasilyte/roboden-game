@@ -1504,7 +1504,6 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		width := 1.0
 		numReflections := 0
 		pos := &a.pos
-		const maxReflections = 4
 		// Prism damage:
 		//   0 => 4
 		//   1 => 6
@@ -1523,15 +1522,15 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 			beam.width = width
 			a.world().nodeRunner.AddObject(beam)
 			numReflections++
-			damage.Health += 2
-			if numReflections < maxReflections {
+			damage.Health += gamedata.PrismDamagePerReflection
+			if numReflections < gamedata.PrismMaxReflections {
 				width++
 			}
 			pos = &ally.pos
-			return numReflections >= maxReflections
+			return numReflections >= gamedata.PrismMaxReflections
 		})
-		if numReflections == maxReflections {
-			damage.Health += 2
+		if numReflections == gamedata.PrismMaxReflections {
+			damage.Health += gamedata.PrismDamagePerMax
 		}
 		beam := newBeamNode(a.world(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
 		beam.width = width

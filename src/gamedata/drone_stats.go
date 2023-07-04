@@ -3,6 +3,7 @@ package gamedata
 import (
 	"fmt"
 	"image/color"
+	"math"
 
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
@@ -78,6 +79,127 @@ func init() {
 	for k := ColonyAgentKind(agentFirst); k < agentLast; k++ {
 		DroneKindByName[k.String()] = k
 	}
+
+	type topEntry struct {
+		unit  *AgentStats
+		score float64
+	}
+	type topScores struct {
+		dpsTop     []topEntry
+		rangeTop   []topEntry
+		defenseTop []topEntry
+		upkeepTop  []topEntry
+	}
+
+	findMax := func(list []topEntry) float64 {
+		v := 0.0
+		for _, x := range list {
+			if x.score > v {
+				v = x.score
+			}
+		}
+		return v
+	}
+	findMin := func(list []topEntry) float64 {
+		v := math.MaxFloat64
+		for _, x := range list {
+			if x.score < v {
+				v = x.score
+			}
+		}
+		return v
+	}
+	calcRatings := func(list []topEntry) []int {
+		var ratings []int
+		max := findMax(list)
+		min := findMin(list)
+		for _, x := range list {
+			if x.score == 0 {
+				ratings = append(ratings, 0)
+				continue
+			}
+			if gmath.EqualApprox(x.score, min) {
+				ratings = append(ratings, 1)
+				continue
+			}
+			r := int(math.Ceil(10 * ((x.score - min) / (max - min))))
+			ratings = append(ratings, r)
+		}
+		return ratings
+	}
+
+	recipesToStatsList := func(list []AgentMergeRecipe) []*AgentStats {
+		var result []*AgentStats
+		for _, x := range list {
+			result = append(result, x.Result)
+		}
+		return result
+	}
+
+	collectTop := func(list []*AgentStats) topScores {
+		var result topScores
+		for _, stats := range list {
+			if stats.Weapon != nil {
+				damage := stats.Weapon.Damage.Health * float64(stats.Weapon.BurstSize)
+				switch stats.Kind {
+				case AgentPrism:
+					damage += (PrismDamagePerReflection * PrismMaxReflections) + PrismDamagePerMax
+				}
+				dps := damage / stats.Weapon.Reload
+				result.dpsTop = append(result.dpsTop, topEntry{unit: stats, score: dps})
+
+				attackRange := stats.Weapon.AttackRange
+				result.rangeTop = append(result.rangeTop, topEntry{unit: stats, score: attackRange})
+			}
+
+			defense := stats.MaxHealth + (stats.SelfRepair * 5)
+			result.defenseTop = append(result.defenseTop, topEntry{unit: stats, score: defense})
+
+			upkeep := stats.Upkeep
+			result.upkeepTop = append(result.upkeepTop, topEntry{unit: stats, score: float64(upkeep)})
+		}
+		return result
+	}
+
+	getStats := func(stats *AgentStats, global bool) *DroneDocs {
+		if global {
+			return &stats.GlobalDocs
+		}
+		return &stats.Docs
+	}
+	fillDoc := func(top topScores, global bool) {
+		for i, dpsRating := range calcRatings(top.dpsTop) {
+			getStats(top.dpsTop[i].unit, global).DamageRating = dpsRating
+		}
+		for i, rangeRating := range calcRatings(top.rangeTop) {
+			getStats(top.rangeTop[i].unit, global).AttackRangeRating = rangeRating
+		}
+		for i, defenseRating := range calcRatings(top.defenseTop) {
+			getStats(top.defenseTop[i].unit, global).DefenseRating = defenseRating
+		}
+		for i, upkeepRating := range calcRatings(top.upkeepTop) {
+			getStats(top.upkeepTop[i].unit, global).UpkeepRating = upkeepRating
+		}
+	}
+
+	tier2top := collectTop(recipesToStatsList(Tier2agentMergeRecipes))
+	fillDoc(tier2top, false)
+
+	allStats := AllDroneStats()
+	globalTop := collectTop(allStats)
+	fillDoc(globalTop, true)
+}
+
+func AllDroneStats() []*AgentStats {
+	var drones []*AgentStats
+	drones = append(drones, WorkerAgentStats, ScoutAgentStats)
+	for _, recipe := range Tier2agentMergeRecipes {
+		drones = append(drones, recipe.Result)
+	}
+	for _, recipe := range Tier3agentMergeRecipes {
+		drones = append(drones, recipe.Result)
+	}
+	return drones
 }
 
 func FindTurretByName(turretName string) *AgentStats {
@@ -132,6 +254,16 @@ type AgentStats struct {
 	BeamOpaqueTime float64
 	BeamTexture    *ge.Texture
 	BeamExplosion  resource.ImageID
+
+	Docs       DroneDocs
+	GlobalDocs DroneDocs
+}
+
+type DroneDocs struct {
+	DamageRating      int
+	AttackRangeRating int
+	DefenseRating     int
+	UpkeepRating      int
 }
 
 var TurretStatsList = []*AgentStats{
@@ -592,6 +724,12 @@ var StormbringerAgentStats = InitDroneStats(&AgentStats{
 		Explosion:                 ProjectileExplosionShocker,
 	}),
 })
+
+const (
+	PrismMaxReflections      = 4
+	PrismDamagePerReflection = 2
+	PrismDamagePerMax        = 2
+)
 
 var PrismAgentStats = InitDroneStats(&AgentStats{
 	ScoreCost:   PrismDroneCost,

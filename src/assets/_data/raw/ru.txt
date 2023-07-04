@@ -304,6 +304,15 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.controls.player_label : Игрок
 ##menu.controls.gamepad_deadzone : Мёртвая зона джойстика
 
+##menu.controls.gamepad_status : Статус контроллера
+##menu.controls.gamepad_status.checking : загрузка
+##menu.controls.gamepad_status.not_connected : не подключен
+##menu.controls.gamepad_status.connected : подключен
+
+##menu.controls.gamepad.calibrate
+Красная точка должна держаться в центре, когда связанный стик находится в состоянии покоя.
+Увеличьте мёртвую зону джойстика, если это не так.
+
 ##menu.controls.keyboard.text
 Управление камерой | Колёсико + перемещение, скролл у края экрана, WASD
 Перемещение колонии | ПКМ по месту назначения

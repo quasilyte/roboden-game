@@ -166,6 +166,9 @@ const SeasonNumber = 0
 //   - Freighter: now has a zero upkeep
 //   - Roomba: increase upkeep (3 -> 9)
 //
+// * Creeps:
+//   - Added a 10-20 sec delay before a howitzer can start firing its artillery
+//
 // * UX:
 //   - Fixed camera snapping issue near the borders of the map
 //   - The message window is not half-transparent

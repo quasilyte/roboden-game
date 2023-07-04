@@ -169,6 +169,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.specialTarget = trunk
 		c.world.nodeRunner.AddObject(trunk)
 		trunk.SetVisibility(false)
+		c.specialDelay = c.scene.Rand().FloatRange(20, 30)
 	}
 
 	c.health = c.maxHealth
@@ -842,10 +843,12 @@ func (c *creepNode) setAnimSprite(s *ge.Sprite, numFrames int) {
 }
 
 func (c *creepNode) updateHowitzer(delta float64) {
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
 	if !c.waypoint.IsZero() {
 		c.anim.Tick(delta)
 		if c.moveTowards(delta, c.waypoint) {
-			if c.path.HasNext() {
+			if c.specialDelay == 0 && c.path.HasNext() {
 				if c.isNearEnemyBase(c.stats.SpecialWeapon.AttackRange * 0.8) {
 					c.path = pathing.GridPath{}
 				}
@@ -856,7 +859,6 @@ func (c *creepNode) updateHowitzer(delta float64) {
 				c.waypoint = posMove(aligned, d).Add(c.world.rand.Offset(-4, 4))
 				return
 			}
-			c.specialDelay = 0
 			c.specialModifier = howitzerIdle
 			c.waypoint = gmath.Vec{}
 			return
@@ -864,7 +866,6 @@ func (c *creepNode) updateHowitzer(delta float64) {
 	}
 
 	if c.specialModifier == howitzerReady {
-		c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 		if c.specialDelay == 0 {
 			target := c.findHowitzerTarget(1.0)
 			c.specialDelay = c.stats.SpecialWeapon.Reload * c.world.rand.FloatRange(0.8, 1.2)
@@ -898,7 +899,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 
 	if c.specialModifier == howitzerFoldTurret {
 		if c.anim.Tick(delta) {
-			c.specialDelay = c.world.rand.FloatRange(3, 10)
+			c.specialDelay = c.world.rand.FloatRange(5, 15)
 			c.specialModifier = howitzerIdle
 			c.altSprite.Visible = false
 			c.sprite.Visible = true

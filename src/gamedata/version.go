@@ -170,11 +170,13 @@ const SeasonNumber = 0
 //   - Fixed camera snapping issue near the borders of the map
 //   - The message window is not half-transparent
 //   - Better gamepad configuration screen
+//   - Better drones overview (with stats)
 //
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect
 //   - Better layers for colonies (especially when they're landing)
 //   - Better layers for explosions (they're above dreadnought now, as they should be)
+//   - Better layout in some of the menus
 //
 // * Gameplay:
 //   - Reworked the tutorial

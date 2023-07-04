@@ -89,7 +89,7 @@ func (c *PlayMenuController) initUI() {
 		)),
 	)
 
-	leftPanel := eui.NewPanel(uiResources, 352, 0)
+	leftPanel := eui.NewPanel(uiResources, 360, 0)
 	leftPanel.AddChild(buttonsContainer)
 	rootGrid.AddChild(leftPanel)
 
@@ -97,7 +97,7 @@ func (c *PlayMenuController) initUI() {
 	helpLabel.MaxWidth = 320
 	c.helpLabel = helpLabel
 
-	rightPanel := eui.NewPanel(uiResources, 352, 0)
+	rightPanel := eui.NewTextPanel(uiResources, 360, 0)
 	rightPanel.AddChild(helpLabel)
 	rootGrid.AddChild(rightPanel)
 

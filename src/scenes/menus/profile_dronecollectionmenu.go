@@ -119,7 +119,7 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 	}
 	leftPanel.AddChild(leftGrid)
 
-	rightPanel := eui.NewPanel(uiResources, 380, 0)
+	rightPanel := eui.NewTextPanel(uiResources, 380, 0)
 	rightPanel.AddChild(helpLabel)
 
 	rootGrid.AddChild(leftPanel)

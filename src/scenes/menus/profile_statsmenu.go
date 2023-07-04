@@ -41,20 +41,16 @@ func (c *ProfileStatsMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainerWithMinWidth(280, 10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
 
-	tinyFont := assets.BitmapFont1
-
-	helpLabel := eui.NewLabel("", tinyFont)
-	helpLabel.MaxWidth = 340
-
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.stats"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel := eui.NewTextPanel(uiResources, 0, 0)
+	rowContainer.AddChild(panel)
 
 	smallFont := assets.BitmapFont1
 	stats := c.state.Persistent.PlayerStats
@@ -79,9 +75,8 @@ func (c *ProfileStatsMenuController) initUI() {
 		grid.AddChild(eui.NewLabel(pair[0], smallFont))
 		grid.AddChild(eui.NewLabel(pair[1], smallFont))
 	}
-	rowContainer.AddChild(grid)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel.AddChild(grid)
 
 	var sendScoreButton *widget.Button
 	sendScoreButton = eui.NewButton(uiResources, c.scene, d.Get("menu.publish_high_score"), func() {

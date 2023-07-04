@@ -92,7 +92,7 @@ func (c *LeaderboardBrowserController) initBoard() {
 		c.rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
 	}
 
-	panel := eui.NewPanel(uiResources, 0, 96)
+	panel := eui.NewTextPanel(uiResources, 0, 96)
 
 	if boardData == nil {
 		panel.AddChild(eui.NewCenteredLabel(d.Get("menu.leaderboard.fetch_error"), tinyFont))

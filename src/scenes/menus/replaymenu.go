@@ -103,7 +103,7 @@ func (c *ReplayMenuController) initUI() {
 		leftGrid.AddChild(b)
 	}
 
-	rightPanel := eui.NewPanel(uiResources, 300, 0)
+	rightPanel := eui.NewTextPanel(uiResources, 320, 0)
 	rightPanel.AddChild(helpLabel)
 
 	rootGrid.AddChild(leftGrid)

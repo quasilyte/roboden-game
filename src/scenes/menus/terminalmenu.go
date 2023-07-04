@@ -82,7 +82,7 @@ func (c *TerminalMenu) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra")+" -> "+d.Get("menu.terminal"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	outputPanel := eui.NewPanel(uiResources, 520, 200)
+	outputPanel := eui.NewTextPanel(uiResources, 520, 200)
 
 	normalContainer := eui.NewAnchorContainer()
 	outputTitle := eui.NewCenteredLabel(d.Get("menu.terminal.command_output_label"), tinyFont)
@@ -221,8 +221,6 @@ func (c *TerminalMenu) initUI() {
 	rowContainer.AddChild(textinput)
 	rowContainer.AddChild(outputTitle)
 	rowContainer.AddChild(outputPanel)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

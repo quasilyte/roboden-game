@@ -52,7 +52,8 @@ func (c *ProfileProgressMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.progress"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel := eui.NewTextPanel(uiResources, 0, 0)
+	rowContainer.AddChild(panel)
 
 	numDrones := len(gamedata.Tier2agentMergeRecipes)
 
@@ -85,9 +86,7 @@ func (c *ProfileProgressMenuController) initUI() {
 		grid.AddChild(eui.NewLabel(pair[0], smallFont))
 		grid.AddChild(eui.NewLabel(pair[1], smallFont))
 	}
-	rowContainer.AddChild(grid)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

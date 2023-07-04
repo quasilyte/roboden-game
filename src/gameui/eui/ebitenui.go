@@ -538,8 +538,22 @@ func newButtonSelected(res *Resources, text string) *widget.Button {
 	)
 }
 
-func NewPanel(res *Resources, minWidth, minHeight int) *widget.Container {
-	return widget.NewContainer(
+func NewTextPanel(res *Resources, minWidth, minHeight int) *widget.Container {
+	return NewPanel(res, minWidth, minHeight,
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Spacing(4),
+			widget.RowLayoutOpts.Padding(widget.Insets{
+				Top:    16,
+				Bottom: 16,
+				Left:   20,
+				Right:  20,
+			}),
+		)))
+}
+
+func NewPanel(res *Resources, minWidth, minHeight int, opts ...widget.ContainerOpt) *widget.Container {
+	options := []widget.ContainerOpt{
 		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
@@ -555,7 +569,10 @@ func NewPanel(res *Resources, minWidth, minHeight int) *widget.Container {
 			}),
 			widget.WidgetOpts.MinSize(minWidth, minHeight),
 		),
-	)
+	}
+	options = append(options, opts...)
+
+	return widget.NewContainer(options...)
 }
 
 func NewTextInput(res *Resources, ff font.Face, opts ...widget.TextInputOpt) *widget.TextInput {
@@ -594,12 +611,12 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 				Disabled: image.NewNineSlice(disabled, [3]int{9, 14, 6}, [3]int{9, 14, 6}),
 			},
 			Padding: widget.Insets{
-				Left:   8,
-				Right:  8,
-				Top:    4,
-				Bottom: 4,
+				Left:   14,
+				Right:  14,
+				Top:    14,
+				Bottom: 10,
 			},
-			FontFace: assets.BitmapFont2,
+			FontFace: assets.BitmapFont1,
 			TextColors: &widget.TextInputColor{
 				Idle:          NormalTextColor,
 				Disabled:      NormalTextColor,

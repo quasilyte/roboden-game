@@ -109,12 +109,13 @@ func (c *UserNameMenu) initUI() {
 	textinput.SetText(c.state.Persistent.PlayerName)
 	rowContainer.AddChild(textinput)
 
+	panel := eui.NewTextPanel(uiResources, 0, 0)
+
 	normalContainer := eui.NewAnchorContainer()
 	rulesLabel := eui.NewLabel(d.Get("menu.user_name_rules"), smallFont)
 	normalContainer.AddChild(rulesLabel)
-	rowContainer.AddChild(rulesLabel)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel.AddChild(normalContainer)
+	rowContainer.AddChild(panel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.save"), func() {
 		c.save(textinput.GetText())

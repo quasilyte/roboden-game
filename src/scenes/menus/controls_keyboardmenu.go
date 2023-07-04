@@ -48,7 +48,7 @@ func (c *ControlsKeyboardMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.keyboard"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	panel := eui.NewPanel(uiResources, 0, 0)
+	panel := eui.NewTextPanel(uiResources, 0, 0)
 	rowContainer.AddChild(panel)
 
 	controlsText := d.Get("menu.controls.keyboard.text")

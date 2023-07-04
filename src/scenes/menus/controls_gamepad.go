@@ -134,7 +134,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.gamepad")+fmt.Sprintf(" %d", c.id+1), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	panel := eui.NewPanel(uiResources, 0, 0)
+	panel := eui.NewTextPanel(uiResources, 0, 0)
 	rowContainer.AddChild(panel)
 
 	controlsText := d.Get("menu.controls.gamepad.text")
@@ -162,7 +162,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 		c.rightRadar = rightRadarWidget
 		checkerContainer.AddChild(rightRadarWidget)
 
-		panel := eui.NewPanel(uiResources, 0, 0)
+		panel := eui.NewTextPanel(uiResources, 0, 0)
 		statusText := eui.NewLabel(fmt.Sprintf("%s: %s", d.Get("menu.controls.gamepad_status"), d.Get("menu.controls.gamepad_status.checking")), smallFont)
 		statusText.MaxWidth = 320
 		panel.AddChild(statusText)

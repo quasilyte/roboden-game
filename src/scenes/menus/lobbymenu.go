@@ -686,7 +686,7 @@ func (c *LobbyMenuController) calcAllocatedPoints() int {
 }
 
 func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widget.Container {
-	panel := eui.NewPanel(uiResources, 0, 0)
+	panel := eui.NewTextPanel(uiResources, 0, 0)
 	c.helpPanel = panel
 
 	tinyFont := assets.BitmapFont1
@@ -752,9 +752,10 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 			)),
 		)
 
+		const maxSeedLen = 16
 		textinput := eui.NewTextInput(uiResources, tinyFont,
 			widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
-				if len(newInputText) > 15 {
+				if len(newInputText) > maxSeedLen {
 					return false, nil
 				}
 				onlyDigits := true
@@ -767,9 +768,13 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 				}
 				return onlyDigits, nil
 			}))
-		textinput.SetText(strconv.FormatInt(c.randomSeed(), 10))
-		c.seedInput = textinput
+		randSeed := strconv.FormatInt(c.randomSeed(), 10)
+		if len(randSeed) >= maxSeedLen {
+			randSeed = randSeed[:maxSeedLen]
+		}
+		textinput.SetText(randSeed)
 		grid.AddChild(textinput)
+		c.seedInput = textinput
 		label := widget.NewLabel(
 			widget.LabelOpts.TextOpts(
 				widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),

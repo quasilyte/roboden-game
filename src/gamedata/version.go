@@ -186,6 +186,7 @@ const SeasonNumber = 0
 //   - Splash screen no longer depends on the classic mode fog of war settings
 //   - No achievements in coop mode (this would be too easy)
 //   - Fixed uncentered camera in a single bot mode
+//   - Fixed a Seeker drone that was unlocked right away (should be unlocked at 1000 pts)
 //
 // * Performance:
 //   - Precompute waypoint direction once for colony agents

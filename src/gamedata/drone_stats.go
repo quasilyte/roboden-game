@@ -761,6 +761,7 @@ var PrismAgentStats = InitDroneStats(&AgentStats{
 })
 
 var RoombaAgentStats = InitDroneStats(&AgentStats{
+	ScoreCost:   RoombaDroneCost,
 	Kind:        AgentRoomba,
 	IsFlying:    false,
 	Image:       assets.ImageRoombaAgent,

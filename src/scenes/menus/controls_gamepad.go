@@ -134,18 +134,16 @@ func (c *ControlsGamepadMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.gamepad")+fmt.Sprintf(" %d", c.id+1), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rootGrid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(8, 4),
+	panelsPairContainer := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(8, 4),
 		widget.GridLayoutOpts.Stretch(nil, nil))
-	rowContainer.AddChild(rootGrid)
 
 	calibrationPanel := eui.NewTextPanel(uiResources, 0, 0)
-	rootGrid.AddChild(calibrationPanel)
-
-	rightContainer := eui.NewRowLayoutContainer(10, nil)
-	rootGrid.AddChild(rightContainer)
+	panelsPairContainer.AddChild(calibrationPanel)
 
 	panel := eui.NewTextPanel(uiResources, 0, 0)
-	rightContainer.AddChild(panel)
+	panelsPairContainer.AddChild(panel)
+
+	rowContainer.AddChild(panelsPairContainer)
 
 	controlsText := d.Get("menu.controls.gamepad.text")
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
@@ -160,18 +158,18 @@ func (c *ControlsGamepadMenuController) initUI() {
 	}
 	panel.AddChild(grid)
 
-	rightContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
 		Input:      c.state.CombinedInput,
 		Value:      &options.GamepadSettings[c.id].Layout,
 		Label:      d.Get("menu.controls.gamepad_layout"),
-		ValueNames: []string{"Xbox", "PlayStation", "Nintendo"},
+		ValueNames: []string{"Xbox", "PlayStation", "Nintendo Switch"},
 		OnPressed: func() {
 			// TODO: update bindings text.
 		},
 	}))
 
-	rightContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
 		Input:      c.state.CombinedInput,
 		Value:      &options.GamepadSettings[c.id].CursorSpeed,
@@ -182,7 +180,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 		},
 	}))
 
-	rightContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
 		Input:      c.state.CombinedInput,
 		Value:      &options.GamepadSettings[c.id].DeadzoneLevel,

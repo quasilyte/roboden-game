@@ -219,7 +219,7 @@ These bases produce more and more units over time, but they can't be replaced af
 
 ##menu.lobby.tech_progress_rate : Tech progress rate
 ##menu.lobby.tech_progress_rate.description
-Tech progress rate specifies how much creeps tech level increase when they use a dedicated card.
+Tech progress rate specifies how much creeps tech level increase when they use a dedicated disk.
 Faster tech progress rate makes the game easier for the dreadnought.
 
 ##menu.lobby.creep_spawn_rate : Creep spawn rate
@@ -319,30 +319,31 @@ Make them really rare or appear almost everywhere.
 ##menu.controls.gamepad_status.connected : connected
 
 ##menu.controls.gamepad.calibrate
-The red dot should be still and centered when the associated stick is in its home position.
-Increase the deadzone if it's not the case.
+The red dot should be centered if joystick is resting.
 
 ##menu.controls.keyboard.text
-Pan camera | Middle mouse button + move, edge scroll or WASD keys
+Pan camera | Middle mouse button + move, edge scroll, W/A/S/D
 Move colony | RMB click on the destination
-Select colony | LMB click on the colony or TAB to switch between colonies
-Action card select | LMB click on the card or press 1-5 on a keyboard
-Pause | SPACE button toggles the pause
-Toggle evolution sheet | ALT button
-Toggle user interface | F11 button
-Ping (Coop only) | ctrl + LMB click
-Exit/Back | ESC button
+Select colony | LMB click on the colony
+Toggle colony | TAB
+Action disk select | LMB click on the card, 1-5
+Pause | SPACE
+Toggle evolution sheet | ALT
+Toggle user interface | F11
+Ping (Coop only) | CTRL + LMB click
+Exit/Back | ESC
 
 ##menu.controls.gamepad.text
-Pan camera | D-pad keys or left stick
+Pan camera | D-pad, left stick
 Move colony | Right stick click on the destination
-Select colony | Right stick click on the colony or L1 to switch between colonies
-Action card select | Right stick click on the card or Y, B, A, X and R1 buttons
-Pause | START toggles the pause
+Select colony | Right stick click on the colony
+Toggle colony | L1
+Action disk select | Right stick click on the disk, Y/B/A/X/R1
+Pause | START
 Toggle evolution sheet | R2 button
 Toggle user interface | L2 button
 Ping (Coop only) | Left stick click
-Exit/Back | BACK or SELECT button
+Exit/Back | BACK
 
 ##menu.overview.intro_mission
 Intro mission (est. time: 15 minutes)

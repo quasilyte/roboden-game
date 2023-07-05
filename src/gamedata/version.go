@@ -177,6 +177,7 @@ const SeasonNumber = 0
 //   - Added seed option help on-hover text
 //   - A notification for the colony being destroyed
 //   - Added PlayStation and Nintendo Switch gamepads layout support
+//   - Auto-pause when gamepad is disconnected
 //
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect

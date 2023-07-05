@@ -5,6 +5,7 @@ import (
 
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 )
 
 type Cursor interface {
@@ -20,6 +21,10 @@ type Handler struct {
 
 	layout       GamepadLayoutKind
 	keysReplacer *strings.Replacer
+
+	gamepadConnected bool
+
+	EventGamepadDisconnected gsignal.Event[gsignal.Void]
 }
 
 func (h *Handler) ReplaceKeyNames(s string) string {
@@ -64,6 +69,16 @@ func (h *Handler) SetVirtualCursorSpeed(level int) {
 func (h *Handler) SetGamepadDeadzoneLevel(level int) {
 	value := (0.05 * float64(level)) + 0.055
 	h.GamepadDeadzone = value
+}
+
+func (h *Handler) Update() {
+	gamepadConnected := h.GamepadConnected()
+	if gamepadConnected != h.gamepadConnected {
+		if !gamepadConnected {
+			h.EventGamepadDisconnected.Emit(gsignal.Void{})
+		}
+		h.gamepadConnected = gamepadConnected
+	}
 }
 
 func (h *Handler) UpdateVirtualCursorPos(pos gmath.Vec) {

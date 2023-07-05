@@ -596,7 +596,10 @@ func (c *Controller) createPlayers() {
 					choiceGen:   choiceGen,
 					creepsState: creepsState,
 				})
-				human.EventExitPressed.Connect(c, func(arg gsignal.Void) {
+				human.EventPauseRequest.Connect(c, func(gsignal.Void) {
+					c.onPausePressed()
+				})
+				human.EventExitPressed.Connect(c, func(gsignal.Void) {
 					c.onExitButtonClicked()
 				})
 				if human.CanPing() {

@@ -38,8 +38,9 @@ type humanPlayer struct {
 	canPing   bool
 	pingDelay float64
 
-	EventExitPressed gsignal.Event[gsignal.Void]
-	EventPing        gsignal.Event[gmath.Vec]
+	EventPauseRequest gsignal.Event[gsignal.Void]
+	EventExitPressed  gsignal.Event[gsignal.Void]
+	EventPing         gsignal.Event[gmath.Vec]
 }
 
 type humanPlayerConfig struct {
@@ -171,6 +172,13 @@ func (p *humanPlayer) Init() {
 		p.screenSeparator.Visible = p.rpanel == nil || !p.state.camera.UI.Visible
 		p.scene.AddGraphicsAbove(p.screenSeparator, 1)
 	}
+
+	p.input.EventGamepadDisconnected.Connect(p, func(gsignal.Void) {
+		if p.world.nodeRunner.IsPaused() {
+			return
+		}
+		p.EventPauseRequest.Emit(gsignal.Void{})
+	})
 }
 
 func (p *humanPlayer) IsDisposed() bool { return false }
@@ -200,6 +208,8 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 
 func (p *humanPlayer) HandleInput() {
 	selectedColony := p.state.selectedColony
+
+	p.input.Update()
 
 	if p.canPing && p.pingDelay == 0 {
 		if clickPos, ok := p.cursor.ClickPos(controls.ActionPing); ok {

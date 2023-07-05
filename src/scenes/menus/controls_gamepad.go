@@ -145,17 +145,22 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	rowContainer.AddChild(panelsPairContainer)
 
-	controlsText := d.Get("menu.controls.gamepad.text")
+	h := c.state.GetInput(c.id)
+
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
 		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
 
-	for _, line := range strings.Split(controlsText, "\n") {
-		left, right, _ := strings.Cut(line, " | ")
-		leftLabel := eui.NewLabel(left, smallFont)
-		grid.AddChild(leftLabel)
-		rightLabel := eui.NewLabel(right, smallFont)
-		grid.AddChild(rightLabel)
+	initControlsGrid := func(s string) {
+		for _, line := range strings.Split(s, "\n") {
+			left, right, _ := strings.Cut(line, " | ")
+			leftLabel := eui.NewLabel(left, smallFont)
+			grid.AddChild(leftLabel)
+			rightLabel := eui.NewLabel(right, smallFont)
+			grid.AddChild(rightLabel)
+		}
 	}
+
+	initControlsGrid(h.ReplaceKeyNames(d.Get("menu.controls.gamepad.text")))
 	panel.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
@@ -165,6 +170,10 @@ func (c *ControlsGamepadMenuController) initUI() {
 		Label:      d.Get("menu.controls.gamepad_layout"),
 		ValueNames: []string{"Xbox", "PlayStation", "Nintendo Switch"},
 		OnPressed: func() {
+			h.SetGamepadLayout(gameinput.GamepadLayoutKind(options.GamepadSettings[c.id].Layout))
+			grid.RemoveChildren()
+			initControlsGrid(h.ReplaceKeyNames(d.Get("menu.controls.gamepad.text")))
+
 			// TODO: update bindings text.
 		},
 	}))
@@ -176,7 +185,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 		Label:      d.Get("menu.controls.gamepad_cursor_speed"),
 		ValueNames: []string{"-80", "-50%", "-20%", "+0%", "+20%", "+50%", "+80%", "+100%"},
 		OnPressed: func() {
-			c.state.GetInput(c.id).SetVirtualCursorSpeed(options.GamepadSettings[c.id].CursorSpeed)
+			h.SetVirtualCursorSpeed(options.GamepadSettings[c.id].CursorSpeed)
 		},
 	}))
 
@@ -187,7 +196,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 		Label:      d.Get("menu.controls.gamepad_deadzone"),
 		ValueNames: []string{"0.05", "0.10", "0.15", "0.20", "0.25", "0.30", "0.35", "0.40", "0.45", "0.50", "0.55", "0.60"},
 		OnPressed: func() {
-			c.state.GetInput(c.id).SetGamepadDeadzoneLevel(options.GamepadSettings[c.id].DeadzoneLevel)
+			h.SetGamepadDeadzoneLevel(options.GamepadSettings[c.id].DeadzoneLevel)
 		},
 	}))
 

@@ -1,6 +1,8 @@
 package gameinput
 
 import (
+	"strings"
+
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
 )
@@ -15,6 +17,31 @@ type Handler struct {
 	virtualCursorPos gmath.Vec
 
 	virtualCursorSpeedMultiplier float64
+
+	layout       GamepadLayoutKind
+	keysReplacer *strings.Replacer
+}
+
+func (h *Handler) ReplaceKeyNames(s string) string {
+	return h.keysReplacer.Replace(s)
+}
+
+func (h *Handler) SetGamepadLayout(l GamepadLayoutKind) {
+	h.layout = l
+
+	keys := []string{
+		"gamepad_back",
+		"gamepad_start",
+		"gamepad_y",
+		"gamepad_b",
+		"gamepad_a",
+		"gamepad_x",
+	}
+	pairs := make([]string, 0, len(keys)*2)
+	for _, k := range keys {
+		pairs = append(pairs, "$"+k, getKeyName(l, k))
+	}
+	h.keysReplacer = strings.NewReplacer(pairs...)
 }
 
 func (h *Handler) GetVirtualCursorSpeedMultiplier() float64 {

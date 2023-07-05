@@ -331,7 +331,8 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return m.nextPressed
 
 	case 17:
-		m.addHintNode(ge.Pos{}, d.Get("tutorial.enable_choices", m.world.inputMode))
+		s := m.input.ReplaceKeyNames(d.Get("tutorial.enable_choices", m.world.inputMode))
+		m.addHintNode(ge.Pos{}, s)
 		m.EventEnableChoices.Emit(gsignal.Void{})
 		return true
 	case 18:

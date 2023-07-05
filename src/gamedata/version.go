@@ -176,6 +176,7 @@ const SeasonNumber = 0
 //   - Better drones overview (with stats)
 //   - Added seed option help on-hover text
 //   - A notification for the colony being destroyed
+//   - Added PlayStation and Nintendo Switch gamepads layout support
 //
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect

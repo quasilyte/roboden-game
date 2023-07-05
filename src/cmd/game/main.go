@@ -15,6 +15,7 @@ import (
 	"github.com/quasilyte/roboden-game/contentlock"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/scenes/menus"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
@@ -107,6 +108,10 @@ func main() {
 	state.CombinedInput.SetVirtualCursorSpeed(state.Persistent.Settings.GamepadSettings[0].CursorSpeed)
 	state.FirstGamepadInput.SetVirtualCursorSpeed(state.Persistent.Settings.GamepadSettings[0].CursorSpeed)
 	state.SecondGamepadInput.SetVirtualCursorSpeed(state.Persistent.Settings.GamepadSettings[1].CursorSpeed)
+
+	state.CombinedInput.SetGamepadLayout(gameinput.GamepadLayoutKind(state.Persistent.Settings.GamepadSettings[0].Layout))
+	state.FirstGamepadInput.SetGamepadLayout(gameinput.GamepadLayoutKind(state.Persistent.Settings.GamepadSettings[0].Layout))
+	state.SecondGamepadInput.SetGamepadLayout(gameinput.GamepadLayoutKind(state.Persistent.Settings.GamepadSettings[1].Layout))
 
 	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
 

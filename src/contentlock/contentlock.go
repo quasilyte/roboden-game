@@ -3,12 +3,13 @@ package contentlock
 import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/session"
 )
 
 func GetDefaultData() session.PersistentData {
 	defaultGamepadSettings := session.GamepadSettings{
-		Layout:        int(session.GamepadLayoutXbox),
+		Layout:        int(gameinput.GamepadLayoutXbox),
 		DeadzoneLevel: 1,
 		CursorSpeed:   3,
 	}

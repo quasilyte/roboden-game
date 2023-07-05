@@ -338,12 +338,12 @@ Pan camera | D-pad, left stick
 Move colony | Right stick click on the destination
 Select colony | Right stick click on the colony
 Toggle colony | L1
-Action disk select | Right stick click on the disk, Y/B/A/X/R1
-Pause | START
+Action disk select | Right stick click on the disk, $gamepad_y $gamepad_b $gamepad_a $gamepad_x R1
+Pause | $gamepad_start
 Toggle evolution sheet | R2 button
 Toggle user interface | L2 button
 Ping (Coop only) | Left stick click
-Exit/Back | BACK
+Exit/Back | $gamepad_back
 
 ##menu.overview.intro_mission
 Intro mission (est. time: 15 minutes)

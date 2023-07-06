@@ -113,7 +113,7 @@ func (c *ReplayMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.replay.notice"), smallFont))
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

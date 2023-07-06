@@ -1,7 +1,6 @@
 package menus
 
 import (
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 
@@ -38,7 +37,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(520, 10, nil)
 	root.AddChild(rowContainer)
 
 	normalFont := assets.BitmapFont3
@@ -91,7 +90,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		}))
 	}
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

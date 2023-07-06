@@ -67,7 +67,7 @@ func (c *MainMenuController) initUI() {
 	logo := widget.NewGraphic(widget.GraphicOpts.Image(c.scene.LoadImage(assets.ImageLogo).Data))
 	rowContainer.AddChild(logo)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.play"), func() {
 		c.scene.Context().ChangeScene(NewPlayMenuController(c.state))
@@ -95,7 +95,7 @@ func (c *MainMenuController) initUI() {
 		}))
 	}
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d", d.Get("menu.main.build"), gamedata.BuildNumber), assets.BitmapFont1)
 	rowContainer.AddChild(buildVersionLabel)

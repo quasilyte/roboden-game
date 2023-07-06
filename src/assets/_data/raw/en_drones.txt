@@ -18,7 +18,7 @@
 ##drone.courier : Courier
 ##drone.cloner : Cloner
 ##drone.freighter : Freighter
-##drone.redminer : Red Miner
+##drone.redminer : Oil Tanker
 ##drone.crippler : Hunter
 ##drone.disintegrator : Disintegrator
 ##drone.fighter : Fighter

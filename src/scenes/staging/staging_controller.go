@@ -51,7 +51,6 @@ type Controller struct {
 
 	tutorialManager *tutorialManager
 	messageManagers []*messageManager
-	recipeTab       *recipeTabNode
 
 	arenaManager *arenaManager
 	nodeRunner   *nodeRunner
@@ -507,13 +506,6 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.world.stage.SortBelowLayer()
 
-	if len(c.world.cameras) != 0 {
-		c.recipeTab = newRecipeTabNode(c.world)
-		c.recipeTab.Visible = false
-		c.world.cameras[0].UI.AddGraphics(c.recipeTab)
-		scene.AddObject(c.recipeTab)
-	}
-
 	if c.fogOfWar != nil {
 		for _, colony := range c.world.allColonies {
 			c.updateFogOfWar(colony.pos)
@@ -597,6 +589,15 @@ func (c *Controller) createPlayers() {
 					choiceGen:   choiceGen,
 					creepsState: creepsState,
 				})
+
+				if i == 0 {
+					human.EventRecipesToggled.Connect(c, func(visible bool) {
+						c.world.result.OpenedEvolutionTab = true
+						if c.debugInfo != nil {
+							c.debugInfo.Visible = !visible
+						}
+					})
+				}
 				human.EventPauseRequest.Connect(c, func(gsignal.Void) {
 					c.onPausePressed()
 				})
@@ -1082,14 +1083,6 @@ func (c *Controller) handleInput() {
 
 	if c.config.ExecMode == gamedata.ExecuteReplay {
 		return
-	}
-
-	if c.sharedActionIsJustPressed(controls.ActionShowRecipes) {
-		if c.debugInfo != nil {
-			c.debugInfo.Visible = c.recipeTab.Visible
-		}
-		c.recipeTab.Visible = !c.recipeTab.Visible
-		c.world.result.OpenedEvolutionTab = true
 	}
 
 	for _, p := range c.world.players {

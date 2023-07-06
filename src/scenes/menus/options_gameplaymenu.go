@@ -36,7 +36,7 @@ func (c *OptionsGameplayMenuController) initUI() {
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainerWithMinWidth(480, 10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(520, 10, nil)
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()

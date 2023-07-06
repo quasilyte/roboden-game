@@ -24,6 +24,7 @@ type humanPlayer struct {
 	input     *gameinput.Handler
 	choiceGen *choiceGenerator
 
+	recipeTab            *recipeTabNode
 	choiceWindow         *choiceWindowNode
 	rpanel               *rpanelNode
 	cursor               *gameui.CursorNode
@@ -38,9 +39,10 @@ type humanPlayer struct {
 	canPing   bool
 	pingDelay float64
 
-	EventPauseRequest gsignal.Event[gsignal.Void]
-	EventExitPressed  gsignal.Event[gsignal.Void]
-	EventPing         gsignal.Event[gmath.Vec]
+	EventRecipesToggled gsignal.Event[bool]
+	EventPauseRequest   gsignal.Event[gsignal.Void]
+	EventExitPressed    gsignal.Event[gsignal.Void]
+	EventPing           gsignal.Event[gmath.Vec]
 }
 
 type humanPlayerConfig struct {
@@ -175,6 +177,11 @@ func (p *humanPlayer) Init() {
 		p.CreateChoiceWindow(false)
 	}
 
+	p.recipeTab = newRecipeTabNode(p.world)
+	p.recipeTab.Visible = false
+	p.state.camera.UI.AddGraphics(p.recipeTab)
+	p.scene.AddObject(p.recipeTab)
+
 	if len(p.world.cameras) == 2 && p.state.id == 0 {
 		begin := ge.Pos{Offset: gmath.Vec{X: (1920 / 4)}}
 		end := ge.Pos{Offset: gmath.Vec{X: (1920 / 4), Y: 1080}}
@@ -229,6 +236,11 @@ func (p *humanPlayer) HandleInput() {
 			p.EventPing.Emit(globalClickPos)
 			return
 		}
+	}
+
+	if p.input.ActionIsJustPressed(controls.ActionShowRecipes) {
+		p.recipeTab.Visible = !p.recipeTab.Visible
+		p.EventRecipesToggled.Emit(p.recipeTab.Visible)
 	}
 
 	if p.input.ActionIsJustPressed(controls.ActionToggleColony) {
@@ -374,11 +386,6 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	}
 	p.colonySelector.Pos.Base = &p.state.selectedColony.spritePos
 	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.spritePos
-}
-
-func (p *humanPlayer) onPanelUpdateRequested(gsignal.Void) {
-	// FIXME: is it unused?
-	p.rpanel.UpdateMetrics()
 }
 
 func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {

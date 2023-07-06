@@ -16,11 +16,28 @@ type recipeTabNode struct {
 
 	Visible       bool
 	combinedImage *ebiten.Image
-	rect          *ge.Rect
+
+	pos gmath.Vec
+
+	rects []recipeTabRect
+}
+
+type recipeTabRect struct {
+	drone *gamedata.AgentStats
+	rect  gmath.Rect
 }
 
 func newRecipeTabNode(world *worldState) *recipeTabNode {
 	return &recipeTabNode{world: world}
+}
+
+func (tab *recipeTabNode) GetDroneUnderCursor(pos gmath.Vec) *gamedata.AgentStats {
+	for _, r := range tab.rects {
+		if r.rect.Contains(pos) {
+			return r.drone
+		}
+	}
+	return nil
 }
 
 func (tab *recipeTabNode) IsDisposed() bool { return false }
@@ -85,26 +102,40 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 		panic("should never happen")
 	}
 
+	tab.rects = make([]recipeTabRect, 0, len(tab.world.tier2recipes))
+	tab.pos = gmath.Vec{X: 8, Y: 8}
+
 	numRecipes := len(tab.world.config.Tier2Recipes)
-	droneSeparator := 16
-	imageWidth := 30*numRecipes + ((numRecipes - 1) * droneSeparator)
+	droneSeparator := 4
+	droneWidth := 30.0
+	imageWidth := int(droneWidth)*numRecipes + ((numRecipes - 1) * droneSeparator)
 	imageHeight := 15 + 5 + 30
-	combined := ebiten.NewImage(imageWidth, imageHeight)
+
+	tile := ge.NewRect(scene.Context(), float64(droneWidth+2), float64(imageHeight+2))
+	tile.Centered = false
+	tile.OutlineWidth = 0
+	tile.FillColorScale.SetRGBA(0x13, 0x1a, 0x22, 160)
+
+	combined := ebiten.NewImage(imageWidth+2, imageHeight+2)
 	offsetX := 0.0
 	for _, recipe := range tab.world.tier2recipes {
-		drawDrone(combined, droneStatsByKind(recipe.Drone1.Kind), recipe.Drone1.Faction, 15, offsetX, 0)
-		drawDrone(combined, droneStatsByKind(recipe.Drone2.Kind), recipe.Drone2.Faction, 15, offsetX+15, 0)
-		drawDrone(combined, recipe.Result, gamedata.NeutralFactionTag, 30, offsetX, 15+5)
+		rect := gmath.Rect{
+			Min: tab.pos.Add(gmath.Vec{X: offsetX}),
+			Max: tab.pos.Add(gmath.Vec{X: offsetX + droneWidth + 2, Y: float64(imageHeight + 2)}),
+		}
+		tile.DrawWithOffset(combined, gmath.Vec{X: offsetX})
+		marginX := 1.0
+		marginY := 1.0
+		drawDrone(combined, droneStatsByKind(recipe.Drone1.Kind), recipe.Drone1.Faction, 15, marginX+offsetX, 0+marginY)
+		drawDrone(combined, droneStatsByKind(recipe.Drone2.Kind), recipe.Drone2.Faction, 15, marginX+offsetX+15, 0+marginY)
+		drawDrone(combined, recipe.Result, gamedata.NeutralFactionTag, 30, marginX+offsetX, 15+5+marginY)
+		tab.rects = append(tab.rects, recipeTabRect{
+			drone: recipe.Result,
+			rect:  rect,
+		})
 		offsetX += 30.0 + float64(droneSeparator)
 	}
 	tab.combinedImage = combined
-
-	tab.rect = ge.NewRect(scene.Context(), float64(imageWidth+(8*2)), float64(imageHeight+(2*2)))
-	tab.rect.Centered = false
-	tab.rect.Pos.Offset = gmath.Vec{X: 8, Y: 8}
-	tab.rect.OutlineColorScale.SetColor(ge.RGB(0x5e5a5d))
-	tab.rect.OutlineWidth = 1
-	tab.rect.FillColorScale.SetRGBA(0x13, 0x1a, 0x22, 160)
 }
 
 func (tab *recipeTabNode) Draw(screen *ebiten.Image) {
@@ -115,10 +146,8 @@ func (tab *recipeTabNode) Draw(screen *ebiten.Image) {
 		return
 	}
 
-	tab.rect.Draw(screen)
-
 	var options ebiten.DrawImageOptions
-	options.GeoM.Translate(tab.rect.Pos.Offset.X+8, tab.rect.Pos.Offset.Y+2)
+	options.GeoM.Translate(tab.pos.X, tab.pos.Y)
 	screen.DrawImage(tab.combinedImage, &options)
 }
 

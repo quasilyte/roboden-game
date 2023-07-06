@@ -58,13 +58,7 @@ func (c *ControlsGamepadMenuController) Update(delta float64) {
 }
 
 func (c *ControlsGamepadMenuController) checkGamepad() {
-	var h *gameinput.Handler
-	if c.id == 0 {
-		h = &c.state.FirstGamepadInput
-	} else {
-		h = &c.state.SecondGamepadInput
-	}
-
+	h := c.state.GetGamepadInput(c.id)
 	d := c.scene.Dict()
 
 	if !h.GamepadConnected() {
@@ -145,7 +139,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	rowContainer.AddChild(panelsPairContainer)
 
-	h := c.state.GetInput(c.id)
+	h := c.state.GetGamepadInput(c.id)
 
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
 		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))

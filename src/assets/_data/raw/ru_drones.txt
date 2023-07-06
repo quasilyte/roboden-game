@@ -18,7 +18,7 @@
 ##drone.courier : Курьер
 ##drone.cloner : Клонирователь
 ##drone.freighter : Грузовой
-##drone.redminer : Алый Рудокоп
+##drone.redminer : Нефтяной Танкер
 ##drone.crippler : Охотник
 ##drone.disintegrator : Дезинтегратор
 ##drone.fighter : Боец

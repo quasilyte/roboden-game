@@ -62,6 +62,13 @@ func (state *State) GetInput(id int) *gameinput.Handler {
 	return state.BoundInputs[id]
 }
 
+func (state *State) GetGamepadInput(id int) *gameinput.Handler {
+	if id == 0 {
+		return &state.FirstGamepadInput
+	}
+	return &state.SecondGamepadInput
+}
+
 type PersistentData struct {
 	Settings GameSettings
 

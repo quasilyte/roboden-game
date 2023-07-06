@@ -149,6 +149,7 @@
 ##menu.lobby.points_allocated : Кредитов использовано
 
 ##menu.lobby.game_seed : Сид игры
+##menu.lobby.game_seed.description
 Игровой сид влияет на генерацию мира.
 Одинаковый сид создаёт идентичные миры при каждом запуске.
 Сид должен быть неотрицательным числом.
@@ -413,10 +414,10 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.hint.resource.crystal.value : Высокая ценность
 ##game.hint.resource.oil : Нефть (ресурс)
 ##game.hint.resource.oil.value : Средняя ценность, регенерирует
-##game.hint.resource.red_crystal : Алый кристалл (ресурс)
-##game.hint.resource.red_crystal.value : Очень высокая ценность, элитный
-##game.hint.resource.red_oil : Алая нефть (ресурс)
-##game.hint.resource.red_oil.value : Нормальная ценность, элитный, регенерирует
+##game.hint.resource.red_crystal : Алый кристалл (элитный ресурс)
+##game.hint.resource.red_crystal.value : Очень высокая ценность
+##game.hint.resource.red_oil : Алая нефть (элитный ресурс)
+##game.hint.resource.red_oil.value : Средняя ценность, регенерирует
 
 ##game.notice.ping
 Союзник отметил эту локацию

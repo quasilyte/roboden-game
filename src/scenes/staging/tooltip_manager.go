@@ -53,11 +53,20 @@ func (m *tooltipManager) OnStopHover() {
 }
 
 func (m *tooltipManager) OnHover(pos gmath.Vec) {
+	d := m.scene.Dict()
+
+	if m.player.recipeTab.Visible {
+		drone := m.player.recipeTab.GetDroneUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
+		if drone != nil {
+			m.createTooltip(pos, d.Get("drone", strings.ToLower(drone.Kind.String())))
+			return
+		}
+	}
+
 	if m.player.choiceGen.IsReady() && m.player.choiceWindow != nil {
 		choice := m.player.choiceWindow.GetChoiceUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
 		if choice != nil {
 			var hint string
-			d := m.scene.Dict()
 			if choice.option.special != specialChoiceNone {
 				if choice.option.special > _creepCardFirst && choice.option.special < _creepCardLast {
 					side := d.Get(sideName(choice.option.direction))
@@ -77,6 +86,7 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 			}
 			if hint != "" {
 				m.createTooltip(pos, hint)
+				return
 			}
 		}
 	}
@@ -89,6 +99,7 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 	hint := m.findHoverTargetHint(globalPos)
 	if hint != "" {
 		m.createTooltip(pos, hint)
+		return
 	}
 }
 

@@ -27,6 +27,13 @@ type messageNode struct {
 	xpadding float64
 }
 
+func estimateMessageBounds(s string, xpadding float64) (width, height float64) {
+	bounds := text.BoundString(assets.BitmapFont1, s)
+	width = (float64(bounds.Dx()) + 16) + xpadding
+	height = (float64(bounds.Dy()) + 16)
+	return width, height
+}
+
 func newScreenTutorialHintNode(camera *viewport.Camera, pos, targetPos gmath.Vec, text string) *messageNode {
 	return &messageNode{
 		pos:       pos,
@@ -53,9 +60,7 @@ func (m *messageNode) SetPos(pos gmath.Vec) {
 }
 
 func (m *messageNode) Init(scene *ge.Scene) {
-	bounds := text.BoundString(assets.BitmapFont1, m.text)
-	m.width = (float64(bounds.Dx()) + 16) + m.xpadding
-	m.height = (float64(bounds.Dy()) + 16)
+	m.width, m.height = estimateMessageBounds(m.text, m.xpadding)
 
 	m.rect = ge.NewRect(scene.Context(), m.width, m.height)
 	m.rect.OutlineColorScale.SetColor(ge.RGB(0x5e5a5d))

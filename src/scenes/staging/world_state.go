@@ -57,6 +57,8 @@ type worldState struct {
 	evolutionEnabled bool
 	movementEnabled  bool
 
+	hintsMode int
+
 	width      float64
 	height     float64
 	rect       gmath.Rect
@@ -303,8 +305,10 @@ func (w *worldState) NewWallClusterNode(config wallClusterConfig) *wallClusterNo
 }
 
 func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
-	n := newColonyCoreNode(config)
 	playerState := config.Player.GetState()
+	n := newColonyCoreNode(config)
+	n.id = playerState.colonySeq
+	playerState.colonySeq++
 	n.EventDestroyed.Connect(nil, func(x *colonyCoreNode) {
 		w.allColonies = xslices.Remove(w.allColonies, x)
 		playerState.colonies = xslices.Remove(playerState.colonies, x)

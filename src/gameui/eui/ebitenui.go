@@ -188,6 +188,29 @@ func NewRowLayoutContainer(spacing int, rowscale []bool) *widget.Container {
 	return NewRowLayoutContainerWithMinWidth(0, spacing, rowscale)
 }
 
+func NewTransparentSeparator() widget.PreferredSizeLocateableWidget {
+	c := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Padding(widget.Insets{
+				Top:    4,
+				Bottom: 4,
+			}))),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(
+			widget.RowLayoutData{Stretch: true},
+		)))
+
+	c.AddChild(widget.NewGraphic(
+		widget.GraphicOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+			Stretch:   true,
+			MaxHeight: 1,
+		})),
+		widget.GraphicOpts.ImageNineSlice(image.NewNineSliceColor(color.RGBA{})),
+	))
+
+	return c
+}
+
 func NewSeparator(ld interface{}) widget.PreferredSizeLocateableWidget {
 	c := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(

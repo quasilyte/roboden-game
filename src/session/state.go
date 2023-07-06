@@ -132,6 +132,7 @@ type GameSettings struct {
 	EffectsVolumeLevel int
 	ScrollingSpeed     int
 	EdgeScrollRange    int
+	HintMode           int
 	ShowFPS            bool
 	ShowTimer          bool
 	DebugLogs          bool

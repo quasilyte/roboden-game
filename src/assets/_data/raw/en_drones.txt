@@ -64,7 +64,7 @@
 ##drone.ability.cloning : Performs cloning of non-elite drones
 ##drone.ability.repair : Repairs damaged drones
 ##drone.ability.recharge : Recovers the energy of the nearby drones
-##drone.ability.red_oil_scavenge : Can harvest a red magma-like resource
+##drone.ability.red_oil_scavenge : Can harvest a red oil resource
 ##drone.ability.colony_speed : Makes the colony move faster
 ##drone.ability.colony_jump : Increases colony max jump distance
 ##drone.ability.scrap_scavenge : Can harvest scraps

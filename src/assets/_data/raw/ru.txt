@@ -88,9 +88,9 @@
 ##menu.more : Ещё
 ##menu.lobby_back : Назад в Меню
 
+##menu.options.gameplay : Геймплей
 ##menu.options.sound : Звук
 ##menu.options.graphics : Графика
-##menu.options.camera : Камера
 ##menu.options.extra : Дополнительно
 ##menu.options.controls : Управление
 
@@ -129,6 +129,7 @@
 ##menu.option.small : небольшой
 ##menu.option.big : большой
 
+##menu.options.hint_mode : Всплывающие подсказки
 ##menu.options.effects_volume : Громкость эффектов
 ##menu.options.music_volume : Громкость музыки
 ##menu.options.scroll_speed : Скорость скроллинга
@@ -146,7 +147,12 @@
 ##menu.credits.thank_player : И тебе спасибо, дорогой игрок <3
 
 ##menu.lobby.points_allocated : Кредитов использовано
+
 ##menu.lobby.game_seed : Сид игры
+Игровой сид влияет на генерацию мира.
+Одинаковый сид создаёт идентичные миры при каждом запуске.
+Сид должен быть неотрицательным числом.
+В случае пустого сида будет использован случайный.
 
 ##menu.lobby.game_speed : Скорость игры
 ##menu.lobby.game_speed.description
@@ -379,6 +385,39 @@ x1.5 означает, что игра будет работать на 50% бы
 
 Мультиплеер с разделённым экраном: соревновательный (PvP).
 
+##game.hint.action.priorities1_f : Увеличить приоритет: %s
+##game.hint.action.priorities2_f : Увеличить приоритеты: %s+%s
+##game.hint.action.garrison_f : Добавить в гарнизон (%s)
+##game.hint.action.increaseradius : Увеличить радиус колонии
+##game.hint.action.decreaseradius : Уменьшить радиус колонии
+##game.hint.action.buildgunpoint : Построить турель
+##game.hint.action.buildcolony : Построить колонию
+##game.hint.action.attack : Послать дронов в атаку
+##game.hint.action.sendcreeps : Выпустить юнитов из гарнизонов
+##game.hint.action.rally : Запустить в атаку ближайших юнитов
+##game.hint.action.spawncrawlers : Высадить юнитов из Дредноута
+##game.hint.action.bossattack : Послать Дредноут в атаку
+##game.hint.action.increasetech : Увеличить технологический уровень
+##game.hint.action.atomicbomb : Запустить атомную бомбу
+
+##game.hint.teleporter : Телепортер
+##game.hint.colony : Колония
+##game.hint.dreadnought : Дредноут
+##game.hint.resource.scrap : Обломки (ресурс)
+##game.hint.resource.scrap.value : Очень низкая ценность
+##game.hint.resource.iron : Железо (ресурс)
+##game.hint.resource.iron.value : Низкая ценность
+##game.hint.resource.gold : Золото (ресурс)
+##game.hint.resource.gold.value : Средняя ценность
+##game.hint.resource.crystal : Кристаллы (ресурс)
+##game.hint.resource.crystal.value : Высокая ценность
+##game.hint.resource.oil : Нефть (ресурс)
+##game.hint.resource.oil.value : Средняя ценность, регенерирует
+##game.hint.resource.red_crystal : Алый кристалл (ресурс)
+##game.hint.resource.red_crystal.value : Очень высокая ценность, элитный
+##game.hint.resource.red_oil : Алая нефть (ресурс)
+##game.hint.resource.red_oil.value : Нормальная ценность, элитный, регенерирует
+
 ##game.notice.ping
 Союзник отметил эту локацию
 
@@ -414,10 +453,10 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.value.minute : м
 ##game.value.second : с
 
-##game.choice.resources : Ресурсы
-##game.choice.growth : Рост
-##game.choice.evolution : Эволюция
-##game.choice.security : Войска
+##game.choice.resources : ресурсы
+##game.choice.growth : рост
+##game.choice.evolution : эволюция
+##game.choice.security : войска
 ##game.choice.attack : Атаковать
 ##game.choice.build_colony : Построить колонию
 ##game.choice.build_gunpoint : Построить турель

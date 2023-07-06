@@ -64,7 +64,7 @@
 ##drone.ability.cloning : Клонирует других дронов (кроме элитных)
 ##drone.ability.repair : Чинит повреждённых дронов
 ##drone.ability.recharge : Восстанавливает энергию ближайшим дронам
-##drone.ability.red_oil_scavenge : Может обывать лавообразный ресурс
+##drone.ability.red_oil_scavenge : Может добывать алую нефть
 ##drone.ability.colony_speed : Ускоряет колонию
 ##drone.ability.colony_jump : Увеличивает дальность прыжка колонии
 ##drone.ability.scrap_scavenge : Может собирать обломки

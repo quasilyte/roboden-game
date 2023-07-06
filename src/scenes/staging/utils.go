@@ -21,6 +21,19 @@ func midpoint(a, b gmath.Vec) gmath.Vec {
 	return a.Add(b).Mulf(0.5)
 }
 
+func sideName(side int) string {
+	switch side {
+	case 0:
+		return "game.side.east"
+	case 1:
+		return "game.side.south"
+	case 2:
+		return "game.side.west"
+	default:
+		return "game.side.north"
+	}
+}
+
 // ? ? ?
 // ? x ?
 // ? ? ?

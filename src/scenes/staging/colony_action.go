@@ -1,5 +1,6 @@
 package staging
 
+//go:generate stringer -type=colonyPriority -trimprefix=priority
 type colonyPriority int
 
 const (

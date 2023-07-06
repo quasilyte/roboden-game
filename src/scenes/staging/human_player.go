@@ -118,6 +118,17 @@ func (p *humanPlayer) ForceSpecialChoice(kind specialChoiceKind) {
 func (p *humanPlayer) Init() {
 	p.state.Init(p.world)
 
+	if p.world.hintsMode > 0 {
+		ttm := newTooltipManager(p, p.world.hintsMode > 1)
+		p.cursor.EventHover.Connect(p, func(hoverPos gmath.Vec) {
+			ttm.OnHover(hoverPos)
+		})
+		p.cursor.EventStopHover.Connect(p, func(gsignal.Void) {
+			ttm.OnStopHover()
+		})
+		p.scene.AddObject(ttm)
+	}
+
 	if p.world.config.InterfaceMode >= 2 {
 		if p.creepsState != nil {
 			p.rpanel = newCreepsRpanelNode(p.state.camera.Camera, p.creepsState)

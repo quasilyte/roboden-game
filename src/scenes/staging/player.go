@@ -22,6 +22,8 @@ func isHumanPlayer(p player) bool {
 type playerState struct {
 	id int
 
+	colonySeq int
+
 	colonies []*colonyCoreNode
 
 	selectedColony *colonyCoreNode
@@ -35,7 +37,8 @@ type playerState struct {
 
 func newPlayerState() *playerState {
 	pstate := &playerState{
-		colonies: make([]*colonyCoreNode, 0, 1),
+		colonies:  make([]*colonyCoreNode, 0, 1),
+		colonySeq: 1,
 	}
 
 	return pstate

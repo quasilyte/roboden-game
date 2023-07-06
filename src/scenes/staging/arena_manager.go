@@ -236,16 +236,7 @@ func (m *arenaManager) createWaveOverviewText() string {
 			if !hasAttackers {
 				continue
 			}
-			switch side {
-			case 0:
-				sideParts = append(sideParts, d.Get("game.side.east"))
-			case 1:
-				sideParts = append(sideParts, d.Get("game.side.south"))
-			case 2:
-				sideParts = append(sideParts, d.Get("game.side.west"))
-			case 3:
-				sideParts = append(sideParts, d.Get("game.side.north"))
-			}
+			sideParts = append(sideParts, d.Get(sideName(side)))
 		}
 		buf.WriteString(strings.Join(sideParts, ", "))
 	}

@@ -66,6 +66,7 @@ type colonyCoreNode struct {
 
 	activatedTeleport *teleporterNode
 
+	id     int
 	tether int
 
 	heavyDamageWarningCooldown float64

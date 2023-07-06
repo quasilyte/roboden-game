@@ -9,6 +9,7 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
+//go:generate stringer -type=specialChoiceKind -trimprefix=special
 type specialChoiceKind int
 
 const (
@@ -460,7 +461,7 @@ func (g *choiceGenerator) generateChoicesForCreeps() {
 	for i := range g.shuffledOptions {
 		for {
 			creepIndex := g.world.rand.IntRange(0, maxIndexAvailable)
-			cardID := creepOptionInfoList[creepIndex].special - _creepCardFirst - 1
+			cardID := creepCardID(creepOptionInfoList[creepIndex].special)
 			dir := g.world.rand.IntRange(0, 3)
 			if combinationsSet[cardID][dir] {
 				continue

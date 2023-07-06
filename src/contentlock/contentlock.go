@@ -22,6 +22,7 @@ func GetDefaultData() session.PersistentData {
 			MusicVolumeLevel:   2,
 			ScrollingSpeed:     2,
 			EdgeScrollRange:    2,
+			HintMode:           2,
 			Demo:               true,
 			ShowFPS:            false,
 			Lang:               inferDefaultLang(),

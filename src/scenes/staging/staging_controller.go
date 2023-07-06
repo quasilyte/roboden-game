@@ -348,6 +348,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		config:           &c.config,
 		gameSettings:     &c.state.Persistent.Settings,
 		deviceInfo:       c.state.Device,
+		hintsMode:        c.state.Persistent.Settings.HintMode,
 		debugLogs:        c.state.Persistent.Settings.DebugLogs,
 		droneLabels:      c.state.Persistent.Settings.DebugDroneLabels && c.config.ExecMode == gamedata.ExecuteNormal,
 		rand:             scene.Rand(),

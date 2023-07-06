@@ -9,7 +9,7 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 )
 
-//go:generate stringer -type=CreepKind -trimprefix=creep
+//go:generate stringer -type=CreepKind -trimprefix=Creep
 type CreepKind int
 
 const (

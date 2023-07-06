@@ -9,6 +9,7 @@ import (
 )
 
 type essenceSourceStats struct {
+	name        string
 	image       resource.ImageID
 	capacity    gmath.Range[int]
 	regenDelay  float64 // 0 for "no regen"
@@ -22,6 +23,7 @@ type essenceSourceStats struct {
 }
 
 var redCrystalSource = &essenceSourceStats{
+	name:        "red_crystal",
 	image:       assets.ImageEssenceRedCrystalSource,
 	capacity:    gmath.MakeRange(1, 1),
 	value:       20,
@@ -31,6 +33,7 @@ var redCrystalSource = &essenceSourceStats{
 }
 
 var oilSource = &essenceSourceStats{
+	name:        "oil",
 	image:       assets.ImageEssenceSource,
 	capacity:    gmath.MakeRange(50, 80),
 	regenDelay:  7,
@@ -40,6 +43,7 @@ var oilSource = &essenceSourceStats{
 }
 
 var redOilSource = &essenceSourceStats{
+	name:        "red_oil",
 	image:       assets.ImageRedEssenceSource,
 	capacity:    gmath.MakeRange(60, 80),
 	regenDelay:  9,
@@ -50,6 +54,7 @@ var redOilSource = &essenceSourceStats{
 }
 
 var goldSource = &essenceSourceStats{
+	name:        "gold",
 	image:       assets.ImageEssenceGoldSource,
 	capacity:    gmath.MakeRange(25, 40),
 	regenDelay:  0, // none
@@ -59,6 +64,7 @@ var goldSource = &essenceSourceStats{
 }
 
 var crystalSource = &essenceSourceStats{
+	name:        "crystal",
 	image:       assets.ImageEssenceCrystalSource,
 	capacity:    gmath.MakeRange(10, 20),
 	regenDelay:  0,  // none
@@ -68,6 +74,7 @@ var crystalSource = &essenceSourceStats{
 }
 
 var ironSource = &essenceSourceStats{
+	name:        "iron",
 	image:       assets.ImageEssenceIronSource,
 	capacity:    gmath.MakeRange(60, 80),
 	regenDelay:  0, // none
@@ -77,6 +84,7 @@ var ironSource = &essenceSourceStats{
 }
 
 var smallScrapSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceSmallScrapSource,
 	capacity:   gmath.MakeRange(4, 5),
 	regenDelay: 0, // none
@@ -87,6 +95,7 @@ var smallScrapSource = &essenceSourceStats{
 }
 
 var scrapSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceScrapSource,
 	capacity:   gmath.MakeRange(8, 12),
 	regenDelay: 0, // none
@@ -97,6 +106,7 @@ var scrapSource = &essenceSourceStats{
 }
 
 var smallScrapCreepSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceSmallScrapCreepSource,
 	capacity:   gmath.MakeRange(5, 7),
 	regenDelay: 0, // none
@@ -107,6 +117,7 @@ var smallScrapCreepSource = &essenceSourceStats{
 }
 
 var scrapCreepSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceScrapCreepSource,
 	capacity:   gmath.MakeRange(8, 14),
 	regenDelay: 0, // none
@@ -117,6 +128,7 @@ var scrapCreepSource = &essenceSourceStats{
 }
 
 var bigScrapCreepSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceBigScrapCreepSource,
 	capacity:   gmath.MakeRange(12, 20),
 	regenDelay: 0, // none

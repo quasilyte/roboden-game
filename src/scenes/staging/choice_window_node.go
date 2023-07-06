@@ -270,6 +270,18 @@ func (w *choiceWindowNode) Update(delta float64) {
 	}
 }
 
+func (w *choiceWindowNode) GetChoiceUnderCursor(pos gmath.Vec) *choiceOptionSlot {
+	for i, choice := range w.choices {
+		if !w.specialChoiceEnabled && i == 4 {
+			continue
+		}
+		if choice.rect.Contains(pos) {
+			return choice
+		}
+	}
+	return nil
+}
+
 func (w *choiceWindowNode) HandleInput() int {
 	if w.charging {
 		return -1

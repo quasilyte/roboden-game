@@ -88,9 +88,9 @@
 ##menu.more : More
 ##menu.lobby_back : To The Menu
 
+##menu.options.gameplay : Gameplay
 ##menu.options.sound : Sound
 ##menu.options.graphics : Graphics
-##menu.options.camera : Camera
 ##menu.options.extra : Extra
 ##menu.options.controls : Controls
 
@@ -129,6 +129,7 @@
 ##menu.option.small : small
 ##menu.option.big : big
 
+##menu.options.hint_mode : In-game tooltips
 ##menu.options.effects_volume : Effects volume
 ##menu.options.music_volume : Music volume
 ##menu.options.scroll_speed : Scroll speed
@@ -209,7 +210,7 @@ It's usually harder to play on a smaller map.
 
 ##menu.lobby.oil_regen_rate : Oil regeneration rate
 ##menu.lobby.oil_regen_rate.description
-How fast the oil and magma-like resources regenerate over time.
+How fast the oil (normal and red) resources regenerate over time.
 This option can be used to completely disable that regeneration or make it faster.
 
 ##menu.lobby.num_creep_bases : Creep bases
@@ -386,6 +387,39 @@ Win by destroying all colonies.
 
 Split-screen multiplayer: competitive (PvP).
 
+##game.hint.action.priorities1_f : Increase %s priority
+##game.hint.action.priorities2_f : Increase %s+%s priorities
+##game.hint.action.garrison_f : Add creeps to %s garrison
+##game.hint.action.increaseradius : Increase colony radius
+##game.hint.action.decreaseradius : Decrease colony radius
+##game.hint.action.buildgunpoint : Build turret
+##game.hint.action.buildcolony : Build colony
+##game.hint.action.attack : Attack
+##game.hint.action.sendcreeps : Release creeps from garrisons
+##game.hint.action.rally : Rally nearby creeps
+##game.hint.action.spawncrawlers : Dispatch creeps from Dreadnought
+##game.hint.action.bossattack : Attack with Dreadnought
+##game.hint.action.increasetech : Increase the tech level
+##game.hint.action.atomicbomb : Launch an atomic bomb
+
+##game.hint.teleporter : Teleporter
+##game.hint.colony : Colony
+##game.hint.dreadnought : Dreadnought
+##game.hint.resource.scrap : Scrap resource
+##game.hint.resource.scrap.value : Very low value
+##game.hint.resource.iron : Iron resource
+##game.hint.resource.iron.value : Low value
+##game.hint.resource.gold : Gold resource
+##game.hint.resource.gold.value : Normal value
+##game.hint.resource.crystal : Crystal resource
+##game.hint.resource.crystal.value : High value
+##game.hint.resource.oil : Oil resource
+##game.hint.resource.oil.value : Normal value, regenerates
+##game.hint.resource.red_crystal : Red crystal resource
+##game.hint.resource.red_crystal.value : Very high value, elite
+##game.hint.resource.red_oil : Red Oil resource
+##game.hint.resource.red_oil.value : Normal value, elite, regenerates
+
 ##game.notice.ping
 An ally has marked this place
 
@@ -421,10 +455,10 @@ To resume the game, press START.
 ##game.value.minute : m
 ##game.value.second : s
 
-##game.choice.resources : Resources
-##game.choice.growth : Growth
-##game.choice.evolution : Evolution
-##game.choice.security : Security
+##game.choice.resources : resources
+##game.choice.growth : growth
+##game.choice.evolution : evolution
+##game.choice.security : security
 ##game.choice.attack : Attack
 ##game.choice.build_colony : Build new colony
 ##game.choice.build_gunpoint : Build turret

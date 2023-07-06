@@ -195,6 +195,7 @@ const SeasonNumber = 0
 //   - No achievements in coop mode (this would be too easy)
 //   - Fixed uncentered camera in a single bot mode
 //   - Fixed a Seeker drone that was unlocked right away (should be unlocked at 1000 pts)
+//   - Can no longer build on top of the teleporter
 //
 // * Performance:
 //   - Precompute waypoint direction once for colony agents

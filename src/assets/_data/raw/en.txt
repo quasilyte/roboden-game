@@ -181,7 +181,7 @@ Only the single player mode score is ranked and can be published.
 
 ##menu.lobby.players.reverse : Players
 ##menu.lobby.players.reverse.description
-In reverse game mode, it's possible to have a player-versus-player experience when split-screen is enabled.
+In reverse game mode, it's possible to have a PvP experience when split-screen is enabled.
 One player controls the dreadnought while another player controls the usual colony.
 At least 1 gamepad is needed to play in the split-screen mode.
 If any of the allied players is defeated, the game ends.

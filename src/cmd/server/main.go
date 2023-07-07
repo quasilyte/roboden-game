@@ -61,6 +61,7 @@ func main() {
 		MaxHeaderBytes: 1024 * 32,
 	}
 
+	mux.HandleFunc("/version", server.NewHandler(h.HandleVersion))
 	mux.HandleFunc("/get-player-board", server.NewHandler(h.HandleGetPlayerBoard))
 	mux.HandleFunc("/save-player-score", server.NewHandler(h.HandleSavePlayerScore))
 

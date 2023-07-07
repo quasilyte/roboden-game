@@ -17,10 +17,22 @@ import (
 // It's shared between the requests, so it shouldn't have unsynchronized state.
 type requestHandler struct {
 	server *apiServer
+
+	versionResponse []byte
 }
 
 func newRequestHandler(s *apiServer) *requestHandler {
-	return &requestHandler{server: s}
+	versionResponse := []byte(fmt.Sprintf(`{"version":"%s"}`, CommitHash))
+
+	return &requestHandler{
+		server:          s,
+		versionResponse: versionResponse,
+	}
+}
+
+func (h *requestHandler) HandleVersion(r *http.Request) (any, error) {
+	h.server.metrics.IncReqVersion()
+	return h.versionResponse, nil
 }
 
 func (h *requestHandler) HandleGetPlayerBoard(r *http.Request) (any, error) {

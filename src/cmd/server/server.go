@@ -575,10 +575,16 @@ func (s *apiServer) NewHandler(f func(*http.Request) (any, error)) func(http.Res
 			w.Header().Set("Content-Type", "application/json")
 			return
 		}
-		data, err := json.Marshal(v)
-		if err != nil {
-			s.writeError(w, err)
-			return
+
+		var data []byte
+		if vData, ok := v.([]byte); ok {
+			data = vData
+		} else {
+			data, err = json.Marshal(v)
+			if err != nil {
+				s.writeError(w, err)
+				return
+			}
 		}
 
 		w.Header().Set("Content-Type", "application/json")

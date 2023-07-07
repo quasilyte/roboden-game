@@ -14,10 +14,10 @@ type metricsData struct {
 	MetricsSeq int
 
 	// Request counters.
-	NumReqErrors           int64
-	ReqGetPlayerHighscores int64
-	ReqGetPlayerBoard      int64
-	ReqSavePlayerScore     int64
+	NumReqErrors       int64
+	ReqGetPlayerBoard  int64
+	ReqSavePlayerScore int64
+	ReqVersion         int64
 
 	NumReplaysQueued    int64
 	NumReplaysCompleted int64
@@ -45,14 +45,14 @@ func (m *serverMetrics) IncNumReqErrors() {
 	atomic.AddInt64(&m.data.NumReqErrors, 1)
 }
 
-func (m *serverMetrics) IncReqGetPlayerHighscores() {
-	atomic.AddInt64(&m.data.ReqGetPlayerHighscores, 1)
-}
-
 func (m *serverMetrics) IncReqGetPlayerBoard() {
 	atomic.AddInt64(&m.data.ReqGetPlayerBoard, 1)
 }
 
 func (m *serverMetrics) IncReqSavePlayerScore() {
 	atomic.AddInt64(&m.data.ReqSavePlayerScore, 1)
+}
+
+func (m *serverMetrics) IncReqVersion() {
+	atomic.AddInt64(&m.data.ReqVersion, 1)
 }

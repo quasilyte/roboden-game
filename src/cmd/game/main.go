@@ -177,7 +177,7 @@ func getDefaultSessionState() *session.State {
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				Teleporters:      1,
 				RawGameMode:      "reverse",
-				TechProgressRate: 4,
+				TechProgressRate: 5,
 				DronesPower:      1,
 				InitialCreeps:    1,
 				BossDifficulty:   2,

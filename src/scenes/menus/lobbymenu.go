@@ -451,12 +451,14 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 
 	if c.mode == gamedata.ModeReverse {
 		tab.AddChild(c.newOptionButton(&c.config.TechProgressRate, "menu.lobby.tech_progress_rate", []string{
+			"50%",
 			"60%",
 			"70%",
 			"80%",
 			"90%",
 			"100%",
 			"110%",
+			"120%",
 		}))
 	}
 

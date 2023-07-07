@@ -113,7 +113,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 		{cfg.NumCreepBases, 0, 5},
 		{cfg.CreepDifficulty, 0, 9},
 		{cfg.DronesPower, 0, 6},
-		{cfg.TechProgressRate, 0, 5},
+		{cfg.TechProgressRate, 0, 7},
 		{cfg.CreepSpawnRate, 0, 3},
 		{cfg.BossDifficulty, 0, 3},
 		{cfg.ArenaProgression, 0, 7},

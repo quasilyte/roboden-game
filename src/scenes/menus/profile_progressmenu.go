@@ -60,7 +60,10 @@ func (c *ProfileProgressMenuController) initUI() {
 	stats := c.state.Persistent.PlayerStats
 
 	modesTotal := 4
-	modesUnlocked := 1
+	modesUnlocked := 0
+	if stats.TotalScore >= gamedata.ClassicModeCost {
+		modesUnlocked++
+	}
 	if stats.TotalScore >= gamedata.ArenaModeCost {
 		modesUnlocked++
 	}

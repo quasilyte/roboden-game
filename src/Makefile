@@ -9,7 +9,12 @@ runsim:
 	go build -ldflags="-s -w -X 'main.CommitHash=$(COMMIT_HASH)'" -trimpath -o runsim ./cmd/runsim
 
 wasm:
-	GOARCH=wasm GOOS=js go build -ldflags="-s -w" -trimpath -o ../_web/main.wasm cmd/game/main.go
+	GOARCH=wasm GOOS=js go build -ldflags="-s -w" -trimpath -o ../_web/main.wasm ./cmd/game
 
 itchio-wasm: wasm
-	cd ../_web && zip ../bin/roboden.zip main.wasm index.html wasm_exec.js
+	cd ../_web && \
+		rm -rf roboden_data && \
+		cp -r ../roboden_data roboden_data && \
+		mkdir -p ../bin && \
+		rm -f ../bin/roboden.zip && \
+		zip ../bin/roboden.zip -r main.wasm index.html wasm_exec.js roboden_data

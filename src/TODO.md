@@ -2,6 +2,8 @@ todo engine:
 - gamepad d-pad like sticks should allow 2 directions at the same time (diagonals)
 - camera
 - tiled backgrounds with reversed individual tiles
+- tiled bg breaks if there are holes in the tilemap with percentages
+- boundsrect for labels
 - need to round the positions due to rendering issues (round them in Sprite?)
 - anim like 1-2-3 played as progression 1-2-3-2 in a loop
 - why animation affects Y axis?

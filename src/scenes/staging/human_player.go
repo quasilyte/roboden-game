@@ -384,8 +384,8 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 			p.rpanel.UpdateMetrics()
 		})
 	}
-	p.colonySelector.Pos.Base = &p.state.selectedColony.spritePos
-	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.spritePos
+	p.colonySelector.Pos.Base = &p.state.selectedColony.spritePos.value
+	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.spritePos.value
 }
 
 func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {

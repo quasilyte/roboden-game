@@ -37,7 +37,7 @@ type creepNode struct {
 
 	spawnPos        gmath.Vec
 	pos             gmath.Vec
-	spritePos       gmath.Vec
+	spritePos       spritePosComponent
 	waypoint        gmath.Vec
 	wasAttacking    bool
 	wasRetreating   bool
@@ -98,7 +98,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 
 	c.sprite = scene.NewSprite(c.stats.Image)
-	c.sprite.Pos.Base = &c.spritePos
+	c.sprite.Pos.Base = &c.spritePos.value
 	if c.stats.ShadowImage != assets.ImageNone {
 		c.world.stage.AddSpriteAbove(c.sprite)
 	} else {
@@ -125,7 +125,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	if c.stats.ShadowImage != assets.ImageNone && c.world.graphicsSettings.ShadowsEnabled {
 		c.shadow = scene.NewSprite(c.stats.ShadowImage)
-		c.shadow.Pos.Base = &c.spritePos
+		c.shadow.Pos.Base = &c.spritePos.value
 		c.world.stage.AddSprite(c.shadow)
 		c.shadow.Pos.Offset.Y = c.height
 		c.shadow.SetAlpha(0.5)
@@ -137,7 +137,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	if c.stats.Kind == gamedata.CreepUberBoss {
 		c.altSprite = scene.NewSprite(assets.ImageUberBossDoor)
 		c.altSprite.Visible = false
-		c.altSprite.Pos.Base = &c.spritePos
+		c.altSprite.Pos.Base = &c.spritePos.value
 		c.altSprite.Pos.Offset.Y = 13
 		c.world.stage.AddSprite(c.altSprite)
 		c.maxHealth *= c.world.bossHealthMultiplier
@@ -146,7 +146,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		if c.stats.Kind == gamedata.CreepHowitzer {
 			c.altSprite = scene.NewSprite(assets.ImageHowitzerPreparing)
 			c.altSprite.Visible = false
-			c.altSprite.Pos.Base = &c.spritePos
+			c.altSprite.Pos.Base = &c.spritePos.value
 			c.altSprite.Pos.Offset.Y = -3
 			c.world.stage.AddSprite(c.altSprite)
 		}
@@ -164,7 +164,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 			c.sprite.Shader.SetFloatValue("Time", 0)
 		}
 	case gamedata.CreepHowitzer:
-		pos := ge.Pos{Base: &c.spritePos, Offset: gmath.Vec{Y: -10}}
+		pos := ge.Pos{Base: &c.spritePos.value, Offset: gmath.Vec{Y: -10}}
 		trunk := newHowitzerTrunkNode(c.world.stage, pos)
 		c.specialTarget = trunk
 		c.world.nodeRunner.AddObject(trunk)
@@ -173,6 +173,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 
 	c.health = c.maxHealth
+	c.spritePos.UpdatePos(c.pos)
 }
 
 func (c *creepNode) Dispose() {
@@ -204,9 +205,7 @@ func (c *creepNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
 
 	if !c.world.simulation {
-		// FIXME: this should be fixed in the ge package.
-		c.spritePos.X = math.Round(c.pos.X)
-		c.spritePos.Y = math.Round(c.pos.Y)
+		c.spritePos.UpdatePos(c.pos)
 	}
 
 	c.marked = gmath.ClampMin(c.marked-delta, 0)
@@ -502,11 +501,11 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 	}
 
 	if c.stats.BeamTexture == nil {
-		beam := newBeamNode(c.world, ge.Pos{Base: &c.spritePos}, ge.Pos{Base: target.GetPos()}, c.stats.BeamColor)
+		beam := newBeamNode(c.world, ge.Pos{Base: &c.spritePos.value}, ge.Pos{Base: target.GetPos()}, c.stats.BeamColor)
 		beam.width = c.stats.BeamWidth
 		c.world.nodeRunner.AddObject(beam)
 	} else {
-		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.spritePos}, ge.Pos{Base: target.GetPos()}, c.stats.BeamTexture, c.stats.BeamSlideSpeed, c.stats.BeamOpaqueTime)
+		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.spritePos.value}, ge.Pos{Base: target.GetPos()}, c.stats.BeamTexture, c.stats.BeamSlideSpeed, c.stats.BeamOpaqueTime)
 		c.world.nodeRunner.AddObject(beam)
 	}
 
@@ -516,12 +515,12 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 		vec1 := targetDir.Rotated(deg90rad).Mulf(4)
 		vec2 := targetDir.Rotated(-deg90rad).Mulf(4)
 
-		rearBeam1pos := ge.Pos{Base: &c.spritePos, Offset: vec1}
+		rearBeam1pos := ge.Pos{Base: &c.spritePos.value, Offset: vec1}
 		rearBeam1targetPos := ge.Pos{Base: target.GetPos(), Offset: vec2}
 		rearBeam1 := newBeamNode(c.world, rearBeam1pos, rearBeam1targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam1)
 
-		rearBeam2pos := ge.Pos{Base: &c.spritePos, Offset: vec2}
+		rearBeam2pos := ge.Pos{Base: &c.spritePos.value, Offset: vec2}
 		rearBeam2targetPos := ge.Pos{Base: target.GetPos(), Offset: vec1}
 		rearBeam2 := newBeamNode(c.world, rearBeam2pos, rearBeam2targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam2)

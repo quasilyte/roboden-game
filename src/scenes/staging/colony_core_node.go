@@ -58,7 +58,7 @@ type colonyCoreNode struct {
 	hatchFlashComponent damageFlashComponent
 
 	pos           gmath.Vec
-	spritePos     gmath.Vec
+	spritePos     spritePosComponent
 	height        float64
 	maxHealth     float64
 	health        float64
@@ -179,7 +179,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	}
 
 	c.sprite = c.spriteWithAlliance(assets.ImageColonyCore)
-	c.sprite.Pos.Base = &c.spritePos
+	c.sprite.Pos.Base = &c.spritePos.value
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 		c.sprite.Shader.SetFloatValue("HP", 1.0)
@@ -188,7 +188,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.world.stage.AddSprite(c.sprite)
 
 	c.flyingSprite = c.spriteWithAlliance(assets.ImageColonyCoreFlying)
-	c.flyingSprite.Pos.Base = &c.spritePos
+	c.flyingSprite.Pos.Base = &c.spritePos.value
 	c.flyingSprite.Visible = false
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.flyingSprite.Shader = c.sprite.Shader
@@ -196,7 +196,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.world.stage.AddSpriteSlightlyAbove(c.flyingSprite)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
-	c.hatch.Pos.Base = &c.spritePos
+	c.hatch.Pos.Base = &c.spritePos.value
 	c.hatch.Pos.Offset.Y = -20
 	c.world.stage.AddSprite(c.hatch)
 
@@ -204,13 +204,13 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.hatchFlashComponent.sprite = c.hatch
 
 	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
-	c.evoDiode.Pos.Base = &c.spritePos
+	c.evoDiode.Pos.Base = &c.spritePos.value
 	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
 	c.world.stage.AddSprite(c.evoDiode)
 
 	if c.world.graphicsSettings.ShadowsEnabled {
 		c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
-		c.shadow.Pos.Base = &c.spritePos
+		c.shadow.Pos.Base = &c.spritePos.value
 		c.shadow.Visible = false
 		c.world.stage.AddSprite(c.shadow)
 	}
@@ -222,7 +222,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 			rect := scene.NewSprite(assets.ImageColonyResourceBar1 + resource.ImageID(i))
 			rect.Centered = false
 			rect.Visible = false
-			rect.Pos.Base = &c.spritePos
+			rect.Pos.Base = &c.spritePos.value
 			rect.Pos.Offset.X -= 3
 			rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
 			rects[i] = rect
@@ -237,6 +237,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	makeResourceRects(c.flyingResourceRects, true)
 
 	c.markCells(c.pos)
+	c.spritePos.UpdatePos(c.pos)
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
@@ -453,9 +454,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 	}
 
 	if !c.world.simulation {
-		// FIXME: this should be fixed in the ge package.
-		c.spritePos.X = math.Round(c.pos.X)
-		c.spritePos.Y = math.Round(c.pos.Y)
+		c.spritePos.UpdatePos(c.pos)
 	}
 
 	c.updateResourceRects()

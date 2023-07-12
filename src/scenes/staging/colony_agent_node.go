@@ -98,7 +98,7 @@ type colonyAgentNode struct {
 	cloningBeam *cloningBeamNode
 
 	pos       gmath.Vec
-	spritePos gmath.Vec
+	spritePos spritePosComponent
 
 	traits agentTraitBits
 	path   pathing.GridPath
@@ -282,7 +282,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.energy = a.maxEnergy
 
 	a.sprite = scene.NewSprite(a.stats.Image)
-	a.sprite.Pos.Base = &a.spritePos
+	a.sprite.Pos.Base = &a.spritePos.value
 	if a.IsFlying() {
 		a.world().stage.AddSpriteAbove(a.sprite)
 	} else {
@@ -301,7 +301,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 	if a.faction != gamedata.NeutralFactionTag {
 		a.diode = scene.NewSprite(assets.ImageFactionDiode)
-		a.diode.Pos.Base = &a.spritePos
+		a.diode.Pos.Base = &a.spritePos.value
 		a.diode.Pos.Offset.Y = a.stats.DiodeOffset
 		var colorScale ge.ColorScale
 		colorScale.SetColor(gamedata.FactionByTag(a.faction).Color)
@@ -323,7 +323,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 			shadowImage = assets.ImageBigShadow
 		}
 		a.shadow = scene.NewSprite(shadowImage)
-		a.shadow.Pos.Base = &a.spritePos
+		a.shadow.Pos.Base = &a.spritePos.value
 		a.world().stage.AddSprite(a.shadow)
 	}
 
@@ -346,6 +346,8 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		l := newDebugDroneLabelNode(a.colonyCore.player.GetState(), a)
 		a.world().nodeRunner.AddObject(l)
 	}
+
+	a.spritePos.UpdatePos(a.pos)
 }
 
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
@@ -687,9 +689,7 @@ func (a *colonyAgentNode) Update(delta float64) {
 	}
 
 	if !a.world().simulation {
-		// FIXME: this should be fixed in the ge package.
-		a.spritePos.X = math.Round(a.pos.X)
-		a.spritePos.Y = math.Round(a.pos.Y)
+		a.spritePos.UpdatePos(a.pos)
 	}
 
 	if a.energyBill != 0 {
@@ -1739,14 +1739,14 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 			switch {
 			case smokeRoll < 0.3:
 				sprite = a.scene.NewSprite(assets.ImageSmokeDown)
-				sprite.Pos.Offset = a.spritePos.Add(gmath.Vec{X: 1, Y: 16})
+				sprite.Pos.Offset = a.spritePos.value.Add(gmath.Vec{X: 1, Y: 16})
 			case smokeRoll < 0.6:
 				sprite = a.scene.NewSprite(assets.ImageSmokeSide)
-				sprite.Pos.Offset = a.spritePos.Add(gmath.Vec{X: 20, Y: 11})
+				sprite.Pos.Offset = a.spritePos.value.Add(gmath.Vec{X: 20, Y: 11})
 			case smokeRoll < 0.9:
 				sprite = a.scene.NewSprite(assets.ImageSmokeSide)
 				sprite.FlipHorizontal = true
-				sprite.Pos.Offset = a.spritePos.Add(gmath.Vec{X: -16, Y: 11})
+				sprite.Pos.Offset = a.spritePos.value.Add(gmath.Vec{X: -16, Y: 11})
 			default:
 				// No smoke.
 			}

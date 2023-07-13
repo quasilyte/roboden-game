@@ -389,15 +389,15 @@ Split-screen multiplayer: competitive (PvP).
 
 ##game.hint.action.priorities1_f : Increase %s priority
 ##game.hint.action.priorities2_f : Increase %s+%s priorities
-##game.hint.action.garrison_f : Add creeps to %s garrison
+##game.hint.action.garrison_f : Add units to %s garrison
 ##game.hint.action.increaseradius : Increase colony radius
 ##game.hint.action.decreaseradius : Decrease colony radius
 ##game.hint.action.buildgunpoint : Build turret
 ##game.hint.action.buildcolony : Build colony
 ##game.hint.action.attack : Attack
-##game.hint.action.sendcreeps : Release creeps from garrisons
-##game.hint.action.rally : Rally nearby creeps
-##game.hint.action.spawncrawlers : Dispatch creeps from Dreadnought
+##game.hint.action.sendcreeps : Release units from garrisons
+##game.hint.action.rally : Rally nearby units
+##game.hint.action.spawncrawlers : Dispatch units from Dreadnought
 ##game.hint.action.bossattack : Attack with Dreadnought
 ##game.hint.action.increasetech : Increase the tech level
 ##game.hint.action.atomicbomb : Launch an atomic bomb

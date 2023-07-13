@@ -87,7 +87,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioMissile:             {Path: "$sfx/missile.wav", Volume: -0.3},
 		AudioTankShot:            {Path: "$sfx/tank_shot.wav", Volume: -0.3},
 		AudioHeavyCrawlerShot:    {Path: "$sfx/heavy_crawler_shot.wav", Volume: -0.25},
-		AudioEliteCrawlerShot:    {Path: "$sfx/elite_crawler_shot.wav", Volume: -0.3},
+		AudioEliteCrawlerShot:    {Path: "$sfx/elite_crawler_shot.wav", Volume: -0.35},
 		AudioStealthCrawlerShot:  {Path: "$sfx/stealth_crawler_shot.wav", Volume: -0.3},
 		AudioCloning1:            {Path: "$sfx/cloning1.wav", Volume: -0.3},
 		AudioCloning2:            {Path: "$sfx/cloning2.wav", Volume: -0.3},

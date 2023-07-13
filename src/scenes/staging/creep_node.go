@@ -176,7 +176,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	c.spritePos.UpdatePos(c.pos)
 }
 
-func (c *creepNode) Dispose() {
+func (c *creepNode) dispose() {
 	c.sprite.Dispose()
 	if c.shadow != nil {
 		c.shadow.Dispose()
@@ -196,7 +196,7 @@ func (c *creepNode) Destroy() {
 	if c.stats.Kind == gamedata.CreepBuilder && c.specialTarget != nil {
 		c.EventBuildingStop.Emit(gsignal.Void{})
 	}
-	c.Dispose()
+	c.dispose()
 }
 
 func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }

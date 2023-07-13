@@ -787,7 +787,7 @@ func (a *colonyAgentNode) Update(delta float64) {
 	}
 }
 
-func (a *colonyAgentNode) Dispose() {
+func (a *colonyAgentNode) dispose() {
 	a.sprite.Dispose()
 	if a.shadow != nil {
 		a.shadow.Dispose()
@@ -803,7 +803,7 @@ func (a *colonyAgentNode) Dispose() {
 
 func (a *colonyAgentNode) Destroy() {
 	a.EventDestroyed.Emit(a)
-	a.Dispose()
+	a.dispose()
 }
 
 func (a *colonyAgentNode) IsFlying() bool {
@@ -1795,7 +1795,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 	a.target = closestTarget
 	a.sendTo(closestSpot)
 	closestTarget.beingHarvested = true
-	a.EventDestroyed.Connect(nil, func(*colonyAgentNode) {
+	a.EventDestroyed.Connect(closestTarget, func(*colonyAgentNode) {
 		closestTarget.beingHarvested = false
 	})
 }

@@ -124,15 +124,6 @@ type GamepadSettings struct {
 	CursorSpeed   int
 }
 
-type PlayerInputMethod int
-
-const (
-	InputMethodCombined PlayerInputMethod = iota
-	InputMethodKeyboard
-	InputMethodGamepad1
-	InputMethodGamepad2
-)
-
 type GameSettings struct {
 	Lang               string
 	MusicVolumeLevel   int
@@ -164,19 +155,19 @@ type SavedReplay struct {
 }
 
 func (state *State) ReloadInputs() {
-	state.BoundInputs[0] = state.resolveInputMethod(PlayerInputMethod(state.Persistent.Settings.Player1InputMethod))
-	state.BoundInputs[1] = state.resolveInputMethod(PlayerInputMethod(state.Persistent.Settings.Player2InputMethod))
+	state.BoundInputs[0] = state.resolveInputMethod(gameinput.PlayerInputMethod(state.Persistent.Settings.Player1InputMethod))
+	state.BoundInputs[1] = state.resolveInputMethod(gameinput.PlayerInputMethod(state.Persistent.Settings.Player2InputMethod))
 }
 
-func (state *State) resolveInputMethod(method PlayerInputMethod) *gameinput.Handler {
+func (state *State) resolveInputMethod(method gameinput.PlayerInputMethod) *gameinput.Handler {
 	switch method {
-	case InputMethodCombined:
+	case gameinput.InputMethodCombined:
 		return &state.CombinedInput
-	case InputMethodKeyboard:
+	case gameinput.InputMethodKeyboard:
 		return &state.KeyboardInput
-	case InputMethodGamepad1:
+	case gameinput.InputMethodGamepad1:
 		return &state.FirstGamepadInput
-	case InputMethodGamepad2:
+	case gameinput.InputMethodGamepad2:
 		return &state.SecondGamepadInput
 	default:
 		return &state.CombinedInput
@@ -208,22 +199,6 @@ func (state *State) ReloadLanguage(ctx *ge.Context) {
 		panic(err)
 	}
 	ctx.Dict = dict
-}
-
-func (state *State) DetectInputMode() string {
-	switch PlayerInputMethod(state.Persistent.Settings.Player1InputMethod) {
-	case InputMethodKeyboard:
-		return "keyboard"
-	case InputMethodGamepad1, InputMethodGamepad2:
-		return "gamepad"
-	case InputMethodCombined:
-		if state.CombinedInput.GamepadConnected() {
-			return "gamepad"
-		}
-		return "keyboard"
-	default:
-		return "keyboard"
-	}
 }
 
 func (state *State) FindNextReplayIndex() int {

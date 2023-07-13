@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hajimehoshi/ebiten"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
@@ -30,6 +31,8 @@ func NewPanicController(panicInfo *ge.PanicInfo) *PanicController {
 }
 
 func (c *PanicController) Init(scene *ge.Scene) {
+	ebiten.SetCursorMode(ebiten.CursorModeVisible)
+
 	c.scene = scene
 
 	traceLines := strings.Split(c.panicInfo.Trace, "\n")

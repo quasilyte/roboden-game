@@ -8,6 +8,15 @@ import (
 	"github.com/quasilyte/gsignal"
 )
 
+type PlayerInputMethod int
+
+const (
+	InputMethodCombined PlayerInputMethod = iota
+	InputMethodKeyboard
+	InputMethodGamepad1
+	InputMethodGamepad2
+)
+
 type Cursor interface {
 	ClickPos(input.Action) (gmath.Vec, bool)
 }
@@ -23,6 +32,8 @@ type Handler struct {
 	keysReplacer *strings.Replacer
 
 	gamepadConnected bool
+
+	InputMethod PlayerInputMethod
 
 	EventGamepadDisconnected gsignal.Event[gsignal.Void]
 }
@@ -92,6 +103,19 @@ func (h *Handler) AnyCursorPos() gmath.Vec {
 	return h.CursorPos()
 }
 
+func (h *Handler) HasMouseInput() bool {
+	switch h.InputMethod {
+	case InputMethodCombined, InputMethodKeyboard:
+		return true
+	default:
+		return false
+	}
+}
+
+func (h *Handler) CanHideMousePointer() bool {
+	return h.InputMethod == InputMethodCombined
+}
+
 func (h *Handler) ClickPos(action input.Action) (gmath.Vec, bool) {
 	info, ok := h.JustPressedActionInfo(action)
 	if !ok {
@@ -101,4 +125,20 @@ func (h *Handler) ClickPos(action input.Action) (gmath.Vec, bool) {
 		return h.virtualCursorPos, true
 	}
 	return info.Pos, true
+}
+
+func (h *Handler) DetectInputMode() string {
+	switch PlayerInputMethod(h.InputMethod) {
+	case InputMethodKeyboard:
+		return "keyboard"
+	case InputMethodGamepad1, InputMethodGamepad2:
+		return "gamepad"
+	case InputMethodCombined:
+		if h.GamepadConnected() {
+			return "gamepad"
+		}
+		return "keyboard"
+	default:
+		return "keyboard"
+	}
 }

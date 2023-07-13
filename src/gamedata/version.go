@@ -179,6 +179,7 @@ const SeasonNumber = 0
 //   - Added PlayStation and Nintendo Switch gamepads layout support
 //   - Auto-pause when gamepad is disconnected
 //   - In-game on-hover hints
+//   - Hide the less relevant cursor when in the game
 //
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect

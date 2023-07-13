@@ -372,7 +372,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		tier2recipes: tier2recipes,
 		turretDesign: gamedata.FindTurretByName(c.config.TurretDesign),
 	}
-	world.inputMode = c.state.DetectInputMode()
+	world.inputMode = c.state.GetInput(0).DetectInputMode()
 	world.creepCoordinator = newCreepCoordinator(world)
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
 	c.world = world
@@ -551,6 +551,7 @@ func (c *Controller) createCamera(viewportWorld *viewport.World) *viewport.Camer
 
 func (c *Controller) createPlayers() {
 	c.world.players = make([]player, 0, len(c.config.Players))
+	hasMouseInput := false
 	isSimulation := c.world.config.ExecMode == gamedata.ExecuteReplay ||
 		c.world.config.ExecMode == gamedata.ExecuteSimulation
 	for i, pk := range c.config.Players {
@@ -572,6 +573,9 @@ func (c *Controller) createPlayers() {
 				pstate.replay = c.replayActions[i]
 			} else {
 				playerInput := c.state.GetInput(i)
+				if playerInput.HasMouseInput() {
+					hasMouseInput = true
+				}
 				pstate.camera = c.camera
 				if i != 0 {
 					c.secondCamera = c.createCameraManager(c.camera.World, false, playerInput)
@@ -628,6 +632,10 @@ func (c *Controller) createPlayers() {
 		choiceGen.player = p
 		c.nodeRunner.AddObject(choiceGen)
 		c.world.players = append(c.world.players, p)
+	}
+
+	if !hasMouseInput && !isSimulation {
+		ebiten.SetCursorMode(ebiten.CursorModeHidden)
 	}
 }
 
@@ -1254,6 +1262,10 @@ func (c *Controller) IsDisposed() bool { return false }
 
 func (c *Controller) leaveScene(controller ge.SceneController) {
 	c.EventBeforeLeaveScene.Emit(gsignal.Void{})
+
+	if !c.world.simulation {
+		ebiten.SetCursorMode(ebiten.CursorModeVisible)
+	}
 
 	c.scene.Audio().PauseCurrentMusic()
 	c.scene.Context().ChangeScene(controller)

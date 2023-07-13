@@ -154,9 +154,9 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 	}
 
 	return KeymapSet{
-		CombinedInput:      gameinput.Handler{Handler: ctx.Input.NewHandler(0, mainKeymap)},
-		KeyboardInput:      gameinput.Handler{Handler: ctx.Input.NewHandler(0, keyboardKeymap)},
-		FirstGamepadInput:  gameinput.Handler{Handler: ctx.Input.NewHandler(0, gamepadKeymap)},
-		SecondGamepadInput: gameinput.Handler{Handler: ctx.Input.NewHandler(1, gamepadKeymap)},
+		CombinedInput:      gameinput.Handler{InputMethod: gameinput.InputMethodCombined, Handler: ctx.Input.NewHandler(0, mainKeymap)},
+		KeyboardInput:      gameinput.Handler{InputMethod: gameinput.InputMethodKeyboard, Handler: ctx.Input.NewHandler(0, keyboardKeymap)},
+		FirstGamepadInput:  gameinput.Handler{InputMethod: gameinput.InputMethodGamepad1, Handler: ctx.Input.NewHandler(0, gamepadKeymap)},
+		SecondGamepadInput: gameinput.Handler{InputMethod: gameinput.InputMethodGamepad2, Handler: ctx.Input.NewHandler(1, gamepadKeymap)},
 	}
 }

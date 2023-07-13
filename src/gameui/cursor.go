@@ -1,6 +1,7 @@
 package gameui
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
@@ -21,6 +22,7 @@ type CursorNode struct {
 	hoverTriggered bool
 	stillTime      float64
 	hoverPos       gmath.Vec
+	prevMousePos   gmath.Vec
 
 	EventHover     gsignal.Event[gmath.Vec]
 	EventStopHover gsignal.Event[gsignal.Void]
@@ -54,9 +56,28 @@ func (c *CursorNode) ClickPos(action input.Action) (gmath.Vec, bool) {
 	return info.Pos, true
 }
 
+func (c *CursorNode) setPreferGamepad(gamepad bool) {
+	if c.input.CanHideMousePointer() {
+		c.gamepad = gamepad
+		c.sprite.Visible = gamepad
+		if gamepad {
+			ebiten.SetCursorMode(ebiten.CursorModeHidden)
+			c.prevMousePos = c.input.CursorPos()
+			c.pos = c.prevMousePos
+		} else {
+			ebiten.SetCursorMode(ebiten.CursorModeVisible)
+		}
+	} else {
+		c.gamepad = gamepad
+		c.sprite.Visible = true
+	}
+}
+
 func (c *CursorNode) Update(delta float64) {
 	if info, ok := c.input.PressedActionInfo(controls.ActionMoveCursor); ok {
-		c.gamepad = true
+		if !c.gamepad {
+			c.setPreferGamepad(true)
+		}
 		c.sprite.Visible = true
 		travelled := (delta * 640) * c.input.GetVirtualCursorSpeedMultiplier()
 		c.pos.X = gmath.Clamp(c.pos.X+info.Pos.X*travelled, c.rect.Min.X, c.rect.Max.X)
@@ -90,4 +111,11 @@ func (c *CursorNode) Update(delta float64) {
 		}
 		c.prevPos = pos
 	}
+
+	if c.gamepad {
+		if c.input.CursorPos().DistanceSquaredTo(c.prevMousePos) > 10 {
+			c.setPreferGamepad(false)
+		}
+	}
+	c.prevMousePos = c.input.CursorPos()
 }

@@ -552,6 +552,7 @@ func (c *Controller) createCamera(viewportWorld *viewport.World) *viewport.Camer
 func (c *Controller) createPlayers() {
 	c.world.players = make([]player, 0, len(c.config.Players))
 	hasMouseInput := false
+	hasPlayers := false
 	isSimulation := c.world.config.ExecMode == gamedata.ExecuteReplay ||
 		c.world.config.ExecMode == gamedata.ExecuteSimulation
 	for i, pk := range c.config.Players {
@@ -568,6 +569,7 @@ func (c *Controller) createPlayers() {
 		var p player
 		switch pk {
 		case gamedata.PlayerHuman:
+			hasPlayers = true
 			if isSimulation {
 				p = newReplayPlayer(c.world, pstate, choiceGen)
 				pstate.replay = c.replayActions[i]
@@ -634,8 +636,10 @@ func (c *Controller) createPlayers() {
 		c.world.players = append(c.world.players, p)
 	}
 
-	if !hasMouseInput && !isSimulation {
-		ebiten.SetCursorMode(ebiten.CursorModeHidden)
+	if c.world.config.ExecMode == gamedata.ExecuteNormal {
+		if !hasMouseInput && hasPlayers {
+			ebiten.SetCursorMode(ebiten.CursorModeHidden)
+		}
 	}
 }
 

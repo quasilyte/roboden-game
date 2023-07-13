@@ -81,6 +81,9 @@ func (m *cameraManager) InitManualMode(h *gameinput.Handler) {
 	m.cameraToggleSpeed = 1
 	m.cameraToggleSnapDistSqr = 80 * 80
 	m.cameraToggleSnapProgress = 0.9
+	if !h.HasMouseInput() {
+		m.cameraPanBoundary = 0
+	}
 }
 
 func (m *cameraManager) InitCinematicMode() {
@@ -117,9 +120,9 @@ func (m *cameraManager) HandleInput() {
 				cameraPan = gmath.RadToVec(cameraCenter.AngleToPoint(info.Pos)).Mulf(m.cameraPanSpeed * 0.8)
 			}
 		}
-		if cameraPan.IsZero() && m.cameraPanBoundary != 0 && m.ScreenPos.X == 0 {
+		if cameraPan.IsZero() && m.cameraPanBoundary != 0 {
 			// Mouse cursor can pan the camera too.
-			cursor := m.input.CursorPos()
+			cursor := m.input.CursorPos().Sub(m.ScreenPos)
 			if cursor.X > m.Rect.Width()-m.cameraPanBoundary {
 				cameraPan.X += m.cameraPanSpeed
 			}

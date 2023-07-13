@@ -13,6 +13,7 @@ github.com/hajimehoshi/ebiten/v2 v2.5.4 h1:NvUU6LvVc6oc+u+rD9KfHMjruRdpNwbpalVUI
 github.com/hajimehoshi/ebiten/v2 v2.5.4/go.mod h1:mnHSOVysTr/nUZrN1lBTRqhK4NG+T9NR3JsJP2rCppk=
 github.com/hajimehoshi/oto/v2 v2.4.0 h1:2A8QvGJZ7nXwcfIIthaqWdzDn9Ul/er6oASiKcsfiLg=
 github.com/hajimehoshi/oto/v2 v2.4.0/go.mod h1:74bRBgfJaEDpP3NyVyHIYBJE4DgzJ2IP5l/st5qcJog=
+github.com/jakecoffman/cp v1.2.1/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=
 github.com/jezek/xgb v1.1.0 h1:wnpxJzP1+rkbGclEkmwpVFQWpuE2PUGNUzP8SbfFobk=
 github.com/jezek/xgb v1.1.0/go.mod h1:nrhwO0FX/enq75I7Y7G8iN1ubpSGZEiA3v9e9GyRFlk=
 github.com/jfreymuth/oggvorbis v1.0.5 h1:u+Ck+R0eLSRhgq8WTmffYnrVtSztJcYrl588DM4e3kQ=
@@ -32,6 +33,10 @@ github.com/quasilyte/ge v0.0.0-20230622182349-2aabe773b84f h1:brUdIeO17mBiQg4tBm
 github.com/quasilyte/ge v0.0.0-20230622182349-2aabe773b84f/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
 github.com/quasilyte/ge v0.0.0-20230702094153-3d4dc798ae74 h1:EXRk/u+3rmq3vA641zjCLAp8Kdmew3j1QDt6CrBRC3U=
 github.com/quasilyte/ge v0.0.0-20230702094153-3d4dc798ae74/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
+github.com/quasilyte/ge v0.0.0-20230712202729-84e7b96a34fe h1:MQwbg9/CNDqaEPJ6LV9a8/sHA6w7DBlU2R8oRwUFzzE=
+github.com/quasilyte/ge v0.0.0-20230712202729-84e7b96a34fe/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
+github.com/quasilyte/ge v0.0.0-20230712203003-6462ee6e6e48 h1:XaOlFSyQ7cC/jdhiWMwkwrkZSjsajrlQnSe7U9mfIsM=
+github.com/quasilyte/ge v0.0.0-20230712203003-6462ee6e6e48/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
 github.com/quasilyte/gmath v0.0.0-20230428180022-2163470ca0a9 h1:a7LbchKx0dyxohIASRHDr16ylkxlfZ3XGeqzwd09J+Q=
 github.com/quasilyte/gmath v0.0.0-20230428180022-2163470ca0a9/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef h1:ylROAnCA+a6Ry6M9pkRXzL+bhPIT5ctHND5kcdxbwe4=

@@ -55,7 +55,7 @@ func (m *tooltipManager) OnStopHover() {
 func (m *tooltipManager) OnHover(pos gmath.Vec) {
 	d := m.scene.Dict()
 
-	if m.player.recipeTab.Visible {
+	if m.player.recipeTab != nil && m.player.recipeTab.Visible {
 		drone := m.player.recipeTab.GetDroneUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
 		if drone != nil {
 			m.createTooltip(pos, d.Get("drone", strings.ToLower(drone.Kind.String())))

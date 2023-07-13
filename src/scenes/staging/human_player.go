@@ -177,10 +177,12 @@ func (p *humanPlayer) Init() {
 		p.CreateChoiceWindow(false)
 	}
 
-	p.recipeTab = newRecipeTabNode(p.world)
-	p.recipeTab.Visible = false
-	p.state.camera.UI.AddGraphics(p.recipeTab)
-	p.scene.AddObject(p.recipeTab)
+	if p.creepsState == nil {
+		p.recipeTab = newRecipeTabNode(p.world)
+		p.recipeTab.Visible = false
+		p.state.camera.UI.AddGraphics(p.recipeTab)
+		p.scene.AddObject(p.recipeTab)
+	}
 
 	if len(p.world.cameras) == 2 && p.state.id == 0 {
 		begin := ge.Pos{Offset: gmath.Vec{X: (1920 / 4)}}
@@ -238,9 +240,11 @@ func (p *humanPlayer) HandleInput() {
 		}
 	}
 
-	if p.input.ActionIsJustPressed(controls.ActionShowRecipes) {
-		p.recipeTab.Visible = !p.recipeTab.Visible
-		p.EventRecipesToggled.Emit(p.recipeTab.Visible)
+	if p.recipeTab != nil {
+		if p.input.ActionIsJustPressed(controls.ActionShowRecipes) {
+			p.recipeTab.Visible = !p.recipeTab.Visible
+			p.EventRecipesToggled.Emit(p.recipeTab.Visible)
+		}
 	}
 
 	if p.input.ActionIsJustPressed(controls.ActionToggleColony) {

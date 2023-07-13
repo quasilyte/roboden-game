@@ -23,6 +23,8 @@ const (
 	ModeTutorial
 
 	ModeAny
+
+	ModeUnknown
 )
 
 func (m Mode) String() string {
@@ -163,5 +165,12 @@ var AchievementList = []*Achievement{
 		Name: "atomicfinisher",
 		Mode: ModeReverse,
 		Icon: assets.ImageAchievementAtomicFinisher,
+	},
+
+	// Other achievements.
+	{
+		Name: "secret",
+		Mode: ModeUnknown,
+		Icon: assets.ImageAchievementSecret,
 	},
 }

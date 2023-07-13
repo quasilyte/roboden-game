@@ -3,6 +3,7 @@
 ##achievement.mode.arena : arena
 ##achievement.mode.inf_arena : infinite arena
 ##achievement.mode.reverse : reverse
+##achievement.mode.unknown : ???
 
 ##achievement.grade.none : not achived yet
 ##achievement.grade.normal : normal grade
@@ -101,3 +102,8 @@ Win a game by launching an atomic bomb. An atomic bomb is available at 200% tech
 ##achievement.nonstop.description
 Get to a victory in any mode without using a pause feature.
 Using the exit button to activate a pause counts as pausing too.
+
+##achievement.secret : The True Ending
+##achievement.secret.description
+This game has a true, canonical ending.
+It's not simple to find, but it's there!

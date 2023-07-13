@@ -85,7 +85,6 @@
 
 ##menu.tier : tier
 ##menu.back : Back
-##menu.more : More
 ##menu.lobby_back : To The Menu
 
 ##menu.options.gameplay : Gameplay
@@ -144,6 +143,7 @@
 
 ##menu.credits.crew : crew
 ##menu.credits.assets : assets
+##menu.credits.special_thanks : special thanks
 ##menu.credits.thank_player : And thank you, dear player <3
 
 ##menu.lobby.points_allocated : Points allocated

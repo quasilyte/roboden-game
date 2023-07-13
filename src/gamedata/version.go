@@ -204,4 +204,9 @@ const SeasonNumber = 0
 // * Misc:
 //   - Updated ebitenui library version
 //   - Underscore character '_' is now allowed in the username
-const BuildNumber int = 13
+//
+// # Version 14 (Steam release)
+//
+// * New content:
+//   - A new secret achievement
+const BuildNumber int = 14

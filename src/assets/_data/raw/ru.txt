@@ -85,7 +85,6 @@
 
 ##menu.tier : тир
 ##menu.back : Назад
-##menu.more : Ещё
 ##menu.lobby_back : Назад в Меню
 
 ##menu.options.gameplay : Геймплей
@@ -144,6 +143,7 @@
 
 ##menu.credits.crew : команда
 ##menu.credits.assets : ассеты
+##menu.credits.special_thanks : благодарности
 ##menu.credits.thank_player : И тебе спасибо, дорогой игрок <3
 
 ##menu.lobby.points_allocated : Кредитов использовано

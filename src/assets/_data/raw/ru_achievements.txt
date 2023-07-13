@@ -3,6 +3,7 @@
 ##achievement.mode.arena : арена
 ##achievement.mode.inf_arena : бесконечная арена
 ##achievement.mode.reverse : реверсивный
+##achievement.mode.unknown : ???
 
 ##achievement.grade.none : не достигнуто
 ##achievement.grade.normal : серебро
@@ -101,3 +102,8 @@
 ##achievement.nonstop.description
 Выиграйте в любом режиме без использования паузы.
 Пауза, активируемая кнопокой выхода, тоже считается.
+
+##achievement.secret : Настоящая Концовка
+##achievement.secret.description
+В этой игре есть настоящая, каноническая концовка.
+Её не так просто найти, но она существует!

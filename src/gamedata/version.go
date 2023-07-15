@@ -219,6 +219,9 @@ const SeasonNumber = 0
 //   - The controller Home button now pauses the game too
 //   - Added colony destination point marker
 //
+// * Visuals:
+//   - Made VSync option configurable
+//
 // * Misc:
 //   - Added a logs.grep terminal command
 const BuildNumber int = 14

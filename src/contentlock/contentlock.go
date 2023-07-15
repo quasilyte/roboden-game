@@ -30,6 +30,7 @@ func GetDefaultData() session.PersistentData {
 				ShadowsEnabled:    true,
 				AllShadersEnabled: true,
 				FullscreenEnabled: true,
+				VSyncEnabled:      true,
 			},
 			GamepadSettings: [2]session.GamepadSettings{
 				defaultGamepadSettings,

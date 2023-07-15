@@ -138,6 +138,7 @@
 ##menu.options.splash_screen : Экран заставки
 
 ##menu.options.graphics.shadows : Тени
+##menu.options.graphics.vsync : VSync
 ##menu.options.graphics.shaders : Шейдеры
 ##menu.options.graphics.fullscreen : Полноэкранный режим
 

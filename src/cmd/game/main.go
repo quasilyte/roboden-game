@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 
 	"github.com/quasilyte/roboden-game/assets"
@@ -140,6 +141,8 @@ func main() {
 	}
 
 	gamedata.Validate()
+
+	ebiten.SetVsyncEnabled(state.Persistent.Settings.Graphics.VSyncEnabled)
 
 	if err := ge.RunGame(ctx, menus.NewBootloadController(state)); err != nil {
 		panic(err)

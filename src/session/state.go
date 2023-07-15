@@ -163,6 +163,7 @@ type GameSettings struct {
 
 type GraphicsSettings struct {
 	ShadowsEnabled    bool
+	VSyncEnabled      bool
 	AllShadersEnabled bool
 	FullscreenEnabled bool
 }

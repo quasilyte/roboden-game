@@ -65,6 +65,22 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
 			Scene:     c.scene,
 			Resources: uiResources,
+			Value:     &options.Graphics.VSyncEnabled,
+			Label:     d.Get("menu.options.graphics.vsync"),
+			OnPressed: func() {
+				ebiten.SetVsyncEnabled(options.Graphics.VSyncEnabled)
+			},
+			ValueNames: []string{
+				d.Get("menu.option.off"),
+				d.Get("menu.option.on"),
+			},
+		}))
+	}
+
+	{
+		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
+			Resources: uiResources,
 			Value:     &options.Graphics.AllShadersEnabled,
 			Label:     d.Get("menu.options.graphics.shaders"),
 			ValueNames: []string{

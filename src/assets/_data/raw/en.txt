@@ -138,6 +138,7 @@
 ##menu.options.splash_screen : Splash screen
 
 ##menu.options.graphics.shadows : Shadows
+##menu.options.graphics.vsync : VSync
 ##menu.options.graphics.shaders : Shaders
 ##menu.options.graphics.fullscreen : Fullscreen
 

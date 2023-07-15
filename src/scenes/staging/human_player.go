@@ -32,6 +32,7 @@ type humanPlayer struct {
 	screenButtons        *screenButtonsNode
 	colonySelector       *ge.Sprite
 	flyingColonySelector *ge.Sprite
+	colonyDestination    *ge.Line
 	screenSeparator      *ge.Line
 
 	creepsState *creepsPlayerState
@@ -118,6 +119,11 @@ func (p *humanPlayer) ForceSpecialChoice(kind specialChoiceKind) {
 }
 
 func (p *humanPlayer) Init() {
+	p.colonyDestination = ge.NewLine(ge.Pos{}, ge.Pos{})
+	p.colonyDestination.Visible = false
+	p.colonyDestination.SetColorScaleRGBA(0x6e, 0x8e, 0xbd, 160)
+	p.state.camera.Private.AddGraphics(p.colonyDestination)
+
 	p.state.Init(p.world)
 
 	if p.world.hintsMode > 0 {
@@ -219,6 +225,7 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 		flying := p.state.selectedColony.IsFlying()
 		p.colonySelector.Visible = !flying
 		p.flyingColonySelector.Visible = flying
+		p.colonyDestination.Visible = !p.state.selectedColony.relocationPoint.IsZero()
 	}
 
 	if p.radar != nil {
@@ -375,6 +382,7 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	if p.state.selectedColony == nil {
 		p.colonySelector.Visible = false
 		p.flyingColonySelector.Visible = false
+		p.colonyDestination.Visible = false
 		return
 	}
 	p.state.selectedColony.EventDestroyed.Connect(p, func(_ *colonyCoreNode) {
@@ -390,6 +398,8 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	}
 	p.colonySelector.Pos.Base = &p.state.selectedColony.spritePos.value
 	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.spritePos.value
+	p.colonyDestination.BeginPos.Base = &p.state.selectedColony.spritePos.value
+	p.colonyDestination.EndPos.Base = &p.state.selectedColony.relocationPoint
 }
 
 func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {

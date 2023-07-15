@@ -776,6 +776,8 @@ func (c *colonyCoreNode) findLandingSpot(coord pathing.GridCoord, recurse bool) 
 func (c *colonyCoreNode) updateLanding(delta float64) {
 	c.height -= delta * c.movementSpeed()
 	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
+		c.waypoint = gmath.Vec{}
+		c.relocationPoint = gmath.Vec{}
 		c.height = 0
 		c.mode = colonyModeNormal
 		c.flyingSprite.Visible = false

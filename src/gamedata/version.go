@@ -217,6 +217,7 @@ const SeasonNumber = 0
 //
 // * UX:
 //   - The controller Home button now pauses the game too
+//   - Added colony destination point marker
 //
 // * Misc:
 //   - Added a logs.grep terminal command

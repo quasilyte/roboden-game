@@ -18,6 +18,8 @@ func main() {
 		"select a cross-compilation GOOS value")
 	flag.StringVar(&args.goarch, "goarch", "",
 		"select a cross-compilation GOARCH value")
+	flag.BoolVar(&args.steam, "steam", false,
+		"whether we're building for Steam")
 	flag.Parse()
 
 	commit := args.commit
@@ -34,9 +36,14 @@ func main() {
 		"-X 'main.DefaultServerAddr=https://quasilyte.tech/roboden/api'",
 		"-s -w",
 	}
+	buildTags := []string{}
+	if args.steam {
+		buildTags = append(buildTags, "steam")
+	}
 	goFlags := []string{
 		"build",
 		"--ldflags", strings.Join(ldFlags, " "),
+		"--tags", strings.Join(buildTags, " "),
 		"--trimpath",
 		"-v",
 		"-o", args.output,
@@ -62,4 +69,6 @@ type arguments struct {
 
 	goos   string
 	goarch string
+
+	steam bool
 }

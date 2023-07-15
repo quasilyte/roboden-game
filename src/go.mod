@@ -17,6 +17,7 @@ require (
 require (
 	github.com/ebitengine/purego v0.3.2 // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
+	github.com/hajimehoshi/go-steamworks v0.0.0-20230316070542-ff530cb9ba1d // indirect
 	github.com/hajimehoshi/oto/v2 v2.4.0 // indirect
 	github.com/jezek/xgb v1.1.0 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect

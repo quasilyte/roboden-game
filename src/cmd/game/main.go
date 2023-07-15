@@ -25,6 +25,21 @@ import (
 func main() {
 	state := getDefaultSessionState()
 
+	{
+		steamInfo, err := userdevice.GetSteamInfo(userdevice.SteamAppConfig{
+			SteamAppID: 2416030,
+		})
+		switch {
+		case err != nil:
+			fmt.Printf("failed to get Steam info: %v\n", err)
+		case !steamInfo.Enabled:
+			fmt.Printf("running a non-Steam build\n")
+		default:
+			fmt.Printf("Steam user ID is %d\n", steamInfo.SteamUserID)
+		}
+		state.SteamInfo = steamInfo
+	}
+
 	var gameDataFolder string
 	var serverAddress string
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")

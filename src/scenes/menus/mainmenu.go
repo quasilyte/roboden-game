@@ -97,7 +97,12 @@ func (c *MainMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d", d.Get("menu.main.build"), gamedata.BuildNumber), assets.BitmapFont1)
+	buildLabel := fmt.Sprintf("%s %d", d.Get("menu.main.build"), gamedata.BuildNumber)
+	if c.state.SteamInfo.Enabled {
+		buildLabel += " [Steam]"
+	}
+
+	buildVersionLabel := eui.NewCenteredLabel(buildLabel, assets.BitmapFont1)
 	rowContainer.AddChild(buildVersionLabel)
 
 	uiObject := eui.NewSceneObject(root)

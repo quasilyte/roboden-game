@@ -211,6 +211,10 @@ const SeasonNumber = 0
 //   - A new Secret achievement
 //   - A new Terminal achievement
 //
+// * Steam-related:
+//   - Integrated Steam SDK, implemented Steam achievements
+//   - "Steam" build label in the main menu
+//
 // * UX:
 //   - The controller Home button now pauses the game too
 const BuildNumber int = 14

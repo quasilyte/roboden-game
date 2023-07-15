@@ -9,6 +9,7 @@ import (
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/langs"
+	"github.com/quasilyte/ge/xslices"
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -16,6 +17,7 @@ import (
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes"
 	"github.com/quasilyte/roboden-game/serverapi"
+	"github.com/quasilyte/roboden-game/steamsdk"
 	"github.com/quasilyte/roboden-game/userdevice"
 )
 
@@ -29,7 +31,8 @@ type State struct {
 	ServerHost     string
 	ServerPath     string
 
-	Device userdevice.Info
+	Device    userdevice.Info
+	SteamInfo userdevice.SteamInfo
 
 	CombinedInput      gameinput.Handler
 	KeyboardInput      gameinput.Handler
@@ -157,6 +160,35 @@ type SavedReplay struct {
 func (state *State) ReloadInputs() {
 	state.BoundInputs[0] = state.resolveInputMethod(gameinput.PlayerInputMethod(state.Persistent.Settings.Player1InputMethod))
 	state.BoundInputs[1] = state.resolveInputMethod(gameinput.PlayerInputMethod(state.Persistent.Settings.Player2InputMethod))
+}
+
+func (state *State) UnlockAchievement(a Achievement) bool {
+	stats := &state.Persistent.PlayerStats
+
+	current := xslices.Find(stats.Achievements, func(existing *Achievement) bool {
+		return existing.Name == a.Name
+	})
+
+	if current != nil {
+		if current.Elite {
+			return false // Can't be improved
+		}
+		if !current.Elite && !a.Elite {
+			return false // Doesn't improve the rank
+		}
+		// Upgrade the current achievemnt.
+		current.Elite = a.Elite
+	} else {
+		// It's a new achievement. Add it to the list.
+		stats.Achievements = append(stats.Achievements, a)
+	}
+
+	if state.SteamInfo.SteamUserID != 0 {
+		result := steamsdk.UnlockAchievement(a.Name)
+		fmt.Printf("setting %q steam achievement: %v\n", a.Name, result)
+	}
+
+	return true
 }
 
 func (state *State) resolveInputMethod(method gameinput.PlayerInputMethod) *gameinput.Handler {

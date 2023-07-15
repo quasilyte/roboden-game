@@ -208,6 +208,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		difficultyLevel = 2
 	}
 
+	needSave := false
 	for _, a := range gamedata.AchievementList {
 		if alreadyAchieved[a.Name] >= difficultyLevel {
 			continue
@@ -286,10 +287,18 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		} else {
 			newAchievements = append(newAchievements, a.Name)
 		}
-		stats.Achievements = append(stats.Achievements, session.Achievement{
+
+		updated := c.state.UnlockAchievement(session.Achievement{
 			Name:  a.Name,
 			Elite: elite,
 		})
+		if updated {
+			needSave = true
+		}
+	}
+
+	if needSave {
+		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}
 
 	return newAchievements, upgradedAchievements

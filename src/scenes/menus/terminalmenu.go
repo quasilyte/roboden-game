@@ -233,14 +233,7 @@ func (c *TerminalMenu) initUI() {
 }
 
 func (c *TerminalMenu) maybeGrantAchievement() {
-	stats := &c.state.Persistent.PlayerStats
-	a := xslices.Find(stats.Achievements, func(a *session.Achievement) bool {
-		return a.Name == "terminal"
-	})
-	if a != nil {
-		return
-	}
-	stats.Achievements = append(stats.Achievements, session.Achievement{
+	c.state.UnlockAchievement(session.Achievement{
 		Name:  "terminal",
 		Elite: true,
 	})

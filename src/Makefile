@@ -1,6 +1,22 @@
 COMMIT_HASH=`git rev-parse HEAD`
 
-.PHONY: server runsim wasm itchio-wasm
+.PHONY: server runsim wasm itchio-wasm steam-release
+
+steam-release:
+	rm -rf ../steam_dist
+	mkdir -p ../steam_dist/linux_x86-64 ../steam_dist/windows_x86-32 ../steam_dist/windows_x86-64 ../steam_dist/out
+	go run ./cmd/builder -o ../steam_dist/linux_x86-64/roboden -steam
+	go run ./cmd/builder -o ../steam_dist/windows_x86-32/roboden.exe -steam
+	go run ./cmd/builder -o ../steam_dist/windows_x86-64/roboden.exe -steam
+	cp -r ../roboden_data ../steam_dist/linux_x86-64/roboden_data
+	cp -r ../roboden_data ../steam_dist/windows_x86-32/roboden_data
+	cp -r ../roboden_data ../steam_dist/windows_x86-64/roboden_data
+	cp ../_steam/steam_api.dll ../steam_dist/windows_x86-32/
+	cp ../_steam/steam_api64.dll ../steam_dist/windows_x86-64/
+	cd ../steam_dist/linux_x86-64 && zip -r ../out/roboden_linux.zip *
+	cd ../steam_dist/windows_x86-32 && zip -r ../out/roboden_windows32.zip *
+	cd ../steam_dist/windows_x86-64 && zip -r ../out/roboden_windows64.zip *
+	@echo "[OK] all done"
 
 server:
 	go build -ldflags="-s -w -X 'main.CommitHash=$(COMMIT_HASH)'" -trimpath -o server ./cmd/server

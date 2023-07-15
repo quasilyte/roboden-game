@@ -34,7 +34,7 @@ func main() {
 		case !steamInfo.Enabled:
 			state.Logf("running a non-Steam build")
 		default:
-			state.Logf("Steam user ID is %d", steamInfo.SteamUserID)
+			state.Logf("Steam SDK initialized successfully")
 		}
 		state.SteamInfo = steamInfo
 	}

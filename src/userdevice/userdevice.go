@@ -5,12 +5,10 @@ type Info struct {
 }
 
 type SteamInfo struct {
+	Initialized bool
+
 	// Whether this game is built with -steam tag.
 	Enabled bool
-
-	// SteamUserID contains a Steam user ID if the game
-	// can detect the Steam environment.
-	SteamUserID uint64
 }
 
 type SteamAppConfig struct {

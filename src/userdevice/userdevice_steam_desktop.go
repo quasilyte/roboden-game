@@ -25,7 +25,8 @@ func GetSteamInfo(config SteamAppConfig) (SteamInfo, error) {
 	if !steamworks.Init() {
 		return info, errors.New("steamworks.Init() failed")
 	}
-	info.SteamUserID = uint64(steamworks.SteamUser().GetSteamID())
+
+	info.Initialized = true
 
 	return info, nil
 }

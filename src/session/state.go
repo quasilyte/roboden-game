@@ -199,7 +199,7 @@ func (state *State) UnlockAchievement(a Achievement) bool {
 		stats.Achievements = append(stats.Achievements, a)
 	}
 
-	if state.SteamInfo.SteamUserID != 0 {
+	if state.SteamInfo.Initialized {
 		result := steamsdk.UnlockAchievement(a.Name)
 		state.Logf("setting %q steam achievement: %v", a.Name, result)
 	}

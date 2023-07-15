@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -31,11 +30,11 @@ func main() {
 		})
 		switch {
 		case err != nil:
-			fmt.Printf("failed to get Steam info: %v\n", err)
+			state.Logf("failed to get Steam info: %v", err)
 		case !steamInfo.Enabled:
-			fmt.Printf("running a non-Steam build\n")
+			state.Logf("running a non-Steam build")
 		default:
-			fmt.Printf("Steam user ID is %d\n", steamInfo.SteamUserID)
+			state.Logf("Steam user ID is %d", steamInfo.SteamUserID)
 		}
 		state.SteamInfo = steamInfo
 	}
@@ -65,7 +64,7 @@ func main() {
 			state.ServerHost = parsedAddress.Host
 			state.ServerPath = parsedAddress.Path
 		}
-		fmt.Printf("server proto=%q host=%q path=%q\n", state.ServerProtocol, state.ServerHost, state.ServerPath)
+		state.Logf("server proto=%q host=%q path=%q", state.ServerProtocol, state.ServerHost, state.ServerPath)
 	} else {
 		// On wasm (inside the browser) we're hardcoding the server data for now.
 		state.ServerProtocol = "https"
@@ -88,11 +87,11 @@ func main() {
 		} else {
 			gameLocation, err := os.Executable()
 			if err != nil {
-				fmt.Printf("error getting executable path: %v\n", err)
+				state.Logf("error getting executable path: %v", err)
 				gameLocation = os.Args[0]
 			}
 			gameLocation = filepath.Dir(gameLocation)
-			fmt.Printf("game location: %q\n", gameLocation)
+			state.Logf("game location: %q", gameLocation)
 			gameDataFolder = filepath.Join(gameLocation, "roboden_data")
 		}
 	}
@@ -106,7 +105,7 @@ func main() {
 	state.SecondGamepadInput = keymaps.SecondGamepadInput
 
 	if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
-		fmt.Printf("can't load game data: %v", err)
+		state.Logf("can't load game data: %v", err)
 		state.Persistent = contentlock.GetDefaultData()
 		contentlock.Update(state)
 		ctx.SaveGameData("save", state.Persistent)
@@ -133,8 +132,8 @@ func main() {
 	registerScenes(state)
 	state.Context = ctx
 
-	fmt.Println("is mobile?", state.Device.IsMobile)
-	fmt.Println("game commit version:", CommitHash)
+	state.Logf("is mobile? %v", state.Device.IsMobile)
+	state.Logf("game commit version: %v", CommitHash)
 
 	ctx.NewPanicController = func(panicInfo *ge.PanicInfo) ge.SceneController {
 		return menus.NewPanicController(panicInfo)

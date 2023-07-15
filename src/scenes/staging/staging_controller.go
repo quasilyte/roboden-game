@@ -338,6 +338,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	world := &worldState{
+		sessionState:     c.state,
 		cameras:          make([]*viewport.Camera, 0, 2),
 		stage:            viewport.NewCameraStage(c.config.ExecMode == gamedata.ExecuteSimulation),
 		rootScene:        scene,

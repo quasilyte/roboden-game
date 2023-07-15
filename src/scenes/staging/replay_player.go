@@ -67,7 +67,6 @@ func (p *replayPlayer) HandleInput() {
 		ok = p.choiceGen.TryExecute(int(a.Kind)-1, gmath.Vec{})
 	}
 	if !ok {
-		fmt.Println(a)
 		fmt.Println("fail at", a.Tick, time.Second*time.Duration(p.world.nodeRunner.timePlayed), "player=", p.state.id)
 		panic(errIllegalAction)
 	}

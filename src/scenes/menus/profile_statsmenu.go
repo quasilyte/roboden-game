@@ -126,7 +126,7 @@ func (c *ProfileStatsMenuController) prepareHighscoreReplays() []serverapi.GameR
 		}
 		var replay serverapi.GameReplay
 		if err := c.scene.Context().LoadGameData(key, &replay); err != nil {
-			fmt.Printf("load %q highscore data: %v\n", key, err)
+			c.state.Logf("load %q highscore data: %v", key, err)
 			continue
 		}
 		if gamedata.IsSendableReplay(replay) && gamedata.IsValidReplay(replay) {

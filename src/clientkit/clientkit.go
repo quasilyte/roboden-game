@@ -47,14 +47,14 @@ func SendOrEnqueueScore(state *session.State, replay serverapi.GameReplay) {
 	sendResult, err := SendScore(state, replay)
 	if err != nil || sendResult.TryAgain {
 		if err != nil {
-			fmt.Printf("sending game replay failed: %v\n", err)
+			state.Logf("sending game replay failed: %v", err)
 		} else {
-			fmt.Printf("the server asked to try again later\n")
+			state.Logf("the server asked to try again later")
 		}
 		enqueueReplay(state, replay)
 		return
 	}
-	fmt.Printf("queued game replay successfully\n")
+	state.Logf("queued game replay successfully")
 }
 
 type SendScoreResult struct {

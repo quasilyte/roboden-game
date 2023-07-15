@@ -1,7 +1,6 @@
 package staging
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -356,7 +355,7 @@ func (m *arenaManager) prepareWave() {
 
 	budget := m.waveBudget
 	if m.world.config.ExecMode != gamedata.ExecuteSimulation {
-		fmt.Printf("wave %d budget is %d\n", m.level, budget)
+		m.world.sessionState.Logf("wave %d budget is %d", m.level, budget)
 	}
 
 	// First decide which kind of attack we're doing.

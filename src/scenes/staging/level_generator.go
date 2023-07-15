@@ -533,7 +533,7 @@ func (g *levelGenerator) placeCreepBases() {
 		basePos := g.randomFreePos(border, 48, 16)
 		basePos = g.world.AdjustCellPos(basePos, 6)
 		if g.world.debugLogs {
-			fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
+			g.world.sessionState.Logf("deployed a creep base %d at %v distance is %f", i+1, basePos, basePos.DistanceTo(g.playerSpawn))
 		}
 		baseRegion := gmath.Rect{
 			Min: basePos.Sub(gmath.Vec{X: 96, Y: 96}),

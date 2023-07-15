@@ -59,6 +59,22 @@ type State struct {
 	Context *ge.Context
 
 	SentHighscores bool
+
+	StdoutLogs []string
+}
+
+func (state *State) Logf(format string, args ...any) {
+	s := format
+	if len(args) != 0 {
+		s = fmt.Sprintf(format, args...)
+	}
+
+	fmt.Println(s)
+
+	if len(state.StdoutLogs) >= 100 {
+		state.StdoutLogs = state.StdoutLogs[:0]
+	}
+	state.StdoutLogs = append(state.StdoutLogs, s)
 }
 
 func (state *State) GetInput(id int) *gameinput.Handler {
@@ -185,7 +201,7 @@ func (state *State) UnlockAchievement(a Achievement) bool {
 
 	if state.SteamInfo.SteamUserID != 0 {
 		result := steamsdk.UnlockAchievement(a.Name)
-		fmt.Printf("setting %q steam achievement: %v\n", a.Name, result)
+		state.Logf("setting %q steam achievement: %v", a.Name, result)
 	}
 
 	return true

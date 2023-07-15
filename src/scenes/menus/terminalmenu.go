@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 	"unicode"
@@ -117,6 +118,10 @@ func (c *TerminalMenu) initUI() {
 			},
 		},
 
+		{
+			key:     "logs.grep",
+			handler: c.onLogsGrep,
+		},
 		{
 			key:     "save.info",
 			handler: c.onSaveInfo,
@@ -267,6 +272,63 @@ func (c *TerminalMenu) onSaveDelete(ctx *terminalCommandContext) (string, error)
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
 	c.state.ReloadLanguage(c.scene.Context())
 	return "The save data is cleared.", nil
+}
+
+func (c *TerminalMenu) onLogsGrep(ctx *terminalCommandContext) (string, error) {
+	type argsType struct {
+		pattern string
+		head    bool
+	}
+	if ctx.parsedArgs == nil {
+		args := &argsType{}
+		ctx.parsedArgs = args
+		ctx.fs.StringVar(&args.pattern, "pattern", ".*", "regexp pattern to apply")
+		ctx.fs.BoolVar(&args.head, "head", false, "reverse the search direction, scan first log entries first")
+		return "", nil
+	}
+	args := ctx.parsedArgs.(*argsType)
+	re, err := regexp.Compile(args.pattern)
+	if err != nil {
+		return "", err
+	}
+	results := make([]string, 0, 10)
+	start := 0
+	end := len(c.state.StdoutLogs)
+	step := 1
+	if !args.head {
+		start = len(c.state.StdoutLogs) - 1
+		end = -1
+		step = -1
+	}
+	numLines := 0
+	for i := start; i != end; i += step {
+		if numLines >= 10 {
+			break
+		}
+		l := c.state.StdoutLogs[i]
+		if !re.MatchString(l) {
+			continue
+		}
+		lines := strings.Split(l, "\n")
+		// We'll reverse lines later, if it's a multi-line text,
+		// append it to the result in reversed order.
+		for i := len(lines) - 1; i >= 0; i-- {
+			subLine := lines[i]
+			if numLines >= 10 {
+				break
+			}
+			numLines++
+			if i == 0 {
+				results = append(results, "> "+subLine)
+			} else {
+				results = append(results, "  "+subLine)
+			}
+		}
+	}
+	if !args.head {
+		reverseStrings(results)
+	}
+	return strings.Join(results, "\n"), nil
 }
 
 func (c *TerminalMenu) onSaveInfo(*terminalCommandContext) (string, error) {

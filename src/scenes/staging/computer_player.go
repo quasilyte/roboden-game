@@ -1,7 +1,6 @@
 package staging
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/quasilyte/ge"
@@ -79,7 +78,7 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 	}
 
 	if p.world.debugLogs {
-		fmt.Println("max colonies:", p.maxColonies)
+		p.world.sessionState.Logf("max colonies: %d", p.maxColonies)
 	}
 
 	p.world.EventColonyCreated.Connect(p, func(colony *colonyCoreNode) {

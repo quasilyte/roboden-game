@@ -22,6 +22,8 @@ type worldState struct {
 	rand      *gmath.Rand
 	localRand *gmath.Rand
 
+	sessionState *session.State
+
 	rootScene  *ge.Scene
 	nodeRunner *nodeRunner
 

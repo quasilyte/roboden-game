@@ -209,4 +209,7 @@ const SeasonNumber = 0
 //
 // * New content:
 //   - A new secret achievement
+//
+// * UX:
+//   - The controller Home button now pauses the game too
 const BuildNumber int = 14

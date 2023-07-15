@@ -80,7 +80,7 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 		ActionToggleInterface: {input.KeyGamepadL2},
 
 		ActionBack:  {input.KeyGamepadBack},
-		ActionPause: {input.KeyGamepadStart},
+		ActionPause: {input.KeyGamepadStart, input.KeyGamepadHome},
 
 		ActionMenuFocusRight: {input.KeyGamepadRight},
 		ActionMenuFocusDown:  {input.KeyGamepadDown},

@@ -58,7 +58,7 @@ Win a battle that was going for no less than 2 hours.
 
 ##achievement.tinyradius : Sealed Radius
 ##achievement.tinyradius.description
-Clear the level without ever increasing the influence radius.
+Clear a level without ever increasing the influence radius.
 
 ##achievement.t1army : T1 Army
 ##achievement.t1army.description

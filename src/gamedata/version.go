@@ -208,7 +208,8 @@ const SeasonNumber = 0
 // # Version 14 (Steam release)
 //
 // * New content:
-//   - A new secret achievement
+//   - A new Secret achievement
+//   - A new Terminal achievement
 //
 // * UX:
 //   - The controller Home button now pauses the game too

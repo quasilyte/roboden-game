@@ -107,3 +107,8 @@ Using the exit button to activate a pause counts as pausing too.
 ##achievement.secret.description
 This game has a true, canonical ending.
 It's not simple to find, but it's there!
+
+##achievement.terminal : Terminator
+##achievement.terminal.description
+This is probably the most obscure achievement this game has.
+The hint is there, for what it's worth.

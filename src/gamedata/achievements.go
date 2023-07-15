@@ -173,4 +173,9 @@ var AchievementList = []*Achievement{
 		Mode: ModeUnknown,
 		Icon: assets.ImageAchievementSecret,
 	},
+	{
+		Name: "terminal",
+		Mode: ModeUnknown,
+		Icon: assets.ImageAchievementTerminal,
+	},
 }

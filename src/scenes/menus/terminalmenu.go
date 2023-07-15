@@ -195,6 +195,7 @@ func (c *TerminalMenu) initUI() {
 					return
 				}
 			}
+			c.maybeGrantAchievement()
 			c.setOutput(c.commandOutputText(out))
 			c.scene.Audio().PlaySound(assets.AudioChoiceMade)
 		}),
@@ -229,6 +230,20 @@ func (c *TerminalMenu) initUI() {
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
+}
+
+func (c *TerminalMenu) maybeGrantAchievement() {
+	stats := &c.state.Persistent.PlayerStats
+	a := xslices.Find(stats.Achievements, func(a *session.Achievement) bool {
+		return a.Name == "terminal"
+	})
+	if a != nil {
+		return
+	}
+	stats.Achievements = append(stats.Achievements, session.Achievement{
+		Name:  "terminal",
+		Elite: true,
+	})
 }
 
 func (c *TerminalMenu) back() {

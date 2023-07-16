@@ -85,7 +85,6 @@ const (
 type colonyAgentNode struct {
 	anim       *ge.Animation
 	sprite     *ge.Sprite
-	shadow     *ge.Sprite
 	diode      *ge.Sprite
 	colonyCore *colonyCoreNode
 
@@ -97,8 +96,9 @@ type colonyAgentNode struct {
 
 	cloningBeam *cloningBeamNode
 
-	pos       gmath.Vec
-	spritePos spritePosComponent
+	shadowComponent shadowComponent
+
+	pos gmath.Vec
 
 	traits agentTraitBits
 	path   pathing.GridPath
@@ -117,8 +117,6 @@ type colonyAgentNode struct {
 	cargoEliteValue float64
 	reloadRate      float64
 	healthRegen     float64
-
-	height float64
 
 	attackDelay  float64
 	supportDelay float64
@@ -149,7 +147,6 @@ func newColonyAgentNode(core *colonyCoreNode, stats *gamedata.AgentStats, pos gm
 		colonyCore:      core,
 		stats:           stats,
 		pos:             pos,
-		height:          agentFlightHeight,
 		reloadRate:      1,
 		energyRegenRate: 1,
 	}
@@ -282,7 +279,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.energy = a.maxEnergy
 
 	a.sprite = scene.NewSprite(a.stats.Image)
-	a.sprite.Pos.Base = &a.spritePos.value
+	a.sprite.Pos.Base = &a.pos
 	if a.IsFlying() {
 		a.world().stage.AddSpriteAbove(a.sprite)
 	} else {
@@ -301,7 +298,7 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 	if a.faction != gamedata.NeutralFactionTag {
 		a.diode = scene.NewSprite(assets.ImageFactionDiode)
-		a.diode.Pos.Base = &a.spritePos.value
+		a.diode.Pos.Base = &a.pos
 		a.diode.Pos.Offset.Y = a.stats.DiodeOffset
 		var colorScale ge.ColorScale
 		colorScale.SetColor(gamedata.FactionByTag(a.faction).Color)
@@ -322,9 +319,10 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		case gamedata.SizeLarge:
 			shadowImage = assets.ImageBigShadow
 		}
-		a.shadow = scene.NewSprite(shadowImage)
-		a.shadow.Pos.Base = &a.spritePos.value
-		a.world().stage.AddSprite(a.shadow)
+		a.shadowComponent.Init(a.world(), shadowImage)
+		a.shadowComponent.offset = 2
+		a.shadowComponent.SetVisibility(true)
+		a.shadowComponent.UpdatePos(a.pos)
 	}
 
 	if a.world().config.ExecMode != gamedata.ExecuteSimulation {
@@ -347,7 +345,11 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.world().nodeRunner.AddObject(l)
 	}
 
-	a.spritePos.UpdatePos(a.pos)
+	a.SetHeight(agentFlightHeight)
+}
+
+func (a *colonyAgentNode) SetHeight(h float64) {
+	a.shadowComponent.UpdateHeight(a.pos, h, agentFlightHeight)
 }
 
 func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
@@ -426,16 +428,14 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModeAlignStandby:
-		if a.shadow != nil {
-			a.shadow.Visible = true
-		}
+		a.shadowComponent.SetVisibility(true)
 		if a.cloningBeam != nil {
 			a.cloningBeam.Dispose()
 			a.cloningBeam = nil
 		}
 		a.sprite.SetColorScale(ge.ColorScale{R: 1, G: 1, B: 1, A: 1})
 		a.mode = mode
-		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight - a.height}))
+		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight - a.shadowComponent.height}))
 		return true
 
 	case agentModeMove:
@@ -450,7 +450,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModeStandby:
-		if a.height != agentFlightHeight {
+		if a.shadowComponent.height != agentFlightHeight {
 			return a.AssignMode(agentModeAlignStandby, pos, target)
 		}
 		if a.cloningBeam != nil {
@@ -567,9 +567,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModeTakeoff:
 		a.mode = mode
 		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
-		if a.shadow != nil {
-			a.shadow.Visible = false
-		}
+		a.shadowComponent.SetVisibility(false)
 		return true
 
 	case agentModePickup:
@@ -585,9 +583,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModeRecycleLanding:
 		a.mode = mode
 		a.setWaypoint(a.colonyCore.GetEntrancePos())
-		if a.shadow != nil {
-			a.shadow.Visible = false
-		}
+		a.shadowComponent.SetVisibility(false)
 		return true
 
 	case agentModeRepairTurret:
@@ -680,16 +676,6 @@ func (a *colonyAgentNode) Update(delta float64) {
 
 	if a.stats.Tier == 1 {
 		a.lifetime -= delta
-	}
-
-	if a.shadow != nil {
-		a.shadow.Pos.Offset.Y = math.Round(a.height + 4)
-		newShadowAlpha := float32(1.0 - ((a.height / agentFlightHeight) * 0.5))
-		a.shadow.SetAlpha(newShadowAlpha)
-	}
-
-	if !a.world().simulation {
-		a.spritePos.UpdatePos(a.pos)
 	}
 
 	if a.energyBill != 0 {
@@ -789,9 +775,7 @@ func (a *colonyAgentNode) Update(delta float64) {
 
 func (a *colonyAgentNode) dispose() {
 	a.sprite.Dispose()
-	if a.shadow != nil {
-		a.shadow.Dispose()
-	}
+	a.shadowComponent.Dispose()
 	if a.diode != nil {
 		a.diode.Dispose()
 	}
@@ -857,12 +841,8 @@ func (a *colonyAgentNode) explode() {
 			}
 		}
 
-		shadowImg := assets.ImageNone
-		if a.shadow != nil {
-			shadowImg = a.shadow.ImageID()
-		}
-
-		fall := newDroneFallNode(a.world(), scraps, a.stats.Image, shadowImg, a.pos, a.height)
+		shadowImg := a.shadowComponent.GetImageID()
+		fall := newDroneFallNode(a.world(), scraps, a.stats.Image, shadowImg, a.pos, a.shadowComponent.height)
 		fall.FrameOffsetY = float64(a.rank) * a.sprite.FrameHeight
 		a.world().nodeRunner.AddObject(fall)
 	}
@@ -1220,7 +1200,7 @@ func (a *colonyAgentNode) doDisintegratorAttack() {
 	}
 
 	const attackEnergyCost = 40.0
-	if a.energy < attackEnergyCost || a.height != agentFlightHeight {
+	if a.energy < attackEnergyCost || a.shadowComponent.height != agentFlightHeight {
 		return
 	}
 	targets := a.findAttackTargets()
@@ -1585,10 +1565,10 @@ func (a *colonyAgentNode) moveTowardsWithSpeed(delta, speed float64) bool {
 	travelled := speed * delta
 	distSqr := a.pos.DistanceSquaredTo(a.waypoint)
 	if distSqr < travelled*travelled || distSqr < gmath.Epsilon*gmath.Epsilon {
-		a.pos = a.waypoint
+		a.changePos(a.waypoint)
 		return true
 	}
-	a.pos = a.pos.Add(a.dir.Mulf(travelled))
+	a.changePos(a.pos.Add(a.dir.Mulf(travelled)))
 	return false
 }
 
@@ -1643,13 +1623,14 @@ func (a *colonyAgentNode) updateWaitCloning(delta float64) {
 }
 
 func (a *colonyAgentNode) updateTakeoff(delta float64) {
-	a.height += delta * 30
+	height := a.shadowComponent.height + delta*30
 	if a.moveTowards(delta) {
-		a.height = agentFlightHeight
-		if a.shadow != nil {
-			a.shadow.Visible = true
-		}
+		height = agentFlightHeight
+	}
+	a.shadowComponent.UpdateHeight(a.pos, height, agentFlightHeight)
+	if height == agentFlightHeight {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		a.shadowComponent.SetVisibility(true)
 	}
 }
 
@@ -1739,14 +1720,14 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 			switch {
 			case smokeRoll < 0.3:
 				sprite = a.scene.NewSprite(assets.ImageSmokeDown)
-				sprite.Pos.Offset = a.spritePos.value.Add(gmath.Vec{X: 1, Y: 16})
+				sprite.Pos.Offset = a.pos.Add(gmath.Vec{X: 1, Y: 16})
 			case smokeRoll < 0.6:
 				sprite = a.scene.NewSprite(assets.ImageSmokeSide)
-				sprite.Pos.Offset = a.spritePos.value.Add(gmath.Vec{X: 20, Y: 11})
+				sprite.Pos.Offset = a.pos.Add(gmath.Vec{X: 20, Y: 11})
 			case smokeRoll < 0.9:
 				sprite = a.scene.NewSprite(assets.ImageSmokeSide)
 				sprite.FlipHorizontal = true
-				sprite.Pos.Offset = a.spritePos.value.Add(gmath.Vec{X: -16, Y: 11})
+				sprite.Pos.Offset = a.pos.Add(gmath.Vec{X: -16, Y: 11})
 			default:
 				// No smoke.
 			}
@@ -2069,11 +2050,12 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 }
 
 func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
-	height := a.height
-	a.height -= delta * 30
-	if height >= 3 && a.height < 3 {
+	prevHeight := a.shadowComponent.height
+	a.shadowComponent.UpdateHeight(a.pos, a.shadowComponent.height-delta*30, agentFlightHeight)
+	if prevHeight >= 3 && a.shadowComponent.height < 3 {
 		a.sprite.SetColorScaleRGBA(200, 200, 200, 255)
 	}
+
 	if a.moveTowards(delta) {
 		a.colonyCore.resources += a.stats.Cost * 0.9
 		if a.rank != 0 {
@@ -2113,15 +2095,15 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 	}
 	a.dist -= delta
 	if a.pos.DistanceSquaredTo(target.pos) > (10 * 10) {
-		a.pos = a.pos.MoveTowards(target.pos, delta*12)
+		a.changePos(a.pos.MoveTowards(target.pos, delta*12))
 	} else {
 		// Merging is x3 faster when units are next to each other.
 		a.dist -= delta * 2
 		if a.mode == agentModeMergingRoomba {
-			if a.height > 2 {
-				descent := gmath.ClampMax(20*delta, a.height-2)
+			if a.shadowComponent.height > 2 {
+				descent := gmath.ClampMax(20*delta, a.shadowComponent.height-6)
 				a.pos.Y += descent
-				a.height -= descent
+				a.shadowComponent.UpdateHeight(a.pos, a.shadowComponent.height-descent, agentFlightHeight)
 			}
 		}
 	}
@@ -2322,9 +2304,12 @@ func (a *colonyAgentNode) updateFollow(delta float64) {
 
 func (a *colonyAgentNode) updateAlignStandby(delta float64) {
 	speed := a.movementSpeed()
-	a.height += delta * speed
+	height := a.shadowComponent.height + delta*speed
 	if a.moveTowardsWithSpeed(delta, speed) {
-		a.height = agentFlightHeight
+		height = agentFlightHeight
+	}
+	a.shadowComponent.UpdateHeight(a.pos, height, agentFlightHeight)
+	if height == agentFlightHeight {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }
@@ -2412,9 +2397,9 @@ func (a *colonyAgentNode) updateMineEssence(delta float64) {
 
 func (a *colonyAgentNode) updatePickup(delta float64) {
 	speed := a.movementSpeed()
-	a.height -= delta * speed
+	height := a.shadowComponent.height - delta*speed
 	if a.moveTowardsWithSpeed(delta, speed) {
-		a.height = 0
+		height = 0
 		a.mode = agentModeResourceTakeoff
 		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
 		source := a.target.(*essenceSourceNode)
@@ -2423,13 +2408,17 @@ func (a *colonyAgentNode) updatePickup(delta float64) {
 		a.cargoValue = float64(harvested) * source.stats.value
 		a.cargoEliteValue = float64(harvested) * source.stats.eliteValue
 	}
+	a.shadowComponent.UpdateHeight(a.pos, height, agentFlightHeight)
 }
 
 func (a *colonyAgentNode) updateResourceTakeoff(delta float64) {
 	speed := a.movementSpeed()
-	a.height += delta * speed
+	height := a.shadowComponent.height + delta*speed
 	if a.moveTowardsWithSpeed(delta, speed) {
-		a.height = agentFlightHeight
+		height = agentFlightHeight
+	}
+	a.shadowComponent.UpdateHeight(a.pos, height, agentFlightHeight)
+	if height == agentFlightHeight {
 		a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
 	}
 }
@@ -2470,4 +2459,9 @@ func (a *colonyAgentNode) maxPayload() int {
 		n += 2
 	}
 	return n
+}
+
+func (a *colonyAgentNode) changePos(pos gmath.Vec) {
+	a.pos = pos
+	a.shadowComponent.UpdatePos(pos)
 }

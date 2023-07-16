@@ -24,11 +24,11 @@ type creepNode struct {
 	anim      *ge.Animation
 	sprite    *ge.Sprite
 	altSprite *ge.Sprite
-	shadow    *ge.Sprite
 
 	scene *ge.Scene
 
-	flashComponent damageFlashComponent
+	shadowComponent shadowComponent
+	flashComponent  damageFlashComponent
 
 	world *worldState
 	stats *gamedata.CreepStats
@@ -37,7 +37,6 @@ type creepNode struct {
 
 	spawnPos        gmath.Vec
 	pos             gmath.Vec
-	spritePos       spritePosComponent
 	waypoint        gmath.Vec
 	wasAttacking    bool
 	wasRetreating   bool
@@ -55,7 +54,6 @@ type creepNode struct {
 	slow      float64
 	health    float64
 	maxHealth float64
-	height    float64
 	marked    float64
 
 	attackDelay float64
@@ -98,7 +96,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 
 	c.sprite = scene.NewSprite(c.stats.Image)
-	c.sprite.Pos.Base = &c.spritePos.value
+	c.sprite.Pos.Base = &c.pos
 	if c.stats.ShadowImage != assets.ImageNone {
 		c.world.stage.AddSpriteAbove(c.sprite)
 	} else {
@@ -121,23 +119,24 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 	c.flashComponent.sprite = c.sprite
 
-	c.height = agentFlightHeight
-
-	if c.stats.ShadowImage != assets.ImageNone && c.world.graphicsSettings.ShadowsEnabled {
-		c.shadow = scene.NewSprite(c.stats.ShadowImage)
-		c.shadow.Pos.Base = &c.spritePos.value
-		c.world.stage.AddSprite(c.shadow)
-		c.shadow.Pos.Offset.Y = c.height
-		c.shadow.SetAlpha(0.5)
-		if c.spawnedFromBase {
-			c.shadow.Visible = false
+	if c.stats.ShadowImage != assets.ImageNone {
+		if c.world.graphicsSettings.ShadowsEnabled {
+			c.shadowComponent.Init(c.world, c.stats.ShadowImage)
+			c.shadowComponent.SetVisibility(!c.spawnedFromBase)
 		}
+		if c.stats.Kind == gamedata.CreepUberBoss {
+			c.shadowComponent.offset = 4
+		} else {
+			c.shadowComponent.offset = 2
+		}
+		c.shadowComponent.UpdatePos(c.pos)
+		c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
 	}
 
 	if c.stats.Kind == gamedata.CreepUberBoss {
 		c.altSprite = scene.NewSprite(assets.ImageUberBossDoor)
 		c.altSprite.Visible = false
-		c.altSprite.Pos.Base = &c.spritePos.value
+		c.altSprite.Pos.Base = &c.pos
 		c.altSprite.Pos.Offset.Y = 13
 		c.world.stage.AddSprite(c.altSprite)
 		c.maxHealth *= c.world.bossHealthMultiplier
@@ -146,7 +145,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		if c.stats.Kind == gamedata.CreepHowitzer {
 			c.altSprite = scene.NewSprite(assets.ImageHowitzerPreparing)
 			c.altSprite.Visible = false
-			c.altSprite.Pos.Base = &c.spritePos.value
+			c.altSprite.Pos.Base = &c.pos
 			c.altSprite.Pos.Offset.Y = -3
 			c.world.stage.AddSprite(c.altSprite)
 		}
@@ -164,7 +163,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 			c.sprite.Shader.SetFloatValue("Time", 0)
 		}
 	case gamedata.CreepHowitzer:
-		pos := ge.Pos{Base: &c.spritePos.value, Offset: gmath.Vec{Y: -10}}
+		pos := ge.Pos{Base: &c.pos, Offset: gmath.Vec{Y: -10}}
 		trunk := newHowitzerTrunkNode(c.world.stage, pos)
 		c.specialTarget = trunk
 		c.world.nodeRunner.AddObject(trunk)
@@ -173,14 +172,11 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 
 	c.health = c.maxHealth
-	c.spritePos.UpdatePos(c.pos)
 }
 
 func (c *creepNode) dispose() {
 	c.sprite.Dispose()
-	if c.shadow != nil {
-		c.shadow.Dispose()
-	}
+	c.shadowComponent.Dispose()
 	if c.altSprite != nil {
 		c.altSprite.Dispose()
 	}
@@ -203,10 +199,6 @@ func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 
 func (c *creepNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
-
-	if !c.world.simulation {
-		c.spritePos.UpdatePos(c.pos)
-	}
 
 	c.marked = gmath.ClampMin(c.marked-delta, 0)
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
@@ -288,12 +280,8 @@ func (c *creepNode) explode() {
 	switch c.stats.Kind {
 	case gamedata.CreepUberBoss:
 		if c.IsFlying() {
-			shadowImg := assets.ImageNone
-			if c.shadow != nil {
-				shadowImg = c.shadow.ImageID()
-			}
-
-			fall := newDroneFallNode(c.world, nil, c.stats.Image, shadowImg, c.pos, c.height)
+			shadowImg := c.shadowComponent.GetImageID()
+			fall := newDroneFallNode(c.world, nil, c.stats.Image, shadowImg, c.pos, c.shadowComponent.height)
 			if c.super {
 				fall.FrameOffsetY = c.sprite.FrameHeight
 			}
@@ -332,11 +320,7 @@ func (c *creepNode) explode() {
 					scraps = bigScrapCreepSource
 				}
 			}
-			shadowImg := assets.ImageNone
-			if c.shadow != nil {
-				shadowImg = c.shadow.ImageID()
-			}
-
+			shadowImg := c.shadowComponent.GetImageID()
 			fall := newDroneFallNode(c.world, scraps, c.stats.Image, shadowImg, c.pos, agentFlightHeight)
 			if c.super {
 				fall.FrameOffsetY = c.sprite.FrameHeight
@@ -501,11 +485,11 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 	}
 
 	if c.stats.BeamTexture == nil {
-		beam := newBeamNode(c.world, ge.Pos{Base: &c.spritePos.value}, ge.Pos{Base: target.GetPos()}, c.stats.BeamColor)
+		beam := newBeamNode(c.world, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.BeamColor)
 		beam.width = c.stats.BeamWidth
 		c.world.nodeRunner.AddObject(beam)
 	} else {
-		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.spritePos.value}, ge.Pos{Base: target.GetPos()}, c.stats.BeamTexture, c.stats.BeamSlideSpeed, c.stats.BeamOpaqueTime)
+		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.BeamTexture, c.stats.BeamSlideSpeed, c.stats.BeamOpaqueTime)
 		c.world.nodeRunner.AddObject(beam)
 	}
 
@@ -515,12 +499,12 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 		vec1 := targetDir.Rotated(deg90rad).Mulf(4)
 		vec2 := targetDir.Rotated(-deg90rad).Mulf(4)
 
-		rearBeam1pos := ge.Pos{Base: &c.spritePos.value, Offset: vec1}
+		rearBeam1pos := ge.Pos{Base: &c.pos, Offset: vec1}
 		rearBeam1targetPos := ge.Pos{Base: target.GetPos(), Offset: vec2}
 		rearBeam1 := newBeamNode(c.world, rearBeam1pos, rearBeam1targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam1)
 
-		rearBeam2pos := ge.Pos{Base: &c.spritePos.value, Offset: vec2}
+		rearBeam2pos := ge.Pos{Base: &c.pos, Offset: vec2}
 		rearBeam2targetPos := ge.Pos{Base: target.GetPos(), Offset: vec1}
 		rearBeam2 := newBeamNode(c.world, rearBeam2pos, rearBeam2targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam2)
@@ -653,10 +637,11 @@ func (c *creepNode) wandererMovement(delta float64) {
 
 	if c.moveTowards(delta, c.waypoint) {
 		c.waypoint = gmath.Vec{}
-		if c.shadow != nil {
-			c.shadow.Visible = true
+		if c.spawnedFromBase {
+			c.spawnedFromBase = false
+			c.shadowComponent.SetVisibility(true)
+			c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
 		}
-		c.height = agentFlightHeight
 	}
 }
 
@@ -1098,8 +1083,17 @@ func (c *creepNode) updateCreepBase(delta float64) {
 		creep.waypoint = waypoint
 		creep.spawnedFromBase = true
 		c.world.nodeRunner.AddObject(creep)
-		creep.height = 0
+		creep.SetHeight(0)
 	}
+}
+
+func (c *creepNode) changePos(pos gmath.Vec) {
+	c.pos = pos
+	c.shadowComponent.UpdatePos(pos)
+}
+
+func (c *creepNode) SetHeight(h float64) {
+	c.shadowComponent.UpdateHeight(c.pos, h, agentFlightHeight)
 }
 
 func (c *creepNode) updateServant(delta float64) {
@@ -1138,18 +1132,9 @@ func (c *creepNode) updateServant(delta float64) {
 }
 
 func (c *creepNode) updateUberBoss(delta float64) {
-	if c.shadow != nil {
-		roundedHeight := math.Round(c.height)
-		c.shadow.Pos.Offset.Y = roundedHeight + 4
-		newShadowAlpha := float32(1.0 - ((roundedHeight / agentFlightHeight) * 0.5))
-		c.shadow.SetAlpha(newShadowAlpha)
-	}
-
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 	if c.specialDelay == 0 && c.specialModifier == 0 {
 		if c.maybeSpawnCrawlers() {
-			c.pos.X = math.Round(c.pos.X)
-			c.pos.Y = math.Round(c.pos.Y)
 			// Time until the first crawler is spawned.
 			c.specialDelay = c.scene.Rand().FloatRange(7, 10)
 		} else {
@@ -1163,18 +1148,19 @@ func (c *creepNode) updateUberBoss(delta float64) {
 	c.health = gmath.ClampMax(c.health+(delta*0.25), c.maxHealth)
 
 	const crawlersSpawnHeight float64 = 10
-	if c.specialModifier != 0 && c.height != crawlersSpawnHeight {
-		c.height -= delta * 5
+	if c.specialModifier != 0 && c.shadowComponent.height != crawlersSpawnHeight {
+		height := c.shadowComponent.height - delta*5
 		c.pos.Y += delta * 5
-		if c.height <= crawlersSpawnHeight {
-			c.height = crawlersSpawnHeight
+		if height <= crawlersSpawnHeight {
+			height = crawlersSpawnHeight
 			c.sprite.FrameOffset.X = c.sprite.FrameWidth
 			c.altSprite.Visible = true
 			c.flashComponent.sprite = c.altSprite
 		}
+		c.shadowComponent.UpdateHeight(c.pos, height, agentFlightHeight)
 		return
 	}
-	if c.specialModifier != 0 && c.height == crawlersSpawnHeight {
+	if c.specialModifier != 0 && c.shadowComponent.height == crawlersSpawnHeight {
 		if c.specialDelay == 0 {
 			// Time until next crawler is spawned.
 			c.specialDelay = c.scene.Rand().FloatRange(4, 6)
@@ -1211,14 +1197,13 @@ func (c *creepNode) updateUberBoss(delta float64) {
 		return
 	}
 
-	if c.height != agentFlightHeight {
-		c.height += delta * 5
+	if c.shadowComponent.height != agentFlightHeight {
+		height := c.shadowComponent.height + delta*5
 		c.pos.Y -= delta * 5
-		if c.height >= agentFlightHeight {
-			c.height = agentFlightHeight
-			c.pos.X = math.Round(c.pos.X)
-			c.pos.Y = math.Round(c.pos.Y)
+		if height >= agentFlightHeight {
+			height = agentFlightHeight
 		}
+		c.shadowComponent.UpdateHeight(c.pos, height, agentFlightHeight)
 		return
 	}
 
@@ -1255,7 +1240,7 @@ func (c *creepNode) doCloak() {
 }
 
 func (c *creepNode) movementSpeed() float64 {
-	if c.spawnedFromBase && c.height == 0 {
+	if c.spawnedFromBase {
 		return c.stats.Speed * 0.5
 	}
 	multiplier := 1.0
@@ -1266,7 +1251,7 @@ func (c *creepNode) movementSpeed() float64 {
 }
 
 func (c *creepNode) moveTowards(delta float64, pos gmath.Vec) bool {
-	var reached bool
-	c.pos, reached = moveTowardsWithSpeed(c.pos, pos, delta, c.movementSpeed())
+	pos, reached := moveTowardsWithSpeed(c.pos, pos, delta, c.movementSpeed())
+	c.changePos(pos)
 	return reached
 }

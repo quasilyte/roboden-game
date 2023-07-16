@@ -396,9 +396,9 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 			p.rpanel.UpdateMetrics()
 		})
 	}
-	p.colonySelector.Pos.Base = &p.state.selectedColony.spritePos.value
-	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.spritePos.value
-	p.colonyDestination.BeginPos.Base = &p.state.selectedColony.spritePos.value
+	p.colonySelector.Pos.Base = &p.state.selectedColony.pos
+	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.pos
+	p.colonyDestination.BeginPos.Base = &p.state.selectedColony.pos
 	p.colonyDestination.EndPos.Base = &p.state.selectedColony.relocationPoint
 }
 

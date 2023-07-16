@@ -161,7 +161,7 @@ func (m *tutorialManager) OnChoice(choice selectedChoice) {
 
 func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
 	m.messageManager.AddMessage(queuedMessageInfo{
-		targetPos:     ge.Pos{Base: &drone.spritePos.value, Offset: gmath.Vec{Y: -4}},
+		targetPos:     ge.Pos{Base: &drone.pos, Offset: gmath.Vec{Y: -4}},
 		text:          m.scene.Dict().Get(textKey),
 		trackedObject: drone,
 		timer:         20,
@@ -202,7 +202,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 	if !m.explainedResourcePool && m.world.allColonies[0].resources > 120 {
 		m.explainedResourcePool = true
 		m.messageManager.AddMessage(queuedMessageInfo{
-			targetPos:     ge.Pos{Base: &m.world.allColonies[0].spritePos.value, Offset: gmath.Vec{X: -3, Y: 18}},
+			targetPos:     ge.Pos{Base: &m.world.allColonies[0].pos, Offset: gmath.Vec{X: -3, Y: 18}},
 			trackedObject: m.world.allColonies[0],
 			text:          m.scene.Dict().Get("tutorial.context.resource_bar"),
 			timer:         25,

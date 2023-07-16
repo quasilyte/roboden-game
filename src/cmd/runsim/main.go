@@ -59,6 +59,7 @@ func main() {
 	state.CombinedInput = gameinput.Handler{
 		Handler: ctx.Input.NewHandler(0, nil),
 	}
+	state.BoundInputs[0] = &state.CombinedInput
 
 	config.Finalize()
 	controller := staging.NewController(state, config, nil)

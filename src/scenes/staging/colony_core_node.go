@@ -45,11 +45,12 @@ type colonyCoreNode struct {
 	sprite              *ge.Sprite
 	hatch               *ge.Sprite
 	flyingSprite        *ge.Sprite
-	shadow              *ge.Sprite
 	evoDiode            *ge.Sprite
 	resourceRects       []*ge.Sprite
 	flyingResourceRects []*ge.Sprite
 	otherShader         ge.Shader
+
+	shadowComponent shadowComponent
 
 	player player
 	scene  *ge.Scene
@@ -58,7 +59,6 @@ type colonyCoreNode struct {
 	hatchFlashComponent damageFlashComponent
 
 	pos           gmath.Vec
-	spritePos     spritePosComponent
 	height        float64
 	maxHealth     float64
 	health        float64
@@ -179,7 +179,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	}
 
 	c.sprite = c.spriteWithAlliance(assets.ImageColonyCore)
-	c.sprite.Pos.Base = &c.spritePos.value
+	c.sprite.Pos.Base = &c.pos
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 		c.sprite.Shader.SetFloatValue("HP", 1.0)
@@ -188,7 +188,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.world.stage.AddSprite(c.sprite)
 
 	c.flyingSprite = c.spriteWithAlliance(assets.ImageColonyCoreFlying)
-	c.flyingSprite.Pos.Base = &c.spritePos.value
+	c.flyingSprite.Pos.Base = &c.pos
 	c.flyingSprite.Visible = false
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.flyingSprite.Shader = c.sprite.Shader
@@ -196,7 +196,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.world.stage.AddSpriteSlightlyAbove(c.flyingSprite)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
-	c.hatch.Pos.Base = &c.spritePos.value
+	c.hatch.Pos.Base = &c.pos
 	c.hatch.Pos.Offset.Y = -20
 	c.world.stage.AddSprite(c.hatch)
 
@@ -204,15 +204,13 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.hatchFlashComponent.sprite = c.hatch
 
 	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
-	c.evoDiode.Pos.Base = &c.spritePos.value
+	c.evoDiode.Pos.Base = &c.pos
 	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
 	c.world.stage.AddSprite(c.evoDiode)
 
 	if c.world.graphicsSettings.ShadowsEnabled {
-		c.shadow = scene.NewSprite(assets.ImageColonyCoreShadow)
-		c.shadow.Pos.Base = &c.spritePos.value
-		c.shadow.Visible = false
-		c.world.stage.AddSprite(c.shadow)
+		c.shadowComponent.Init(c.world, assets.ImageColonyCoreShadow)
+		c.shadowComponent.offset = 10
 	}
 
 	c.resourceRects = make([]*ge.Sprite, 3)
@@ -222,7 +220,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 			rect := scene.NewSprite(assets.ImageColonyResourceBar1 + resource.ImageID(i))
 			rect.Centered = false
 			rect.Visible = false
-			rect.Pos.Base = &c.spritePos.value
+			rect.Pos.Base = &c.pos
 			rect.Pos.Offset.X -= 3
 			rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
 			rects[i] = rect
@@ -237,7 +235,6 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	makeResourceRects(c.flyingResourceRects, true)
 
 	c.markCells(c.pos)
-	c.spritePos.UpdatePos(c.pos)
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
@@ -286,11 +283,7 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable
 		if c.height == 0 {
 			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
 		} else {
-			shadowImg := assets.ImageNone
-			if c.shadow != nil {
-				shadowImg = c.shadow.ImageID()
-			}
-
+			shadowImg := c.shadowComponent.GetImageID()
 			fall := newDroneFallNode(c.world, nil, assets.ImageColonyCore, shadowImg, c.pos, c.height)
 			c.world.nodeRunner.AddObject(fall)
 			fall.sprite.Shader = c.sprite.Shader
@@ -426,9 +419,7 @@ func (c *colonyCoreNode) Dispose() {
 	c.sprite.Dispose()
 	c.hatch.Dispose()
 	c.flyingSprite.Dispose()
-	if c.shadow != nil {
-		c.shadow.Dispose()
-	}
+	c.shadowComponent.Dispose()
 	c.evoDiode.Dispose()
 	for _, rect := range c.resourceRects {
 		rect.Dispose()
@@ -453,22 +444,11 @@ func (c *colonyCoreNode) Update(delta float64) {
 		c.hatchFlashComponent.Update(delta)
 	}
 
-	if !c.world.simulation {
-		c.spritePos.UpdatePos(c.pos)
-	}
-
 	c.updateResourceRects()
 
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
 	c.resourceDelay = gmath.ClampMin(c.resourceDelay-delta, 0)
 	c.heavyDamageWarningCooldown = gmath.ClampMin(c.heavyDamageWarningCooldown-delta, 0)
-
-	if c.shadow != nil && c.shadow.Visible {
-		roundedHeight := math.Round(c.height)
-		c.shadow.Pos.Offset.Y = roundedHeight + 4
-		newShadowAlpha := float32(1.0 - ((roundedHeight / coreFlightHeight) * 0.5))
-		c.shadow.SetAlpha(newShadowAlpha)
-	}
 
 	c.processUpkeep(delta)
 
@@ -700,9 +680,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.mode = colonyModeTakeoff
 	c.openHatchTime = 0
 
-	if c.shadow != nil {
-		c.shadow.Visible = true
-	}
+	c.shadowComponent.SetVisibility(true)
 	c.flyingSprite.Visible = true
 	c.flashComponent.ChangeSprite(c.flyingSprite)
 	c.sprite.Visible = false
@@ -716,12 +694,15 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 }
 
 func (c *colonyCoreNode) updateTakeoff(delta float64) {
-	c.height += delta * c.movementSpeed()
-	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
-		c.height = coreFlightHeight
+	speed := c.movementSpeed()
+	height := c.shadowComponent.height + delta*speed
+	if c.moveTowards(delta, speed, c.waypoint) {
+		height = coreFlightHeight
 		c.waypoint = c.relocationPoint.Sub(gmath.Vec{Y: coreFlightHeight})
 		c.mode = colonyModeRelocating
 	}
+	c.shadowComponent.UpdatePos(c.pos)
+	c.shadowComponent.UpdateHeight(c.pos, height, coreFlightHeight)
 }
 
 func (c *colonyCoreNode) startLanding() {
@@ -750,6 +731,7 @@ func (c *colonyCoreNode) updateRelocating(delta float64) {
 			c.startLanding()
 		}
 	}
+	c.shadowComponent.UpdatePos(c.pos)
 }
 
 func (c *colonyCoreNode) findLandingSpot(coord pathing.GridCoord, recurse bool) gmath.Vec {
@@ -774,8 +756,9 @@ func (c *colonyCoreNode) findLandingSpot(coord pathing.GridCoord, recurse bool) 
 }
 
 func (c *colonyCoreNode) updateLanding(delta float64) {
-	c.height -= delta * c.movementSpeed()
-	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
+	speed := c.movementSpeed()
+	height := c.shadowComponent.height - delta*speed
+	if c.moveTowards(delta, speed, c.waypoint) {
 		c.waypoint = gmath.Vec{}
 		c.relocationPoint = gmath.Vec{}
 		c.height = 0
@@ -783,9 +766,7 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.flyingSprite.Visible = false
 		c.hatchFlashComponent.resetColors()
 		c.flashComponent.ChangeSprite(c.sprite)
-		if c.shadow != nil {
-			c.shadow.Visible = false
-		}
+		c.shadowComponent.SetVisibility(false)
 		for _, rect := range c.flyingResourceRects {
 			rect.Visible = false
 		}
@@ -798,6 +779,8 @@ func (c *colonyCoreNode) updateLanding(delta float64) {
 		c.crushCrawlers()
 		c.maybeTeleport()
 	}
+	c.shadowComponent.UpdatePos(c.pos)
+	c.shadowComponent.UpdateHeight(c.pos, height, coreFlightHeight)
 }
 
 func (c *colonyCoreNode) maybeTeleport() {
@@ -1085,7 +1068,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			c.eliteResources--
 			a.rank = 1
 		}
-		a.height = 0
+		a.SetHeight(0)
 		c.world.nodeRunner.AddObject(a)
 		c.world.result.DronesProduced++
 		c.resources -= a.stats.Cost

@@ -783,6 +783,11 @@ func (a *colonyAgentNode) dispose() {
 		a.cloningBeam.Dispose()
 		a.cloningBeam = nil
 	}
+
+	if a.stats.Kind == gamedata.AgentHarvester && a.target != nil {
+		target := a.target.(*essenceSourceNode)
+		target.beingHarvested = false
+	}
 }
 
 func (a *colonyAgentNode) Destroy() {
@@ -1776,9 +1781,6 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 	a.target = closestTarget
 	a.sendTo(closestSpot)
 	closestTarget.beingHarvested = true
-	a.EventDestroyed.Connect(closestTarget, func(*colonyAgentNode) {
-		closestTarget.beingHarvested = false
-	})
 }
 
 func (a *colonyAgentNode) updateRoombaWait(delta float64) {

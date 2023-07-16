@@ -125,18 +125,20 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageSmokeSide:                  {Path: "image/effects/smoke_side.png", FrameWidth: 15},
 		ImageRoombaSmoke:                {Path: "image/effects/roomba_smoke.png", FrameWidth: 8},
 
-		ImageFactionDiode:            {Path: "image/faction_diode.png"},
-		ImageColonyResourceBar1:      {Path: "image/colony_resource_bar1.png"},
-		ImageColonyResourceBar2:      {Path: "image/colony_resource_bar2.png"},
-		ImageColonyResourceBar3:      {Path: "image/colony_resource_bar3.png"},
-		ImageColonyCoreSelector:      {Path: "image/colony_core_selector.png"},
-		ImageColonyCoreAllianceColor: {Path: "image/colony_core_alliance_color.png"},
-		ImageColonyCore:              {Path: "image/colony_core.png"},
-		ImageColonyCoreFlying:        {Path: "image/colony_core_flying.png"},
-		ImageColonyCoreHatch:         {Path: "image/colony_core_hatch.png"},
-		ImageColonyCoreDiode:         {Path: "image/colony_core_diode.png", FrameWidth: 4},
-		ImageTeleporter:              {Path: "image/teleporter.png"},
-		ImageTeleporterLights:        {Path: "image/teleporter_lights.png"},
+		ImageFactionDiode:     {Path: "image/faction_diode.png"},
+		ImageTeleporter:       {Path: "image/teleporter.png"},
+		ImageTeleporterLights: {Path: "image/teleporter_lights.png"},
+
+		ImageDenCoreSelector:      {Path: "image/colonies/den_core_selector.png"},
+		ImageDenCoreAllianceColor: {Path: "image/colonies/den_core_alliance_color.png"},
+		ImageDenCore:              {Path: "image/colonies/den_core.png"},
+		ImageDenCoreFlying:        {Path: "image/colonies/den_core_flying.png"},
+
+		ImageColonyResourceBar1: {Path: "image/colonies/colony_resource_bar1.png"},
+		ImageColonyResourceBar2: {Path: "image/colonies/colony_resource_bar2.png"},
+		ImageColonyResourceBar3: {Path: "image/colonies/colony_resource_bar3.png"},
+		ImageColonyCoreHatch:    {Path: "image/colonies/colony_core_hatch.png"},
+		ImageColonyCoreDiode:    {Path: "image/colonies/colony_core_diode.png", FrameWidth: 4},
 
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
@@ -440,10 +442,10 @@ const (
 	ImageColonyResourceBar1
 	ImageColonyResourceBar2
 	ImageColonyResourceBar3
-	ImageColonyCoreSelector
-	ImageColonyCoreAllianceColor
-	ImageColonyCore
-	ImageColonyCoreFlying
+	ImageDenCoreSelector
+	ImageDenCoreAllianceColor
+	ImageDenCore
+	ImageDenCoreFlying
 	ImageColonyCoreHatch
 	ImageColonyCoreDiode
 	ImageColonyCoreShadow

@@ -28,7 +28,7 @@ var colonyCoreConstructionStats = &constructionStats{
 	ConstructionSpeed: 0.01,
 	DamageModifier:    0.01,
 	Kind:              constructBase,
-	Image:             assets.ImageColonyCore,
+	Image:             assets.ImageDenCore,
 }
 
 var harvesterConstructionStats = &constructionStats{

@@ -813,7 +813,7 @@ func (c *LobbyMenuController) createBasesPanel(uiResources *eui.Resources) *widg
 			widget.GridLayoutOpts.Spacing(4, 4))))
 
 	// TODO: add bases list.
-	b := eui.NewBigItemButton(uiResources, c.scene.LoadImage(assets.ImageColonyCore).Data, func() {})
+	b := eui.NewBigItemButton(uiResources, c.scene.LoadImage(assets.ImageDenCore).Data, func() {})
 	b.Toggle()
 	grid.AddChild(b.Widget)
 

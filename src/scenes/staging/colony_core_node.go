@@ -155,7 +155,7 @@ func (c *colonyCoreNode) spriteWithAlliance(imageID resource.ImageID) *ge.Sprite
 		if c.player.GetState().id != 0 {
 			drawOptions.ColorM.RotateHue(float64(gmath.DegToRad(-70)))
 		}
-		paintedImg.DrawImage(c.scene.LoadImage(assets.ImageColonyCoreAllianceColor).Data, &drawOptions)
+		paintedImg.DrawImage(c.scene.LoadImage(assets.ImageDenCoreAllianceColor).Data, &drawOptions)
 		sprite := ge.NewSprite(c.scene.Context())
 		sprite.SetImage(resource.Image{Data: paintedImg})
 		return sprite
@@ -178,7 +178,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.otherShader = scene.NewShader(assets.ShaderColonyTeleport)
 	}
 
-	c.sprite = c.spriteWithAlliance(assets.ImageColonyCore)
+	c.sprite = c.spriteWithAlliance(assets.ImageDenCore)
 	c.sprite.Pos.Base = &c.pos
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
@@ -187,7 +187,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	}
 	c.world.stage.AddSprite(c.sprite)
 
-	c.flyingSprite = c.spriteWithAlliance(assets.ImageColonyCoreFlying)
+	c.flyingSprite = c.spriteWithAlliance(assets.ImageDenCoreFlying)
 	c.flyingSprite.Pos.Base = &c.pos
 	c.flyingSprite.Visible = false
 	if c.world.graphicsSettings.AllShadersEnabled {
@@ -284,7 +284,7 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable
 			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
 		} else {
 			shadowImg := c.shadowComponent.GetImageID()
-			fall := newDroneFallNode(c.world, nil, assets.ImageColonyCore, shadowImg, c.pos, c.height)
+			fall := newDroneFallNode(c.world, nil, assets.ImageDenCore, shadowImg, c.pos, c.height)
 			c.world.nodeRunner.AddObject(fall)
 			fall.sprite.Shader = c.sprite.Shader
 		}

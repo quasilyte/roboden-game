@@ -61,14 +61,14 @@ func (c *CreditsMenuController) initUI() {
 
 	lines := []string{
 		"[" + d.Get("menu.credits.crew") + "]",
-		"    quasilyte (Iskander senpai) - mashing on the keyboard",
+		"    quasilyte (Iskander senpai) - game maker",
 		"    shooQrow (Oleg) - graphics, co-game design, testing",
 		"    " + strings.Join(testers, ", ") + " - testing",
 		"",
 		"[" + d.Get("menu.credits.assets") + "]",
 		"    DROZERiX - Crush and War Path music tracks",
 		"    JAM - Deadly Windmills music track",
-		"    unTied Games - pixel art explosions free asset pack",
+		"    unTied Games - super pixel effects packs",
 		"",
 		"[" + d.Get("menu.credits.special_thanks") + "]",
 		"    Hajime Hoshi - Ebitengine creator and maintainer (@hajimehoshi)",

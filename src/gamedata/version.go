@@ -221,6 +221,7 @@ const SeasonNumber = 0
 //
 // * Visuals:
 //   - Made VSync option configurable
+//   - Brand new visual effects for many explosion-like animations
 //
 // * Misc:
 //   - Added a logs.grep terminal command

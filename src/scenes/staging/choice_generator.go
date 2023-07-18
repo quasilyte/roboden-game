@@ -514,7 +514,7 @@ func (g *choiceGenerator) prepareChoiceOptions() {
 	switch specialOptionKind {
 	case specialRally:
 		if g.spawnCrawlers {
-			if g.creepsState.techLevel >= 2 {
+			if g.creepsState.techLevel >= 1.5 {
 				specialOptionKind = specialAtomicBomb
 			} else {
 				specialOptionKind = specialSpawnCrawlers

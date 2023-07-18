@@ -96,7 +96,7 @@ During any moment of the victorious reverse match, have at least 20 rocket turre
 
 ##achievement.atomicfinisher : A-bomb Launch Detected
 ##achievement.atomicfinisher.description
-Win a game by launching an atomic bomb. An atomic bomb is available at 200% tech progress level.
+Win a game by launching an atomic bomb. An atomic bomb is available at 150% tech progress level.
 
 ##achievement.nonstop : Nonstop
 ##achievement.nonstop.description

@@ -29,6 +29,7 @@ type LobbyMenuController struct {
 
 	droneButtons         []droneButton
 	turretButtons        []droneButton
+	coreButtons          []coreButton
 	pointsAllocatedLabel *widget.Text
 	difficultyLabel      *widget.Text
 
@@ -46,6 +47,11 @@ type LobbyMenuController struct {
 	recipeIcons map[gamedata.RecipeSubject]*ebiten.Image
 
 	scene *ge.Scene
+}
+
+type coreButton struct {
+	widget *eui.ItemButton
+	core   *gamedata.ColonyCoreStats
 }
 
 type droneButton struct {
@@ -252,6 +258,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		}
 
 		if c.config.PlayersMode == serverapi.PmodeSinglePlayer && c.mode == gamedata.ModeReverse {
+			c.config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, c.scene.Rand())
 			c.config.TurretDesign = gamedata.PickTurretDesign(c.scene.Rand())
 			c.config.Tier2Recipes = gamedata.CreateDroneBuild(c.scene.Rand())
 		}
@@ -812,10 +819,41 @@ func (c *LobbyMenuController) createBasesPanel(uiResources *eui.Resources) *widg
 			widget.GridLayoutOpts.Columns(6),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 
-	// TODO: add bases list.
-	b := eui.NewBigItemButton(uiResources, c.scene.LoadImage(assets.ImageDenCore).Data, func() {})
-	b.Toggle()
-	grid.AddChild(b.Widget)
+	for i := range gamedata.CoreStatsList {
+		core := gamedata.CoreStatsList[i]
+		var b *eui.ItemButton
+		available := xslices.Contains(c.state.Persistent.PlayerStats.CoresUnlocked, core.Name)
+		var img *ebiten.Image
+		if available {
+			img = c.scene.LoadImage(core.Image).Data
+		} else {
+			img = c.scene.LoadImage(assets.ImageLock).Data
+		}
+		b = eui.NewBigItemButton(uiResources, img, func() {
+			if c.config.CoreDesign != core.Name {
+				b.Toggle()
+				c.onCoreToggled(core)
+			}
+		})
+		b.SetDisabled(!available)
+		grid.AddChild(b.Widget)
+		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+			var s string
+			if available {
+				s = descriptions.CoreText(c.scene.Dict(), core)
+			} else {
+				s = descriptions.LockedCoreText(c.scene.Dict(), &c.state.Persistent.PlayerStats, core)
+			}
+			c.setHelpText(s)
+		})
+		if c.config.CoreDesign == core.Name {
+			b.Toggle()
+		}
+		c.coreButtons = append(c.coreButtons, coreButton{
+			widget: b,
+			core:   core,
+		})
+	}
 
 	panel.AddChild(grid)
 
@@ -970,6 +1008,16 @@ func (c *LobbyMenuController) updateTier2Recipes() {
 			continue
 		}
 		c.config.Tier2Recipes = append(c.config.Tier2Recipes, b.recipe.Result.Kind.String())
+	}
+}
+
+func (c *LobbyMenuController) onCoreToggled(selectedCore *gamedata.ColonyCoreStats) {
+	c.config.CoreDesign = selectedCore.Name
+	for _, b := range c.coreButtons {
+		toggle := (b.core != selectedCore && b.widget.IsToggled())
+		if toggle {
+			b.widget.Toggle()
+		}
 	}
 }
 

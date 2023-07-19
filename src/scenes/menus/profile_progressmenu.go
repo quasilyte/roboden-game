@@ -80,6 +80,7 @@ func (c *ProfileProgressMenuController) initUI() {
 		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
 	lines := [][2]string{
 		{d.Get("menu.profile.progress.achievements"), fmt.Sprintf("%d/%d", len(stats.Achievements), len(gamedata.AchievementList))},
+		{d.Get("menu.profile.progress.cores_unlocked"), fmt.Sprintf("%d/%d", len(stats.CoresUnlocked), len(gamedata.CoreStatsList))},
 		{d.Get("menu.profile.progress.turrets_unlocked"), fmt.Sprintf("%d/%d", len(stats.TurretsUnlocked), len(gamedata.TurretStatsList))},
 		{d.Get("menu.profile.progress.drones_unlocked"), fmt.Sprintf("%d/%d", len(stats.DronesUnlocked), numDrones)},
 		{d.Get("menu.profile.progress.t3drones_seen"), fmt.Sprintf("%d/%d", len(stats.Tier3DronesSeen), len(gamedata.Tier3agentMergeRecipes))},

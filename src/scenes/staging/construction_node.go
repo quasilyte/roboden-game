@@ -28,7 +28,6 @@ var colonyCoreConstructionStats = &constructionStats{
 	ConstructionSpeed: 0.01,
 	DamageModifier:    0.01,
 	Kind:              constructBase,
-	Image:             assets.ImageDenCore,
 }
 
 var harvesterConstructionStats = &constructionStats{
@@ -97,7 +96,11 @@ func newConstructionNode(world *worldState, p player, pos, spriteOffset gmath.Ve
 }
 
 func (c *constructionNode) Init(scene *ge.Scene) {
-	c.sprite = scene.NewSprite(c.stats.Image)
+	imageID := c.stats.Image
+	if c.stats.Kind == constructBase {
+		imageID = c.world.coreDesign.Image
+	}
+	c.sprite = scene.NewSprite(imageID)
 	c.sprite.Pos.Base = &c.pos
 	c.sprite.Pos.Offset = c.spriteOffset
 	if !c.world.simulation {

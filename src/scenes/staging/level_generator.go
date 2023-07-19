@@ -219,9 +219,9 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 
 	switch g.world.config.StartingResources {
 	case 1:
-		core.resources = maxVisualResources / 3
+		core.resources = core.maxVisualResources() / 3
 	case 2:
-		core.resources = maxVisualResources
+		core.resources = core.maxVisualResources()
 	}
 
 	for i := 0; i < 5; i++ {

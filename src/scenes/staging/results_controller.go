@@ -173,6 +173,7 @@ func (c *resultsController) updateProgress() {
 
 	contentUpdates := contentlock.Update(c.state)
 	c.rewards.newAchievements, c.rewards.upgradedAchievements = c.checkAchievements()
+	c.rewards.newCores = contentUpdates.CoresUnlocked
 	c.rewards.newDrones = contentUpdates.DronesUnlocked
 	c.rewards.newTurrets = contentUpdates.TurretsUnlocked
 }

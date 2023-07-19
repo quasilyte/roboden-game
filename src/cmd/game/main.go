@@ -175,6 +175,7 @@ func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
 		gamedata.ServoAgentStats.Kind.String(),
 	}
 	config.TurretDesign = gamedata.GunpointAgentStats.Kind.String()
+	config.CoreDesign = gamedata.DenCoreStats.Name
 
 	config.OilRegenRate = 2
 	config.Terrain = 1
@@ -275,6 +276,13 @@ func getDefaultSessionState() *session.State {
 		}
 
 		config.Finalize()
+	}
+
+	for _, core := range gamedata.CoreStatsList {
+		if core.ScoreCost != 0 {
+			continue
+		}
+		state.Persistent.PlayerStats.CoresUnlocked = append(state.Persistent.PlayerStats.CoresUnlocked, core.Name)
 	}
 
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {

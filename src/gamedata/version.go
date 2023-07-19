@@ -210,6 +210,7 @@ const SeasonNumber = 0
 // * New content:
 //   - A new Secret achievement
 //   - A new Terminal achievement
+//   - A new Ark colony core
 //
 // * Steam-related:
 //   - Integrated Steam SDK, implemented Steam achievements

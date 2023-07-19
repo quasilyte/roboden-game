@@ -566,7 +566,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModeTakeoff:
 		a.mode = mode
-		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
+		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight - a.shadowComponent.height}))
 		a.shadowComponent.SetVisibility(false)
 		return true
 
@@ -577,7 +577,8 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModeRecycleReturn:
 		a.mode = mode
-		a.setWaypoint(a.colonyCore.GetEntrancePos().Sub(gmath.Vec{Y: agentFlightHeight}))
+		offset := gmath.Vec{Y: agentFlightHeight - a.colonyCore.stats.DefaultHeight}
+		a.setWaypoint(a.colonyCore.GetEntrancePos().Sub(offset))
 		return true
 
 	case agentModeRecycleLanding:
@@ -1241,7 +1242,7 @@ func (a *colonyAgentNode) doScavenge() {
 	if a.energy < 20 || a.energyBill > 100 {
 		return
 	}
-	if a.colonyCore.resources > maxVisualResources {
+	if a.colonyCore.resources > a.colonyCore.maxVisualResources() {
 		return
 	}
 
@@ -1706,7 +1707,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 	}
 
 	if target != nil {
-		if a.colonyCore.resources >= maxVisualResources {
+		if a.colonyCore.resources >= a.colonyCore.maxVisualResources() {
 			a.specialDelay = 4
 			return
 		}
@@ -1966,7 +1967,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 			a.clearWaypoint()
 			return
 		}
-		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageBigVerticalExplosion))
+		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageBigVerticalExplosion1))
 		playExplosionSound(a.world(), a.pos)
 		creep.OnDamage(gamedata.DamageValue{Health: explosionDamage}, a)
 		for _, otherCreep := range a.world().creeps {
@@ -2054,7 +2055,8 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
 	prevHeight := a.shadowComponent.height
 	a.shadowComponent.UpdateHeight(a.pos, a.shadowComponent.height-delta*30, agentFlightHeight)
-	if prevHeight >= 3 && a.shadowComponent.height < 3 {
+	darkenHeight := a.colonyCore.stats.DefaultHeight + 3
+	if prevHeight >= darkenHeight && a.shadowComponent.height < darkenHeight {
 		a.sprite.SetColorScaleRGBA(200, 200, 200, 255)
 	}
 

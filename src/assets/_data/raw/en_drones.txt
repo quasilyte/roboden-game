@@ -2,7 +2,19 @@
 ##drone.undiscovered : Undiscovered drone
 ##drone.locked : Locked drone
 ##turret.locked : Locked rurret
+##core.locked : Locked colony
 ##drone.score_required : Total score required
+
+##core.den : Den
+##core.ark : Ark
+
+##core.mobility_rating : Mobility rating
+##core.unit_limit_rating : Drone limit rating
+##core.capacity_rating : Resources capacity rating
+
+##core.ability.crush : Crushes small ground units upon landing
+##core.ability.flying : Airborne
+##core.ability.no_teleporters : Can't activate teleporters
 
 ##drone.kind.worker : worker
 ##drone.kind.military : combat

@@ -372,6 +372,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		},
 		tier2recipes: tier2recipes,
 		turretDesign: gamedata.FindTurretByName(c.config.TurretDesign),
+		coreDesign:   gamedata.FindCoreByName(c.config.CoreDesign),
 	}
 	world.inputMode = c.state.GetInput(0).DetectInputMode()
 	world.creepCoordinator = newCreepCoordinator(world)
@@ -823,12 +824,21 @@ func (c *Controller) launchAbomb() bool {
 	if c.world.boss == nil {
 		return false
 	}
-	target := gmath.RandElem(c.world.rand, c.world.allColonies)
+	target := randIterate(c.world.rand, c.world.allColonies, func(colony *colonyCoreNode) bool {
+		return colony.waypoint.IsZero()
+	})
+	if target == nil {
+		target = gmath.RandElem(c.world.rand, c.world.allColonies)
+	}
+	toPos := target.pos.Add(c.scene.Rand().Offset(-10, 10))
+	if !target.IsFlying() {
+		toPos = toPos.Add(gmath.Vec{Y: 16})
+	}
 	abomb := c.world.newProjectileNode(projectileConfig{
 		World:      c.world,
 		Weapon:     gamedata.AtomicBombWeapon,
 		Attacker:   c.world.boss,
-		ToPos:      target.pos.Add(c.scene.Rand().Offset(-10, 10)).Add(gmath.Vec{Y: 16}),
+		ToPos:      toPos,
 		Target:     target,
 		FireOffset: gmath.Vec{Y: -20},
 	})

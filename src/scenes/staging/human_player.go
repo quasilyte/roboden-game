@@ -170,9 +170,13 @@ func (p *humanPlayer) Init() {
 	if p.creepsState != nil {
 		p.state.camera.CenterOn(p.world.boss.pos)
 	} else {
-		p.colonySelector = p.scene.NewSprite(assets.ImageDenCoreSelector)
-		p.state.camera.Private.AddSpriteBelow(p.colonySelector)
-		p.flyingColonySelector = p.scene.NewSprite(assets.ImageDenCoreSelector)
+		p.colonySelector = p.scene.NewSprite(p.world.coreDesign.SelectorImageID())
+		if p.world.coreDesign == gamedata.ArkCoreStats {
+			p.state.camera.Private.AddSprite(p.colonySelector)
+		} else {
+			p.state.camera.Private.AddSpriteBelow(p.colonySelector)
+		}
+		p.flyingColonySelector = p.scene.NewSprite(p.world.coreDesign.SelectorImageID())
 		p.state.camera.Private.AddSpriteSlightlyAbove(p.flyingColonySelector)
 
 		p.selectNextColony(true)

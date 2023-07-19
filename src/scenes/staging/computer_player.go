@@ -643,7 +643,7 @@ func (p *computerPlayer) maybeChangePriorities(colony *computerColony) bool {
 			(c.health < c.maxHealth*0.9 && c.resources > 100) ||
 			(c.agents.NumAvailableWorkers() < 3 && c.resources > 20) ||
 			(2*c.NumAgents() < c.calcUnitLimit()) ||
-			(c.resources >= (maxVisualResources * 0.85))
+			(c.resources >= (c.maxVisualResources() * 0.85))
 		if needMoreGrowth {
 			increaseGrowthChance := gmath.Clamp(0.1+(1.0-(p.world.rand.FloatRange(0.9, 1.2)*c.GetGrowthPriority())), 0, 1)
 			if p.world.rand.Chance(increaseGrowthChance) {
@@ -675,6 +675,7 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) bool {
 	// Reason to move 1: resources.
 	resourcesReach := colony.node.realRadius*0.4 + 100
 	upkeepCost, _ := colony.node.calcUpkeed()
+	maxResources := colony.node.stats.ResourcesLimit
 	if colony.node.resources < (maxResources*0.85) && p.world.rand.Chance(0.85) {
 		resourcesScore, _ := p.calcPosResources(colony.node, colony.node.pos, resourcesReach)
 		minAcceptableResourceScore := p.world.rand.IntRange(0, 25) + (2 * int(upkeepCost))
@@ -877,6 +878,11 @@ func (p *computerPlayer) tryExecuteAction(colony *colonyCoreNode, cardIndex int,
 }
 
 func (p *computerPlayer) findUsableTeleporter(colony *colonyCoreNode, f func(*teleporterNode) bool) *teleporterNode {
+	if p.world.coreDesign == gamedata.ArkCoreStats {
+		// Can't use teleporters.
+		return nil
+	}
+
 	return randIterate(p.world.rand, p.world.teleporters, func(tp *teleporterNode) bool {
 		if tp.pos.DistanceSquaredTo(colony.pos) > 0.9*colony.MaxFlyDistanceSqr() {
 			return false

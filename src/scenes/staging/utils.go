@@ -238,7 +238,11 @@ func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool)
 		} else {
 			numExplosions--
 			if allowVertical && world.rand.Chance(0.4) {
-				effect := newEffectNode(world, center.Add(offset), above, assets.ImageVerticalExplosion)
+				img := assets.ImageVerticalExplosion1
+				if world.localRand.Bool() {
+					img = assets.ImageVerticalExplosion2
+				}
+				effect := newEffectNode(world, center.Add(offset), above, img)
 				world.nodeRunner.AddObject(effect)
 				effect.anim.SetSecondsPerFrame(0.035)
 			} else {
@@ -250,8 +254,19 @@ func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool)
 }
 
 func createMuteExplosion(world *worldState, above bool, pos gmath.Vec) {
-	explosion := newEffectNode(world, pos, above, assets.ImageSmallExplosion1)
+	imageRoll := world.localRand.Float()
+	img := assets.ImageSmallExplosion1 // 35%
+	switch {
+	case imageRoll <= 0.15: // 15%
+		img = assets.ImageSmallExplosion4
+	case imageRoll <= 0.35: // 20%
+		img = assets.ImageSmallExplosion3
+	case imageRoll <= 0.6: // 30%
+		img = assets.ImageSmallExplosion2
+	}
+	explosion := newEffectNode(world, pos, above, img)
 	world.nodeRunner.AddObject(explosion)
+	explosion.anim.SetSecondsPerFrame(0.03)
 }
 
 func playIonExplosionSound(world *worldState, pos gmath.Vec) {
@@ -267,7 +282,11 @@ func playExplosionSound(world *worldState, pos gmath.Vec) {
 }
 
 func createBigVerticalExplosion(world *worldState, pos gmath.Vec) {
-	world.nodeRunner.AddObject(newEffectNode(world, pos, false, assets.ImageBigVerticalExplosion))
+	img := assets.ImageBigVerticalExplosion1
+	if world.localRand.Bool() {
+		img = assets.ImageBigVerticalExplosion2
+	}
+	world.nodeRunner.AddObject(newEffectNode(world, pos, false, img))
 	playExplosionSound(world, pos)
 }
 

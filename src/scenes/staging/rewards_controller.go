@@ -35,6 +35,7 @@ type rewardsController struct {
 type gameRewards struct {
 	newAchievements      []string
 	upgradedAchievements []string
+	newCores             []string
 	newDrones            []gamedata.ColonyAgentKind
 	newTurrets           []gamedata.ColonyAgentKind
 }
@@ -42,6 +43,7 @@ type gameRewards struct {
 func (rewards *gameRewards) IsEmpty() bool {
 	return len(rewards.newAchievements) == 0 &&
 		len(rewards.upgradedAchievements) == 0 &&
+		len(rewards.newCores) == 0 &&
 		len(rewards.newDrones) == 0 &&
 		len(rewards.newTurrets) == 0
 }
@@ -129,6 +131,9 @@ func (c *rewardsController) initUI() {
 	}
 	for _, a := range c.rewards.upgradedAchievements {
 		c.lines = append(c.lines, [2]string{d.Get("menu.results.upgraded_achievement"), d.Get("achievement", a)})
+	}
+	for _, name := range c.rewards.newCores {
+		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_core"), d.Get("core", name)})
 	}
 	for _, kind := range c.rewards.newDrones {
 		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_drone"), d.Get("drone", strings.ToLower(kind.String()))})

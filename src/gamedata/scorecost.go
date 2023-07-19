@@ -6,6 +6,8 @@ const (
 	InfArenaModeCost int = 4000
 	ReverseModeCost  int = 7500
 
+	ArkCoreCost int = 2500
+
 	RoombaDroneCost        int = 1000
 	MortarDroneCost        int = 1500
 	AntiAirDroneCost       int = 2500

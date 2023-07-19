@@ -578,24 +578,29 @@ func (c *creepNode) findTargets() []targetable {
 		return targets
 	}
 
-	if len(targets) >= maxTargets || skipGroundTargets {
-		return targets
-	}
-
-	for _, colony := range c.world.constructions {
-		if len(targets) >= maxTargets {
-			return targets
-		}
-		if colony.pos.DistanceSquaredTo(c.pos) > c.stats.Weapon.AttackRangeSqr {
-			continue
-		}
-		targets = append(targets, colony)
-	}
-
 	if len(targets) >= maxTargets {
 		return targets
 	}
+
+	if !skipGroundTargets {
+		for _, colony := range c.world.constructions {
+			if len(targets) >= maxTargets {
+				return targets
+			}
+			if colony.pos.DistanceSquaredTo(c.pos) > c.stats.Weapon.AttackRangeSqr {
+				continue
+			}
+			targets = append(targets, colony)
+		}
+		if len(targets) >= maxTargets {
+			return targets
+		}
+	}
+
 	randIterate(c.world.rand, c.world.allColonies, func(colony *colonyCoreNode) bool {
+		if !colony.IsFlying() && skipGroundTargets {
+			return false
+		}
 		if colony.pos.DistanceSquaredTo(c.pos) > c.stats.Weapon.AttackRangeSqr {
 			return false
 		}

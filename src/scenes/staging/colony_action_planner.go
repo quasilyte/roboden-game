@@ -135,6 +135,7 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 	}
 
 	selectedColony := gmath.RandElem(p.world.rand, *potentialTargets)
+	maxVisualResources := selectedColony.maxVisualResources()
 	if p.colony.resources >= maxVisualResources && selectedColony.resources >= maxVisualResources {
 		return colonyAction{}
 	}
@@ -168,7 +169,7 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	if p.colony.agents.NumAvailableWorkers() == 0 {
 		return colonyAction{}
 	}
-	baseNeedsResources := p.colony.resources <= maxVisualResources
+	baseNeedsResources := p.colony.resources <= p.colony.maxVisualResources()
 	if !baseNeedsResources {
 		return colonyAction{}
 	}

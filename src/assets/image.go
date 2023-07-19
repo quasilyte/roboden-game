@@ -40,11 +40,12 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 
 		ImageLock: {Path: "image/ui/lock.png"},
 
-		ImageSmallShadow:      {Path: "image/shadows/small_shadow.png"},
-		ImageMediumShadow:     {Path: "image/shadows/medium_shadow.png"},
-		ImageBigShadow:        {Path: "image/shadows/big_shadow.png"},
-		ImageUberBossShadow:   {Path: "image/shadows/uber_boss_shadow.png"},
-		ImageColonyCoreShadow: {Path: "image/shadows/colony_core_shadow.png"},
+		ImageSmallShadow:    {Path: "image/shadows/small_shadow.png"},
+		ImageMediumShadow:   {Path: "image/shadows/medium_shadow.png"},
+		ImageBigShadow:      {Path: "image/shadows/big_shadow.png"},
+		ImageUberBossShadow: {Path: "image/shadows/uber_boss_shadow.png"},
+		ImageDenShadow:      {Path: "image/shadows/den_shadow.png"},
+		ImageArkShadow:      {Path: "image/shadows/ark_shadow.png"},
 
 		ImageCursor: {Path: "image/cursor.png"},
 
@@ -91,9 +92,10 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageActionIncreaseTech:   {Path: "image/ui/action_increase_tech.png"},
 		ImageActionAbomb:          {Path: "image/ui/action_abomb.png"},
 
-		ImageTeleportEffect:             {Path: "image/effects/teleport.png", FrameWidth: 100},
-		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 50},
-		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 50},
+		ImageTeleportEffectSmall:        {Path: "image/effects/teleport_effect_small.png", FrameWidth: 32},
+		ImageTeleportEffectBig:          {Path: "image/effects/teleport_effect_big.png", FrameWidth: 64},
+		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 24},
+		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 24},
 		ImageFireTrail:                  {Path: "image/effects/fire_trail.png", FrameWidth: 7},
 		ImageRoombaLaserTrail:           {Path: "image/effects/roomba_shot_trail.png", FrameWidth: 7},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
@@ -108,10 +110,16 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageShockerExplosion:           {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
 		ImageFighterLaserExplosion:      {Path: "image/effects/fighter_laser_explosion.png", FrameWidth: 14},
 		ImageHeavyCrawlerLaserExplosion: {Path: "image/effects/heavy_crawler_laser_explosion.png", FrameWidth: 14},
-		ImageSmallExplosion1:            {Path: "image/effects/small_explosion1.png", FrameWidth: 32},
-		ImagePurpleExplosion:            {Path: "image/effects/purple_explosion.png", FrameWidth: 40},
-		ImageVerticalExplosion:          {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
-		ImageBigVerticalExplosion:       {Path: "image/effects/big_vertical_explosion.png", FrameWidth: 38},
+		ImageSmallExplosion1:            {Path: "image/effects/small_explosion1.png", FrameWidth: 16},
+		ImageSmallExplosion2:            {Path: "image/effects/small_explosion2.png", FrameWidth: 16},
+		ImageSmallExplosion3:            {Path: "image/effects/small_explosion3.png", FrameWidth: 20},
+		ImageSmallExplosion4:            {Path: "image/effects/small_explosion4.png", FrameWidth: 16},
+		ImagePurpleExplosion:            {Path: "image/effects/purple_explosion.png", FrameWidth: 30},
+		ImageVerticalExplosion1:         {Path: "image/effects/vertical_explosion1.png", FrameWidth: 30},
+		ImageVerticalExplosion2:         {Path: "image/effects/vertical_explosion2.png", FrameWidth: 32},
+		ImageBigVerticalExplosion1:      {Path: "image/effects/big_vertical_explosion1.png", FrameWidth: 46},
+		ImageBigVerticalExplosion2:      {Path: "image/effects/big_vertical_explosion2.png", FrameWidth: 64},
+		ImageNuclearExplosion:           {Path: "image/effects/nuclear_explosion.png", FrameWidth: 128},
 		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 64},
 		ImageIonZap:                     {Path: "image/effects/ion_zap.png", FrameWidth: 28},
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
@@ -129,10 +137,15 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageTeleporter:       {Path: "image/teleporter.png"},
 		ImageTeleporterLights: {Path: "image/teleporter_lights.png"},
 
-		ImageDenCoreSelector:      {Path: "image/colonies/den_core_selector.png"},
-		ImageDenCoreAllianceColor: {Path: "image/colonies/den_core_alliance_color.png"},
 		ImageDenCore:              {Path: "image/colonies/den_core.png"},
 		ImageDenCoreFlying:        {Path: "image/colonies/den_core_flying.png"},
+		ImageDenCoreSelector:      {Path: "image/colonies/den_core_selector.png"},
+		ImageDenCoreAllianceColor: {Path: "image/colonies/den_core_alliance_color.png"},
+
+		ImageArkCore:              {Path: "image/colonies/ark_core.png"},
+		ImageArkCoreFlying:        {Path: "image/colonies/ark_core_flying.png"},
+		ImageArkCoreSelector:      {Path: "image/colonies/ark_core_selector.png"},
+		ImageArkCoreAllianceColor: {Path: "image/colonies/ark_core_alliance_color.png"},
 
 		ImageColonyResourceBar1: {Path: "image/colonies/colony_resource_bar1.png"},
 		ImageColonyResourceBar2: {Path: "image/colonies/colony_resource_bar2.png"},
@@ -369,7 +382,8 @@ const (
 	ImageFireTrail
 	ImageRoombaLaserTrail
 	ImageProjectileSmoke
-	ImageTeleportEffect
+	ImageTeleportEffectBig
+	ImageTeleportEffectSmall
 	ImageMergingComplete
 	ImageCloningComplete
 	ImagePrismShotExplosion
@@ -384,9 +398,15 @@ const (
 	ImageFighterLaserExplosion
 	ImageHeavyCrawlerLaserExplosion
 	ImageSmallExplosion1
+	ImageSmallExplosion2
+	ImageSmallExplosion3
+	ImageSmallExplosion4
 	ImagePurpleExplosion
-	ImageVerticalExplosion
-	ImageBigVerticalExplosion
+	ImageVerticalExplosion1
+	ImageVerticalExplosion2
+	ImageBigVerticalExplosion1
+	ImageBigVerticalExplosion2
+	ImageNuclearExplosion
 	ImageBigExplosion
 	ImageIonZap
 	ImagePurpleIonZap
@@ -442,13 +462,21 @@ const (
 	ImageColonyResourceBar1
 	ImageColonyResourceBar2
 	ImageColonyResourceBar3
-	ImageDenCoreSelector
-	ImageDenCoreAllianceColor
+
 	ImageDenCore
 	ImageDenCoreFlying
+	ImageDenCoreSelector
+	ImageDenCoreAllianceColor
+
+	ImageArkCore
+	ImageArkCoreFlying
+	ImageArkCoreSelector
+	ImageArkCoreAllianceColor
+
 	ImageColonyCoreHatch
 	ImageColonyCoreDiode
-	ImageColonyCoreShadow
+	ImageArkShadow
+	ImageDenShadow
 	ImageTeleporter
 	ImageTeleporterLights
 	ImageHarvesterAgent

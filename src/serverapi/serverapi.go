@@ -89,6 +89,7 @@ type ReplayLevelConfig struct {
 	Tier2Recipes         []string `json:"tier2_recipes"`
 
 	TurretDesign string `json:"turret_design"`
+	CoreDesign   string `json:"core_design"`
 }
 
 type LeaderboardResp struct {

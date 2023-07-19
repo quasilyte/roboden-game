@@ -53,6 +53,7 @@ type worldState struct {
 	tier2recipes     []gamedata.AgentMergeRecipe
 	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
 	turretDesign     *gamedata.AgentStats
+	coreDesign       *gamedata.ColonyCoreStats
 
 	droneLabels      bool
 	debugLogs        bool

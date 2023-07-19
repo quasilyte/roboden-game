@@ -59,6 +59,7 @@ func inferDefaultLang() string {
 }
 
 type Result struct {
+	CoresUnlocked   []string
 	DronesUnlocked  []gamedata.ColonyAgentKind
 	TurretsUnlocked []gamedata.ColonyAgentKind
 }
@@ -67,6 +68,21 @@ func Update(state *session.State) *Result {
 	result := &Result{}
 
 	stats := &state.Persistent.PlayerStats
+
+	coresUnlocked := map[string]struct{}{}
+	for _, name := range stats.CoresUnlocked {
+		coresUnlocked[name] = struct{}{}
+	}
+	for _, core := range gamedata.CoreStatsList {
+		if _, ok := coresUnlocked[core.Name]; ok {
+			continue
+		}
+		if core.ScoreCost > stats.TotalScore {
+			continue
+		}
+		result.CoresUnlocked = append(result.CoresUnlocked, core.Name)
+		stats.CoresUnlocked = append(stats.CoresUnlocked, core.Name)
+	}
 
 	alreadyUnlocked := map[gamedata.ColonyAgentKind]struct{}{}
 	for _, name := range stats.DronesUnlocked {

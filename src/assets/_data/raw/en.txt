@@ -79,6 +79,7 @@
 ##menu.profile.progress.achievements : Achievements
 ##menu.profile.progress.modes_unlocked : Game modes unlocked
 ##menu.profile.progress.bases_unlocked : Colonies unlocked
+##menu.profile.progress.cores_unlocked : Colonies unlocked
 ##menu.profile.progress.turrets_unlocked : Turrets unlocked
 ##menu.profile.progress.drones_unlocked : Tier 2 drones unlocked
 ##menu.profile.progress.t3drones_seen : Tier 3 drones discovered
@@ -301,6 +302,7 @@ Make them really rare or appear almost everywhere.
 ##menu.results.new_achievement : New achievement
 ##menu.results.upgraded_achievement : Upgraded achievement
 ##menu.results.new_record : local record
+##menu.results.new_core : Colony unlocked
 ##menu.results.new_drone : Drone unlocked
 ##menu.results.new_turret : Turret unlocked
 

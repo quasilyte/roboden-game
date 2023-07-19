@@ -60,10 +60,44 @@ func LockedDroneText(d *langs.Dictionary, stats *session.PlayerStats, drone *gam
 }
 
 func LockedTurretText(d *langs.Dictionary, stats *session.PlayerStats, drone *gamedata.AgentStats) string {
-	textLines := make([]string, 0, 4)
+	textLines := make([]string, 0, 3)
 	textLines = append(textLines, d.Get("turret.locked"))
 	textLines = append(textLines, "")
 	textLines = append(textLines, fmt.Sprintf("%s: %d/%d", d.Get("drone.score_required"), stats.TotalScore, drone.ScoreCost))
+	return strings.Join(textLines, "\n")
+}
+
+func CoreText(d *langs.Dictionary, core *gamedata.ColonyCoreStats) string {
+	textLines := make([]string, 0, 6)
+	textLines = append(textLines, fmt.Sprintf("%s\n", d.Get("core", core.Name)))
+	textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(core.MobilityRating), d.Get("core.mobility_rating")))
+	textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(core.UnitLimitRating), d.Get("core.unit_limit_rating")))
+	textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(core.DefenseRating), d.Get("drone.defense_rating")))
+	textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(core.CapacityRating), d.Get("core.capacity_rating")))
+
+	var traits []string
+	switch core {
+	case gamedata.DenCoreStats:
+		traits = append(traits, d.Get("core.ability.crush"))
+	case gamedata.ArkCoreStats:
+		traits = append(traits, d.Get("core.ability.flying"))
+		traits = append(traits, d.Get("core.ability.no_teleporters"))
+	}
+	if len(traits) != 0 {
+		textLines = append(textLines, "")
+	}
+	for _, t := range traits {
+		textLines = append(textLines, "> "+t)
+	}
+
+	return strings.Join(textLines, "\n")
+}
+
+func LockedCoreText(d *langs.Dictionary, stats *session.PlayerStats, core *gamedata.ColonyCoreStats) string {
+	textLines := make([]string, 0, 3)
+	textLines = append(textLines, d.Get("core.locked"))
+	textLines = append(textLines, "")
+	textLines = append(textLines, fmt.Sprintf("%s: %d/%d", d.Get("drone.score_required"), stats.TotalScore, core.ScoreCost))
 	return strings.Join(textLines, "\n")
 }
 

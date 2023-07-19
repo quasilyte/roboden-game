@@ -16,13 +16,10 @@ import (
 )
 
 const (
-	coreFlightHeight   float64 = 50
-	maxUpkeepValue     int     = 800
-	maxEvoPoints       float64 = 20
-	maxEvoGain         float64 = 1.0
-	blueEvoThreshold   float64 = 15.0
-	maxResources       float64 = 500.0
-	maxVisualResources float64 = maxResources - 100.0
+	maxUpkeepValue   int     = 800
+	maxEvoPoints     float64 = 20
+	maxEvoGain       float64 = 1.0
+	blueEvoThreshold float64 = 15.0
 )
 
 type colonyCoreMode int
@@ -50,6 +47,8 @@ type colonyCoreNode struct {
 	flyingResourceRects []*ge.Sprite
 	otherShader         ge.Shader
 
+	stats *gamedata.ColonyCoreStats
+
 	shadowComponent shadowComponent
 
 	player player
@@ -59,10 +58,12 @@ type colonyCoreNode struct {
 	hatchFlashComponent damageFlashComponent
 
 	pos           gmath.Vec
-	height        float64
 	maxHealth     float64
 	health        float64
 	teleportDelay float64
+
+	maxSpeed    float64
+	maxJumpDist float64
 
 	activatedTeleport *teleporterNode
 
@@ -126,11 +127,15 @@ type colonyConfig struct {
 }
 
 func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
+	stats := config.World.coreDesign
 	c := &colonyCoreNode{
-		world:      config.World,
-		realRadius: config.Radius,
-		maxHealth:  100,
-		player:     config.Player,
+		world:       config.World,
+		realRadius:  config.Radius,
+		maxHealth:   stats.MaxHealth,
+		maxSpeed:    stats.Speed * 3,
+		maxJumpDist: stats.JumpDist + 150,
+		player:      config.Player,
+		stats:       stats,
 	}
 	c.realRadiusSqr = c.realRadius * c.realRadius
 	c.priorities = newWeightContainer(priorityResources, priorityGrowth, priorityEvolution, prioritySecurity)
@@ -151,11 +156,11 @@ func (c *colonyCoreNode) spriteWithAlliance(imageID resource.ImageID) *ge.Sprite
 		paintedImg := ebiten.NewImage(img.Data.Size())
 		var drawOptions ebiten.DrawImageOptions
 		paintedImg.DrawImage(img.Data, &drawOptions)
-		drawOptions.GeoM.Translate(0, 27)
+		drawOptions.GeoM.Translate(c.stats.AllianceColorOffset.X, c.stats.AllianceColorOffset.Y)
 		if c.player.GetState().id != 0 {
 			drawOptions.ColorM.RotateHue(float64(gmath.DegToRad(-70)))
 		}
-		paintedImg.DrawImage(c.scene.LoadImage(assets.ImageDenCoreAllianceColor).Data, &drawOptions)
+		paintedImg.DrawImage(c.scene.LoadImage(c.stats.AllianceColorImageID()).Data, &drawOptions)
 		sprite := ge.NewSprite(c.scene.Context())
 		sprite.SetImage(resource.Image{Data: paintedImg})
 		return sprite
@@ -178,16 +183,20 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.otherShader = scene.NewShader(assets.ShaderColonyTeleport)
 	}
 
-	c.sprite = c.spriteWithAlliance(assets.ImageDenCore)
+	c.sprite = c.spriteWithAlliance(c.stats.Image)
 	c.sprite.Pos.Base = &c.pos
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 		c.sprite.Shader.SetFloatValue("HP", 1.0)
 		c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
 	}
-	c.world.stage.AddSprite(c.sprite)
+	if c.stats == gamedata.ArkCoreStats {
+		c.world.stage.AddSpriteSlightlyAbove(c.sprite)
+	} else {
+		c.world.stage.AddSprite(c.sprite)
+	}
 
-	c.flyingSprite = c.spriteWithAlliance(assets.ImageDenCoreFlying)
+	c.flyingSprite = c.spriteWithAlliance(c.stats.FlyingImageID())
 	c.flyingSprite.Pos.Base = &c.pos
 	c.flyingSprite.Visible = false
 	if c.world.graphicsSettings.AllShadersEnabled {
@@ -197,8 +206,12 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
 	c.hatch.Pos.Base = &c.pos
-	c.hatch.Pos.Offset.Y = -20
-	c.world.stage.AddSprite(c.hatch)
+	c.hatch.Pos.Offset.Y = c.stats.HatchOffsetY + 2
+	if c.stats == gamedata.ArkCoreStats {
+		c.world.stage.AddSpriteSlightlyAbove(c.hatch)
+	} else {
+		c.world.stage.AddSprite(c.hatch)
+	}
 
 	c.flashComponent.sprite = c.sprite
 	c.hatchFlashComponent.sprite = c.hatch
@@ -206,11 +219,15 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
 	c.evoDiode.Pos.Base = &c.pos
 	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
-	c.world.stage.AddSprite(c.evoDiode)
+	if c.stats == gamedata.ArkCoreStats {
+		c.world.stage.AddSpriteSlightlyAbove(c.evoDiode)
+	} else {
+		c.world.stage.AddSprite(c.evoDiode)
+	}
 
 	if c.world.graphicsSettings.ShadowsEnabled {
-		c.shadowComponent.Init(c.world, assets.ImageColonyCoreShadow)
-		c.shadowComponent.offset = 10
+		c.shadowComponent.Init(c.world, c.stats.Shadow)
+		c.shadowComponent.offset = c.stats.ShadowOffsetY
 	}
 
 	c.resourceRects = make([]*ge.Sprite, 3)
@@ -235,10 +252,16 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	makeResourceRects(c.flyingResourceRects, true)
 
 	c.markCells(c.pos)
+
+	if c.stats == gamedata.ArkCoreStats {
+		c.shadowComponent.SetVisibility(true)
+		c.relocationPoint = c.pos
+		c.enterTakeoffMode()
+	}
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
-	return c.mode != colonyModeNormal
+	return c.shadowComponent.height > 0
 }
 
 func (c *colonyCoreNode) MaxFlyDistanceSqr() float64 {
@@ -247,7 +270,7 @@ func (c *colonyCoreNode) MaxFlyDistanceSqr() float64 {
 }
 
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
-	return gmath.ClampMax(350+float64(c.agents.servoNum*10.0), 500)
+	return gmath.ClampMax(c.stats.JumpDist+float64(c.agents.servoNum*10.0), c.maxJumpDist)
 }
 
 func (c *colonyCoreNode) PatrolRadius() float64 {
@@ -280,11 +303,11 @@ func (c *colonyCoreNode) OnHeal(amount float64) {
 func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 	c.health -= damage.Health
 	if c.health < 0 {
-		if c.height == 0 {
+		if c.shadowComponent.height == 0 {
 			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
 		} else {
 			shadowImg := c.shadowComponent.GetImageID()
-			fall := newDroneFallNode(c.world, nil, assets.ImageDenCore, shadowImg, c.pos, c.height)
+			fall := newDroneFallNode(c.world, nil, c.stats.Image, shadowImg, c.pos, c.shadowComponent.height)
 			c.world.nodeRunner.AddObject(fall)
 			fall.sprite.Shader = c.sprite.Shader
 		}
@@ -323,7 +346,7 @@ func (c *colonyCoreNode) Destroy() {
 }
 
 func (c *colonyCoreNode) GetEntrancePos() gmath.Vec {
-	return c.pos.Add(gmath.Vec{X: -1, Y: -22})
+	return c.pos.Add(gmath.Vec{X: -1, Y: c.stats.HatchOffsetY})
 }
 
 func (c *colonyCoreNode) GetStoragePos() gmath.Vec {
@@ -493,8 +516,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 				return
 			}
 			a.pos = c.relocationPoint.Add(c.world.rand.Offset(-38, 38))
-			e := newEffectNode(c.world, a.pos, true, assets.ImageTeleportEffect)
-			e.scale = 0.5
+			e := newEffectNode(c.world, a.pos, true, assets.ImageTeleportEffectSmall)
 			c.world.nodeRunner.AddObject(e)
 			a.AssignMode(agentModePosing, gmath.Vec{X: c.world.rand.FloatRange(0.5, 2.5)}, nil)
 		})
@@ -505,7 +527,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		c.markCells(c.pos)
 		c.stopTeleportationEffect()
 
-		c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, false, assets.ImageTeleportEffect))
+		c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, false, assets.ImageTeleportEffectBig))
 
 		c.EventTeleported.Emit(c)
 	}
@@ -515,10 +537,10 @@ func (c *colonyCoreNode) movementSpeed() float64 {
 	switch c.mode {
 	case colonyModeTakeoff, colonyModeLanding:
 		speed := 12 + float64(c.agents.servoNum) + float64(c.tether*5)
-		return gmath.ClampMax(speed, 25)
+		return gmath.ClampMax(speed, c.maxSpeed)
 	case colonyModeRelocating:
-		speed := 18.0 + float64(c.agents.servoNum*3) + float64(c.tether*15)
-		return gmath.ClampMax(speed, 50)
+		speed := c.stats.Speed + float64(c.agents.servoNum*3) + float64(c.tether*15)
+		return gmath.ClampMax(speed, c.maxSpeed)
 	default:
 		return 0
 	}
@@ -534,6 +556,10 @@ func (c *colonyCoreNode) updateEvoDiode() {
 	c.evoDiode.FrameOffset.X = offset
 }
 
+func (c *colonyCoreNode) maxVisualResources() float64 {
+	return c.stats.ResourcesLimit - 100
+}
+
 func (c *colonyCoreNode) updateResourceRects() {
 	if c.mode == colonyModeTeleporting {
 		return
@@ -546,7 +572,7 @@ func (c *colonyCoreNode) updateResourceRects() {
 		slice = c.resourceRects
 	}
 
-	const resourcesPerBlock float64 = maxVisualResources / 3
+	resourcesPerBlock := c.maxVisualResources() / 3
 	unallocated := c.resources
 	for i, rect := range slice {
 		var percentage float64
@@ -574,7 +600,7 @@ func (c *colonyCoreNode) calcUnitLimit() int {
 		// 80% => 42 extra units
 		calculated += (growth - 0.1) * 60
 	}
-	return gmath.Clamp(int(calculated), 10, 160)
+	return gmath.Clamp(int(calculated), 10, c.stats.DroneLimit)
 }
 
 func (c *colonyCoreNode) calcUpkeed() (float64, int) {
@@ -660,10 +686,34 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 	}
 }
 
+func (c *colonyCoreNode) switchSprite(flying bool) {
+	for _, rect := range c.flyingResourceRects {
+		rect.Visible = false
+	}
+
+	c.flyingSprite.Visible = flying
+	c.sprite.Visible = !flying
+	c.hatch.Visible = !flying
+	c.evoDiode.Visible = !flying
+	c.openHatchTime = 0
+
+	if flying {
+		c.flashComponent.ChangeSprite(c.flyingSprite)
+	} else {
+		c.flashComponent.ChangeSprite(c.sprite)
+	}
+
+	c.updateResourceRects()
+}
+
+func (c *colonyCoreNode) enterTakeoffMode() {
+	c.mode = colonyModeTakeoff
+	c.switchSprite(true)
+	c.waypoint = c.pos.Sub(gmath.Vec{Y: c.stats.FlightHeight})
+}
+
 func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 	c.relocationPoint = pos
-
-	c.unmarkCells(c.pos)
 
 	c.agents.Each(func(a *colonyAgentNode) {
 		a.clearCargo()
@@ -677,32 +727,35 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	})
 
-	c.mode = colonyModeTakeoff
-	c.openHatchTime = 0
+	switch c.stats {
+	case gamedata.DenCoreStats:
+		c.unmarkCells(c.pos)
+		c.shadowComponent.SetVisibility(true)
+		c.enterTakeoffMode()
 
-	c.shadowComponent.SetVisibility(true)
-	c.flyingSprite.Visible = true
-	c.flashComponent.ChangeSprite(c.flyingSprite)
-	c.sprite.Visible = false
-	c.hatch.Visible = false
-	c.evoDiode.Visible = false
-	for _, rect := range c.resourceRects {
-		rect.Visible = false
+	case gamedata.ArkCoreStats:
+		c.mode = colonyModeRelocating
+		c.waypoint = c.relocationPoint
+		c.switchSprite(true)
 	}
-	c.updateResourceRects()
-	c.waypoint = c.pos.Sub(gmath.Vec{Y: coreFlightHeight})
+
 }
 
 func (c *colonyCoreNode) updateTakeoff(delta float64) {
 	speed := c.movementSpeed()
 	height := c.shadowComponent.height + delta*speed
 	if c.moveTowards(delta, speed, c.waypoint) {
-		height = coreFlightHeight
-		c.waypoint = c.relocationPoint.Sub(gmath.Vec{Y: coreFlightHeight})
-		c.mode = colonyModeRelocating
+		height = c.stats.FlightHeight
+		switch c.stats {
+		case gamedata.DenCoreStats:
+			c.waypoint = c.relocationPoint.Sub(gmath.Vec{Y: c.stats.FlightHeight})
+			c.mode = colonyModeRelocating
+		case gamedata.ArkCoreStats:
+			c.enterNormalMode()
+		}
 	}
 	c.shadowComponent.UpdatePos(c.pos)
-	c.shadowComponent.UpdateHeight(c.pos, height, coreFlightHeight)
+	c.shadowComponent.UpdateHeight(c.pos, height, c.stats.FlightHeight)
 }
 
 func (c *colonyCoreNode) startLanding() {
@@ -717,21 +770,50 @@ func (c *colonyCoreNode) startLanding() {
 
 func (c *colonyCoreNode) updateRelocating(delta float64) {
 	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
-		// The landing spot could be unavailable by the moment we reach it.
-		coord := c.world.pathgrid.PosToCoord(c.relocationPoint)
-		if c.world.CellIsFree2x2(coord) {
-			c.startLanding()
-			return
+		switch c.stats {
+		case gamedata.DenCoreStats:
+			// The landing spot could be unavailable by the moment we reach it.
+			coord := c.world.pathgrid.PosToCoord(c.relocationPoint)
+			if c.world.CellIsFree2x2(coord) {
+				c.startLanding()
+				return
+			}
+			newSpot := c.findLandingSpot(coord, true)
+			if !newSpot.IsZero() {
+				c.relocationPoint = newSpot
+				c.waypoint = newSpot.Sub(gmath.Vec{Y: c.stats.FlightHeight})
+			} else {
+				c.startLanding()
+			}
+
+		case gamedata.ArkCoreStats:
+			newSpot := c.findArkHoverSpot()
+			if c.pos == newSpot {
+				c.enterNormalMode()
+			} else {
+				c.relocationPoint = newSpot
+				c.waypoint = newSpot
+			}
 		}
-		newSpot := c.findLandingSpot(coord, true)
-		if !newSpot.IsZero() {
-			c.relocationPoint = newSpot
-			c.waypoint = newSpot.Sub(gmath.Vec{Y: coreFlightHeight})
-		} else {
-			c.startLanding()
-		}
+
 	}
 	c.shadowComponent.UpdatePos(c.pos)
+}
+
+func (c *colonyCoreNode) findArkHoverSpot() gmath.Vec {
+	for _, other := range c.world.allColonies {
+		if c == other {
+			continue
+		}
+		if other.pos.DistanceSquaredTo(c.pos) < (pathing.CellSize*pathing.CellSize)+5 {
+			offset := gmath.RandElem(c.world.rand, colonyNear2x2CellOffsets)
+			return c.pos.Add(gmath.Vec{
+				X: float64(offset.X) * pathing.CellSize,
+				Y: float64(offset.Y) * pathing.CellSize,
+			})
+		}
+	}
+	return c.pos
 }
 
 func (c *colonyCoreNode) findLandingSpot(coord pathing.GridCoord, recurse bool) gmath.Vec {
@@ -755,32 +837,27 @@ func (c *colonyCoreNode) findLandingSpot(coord pathing.GridCoord, recurse bool) 
 	return freePos
 }
 
+func (c *colonyCoreNode) enterNormalMode() {
+	c.waypoint = gmath.Vec{}
+	c.relocationPoint = gmath.Vec{}
+	c.mode = colonyModeNormal
+	c.switchSprite(false)
+}
+
 func (c *colonyCoreNode) updateLanding(delta float64) {
 	speed := c.movementSpeed()
 	height := c.shadowComponent.height - delta*speed
 	if c.moveTowards(delta, speed, c.waypoint) {
-		c.waypoint = gmath.Vec{}
-		c.relocationPoint = gmath.Vec{}
-		c.height = 0
-		c.mode = colonyModeNormal
-		c.flyingSprite.Visible = false
-		c.hatchFlashComponent.resetColors()
-		c.flashComponent.ChangeSprite(c.sprite)
+		height = 0
+		c.enterNormalMode()
 		c.shadowComponent.SetVisibility(false)
-		for _, rect := range c.flyingResourceRects {
-			rect.Visible = false
-		}
-		c.updateResourceRects()
-		c.sprite.Visible = true
-		c.hatch.Visible = true
-		c.evoDiode.Visible = true
 		playSound(c.world, assets.AudioColonyLanded, c.pos)
 		c.createLandingSmokeEffect()
 		c.crushCrawlers()
 		c.maybeTeleport()
 	}
 	c.shadowComponent.UpdatePos(c.pos)
-	c.shadowComponent.UpdateHeight(c.pos, height, coreFlightHeight)
+	c.shadowComponent.UpdateHeight(c.pos, height, c.stats.FlightHeight)
 }
 
 func (c *colonyCoreNode) maybeTeleport() {
@@ -815,7 +892,7 @@ func (c *colonyCoreNode) maybeTeleport() {
 func (c *colonyCoreNode) crushCrawlers() {
 	// FIXME: use a grid here.
 	const crushRangeSqr = 24.0 * 24.0
-	const explodeRangeSqr = 38.0 * 38.0
+	const explodeRangeSqr = 42.0 * 42.0
 	crushPos := c.pos.Add(gmath.Vec{Y: 4})
 	for _, creep := range c.world.creeps {
 		if creep.stats.Kind != gamedata.CreepCrawler {
@@ -1068,8 +1145,8 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			c.eliteResources--
 			a.rank = 1
 		}
-		a.SetHeight(0)
 		c.world.nodeRunner.AddObject(a)
+		a.SetHeight(c.shadowComponent.height)
 		c.world.result.DronesProduced++
 		c.resources -= a.stats.Cost
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)

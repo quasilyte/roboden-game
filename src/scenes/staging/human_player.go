@@ -229,7 +229,8 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 		flying := p.state.selectedColony.IsFlying()
 		p.colonySelector.Visible = !flying
 		p.flyingColonySelector.Visible = flying
-		p.colonyDestination.Visible = !p.state.selectedColony.relocationPoint.IsZero()
+		p.colonyDestination.Visible = !p.state.selectedColony.relocationPoint.IsZero() &&
+			p.state.selectedColony.mode != colonyModeTeleporting
 	}
 
 	if p.radar != nil {

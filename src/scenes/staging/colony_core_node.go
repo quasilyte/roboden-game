@@ -672,6 +672,9 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 }
 
 func (c *colonyCoreNode) processUpkeep(delta float64) {
+	if c.resources > c.maxVisualResources() {
+		c.resources = gmath.ClampMin(c.resources-delta, 0)
+	}
 	c.upkeepDelay -= delta
 	if c.upkeepDelay > 0 {
 		return

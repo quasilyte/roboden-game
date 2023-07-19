@@ -64,7 +64,6 @@ func (e *effectNode) Init(scene *ge.Scene) {
 	}
 	if e.anim == nil {
 		e.anim = ge.NewAnimation(sprite, -1)
-		e.anim.SetSecondsPerFrame(0.05)
 	}
 }
 

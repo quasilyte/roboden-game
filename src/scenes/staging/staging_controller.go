@@ -338,25 +338,26 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	world := &worldState{
-		sessionState:     c.state,
-		cameras:          make([]*viewport.Camera, 0, 2),
-		stage:            viewport.NewCameraStage(c.config.ExecMode == gamedata.ExecuteSimulation),
-		rootScene:        scene,
-		nodeRunner:       c.nodeRunner,
-		graphicsSettings: c.state.Persistent.Settings.Graphics,
-		pathgrid:         pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
-		config:           &c.config,
-		gameSettings:     &c.state.Persistent.Settings,
-		deviceInfo:       c.state.Device,
-		hintsMode:        c.state.Persistent.Settings.HintMode,
-		debugLogs:        c.state.Persistent.Settings.DebugLogs,
-		droneLabels:      c.state.Persistent.Settings.DebugDroneLabels && c.config.ExecMode == gamedata.ExecuteNormal,
-		rand:             scene.Rand(),
-		localRand:        &localRand,
-		tmpTargetSlice:   make([]targetable, 0, 20),
-		tmpColonySlice:   make([]*colonyCoreNode, 0, 4),
-		width:            viewportWorld.Width,
-		height:           viewportWorld.Height,
+		sessionState:         c.state,
+		cameras:              make([]*viewport.Camera, 0, 2),
+		stage:                viewport.NewCameraStage(c.config.ExecMode == gamedata.ExecuteSimulation),
+		rootScene:            scene,
+		nodeRunner:           c.nodeRunner,
+		graphicsSettings:     c.state.Persistent.Settings.Graphics,
+		pathgrid:             pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
+		config:               &c.config,
+		gameSettings:         &c.state.Persistent.Settings,
+		deviceInfo:           c.state.Device,
+		hintsMode:            c.state.Persistent.Settings.HintMode,
+		debugLogs:            c.state.Persistent.Settings.DebugLogs,
+		droneLabels:          c.state.Persistent.Settings.DebugDroneLabels && c.config.ExecMode == gamedata.ExecuteNormal,
+		cameraShakingEnabled: c.state.Persistent.Settings.Graphics.CameraShakingEnabled,
+		rand:                 scene.Rand(),
+		localRand:            &localRand,
+		tmpTargetSlice:       make([]targetable, 0, 20),
+		tmpColonySlice:       make([]*colonyCoreNode, 0, 4),
+		width:                viewportWorld.Width,
+		height:               viewportWorld.Height,
 		rect: gmath.Rect{
 			Max: gmath.Vec{
 				X: viewportWorld.Width,
@@ -383,6 +384,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 	world.EventCheckDefeatState.Connect(c, func(gsignal.Void) {
 		c.checkDefeat()
 	})
+
+	if world.cameraShakingEnabled {
+		world.EventCameraShake.Connect(c, c.onCameraShake)
+	}
 
 	if c.config.FogOfWar && !c.world.simulation {
 		fogOfWar := ebiten.NewImage(int(world.width), int(world.height))
@@ -512,6 +517,15 @@ func (c *Controller) Init(scene *ge.Scene) {
 		for _, colony := range c.world.allColonies {
 			c.updateFogOfWar(colony.pos)
 		}
+	}
+}
+
+func (c *Controller) onCameraShake(cameraShake CameraShakeData) {
+	for _, cam := range c.world.cameras {
+		if !cam.ContainsPos(cameraShake.Pos) {
+			continue
+		}
+		cam.Shake(cameraShake.Power)
 	}
 }
 

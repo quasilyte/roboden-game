@@ -48,8 +48,10 @@ func main() {
 		Persistent: session.PersistentData{
 			Settings: session.GameSettings{
 				Graphics: session.GraphicsSettings{
-					ShadowsEnabled:    false,
-					AllShadersEnabled: false,
+					ShadowsEnabled:       false,
+					AllShadersEnabled:    false,
+					VSyncEnabled:         false,
+					CameraShakingEnabled: false,
 				},
 				MusicVolumeLevel:   0,
 				EffectsVolumeLevel: 0,

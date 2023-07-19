@@ -223,6 +223,24 @@ func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool)
 		X: rect.Max.X - rect.Width()*0.5,
 		Y: rect.Max.Y - rect.Height()*0.5,
 	}
+
+	if world.cameraShakingEnabled {
+		// TODO: use max() here.
+		rectWidth := rect.Width()
+		rectHeight := rect.Height()
+		maxSideSize := rectWidth
+		if rectHeight > rectWidth {
+			maxSideSize = rectHeight
+		}
+		shakePower := 0
+		if maxSideSize >= 32 {
+			shakePower = 15 + (int(maxSideSize) - 32)
+		}
+		if shakePower != 0 {
+			world.ShakeCamera(shakePower, center)
+		}
+	}
+
 	size := rect.Width() * rect.Height()
 	minExplosions := gmath.ClampMin(size/120.0, 1)
 	numExplosions := world.rand.IntRange(int(minExplosions), int(minExplosions*1.3))
@@ -266,7 +284,6 @@ func createMuteExplosion(world *worldState, above bool, pos gmath.Vec) {
 	}
 	explosion := newEffectNode(world, pos, above, img)
 	world.nodeRunner.AddObject(explosion)
-	explosion.anim.SetSecondsPerFrame(0.03)
 }
 
 func playIonExplosionSound(world *worldState, pos gmath.Vec) {

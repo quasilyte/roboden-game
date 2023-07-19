@@ -153,6 +153,10 @@ type Camera struct {
 	// Objects that are only rendered for this player.
 	Private LayerContainer
 
+	shake      int // number of frames
+	shakeDelay int // in frames
+	shakeIndex uint
+
 	screen *ebiten.Image
 
 	disposed bool
@@ -308,6 +312,11 @@ func (c *Camera) SetOffset(pos gmath.Vec) {
 	c.checkBounds()
 }
 
+func (c *Camera) Shake(value int) {
+	c.shake = value
+	c.shakeIndex += uint(value) * 97
+}
+
 func (c *Camera) Draw(screen *ebiten.Image) {
 	c.globalRect = c.Rect
 	c.globalRect.Min = c.Offset
@@ -323,6 +332,25 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 		X: -c.Offset.X,
 		Y: -c.Offset.Y,
 	}
+
+	rotation := 0.0
+	if c.shake > 0 {
+		c.shake--
+		if c.shakeDelay == 0 {
+			c.shakeDelay = 6
+			c.shakeIndex++
+			drawOffset = drawOffset.Add(shakeOffsets[c.shakeIndex%uint(len(shakeOffsets))])
+			switch c.shakeIndex % 3 {
+			case 0:
+				rotation = 0.005
+			case 2:
+				rotation = -0.005
+			}
+		} else {
+			c.shakeDelay--
+		}
+	}
+
 	c.stage.bg.DrawPartialWithOffset(c.screen, c.globalRect, drawOffset)
 	c.drawLayer(c.screen, &c.stage.belowObjects, drawOffset)
 	c.drawLayer(c.screen, &c.Private.belowObjects, drawOffset)
@@ -345,6 +373,13 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 
 	var options ebiten.DrawImageOptions
 	options.GeoM.Translate(c.ScreenPos.X, c.ScreenPos.Y)
+	if rotation != 0 {
+		width := float64(c.screen.Bounds().Dx())
+		height := float64(c.screen.Bounds().Dy())
+		options.GeoM.Translate(-width*0.5, -height*0.5)
+		options.GeoM.Rotate(rotation)
+		options.GeoM.Translate(width*0.5, height*0.5)
+	}
 	screen.DrawImage(c.screen, &options)
 }
 
@@ -393,4 +428,21 @@ func drawSlice(dst *ebiten.Image, slice []ge.SceneGraphics) []ge.SceneGraphics {
 		live = append(live, o)
 	}
 	return live
+}
+
+var shakeOffsets = []gmath.Vec{
+	{X: 1, Y: 0},
+	{X: 2, Y: 1},
+	{X: 1, Y: 3},
+	{X: 2, Y: 1},
+	{X: 1, Y: 1},
+	{X: 2, Y: 0},
+	{X: -1, Y: -2},
+	{X: -2, Y: 0},
+	{X: -2, Y: 1},
+	{X: -1, Y: 2},
+	{X: 0, Y: 0},
+	{X: 1, Y: -1},
+	{X: 2, Y: -2},
+	{X: 0, Y: -3},
 }

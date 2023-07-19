@@ -163,10 +163,11 @@ type GameSettings struct {
 }
 
 type GraphicsSettings struct {
-	ShadowsEnabled    bool
-	VSyncEnabled      bool
-	AllShadersEnabled bool
-	FullscreenEnabled bool
+	ShadowsEnabled       bool
+	VSyncEnabled         bool
+	CameraShakingEnabled bool
+	AllShadersEnabled    bool
+	FullscreenEnabled    bool
 }
 
 type SavedReplay struct {

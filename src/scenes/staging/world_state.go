@@ -55,10 +55,11 @@ type worldState struct {
 	turretDesign     *gamedata.AgentStats
 	coreDesign       *gamedata.ColonyCoreStats
 
-	droneLabels      bool
-	debugLogs        bool
-	evolutionEnabled bool
-	movementEnabled  bool
+	droneLabels          bool
+	debugLogs            bool
+	evolutionEnabled     bool
+	movementEnabled      bool
+	cameraShakingEnabled bool
 
 	hintsMode int
 
@@ -96,8 +97,19 @@ type worldState struct {
 	EventCheckDefeatState gsignal.Event[gsignal.Void]
 	EventColonyCreated    gsignal.Event[*colonyCoreNode]
 
-	// EventUnmarked gsignal.Event[gmath.Vec]
-	// EventMarked   gsignal.Event[gmath.Vec]
+	EventCameraShake gsignal.Event[CameraShakeData]
+}
+
+type CameraShakeData struct {
+	Power int
+	Pos   gmath.Vec
+}
+
+func (w *worldState) ShakeCamera(power int, pos gmath.Vec) {
+	if !w.cameraShakingEnabled {
+		return
+	}
+	w.EventCameraShake.Emit(CameraShakeData{Power: power, Pos: pos})
 }
 
 func (w *worldState) Adjust2x2CellPos(pos gmath.Vec, offset float64) gmath.Vec {
@@ -149,7 +161,6 @@ func (w *worldState) MarkCell(coord pathing.GridCoord) {
 	key := w.pathgrid.CoordToIndex(coord)
 	if v := w.gridCounters[key]; v == 0 {
 		w.pathgrid.MarkCell(coord)
-		// w.EventMarked.Emit(w.pathgrid.CoordToPos(coord))
 	}
 	w.gridCounters[key]++
 }
@@ -159,7 +170,6 @@ func (w *worldState) UnmarkCell(coord pathing.GridCoord) {
 	if v := w.gridCounters[key]; v == 1 {
 		w.pathgrid.UnmarkCell(coord)
 		delete(w.gridCounters, key)
-		// w.EventUnmarked.Emit(w.pathgrid.CoordToPos(coord))
 	} else {
 		w.gridCounters[key]--
 	}

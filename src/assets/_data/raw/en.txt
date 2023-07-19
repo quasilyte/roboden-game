@@ -140,6 +140,7 @@
 
 ##menu.options.graphics.shadows : Shadows
 ##menu.options.graphics.vsync : VSync
+##menu.options.graphics.camera_shaking : Camera shaking
 ##menu.options.graphics.shaders : Shaders
 ##menu.options.graphics.fullscreen : Fullscreen
 

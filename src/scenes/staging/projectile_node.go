@@ -258,6 +258,7 @@ func (p *projectileNode) createExplosion() {
 	case gamedata.ProjectileExplosionBigVertical:
 		createBigVerticalExplosion(p.world, explosionPos)
 	case gamedata.ProjectileExplosionAbomb:
+		p.world.ShakeCamera(p.world.localRand.IntRange(30, 45), explosionPos)
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, false, assets.ImageNuclearExplosion))
 		playSound(p.world, assets.AudioAbombExplosion, explosionPos)
 	case gamedata.ProjectileExplosionCripplerBlaster:

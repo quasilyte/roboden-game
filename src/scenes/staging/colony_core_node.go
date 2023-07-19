@@ -516,6 +516,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 				return
 			}
 			a.pos = c.relocationPoint.Add(c.world.rand.Offset(-38, 38))
+			a.shadowComponent.UpdatePos(a.pos)
 			e := newEffectNode(c.world, a.pos, true, assets.ImageTeleportEffectSmall)
 			c.world.nodeRunner.AddObject(e)
 			a.AssignMode(agentModePosing, gmath.Vec{X: c.world.rand.FloatRange(0.5, 2.5)}, nil)

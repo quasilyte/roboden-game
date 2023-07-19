@@ -14,6 +14,7 @@ import (
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/gtask"
 	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/steamsdk"
 )
 
 type BootloadController struct {
@@ -85,6 +86,9 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		}
 	})
 	initTask.EventCompleted.Connect(nil, func(gsignal.Void) {
+		if c.state.SteamInfo.Enabled {
+			c.syncSteamAchievements()
+		}
 		if c.state.Persistent.Settings.Demo {
 			c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
 		} else {
@@ -97,6 +101,23 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
+}
+
+func (c *BootloadController) syncSteamAchievements() {
+	for i, a := range c.state.Persistent.PlayerStats.Achievements {
+		unlocked, err := steamsdk.IsAchievementUnlocked(a.Name)
+		if err != nil {
+			c.state.Logf("check %q achievement (i=%d): %v", a.Name, i, err)
+			return
+		}
+		if !unlocked {
+			if !steamsdk.UnlockAchievement(a.Name) {
+				c.state.Logf("failed to unlock %q", a.Name)
+				return
+			}
+			c.state.Logf("unlocked %q", a.Name)
+		}
+	}
 }
 
 func (c *BootloadController) loadUIResources(ctx *ge.Context, progress *float64) {

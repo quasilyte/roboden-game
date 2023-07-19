@@ -78,7 +78,7 @@
 
 ##menu.profile.progress.achievements : Достижений получено
 ##menu.profile.progress.modes_unlocked : Режимов игры открыто
-##menu.profile.progress.bases_unlocked : Колоний открыто
+##menu.profile.progress.cores_unlocked : Колоний открыто
 ##menu.profile.progress.turrets_unlocked : Турелей открыто
 ##menu.profile.progress.drones_unlocked : Дронов второго тира открыто
 ##menu.profile.progress.t3drones_seen : Дронов третьего тира открыто
@@ -139,6 +139,7 @@
 
 ##menu.options.graphics.shadows : Тени
 ##menu.options.graphics.vsync : VSync
+##menu.options.graphics.camera_shaking : Тряска камеры
 ##menu.options.graphics.shaders : Шейдеры
 ##menu.options.graphics.fullscreen : Полноэкранный режим
 
@@ -300,6 +301,7 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.results.new_achievement : Получено достижение
 ##menu.results.upgraded_achievement : Получено элитное достижение
 ##menu.results.new_record : локальный рекорд
+##menu.results.new_core : Колония разблокирована
 ##menu.results.new_drone : Дрон разблокирован
 ##menu.results.new_turret : Турель разблокирована
 

@@ -78,7 +78,6 @@
 
 ##menu.profile.progress.achievements : Achievements
 ##menu.profile.progress.modes_unlocked : Game modes unlocked
-##menu.profile.progress.bases_unlocked : Colonies unlocked
 ##menu.profile.progress.cores_unlocked : Colonies unlocked
 ##menu.profile.progress.turrets_unlocked : Turrets unlocked
 ##menu.profile.progress.drones_unlocked : Tier 2 drones unlocked

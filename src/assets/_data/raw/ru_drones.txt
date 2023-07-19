@@ -1,8 +1,20 @@
 
 ##drone.undiscovered : Неизвестный дрон
+##core.locked : Закрытая колония
 ##drone.locked : Закрытый дрон
 ##turret.locked : Закрытая турель
 ##drone.score_required : Требуемые победные очки
+
+##core.den : Логово
+##core.ark : Ковчег
+
+##core.mobility_rating : Рейтинг мобильности
+##core.unit_limit_rating : Рейтинг количества дронов
+##core.capacity_rating : Рейтинг вместимости ресурсов
+
+##core.ability.crush : Может разрушать наземных юнитов при посадке
+##core.ability.flying : Воздушная колония
+##core.ability.no_teleporters : Не может использовать телепортеры
 
 ##drone.kind.worker : рабочий
 ##drone.kind.military : военный

@@ -58,6 +58,7 @@ type colonyCoreNode struct {
 	hatchFlashComponent damageFlashComponent
 
 	pos           gmath.Vec
+	drawOrder     float64
 	maxHealth     float64
 	health        float64
 	teleportDelay float64
@@ -191,7 +192,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
 	}
 	if c.stats == gamedata.ArkCoreStats {
-		c.world.stage.AddSpriteSlightlyAbove(c.sprite)
+		c.world.stage.AddSortableGraphicsSlightlyAbove(c.sprite, &c.drawOrder)
 	} else {
 		c.world.stage.AddSprite(c.sprite)
 	}
@@ -202,7 +203,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.flyingSprite.Shader = c.sprite.Shader
 	}
-	c.world.stage.AddSpriteSlightlyAbove(c.flyingSprite)
+	c.world.stage.AddSortableGraphicsSlightlyAbove(c.flyingSprite, &c.drawOrder)
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
 	c.hatch.Pos.Base = &c.pos
@@ -220,7 +221,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.evoDiode.Pos.Base = &c.pos
 	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
 	if c.stats == gamedata.ArkCoreStats {
-		c.world.stage.AddSpriteSlightlyAbove(c.evoDiode)
+		c.world.stage.AddSortableGraphicsSlightlyAbove(c.evoDiode, &c.drawOrder)
 	} else {
 		c.world.stage.AddSprite(c.evoDiode)
 	}
@@ -242,7 +243,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 			rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
 			rects[i] = rect
 			if above {
-				c.world.stage.AddSpriteSlightlyAbove(rect)
+				c.world.stage.AddSortableGraphicsSlightlyAbove(rect, &c.drawOrder)
 			} else {
 				c.world.stage.AddSprite(rect)
 			}
@@ -258,6 +259,8 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.relocationPoint = c.pos
 		c.enterTakeoffMode()
 	}
+
+	c.drawOrder = c.pos.Y
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
@@ -525,6 +528,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		c.mode = colonyModeNormal
 		c.unmarkCells(c.pos)
 		c.pos = c.relocationPoint
+		c.drawOrder = c.pos.Y
 		c.markCells(c.pos)
 		c.stopTeleportationEffect()
 
@@ -746,6 +750,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 }
 
 func (c *colonyCoreNode) updateTakeoff(delta float64) {
+	c.drawOrder = c.pos.Y - 64
 	speed := c.movementSpeed()
 	height := c.shadowComponent.height + delta*speed
 	if c.moveTowards(delta, speed, c.waypoint) {
@@ -766,10 +771,6 @@ func (c *colonyCoreNode) startLanding() {
 	c.waypoint = c.relocationPoint
 	c.mode = colonyModeLanding
 	c.markCells(c.relocationPoint)
-	for _, rect := range c.flyingResourceRects {
-		c.world.stage.MoveSlightlyAboveSpriteDown(rect)
-	}
-	c.world.stage.MoveSlightlyAboveSpriteDown(c.flyingSprite)
 }
 
 func (c *colonyCoreNode) updateRelocating(delta float64) {
@@ -802,6 +803,7 @@ func (c *colonyCoreNode) updateRelocating(delta float64) {
 
 	}
 	c.shadowComponent.UpdatePos(c.pos)
+	c.drawOrder = c.pos.Y
 }
 
 func (c *colonyCoreNode) findArkHoverSpot() gmath.Vec {
@@ -846,9 +848,11 @@ func (c *colonyCoreNode) enterNormalMode() {
 	c.relocationPoint = gmath.Vec{}
 	c.mode = colonyModeNormal
 	c.switchSprite(false)
+	c.drawOrder = c.pos.Y
 }
 
 func (c *colonyCoreNode) updateLanding(delta float64) {
+	c.drawOrder = c.pos.Y - 64
 	speed := c.movementSpeed()
 	height := c.shadowComponent.height - delta*speed
 	if c.moveTowards(delta, speed, c.waypoint) {

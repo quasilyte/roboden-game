@@ -196,6 +196,7 @@ func (g *levelGenerator) placePlayers() {
 	switch len(g.world.config.Players) {
 	case 1:
 		g.createBase(g.world.players[0], g.playerSpawn, true)
+		g.createBase(g.world.players[0], g.playerSpawn.Add(gmath.Vec{X: 64}), true)
 	case 2:
 		playerOffset := gmath.Vec{X: 64, Y: 64}
 		g.createBase(g.world.players[0], g.playerSpawn.Sub(playerOffset), true)

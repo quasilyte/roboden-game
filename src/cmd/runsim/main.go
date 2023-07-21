@@ -39,10 +39,14 @@ func main() {
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, "")
 	ctx.Dict = langs.NewDictionary("en", 2)
 
+	assetsConfig := &assets.Config{
+		ExtraMusic: false,
+	}
+
 	var progress float64
-	assets.RegisterImageResources(ctx, &progress)
+	assets.RegisterImageResources(ctx, assetsConfig, &progress)
 	assets.RegisterRawResources(ctx)
-	assets.RegisterShaderResources(ctx, &progress)
+	assets.RegisterShaderResources(ctx, assetsConfig, &progress)
 
 	state := &session.State{
 		Persistent: session.PersistentData{

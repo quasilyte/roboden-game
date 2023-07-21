@@ -11,6 +11,7 @@
 ##boot.load_music : Загружаем музыку
 ##boot.load_shaders : Компилируем шейдеры
 ##boot.load_extra : Инициализируем данные
+##boot.steam_sync : Синхронизируемся со Steam
 ##boot.almost_there : Почти готово
 
 ##menu.submit.title : Отправляем данные, пожалуйста, подождите

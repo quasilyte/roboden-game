@@ -6,6 +6,7 @@ import (
 	"runtime"
 
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gsignal"
@@ -54,16 +55,23 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 	currentStep := -1
 
 	initTask := gtask.StartTask(func(ctx *gtask.TaskContext) {
-		steps := []struct {
+		type initializationStep struct {
 			name string
 			f    func(*ge.Context, *float64)
-		}{
+		}
+		steps := []initializationStep{
 			{name: "load_images", f: assets.RegisterImageResources},
 			{name: "load_audio", f: assets.RegisterAudioResource},
 			{name: "load_music", f: assets.RegisterMusicResource},
 			{name: "load_shaders", f: assets.RegisterShaderResources},
 			{name: "load_ui", f: c.loadUIResources},
 			{name: "load_extra", f: c.loadExtra},
+		}
+		if c.state.SteamInfo.Enabled {
+			steps = append(steps, initializationStep{
+				name: "steam_sync",
+				f:    c.steamSync,
+			})
 		}
 		ctx.Progress.Total = float64(len(steps) + 1)
 		for _, step := range steps {
@@ -86,12 +94,10 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		}
 	})
 	initTask.EventCompleted.Connect(nil, func(gsignal.Void) {
-		if c.state.SteamInfo.Enabled {
-			c.syncSteamAchievements()
-		}
 		if c.state.Persistent.Settings.Demo {
 			c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
 		} else {
+			c.prepareBackground()
 			c.scene.Context().ChangeScene(NewMainMenuController(c.state))
 		}
 	})
@@ -103,8 +109,21 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 	c.scene.AddObject(uiObject)
 }
 
-func (c *BootloadController) syncSteamAchievements() {
+func (c *BootloadController) prepareBackground() {
+	bg := ge.NewTiledBackground(c.scene.Context())
+	width := c.scene.Context().WindowWidth
+	height := c.scene.Context().WindowHeight
+	bg.LoadTilesetWithRand(c.scene.Context(), c.scene.Rand(), width, height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
+	img := ebiten.NewImage(int(width), int(height))
+	bg.Draw(img)
+	c.state.DemoFrame = img
+}
+
+func (c *BootloadController) steamSync(ctx *ge.Context, progress *float64) {
+	progressPerItem := 1.0 / float64(len(c.state.Persistent.PlayerStats.Achievements))
+
 	for i, a := range c.state.Persistent.PlayerStats.Achievements {
+		*progress += progressPerItem
 		unlocked, err := steamsdk.IsAchievementUnlocked(a.Name)
 		if err != nil {
 			c.state.Logf("check %q achievement (i=%d): %v", a.Name, i, err)

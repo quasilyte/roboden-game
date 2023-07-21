@@ -410,30 +410,28 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 			c.world.result.EnemyColonyDamage += damage.Health
 		}
 		colony := getUnitColony(source)
-		if c.IsFlying() {
-			// Stage 0: send 2 servants. (very easy and above)
-			// Stage 1: send 3 servants. (easy and above)
-			// Stage 2: send 4 servants. (normal and above)
-			// Stage 3: send 5 servants. (hard)
-			maxStage := c.world.config.BossDifficulty
-			if c.bossStage <= maxStage {
-				hpPercentage := c.health / c.maxHealth
-				if hpPercentage < 0.8 && c.bossStage == 0 {
-					c.spawnServants(2, colony)
-					c.bossStage++
-				}
-				if hpPercentage < 0.6 && c.bossStage == 1 {
-					c.spawnServants(3, colony)
-					c.bossStage++
-				}
-				if hpPercentage < 0.4 && c.bossStage == 2 {
-					c.spawnServants(4, colony)
-					c.bossStage++
-				}
-				if hpPercentage < 0.2 && c.bossStage == 3 {
-					c.spawnServants(5, colony)
-					c.bossStage++
-				}
+		// Stage 0: send 2 servants. (very easy and above)
+		// Stage 1: send 3 servants. (easy and above)
+		// Stage 2: send 4 servants. (normal and above)
+		// Stage 3: send 5 servants. (hard)
+		maxStage := c.world.config.BossDifficulty
+		if c.bossStage <= maxStage {
+			hpPercentage := c.health / c.maxHealth
+			if hpPercentage < 0.8 && c.bossStage == 0 {
+				c.spawnServants(2, colony)
+				c.bossStage++
+			}
+			if hpPercentage < 0.6 && c.bossStage == 1 {
+				c.spawnServants(3, colony)
+				c.bossStage++
+			}
+			if hpPercentage < 0.4 && c.bossStage == 2 {
+				c.spawnServants(4, colony)
+				c.bossStage++
+			}
+			if hpPercentage < 0.2 && c.bossStage == 3 {
+				c.spawnServants(5, colony)
+				c.bossStage++
 			}
 		}
 	}

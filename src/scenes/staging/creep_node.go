@@ -287,7 +287,7 @@ func (c *creepNode) explode() {
 			}
 			c.world.nodeRunner.AddObject(fall)
 		} else {
-			createAreaExplosion(c.world, spriteRect(c.pos, c.altSprite), true)
+			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
 		}
 
 	case gamedata.CreepTurret, gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepHowitzer:

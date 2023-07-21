@@ -209,7 +209,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.hatch.Pos.Base = &c.pos
 	c.hatch.Pos.Offset.Y = c.stats.HatchOffsetY + 2
 	if c.stats == gamedata.ArkCoreStats {
-		c.world.stage.AddSpriteSlightlyAbove(c.hatch)
+		c.world.stage.AddSortableGraphicsSlightlyAbove(c.hatch, &c.drawOrder)
 	} else {
 		c.world.stage.AddSprite(c.hatch)
 	}

@@ -95,6 +95,20 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		}
 	}
 
+	if c.stats.ShadowImage != assets.ImageNone {
+		if c.world.graphicsSettings.ShadowsEnabled {
+			c.shadowComponent.Init(c.world, c.stats.ShadowImage)
+			c.shadowComponent.SetVisibility(!c.spawnedFromBase)
+		}
+		if c.stats.Kind == gamedata.CreepUberBoss {
+			c.shadowComponent.offset = 4
+		} else {
+			c.shadowComponent.offset = 2
+		}
+		c.shadowComponent.UpdatePos(c.pos)
+		c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
+	}
+
 	c.sprite = scene.NewSprite(c.stats.Image)
 	c.sprite.Pos.Base = &c.pos
 	if c.stats.ShadowImage != assets.ImageNone {
@@ -118,20 +132,6 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.sprite.FrameOffset.Y = c.sprite.FrameHeight
 	}
 	c.flashComponent.sprite = c.sprite
-
-	if c.stats.ShadowImage != assets.ImageNone {
-		if c.world.graphicsSettings.ShadowsEnabled {
-			c.shadowComponent.Init(c.world, c.stats.ShadowImage)
-			c.shadowComponent.SetVisibility(!c.spawnedFromBase)
-		}
-		if c.stats.Kind == gamedata.CreepUberBoss {
-			c.shadowComponent.offset = 4
-		} else {
-			c.shadowComponent.offset = 2
-		}
-		c.shadowComponent.UpdatePos(c.pos)
-		c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
-	}
 
 	if c.stats.Kind == gamedata.CreepUberBoss {
 		c.altSprite = scene.NewSprite(assets.ImageUberBossDoor)

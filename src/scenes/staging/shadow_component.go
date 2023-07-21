@@ -37,7 +37,7 @@ func (shadow *shadowComponent) Init(world *worldState, imageID resource.ImageID)
 	shadow.sprite = world.rootScene.NewSprite(imageID)
 	shadow.sprite.Pos.Base = &shadow.pos
 	shadow.sprite.Visible = false
-	world.stage.AddSprite(shadow.sprite)
+	world.stage.AddSpriteSlightlyAbove(shadow.sprite)
 }
 
 func (shadow *shadowComponent) UpdatePos(objectPos gmath.Vec) {

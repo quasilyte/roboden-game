@@ -278,6 +278,20 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.health = a.maxHealth
 	a.energy = a.maxEnergy
 
+	if a.IsFlying() && a.world().graphicsSettings.ShadowsEnabled {
+		shadowImage := assets.ImageSmallShadow
+		switch a.stats.Size {
+		case gamedata.SizeMedium:
+			shadowImage = assets.ImageMediumShadow
+		case gamedata.SizeLarge:
+			shadowImage = assets.ImageBigShadow
+		}
+		a.shadowComponent.Init(a.world(), shadowImage)
+		a.shadowComponent.offset = 2
+		a.shadowComponent.SetVisibility(true)
+		a.shadowComponent.UpdatePos(a.pos)
+	}
+
 	a.sprite = scene.NewSprite(a.stats.Image)
 	a.sprite.Pos.Base = &a.pos
 	if a.IsFlying() {
@@ -309,20 +323,6 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		} else {
 			a.world().stage.AddSprite(a.diode)
 		}
-	}
-
-	if a.IsFlying() && a.world().graphicsSettings.ShadowsEnabled {
-		shadowImage := assets.ImageSmallShadow
-		switch a.stats.Size {
-		case gamedata.SizeMedium:
-			shadowImage = assets.ImageMediumShadow
-		case gamedata.SizeLarge:
-			shadowImage = assets.ImageBigShadow
-		}
-		a.shadowComponent.Init(a.world(), shadowImage)
-		a.shadowComponent.offset = 2
-		a.shadowComponent.SetVisibility(true)
-		a.shadowComponent.UpdatePos(a.pos)
 	}
 
 	if a.world().config.ExecMode != gamedata.ExecuteSimulation {

@@ -184,6 +184,11 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.otherShader = scene.NewShader(assets.ShaderColonyTeleport)
 	}
 
+	if c.world.graphicsSettings.ShadowsEnabled {
+		c.shadowComponent.Init(c.world, c.stats.Shadow)
+		c.shadowComponent.offset = c.stats.ShadowOffsetY
+	}
+
 	c.sprite = c.spriteWithAlliance(c.stats.Image)
 	c.sprite.Pos.Base = &c.pos
 	if c.world.graphicsSettings.AllShadersEnabled {
@@ -224,11 +229,6 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.world.stage.AddSortableGraphicsSlightlyAbove(c.evoDiode, &c.drawOrder)
 	} else {
 		c.world.stage.AddSprite(c.evoDiode)
-	}
-
-	if c.world.graphicsSettings.ShadowsEnabled {
-		c.shadowComponent.Init(c.world, c.stats.Shadow)
-		c.shadowComponent.offset = c.stats.ShadowOffsetY
 	}
 
 	c.resourceRects = make([]*ge.Sprite, 3)

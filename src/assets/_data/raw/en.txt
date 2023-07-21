@@ -130,6 +130,7 @@
 ##menu.option.big : big
 
 ##menu.options.hint_mode : In-game tooltips
+##menu.options.screen_buttons : Screen buttons
 ##menu.options.effects_volume : Effects volume
 ##menu.options.music_volume : Music volume
 ##menu.options.scroll_speed : Scroll speed

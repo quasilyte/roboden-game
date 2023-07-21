@@ -23,6 +23,7 @@ func GetDefaultData() session.PersistentData {
 			ScrollingSpeed:     2,
 			EdgeScrollRange:    2,
 			HintMode:           2,
+			ScreenButtons:      true,
 			Demo:               true,
 			ShowFPS:            false,
 			Lang:               inferDefaultLang(),

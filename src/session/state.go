@@ -156,6 +156,7 @@ type GameSettings struct {
 	DebugLogs          bool
 	DebugDroneLabels   bool
 	Demo               bool
+	ScreenButtons      bool
 	GamepadSettings    [2]GamepadSettings
 	Graphics           GraphicsSettings
 	Player1InputMethod int

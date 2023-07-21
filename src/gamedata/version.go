@@ -220,6 +220,7 @@ const SeasonNumber = 0
 // * UX:
 //   - The controller Home button now pauses the game too
 //   - Added colony destination point marker
+//   - Add an option to disable on-screen buttons
 //
 // * Visuals:
 //   - Made VSync option configurable

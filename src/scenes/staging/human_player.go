@@ -160,7 +160,7 @@ func (p *humanPlayer) Init() {
 		buttonsPos = gmath.Vec{X: 8, Y: 470}
 	}
 
-	if len(p.world.cameras) == 1 {
+	if len(p.world.cameras) == 1 && p.world.screenButtonsEnabled {
 		p.screenButtons = newScreenButtonsNode(p.state.camera.Camera, buttonsPos, p.creepsState != nil)
 		p.screenButtons.Init(p.world.rootScene)
 		p.screenButtons.EventToggleButtonPressed.Connect(p, p.onToggleButtonClicked)

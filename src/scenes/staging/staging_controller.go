@@ -352,6 +352,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		debugLogs:            c.state.Persistent.Settings.DebugLogs,
 		droneLabels:          c.state.Persistent.Settings.DebugDroneLabels && c.config.ExecMode == gamedata.ExecuteNormal,
 		cameraShakingEnabled: c.state.Persistent.Settings.Graphics.CameraShakingEnabled,
+		screenButtonsEnabled: c.state.Persistent.Settings.ScreenButtons,
 		rand:                 scene.Rand(),
 		localRand:            &localRand,
 		tmpTargetSlice:       make([]targetable, 0, 20),

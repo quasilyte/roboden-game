@@ -60,6 +60,7 @@ type worldState struct {
 	evolutionEnabled     bool
 	movementEnabled      bool
 	cameraShakingEnabled bool
+	screenButtonsEnabled bool
 
 	hintsMode int
 

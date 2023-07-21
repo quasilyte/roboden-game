@@ -60,6 +60,18 @@ func (c *OptionsGameplayMenuController) initUI() {
 	}
 
 	{
+		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Resources: uiResources,
+			Value:     &options.ScreenButtons,
+			Label:     d.Get("menu.options.screen_buttons"),
+			ValueNames: []string{
+				d.Get("menu.option.off"),
+				d.Get("menu.option.on"),
+			},
+		}))
+	}
+
+	{
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:      c.scene,
 			Resources:  uiResources,

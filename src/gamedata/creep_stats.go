@@ -258,7 +258,7 @@ var HeavyCrawlerCreepStats = &CreepStats{
 	Image:     assets.ImageHeavyCrawlerCreep,
 	AnimSpeed: 0.16,
 	Speed:     30,
-	MaxHealth: 55,
+	MaxHealth: 60,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       5,
@@ -343,7 +343,7 @@ var StealthCrawlerCreepStats = &CreepStats{
 		AttackRange:         200,
 		ImpactArea:          14,
 		ProjectileSpeed:     320,
-		Damage:              DamageValue{Health: 3, Slow: 2},
+		Damage:              DamageValue{Health: 4, Slow: 2},
 		ProjectileImage:     assets.ImageStealthCrawlerProjectile,
 		Reload:              3.5,
 		TargetFlags:         TargetFlying | TargetGround,
@@ -363,7 +363,7 @@ var AssaultCreepStats = &CreepStats{
 	ShadowImage: assets.ImageBigShadow,
 	Tier:        3,
 	Speed:       30,
-	MaxHealth:   90,
+	MaxHealth:   95,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,

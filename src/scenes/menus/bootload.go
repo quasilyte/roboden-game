@@ -57,7 +57,10 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 	initTask := gtask.StartTask(func(ctx *gtask.TaskContext) {
 		type initializationStep struct {
 			name string
-			f    func(*ge.Context, *float64)
+			f    func(*ge.Context, *assets.Config, *float64)
+		}
+		config := &assets.Config{
+			ExtraMusic: c.state.ExtraMusic,
 		}
 		steps := []initializationStep{
 			{name: "load_images", f: assets.RegisterImageResources},
@@ -77,7 +80,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		for _, step := range steps {
 			currentStep++
 			currentStepName = step.name
-			step.f(scene.Context(), &ctx.Progress.Current)
+			step.f(scene.Context(), config, &ctx.Progress.Current)
 			runtime.Gosched()
 			runtime.GC()
 			ctx.Progress.Current = 1.0 * float64(currentStep+1)
@@ -119,7 +122,7 @@ func (c *BootloadController) prepareBackground() {
 	c.state.DemoFrame = img
 }
 
-func (c *BootloadController) steamSync(ctx *ge.Context, progress *float64) {
+func (c *BootloadController) steamSync(ctx *ge.Context, config *assets.Config, progress *float64) {
 	progressPerItem := 1.0 / float64(len(c.state.Persistent.PlayerStats.Achievements))
 
 	for i, a := range c.state.Persistent.PlayerStats.Achievements {
@@ -139,12 +142,12 @@ func (c *BootloadController) steamSync(ctx *ge.Context, progress *float64) {
 	}
 }
 
-func (c *BootloadController) loadUIResources(ctx *ge.Context, progress *float64) {
+func (c *BootloadController) loadUIResources(ctx *ge.Context, config *assets.Config, progress *float64) {
 	*progress = 0.1
 	c.state.Resources.UI = eui.LoadResources(c.state.Device, c.scene.Context().Loader)
 }
 
-func (c *BootloadController) loadExtra(ctx *ge.Context, progress *float64) {
+func (c *BootloadController) loadExtra(ctx *ge.Context, config *assets.Config, progress *float64) {
 	steps := []struct {
 		agent   *gamedata.AgentStats
 		imageID resource.ImageID

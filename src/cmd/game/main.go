@@ -191,6 +191,7 @@ func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
 
 func getDefaultSessionState() *session.State {
 	state := &session.State{
+		ExtraMusic: runtime.GOARCH != "wasm",
 		ReverseLevelConfig: newLevelConfig(&gamedata.LevelConfig{
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				Teleporters:      1,

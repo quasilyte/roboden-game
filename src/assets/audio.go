@@ -9,11 +9,19 @@ import (
 	_ "image/png"
 )
 
-func RegisterMusicResource(ctx *ge.Context, progress *float64) {
+func RegisterMusicResource(ctx *ge.Context, config *Config, progress *float64) {
 	audioResources := map[resource.AudioID]resource.AudioInfo{
 		AudioMusicTrack1: {Path: "$music/deadly_windmills.ogg", Volume: -0.3, Group: SoundGroupMusic},
 		AudioMusicTrack2: {Path: "$music/war_path.ogg", Volume: -0.3, Group: SoundGroupMusic},
 		AudioMusicTrack3: {Path: "$music/crush.ogg", Volume: -0.3, Group: SoundGroupMusic},
+	}
+
+	if config.ExtraMusic {
+		audioResources[AudioMusicTrack4] = resource.AudioInfo{
+			Path:   "$music/track4.ogg",
+			Volume: -0.3,
+			Group:  SoundGroupMusic,
+		}
 	}
 
 	singleThread := runtime.GOMAXPROCS(-1) == 1
@@ -30,7 +38,7 @@ func RegisterMusicResource(ctx *ge.Context, progress *float64) {
 	}
 }
 
-func RegisterAudioResource(ctx *ge.Context, progress *float64) {
+func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 	audioResources := map[resource.AudioID]resource.AudioInfo{
 		AudioVictory:             {Path: "$sfx/victory.wav", Volume: -0.05},
 		AudioWaveStart:           {Path: "$sfx/wave_start.wav", Volume: 0},
@@ -205,4 +213,5 @@ const (
 	AudioMusicTrack1
 	AudioMusicTrack2
 	AudioMusicTrack3
+	AudioMusicTrack4
 )

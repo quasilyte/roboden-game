@@ -66,7 +66,7 @@ func (c *CreditsMenuController) initUI() {
 		"    " + strings.Join(testers, ", ") + " - testing",
 		"",
 		"[" + d.Get("menu.credits.assets") + "]",
-		"    DROZERiX - Crush and War Path music tracks",
+		"    DROZERiX - Crush, War Path and Sexxxy Bit 3 music tracks",
 		"    JAM - Deadly Windmills music track",
 		"    unTied Games - super pixel effects packs",
 		"",

@@ -9,7 +9,7 @@ import (
 	_ "image/png"
 )
 
-func RegisterImageResources(ctx *ge.Context, progress *float64) {
+func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) {
 	imageResources := map[resource.ImageID]resource.ImageInfo{
 		ImageLogo: {Path: "image/logo.png"},
 

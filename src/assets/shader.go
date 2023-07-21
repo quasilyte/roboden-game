@@ -7,7 +7,7 @@ import (
 	"github.com/quasilyte/ge"
 )
 
-func RegisterShaderResources(ctx *ge.Context, progress *float64) {
+func RegisterShaderResources(ctx *ge.Context, config *Config, progress *float64) {
 	// Associate shader resources.
 	shaderResources := map[resource.ShaderID]resource.ShaderInfo{
 		ShaderDissolve:         {Path: "shader/dissolve.go"},

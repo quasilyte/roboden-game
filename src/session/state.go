@@ -27,6 +27,8 @@ type State struct {
 	MemProfile       string
 	MemProfileWriter io.WriteCloser
 
+	ExtraMusic bool
+
 	ServerProtocol string
 	ServerHost     string
 	ServerPath     string

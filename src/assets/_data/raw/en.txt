@@ -391,6 +391,15 @@ Win by destroying all colonies.
 
 Split-screen multiplayer: competitive (PvP).
 
+##game.hint.screen_button.toggle : Toggle view
+##game.hint.screen_button.exit : Exit
+##game.hint.rpanel.garrison : Units in garrison
+##game.hint.rpanel.tech_progress_f : Tech progress: %d%%
+##game.hint.rpanel.priority_resources : Resources priority
+##game.hint.rpanel.priority_growth : Growth priority
+##game.hint.rpanel.priority_evolution : Evolution priority
+##game.hint.rpanel.priority_security : Security priority
+##game.hint.rpanel.factions : Faction distribution
 ##game.hint.action.priorities1_f : Increase %s priority
 ##game.hint.action.priorities2_f : Increase %s+%s priorities
 ##game.hint.action.garrison_f : Add units to %s garrison

@@ -11,6 +11,19 @@ import (
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
+type rpanelItemKind int
+
+const (
+	rpanelItemUnknown rpanelItemKind = iota
+	rpanelItemResourcesPriority
+	rpanelItemGrowthPriority
+	rpanelItemEvolutionPriority
+	rpanelItemSecurityPriority
+	rpanelItemFactionDistribution
+	rpanelItemTechProgress
+	rpanelItemGarrison
+)
+
 var (
 	dpadBarColorBright = ge.RGB(0x48d35d)
 	dpadBarColorNormal = ge.RGB(0x3ea24d)
@@ -59,6 +72,39 @@ func newRpanelNode(cam *viewport.Camera) *rpanelNode {
 }
 
 func (panel *rpanelNode) IsDisposed() bool { return false }
+
+func (panel *rpanelNode) GetItemUnderCursor(pos gmath.Vec) (rpanelItemKind, float64) {
+	factionRect := panel.factionRects[0].BoundsRect()
+	factionRect.Min.X -= 4
+	factionRect.Max.X += 4
+	factionRect.Min.Y = 10
+	factionRect.Max.Y = 350
+
+	if panel.creepsState != nil {
+		if panel.dpad.BoundsRect().Contains(pos) {
+			return rpanelItemGarrison, 0
+		}
+		if factionRect.Contains(pos) {
+			return rpanelItemTechProgress, panel.creepsState.techLevel
+		}
+		return rpanelItemUnknown, 0
+	}
+
+	for i, priorityIcon := range panel.priorityIcons {
+		rect := priorityIcon.BoundsRect()
+		rect.Max.Y += 16
+		if rect.Contains(pos) {
+			v := panel.colony.priorities.Elems[i].Weight
+			return rpanelItemResourcesPriority + rpanelItemKind(i), v
+		}
+	}
+
+	if factionRect.Contains(pos) {
+		return rpanelItemFactionDistribution, 0
+	}
+
+	return rpanelItemUnknown, 0
+}
 
 func (panel *rpanelNode) initFactionsForColonies() {
 	cameraWidth := panel.cam.Rect.Width()

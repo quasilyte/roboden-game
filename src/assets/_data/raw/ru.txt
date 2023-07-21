@@ -390,6 +390,15 @@ x1.5 означает, что игра будет работать на 50% бы
 
 Мультиплеер с разделённым экраном: соревновательный (PvP).
 
+##game.hint.screen_button.toggle : Переключить вид
+##game.hint.screen_button.exit : Выйти
+##game.hint.rpanel.garrison : Юниты в гарнизонах
+##game.hint.rpanel.tech_progress_f : Технологический прогресс: %d%%
+##game.hint.rpanel.priority_resources : Приоритет ресурсов
+##game.hint.rpanel.priority_growth : Приоритет роста
+##game.hint.rpanel.priority_evolution : Приоритет эволюции
+##game.hint.rpanel.priority_security : Приоритет войск
+##game.hint.rpanel.factions : Распределение фракций
 ##game.hint.action.priorities1_f : Увеличить приоритет: %s
 ##game.hint.action.priorities2_f : Увеличить приоритеты: %s+%s
 ##game.hint.action.garrison_f : Добавить в гарнизон (%s)

@@ -2,6 +2,7 @@ package staging
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -59,6 +60,46 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 		drone := m.player.recipeTab.GetDroneUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
 		if drone != nil {
 			m.createTooltip(pos, d.Get("drone", strings.ToLower(drone.Kind.String())))
+			return
+		}
+	}
+
+	if m.player.screenButtons != nil {
+		button := m.player.screenButtons.GetChoiceUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
+		var hint string
+		switch button {
+		case screenButtonToggle:
+			hint = d.Get("game.hint.screen_button.toggle")
+		case screenButtonExit:
+			hint = d.Get("game.hint.screen_button.exit")
+		}
+		if hint != "" {
+			m.createTooltip(pos, hint)
+			return
+		}
+	}
+
+	if m.player.rpanel != nil {
+		item, v := m.player.rpanel.GetItemUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
+		var hint string
+		switch item {
+		case rpanelItemResourcesPriority:
+			hint = fmt.Sprintf("%s: %d%%", d.Get("game.hint.rpanel.priority_resources"), int(math.Round(v*100)))
+		case rpanelItemGrowthPriority:
+			hint = fmt.Sprintf("%s: %d%%", d.Get("game.hint.rpanel.priority_growth"), int(math.Round(v*100)))
+		case rpanelItemEvolutionPriority:
+			hint = fmt.Sprintf("%s: %d%%", d.Get("game.hint.rpanel.priority_evolution"), int(math.Round(v*100)))
+		case rpanelItemSecurityPriority:
+			hint = fmt.Sprintf("%s: %d%%", d.Get("game.hint.rpanel.priority_security"), int(math.Round(v*100)))
+		case rpanelItemFactionDistribution:
+			hint = d.Get("game.hint.rpanel.factions")
+		case rpanelItemTechProgress:
+			hint = fmt.Sprintf(d.Get("game.hint.rpanel.tech_progress_f"), int(math.Round(v*100)))
+		case rpanelItemGarrison:
+			hint = d.Get("game.hint.rpanel.garrison")
+		}
+		if hint != "" {
+			m.createTooltip(pos, hint)
 			return
 		}
 	}

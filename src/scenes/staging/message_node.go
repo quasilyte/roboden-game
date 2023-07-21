@@ -92,8 +92,8 @@ func (m *messageNode) Init(scene *ge.Scene) {
 		m.camera.Private.AddGraphicsAbove(m.targetLine2)
 	}
 
-	m.camera.UI.AddGraphics(m.rect)
-	m.camera.UI.AddGraphics(m.label)
+	m.camera.UI.AddGraphicsAbove(m.rect)
+	m.camera.UI.AddGraphicsAbove(m.label)
 }
 
 func (m *messageNode) UpdateText(s string) {

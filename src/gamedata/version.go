@@ -215,6 +215,7 @@ const SeasonNumber = 0
 // * Steam-related:
 //   - Integrated Steam SDK, implemented Steam achievements
 //   - "Steam" build label in the main menu
+//   - Added some debug commands to the terminal
 //
 // * UX:
 //   - The controller Home button now pauses the game too

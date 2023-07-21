@@ -6,6 +6,8 @@ import (
 	"errors"
 )
 
+func ClearAchievements(names []string) {}
+
 func UnlockAchievement(name string) bool {
 	return false
 }

@@ -10,6 +10,12 @@ import (
 	"github.com/hajimehoshi/go-steamworks"
 )
 
+func ClearAchievements(names []string) {
+	for _, name := range names {
+		steamworks.SteamUserStats().ClearAchievement(name)
+	}
+}
+
 func UnlockAchievement(name string) bool {
 	return steamworks.SteamUserStats().SetAchievement(name)
 }

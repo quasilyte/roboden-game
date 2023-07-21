@@ -3,6 +3,7 @@ package menus
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"regexp"
@@ -22,6 +23,7 @@ import (
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/steamsdk"
 )
 
 type TerminalMenu struct {
@@ -152,6 +154,15 @@ func (c *TerminalMenu) initUI() {
 			key:     "replay.dump",
 			handler: c.onReplayDump,
 		},
+
+		{
+			key:     "steam.clear_achievements",
+			handler: c.onSteamClearAchievements,
+		},
+		{
+			key:     "steam.list_achievements",
+			handler: c.onSteamListAchievements,
+		},
 	}
 
 	textinput := eui.NewTextInput(uiResources, normalFont,
@@ -247,6 +258,53 @@ func (c *TerminalMenu) maybeGrantAchievement() {
 func (c *TerminalMenu) back() {
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
 	c.scene.Context().ChangeScene(NewOptionsExtraMenuController(c.state))
+}
+
+func (c *TerminalMenu) achievementNames() []string {
+	names := make([]string, len(gamedata.AchievementList))
+	for i, a := range gamedata.AchievementList {
+		names[i] = a.Name
+	}
+	return names
+}
+
+func (c *TerminalMenu) onSteamListAchievements(ctx *terminalCommandContext) (string, error) {
+	if !c.state.SteamInfo.Enabled {
+		return "", errors.New("steam is not enabled")
+	}
+	var allUnlocked []string
+	for _, name := range c.achievementNames() {
+		unlocked, err := steamsdk.IsAchievementUnlocked(name)
+		if err == nil && unlocked {
+			allUnlocked = append(allUnlocked, name)
+		}
+	}
+	return strings.Join(allUnlocked, ", "), nil
+}
+
+func (c *TerminalMenu) onSteamClearAchievements(ctx *terminalCommandContext) (string, error) {
+	type argsType struct {
+		confirm bool
+	}
+	if ctx.parsedArgs == nil {
+		args := &argsType{}
+		ctx.parsedArgs = args
+		ctx.fs.BoolVar(&args.confirm, "confirm", false, "acknowledge the risks, clear the Steam achievements")
+		return "", nil
+	}
+	args := ctx.parsedArgs.(*argsType)
+	if !args.confirm {
+		lines := []string{
+			"This operation will clear Steam achievements.",
+			"Provide a --confirm flag to perform this operation.",
+		}
+		return strings.Join(lines, "\n"), nil
+	}
+	if !c.state.SteamInfo.Enabled {
+		return "", errors.New("steam is not enabled")
+	}
+	steamsdk.ClearAchievements(c.achievementNames())
+	return "The Steam achievements are cleared.", nil
 }
 
 func (c *TerminalMenu) onSaveDelete(ctx *terminalCommandContext) (string, error) {

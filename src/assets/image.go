@@ -207,6 +207,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageEssenceSmallScrapCreepSource: {Path: "image/resources/small_scrap_source_creep.png"},
 		ImageEssenceBigScrapCreepSource:   {Path: "image/resources/big_scrap_source_creep.png"},
 		ImageEssenceSource:                {Path: "image/resources/essence_source.png", FrameWidth: 32},
+		ImageEssenceSwampOil:              {Path: "image/resources/swamp_oil.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/resources/red_essence_source.png", FrameWidth: 32},
 
 		ImageHowitzerCreep:       {Path: "image/creeps/howitzer_creep.png", FrameWidth: 37, FrameHeight: 30},
@@ -533,6 +534,7 @@ const (
 	ImageEssenceSmallScrapCreepSource
 	ImageEssenceBigScrapCreepSource
 	ImageEssenceSource
+	ImageEssenceSwampOil
 	ImageRedEssenceSource
 	ImageCrawlerCreep
 	ImageEliteCrawlerCreep

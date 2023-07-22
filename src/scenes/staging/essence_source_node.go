@@ -6,6 +6,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type essenceSourceStats struct {
@@ -171,7 +172,15 @@ func newEssenceSourceNode(world *worldState, stats *essenceSourceStats, pos gmat
 func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	e.scene = scene
 
-	e.sprite = scene.NewSprite(e.stats.image)
+	img := e.stats.image
+	switch gamedata.EnvironmentKind(e.world.config.Environment) {
+	case gamedata.EnvSwamp:
+		if e.stats == oilSource {
+			img++
+		}
+	}
+
+	e.sprite = scene.NewSprite(img)
 	e.sprite.Pos.Base = &e.pos
 	e.sprite.Rotation = &e.rotation
 	if !e.stats.spritesheet && e.world.graphicsSettings.AllShadersEnabled {

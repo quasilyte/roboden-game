@@ -274,7 +274,17 @@ Some drone builds can benefit from this early game advantage.
 Choose how many mountains and landcracks the map will have.
 Make them really rare or appear almost everywhere.
 
+##menu.lobby.environment : Environment
+##menu.lobby.environment.description
+Switches between biome types.
+
+Apart from the visual differences, each biome has
+some special differences that will affect the gameplay.
+
 ##menu.lobby.go : Go!
+
+##menu.lobby.moon : moon
+##menu.lobby.swamp : swamp
 
 ##menu.lobby.land_flat : flat
 ##menu.lobby.land_normal : balanced

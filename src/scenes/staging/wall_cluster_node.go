@@ -10,6 +10,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
@@ -170,6 +171,13 @@ func (w *wallClusterNode) drawMountains(bg *ge.TiledBackground, scene *ge.Scene)
 			}
 		default:
 			panic("unexpected chunk size")
+		}
+
+		switch gamedata.EnvironmentKind(w.world.config.Environment) {
+		case gamedata.EnvMoon:
+			// That's the default.
+		case gamedata.EnvSwamp:
+			texture += 5
 		}
 
 		for j := 0; j < numSprites; j++ {

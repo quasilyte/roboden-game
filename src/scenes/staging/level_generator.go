@@ -322,6 +322,15 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
 
+	switch gamedata.EnvironmentKind(g.world.config.Environment) {
+	case gamedata.EnvMoon:
+		// This is the default.
+	case gamedata.EnvSwamp:
+		numIron = 0
+		numCrystals /= 2
+		numOil *= 2
+	}
+
 	numRedOil := 0
 	numRedCrystals := 0
 	if g.world.config.EliteResources {
@@ -413,13 +422,23 @@ func (g *levelGenerator) deployStartingResources() {
 				source.stats != smallScrapSource
 		})
 		if !hasResources {
-			for i := 0; i < 2; i++ {
+			resNum := 0
+			var res *essenceSourceStats
+			switch gamedata.EnvironmentKind(g.world.config.Environment) {
+			case gamedata.EnvMoon:
+				res = ironSource
+				resNum = 2
+			case gamedata.EnvSwamp:
+				res = oilSource
+				resNum = 1
+			}
+			for i := 0; i < resNum; i++ {
 				for j := 0; j < 5; j++ {
 					pos := g.adjustResourcePos(gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.pos))
 					if !posIsFree(g.world, nil, pos, 14) {
 						continue
 					}
-					essence := g.world.NewEssenceSourceNode(ironSource, pos)
+					essence := g.world.NewEssenceSourceNode(res, pos)
 					g.pendingResources = append(g.pendingResources, essence)
 					break
 				}

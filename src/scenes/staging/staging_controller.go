@@ -404,7 +404,17 @@ func (c *Controller) Init(scene *ge.Scene) {
 		// Use local rand for the tileset generation.
 		// Otherwise, we'll get incorrect results during the simulation.
 		bg = ge.NewTiledBackground(scene.Context())
-		bg.LoadTilesetWithRand(scene.Context(), &localRand, viewportWorld.Width, viewportWorld.Height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
+		var img resource.ImageID
+		var tileset resource.RawID
+		switch gamedata.EnvironmentKind(c.config.Environment) {
+		case gamedata.EnvMoon:
+			img = assets.ImageBackgroundTiles
+			tileset = assets.RawTilesJSON
+		case gamedata.EnvSwamp:
+			img = assets.ImageBackgroundSwampTiles
+			tileset = assets.RawSwampTilesJSON
+		}
+		bg.LoadTilesetWithRand(scene.Context(), &localRand, viewportWorld.Width, viewportWorld.Height, img, tileset)
 	}
 	c.world.stage.SetBackground(bg)
 

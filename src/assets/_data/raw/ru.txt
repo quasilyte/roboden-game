@@ -463,7 +463,7 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.wave_last : Продержитесь, чтобы победить
 ##game.wave_starts_in : стартует через
 ##game.wave_units : Типы юнитов
-##game.wave_special_units : Особые юниты
+##game.wave_special_units : Угрозы
 ##game.wave_direction : Направления атаки
 ##game.wave_builders : строитель
 ##game.wave_task_force : рейдер

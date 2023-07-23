@@ -463,7 +463,7 @@ To resume the game, press START.
 ##game.wave_last : Survive to win
 ##game.wave_starts_in : starts in
 ##game.wave_units : Unit types
-##game.wave_special_units : Special units
+##game.wave_special_units : Danger
 ##game.wave_direction : Attack directions
 ##game.wave_builders : builder
 ##game.wave_task_force : raider

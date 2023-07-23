@@ -68,7 +68,7 @@ func (c *CreditsMenuController) initUI() {
 		"[" + d.Get("menu.credits.assets") + "]",
 		"    DROZERiX - Crush, War Path and Sexxxy Bit 3 music tracks",
 		"    JAM - Deadly Windmills music track",
-		"    unTied Games - super pixel effects packs",
+		"    unTied Games - super pixel effects packs (1, 2 & 3)",
 		"",
 		"[" + d.Get("menu.credits.special_thanks") + "]",
 		"    Hajime Hoshi - Ebitengine creator and maintainer (@hajimehoshi)",

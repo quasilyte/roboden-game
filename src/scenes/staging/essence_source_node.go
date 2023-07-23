@@ -57,9 +57,9 @@ var redOilSource = &essenceSourceStats{
 var goldSource = &essenceSourceStats{
 	name:        "gold",
 	image:       assets.ImageEssenceGoldSource,
-	capacity:    gmath.MakeRange(30, 40),
+	capacity:    gmath.MakeRange(25, 40),
 	regenDelay:  0, // none
-	value:       6, // 180-240 total
+	value:       6, // 150-240 total
 	spritesheet: true,
 	size:        20,
 }
@@ -77,9 +77,9 @@ var crystalSource = &essenceSourceStats{
 var ironSource = &essenceSourceStats{
 	name:        "iron",
 	image:       assets.ImageEssenceIronSource,
-	capacity:    gmath.MakeRange(80, 110),
-	regenDelay:  0, // none
-	value:       2, // 160-220 total
+	capacity:    gmath.MakeRange(105, 150),
+	regenDelay:  0,   // none
+	value:       1.5, // 160-220 total
 	spritesheet: true,
 	size:        18,
 }

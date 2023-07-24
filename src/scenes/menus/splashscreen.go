@@ -43,6 +43,9 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())
 	config.ExecMode = gamedata.ExecuteDemo
 	config.PlayersMode = serverapi.PmodeSingleBot
+	if scene.Rand().Chance(0.4) {
+		config.Environment = int(gamedata.EnvForest)
+	}
 	config.Seed = scene.Rand().PositiveInt64()
 	for i := 0; i < 3; i++ {
 		config.ExtraDrones = append(config.ExtraDrones, gamedata.WorkerAgentStats)

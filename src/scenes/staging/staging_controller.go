@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"math"
 	"os"
+	"runtime"
 	"runtime/pprof"
 	"time"
 
@@ -279,7 +280,7 @@ func (c *Controller) GetSimulationResult() (serverapi.GameResults, bool) {
 	return result, true
 }
 
-func (c *Controller) Init(scene *ge.Scene) {
+func (c *Controller) doInit(scene *ge.Scene) {
 	scene.Context().Rand.SetSeed((c.config.Seed + 42) * 21917)
 	c.scene = scene
 
@@ -530,6 +531,11 @@ func (c *Controller) Init(scene *ge.Scene) {
 			c.updateFogOfWar(colony.pos)
 		}
 	}
+}
+
+func (c *Controller) Init(scene *ge.Scene) {
+	c.doInit(scene)
+	runtime.GC()
 }
 
 func (c *Controller) onCameraShake(cameraShake CameraShakeData) {

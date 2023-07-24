@@ -212,6 +212,7 @@ const SeasonNumber = 0
 //   - A new Terminal achievement
 //   - A new Ark colony core
 //   - A new music track (called Sexxxy Bit 3 by DROZERiX)
+//   - A new Biome (Forest)
 //
 // * Steam-related:
 //   - Integrated Steam SDK, implemented Steam achievements

@@ -252,7 +252,7 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 
 	if flags&collisionSkipForest == 0 {
 		for _, f := range world.forests {
-			if f.CollidesWith(pos, radius+16) {
+			if f.CollidesWith(pos, radius+22) {
 				return false
 			}
 		}

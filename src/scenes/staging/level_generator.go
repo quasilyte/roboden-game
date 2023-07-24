@@ -589,6 +589,12 @@ func (g *levelGenerator) placeForests() {
 	if g.world.config.WorldSize == 3 {
 		maxForests++
 	}
+	switch g.world.config.Terrain {
+	case 0: // flat
+		maxForests--
+	case 2: // less flat
+		maxForests++
+	}
 
 	for _, sector := range g.sectors {
 		numForests := rand.IntRange(1, maxForests)

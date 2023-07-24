@@ -596,6 +596,8 @@ func (g *levelGenerator) placeForests() {
 		maxForests++
 	}
 
+	var trees []pendingImage
+
 	for _, sector := range g.sectors {
 		numForests := rand.IntRange(1, maxForests)
 		for i := 0; i < numForests; i++ {
@@ -624,9 +626,18 @@ func (g *levelGenerator) placeForests() {
 				continue
 			}
 
-			forest.init(g.bg, g.scene)
+			trees = append(trees, forest.init(g.scene)...)
 
 			g.world.forests = append(g.world.forests, forest)
+		}
+	}
+
+	if len(trees) != 0 {
+		sort.SliceStable(trees, func(i, j int) bool {
+			return trees[i].drawOrder < trees[j].drawOrder
+		})
+		for _, img := range trees {
+			g.bg.DrawImage(img.data, &img.options)
 		}
 	}
 }

@@ -460,3 +460,9 @@ func playSound(world *worldState, id resource.AudioID, pos gmath.Vec) {
 		}
 	}
 }
+
+type pendingImage struct {
+	data      *ebiten.Image
+	options   ebiten.DrawImageOptions
+	drawOrder float64
+}

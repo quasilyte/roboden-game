@@ -1,8 +1,6 @@
 package staging
 
 import (
-	"sort"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -49,12 +47,7 @@ func newForestClusterNode(world *worldState, config forestClusterConfig) *forest
 	return f
 }
 
-func (f *forestClusterNode) init(bg *ge.TiledBackground, scene *ge.Scene) {
-	type pendingImage struct {
-		data      *ebiten.Image
-		options   ebiten.DrawImageOptions
-		drawOrder float64
-	}
+func (f *forestClusterNode) init(scene *ge.Scene) []pendingImage {
 	// TODO: make() with a capacity hint.
 	var images []pendingImage
 
@@ -139,12 +132,7 @@ func (f *forestClusterNode) init(bg *ge.TiledBackground, scene *ge.Scene) {
 		}
 	}
 
-	sort.SliceStable(images, func(i, j int) bool {
-		return images[i].drawOrder < images[j].drawOrder
-	})
-	for _, img := range images {
-		bg.DrawImage(img.data, &img.options)
-	}
+	return images
 }
 
 func (f *forestClusterNode) CollidesWith(pos gmath.Vec, r float64) bool {

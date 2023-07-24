@@ -114,7 +114,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageSmallExplosion2:            {Path: "image/effects/small_explosion2.png", FrameWidth: 16},
 		ImageSmallExplosion3:            {Path: "image/effects/small_explosion3.png", FrameWidth: 20},
 		ImageSmallExplosion4:            {Path: "image/effects/small_explosion4.png", FrameWidth: 16},
-		ImagePurpleExplosion:            {Path: "image/effects/purple_explosion.png", FrameWidth: 30},
+		ImagePurpleExplosion:            {Path: "image/effects/purple_explosion.png", FrameWidth: 26},
 		ImageVerticalExplosion1:         {Path: "image/effects/vertical_explosion1.png", FrameWidth: 30},
 		ImageVerticalExplosion2:         {Path: "image/effects/vertical_explosion2.png", FrameWidth: 32},
 		ImageBigVerticalExplosion1:      {Path: "image/effects/big_vertical_explosion1.png", FrameWidth: 46},

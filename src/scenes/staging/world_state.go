@@ -593,6 +593,9 @@ func (w *worldState) FindTargetableAgents(pos gmath.Vec, skipGround bool, r floa
 				return false
 			}
 			for _, turret := range c.turrets {
+				if turret.insideForest {
+					continue
+				}
 				distSqr := turret.pos.DistanceSquaredTo(pos)
 				if distSqr > radiusSqr {
 					continue

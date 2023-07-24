@@ -462,7 +462,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 	var closestAttacker *creepNode
 	closestAttackerDist := float64(math.MaxFloat64)
 	for _, creep := range p.world.creeps {
-		if creep.IsCloaked() {
+		if !creep.CanBeTargeted() {
 			continue
 		}
 		dist := creep.pos.DistanceTo(p.colony.pos)

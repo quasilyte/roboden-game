@@ -132,9 +132,10 @@ type colonyAgentNode struct {
 	slow            float64
 	lifetime        float64
 
-	tether  bool
-	resting bool
-	speed   float64
+	insideForest bool
+	tether       bool
+	resting      bool
+	speed        float64
 
 	dist          float64
 	waypointsLeft int
@@ -812,7 +813,9 @@ func (a *colonyAgentNode) doUncloak() {
 func (a *colonyAgentNode) doCloak(d float64) {
 	a.cloaking = d
 	a.sprite.SetAlpha(0.2)
-	a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageCloakWave))
+	if !a.world().simulation {
+		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageCloakWave))
+	}
 	playSound(a.world(), assets.AudioStealth, a.pos)
 }
 
@@ -820,8 +823,7 @@ func (a *colonyAgentNode) explode() {
 	if !a.stats.IsFlying {
 		createAreaExplosion(a.world(), spriteRect(a.pos, a.sprite), true)
 		if a.IsTurret() || a.scene.Rand().Chance(0.3) {
-			scraps := a.world().NewEssenceSourceNode(scrapSource, a.pos.Add(gmath.Vec{Y: 2}))
-			a.world().nodeRunner.AddObject(scraps)
+			a.world().CreateScrapsAt(scrapSource, a.pos.Add(gmath.Vec{Y: 2}))
 		}
 		return
 	}
@@ -1375,7 +1377,7 @@ func (a *colonyAgentNode) findAttackTargets() []targetable {
 }
 
 func (a *colonyAgentNode) isValidTarget(creep *creepNode) bool {
-	if creep.IsCloaked() {
+	if !creep.CanBeTargeted() {
 		return false
 	}
 	if !a.CanAttack(creep.TargetKind()) {
@@ -1448,7 +1450,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	if a.attackDelay != 0 {
 		return
 	}
-	if a.IsCloaked() {
+	if a.IsCloaked() || a.insideForest {
 		return
 	}
 
@@ -1670,6 +1672,38 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) handleForestTransition(nextWaypoint gmath.Vec) {
+	if !a.world().hasForests {
+		return
+	}
+
+	needEffect := false
+	switch checkForestState(a.world(), a.insideForest, a.pos, nextWaypoint) {
+	case forestStateEnter:
+		needEffect = true
+		a.insideForest = true
+		a.sprite.Visible = false
+		if a.diode != nil {
+			a.diode.Visible = false
+		}
+	case forestStateLeave:
+		needEffect = true
+		a.insideForest = false
+		a.sprite.Visible = true
+		if a.diode != nil {
+			a.diode.Visible = true
+		}
+	}
+
+	if needEffect {
+		createEffect(a.world(), effectConfig{
+			Pos:            a.pos,
+			Image:          assets.ImageDisappearSmokeSmall,
+			AnimationSpeed: animationSpeedVerySlow,
+		})
+	}
+}
+
 func (a *colonyAgentNode) updateHarvester(delta float64) {
 	var target *essenceSourceNode
 	if a.target != nil {
@@ -1688,7 +1722,9 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 				// TODO: remove code duplication with crawlers and roombas.
 				d := a.path.Next()
 				aligned := a.world().pathgrid.AlignPos(a.pos)
-				a.setWaypoint(posMove(aligned, d).Add(a.world().rand.Offset(-4, 4)))
+				nextPos := posMove(aligned, d)
+				a.handleForestTransition(nextPos)
+				a.setWaypoint(nextPos.Add(a.world().rand.Offset(-4, 4)))
 				return
 			}
 			a.path = pathing.GridPath{}
@@ -1858,7 +1894,9 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 				// TODO: remove code duplication with crawlers.
 				d := a.path.Next()
 				aligned := a.world().pathgrid.AlignPos(a.pos)
-				a.setWaypoint(posMove(aligned, d).Add(a.world().rand.Offset(-4, 4)))
+				nextPos := posMove(aligned, d)
+				a.handleForestTransition(nextPos)
+				a.setWaypoint(nextPos.Add(a.world().rand.Offset(-4, 4)))
 				return
 			}
 			a.clearWaypoint()
@@ -1897,8 +1935,10 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 	// Try to find a new target.
 	newTarget := randIterate(a.scene.Rand(), a.world().creeps, func(creep *creepNode) bool {
 		switch creep.stats.Kind {
-		case gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepTurret, gamedata.CreepHowitzer:
+		case gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepTurret:
 			return true
+		case gamedata.CreepHowitzer:
+			return creep.CanBeTargeted()
 		default:
 			return false
 		}

@@ -55,6 +55,7 @@ func (g *levelGenerator) Generate() {
 		1.25,
 		1.6,
 	}
+	g.placeForests()
 	g.placeTeleporters()
 	g.placePlayers()
 	g.placeWalls()
@@ -271,8 +272,7 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stat
 		for i := 0; i < numScraps; i++ {
 			scrapPos := g.adjustResourcePos(gmath.RadToVec(rand.Rad()).Mulf(rand.FloatRange(64, 128)).Add(unitPos))
 			if posIsFree(g.world, nil, scrapPos, 8) {
-				source := g.world.NewEssenceSourceNode(scrapSource, scrapPos)
-				g.world.nodeRunner.AddObject(source)
+				g.world.CreateScrapsAt(scrapSource, scrapPos)
 			}
 		}
 	}
@@ -328,7 +328,8 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	case gamedata.EnvSwamp:
 		numIron = 0
 		numCrystals /= 2
-		numOil *= 2
+		numGold = int(float64(numGold) * 0.75)
+		numOil = int(float64(numOil) * 1.75)
 	}
 
 	numRedOil := 0
@@ -549,7 +550,7 @@ func (g *levelGenerator) placeCreepBases() {
 	for i := 0; i < numBases; i++ {
 		border := borders[borderSlider.Value()]
 		borderSlider.Inc()
-		basePos := g.randomFreePos(border, 48, 16)
+		basePos := g.randomFreePos(border, 48, 32)
 		basePos = g.world.AdjustCellPos(basePos, 6)
 		if g.world.debugLogs {
 			g.world.sessionState.Logf("deployed a creep base %d at %v distance is %f", i+1, basePos, basePos.DistanceTo(g.playerSpawn))
@@ -572,6 +573,53 @@ func (g *levelGenerator) placeCreepBases() {
 	}
 }
 
+func (g *levelGenerator) placeForests() {
+	if gamedata.EnvironmentKind(g.world.config.Environment) != gamedata.EnvSwamp {
+		return
+	}
+
+	rand := &g.rng
+
+	playerTerritory := gmath.Rect{
+		Min: g.playerSpawn.Sub(gmath.Vec{X: 96, Y: 96}),
+		Max: g.playerSpawn.Add(gmath.Vec{X: 96, Y: 96}),
+	}
+
+	for _, sector := range g.sectors {
+		numForests := rand.IntRange(1, 4)
+		for i := 0; i < numForests; i++ {
+			pos := g.world.pathgrid.AlignPos(g.randomFreePos(sector, 32, 96)).Sub(gmath.Vec{
+				X: pathing.CellSize * 0.5,
+				Y: pathing.CellSize * 0.5,
+			})
+			width := g.world.rand.IntRange(6, 16)
+			height := g.world.rand.IntRange(6, 16)
+
+			xOverflow := (pos.X + float64(width)*32) - (g.world.width - 32.0)
+			yOverflow := (pos.Y + float64(height)*32) - (g.world.height - 32.0)
+			if xOverflow > 0 {
+				pos.X -= xOverflow
+			}
+			if yOverflow > 0 {
+				pos.Y -= yOverflow
+			}
+
+			forest := newForestClusterNode(g.world, forestClusterConfig{
+				pos:    pos,
+				width:  width,
+				height: height,
+			})
+			if forest.outerRect.Overlaps(playerTerritory) {
+				continue
+			}
+
+			forest.init(g.bg, g.scene)
+
+			g.world.forests = append(g.world.forests, forest)
+		}
+	}
+}
+
 func (g *levelGenerator) placeWalls() {
 	rand := &g.rng
 
@@ -589,6 +637,13 @@ func (g *levelGenerator) placeWalls() {
 	multiplier := worldSizeMultipliers[g.world.config.WorldSize] * terrainMultiplier[g.world.config.Terrain]
 	numWallClusters := int(float64(rand.IntRange(8, 10)) * multiplier)
 	numMountains := int(float64(rand.IntRange(5, 9)) * multiplier)
+
+	switch gamedata.EnvironmentKind(g.world.config.Environment) {
+	case gamedata.EnvMoon:
+		// Nothing to do.
+	case gamedata.EnvSwamp:
+		numWallClusters = 0
+	}
 
 	const (
 		// A simple 1x1 wall tile (rect shape: true).
@@ -841,11 +896,7 @@ func (g *levelGenerator) placeWalls() {
 		}
 
 		// Positions should be rounded to a tile size.
-		{
-			x := math.Floor(pos.X/wallTileSize) * wallTileSize
-			y := math.Floor(pos.Y/wallTileSize) * wallTileSize
-			pos = gmath.Vec{X: x + wallTileSize/2, Y: y + wallTileSize/2}
-		}
+		pos = g.world.pathgrid.AlignPos(pos)
 
 		currentPos := pos
 		mountainLength := g.rng.IntRange(3, 10)

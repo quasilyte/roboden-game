@@ -12,6 +12,9 @@ todo engine:
 - add LoadGameDataRaw
 - gmath DirectionTo works in counter-intuitive way
 
+loading screen hints:
+* faction bonuses
+
 computers and multi-players:
 - make turrets repairable for everyone
 

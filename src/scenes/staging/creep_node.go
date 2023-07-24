@@ -42,6 +42,7 @@ type creepNode struct {
 	wasRetreating   bool
 	spawnedFromBase bool
 	cloaking        bool
+	insideForest    bool
 	super           bool
 
 	path            pathing.GridPath
@@ -205,7 +206,7 @@ func (c *creepNode) Update(delta float64) {
 	c.aggro = gmath.ClampMin(c.aggro-delta, 0)
 	c.disarm = gmath.ClampMin(c.disarm-delta, 0)
 	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
-	if c.stats.Weapon != nil && c.attackDelay == 0 && c.disarm == 0 && !c.cloaking {
+	if c.stats.Weapon != nil && c.attackDelay == 0 && c.disarm == 0 && !c.cloaking && !c.insideForest {
 		c.attackDelay = c.stats.Weapon.Reload * c.scene.Rand().FloatRange(0.8, 1.2)
 		targets := c.findTargets()
 		weapon := c.stats.Weapon
@@ -292,17 +293,14 @@ func (c *creepNode) explode() {
 
 	case gamedata.CreepTurret, gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepHowitzer:
 		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
-		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
-		c.world.nodeRunner.AddObject(scraps)
+		c.world.CreateScrapsAt(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
 	case gamedata.CreepTurretConstruction, gamedata.CreepCrawlerBaseConstruction:
 		createExplosion(c.world, false, c.pos)
-		scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
-		c.world.nodeRunner.AddObject(scraps)
+		c.world.CreateScrapsAt(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 	case gamedata.CreepCrawler:
 		createExplosion(c.world, false, c.pos)
 		if c.world.rand.Chance(0.3) {
-			scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
-			c.world.nodeRunner.AddObject(scraps)
+			c.world.CreateScrapsAt(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 		}
 	default:
 		roll := c.scene.Rand().Float()
@@ -568,7 +566,7 @@ func (c *creepNode) findTargets() []targetable {
 	}
 
 	skipGroundTargets := c.stats.Weapon.TargetFlags&gamedata.TargetGround == 0
-	c.world.FindColonyAgent(c.pos, skipGroundTargets, c.stats.Weapon.AttackRange, func(a *colonyAgentNode) bool {
+	c.world.FindTargetableAgents(c.pos, skipGroundTargets, c.stats.Weapon.AttackRange, func(a *colonyAgentNode) bool {
 		targets = append(targets, a)
 		return len(targets) >= maxTargets
 	})
@@ -835,7 +833,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 	if !c.waypoint.IsZero() {
 		c.anim.Tick(delta)
 		if c.moveTowards(delta, c.waypoint) {
-			if c.specialDelay == 0 && c.path.HasNext() {
+			if c.specialDelay == 0 && c.path.HasNext() && !c.insideForest {
 				if c.isNearEnemyBase(c.stats.SpecialWeapon.AttackRange * 0.8) {
 					c.path = pathing.GridPath{}
 				}
@@ -843,7 +841,9 @@ func (c *creepNode) updateHowitzer(delta float64) {
 			if c.path.HasNext() {
 				d := c.path.Next()
 				aligned := c.world.pathgrid.AlignPos(c.pos)
-				c.waypoint = posMove(aligned, d).Add(c.world.rand.Offset(-4, 4))
+				nextPos := posMove(aligned, d)
+				c.handleForestTransition(nextPos)
+				c.waypoint = nextPos.Add(c.world.rand.Offset(-4, 4))
 				return
 			}
 			c.specialModifier = howitzerIdle
@@ -928,6 +928,35 @@ func (c *creepNode) updateHowitzer(delta float64) {
 	}
 }
 
+func (c *creepNode) handleForestTransition(nextWaypoint gmath.Vec) {
+	if !c.world.hasForests {
+		return
+	}
+	needEffect := false
+	switch checkForestState(c.world, c.insideForest, c.pos, nextWaypoint) {
+	case forestStateEnter:
+		needEffect = true
+		c.insideForest = true
+		c.sprite.Visible = false
+	case forestStateLeave:
+		needEffect = true
+		c.insideForest = false
+		c.sprite.Visible = true
+	}
+
+	if needEffect {
+		img := assets.ImageDisappearSmokeSmall
+		if c.stats.Kind == gamedata.CreepHowitzer {
+			img = assets.ImageDisappearSmokeBig
+		}
+		createEffect(c.world, effectConfig{
+			Pos:            c.pos,
+			Image:          img,
+			AnimationSpeed: animationSpeedVerySlow,
+		})
+	}
+}
+
 func (c *creepNode) updateCrawler(delta float64) {
 	if c.waypoint.IsZero() && c.cloaking {
 		c.doUncloak()
@@ -938,7 +967,7 @@ func (c *creepNode) updateCrawler(delta float64) {
 		if c.moveTowards(delta, c.waypoint) {
 			// To avoid weird cases of walking above colony core or turret,
 			// stop if there are any targets in vicinity.
-			if c.path.HasNext() {
+			if c.path.HasNext() && !c.insideForest {
 				if c.isNearEnemyBase(96) {
 					c.path = pathing.GridPath{}
 				}
@@ -946,7 +975,9 @@ func (c *creepNode) updateCrawler(delta float64) {
 			if c.path.HasNext() {
 				d := c.path.Next()
 				aligned := c.world.pathgrid.AlignPos(c.pos)
-				c.waypoint = posMove(aligned, d).Add(c.world.rand.Offset(-4, 4))
+				nextPos := posMove(aligned, d)
+				c.handleForestTransition(nextPos)
+				c.waypoint = nextPos.Add(c.world.rand.Offset(-4, 4))
 				return
 			}
 			c.specialModifier = crawlerIdle
@@ -1014,6 +1045,10 @@ func (c *creepNode) updateCreepCrawlerBase(delta float64) {
 	crawler.EventDestroyed.Connect(c, func(arg *creepNode) {
 		c.specialModifier--
 	})
+
+	if !c.world.simulation {
+		c.world.nodeRunner.AddObject(newEffectNode(c.world, spawnPos, true, assets.ImageCreepCreatedEffect))
+	}
 }
 
 func (c *creepNode) updateCreepBase(delta float64) {
@@ -1225,6 +1260,10 @@ func (c *creepNode) updateUberBoss(delta float64) {
 
 func (c *creepNode) setWaypoint(pos gmath.Vec) {
 	c.waypoint = correctedPos(c.world.rect, pos, 8)
+}
+
+func (c *creepNode) CanBeTargeted() bool {
+	return !c.cloaking && !c.insideForest
 }
 
 func (c *creepNode) IsCloaked() bool {

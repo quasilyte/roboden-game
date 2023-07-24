@@ -253,6 +253,10 @@ func (p *projectileNode) createExplosion() {
 
 	explosionPos := p.pos.Add(p.world.localRand.Offset(-4, 4))
 	switch explosionKind {
+	case gamedata.ProjectileExplosionServant:
+		effect := newEffectNode(p.world, explosionPos, above, assets.ImageServantShotExplosion)
+		p.world.nodeRunner.AddObject(effect)
+		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionNormal:
 		createExplosion(p.world, above, explosionPos)
 	case gamedata.ProjectileExplosionBigVertical:

@@ -121,6 +121,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageBigVerticalExplosion2:      {Path: "image/effects/big_vertical_explosion2.png", FrameWidth: 64},
 		ImageNuclearExplosion:           {Path: "image/effects/nuclear_explosion.png", FrameWidth: 128},
 		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 64},
+		ImageServantShotExplosion:       {Path: "image/effects/servant_shot_explosion.png", FrameWidth: 16},
 		ImageIonZap:                     {Path: "image/effects/ion_zap.png", FrameWidth: 28},
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
 		ImageGreenZap:                   {Path: "image/effects/green_zap.png", FrameWidth: 14},
@@ -132,6 +133,9 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageSmokeSideDown:              {Path: "image/effects/smoke_side_down.png", FrameWidth: 8},
 		ImageSmokeSide:                  {Path: "image/effects/smoke_side.png", FrameWidth: 15},
 		ImageRoombaSmoke:                {Path: "image/effects/roomba_smoke.png", FrameWidth: 8},
+		ImageDisappearSmokeSmall:        {Path: "image/effects/disappear_small.png", FrameWidth: 32},
+		ImageDisappearSmokeBig:          {Path: "image/effects/disappear_big.png", FrameWidth: 64},
+		ImageCreepCreatedEffect:         {Path: "image/effects/creep_created.png", FrameWidth: 32},
 
 		ImageFactionDiode:     {Path: "image/faction_diode.png"},
 		ImageTeleporter:       {Path: "image/teleporter.png"},
@@ -247,6 +251,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageLandCrack2: {Path: "image/landscape/landcrack2.png", FrameWidth: 32},
 		ImageLandCrack3: {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4: {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
+
+		ImageTrees: {Path: "image/landscape/swamp/trees.png", FrameWidth: 32},
 
 		ImageCommanderProjectile:      {Path: "image/projectile/commander_projectile.png"},
 		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
@@ -416,6 +422,7 @@ const (
 	ImageBigVerticalExplosion1
 	ImageBigVerticalExplosion2
 	ImageNuclearExplosion
+	ImageServantShotExplosion
 	ImageBigExplosion
 	ImageIonZap
 	ImagePurpleIonZap
@@ -428,6 +435,9 @@ const (
 	ImageSmokeSideDown
 	ImageSmokeSide
 	ImageRoombaSmoke
+	ImageDisappearSmokeSmall
+	ImageDisappearSmokeBig
+	ImageCreepCreatedEffect
 
 	ImageColonyDamageMask
 	ImageTurretDamageMask1
@@ -568,6 +578,7 @@ const (
 	ImageLandCrack2
 	ImageLandCrack3
 	ImageLandCrack4
+	ImageTrees
 
 	ImageCommanderProjectile
 	ImageRoombaProjectile

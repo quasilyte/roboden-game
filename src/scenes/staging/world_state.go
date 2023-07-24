@@ -38,6 +38,7 @@ type worldState struct {
 	creeps         []*creepNode
 	constructions  []*constructionNode
 	walls          []*wallClusterNode
+	forests        []*forestClusterNode
 	teleporters    []*teleporterNode
 
 	boss              *creepNode
@@ -55,6 +56,7 @@ type worldState struct {
 	turretDesign     *gamedata.AgentStats
 	coreDesign       *gamedata.ColonyCoreStats
 
+	hasForests           bool
 	droneLabels          bool
 	debugLogs            bool
 	evolutionEnabled     bool
@@ -250,6 +252,15 @@ func (w *worldState) Init() {
 	}
 }
 
+func (w *worldState) HasTreesAt(pos gmath.Vec, r float64) bool {
+	for _, forest := range w.forests {
+		if forest.CollidesWith(pos, r) {
+			return true
+		}
+	}
+	return false
+}
+
 func (w *worldState) newProjectileNode(config projectileConfig) *projectileNode {
 	if len(w.projectilePool) != 0 {
 		p := w.projectilePool[len(w.projectilePool)-1]
@@ -421,6 +432,14 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 	return n
 }
 
+func (w *worldState) CreateScrapsAt(stats *essenceSourceStats, pos gmath.Vec) {
+	if w.HasTreesAt(pos, 16) {
+		return
+	}
+	scraps := w.NewEssenceSourceNode(stats, pos)
+	w.nodeRunner.AddObject(scraps)
+}
+
 func (w *worldState) NewEssenceSourceNode(stats *essenceSourceStats, pos gmath.Vec) *essenceSourceNode {
 	n := newEssenceSourceNode(w, stats, pos)
 	if stats.regenDelay != 0 && w.oilRegenMultiplier != 0 {
@@ -559,7 +578,7 @@ func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNod
 	}
 }
 
-func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, f func(a *colonyAgentNode) bool) {
+func (w *worldState) FindTargetableAgents(pos gmath.Vec, skipGround bool, r float64, f func(a *colonyAgentNode) bool) {
 	// TODO: use an agent container for turrets too?
 	// Also, this "find" function is used to collect N units, not a single unit (see its usage).
 
@@ -595,6 +614,9 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, 
 				return false
 			}
 			for _, roomba := range c.roombas {
+				if roomba.insideForest {
+					continue
+				}
 				distSqr := roomba.pos.DistanceSquaredTo(pos)
 				if distSqr > radiusSqr {
 					continue

@@ -62,8 +62,7 @@ func (d *droneFallNode) Destroy() {
 
 	essenceSpawnPos := d.pos.Add(gmath.Vec{Y: 6})
 	if d.scraps != nil && posIsFree(d.world, nil, essenceSpawnPos, 32) {
-		essence := d.world.NewEssenceSourceNode(d.scraps, essenceSpawnPos)
-		d.world.nodeRunner.AddObject(essence)
+		d.world.CreateScrapsAt(d.scraps, essenceSpawnPos)
 	}
 }
 

@@ -195,6 +195,7 @@ var ServantCreepStats = &CreepStats{
 		ProjectileImage: assets.ImageServantProjectile,
 		Reload:          3.2,
 		TargetFlags:     TargetFlying | TargetGround,
+		Explosion:       ProjectileExplosionServant,
 	}),
 	Disarmable:    true,
 	CanBeRepelled: false,

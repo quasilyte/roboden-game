@@ -76,6 +76,7 @@ const (
 	ProjectileExplosionGreenZap
 	ProjectileExplosionRoombaShot
 	ProjectileExplosionScarab
+	ProjectileExplosionServant
 )
 
 type TargetKind int

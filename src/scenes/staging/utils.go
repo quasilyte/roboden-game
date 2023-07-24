@@ -1,8 +1,10 @@
 package staging
 
 import (
+	"image"
 	"math"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -10,6 +12,39 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
 )
+
+type forestCheckResult int
+
+const (
+	forestStateUnchanged forestCheckResult = iota
+	forestStateEnter
+	forestStateLeave
+)
+
+func checkForestState(world *worldState, insideForest bool, currentPos, nextWaypoint gmath.Vec) forestCheckResult {
+	if insideForest {
+		if !world.HasTreesAt(currentPos, 0) && !world.HasTreesAt(nextWaypoint, 0) {
+			return forestStateLeave
+		}
+	} else {
+		if world.HasTreesAt(nextWaypoint, 0) {
+			return forestStateEnter
+		}
+	}
+	return forestStateUnchanged
+}
+
+func createSubImage(img resource.Image, offsetX int) *ebiten.Image {
+	_, height := img.Data.Size()
+	min := image.Point{
+		X: offsetX,
+		Y: 0,
+	}
+	return img.Data.SubImage(image.Rectangle{
+		Min: min,
+		Max: image.Point{X: min.X + int(img.DefaultFrameWidth), Y: height},
+	}).(*ebiten.Image)
+}
 
 func pointToLineDistance(point, a, b gmath.Vec) float64 {
 	s1 := -b.Y + a.Y
@@ -157,6 +192,7 @@ type collisionFlags int
 const (
 	collisionSkipSmallCrawlers collisionFlags = 1 << iota
 	collisionSkipTeleporters
+	collisionSkipForest
 )
 
 func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, radius float64) bool {
@@ -214,10 +250,63 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 		}
 	}
 
+	if flags&collisionSkipForest == 0 {
+		for _, f := range world.forests {
+			if f.CollidesWith(pos, radius+16) {
+				return false
+			}
+		}
+	}
+
 	return true
 }
 
+type effectConfig struct {
+	Pos            gmath.Vec
+	Image          resource.ImageID
+	AnimationSpeed animationSpeed
+	Above          bool
+}
+
+type animationSpeed int
+
+const (
+	animationSpeedNormal animationSpeed = iota
+	animationSpeedFast
+	animationSpeedSlow
+	animationSpeedVerySlow
+)
+
+func (s animationSpeed) SecondsPerFrame() float64 {
+	switch s {
+	case animationSpeedFast:
+		return 0.035
+	case animationSpeedSlow:
+		return 0.05
+	case animationSpeedVerySlow:
+		return 0.07
+	default:
+		return 0.04
+	}
+}
+
+func createEffect(world *worldState, config effectConfig) {
+	if world.simulation {
+		return
+	}
+
+	effect := newEffectNode(world, config.Pos, config.Above, config.Image)
+	world.nodeRunner.AddObject(effect)
+	if config.AnimationSpeed != animationSpeedNormal {
+		effect.anim.SetSecondsPerFrame(config.AnimationSpeed.SecondsPerFrame())
+	}
+}
+
 func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool) {
+	if world.simulation {
+		return
+	}
+
 	// FIXME: Rect.Center() does not work properly in gmath.
 	center := gmath.Vec{
 		X: rect.Max.X - rect.Width()*0.5,
@@ -243,19 +332,19 @@ func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool)
 
 	size := rect.Width() * rect.Height()
 	minExplosions := gmath.ClampMin(size/120.0, 1)
-	numExplosions := world.rand.IntRange(int(minExplosions), int(minExplosions*1.3))
+	numExplosions := world.localRand.IntRange(int(minExplosions), int(minExplosions*1.3))
 	above := !allowVertical
 	for numExplosions > 0 {
 		offset := gmath.Vec{
-			X: world.rand.FloatRange(-rect.Width()*0.4, rect.Width()*0.4),
-			Y: world.rand.FloatRange(-rect.Height()*0.4, rect.Height()*0.4),
+			X: world.localRand.FloatRange(-rect.Width()*0.4, rect.Width()*0.4),
+			Y: world.localRand.FloatRange(-rect.Height()*0.4, rect.Height()*0.4),
 		}
-		if numExplosions >= 4 && world.rand.Chance(0.4) {
+		if numExplosions >= 4 && world.localRand.Chance(0.4) {
 			numExplosions -= 4
 			world.nodeRunner.AddObject(newEffectNode(world, center.Add(offset), above, assets.ImageBigExplosion))
 		} else {
 			numExplosions--
-			if allowVertical && world.rand.Chance(0.4) {
+			if allowVertical && world.localRand.Chance(0.4) {
 				img := assets.ImageVerticalExplosion1
 				if world.localRand.Bool() {
 					img = assets.ImageVerticalExplosion2
@@ -299,6 +388,10 @@ func playExplosionSound(world *worldState, pos gmath.Vec) {
 }
 
 func createBigVerticalExplosion(world *worldState, pos gmath.Vec) {
+	if world.simulation {
+		return
+	}
+
 	img := assets.ImageBigVerticalExplosion1
 	if world.localRand.Bool() {
 		img = assets.ImageBigVerticalExplosion2
@@ -308,6 +401,10 @@ func createBigVerticalExplosion(world *worldState, pos gmath.Vec) {
 }
 
 func createExplosion(world *worldState, above bool, pos gmath.Vec) {
+	if world.simulation {
+		return
+	}
+
 	createMuteExplosion(world, above, pos)
 	playExplosionSound(world, pos)
 }

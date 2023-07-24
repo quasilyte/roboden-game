@@ -263,6 +263,7 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 
 type effectConfig struct {
 	Pos            gmath.Vec
+	Rotation       gmath.Rad
 	Image          resource.ImageID
 	AnimationSpeed animationSpeed
 	Above          bool
@@ -296,6 +297,7 @@ func createEffect(world *worldState, config effectConfig) {
 	}
 
 	effect := newEffectNode(world, config.Pos, config.Above, config.Image)
+	effect.rotation = config.Rotation
 	world.nodeRunner.AddObject(effect)
 	if config.AnimationSpeed != animationSpeedNormal {
 		effect.anim.SetSecondsPerFrame(config.AnimationSpeed.SecondsPerFrame())

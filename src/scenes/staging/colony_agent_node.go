@@ -2007,11 +2007,16 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 	const explosionRangeSqr float64 = 34 * 34
 	const explosionDamage float64 = 35.0
 	if a.moveTowards(delta) {
-		if a.pos.DistanceSquaredTo(creep.pos) > explosionRangeSqr {
+		if a.pos.DistanceSquaredTo(creep.pos) > (explosionRangeSqr + 8) {
 			a.clearWaypoint()
 			return
 		}
-		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageBigVerticalExplosion1))
+		createEffect(a.world(), effectConfig{
+			Pos:      a.pos,
+			Above:    true,
+			Image:    assets.ImageBigVerticalExplosion1,
+			Rotation: a.pos.AngleToPoint(creep.pos) - math.Pi/2,
+		})
 		playExplosionSound(a.world(), a.pos)
 		creep.OnDamage(gamedata.DamageValue{Health: explosionDamage}, a)
 		for _, otherCreep := range a.world().creeps {

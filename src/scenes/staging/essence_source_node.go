@@ -174,7 +174,7 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 
 	img := e.stats.image
 	switch gamedata.EnvironmentKind(e.world.config.Environment) {
-	case gamedata.EnvSwamp:
+	case gamedata.EnvForest:
 		if e.stats == oilSource {
 			img++
 		}

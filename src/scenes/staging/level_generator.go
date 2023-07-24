@@ -325,7 +325,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	switch gamedata.EnvironmentKind(g.world.config.Environment) {
 	case gamedata.EnvMoon:
 		// This is the default.
-	case gamedata.EnvSwamp:
+	case gamedata.EnvForest:
 		numIron = 0
 		numCrystals /= 2
 		numGold = int(float64(numGold) * 0.75)
@@ -429,7 +429,7 @@ func (g *levelGenerator) deployStartingResources() {
 			case gamedata.EnvMoon:
 				res = ironSource
 				resNum = 2
-			case gamedata.EnvSwamp:
+			case gamedata.EnvForest:
 				res = oilSource
 				resNum = 1
 			}
@@ -574,7 +574,7 @@ func (g *levelGenerator) placeCreepBases() {
 }
 
 func (g *levelGenerator) placeForests() {
-	if gamedata.EnvironmentKind(g.world.config.Environment) != gamedata.EnvSwamp {
+	if gamedata.EnvironmentKind(g.world.config.Environment) != gamedata.EnvForest {
 		return
 	}
 
@@ -641,7 +641,7 @@ func (g *levelGenerator) placeWalls() {
 	switch gamedata.EnvironmentKind(g.world.config.Environment) {
 	case gamedata.EnvMoon:
 		// Nothing to do.
-	case gamedata.EnvSwamp:
+	case gamedata.EnvForest:
 		numWallClusters = 0
 	}
 

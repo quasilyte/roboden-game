@@ -163,7 +163,7 @@ func (w *wallClusterNode) drawMountains(bg *ge.TiledBackground, scene *ge.Scene)
 		switch gamedata.EnvironmentKind(w.world.config.Environment) {
 		case gamedata.EnvMoon:
 			// That's the default.
-		case gamedata.EnvSwamp:
+		case gamedata.EnvForest:
 			texture += 5
 		}
 

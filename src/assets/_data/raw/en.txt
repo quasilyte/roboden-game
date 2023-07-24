@@ -284,7 +284,7 @@ some special differences that will affect the gameplay.
 ##menu.lobby.go : Go!
 
 ##menu.lobby.moon : moon
-##menu.lobby.swamp : swamp
+##menu.lobby.forest : forest
 
 ##menu.lobby.land_flat : flat
 ##menu.lobby.land_normal : balanced

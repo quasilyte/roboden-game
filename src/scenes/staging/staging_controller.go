@@ -375,7 +375,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 		tier2recipes: tier2recipes,
 		turretDesign: gamedata.FindTurretByName(c.config.TurretDesign),
 		coreDesign:   gamedata.FindCoreByName(c.config.CoreDesign),
-		hasForests:   gamedata.EnvironmentKind(c.config.Environment) == gamedata.EnvSwamp,
+		hasForests:   gamedata.EnvironmentKind(c.config.Environment) == gamedata.EnvForest,
 	}
 	world.inputMode = c.state.GetInput(0).DetectInputMode()
 	world.creepCoordinator = newCreepCoordinator(world)
@@ -411,9 +411,9 @@ func (c *Controller) Init(scene *ge.Scene) {
 		case gamedata.EnvMoon:
 			img = assets.ImageBackgroundTiles
 			tileset = assets.RawTilesJSON
-		case gamedata.EnvSwamp:
-			img = assets.ImageBackgroundSwampTiles
-			tileset = assets.RawSwampTilesJSON
+		case gamedata.EnvForest:
+			img = assets.ImageBackgroundForestTiles
+			tileset = assets.RawForestTilesJSON
 		}
 		bg.LoadTilesetWithRand(scene.Context(), &localRand, viewportWorld.Width, viewportWorld.Height, img, tileset)
 	}

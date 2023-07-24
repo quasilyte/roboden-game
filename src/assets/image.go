@@ -211,7 +211,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageEssenceSmallScrapCreepSource: {Path: "image/resources/small_scrap_source_creep.png"},
 		ImageEssenceBigScrapCreepSource:   {Path: "image/resources/big_scrap_source_creep.png"},
 		ImageEssenceSource:                {Path: "image/resources/essence_source.png", FrameWidth: 32},
-		ImageEssenceSwampOil:              {Path: "image/resources/swamp_oil.png", FrameWidth: 32},
+		ImageEssenceForestOil:             {Path: "image/resources/forest_oil.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/resources/red_essence_source.png", FrameWidth: 32},
 
 		ImageHowitzerCreep:       {Path: "image/creeps/howitzer_creep.png", FrameWidth: 37, FrameHeight: 30},
@@ -233,26 +233,26 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCrawlerCreepBase:    {Path: "image/creeps/crawler_base_creep.png", FrameHeight: 25},
 		ImageBuilderCreep:        {Path: "image/creeps/builder_creep.png", FrameWidth: 31, FrameHeight: 31},
 
-		ImageBackgroundTiles:      {Path: "image/landscape/moon/tiles.png"},
-		ImageBackgroundSwampTiles: {Path: "image/landscape/swamp/tiles.png"},
+		ImageBackgroundTiles:       {Path: "image/landscape/moon/tiles.png"},
+		ImageBackgroundForestTiles: {Path: "image/landscape/forest/tiles.png"},
 
-		ImageMountainSmall:       {Path: "image/landscape/moon/mountain_small.png", FrameWidth: 32},
-		ImageMountainMedium:      {Path: "image/landscape/moon/mountain_medium.png", FrameWidth: 48},
-		ImageMountainBig:         {Path: "image/landscape/moon/mountain_big.png", FrameWidth: 64},
-		ImageMountainWide:        {Path: "image/landscape/moon/mountain_wide.png", FrameWidth: 64},
-		ImageMountainTall:        {Path: "image/landscape/moon/mountain_tall.png", FrameWidth: 48},
-		ImageSwampMountainSmall:  {Path: "image/landscape/swamp/mountain_small.png", FrameWidth: 32},
-		ImageSwampMountainMedium: {Path: "image/landscape/swamp/mountain_medium.png", FrameWidth: 48},
-		ImageSwampMountainBig:    {Path: "image/landscape/swamp/mountain_big.png", FrameWidth: 64},
-		ImageSwampMountainWide:   {Path: "image/landscape/swamp/mountain_wide.png", FrameWidth: 64},
-		ImageSwampMountainTall:   {Path: "image/landscape/swamp/mountain_tall.png", FrameWidth: 48},
+		ImageMountainSmall:        {Path: "image/landscape/moon/mountain_small.png", FrameWidth: 32},
+		ImageMountainMedium:       {Path: "image/landscape/moon/mountain_medium.png", FrameWidth: 48},
+		ImageMountainBig:          {Path: "image/landscape/moon/mountain_big.png", FrameWidth: 64},
+		ImageMountainWide:         {Path: "image/landscape/moon/mountain_wide.png", FrameWidth: 64},
+		ImageMountainTall:         {Path: "image/landscape/moon/mountain_tall.png", FrameWidth: 48},
+		ImageForestMountainSmall:  {Path: "image/landscape/forest/mountain_small.png", FrameWidth: 32},
+		ImageForestMountainMedium: {Path: "image/landscape/forest/mountain_medium.png", FrameWidth: 48},
+		ImageForestMountainBig:    {Path: "image/landscape/forest/mountain_big.png", FrameWidth: 64},
+		ImageForestMountainWide:   {Path: "image/landscape/forest/mountain_wide.png", FrameWidth: 64},
+		ImageForestMountainTall:   {Path: "image/landscape/forest/mountain_tall.png", FrameWidth: 48},
 
 		ImageLandCrack:  {Path: "image/landscape/landcrack.png", FrameWidth: 32},
 		ImageLandCrack2: {Path: "image/landscape/landcrack2.png", FrameWidth: 32},
 		ImageLandCrack3: {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4: {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
-		ImageTrees: {Path: "image/landscape/swamp/trees.png", FrameWidth: 32},
+		ImageTrees: {Path: "image/landscape/forest/trees.png", FrameWidth: 32},
 
 		ImageCommanderProjectile:      {Path: "image/projectile/commander_projectile.png"},
 		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
@@ -544,7 +544,7 @@ const (
 	ImageEssenceSmallScrapCreepSource
 	ImageEssenceBigScrapCreepSource
 	ImageEssenceSource
-	ImageEssenceSwampOil
+	ImageEssenceForestOil
 	ImageRedEssenceSource
 	ImageCrawlerCreep
 	ImageEliteCrawlerCreep
@@ -563,17 +563,17 @@ const (
 	ImageCrawlerCreepBase
 
 	ImageBackgroundTiles
-	ImageBackgroundSwampTiles
+	ImageBackgroundForestTiles
 	ImageMountainSmall
 	ImageMountainMedium
 	ImageMountainBig
 	ImageMountainTall
 	ImageMountainWide
-	ImageSwampMountainSmall
-	ImageSwampMountainMedium
-	ImageSwampMountainBig
-	ImageSwampMountainTall
-	ImageSwampMountainWide
+	ImageForestMountainSmall
+	ImageForestMountainMedium
+	ImageForestMountainBig
+	ImageForestMountainTall
+	ImageForestMountainWide
 	ImageLandCrack
 	ImageLandCrack2
 	ImageLandCrack3

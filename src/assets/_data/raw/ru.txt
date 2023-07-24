@@ -284,7 +284,7 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.lobby.go : Вперёд!
 
 ##menu.lobby.moon : луна
-##menu.lobby.swamp : болото
+##menu.lobby.forest : лес
 
 ##menu.lobby.land_flat : плато
 ##menu.lobby.land_normal : сбалансированный

@@ -585,8 +585,13 @@ func (g *levelGenerator) placeForests() {
 		Max: g.playerSpawn.Add(gmath.Vec{X: 96, Y: 96}),
 	}
 
+	maxForests := g.world.config.WorldSize + 2
+	if g.world.config.WorldSize == 3 {
+		maxForests++
+	}
+
 	for _, sector := range g.sectors {
-		numForests := rand.IntRange(1, 4)
+		numForests := rand.IntRange(1, maxForests)
 		for i := 0; i < numForests; i++ {
 			pos := g.world.pathgrid.AlignPos(g.randomFreePos(sector, 32, 96)).Sub(gmath.Vec{
 				X: pathing.CellSize * 0.5,

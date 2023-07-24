@@ -1946,7 +1946,11 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 	if newTarget != nil {
 		a.supportDelay = a.scene.Rand().FloatRange(0.4, 0.95)
 		a.target = newTarget
-		a.sendTo(newTarget.pos.Add(a.scene.Rand().Offset(-80, 80)))
+		targetPos := newTarget.pos.Add(a.scene.Rand().Offset(-80, 80))
+		if a.world().HasTreesAt(targetPos, 0) {
+			targetPos = newTarget.pos.Add(a.scene.Rand().Offset(-120, 120))
+		}
+		a.sendTo(targetPos)
 	} else {
 		if a.scene.Rand().Chance(0.4) {
 			targetPos := correctedPos(a.world().rect, randomSectorPos(a.scene.Rand(), a.world().rect), 480)

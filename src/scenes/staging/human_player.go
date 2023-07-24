@@ -271,7 +271,7 @@ func (p *humanPlayer) HandleInput() {
 		}
 	}
 
-	if (selectedColony != nil || p.creepsState != nil) && p.choiceWindow != nil {
+	if (selectedColony != nil || p.creepsState != nil) && p.choiceWindow != nil && p.state.camera.UI.Visible {
 		if cardIndex := p.choiceWindow.HandleInput(); cardIndex != -1 {
 			if !p.choiceGen.TryExecute(cardIndex, gmath.Vec{}) {
 				p.scene.Audio().PlaySound(assets.AudioError)
@@ -334,7 +334,7 @@ func (p *humanPlayer) HandleInput() {
 		}
 	}
 
-	if p.screenButtons != nil {
+	if p.screenButtons != nil && p.state.camera.UI.Visible {
 		p.screenButtons.HandleInput(clickPos)
 	}
 }

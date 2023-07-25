@@ -1393,33 +1393,37 @@ func (a *colonyAgentNode) isValidTarget(creep *creepNode) bool {
 	return true
 }
 
+func (a *colonyAgentNode) attackWithProjectile(target targetable, burstSize int) {
+	toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
+	j := 0
+	attacksPerBurst := a.stats.Weapon.AttacksPerBurst
+	for i := 0; i < burstSize; i += attacksPerBurst {
+		if i+attacksPerBurst > burstSize {
+			// This happens only once for the last burst wave
+			// if attacks-per-burst are not aligned with burstSize (like with Devourer).
+			attacksPerBurst = burstSize - i
+		}
+		for i := 0; i < attacksPerBurst; i++ {
+			fireDelay := float64(j) * a.stats.Weapon.BurstDelay
+			p := a.world().newProjectileNode(projectileConfig{
+				World:     a.world(),
+				Weapon:    a.stats.Weapon,
+				Attacker:  a,
+				ToPos:     toPos,
+				Target:    target,
+				FireDelay: fireDelay,
+				Guided:    a.mode == agentModeFollowCommander,
+			})
+			a.world().nodeRunner.AddProjectile(p)
+		}
+		j++
+	}
+}
+
 func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
 	for _, target := range targets {
 		if a.stats.Weapon.ProjectileSpeed != 0 {
-			toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
-			j := 0
-			attacksPerBurst := a.stats.Weapon.AttacksPerBurst
-			for i := 0; i < burstSize; i += attacksPerBurst {
-				if i+attacksPerBurst > burstSize {
-					// This happens only once for the last burst wave
-					// if attacks-per-burst are not aligned with burstSize (like with Devourer).
-					attacksPerBurst = burstSize - i
-				}
-				for i := 0; i < attacksPerBurst; i++ {
-					fireDelay := float64(j) * a.stats.Weapon.BurstDelay
-					p := a.world().newProjectileNode(projectileConfig{
-						World:     a.world(),
-						Weapon:    a.stats.Weapon,
-						Attacker:  a,
-						ToPos:     toPos,
-						Target:    target,
-						FireDelay: fireDelay,
-						Guided:    a.mode == agentModeFollowCommander,
-					})
-					a.world().nodeRunner.AddProjectile(p)
-				}
-				j++
-			}
+			a.attackWithProjectile(target, burstSize)
 		} else {
 			// TODO: this code is duplited with creep node.
 			if !a.world().simulation {
@@ -1533,6 +1537,19 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		// Every power level gives +1 projectile (burst size).
 		burstSize := a.stats.Weapon.BurstSize + a.extraLevel
 		a.attackTargets(targets, burstSize)
+
+	case gamedata.AgentRoomba:
+		for _, target := range targets {
+			creep, ok := target.(*creepNode)
+			if ok {
+				switch creep.stats.Kind {
+				case gamedata.CreepWisp, gamedata.CreepWispLair:
+					// Roombas don't attack wisps.
+					continue
+				}
+			}
+			a.attackWithProjectile(target, a.stats.Weapon.BurstSize)
+		}
 
 	default:
 		a.attackTargets(targets, a.stats.Weapon.BurstSize)
@@ -1789,7 +1806,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 	var closestSpot gmath.Vec
 	closestDistSqr := math.MaxFloat64
 	randIterate(a.world().rand, a.world().essenceSources, func(e *essenceSourceNode) bool {
-		if e.stats.scrap || e.stats.regenDelay != 0 || e.stats == redCrystalSource || e.beingHarvested {
+		if e.stats.scrap || !e.stats.canDeplete || e.stats == redCrystalSource || e.beingHarvested {
 			return false
 		}
 		coord := a.world().pathgrid.PosToCoord(e.pos)

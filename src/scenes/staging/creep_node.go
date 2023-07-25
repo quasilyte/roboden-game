@@ -152,6 +152,10 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		}
 	}
 	switch c.stats.Kind {
+	case gamedata.CreepWispLair:
+		c.attackDelay = c.scene.Rand().FloatRange(6, 12)
+	case gamedata.CreepWisp:
+		c.specialDelay = c.scene.Rand().FloatRange(2, 20)
 	case gamedata.CreepServant:
 		c.specialDelay = c.scene.Rand().FloatRange(0.5, 3)
 	case gamedata.CreepBuilder:
@@ -246,6 +250,10 @@ func (c *creepNode) Update(delta float64) {
 		// Do nothing.
 	case gamedata.CreepTurretConstruction, gamedata.CreepCrawlerBaseConstruction:
 		c.updateTurretConstruction(delta)
+	case gamedata.CreepWisp:
+		c.updateWisp(delta)
+	case gamedata.CreepWispLair:
+		c.updateWispLair(delta)
 	default:
 		panic("unexpected creep kind in update()")
 	}
@@ -279,6 +287,12 @@ func (c *creepNode) TargetKind() gamedata.TargetKind {
 
 func (c *creepNode) explode() {
 	switch c.stats.Kind {
+	case gamedata.CreepWisp:
+		createEffect(c.world, effectConfig{
+			Pos:   c.pos,
+			Image: assets.ImageWispExplosion,
+			Above: true,
+		})
 	case gamedata.CreepUberBoss:
 		if c.IsFlying() {
 			shadowImg := c.shadowComponent.GetImageID()
@@ -987,6 +1001,91 @@ func (c *creepNode) updateCrawler(delta float64) {
 	}
 }
 
+func (c *creepNode) updateWisp(delta float64) {
+	if c.anim != nil {
+		c.anim.Tick(delta)
+	}
+
+	// It regenerates 1 health over 2 seconds (*0.5).
+	// 30 hp over minute.
+	c.health = gmath.ClampMax(c.health+(delta*0.5), c.maxHealth)
+
+	if c.moveTowards(delta, c.waypoint) {
+		c.waypoint = gmath.Vec{}
+		if c.specialTarget != nil {
+			res := c.specialTarget.(*essenceSourceNode)
+			res.Restore(c.world.rand.IntRange(3, 6))
+			playSound(c.world, assets.AudioOrganicRestored, res.pos)
+			createEffect(c.world, effectConfig{
+				Pos:   res.pos,
+				Image: assets.ImageOrganicRestored,
+			})
+			c.specialTarget = nil
+			c.specialDelay = c.world.rand.FloatRange(40, 120)
+		}
+	}
+
+	if c.attackDelay == 0 && len(c.world.allColonies) != 0 {
+		const attackRange = 52
+		attacking := false
+		farFromTargets := true
+		for _, colony := range c.world.allColonies {
+			// Don't process the unlikely candidates.
+			if colony.pos.DistanceSquaredTo(c.pos) > (520 * 520) {
+				continue
+			}
+			farFromTargets = false
+			colony.agents.Each(func(a *colonyAgentNode) {
+				if a.pos.DistanceSquaredTo(c.pos) > (attackRange * attackRange) {
+					return
+				}
+				attacking = true
+				a.OnDamage(gamedata.DamageValue{Health: 20, Energy: 100}, c)
+			})
+		}
+		if attacking {
+			c.attackDelay = c.world.rand.FloatRange(10, 20)
+			createEffect(c.world, effectConfig{
+				Pos:   c.pos,
+				Image: assets.ImageWispShockwave,
+				Above: true,
+			})
+			playSound(c.world, assets.AudioWispShocker, c.pos)
+		} else {
+			if farFromTargets {
+				c.attackDelay = c.world.rand.FloatRange(2.5, 5.75)
+			} else {
+				c.attackDelay = c.world.rand.FloatRange(0.5, 2.0)
+			}
+		}
+	}
+
+	if c.waypoint.IsZero() {
+		if c.specialDelay == 0 && c.world.rand.Chance(0.8) {
+			randIterate(c.world.rand, c.world.essenceSources, func(res *essenceSourceNode) bool {
+				if res.stats != organicSource {
+					return false
+				}
+				if res.resource == res.capacity {
+					return false
+				}
+				c.specialTarget = res
+				c.waypoint = res.pos.Sub(gmath.Vec{Y: agentFlightHeight})
+				return true
+			})
+			if c.specialTarget == nil {
+				c.specialDelay = c.world.rand.FloatRange(15, 60)
+			}
+		} else {
+			if c.world.wispLair != nil && !c.world.wispLair.IsDisposed() && c.world.rand.Chance(0.35) {
+				c.setWaypoint(c.world.wispLair.pos.Add(c.world.rand.Offset(-64, 64)))
+			} else {
+				c.waypoint = correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 196)
+			}
+		}
+	}
+}
+
 func (c *creepNode) updateTurretConstruction(delta float64) {
 	// If builder is defeated, this turret should be removed.
 	if c.specialTarget == nil || c.specialTarget.(*creepNode).IsDisposed() {
@@ -1012,6 +1111,37 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	if !c.sprite.Shader.IsNil() {
 		c.sprite.Shader.SetFloatValue("Time", c.specialModifier)
 	}
+}
+
+func (c *creepNode) updateWispLair(delta float64) {
+	// It regenerates 1 health over 5 seconds (*0.2).
+	// 12 hp over minute.
+	c.health = gmath.ClampMax(c.health+(delta*0.2), c.maxHealth)
+
+	if c.attackDelay != 0 {
+		return
+	}
+	const maxUnits = 15
+	if c.specialModifier > maxUnits {
+		return
+	}
+
+	spawnPos := c.pos.Sub(gmath.Vec{Y: 20})
+	c.attackDelay = c.scene.Rand().FloatRange(25, 45)
+	c.specialModifier++
+
+	wisp := c.world.NewCreepNode(spawnPos, gamedata.WispCreepStats)
+	c.world.nodeRunner.AddObject(wisp)
+	wisp.EventDestroyed.Connect(c, func(arg *creepNode) {
+		c.specialModifier--
+	})
+	playSound(c.world, assets.AudioOrganicRestored, spawnPos)
+	createEffect(c.world, effectConfig{
+		Pos:     spawnPos,
+		Image:   assets.ImageWispExplosion,
+		Above:   true,
+		Reverse: true,
+	})
 }
 
 func (c *creepNode) updateCreepCrawlerBase(delta float64) {

@@ -122,6 +122,9 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageNuclearExplosion:           {Path: "image/effects/nuclear_explosion.png", FrameWidth: 128},
 		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 64},
 		ImageServantShotExplosion:       {Path: "image/effects/servant_shot_explosion.png", FrameWidth: 16},
+		ImageWispExplosion:              {Path: "image/effects/wisp_explosion.png", FrameWidth: 32},
+		ImageWispShockwave:              {Path: "image/effects/wisp_shockwave.png", FrameWidth: 64},
+		ImageOrganicRestored:            {Path: "image/effects/organic_restored.png", FrameWidth: 24},
 		ImageIonZap:                     {Path: "image/effects/ion_zap.png", FrameWidth: 28},
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
 		ImageGreenZap:                   {Path: "image/effects/green_zap.png", FrameWidth: 14},
@@ -213,6 +216,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageEssenceSource:                {Path: "image/resources/essence_source.png", FrameWidth: 32},
 		ImageEssenceForestOil:             {Path: "image/resources/forest_oil.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/resources/red_essence_source.png", FrameWidth: 32},
+		ImageOrganicSource:                {Path: "image/resources/organic_source.png", FrameWidth: 20},
 
 		ImageHowitzerCreep:       {Path: "image/creeps/howitzer_creep.png", FrameWidth: 37, FrameHeight: 30},
 		ImageHowitzerPreparing:   {Path: "image/creeps/howitzer_preparing.png", FrameWidth: 37, FrameHeight: 36},
@@ -232,6 +236,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCreepBase:           {Path: "image/creeps/creep_base.png", FrameWidth: 32, FrameHeight: 32},
 		ImageCrawlerCreepBase:    {Path: "image/creeps/crawler_base_creep.png", FrameHeight: 25},
 		ImageBuilderCreep:        {Path: "image/creeps/builder_creep.png", FrameWidth: 31, FrameHeight: 31},
+		ImageWisp:                {Path: "image/creeps/wisp.png", FrameWidth: 22},
 
 		ImageBackgroundTiles:       {Path: "image/landscape/moon/tiles.png"},
 		ImageBackgroundForestTiles: {Path: "image/landscape/forest/tiles.png"},
@@ -424,6 +429,9 @@ const (
 	ImageNuclearExplosion
 	ImageServantShotExplosion
 	ImageBigExplosion
+	ImageWispExplosion
+	ImageWispShockwave
+	ImageOrganicRestored
 	ImageIonZap
 	ImagePurpleIonZap
 	ImageGreenZap
@@ -546,6 +554,7 @@ const (
 	ImageEssenceSource
 	ImageEssenceForestOil
 	ImageRedEssenceSource
+	ImageOrganicSource
 	ImageCrawlerCreep
 	ImageEliteCrawlerCreep
 	ImageHeavyCrawlerCreep
@@ -561,6 +570,7 @@ const (
 	ImageTurretCreep
 	ImageBuilderCreep
 	ImageCrawlerCreepBase
+	ImageWisp
 
 	ImageBackgroundTiles
 	ImageBackgroundForestTiles

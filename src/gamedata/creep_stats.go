@@ -27,6 +27,8 @@ const (
 	CreepHowitzer
 	CreepServant
 	CreepUberBoss
+	CreepWisp
+	CreepWispLair
 )
 
 type CreepStats struct {
@@ -174,6 +176,32 @@ var WandererCreepStats = &CreepStats{
 	CanBeRepelled: true,
 	Flying:        true,
 	TargetKind:    TargetFlying,
+}
+
+var WispCreepStats = &CreepStats{
+	Kind:          CreepWisp,
+	Image:         assets.ImageWisp,
+	AnimSpeed:     0.12,
+	ShadowImage:   assets.ImageMediumShadow,
+	Tier:          2,
+	Speed:         25,
+	MaxHealth:     55,
+	Disarmable:    false,
+	CanBeRepelled: true,
+	Flying:        true,
+	TargetKind:    TargetFlying,
+}
+
+var WispLairCreepStats = &CreepStats{
+	Kind:          CreepWispLair,
+	Image:         assets.ImageCrawlerCreepBase,
+	Speed:         0,
+	MaxHealth:     160,
+	Size:          60,
+	Disarmable:    false,
+	CanBeRepelled: false,
+	Building:      true,
+	TargetKind:    TargetGround,
 }
 
 var ServantCreepStats = &CreepStats{

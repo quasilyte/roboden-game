@@ -432,6 +432,8 @@ Split-screen multiplayer: competitive (PvP).
 ##game.hint.resource.scrap : Scrap resource
 ##game.hint.resource.scrap.value : Very low value
 ##game.hint.resource.iron : Iron resource
+##game.hint.resource.organic : Organic resource
+##game.hint.resource.organic.value : Normal value
 ##game.hint.resource.iron.value : Low value
 ##game.hint.resource.gold : Gold resource
 ##game.hint.resource.gold.value : Normal value

@@ -433,6 +433,8 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.hint.resource.scrap.value : Очень низкая ценность
 ##game.hint.resource.iron : Железо (ресурс)
 ##game.hint.resource.iron.value : Низкая ценность
+##game.hint.resource.organic : Органика (ресурс)
+##game.hint.resource.organic.value : Средняя ценность
 ##game.hint.resource.gold : Золото (ресурс)
 ##game.hint.resource.gold.value : Средняя ценность
 ##game.hint.resource.crystal : Кристаллы (ресурс)

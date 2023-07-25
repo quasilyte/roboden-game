@@ -321,15 +321,16 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	numGold := int(float64(rand.IntRange(20, 28)) * multiplier)
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
+	numOrganic := int(float64(rand.IntRange(16, 24)) * multiplier)
 
 	switch gamedata.EnvironmentKind(g.world.config.Environment) {
 	case gamedata.EnvMoon:
-		// This is the default.
+		numOrganic = 0
 	case gamedata.EnvForest:
 		numIron = 0
 		numCrystals /= 2
-		numGold = int(float64(numGold) * 0.75)
-		numOil = int(float64(numOil) * 1.75)
+		numGold = int(float64(numGold) * 0.7)
+		numOil = int(float64(numOil) * 1.7)
 	}
 
 	numRedOil := 0
@@ -342,6 +343,13 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 	g.world.numRedCrystals = numRedCrystals
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
+
+	for numOrganic > 0 {
+		clusterSize := rand.IntRange(1, 2)
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numOrganic -= g.placeResourceCluster(sector, clusterSize, organicSource)
+	}
 
 	for numIron > 0 {
 		clusterSize := rand.IntRange(2, 6)
@@ -491,6 +499,24 @@ func (g *levelGenerator) placeCreeps() {
 	}
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
+
+	numWispLairs := 0
+	if gamedata.EnvironmentKind(g.world.config.Environment) == gamedata.EnvForest {
+		numWispLairs = 1
+	}
+	for numWispLairs > 0 {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numWispLairs -= g.placeCreepsCluster(sector, 1, gamedata.WispLairCreepStats)
+	}
+	if numWispLairs > 0 {
+		for _, creep := range g.world.creeps {
+			if creep.stats.Kind == gamedata.CreepWispLair {
+				g.world.wispLair = creep
+				break
+			}
+		}
+	}
 
 	numTurrets := int(math.Round(float64(rand.IntRange(4, 5)) * multiplier))
 	for numTurrets > 0 {

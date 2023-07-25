@@ -42,6 +42,7 @@ type worldState struct {
 	teleporters    []*teleporterNode
 
 	boss              *creepNode
+	wispLair          *creepNode
 	creepCoordinator  *creepCoordinator
 	creepsPlayerState *creepsPlayerState
 

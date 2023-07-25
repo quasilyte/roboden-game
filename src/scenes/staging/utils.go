@@ -267,6 +267,7 @@ type effectConfig struct {
 	Image          resource.ImageID
 	AnimationSpeed animationSpeed
 	Above          bool
+	Reverse        bool
 }
 
 type animationSpeed int
@@ -301,6 +302,9 @@ func createEffect(world *worldState, config effectConfig) {
 	world.nodeRunner.AddObject(effect)
 	if config.AnimationSpeed != animationSpeedNormal {
 		effect.anim.SetSecondsPerFrame(config.AnimationSpeed.SecondsPerFrame())
+	}
+	if config.Reverse {
+		effect.anim.Mode = ge.AnimationBackward
 	}
 }
 

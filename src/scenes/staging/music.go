@@ -40,8 +40,6 @@ func newMusicPlayer(scene *ge.Scene, extraTrack bool) *musicPlayer {
 	}
 	p.musicTrackSlider.SetBounds(0, numTracks)
 
-	p.musicTrackSlider.TrySetValue(3)
-
 	return p
 }
 

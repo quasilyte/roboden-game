@@ -178,7 +178,6 @@ type essenceSourceNode struct {
 	recoverDelay      float64 // a ticker before the next regen
 	recoverDelayTimer float64 // how much time it takes to reach a regen tick
 	beingHarvested    bool
-	canDeplete        bool
 
 	rotation gmath.Rad
 	pos      gmath.Vec
@@ -262,7 +261,7 @@ func (e *essenceSourceNode) Harvest(n int) int {
 	e.resource -= n
 	e.percengage = float64(e.resource) / float64(e.capacity)
 
-	if e.resource <= 0 && e.canDeplete {
+	if e.resource <= 0 && e.stats.canDeplete {
 		e.Destroy()
 		if e.stats == redCrystalSource {
 			e.world.result.RedCrystalsCollected++

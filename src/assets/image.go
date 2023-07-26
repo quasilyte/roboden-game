@@ -121,7 +121,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageBigVerticalExplosion2:      {Path: "image/effects/big_vertical_explosion2.png", FrameWidth: 64},
 		ImageNuclearExplosion:           {Path: "image/effects/nuclear_explosion.png", FrameWidth: 128},
 		ImageBombExplosion:              {Path: "image/effects/bomb_explosion.png", FrameWidth: 64},
-		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 64},
+		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 32},
 		ImageServantShotExplosion:       {Path: "image/effects/servant_shot_explosion.png", FrameWidth: 16},
 		ImageWispExplosion:              {Path: "image/effects/wisp_explosion.png", FrameWidth: 32},
 		ImageWispShockwave:              {Path: "image/effects/wisp_shockwave.png", FrameWidth: 64},

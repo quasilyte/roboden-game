@@ -1024,7 +1024,7 @@ func (c *creepNode) updateWisp(delta float64) {
 		c.waypoint = gmath.Vec{}
 		if c.specialTarget != nil {
 			res := c.specialTarget.(*essenceSourceNode)
-			res.Restore(c.world.rand.IntRange(3, 6))
+			res.Restore(c.world.rand.IntRange(5, 8))
 			playSound(c.world, assets.AudioOrganicRestored, res.pos)
 			createEffect(c.world, effectConfig{
 				Pos:   res.pos,

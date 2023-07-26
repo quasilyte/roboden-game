@@ -238,6 +238,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCreepBase:           {Path: "image/creeps/creep_base.png", FrameWidth: 32, FrameHeight: 32},
 		ImageCrawlerCreepBase:    {Path: "image/creeps/crawler_base_creep.png", FrameHeight: 25},
 		ImageBuilderCreep:        {Path: "image/creeps/builder_creep.png", FrameWidth: 31, FrameHeight: 31},
+		ImageWispLair:            {Path: "image/creeps/wisp_lair.png"},
 		ImageWisp:                {Path: "image/creeps/wisp.png", FrameWidth: 22},
 
 		ImageBackgroundTiles:       {Path: "image/landscape/moon/tiles.png"},
@@ -575,6 +576,7 @@ const (
 	ImageTurretCreep
 	ImageBuilderCreep
 	ImageCrawlerCreepBase
+	ImageWispLair
 	ImageWisp
 
 	ImageBackgroundTiles

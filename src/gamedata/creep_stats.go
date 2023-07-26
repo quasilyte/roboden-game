@@ -194,7 +194,7 @@ var WispCreepStats = &CreepStats{
 
 var WispLairCreepStats = &CreepStats{
 	Kind:          CreepWispLair,
-	Image:         assets.ImageCrawlerCreepBase,
+	Image:         assets.ImageWispLair,
 	Speed:         0,
 	MaxHealth:     160,
 	Size:          60,

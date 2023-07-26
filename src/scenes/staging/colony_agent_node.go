@@ -1466,7 +1466,11 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		return
 	}
 
-	a.attackDelay = gmath.ClampMin(a.attackDelay-(delta*a.reloadRate), 0)
+	reloaded := delta * a.reloadRate
+	if a.resting {
+		reloaded *= 0.75
+	}
+	a.attackDelay = gmath.ClampMin(a.attackDelay-reloaded, 0)
 	if a.attackDelay != 0 {
 		return
 	}

@@ -1077,7 +1077,10 @@ func (a *colonyAgentNode) doConsumeDrone() {
 	if a.colonyCore.mode != colonyModeNormal {
 		return
 	}
-	if a.mode != agentModeStandby && a.mode != agentModePatrol {
+	switch a.mode {
+	case agentModeStandby, agentModePatrol, agentModeFollowCommander:
+		// OK
+	default:
 		return
 	}
 
@@ -1248,7 +1251,10 @@ func (a *colonyAgentNode) doScavenge() {
 	if a.colonyCore.mode != colonyModeNormal {
 		return
 	}
-	if a.mode != agentModeStandby && a.mode != agentModePatrol {
+	switch a.mode {
+	case agentModeStandby, agentModePatrol:
+		// OK
+	default:
 		return
 	}
 	if a.energy < 20 || a.energyBill > 100 {

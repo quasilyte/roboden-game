@@ -81,10 +81,10 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 		if a.faction == p.leadingFaction {
 			leadingFactionCombatAgents++
 		}
-		if a.mode == agentModePatrol {
+		switch a.mode {
+		case agentModePatrol, agentModeFollowCommander:
 			p.numPatrolAgents++
-		}
-		if a.mode == agentModeStandby {
+		case agentModeStandby:
 			p.numGarrisonAgents++
 		}
 	})

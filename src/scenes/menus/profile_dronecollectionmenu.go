@@ -96,7 +96,6 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 	for i := range drones {
 		drone := drones[i]
 		available := droneIsUnlocked(drone)
-		available = true
 		frame := droneImage(drone, available)
 		b := eui.NewItemButton(uiResources, frame, tinyFont, "", 0, func() {})
 		b.SetDisabled(true)

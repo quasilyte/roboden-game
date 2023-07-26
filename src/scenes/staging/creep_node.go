@@ -293,6 +293,8 @@ func (c *creepNode) explode() {
 			Image: assets.ImageWispExplosion,
 			Above: true,
 		})
+	case gamedata.CreepWispLair:
+		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
 	case gamedata.CreepUberBoss:
 		if c.IsFlying() {
 			shadowImg := c.shadowComponent.GetImageID()
@@ -1088,7 +1090,7 @@ func (c *creepNode) updateWisp(delta float64) {
 				c.specialDelay = c.world.rand.FloatRange(15, 60)
 			}
 		} else {
-			if c.world.wispLair != nil && !c.world.wispLair.IsDisposed() && c.world.rand.Chance(0.35) {
+			if c.world.wispLair != nil && c.world.rand.Chance(0.35) {
 				c.setWaypoint(c.world.wispLair.pos.Add(c.world.rand.Offset(-64, 64)))
 			} else {
 				c.waypoint = correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 196)

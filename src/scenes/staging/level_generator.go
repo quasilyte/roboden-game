@@ -501,15 +501,17 @@ func (g *levelGenerator) placeCreeps() {
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 
 	numWispLairs := 0
+	hasWispLair := false
 	if gamedata.EnvironmentKind(g.world.config.Environment) == gamedata.EnvForest {
 		numWispLairs = 1
+		hasWispLair = true
 	}
 	for numWispLairs > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
 		numWispLairs -= g.placeCreepsCluster(sector, 1, gamedata.WispLairCreepStats)
 	}
-	if numWispLairs > 0 {
+	if hasWispLair {
 		for _, creep := range g.world.creeps {
 			if creep.stats.Kind == gamedata.CreepWispLair {
 				g.world.wispLair = creep

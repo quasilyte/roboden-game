@@ -428,6 +428,7 @@ x1.5 означает, что игра будет работать на 50% бы
 
 ##game.hint.teleporter : Телепортер
 ##game.hint.colony : Колония
+##game.hint.wisp_lair : Логово виспов
 ##game.hint.dreadnought : Дредноут
 ##game.hint.resource.scrap : Обломки (ресурс)
 ##game.hint.resource.scrap.value : Очень низкая ценность

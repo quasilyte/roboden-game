@@ -428,6 +428,7 @@ Split-screen multiplayer: competitive (PvP).
 
 ##game.hint.teleporter : Teleporter
 ##game.hint.colony : Colony
+##game.hint.wisp_lair : Wisp lair
 ##game.hint.dreadnought : Dreadnought
 ##game.hint.resource.scrap : Scrap resource
 ##game.hint.resource.scrap.value : Very low value

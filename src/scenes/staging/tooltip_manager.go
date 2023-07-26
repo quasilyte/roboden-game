@@ -169,6 +169,10 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 		return d.Get("game.hint.dreadnought")
 	}
 
+	if m.world.wispLair != nil && m.world.wispLair.pos.DistanceSquaredTo(pos) < (22*22) {
+		return d.Get("game.hint.wisp_lair")
+	}
+
 	for _, res := range m.world.essenceSources {
 		if res.pos.DistanceSquaredTo(pos) > (16 * 16) {
 			continue

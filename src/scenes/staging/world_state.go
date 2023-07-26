@@ -93,8 +93,9 @@ type worldState struct {
 
 	projectilePool []*projectileNode
 
-	tmpTargetSlice []targetable
-	tmpColonySlice []*colonyCoreNode
+	tmpTargetSlice  []targetable
+	tmpTargetSlice2 []targetable
+	tmpColonySlice  []*colonyCoreNode
 
 	inputMode string
 

@@ -120,6 +120,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageBigVerticalExplosion1:      {Path: "image/effects/big_vertical_explosion1.png", FrameWidth: 46},
 		ImageBigVerticalExplosion2:      {Path: "image/effects/big_vertical_explosion2.png", FrameWidth: 64},
 		ImageNuclearExplosion:           {Path: "image/effects/nuclear_explosion.png", FrameWidth: 128},
+		ImageBombExplosion:              {Path: "image/effects/bomb_explosion.png", FrameWidth: 64},
 		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 64},
 		ImageServantShotExplosion:       {Path: "image/effects/servant_shot_explosion.png", FrameWidth: 16},
 		ImageWispExplosion:              {Path: "image/effects/wisp_explosion.png", FrameWidth: 32},
@@ -196,6 +197,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageDevourerAgent:      {Path: "image/drones/devourer_agent.png", FrameWidth: 23, FrameHeight: 22},
 		ImageCommanderAgent:     {Path: "image/drones/commander_agent.png", FrameWidth: 17, FrameHeight: 14},
 		ImageTargeterAgent:      {Path: "image/drones/targeter_agent.png", FrameWidth: 15, FrameHeight: 14},
+		ImageBomberAgent:        {Path: "image/drones/bomber_agent.png", FrameWidth: 23, FrameHeight: 18},
 
 		ImageColonyDamageMask:  {Path: "image/shaders/colony_damage_mask.png"},
 		ImageTurretDamageMask1: {Path: "image/shaders/turret_damage_mask1.png"},
@@ -284,6 +286,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageHowitzerProjectile:       {Path: "image/projectile/howitzer_projectile.png"},
 		ImageHowitzerLaserProjectile:  {Path: "image/projectile/howitzer_laser_projectile.png"},
 		ImageAbombMissile:             {Path: "image/projectile/abomb.png"},
+		ImageBomb:                     {Path: "image/projectile/bomb.png"},
 		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                  {Path: "image/projectile/missile.png"},
 
@@ -427,6 +430,7 @@ const (
 	ImageBigVerticalExplosion1
 	ImageBigVerticalExplosion2
 	ImageNuclearExplosion
+	ImageBombExplosion
 	ImageServantShotExplosion
 	ImageBigExplosion
 	ImageWispExplosion
@@ -542,6 +546,7 @@ const (
 	ImageFreighterAgent
 	ImageCommanderAgent
 	ImageTargeterAgent
+	ImageBomberAgent
 	ImageEssenceRedCrystalSource
 	ImageEssenceCrystalSource
 	ImageEssenceGoldSource
@@ -615,6 +620,7 @@ const (
 	ImageHowitzerProjectile
 	ImageHowitzerLaserProjectile
 	ImageAbombMissile
+	ImageBomb
 	ImageAntiAirMissile
 	ImageMissile
 

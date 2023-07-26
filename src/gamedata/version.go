@@ -213,6 +213,7 @@ const SeasonNumber = 0
 //   - A new Ark colony core
 //   - A new music track (called Sexxxy Bit 3 by DROZERiX)
 //   - A new Biome (Forest)
+//   - A new tier 3 Bomber drone
 //
 // * Steam-related:
 //   - Integrated Steam SDK, implemented Steam achievements

@@ -200,7 +200,11 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier, global
 		textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(docStats.DefenseRating), d.Get("drone.defense_rating")))
 		textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(docStats.UpkeepRating), d.Get("drone.upkeep_cost")))
 		textLines = append(textLines, "")
-		textLines = append(textLines, fmt.Sprintf("%s: %s", d.Get("drone.target"), d.Get("menu.option.none")))
+		if drone.Kind == gamedata.AgentBomber {
+			textLines = append(textLines, fmt.Sprintf("%s: %s", d.Get("drone.target"), d.Get("drone.target.ground")))
+		} else {
+			textLines = append(textLines, fmt.Sprintf("%s: %s", d.Get("drone.target"), d.Get("menu.option.none")))
+		}
 	}
 
 	var traits []string
@@ -243,6 +247,9 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier, global
 	case gamedata.AgentDevourer:
 		traits = append(traits, d.Get("drone.ability.consume_for_heal"))
 		traits = append(traits, d.Get("drone.ability.consume_for_power"))
+	case gamedata.AgentBomber:
+		traits = append(traits, d.Get("drone.ability.bomb_attack"))
+		traits = append(traits, d.Get("drone.ability.bomb_aoe"))
 	}
 	if drone.MaxPayload > 1 {
 		traits = append(traits, fmt.Sprintf("%s (%d%%)", d.Get("drone.ability.extra_payload"), 100*drone.MaxPayload))

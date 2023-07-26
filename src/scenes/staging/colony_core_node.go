@@ -515,7 +515,8 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		playSound(c.world, assets.AudioTeleportDone, c.relocationPoint)
 
 		c.agents.Each(func(a *colonyAgentNode) {
-			if a.mode == agentModeKamikazeAttack {
+			switch a.mode {
+			case agentModeKamikazeAttack, agentModeBomberAttack:
 				return
 			}
 			a.pos = c.relocationPoint.Add(c.world.rand.Offset(-38, 38))

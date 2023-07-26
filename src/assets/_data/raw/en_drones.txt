@@ -56,6 +56,7 @@
 ##drone.roomba : Seeker
 ##drone.scarab : Scarab
 ##drone.devourer : Devourer
+##drone.bomber : Bomber
 
 ##drone.attack_rating_multi : per 1 target
 ##drone.ability.num_targets_f : Attacks up to %d targets
@@ -94,6 +95,8 @@
 ##drone.ability.scarab_potential : Has the potential to become something more
 ##drone.ability.consume_for_heal : Consumes tier 1 workers to repair itself
 ##drone.ability.consume_for_power : Gets permanent power when consuming a drone
+##drone.ability.bomb_attack : Attacks only when ordered
+##drone.ability.bomb_aoe : The bombs deal massive area of effect damage
 
 ##turret.harvester : Harvester
 ##turret.harvester.description

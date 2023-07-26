@@ -205,6 +205,12 @@ var Tier3agentMergeRecipes = []AgentMergeRecipe{
 		EvoCost: 8,
 		Result:  GuardianAgentStats,
 	},
+	{
+		Drone1:  RecipeSubject{Kind: AgentKamikaze},
+		Drone2:  RecipeSubject{Kind: AgentFirebug},
+		EvoCost: 7,
+		Result:  BomberAgentStats,
+	},
 }
 
 type AgentMergeRecipe struct {

@@ -66,6 +66,7 @@ const (
 	agentModeKamikazeAttack
 	agentModeConsumeDrone
 	agentModeFollowCommander
+	agentModeBomberAttack
 )
 
 type agentTraitBits uint64
@@ -468,6 +469,13 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.waypointsLeft = 0
 		return true
 
+	case agentModeBomberAttack:
+		a.mode = mode
+		a.target = target
+		a.waypointsLeft = 5
+		a.setWaypoint(target.(*creepNode).pos.Sub(gmath.Vec{Y: agentFlightHeight}))
+		return true
+
 	case agentModeFollow, agentModeAttack:
 		isPatrol := a.mode == agentModePatrol
 		a.mode = agentModeFollow // attack is a long-range follow
@@ -762,6 +770,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRepairTurret(delta)
 	case agentModeKamikazeAttack:
 		a.updateKamikazeAttack(delta)
+	case agentModeBomberAttack:
+		a.updateBomberAttack(delta)
 	case agentModeConsumeDrone:
 		a.updateConsumeDrone(delta)
 	case agentModeRoombaPatrol, agentModeRoombaGuard, agentModeRoombaAttack:
@@ -1332,7 +1342,7 @@ func (a *colonyAgentNode) walkTetherTargets(colony *colonyCoreNode, num int, f f
 			return false
 		}
 		switch x.mode {
-		case agentModeKamikazeAttack, agentModeConsumeDrone, agentModeCharging, agentModeForcedCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging, agentModePosing:
+		case agentModeKamikazeAttack, agentModeBomberAttack, agentModeConsumeDrone, agentModeCharging, agentModeForcedCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging, agentModePosing:
 			// Modes that are never targeted.
 			return false
 		}
@@ -1565,6 +1575,8 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 		baseSpeed = a.speed + 25
 	case agentModeKamikazeAttack:
 		return 2 * a.speed
+	case agentModeBomberAttack:
+		baseSpeed = a.speed + 50
 	case agentModeTakeoff, agentModeRecycleLanding:
 		return 30
 	case agentModePickup, agentModeResourceTakeoff, agentModeAlignStandby:
@@ -2001,6 +2013,36 @@ func (a *colonyAgentNode) updateConsumeDrone(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) updateBomberAttack(delta float64) {
+	creep := a.target.(*creepNode)
+
+	if creep.IsDisposed() {
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		return
+	}
+
+	if !a.hasWaypoint() {
+		a.setWaypoint(creep.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
+	}
+
+	if a.moveTowards(delta) {
+		bombingPos := a.waypoint.Add(gmath.Vec{Y: agentFlightHeight})
+		if bombingPos.DistanceSquaredTo(creep.pos) > (36 * 36) {
+			if a.waypointsLeft > 0 {
+				a.waypointsLeft--
+				nextPos := snipePos(a.movementSpeed(), a.pos, creep.pos, creep.GetVelocity())
+				a.setWaypoint(nextPos.Sub(gmath.Vec{Y: agentPickupSpeed}))
+			} else {
+				a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+			}
+		} else {
+			bomb := newBombNode(a, a.world())
+			a.world().nodeRunner.AddObject(bomb)
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		}
+	}
+}
+
 func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 	creep := a.target.(*creepNode)
 
@@ -2021,7 +2063,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 		a.setWaypoint(a.getCloserWaypoint(creep.pos, 4, 16))
 	}
 
-	const explosionRangeSqr float64 = 34 * 34
+	const explosionRangeSqr float64 = 40 * 40
 	const explosionDamage float64 = 35.0
 	if a.moveTowards(delta) {
 		if a.pos.DistanceSquaredTo(creep.pos) > (explosionRangeSqr + 8) {

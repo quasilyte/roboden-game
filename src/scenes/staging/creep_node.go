@@ -415,6 +415,16 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		}
 	}
 
+	if c.stats.Kind == gamedata.CreepWisp {
+		if c.wasRetreating {
+			return
+		}
+		if c.scene.Rand().Chance(0.5) {
+			c.wasRetreating = true
+			c.retreatFrom(*source.GetPos(), 150, 200)
+		}
+	}
+
 	if c.stats.Kind == gamedata.CreepUberBoss {
 		if a, ok := source.(*colonyAgentNode); ok && a.IsTurret() {
 			c.world.result.EnemyColonyDamageFromTurrets += damage.Health
@@ -1061,6 +1071,7 @@ func (c *creepNode) updateWisp(delta float64) {
 	}
 
 	if c.waypoint.IsZero() {
+		c.wasRetreating = false
 		if c.specialDelay == 0 && c.world.rand.Chance(0.8) {
 			randIterate(c.world.rand, c.world.essenceSources, func(res *essenceSourceNode) bool {
 				if res.stats != organicSource {

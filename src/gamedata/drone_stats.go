@@ -58,6 +58,7 @@ const (
 	AgentGuardian
 	AgentStormbringer
 	AgentDestroyer
+	AgentBomber
 	AgentMarauder
 	AgentTrucker
 	AgentDevourer
@@ -1117,6 +1118,20 @@ var DestroyerAgentStats = InitDroneStats(&AgentStats{
 		BurstSize:                 1,
 		TargetFlags:               TargetFlying | TargetGround,
 	}),
+})
+
+var BomberAgentStats = InitDroneStats(&AgentStats{
+	Kind:        AgentBomber,
+	IsFlying:    true,
+	Image:       assets.ImageBomberAgent,
+	Size:        SizeLarge,
+	DiodeOffset: 6,
+	Tier:        3,
+	Cost:        50,
+	Upkeep:      14,
+	CanPatrol:   true,
+	Speed:       65,
+	MaxHealth:   70,
 })
 
 var MarauderAgentStats = InitDroneStats(&AgentStats{

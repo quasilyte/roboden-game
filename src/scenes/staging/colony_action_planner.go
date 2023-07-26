@@ -526,7 +526,10 @@ func (p *colonyActionPlanner) maybeAttachToCommander() (commander, follower *col
 
 	// We have a commander. Do we have a follower to assign to it?
 	follower = p.colony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
-		return a != commander && a.stats.Kind != gamedata.AgentCommander && !a.stats.CanGather
+		return a != commander &&
+			a.stats.Kind != gamedata.AgentCommander &&
+			a.stats.Weapon != nil &&
+			!a.stats.CanGather
 	})
 	if follower == nil {
 		return nil, nil

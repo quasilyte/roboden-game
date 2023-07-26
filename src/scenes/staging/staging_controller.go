@@ -166,7 +166,7 @@ func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
 			switch a.mode {
 			case agentModeMakeClone:
 				numCloning++
-			case agentModeKamikazeAttack, agentModeConsumeDrone, agentModeCloakHide, agentModeCourierFlight:
+			case agentModeBomberAttack, agentModeKamikazeAttack, agentModeConsumeDrone, agentModeCloakHide, agentModeCourierFlight:
 				numSpectacular++
 			case agentModeRepairBase, agentModeRepairTurret:
 				numRepairs++
@@ -357,6 +357,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		rand:                 scene.Rand(),
 		localRand:            &localRand,
 		tmpTargetSlice:       make([]targetable, 0, 20),
+		tmpTargetSlice2:      make([]targetable, 0, 8),
 		tmpColonySlice:       make([]*colonyCoreNode, 0, 4),
 		width:                viewportWorld.Width,
 		height:               viewportWorld.Height,
@@ -959,10 +960,14 @@ func (c *Controller) launchAttack(selectedColony *colonyCoreNode) {
 	if selectedColony.agents.NumAvailableFighters() == 0 {
 		return
 	}
-	closeTargets := c.world.tmpTargetSlice[:0]
+
+	c.world.tmpTargetSlice = c.world.tmpTargetSlice[:0]
+	c.world.tmpTargetSlice2 = c.world.tmpTargetSlice2[:0]
+	closeFlyingTargets := &c.world.tmpTargetSlice
+	closeGroundTargets := &c.world.tmpTargetSlice2
 	maxDist := selectedColony.AttackRadius() * c.world.rand.FloatRange(0.95, 1.1)
 	for _, creep := range c.world.creeps {
-		if len(closeTargets) >= 5 {
+		if len(*closeFlyingTargets)+len(*closeGroundTargets) >= 8 {
 			break
 		}
 		if !creep.CanBeTargeted() {
@@ -971,19 +976,54 @@ func (c *Controller) launchAttack(selectedColony *colonyCoreNode) {
 		if creep.pos.DistanceTo(selectedColony.pos) > maxDist {
 			continue
 		}
-		closeTargets = append(closeTargets, creep)
+		if creep.IsFlying() {
+			*closeFlyingTargets = append(*closeFlyingTargets, creep)
+		} else {
+			*closeGroundTargets = append(*closeGroundTargets, creep)
+		}
 	}
-	if len(closeTargets) == 0 {
+	if len(*closeFlyingTargets)+len(*closeGroundTargets) == 0 {
 		return
 	}
+
 	maxDispatched := gmath.Clamp(int(float64(selectedColony.agents.NumAvailableFighters())*0.6), 1, 15)
 	selectedColony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
-		target := gmath.RandElem(c.world.rand, closeTargets)
-		kind := gamedata.TargetGround
-		if target.IsFlying() {
-			kind = gamedata.TargetFlying
+		if a.stats == gamedata.BomberAgentStats {
+			if len(*closeGroundTargets) == 0 {
+				return false
+			}
+			target := gmath.RandElem(c.world.rand, *closeGroundTargets)
+			maxDispatched--
+			a.AssignMode(agentModeBomberAttack, gmath.Vec{}, target)
+			return maxDispatched <= 0
 		}
-		if !a.CanAttack(kind) {
+
+		var target targetable
+		if a.stats.Weapon != nil {
+			var targetSlice []targetable
+			switch a.stats.Weapon.TargetFlags {
+			case gamedata.TargetFlying:
+				targetSlice = *closeFlyingTargets
+			case gamedata.TargetGround:
+				targetSlice = *closeGroundTargets
+			default:
+				// Can attack both.
+				switch {
+				case len(*closeGroundTargets) == 0:
+					targetSlice = *closeFlyingTargets
+				case len(*closeFlyingTargets) == 0:
+					targetSlice = *closeGroundTargets
+				default:
+					if c.world.rand.Bool() {
+						targetSlice = *closeFlyingTargets
+					} else {
+						targetSlice = *closeGroundTargets
+					}
+				}
+			}
+			target = gmath.RandElem(c.world.rand, targetSlice)
+		}
+		if target == nil {
 			return false
 		}
 		maxDispatched--

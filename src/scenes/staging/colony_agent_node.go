@@ -1167,7 +1167,7 @@ func (a *colonyAgentNode) doTether() {
 	}
 
 	colonyTarget := randIterate(a.scene.Rand(), a.world().allColonies, func(colony *colonyCoreNode) bool {
-		if !colony.IsFlying() {
+		if colony.waypoint.IsZero() {
 			return false
 		}
 		return colony.pos.DistanceSquaredTo(a.pos) <= a.stats.SupportRangeSqr

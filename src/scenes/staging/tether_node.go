@@ -77,18 +77,17 @@ func (tether *tetherNode) Update(delta float64) {
 				return
 			}
 		}
+		if colony, ok := tether.target.(*colonyCoreNode); ok {
+			if colony.waypoint.IsZero() {
+				tether.dispose()
+				return
+			}
+		}
 	}
 
 	if tether.source != nil && tether.source.IsDisposed() {
 		tether.dispose()
 		return
-	}
-
-	if colony, ok := tether.target.(*colonyCoreNode); ok {
-		if !colony.IsFlying() {
-			tether.dispose()
-			return
-		}
 	}
 
 	tether.lifespan -= delta

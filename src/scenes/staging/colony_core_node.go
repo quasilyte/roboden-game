@@ -470,7 +470,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 		c.hatchFlashComponent.Update(delta)
 	}
 
-	c.updateResourceRects()
+	c.updateResourceRects(c.IsFlying())
 
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
 	c.resourceDelay = gmath.ClampMin(c.resourceDelay-delta, 0)
@@ -566,13 +566,13 @@ func (c *colonyCoreNode) maxVisualResources() float64 {
 	return c.stats.ResourcesLimit - 100
 }
 
-func (c *colonyCoreNode) updateResourceRects() {
+func (c *colonyCoreNode) updateResourceRects(flying bool) {
 	if c.mode == colonyModeTeleporting {
 		return
 	}
 
 	var slice []*ge.Sprite
-	if c.IsFlying() {
+	if flying {
 		slice = c.flyingResourceRects
 	} else {
 		slice = c.resourceRects
@@ -697,7 +697,10 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 
 func (c *colonyCoreNode) switchSprite(flying bool) {
 	for _, rect := range c.flyingResourceRects {
-		rect.Visible = false
+		rect.Visible = flying
+	}
+	for _, rect := range c.resourceRects {
+		rect.Visible = !flying
 	}
 
 	c.flyingSprite.Visible = flying
@@ -712,7 +715,7 @@ func (c *colonyCoreNode) switchSprite(flying bool) {
 		c.flashComponent.ChangeSprite(c.sprite)
 	}
 
-	c.updateResourceRects()
+	c.updateResourceRects(flying)
 }
 
 func (c *colonyCoreNode) enterTakeoffMode() {

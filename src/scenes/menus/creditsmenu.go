@@ -3,6 +3,7 @@ package menus
 import (
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
@@ -81,10 +82,10 @@ func (c *CreditsMenuController) initUI() {
 	panel.AddChild(label)
 
 	secretScreen := eui.NewButton(uiResources, c.scene, "???", func() {
-		c.back()
+		c.scene.Context().ChangeScene(NewSecretMenuController(c.state))
 	})
 	rowContainer.AddChild(secretScreen)
-	secretScreen.GetWidget().Disabled = true
+	secretScreen.GetWidget().Disabled = c.state.Persistent.PlayerStats.TotalPlayTime < 6*time.Hour
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

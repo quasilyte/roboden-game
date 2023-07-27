@@ -492,3 +492,21 @@ To resume the game, press START.
 ##game.choice.build_gunpoint : Build turret
 ##game.choice.increase_radius : Increase radius
 ##game.choice.decrease_radius : Decrease radius
+
+##menu.special_text
+Me and my friend created the first build of this game
+during a two weeks game jam.
+
+We enjoyed the results a lot and decided
+to give this game a chance to see a Steam release.
+
+In a perfect world, this game could take several
+more months to get polished, but I decided to set some
+specific time constraints and release as is.
+
+If you like this game, please let me know.
+I'm interested to come back to it at some point to
+make it even better, but I want to see the community
+thinks of this game first.
+
+- quasilyte

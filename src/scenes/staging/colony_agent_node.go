@@ -2390,8 +2390,7 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 				target.resources += a.cargoValue
 				a.clearCargo()
 			}
-			beam := newBeamNode(a.world(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, courierResourceBeamColor)
-			beam.width = 2
+			beam := newTextureBeamNode(a.world(), ge.Pos{Base: &a.pos}, ge.Pos{Base: &target.pos}, a.stats.BeamTexture, a.stats.BeamSlideSpeed, a.stats.BeamOpaqueTime)
 			a.world().nodeRunner.AddObject(beam)
 			playSound(a.world(), assets.AudioCourierResourceBeam, a.pos)
 			dist := target.pos.DistanceTo(a.colonyCore.pos)

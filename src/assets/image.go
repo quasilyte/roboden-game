@@ -300,6 +300,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageDefenderLine:  {Path: "image/lines/defender_line.png"},
 		ImageBeamtowerLine: {Path: "image/lines/beamtower_line.png"},
 		ImageTetherLine:    {Path: "image/lines/tether_line.png"},
+		ImageCourierLine:   {Path: "image/lines/courier_line.png"},
 
 		ImageUIGamepadRadar:    {Path: "image/ui/gamepad_radar.png"},
 		ImageUIGamepadRadarDot: {Path: "image/ui/gamepad_radar_dot.png"},
@@ -635,6 +636,7 @@ const (
 	ImageDefenderLine
 	ImageBeamtowerLine
 	ImageTetherLine
+	ImageCourierLine
 
 	ImageUIGamepadRadar
 	ImageUIGamepadRadarDot

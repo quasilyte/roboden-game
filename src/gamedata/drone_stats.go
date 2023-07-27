@@ -507,6 +507,7 @@ var CourierAgentStats = InitDroneStats(&AgentStats{
 		ProjectileRotateSpeed:     24,
 		TargetFlags:               TargetFlying,
 	}),
+	BeamSlideSpeed: 2.2,
 })
 
 var RedminerAgentStats = InitDroneStats(&AgentStats{

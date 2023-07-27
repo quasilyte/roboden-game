@@ -229,6 +229,7 @@ const SeasonNumber = 0
 //   - Made VSync option configurable
 //   - Brand new visual effects for many explosion-like animations
 //   - Camera shaking (can be turned off)
+//   - A textured beam for couriers
 //
 // * Misc:
 //   - Added a logs.grep terminal command

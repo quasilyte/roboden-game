@@ -414,6 +414,8 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 		switch x.stats.Kind {
 		case gamedata.CreepBase:
 			w.result.CreepBasesDestroyed++
+		case gamedata.CreepWispLair:
+			w.wispLair = nil
 		case gamedata.CreepUberBoss:
 			if !x.IsFlying() {
 				w.result.GroundBossDefeat = true

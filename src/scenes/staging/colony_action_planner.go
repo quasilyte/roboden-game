@@ -230,7 +230,7 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 }
 
 func (p *colonyActionPlanner) combatUnitProbability() float64 {
-	if p.numTier1WorkerAgents < 2 {
+	if p.numTier1WorkerAgents < 4 {
 		return 0
 	}
 	if p.colony.GetSecurityPriority() > 0.1 {

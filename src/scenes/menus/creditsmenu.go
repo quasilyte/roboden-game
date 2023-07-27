@@ -85,7 +85,8 @@ func (c *CreditsMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewSecretMenuController(c.state))
 	})
 	rowContainer.AddChild(secretScreen)
-	secretScreen.GetWidget().Disabled = c.state.Persistent.PlayerStats.TotalPlayTime < 6*time.Hour
+	secretTime := time.Duration(7*time.Hour + 7*time.Minute + 7*time.Second)
+	secretScreen.GetWidget().Disabled = c.state.Persistent.PlayerStats.TotalPlayTime < secretTime
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

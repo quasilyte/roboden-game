@@ -144,6 +144,7 @@
 ##menu.options.graphics.camera_shaking : Тряска камеры
 ##menu.options.graphics.shaders : Шейдеры
 ##menu.options.graphics.fullscreen : Полноэкранный режим
+##menu.options.graphics.aspect_ratio : Соотношение сторон
 
 ##menu.credits.crew : команда
 ##menu.credits.assets : ассеты

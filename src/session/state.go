@@ -171,6 +171,7 @@ type GraphicsSettings struct {
 	CameraShakingEnabled bool
 	AllShadersEnabled    bool
 	FullscreenEnabled    bool
+	AspectRation         int
 }
 
 type SavedReplay struct {

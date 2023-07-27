@@ -144,6 +144,7 @@
 ##menu.options.graphics.camera_shaking : Camera shaking
 ##menu.options.graphics.shaders : Shaders
 ##menu.options.graphics.fullscreen : Fullscreen
+##menu.options.graphics.aspect_ratio : Aspect ratio
 
 ##menu.credits.crew : crew
 ##menu.credits.assets : assets

@@ -119,6 +119,21 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		}))
 	}
 
+	{
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			Scene:     c.scene,
+			Resources: uiResources,
+			Input:     c.state.CombinedInput,
+			Value:     &options.Graphics.AspectRation,
+			Label:     d.Get("menu.options.graphics.aspect_ratio"),
+			ValueNames: []string{
+				"16:9",
+			},
+		})
+		rowContainer.AddChild(b)
+		b.GetWidget().Disabled = true
+	}
+
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {

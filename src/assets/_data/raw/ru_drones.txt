@@ -56,6 +56,7 @@
 ##drone.roomba : Искатель
 ##drone.scarab : Скарабей
 ##drone.devourer : Пожиратель
+##drone.bomber : Бомбардировщик
 
 ##drone.attack_rating_multi : на 1 цель
 ##drone.ability.num_targets_f : Атакует до %d целей
@@ -94,6 +95,8 @@
 ##drone.ability.scarab_potential : Имеет потенциал стать чем-то более сильным
 ##drone.ability.consume_for_heal : Поглощает рабочих 1 тира для саморемонта
 ##drone.ability.consume_for_power : Получает постоянные бонусы при таком поглощении
+##drone.ability.bomb_attack : Атакует только по приказу
+##drone.ability.bomb_aoe : Бомбы наносят высокий урон по области
 
 ##turret.harvester : Собиратель
 ##turret.harvester.description

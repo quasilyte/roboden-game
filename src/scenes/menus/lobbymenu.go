@@ -244,8 +244,13 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
 		c.saveConfig()
 
+		if c.config.PlayersMode == serverapi.PmodeSinglePlayer && c.mode == gamedata.ModeReverse {
+			c.config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, c.scene.Rand())
+			c.config.TurretDesign = gamedata.PickTurretDesign(c.scene.Rand())
+			c.config.Tier2Recipes = gamedata.CreateDroneBuild(c.scene.Rand())
+		}
+
 		c.config.GameMode = c.mode
-		c.config.DifficultyScore = c.calcDifficultyScore()
 		c.config.DronePointsAllocated = c.calcAllocatedPoints()
 		if c.seedInput.GetText() != "" {
 			seed, err := strconv.ParseInt(c.seedInput.GetText(), 10, 64)
@@ -255,12 +260,6 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			c.config.Seed = seed
 		} else {
 			c.config.Seed = c.randomSeed()
-		}
-
-		if c.config.PlayersMode == serverapi.PmodeSinglePlayer && c.mode == gamedata.ModeReverse {
-			c.config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, c.scene.Rand())
-			c.config.TurretDesign = gamedata.PickTurretDesign(c.scene.Rand())
-			c.config.Tier2Recipes = gamedata.CreateDroneBuild(c.scene.Rand())
 		}
 
 		c.config.Finalize()
@@ -769,7 +768,7 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 			)),
 		)
 
-		const maxSeedLen = 16
+		const maxSeedLen = 18
 		textinput := eui.NewTextInput(uiResources, tinyFont,
 			widget.TextInputOpts.WidgetOpts(
 				widget.WidgetOpts.CursorEnterHandler(func(args *widget.WidgetCursorEnterEventArgs) {

@@ -1181,6 +1181,9 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			return false
 		}
 		srcColony.pickCombatUnits(wantWarriors, func(a *colonyAgentNode) {
+			if a.stats == gamedata.CommanderAgentStats {
+				return
+			}
 			transferUnit(c, srcColony, a)
 		})
 		return true

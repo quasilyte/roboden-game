@@ -264,7 +264,15 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
-	return c.shadowComponent.height > 0
+	if c.stats == gamedata.ArkCoreStats {
+		return c.shadowComponent.height > 0
+	}
+	switch c.mode {
+	case colonyModeNormal, colonyModeTeleporting:
+		return false
+	default:
+		return true
+	}
 }
 
 func (c *colonyCoreNode) MaxFlyDistanceSqr() float64 {
@@ -470,7 +478,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 		c.hatchFlashComponent.Update(delta)
 	}
 
-	c.updateResourceRects(c.IsFlying())
+	c.updateResourceRects()
 
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
 	c.resourceDelay = gmath.ClampMin(c.resourceDelay-delta, 0)
@@ -566,13 +574,13 @@ func (c *colonyCoreNode) maxVisualResources() float64 {
 	return c.stats.ResourcesLimit - 100
 }
 
-func (c *colonyCoreNode) updateResourceRects(flying bool) {
+func (c *colonyCoreNode) updateResourceRects() {
 	if c.mode == colonyModeTeleporting {
 		return
 	}
 
 	var slice []*ge.Sprite
-	if flying {
+	if c.IsFlying() {
 		slice = c.flyingResourceRects
 	} else {
 		slice = c.resourceRects
@@ -715,7 +723,7 @@ func (c *colonyCoreNode) switchSprite(flying bool) {
 		c.flashComponent.ChangeSprite(c.sprite)
 	}
 
-	c.updateResourceRects(flying)
+	c.updateResourceRects()
 }
 
 func (c *colonyCoreNode) enterTakeoffMode() {

@@ -277,6 +277,7 @@ const (
 	animationSpeedFast
 	animationSpeedSlow
 	animationSpeedVerySlow
+	animationSpeedSlowest
 )
 
 func (s animationSpeed) SecondsPerFrame() float64 {
@@ -287,6 +288,8 @@ func (s animationSpeed) SecondsPerFrame() float64 {
 		return 0.05
 	case animationSpeedVerySlow:
 		return 0.07
+	case animationSpeedSlowest:
+		return 0.08
 	default:
 		return 0.04
 	}

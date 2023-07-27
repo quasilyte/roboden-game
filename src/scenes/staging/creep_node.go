@@ -1018,6 +1018,8 @@ func (c *creepNode) updateWisp(delta float64) {
 		c.anim.Tick(delta)
 	}
 
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
 	// It regenerates 1 health over 2 seconds (*0.5).
 	// 30 hp over minute.
 	c.health = gmath.ClampMax(c.health+(delta*0.5), c.maxHealth)
@@ -1033,7 +1035,7 @@ func (c *creepNode) updateWisp(delta float64) {
 				Image: assets.ImageOrganicRestored,
 			})
 			c.specialTarget = nil
-			c.specialDelay = c.world.rand.FloatRange(40, 120)
+			c.specialDelay = c.world.rand.FloatRange(20, 45)
 		}
 	}
 
@@ -1074,7 +1076,7 @@ func (c *creepNode) updateWisp(delta float64) {
 
 	if c.waypoint.IsZero() {
 		c.wasRetreating = false
-		if c.specialDelay == 0 && c.world.rand.Chance(0.8) {
+		if c.specialDelay == 0 && c.world.rand.Chance(0.80) {
 			randIterate(c.world.rand, c.world.essenceSources, func(res *essenceSourceNode) bool {
 				if res.stats != organicSource {
 					return false
@@ -1090,7 +1092,7 @@ func (c *creepNode) updateWisp(delta float64) {
 				c.specialDelay = c.world.rand.FloatRange(15, 60)
 			}
 		} else {
-			if c.world.wispLair != nil && c.world.rand.Chance(0.35) {
+			if c.world.wispLair != nil && c.world.rand.Chance(0.25) {
 				c.setWaypoint(c.world.wispLair.pos.Add(c.world.rand.Offset(-64, 64)))
 			} else {
 				c.waypoint = correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 196)

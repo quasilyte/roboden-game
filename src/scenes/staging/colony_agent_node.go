@@ -1923,10 +1923,12 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 					a.mode = agentModeRoombaWait
 					a.dist = a.scene.Rand().FloatRange(4, 10)
 					a.clearWaypoint()
-					if !a.world().simulation {
-						smokeEffect := newEffectNode(a.world(), a.pos.Add(gmath.Vec{Y: -10}), false, assets.ImageRoombaSmoke)
-						a.world().nodeRunner.AddObject(smokeEffect)
-						smokeEffect.anim.SetSecondsPerFrame(0.08)
+					if !a.world().simulation && !a.insideForest {
+						createEffect(a.world(), effectConfig{
+							Pos:            a.pos.Sub(gmath.Vec{Y: 10}),
+							Image:          assets.ImageRoombaSmoke,
+							AnimationSpeed: animationSpeedSlowest,
+						})
 					}
 					return
 				}

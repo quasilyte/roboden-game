@@ -512,7 +512,14 @@ func (p *colonyActionPlanner) maybeAttachToCommander() (commander, follower *col
 		if u.mode != agentModeFollowCommander {
 			continue
 		}
-		p.commanders[u.target.(*colonyAgentNode).extraLevel].numUnits++
+		commander := u.target.(*colonyAgentNode)
+		if commander.IsDisposed() {
+			// This can happen when commander was destroyed before
+			// the planner update() call. This assignment will be removed
+			// after the drone (the follower) will get its turn.
+			continue
+		}
+		p.commanders[commander.extraLevel].numUnits++
 	}
 
 	const maxUnitsPerCommander = 4

@@ -1711,6 +1711,25 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) leaveForest() {
+	if a.insideForest {
+		a.insideForest = false
+		a.setVisibility(true)
+		createEffect(a.world(), effectConfig{
+			Pos:            a.pos,
+			Image:          assets.ImageDisappearSmokeSmall,
+			AnimationSpeed: animationSpeedVerySlow,
+		})
+	}
+}
+
+func (a *colonyAgentNode) setVisibility(visible bool) {
+	a.sprite.Visible = visible
+	if a.diode != nil {
+		a.diode.Visible = visible
+	}
+}
+
 func (a *colonyAgentNode) handleForestTransition(nextWaypoint gmath.Vec) {
 	if !a.world().hasForests {
 		return
@@ -1721,17 +1740,11 @@ func (a *colonyAgentNode) handleForestTransition(nextWaypoint gmath.Vec) {
 	case forestStateEnter:
 		needEffect = true
 		a.insideForest = true
-		a.sprite.Visible = false
-		if a.diode != nil {
-			a.diode.Visible = false
-		}
+		a.setVisibility(false)
 	case forestStateLeave:
 		needEffect = true
 		a.insideForest = false
-		a.sprite.Visible = true
-		if a.diode != nil {
-			a.diode.Visible = true
-		}
+		a.setVisibility(true)
 	}
 
 	if needEffect {
@@ -1767,6 +1780,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 				return
 			}
 			a.path = pathing.GridPath{}
+			a.leaveForest()
 			dist := a.waypoint.DistanceTo(target.pos)
 			if dist < 10 {
 				a.clearWaypoint()

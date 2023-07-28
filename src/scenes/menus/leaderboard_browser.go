@@ -9,7 +9,6 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
-	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
@@ -31,18 +30,18 @@ type LeaderboardBrowserController struct {
 	fetchErr  error
 }
 
-func NewLeaderboardBrowserController(state *session.State, gameMode string, boardData *serverapi.LeaderboardResp, fetchErr error) *LeaderboardBrowserController {
+func NewLeaderboardBrowserController(state *session.State, season int, gameMode string, boardData *serverapi.LeaderboardResp, fetchErr error) *LeaderboardBrowserController {
 	return &LeaderboardBrowserController{
-		state:     state,
-		gameMode:  gameMode,
-		boardData: boardData,
-		fetchErr:  fetchErr,
+		state:          state,
+		gameMode:       gameMode,
+		boardData:      boardData,
+		fetchErr:       fetchErr,
+		selectedSeason: season,
 	}
 }
 
 func (c *LeaderboardBrowserController) Init(scene *ge.Scene) {
 	c.scene = scene
-	c.selectedSeason = gamedata.SeasonNumber
 	c.initUI()
 }
 
@@ -85,6 +84,8 @@ func (c *LeaderboardBrowserController) initBoard() {
 		if fetchErr != nil {
 			b.GetWidget().Disabled = true
 		}
+		// TODO: remove this after season 0 archive is available.
+		b.GetWidget().Disabled = true
 	}
 
 	if boardData != nil {
@@ -92,7 +93,7 @@ func (c *LeaderboardBrowserController) initBoard() {
 		c.rowContainer.AddChild(eui.NewCenteredLabel(s, smallFont))
 	}
 
-	panel := eui.NewTextPanel(uiResources, 0, 96)
+	panel := eui.NewTextPanel(uiResources, 540, 96)
 
 	if boardData == nil {
 		panel.AddChild(eui.NewCenteredLabel(d.Get("menu.leaderboard.fetch_error"), tinyFont))

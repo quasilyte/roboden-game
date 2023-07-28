@@ -6,6 +6,7 @@ import (
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/clientkit"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/gtask"
 	"github.com/quasilyte/roboden-game/serverapi"
@@ -40,7 +41,7 @@ func (c *submitScreenController) Init(scene *ge.Scene) {
 func (c *submitScreenController) spawnTask() {
 	initTask := gtask.StartTask(func(ctx *gtask.TaskContext) {
 		for _, replay := range c.replays {
-			clientkit.SendOrEnqueueScore(c.state, replay)
+			clientkit.SendOrEnqueueScore(c.state, gamedata.SeasonNumber, replay)
 		}
 	})
 

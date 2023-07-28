@@ -132,14 +132,14 @@ func (s *apiServer) InitDatabases() error {
 		dbPath := filepath.Join(s.dataFolder, dbFilename)
 		conn, err := sqliteConnect(dbPath)
 		if err != nil {
-			return err
+			return fmt.Errorf("season%d: %w", i, err)
 		}
 		db := &seasonDB{
 			id:   i,
 			conn: conn,
 		}
 		if err := db.PrepareQueries(); err != nil {
-			return err
+			return fmt.Errorf("season%d: %w", i, err)
 		}
 		s.seasons = append(s.seasons, db)
 		s.logger.Info("opened %s", dbFilename)

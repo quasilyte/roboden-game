@@ -6,7 +6,6 @@ import (
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/clientkit"
-	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/gtask"
 	"github.com/quasilyte/roboden-game/serverapi"
@@ -26,16 +25,16 @@ type LeaderboardLoadingController struct {
 	placeholder  *widget.Text
 }
 
-func NewLeaderboardLoadingController(state *session.State, gameMode string) *LeaderboardLoadingController {
+func NewLeaderboardLoadingController(state *session.State, season int, gameMode string) *LeaderboardLoadingController {
 	return &LeaderboardLoadingController{
-		state:    state,
-		gameMode: gameMode,
+		state:          state,
+		gameMode:       gameMode,
+		selectedSeason: season,
 	}
 }
 
 func (c *LeaderboardLoadingController) Init(scene *ge.Scene) {
 	c.scene = scene
-	c.selectedSeason = gamedata.SeasonNumber
 	c.initUI()
 }
 
@@ -81,7 +80,7 @@ func (c *LeaderboardLoadingController) initUI() {
 	var boardData *serverapi.LeaderboardResp
 	var fetchErr error
 	fetchTask := gtask.StartTask(func(ctx *gtask.TaskContext) {
-		boardData, fetchErr = clientkit.GetLeaderboard(c.state, c.gameMode)
+		boardData, fetchErr = clientkit.GetLeaderboard(c.state, c.selectedSeason, c.gameMode)
 		if fetchErr != nil {
 			// Try using the cached data.
 			cached := c.getBoardCache()
@@ -95,7 +94,7 @@ func (c *LeaderboardLoadingController) initUI() {
 		}
 	})
 	fetchTask.EventCompleted.Connect(nil, func(gsignal.Void) {
-		controller := NewLeaderboardBrowserController(c.state, c.gameMode, boardData, fetchErr)
+		controller := NewLeaderboardBrowserController(c.state, c.selectedSeason, c.gameMode, boardData, fetchErr)
 		c.scene.Context().ChangeScene(controller)
 	})
 	c.scene.AddObject(fetchTask)

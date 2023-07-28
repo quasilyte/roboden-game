@@ -1,7 +1,8 @@
 package gamedata
 
 // Season 0: build 11+
-const SeasonNumber = 0
+// Season 1: build 14+
+const SeasonNumber = 1
 
 // Version 2
 // - Added min movement radius to avoid accidental clicks

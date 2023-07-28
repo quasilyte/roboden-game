@@ -1,10 +1,13 @@
 package main
 
-const currentSeason = 0
+const currentSeason = 1
 
 func seasonByBuild(version int) int {
-	if version <= 13 {
+	switch {
+	case version <= 13:
 		return 0
+	case version <= 14:
+		return 1
 	}
 
 	return -1

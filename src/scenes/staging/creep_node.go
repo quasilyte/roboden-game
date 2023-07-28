@@ -1051,7 +1051,7 @@ func (c *creepNode) updateWisp(delta float64) {
 			}
 			farFromTargets = false
 			colony.agents.Each(func(a *colonyAgentNode) {
-				if a.IsCloaked() || !a.IsFlying() {
+				if a.IsCloaked() {
 					return
 				}
 				if a.pos.DistanceSquaredTo(c.pos) > (attackRange * attackRange) {

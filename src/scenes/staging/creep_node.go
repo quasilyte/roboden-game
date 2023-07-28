@@ -153,7 +153,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 	switch c.stats.Kind {
 	case gamedata.CreepWispLair:
-		c.attackDelay = c.scene.Rand().FloatRange(6, 12)
+		c.attackDelay = c.scene.Rand().FloatRange(30, 50)
 	case gamedata.CreepWisp:
 		c.specialDelay = c.scene.Rand().FloatRange(2, 20)
 	case gamedata.CreepServant:
@@ -1051,6 +1051,9 @@ func (c *creepNode) updateWisp(delta float64) {
 			}
 			farFromTargets = false
 			colony.agents.Each(func(a *colonyAgentNode) {
+				if a.IsCloaked() || !a.IsFlying() {
+					return
+				}
 				if a.pos.DistanceSquaredTo(c.pos) > (attackRange * attackRange) {
 					return
 				}

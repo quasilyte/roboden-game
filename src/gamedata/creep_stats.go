@@ -185,7 +185,7 @@ var WispCreepStats = &CreepStats{
 	ShadowImage:   assets.ImageMediumShadow,
 	Tier:          2,
 	Speed:         20,
-	MaxHealth:     55,
+	MaxHealth:     35,
 	Disarmable:    false,
 	CanBeRepelled: true,
 	Flying:        true,

@@ -52,7 +52,7 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioHarvesterEffect:     {Path: "$sfx/harvester.wav", Volume: -0.25},
 		AudioEssenceCollected:    {Path: "$sfx/essence_collected.wav", Volume: -0.55},
 		AudioCourierResourceBeam: {Path: "$sfx/courier_resource_beam.wav", Volume: -0.3},
-		AudioAgentProduced:       {Path: "$sfx/agent_produced.wav", Volume: -0.3},
+		AudioAgentProduced:       {Path: "$sfx/agent_produced.wav", Volume: -0.4},
 		AudioAgentRecycled:       {Path: "$sfx/agent_recycled.wav", Volume: -0.3},
 		AudioAgentConsumed:       {Path: "$sfx/drone_consumed.wav", Volume: -0.25},
 		AudioAgentDestroyed:      {Path: "$sfx/agent_destroyed.wav", Volume: -0.25},

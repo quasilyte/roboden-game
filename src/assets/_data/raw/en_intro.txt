@@ -230,7 +230,7 @@ but not priorities.
 ##tutorial.context.fighter_drone
 This is a tier 2 combat drone, the Fighter.
 It's created out of a pair of tier 1
-combat drones of the red faction.
+combat drones: red + green.
 
 ##tutorial.context.destroyer_drone
 This is a tier 3 combat drone, the Destroyer.

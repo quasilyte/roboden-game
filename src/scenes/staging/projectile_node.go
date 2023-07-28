@@ -16,6 +16,7 @@ type projectileNode struct {
 	toPos     gmath.Vec
 	target    targetable
 	fireDelay float64
+	speed     float64
 	weapon    *gamedata.WeaponStats
 	world     *worldState
 
@@ -308,7 +309,12 @@ func (p *projectileNode) detonate() {
 	if p.target.IsDisposed() {
 		return
 	}
-	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > p.weapon.ImpactAreaSqr {
+
+	impactAreaSqr := p.weapon.ImpactAreaSqr
+	if p.guided {
+		impactAreaSqr *= 1.1
+	}
+	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > impactAreaSqr {
 		if p.weapon.AlwaysExplodes {
 			p.createExplosion()
 		}

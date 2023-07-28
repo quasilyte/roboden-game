@@ -6,6 +6,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
@@ -41,34 +42,6 @@ func (c *UserNameMenu) Update(delta float64) {
 	}
 }
 
-func (c *UserNameMenu) isValidChar(ch byte) bool {
-	isLetter := func(ch byte) bool {
-		return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
-	}
-	isDigit := func(ch byte) bool {
-		return ch >= '0' && ch <= '9'
-	}
-	return isLetter(ch) || isDigit(ch) || ch == ' ' || ch == '_'
-}
-
-func (c *UserNameMenu) isValidUsername(s string) bool {
-	nonSpace := 0
-	if len(s) > serverapi.MaxNameLength {
-		return false
-	}
-	for i := 0; i < len(s); i++ {
-		ch := s[i]
-		isValid := c.isValidChar(ch)
-		if !isValid {
-			return false
-		}
-		if ch != ' ' {
-			nonSpace++
-		}
-	}
-	return nonSpace != 0
-}
-
 func (c *UserNameMenu) initUI() {
 	addDemoBackground(c.state, c.scene)
 	uiResources := c.state.Resources.UI
@@ -92,13 +65,13 @@ func (c *UserNameMenu) initUI() {
 			if args.InputText == "" {
 				return
 			}
-			if !c.isValidUsername(args.InputText) {
+			if !gamedata.IsValidUsername(args.InputText) {
 				c.scene.Audio().PlaySound(assets.AudioError)
 				return
 			}
 		}),
 		widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
-			good := len(newInputText) <= serverapi.MaxNameLength && c.isValidUsername(newInputText)
+			good := len(newInputText) <= serverapi.MaxNameLength && gamedata.IsValidUsername(newInputText)
 			if !good && c.errorSoundDelay == 0 {
 				c.scene.Audio().PlaySound(assets.AudioError)
 				c.errorSoundDelay = 0.2
@@ -128,7 +101,7 @@ func (c *UserNameMenu) initUI() {
 }
 
 func (c *UserNameMenu) save(name string) {
-	if c.isValidUsername(name) || name == "" {
+	if gamedata.IsValidUsername(name) || name == "" {
 		c.state.Persistent.PlayerName = name
 		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}

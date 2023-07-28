@@ -64,7 +64,7 @@ func (h *requestHandler) HandleGetPlayerBoard(r *http.Request) (any, error) {
 		NumSeasons: h.server.NumSeasons(),
 		NumPlayers: h.server.NumBoardPlayers(modeParam),
 	}
-	if playerName == "" {
+	if playerName == "" || !gamedata.IsValidUsername(playerName) {
 		resp.Entries = h.server.Top10(modeParam)
 		return resp, nil
 	}
@@ -93,7 +93,7 @@ func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 		return nil, errBadParams
 	}
 	playerName := r.URL.Query().Get("name")
-	if playerName == "" {
+	if playerName == "" || !gamedata.IsValidUsername(playerName) {
 		return nil, errBadParams
 	}
 	seasonNumber, err := strconv.Atoi(seasonParam)

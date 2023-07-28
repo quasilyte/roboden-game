@@ -135,3 +135,31 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 
 	return true
 }
+
+func isValidChar(ch byte) bool {
+	isLetter := func(ch byte) bool {
+		return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+	}
+	isDigit := func(ch byte) bool {
+		return ch >= '0' && ch <= '9'
+	}
+	return isLetter(ch) || isDigit(ch) || ch == ' ' || ch == '_'
+}
+
+func IsValidUsername(s string) bool {
+	nonSpace := 0
+	if len(s) > serverapi.MaxNameLength {
+		return false
+	}
+	for i := 0; i < len(s); i++ {
+		ch := s[i]
+		isValid := isValidChar(ch)
+		if !isValid {
+			return false
+		}
+		if ch != ' ' {
+			nonSpace++
+		}
+	}
+	return nonSpace != 0
+}

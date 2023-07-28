@@ -833,6 +833,18 @@ func (c *colonyCoreNode) findArkHoverSpot() gmath.Vec {
 			})
 		}
 	}
+	for _, construction := range c.world.constructions {
+		if construction.stats != colonyCoreConstructionStats {
+			continue
+		}
+		if construction.pos.DistanceSquaredTo(c.pos) < (8 * 8) {
+			offset := gmath.RandElem(c.world.rand, colonyNear2x2CellOffsets)
+			return c.pos.Add(gmath.Vec{
+				X: float64(offset.X) * pathing.CellSize,
+				Y: float64(offset.Y) * pathing.CellSize,
+			})
+		}
+	}
 	return c.pos
 }
 

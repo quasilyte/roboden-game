@@ -704,7 +704,14 @@ func (c *Controller) onExitButtonClicked() {
 	}
 }
 
-func (c *Controller) canBuildHere(pos gmath.Vec) bool {
+func (c *Controller) canBuildHere(pos gmath.Vec, turret bool) bool {
+	if !turret && c.world.coreDesign == gamedata.ArkCoreStats {
+		for _, colony := range c.world.allColonies {
+			if colony.pos.DistanceSquaredTo(pos) < (8 * 8) {
+				return false
+			}
+		}
+	}
 	return !c.hasTeleportersAt(pos) && !c.world.HasTreesAt(pos, 40)
 }
 
@@ -796,7 +803,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		freeCoord := randIterate(c.world.rand, colonyNearCellOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
 			return c.world.pathgrid.CellIsFree(probe) &&
-				c.canBuildHere(c.world.pathgrid.CoordToPos(probe))
+				c.canBuildHere(c.world.pathgrid.CoordToPos(probe), true)
 		})
 		if !freeCoord.IsZero() {
 			pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord))
@@ -814,7 +821,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
 			return c.world.CellIsFree2x2(probe) &&
-				c.canBuildHere(p.CoordToPos(probe).Sub(gmath.Vec{X: 16, Y: 16}))
+				c.canBuildHere(p.CoordToPos(probe).Sub(gmath.Vec{X: 16, Y: 16}), false)
 		})
 		if !freeCoord.IsZero() {
 			pos := p.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})

@@ -245,4 +245,7 @@ const SeasonNumber = 1
 //
 // * Visuals:
 //   - Improved some effects layer arrangement
+//
+// * Balance:
+//   - Bombers now deal extra damage to buildings and dreadnought
 const BuildNumber int = 14

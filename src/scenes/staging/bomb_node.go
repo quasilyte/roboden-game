@@ -49,7 +49,11 @@ func (b *bombNode) explode() {
 	})
 	playExplosionSound(b.world, b.pos)
 
-	const bombMaxDamage = 30
+	// Bombs deal some extra damage to the dreadnought
+	// and a lot of extra damage to buildings.
+	const bombMaxDamage = 30.0
+	const bombMaxBossDamage = 35.0
+	const bombMaxBuildingDamage = 50.0
 	const maxRadius = 56
 	const maxRadiusSqr = maxRadius * maxRadius
 	b.world.WalkCreeps(b.pos, 40, func(creep *creepNode) bool {
@@ -59,7 +63,13 @@ func (b *bombNode) explode() {
 			// 20 => 0.75
 			// 0  => 1.0
 			damageMultiplier := 1.0 - ((distSqr * 0.5) / maxRadiusSqr)
-			creep.OnDamage(gamedata.DamageValue{Health: bombMaxDamage * damageMultiplier}, b.owner)
+			baseDamage := bombMaxDamage
+			if creep.stats.Kind == gamedata.CreepUberBoss {
+				baseDamage = bombMaxBossDamage
+			} else if creep.stats.Building {
+				baseDamage = bombMaxBuildingDamage
+			}
+			creep.OnDamage(gamedata.DamageValue{Health: baseDamage * damageMultiplier}, b.owner)
 		}
 		return false
 	})

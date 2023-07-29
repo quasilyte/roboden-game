@@ -778,16 +778,14 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 			maxCrawlers = 5
 		}
 	} else {
-		if c.world.NumActiveCrawlers() >= c.world.MaxActiveCrawlers() {
-			return false
-		}
-		minCrawlers = 2
-		maxCrawlers = 3
+		minCrawlers = 3
+		maxCrawlers = 4
 		switch c.world.config.BossDifficulty {
 		case 2:
+			minCrawlers = 4
 			maxCrawlers = 5
 		case 3:
-			minCrawlers = 3
+			minCrawlers = 5
 			maxCrawlers = 5
 		}
 	}

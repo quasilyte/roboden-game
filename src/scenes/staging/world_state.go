@@ -366,10 +366,6 @@ func (w *worldState) NewConstructionNode(p player, pos, spriteOffset gmath.Vec, 
 	return n
 }
 
-func (w *worldState) NumActiveCrawlers() int {
-	return len(w.creepCoordinator.crawlers)
-}
-
 func (w *worldState) EliteCrawlerChance() float64 {
 	if w.creepsPlayerState != nil {
 		return gmath.ClampMax(w.creepsPlayerState.techLevel+0.2, 1.0)
@@ -384,19 +380,6 @@ func (w *worldState) EliteCrawlerChance() float64 {
 		return 0.4
 	default:
 		return 0.65
-	}
-}
-
-func (w *worldState) MaxActiveCrawlers() int {
-	switch w.config.BossDifficulty {
-	case 0:
-		return 15
-	case 1:
-		return 25
-	case 2:
-		return 40
-	default:
-		return 60
 	}
 }
 

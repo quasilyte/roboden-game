@@ -100,10 +100,9 @@
 
 ##turret.harvester : Harvester
 ##turret.harvester.description
-A highly destructive long-range energy weapon platform.
-It lacks the durability of a pillbox and it's harder to build.
-Its fire rate decreases when attacking consecutively, it needs time to recharge.
-It's vulnerable against enemy ground units.
+An armored truck that drives around and gathers resources.
+It can only harvest minerals, not oil-like or scrap resources.
+It doesn't have any weapons.
 
 ##turret.gunpoint : Pillbox
 ##turret.gunpoint.description

@@ -234,4 +234,12 @@ const SeasonNumber = 1
 //
 // * Misc:
 //   - Added a logs.grep terminal command
+//
+// # Version 15
+//
+// * Gameplay:
+//   - Increase dreadnough max crawlers limit
+//
+// * Bug fixes:
+//   - Fixed harvester en description
 const BuildNumber int = 14

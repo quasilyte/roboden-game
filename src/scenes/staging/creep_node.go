@@ -1348,7 +1348,6 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			height = crawlersSpawnHeight
 			c.sprite.FrameOffset.X = c.sprite.FrameWidth
 			c.altSprite.Visible = true
-			c.flashComponent.sprite = c.altSprite
 		}
 		c.shadowComponent.UpdateHeight(c.pos, height, agentFlightHeight)
 		return
@@ -1384,7 +1383,6 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			}
 			c.sprite.FrameOffset.X = 0
 			c.altSprite.Visible = false
-			c.flashComponent.sprite = c.sprite
 			return
 		}
 		return

@@ -242,6 +242,7 @@ const SeasonNumber = 1
 //
 // * Bug fixes:
 //   - Fixed harvester en description
+//   - Fixed dreadnought sprite flashing component
 //
 // * Visuals:
 //   - Improved some effects layer arrangement

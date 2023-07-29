@@ -315,7 +315,7 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable
 	c.health -= damage.Health
 	if c.health < 0 {
 		if c.shadowComponent.height == 0 {
-			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
+			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
 		} else {
 			shadowImg := c.shadowComponent.GetImageID()
 			fall := newDroneFallNode(c.world, nil, c.stats.Image, shadowImg, c.pos, c.shadowComponent.height)
@@ -529,8 +529,11 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 			}
 			a.pos = c.relocationPoint.Add(c.world.rand.Offset(-38, 38))
 			a.shadowComponent.UpdatePos(a.pos)
-			e := newEffectNode(c.world, a.pos, true, assets.ImageTeleportEffectSmall)
-			c.world.nodeRunner.AddObject(e)
+			createEffect(c.world, effectConfig{
+				Pos:   a.pos,
+				Layer: aboveEffectLayer,
+				Image: assets.ImageTeleportEffectSmall,
+			})
 			a.AssignMode(agentModePosing, gmath.Vec{X: c.world.rand.FloatRange(0.5, 2.5)}, nil)
 		})
 
@@ -541,7 +544,11 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		c.markCells(c.pos)
 		c.stopTeleportationEffect()
 
-		c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, false, assets.ImageTeleportEffectBig))
+		createEffect(c.world, effectConfig{
+			Pos:   c.pos,
+			Layer: normalEffectLayer,
+			Image: assets.ImageTeleportEffectBig,
+		})
 
 		c.EventTeleported.Emit(c)
 	}
@@ -967,7 +974,7 @@ func (c *colonyCoreNode) createLandingSmokeEffect() {
 		sprite := c.scene.NewSprite(info.image)
 		sprite.FlipHorizontal = info.flip
 		sprite.Pos.Offset = c.pos.Add(info.offset)
-		e := newEffectNodeFromSprite(c.world, false, sprite)
+		e := newEffectNodeFromSprite(c.world, normalEffectLayer, sprite)
 		e.noFlip = true
 		e.anim.SetAnimationSpan(0.3)
 		c.world.nodeRunner.AddObject(e)

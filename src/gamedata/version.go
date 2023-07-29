@@ -242,4 +242,7 @@ const SeasonNumber = 1
 //
 // * Bug fixes:
 //   - Fixed harvester en description
+//
+// * Visuals:
+//   - Improved some effects layer arrangement
 const BuildNumber int = 14

@@ -261,13 +261,29 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 	return true
 }
 
+type effectLayer int
+
+const (
+	normalEffectLayer effectLayer = iota
+	slightlyAboveEffectLayer
+	aboveEffectLayer
+)
+
+func effectLayerFromBool(above bool) effectLayer {
+	if above {
+		return aboveEffectLayer
+	}
+	return normalEffectLayer
+}
+
 type effectConfig struct {
 	Pos            gmath.Vec
 	Rotation       gmath.Rad
 	Image          resource.ImageID
 	AnimationSpeed animationSpeed
-	Above          bool
+	Layer          effectLayer
 	Reverse        bool
+	Rotates        bool
 }
 
 type animationSpeed int
@@ -300,8 +316,9 @@ func createEffect(world *worldState, config effectConfig) {
 		return
 	}
 
-	effect := newEffectNode(world, config.Pos, config.Above, config.Image)
+	effect := newEffectNode(world, config.Pos, config.Layer, config.Image)
 	effect.rotation = config.Rotation
+	effect.rotates = config.Rotates
 	world.nodeRunner.AddObject(effect)
 	if config.AnimationSpeed != animationSpeedNormal {
 		effect.anim.SetSecondsPerFrame(config.AnimationSpeed.SecondsPerFrame())
@@ -311,7 +328,7 @@ func createEffect(world *worldState, config effectConfig) {
 	}
 }
 
-func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool) {
+func createAreaExplosion(world *worldState, rect gmath.Rect, layer effectLayer) {
 	if world.simulation {
 		return
 	}
@@ -342,7 +359,7 @@ func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool)
 	size := rect.Width() * rect.Height()
 	minExplosions := gmath.ClampMin(size/120.0, 1)
 	numExplosions := world.localRand.IntRange(int(minExplosions), int(minExplosions*1.3))
-	above := !allowVertical
+	allowVertical := layer == normalEffectLayer
 	for numExplosions > 0 {
 		offset := gmath.Vec{
 			X: world.localRand.FloatRange(-rect.Width()*0.4, rect.Width()*0.4),
@@ -350,7 +367,7 @@ func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool)
 		}
 		if numExplosions >= 4 && world.localRand.Chance(0.4) {
 			numExplosions -= 4
-			world.nodeRunner.AddObject(newEffectNode(world, center.Add(offset), above, assets.ImageBigExplosion))
+			world.nodeRunner.AddObject(newEffectNode(world, center.Add(offset), layer, assets.ImageBigExplosion))
 		} else {
 			numExplosions--
 			if allowVertical && world.localRand.Chance(0.4) {
@@ -358,18 +375,18 @@ func createAreaExplosion(world *worldState, rect gmath.Rect, allowVertical bool)
 				if world.localRand.Bool() {
 					img = assets.ImageVerticalExplosion2
 				}
-				effect := newEffectNode(world, center.Add(offset), above, img)
+				effect := newEffectNode(world, center.Add(offset), layer, img)
 				world.nodeRunner.AddObject(effect)
 				effect.anim.SetSecondsPerFrame(0.035)
 			} else {
-				createMuteExplosion(world, above, center.Add(offset))
+				createMuteExplosion(world, layer, center.Add(offset))
 			}
 		}
 	}
 	playExplosionSound(world, center)
 }
 
-func createMuteExplosion(world *worldState, above bool, pos gmath.Vec) {
+func createMuteExplosion(world *worldState, layer effectLayer, pos gmath.Vec) {
 	imageRoll := world.localRand.Float()
 	img := assets.ImageSmallExplosion1 // 35%
 	switch {
@@ -380,7 +397,7 @@ func createMuteExplosion(world *worldState, above bool, pos gmath.Vec) {
 	case imageRoll <= 0.6: // 30%
 		img = assets.ImageSmallExplosion2
 	}
-	explosion := newEffectNode(world, pos, above, img)
+	explosion := newEffectNode(world, pos, layer, img)
 	world.nodeRunner.AddObject(explosion)
 }
 
@@ -405,16 +422,16 @@ func createBigVerticalExplosion(world *worldState, pos gmath.Vec) {
 	if world.localRand.Bool() {
 		img = assets.ImageBigVerticalExplosion2
 	}
-	world.nodeRunner.AddObject(newEffectNode(world, pos, false, img))
+	world.nodeRunner.AddObject(newEffectNode(world, pos, normalEffectLayer, img))
 	playExplosionSound(world, pos)
 }
 
-func createExplosion(world *worldState, above bool, pos gmath.Vec) {
+func createExplosion(world *worldState, layer effectLayer, pos gmath.Vec) {
 	if world.simulation {
 		return
 	}
 
-	createMuteExplosion(world, above, pos)
+	createMuteExplosion(world, layer, pos)
 	playExplosionSound(world, pos)
 }
 

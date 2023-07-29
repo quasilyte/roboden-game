@@ -112,7 +112,9 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	c.sprite = scene.NewSprite(c.stats.Image)
 	c.sprite.Pos.Base = &c.pos
-	if c.stats.ShadowImage != assets.ImageNone {
+	if c.stats.Kind == gamedata.CreepUberBoss {
+		c.world.stage.AddSpriteSlightlyAbove(c.sprite)
+	} else if c.stats.ShadowImage != assets.ImageNone {
 		c.world.stage.AddSpriteAbove(c.sprite)
 	} else {
 		c.world.stage.AddSprite(c.sprite)
@@ -291,10 +293,10 @@ func (c *creepNode) explode() {
 		createEffect(c.world, effectConfig{
 			Pos:   c.pos,
 			Image: assets.ImageWispExplosion,
-			Above: true,
+			Layer: aboveEffectLayer,
 		})
 	case gamedata.CreepWispLair:
-		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
+		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
 	case gamedata.CreepUberBoss:
 		if c.IsFlying() {
 			shadowImg := c.shadowComponent.GetImageID()
@@ -304,24 +306,24 @@ func (c *creepNode) explode() {
 			}
 			c.world.nodeRunner.AddObject(fall)
 		} else {
-			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
+			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
 		}
 
 	case gamedata.CreepTurret, gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepHowitzer:
-		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
+		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
 		c.world.CreateScrapsAt(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
 	case gamedata.CreepTurretConstruction, gamedata.CreepCrawlerBaseConstruction:
-		createExplosion(c.world, false, c.pos)
+		createExplosion(c.world, normalEffectLayer, c.pos)
 		c.world.CreateScrapsAt(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 	case gamedata.CreepCrawler:
-		createExplosion(c.world, false, c.pos)
+		createExplosion(c.world, normalEffectLayer, c.pos)
 		if c.world.rand.Chance(0.3) {
 			c.world.CreateScrapsAt(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 		}
 	default:
 		roll := c.scene.Rand().Float()
 		if roll < 0.3 {
-			createExplosion(c.world, true, c.pos)
+			createExplosion(c.world, aboveEffectLayer, c.pos)
 		} else {
 			var scraps *essenceSourceStats
 			if roll > 0.65 {
@@ -378,7 +380,11 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		disarmImmune := c.super && c.stats == gamedata.CrawlerCreepStats
 		if !disarmImmune && c.scene.Rand().Chance(damage.Disarm*0.1) {
 			c.disarm = 2.5
-			c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, c.IsFlying(), assets.ImageIonZap))
+			createEffect(c.world, effectConfig{
+				Pos:   c.pos,
+				Layer: effectLayerFromBool(c.IsFlying()),
+				Image: assets.ImageIonZap,
+			})
 			playIonExplosionSound(c.world, c.pos)
 		}
 	}
@@ -1064,7 +1070,7 @@ func (c *creepNode) updateWisp(delta float64) {
 			createEffect(c.world, effectConfig{
 				Pos:   c.pos,
 				Image: assets.ImageWispShockwave,
-				Above: true,
+				Layer: aboveEffectLayer,
 			})
 			playSound(c.world, assets.AudioWispShocker, c.pos)
 		} else {
@@ -1156,7 +1162,7 @@ func (c *creepNode) updateWispLair(delta float64) {
 	createEffect(c.world, effectConfig{
 		Pos:     spawnPos,
 		Image:   assets.ImageWispExplosion,
-		Above:   true,
+		Layer:   aboveEffectLayer,
 		Reverse: true,
 	})
 }
@@ -1193,9 +1199,11 @@ func (c *creepNode) updateCreepCrawlerBase(delta float64) {
 		c.specialModifier--
 	})
 
-	if !c.world.simulation {
-		c.world.nodeRunner.AddObject(newEffectNode(c.world, spawnPos, true, assets.ImageCreepCreatedEffect))
-	}
+	createEffect(c.world, effectConfig{
+		Pos:   spawnPos,
+		Layer: slightlyAboveEffectLayer,
+		Image: assets.ImageCreepCreatedEffect,
+	})
 }
 
 func (c *creepNode) updateCreepBase(delta float64) {
@@ -1425,7 +1433,11 @@ func (c *creepNode) doUncloak() {
 func (c *creepNode) doCloak() {
 	c.cloaking = true
 	c.sprite.SetAlpha(0.2)
-	c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, true, assets.ImageCloakWave))
+	createEffect(c.world, effectConfig{
+		Pos:   c.pos,
+		Layer: slightlyAboveEffectLayer,
+		Image: assets.ImageCloakWave,
+	})
 }
 
 func (c *creepNode) movementSpeed() float64 {

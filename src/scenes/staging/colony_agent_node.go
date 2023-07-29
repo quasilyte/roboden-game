@@ -824,14 +824,14 @@ func (a *colonyAgentNode) doCloak(d float64) {
 	a.cloaking = d
 	a.sprite.SetAlpha(0.2)
 	if !a.world().simulation {
-		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageCloakWave))
+		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, aboveEffectLayer, assets.ImageCloakWave))
 	}
 	playSound(a.world(), assets.AudioStealth, a.pos)
 }
 
 func (a *colonyAgentNode) explode() {
 	if !a.stats.IsFlying {
-		createAreaExplosion(a.world(), spriteRect(a.pos, a.sprite), true)
+		createAreaExplosion(a.world(), spriteRect(a.pos, a.sprite), normalEffectLayer)
 		if a.IsTurret() || a.scene.Rand().Chance(0.3) {
 			a.world().CreateScrapsAt(scrapSource, a.pos.Add(gmath.Vec{Y: 2}))
 		}
@@ -849,7 +849,7 @@ func (a *colonyAgentNode) explode() {
 
 	roll := a.scene.Rand().Float()
 	if roll < 0.3 {
-		createExplosion(a.world(), true, a.pos)
+		createExplosion(a.world(), aboveEffectLayer, a.pos)
 	} else {
 		var scraps *essenceSourceStats
 		if roll > 0.6 {
@@ -1243,7 +1243,7 @@ func (a *colonyAgentNode) doDisintegratorAttack() {
 	a.world().nodeRunner.AddProjectile(p)
 	a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
 	playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
-	a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImagePurpleIonZap))
+	a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, aboveEffectLayer, assets.ImagePurpleIonZap))
 	a.specialDelay = a.scene.Rand().FloatRange(9, 12)
 }
 
@@ -1451,8 +1451,11 @@ func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
 					beam := newTextureBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamTexture, a.stats.BeamSlideSpeed, a.stats.BeamOpaqueTime)
 					a.world().nodeRunner.AddObject(beam)
 					if a.stats.BeamExplosion != assets.ImageNone {
-						effect := newEffectNode(a.world(), target.GetPos().Add(a.world().localRand.Offset(-6, 6)), target.IsFlying(), a.stats.BeamExplosion)
-						a.world().nodeRunner.AddObject(effect)
+						createEffect(a.world(), effectConfig{
+							Pos:   target.GetPos().Add(a.world().localRand.Offset(-6, 6)),
+							Layer: effectLayerFromBool(target.IsFlying()),
+							Image: a.stats.BeamExplosion,
+						})
 					}
 				}
 			}
@@ -1549,8 +1552,11 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		a.world().nodeRunner.AddObject(beam)
 		damage.Health *= damageMultiplier(target, a.stats.Weapon)
 		target.OnDamage(damage, a)
-		effect := newEffectNode(a.world(), target.GetPos().Add(a.world().localRand.Offset(-6, 6)), target.IsFlying(), a.stats.BeamExplosion)
-		a.world().nodeRunner.AddObject(effect)
+		createEffect(a.world(), effectConfig{
+			Pos:   target.GetPos().Add(a.world().localRand.Offset(-6, 6)),
+			Image: a.stats.BeamExplosion,
+			Layer: effectLayerFromBool(target.IsFlying()),
+		})
 
 	case gamedata.AgentDevourer:
 		// Every consumed drone gives +1 to the power level.
@@ -1827,7 +1833,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 				// No smoke.
 			}
 			if sprite != nil {
-				e := newEffectNodeFromSprite(a.world(), false, sprite)
+				e := newEffectNodeFromSprite(a.world(), normalEffectLayer, sprite)
 				e.noFlip = true
 				e.anim.SetAnimationSpan(0.3)
 				a.world().nodeRunner.AddObject(e)
@@ -2035,7 +2041,7 @@ func (a *colonyAgentNode) updateConsumeDrone(delta float64) {
 		}
 		a.health = gmath.ClampMax(a.health+target.maxHealth*2, a.maxHealth)
 		target.Destroy()
-		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, true, assets.ImageDroneConsumed))
+		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, aboveEffectLayer, assets.ImageDroneConsumed))
 	}
 }
 
@@ -2098,7 +2104,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 		}
 		createEffect(a.world(), effectConfig{
 			Pos:      a.pos,
-			Above:    true,
+			Layer:    aboveEffectLayer,
 			Image:    assets.ImageBigVerticalExplosion1,
 			Rotation: a.pos.AngleToPoint(creep.pos) - math.Pi/2,
 		})
@@ -2305,9 +2311,12 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		}
 		target.Destroy()
 		a.Destroy()
-		effect := newEffectNode(a.world(), newAgent.pos, newAgent.stats != gamedata.RoombaAgentStats, assets.ImageMergingComplete)
-		effect.rotates = true
-		a.world().nodeRunner.AddObject(effect)
+		createEffect(a.world(), effectConfig{
+			Pos:     newAgent.pos,
+			Layer:   effectLayerFromBool(newAgent.stats != gamedata.RoombaAgentStats),
+			Image:   assets.ImageMergingComplete,
+			Rotates: true,
+		})
 		return
 	}
 }
@@ -2341,9 +2350,12 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 		a.world().nodeRunner.AddObject(clone)
 		a.world().result.DronesProduced++
 		clone.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-		effect := newEffectNode(a.world(), clone.pos, true, assets.ImageCloningComplete)
-		effect.rotates = true
-		a.world().nodeRunner.AddObject(effect)
+		createEffect(a.world(), effectConfig{
+			Pos:     clone.pos,
+			Layer:   aboveEffectLayer,
+			Image:   assets.ImageCloningComplete,
+			Rotates: true,
+		})
 		return
 	}
 }

@@ -45,6 +45,7 @@ func (b *bombNode) explode() {
 	createEffect(b.world, effectConfig{
 		Pos:   b.pos,
 		Image: assets.ImageBombExplosion,
+		Layer: slightlyAboveEffectLayer,
 	})
 	playExplosionSound(b.world, b.pos)
 

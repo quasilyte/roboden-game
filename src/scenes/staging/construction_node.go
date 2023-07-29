@@ -152,13 +152,13 @@ func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source targetab
 			Min: c.constructPosBase.Sub(gmath.Vec{X: xdelta, Y: 8}),
 			Max: c.constructPosBase.Add(gmath.Vec{X: xdelta, Y: 8}),
 		}
-		createAreaExplosion(c.world, rect, true)
+		createAreaExplosion(c.world, rect, normalEffectLayer)
 		c.Destroy()
 		return
 	}
 	explosionOffset := c.world.rand.FloatRange(-xdelta, xdelta)
 	explosionPos := c.constructPosBase.Add(gmath.Vec{X: explosionOffset, Y: c.world.rand.FloatRange(0, 4)})
-	createExplosion(c.world, false, explosionPos)
+	createExplosion(c.world, normalEffectLayer, explosionPos)
 	c.sprite.Shader.SetFloatValue("Time", c.progress)
 }
 

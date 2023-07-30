@@ -243,6 +243,7 @@ const SeasonNumber = 1
 // * Bug fixes:
 //   - Fixed harvester en description
 //   - Fixed dreadnought sprite flashing component
+//   - Fixed devourer levels when joining a commander's group
 //
 // * Visuals:
 //   - Improved some effects layer arrangement

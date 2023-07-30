@@ -66,7 +66,7 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 		case 2:
 			if a.stats.Kind == gamedata.AgentCommander {
 				id := len(p.commanders)
-				a.extraLevel = id
+				a.commanderID = id
 				p.commanders = append(p.commanders, commanderDroneInfo{
 					leader: a,
 				})
@@ -519,7 +519,7 @@ func (p *colonyActionPlanner) maybeAttachToCommander() (commander, follower *col
 			// after the drone (the follower) will get its turn.
 			continue
 		}
-		p.commanders[commander.extraLevel].numUnits++
+		p.commanders[commander.commanderID].numUnits++
 	}
 
 	const maxUnitsPerCommander = 4

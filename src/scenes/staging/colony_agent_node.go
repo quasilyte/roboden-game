@@ -112,7 +112,8 @@ type colonyAgentNode struct {
 	payload         int
 	cloneGen        int
 	rank            int
-	extraLevel      int // Devourer level, commander ID
+	extraLevel      int // Devourer level
+	commanderID     int
 	faction         gamedata.FactionTag
 	cargoValue      float64
 	cargoEliteValue float64

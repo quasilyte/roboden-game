@@ -12,6 +12,11 @@ todo engine:
 - add LoadGameDataRaw
 - gmath DirectionTo works in counter-intuitive way
 
+new achievements:
+* spectator - watch a splash screen simulation until the end
+* gladiator - publish your score to the leaderboard
+* wisp slayer - hunt down every wisp on the map
+
 loading screen hints:
 * faction bonuses
 

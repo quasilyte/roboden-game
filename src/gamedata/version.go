@@ -250,4 +250,7 @@ const SeasonNumber = 1
 //
 // * Balance:
 //   - Bombers now deal extra damage to buildings and dreadnought
+//   - Increased Destroyer's evo points cost (11 -> 17)
+//   - Increased Devourer's evo points cost (11 -> 12)
+//   - Increased Guardians's evo points cost (8 -> 9)
 const BuildNumber int = 14

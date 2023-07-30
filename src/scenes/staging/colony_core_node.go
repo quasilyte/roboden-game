@@ -19,7 +19,7 @@ const (
 	maxUpkeepValue   int     = 800
 	maxEvoPoints     float64 = 20
 	maxEvoGain       float64 = 1.0
-	blueEvoThreshold float64 = 15.0
+	blueEvoThreshold float64 = 18.0
 )
 
 type colonyCoreMode int

@@ -1039,10 +1039,10 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 				}
 			}
 			if a.faction == gamedata.BlueFactionTag {
-				// 20% more evo points per blue drones.
-				evoGain += 0.12
+				// ~25% more evo points per blue drones.
+				evoGain += 0.05
 			} else {
-				evoGain += 0.1
+				evoGain += 0.04
 			}
 			return false
 		})

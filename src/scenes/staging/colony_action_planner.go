@@ -630,7 +630,7 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 		Value2:   secondAgent,
 		Value3:   recipe.EvoCost,
 		Value4:   int(recipe.Result.Kind),
-		TimeCost: 0.9,
+		TimeCost: 1.0,
 	}
 }
 
@@ -689,16 +689,16 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 	}
 
 	if p.colony.agents.tier2Num > 0 {
-		// evolution=10% => ~2.5%
-		// evolution=20% => ~10%
-		// evolution=40% => ~25%
-		// evolution=60% => ~40%
-		// evolution=75% => ~50%
-		evoPointsChance := gmath.Clamp((p.colony.GetEvolutionPriority()*0.7)-0.05, 0, 0.5)
+		// evolution=10% => ~1.5%
+		// evolution=20% => ~8%
+		// evolution=40% => ~21%
+		// evolution=60% => ~34%
+		// evolution=75% => ~44%
+		evoPointsChance := gmath.Clamp((p.colony.GetEvolutionPriority()*0.65)-0.05, 0, 0.5)
 		if p.world.rand.Chance(evoPointsChance) {
 			return colonyAction{
 				Kind:     actionGenerateEvo,
-				TimeCost: 0.4,
+				TimeCost: 1.0,
 			}
 		}
 	}

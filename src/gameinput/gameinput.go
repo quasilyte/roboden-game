@@ -39,6 +39,10 @@ type Handler struct {
 }
 
 func (h *Handler) ReplaceKeyNames(s string) string {
+	if h.keysReplacer == nil {
+		// Keyboard input.
+		return s
+	}
 	return h.keysReplacer.Replace(s)
 }
 

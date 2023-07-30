@@ -244,6 +244,7 @@ const SeasonNumber = 1
 //   - Fixed harvester en description
 //   - Fixed dreadnought sprite flashing component
 //   - Fixed devourer levels when joining a commander's group
+//   - Fixed a intro mission crash when "keyboard" input method was selected
 //
 // * Visuals:
 //   - Improved some effects layer arrangement

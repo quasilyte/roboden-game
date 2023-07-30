@@ -247,6 +247,7 @@ const SeasonNumber = 1
 //
 // * Visuals:
 //   - Improved some effects layer arrangement
+//   - Make screen shaking more intensive
 //
 // * Balance:
 //   - Bombers now deal extra damage to buildings and dreadnought

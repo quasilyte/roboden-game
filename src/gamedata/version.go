@@ -254,4 +254,7 @@ const SeasonNumber = 1
 //   - Increased Devourer's evo points cost (11 -> 12)
 //   - Increased Guardians's evo points cost (8 -> 9)
 //   - Make evo points generation slightly slower
+//
+// * Misc:
+//   - Trim trailing whitespace in the username
 const BuildNumber int = 14

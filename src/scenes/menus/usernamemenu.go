@@ -1,6 +1,8 @@
 package menus
 
 import (
+	"strings"
+
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
@@ -101,6 +103,7 @@ func (c *UserNameMenu) initUI() {
 }
 
 func (c *UserNameMenu) save(name string) {
+	name = strings.TrimSpace(name)
 	if gamedata.IsValidUsername(name) || name == "" {
 		c.state.Persistent.PlayerName = name
 		c.scene.Context().SaveGameData("save", c.state.Persistent)

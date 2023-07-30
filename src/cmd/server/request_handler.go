@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -64,6 +65,7 @@ func (h *requestHandler) HandleGetPlayerBoard(r *http.Request) (any, error) {
 		NumSeasons: h.server.NumSeasons(),
 		NumPlayers: h.server.NumBoardPlayers(modeParam),
 	}
+	playerName = strings.TrimSpace(playerName)
 	if playerName == "" || !gamedata.IsValidUsername(playerName) {
 		resp.Entries = h.server.Top10(modeParam)
 		return resp, nil
@@ -93,6 +95,7 @@ func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 		return nil, errBadParams
 	}
 	playerName := r.URL.Query().Get("name")
+	playerName = strings.TrimSpace(playerName)
 	if playerName == "" || !gamedata.IsValidUsername(playerName) {
 		return nil, errBadParams
 	}

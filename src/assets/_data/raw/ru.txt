@@ -22,7 +22,7 @@
 ##menu.main.settings : Опции
 ##menu.main.credits : Авторы
 ##menu.main.exit : Выход
-##menu.main.build : Версия
+##menu.main.build : Версия игры
 ##menu.main.leaderboard : Рейтинг Игроков
 
 ##menu.leaderboard.placeholder : Загружаем данные...
@@ -66,6 +66,7 @@
 ##menu.profile.dronebook : Коллекция Дронов
 ##menu.profile.watch_replay : Смотреть Реплей
 
+##menu.replace.version_mismatch : несовместимая версия
 ##menu.replay.game_result : Исход
 ##menu.replay.last_played : Недавняя сессия
 ##menu.replay.empty : Пустой Слот

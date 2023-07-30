@@ -98,7 +98,7 @@ func (c *ReplayMenuController) initUI() {
 				c.helpLabel.Label = descriptions.ReplayText(d, &r)
 			})
 		}
-		b.GetWidget().Disabled = !replayExists
+		b.GetWidget().Disabled = !replayExists || r.Replay.GameVersion != gamedata.BuildNumber
 		b.GetWidget().MinWidth = 220
 		leftGrid.AddChild(b)
 	}

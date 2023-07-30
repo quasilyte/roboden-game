@@ -22,7 +22,7 @@
 ##menu.main.settings : Settings
 ##menu.main.credits : Credits
 ##menu.main.exit : Exit
-##menu.main.build : Build
+##menu.main.build : Game build
 ##menu.main.leaderboard : Leaderboard
 
 ##menu.leaderboard.placeholder : Loading data...
@@ -66,6 +66,7 @@
 ##menu.profile.dronebook : Drone Collection
 ##menu.profile.watch_replay : Watch Replay
 
+##menu.replace.version_mismatch : version mismatch
 ##menu.replay.game_result : Result
 ##menu.replay.last_played : Last played
 ##menu.replay.empty : Empty Slot

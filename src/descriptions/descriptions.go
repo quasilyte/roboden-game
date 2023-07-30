@@ -23,6 +23,11 @@ func ReplayText(d *langs.Dictionary, r *session.SavedReplay) string {
 		d.Get("menu.lobby.player_mode.two_players"),
 		d.Get("menu.lobby.player_mode.two_bots"),
 	}
+	mismatchSuffix := ""
+	if r.Replay.GameVersion != gamedata.BuildNumber {
+		mismatchSuffix = " [!] " + d.Get("menu.replace.version_mismatch")
+	}
+	lines = append(lines, fmt.Sprintf("%s: %d%s", d.Get("menu.main.build"), r.Replay.GameVersion, mismatchSuffix))
 	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.lobby.players"), playerModeValues[r.Replay.Config.PlayersMode]))
 	if r.Replay.Config.RawGameMode != "inf_arena" {
 		resultsKey := r.ResultTag

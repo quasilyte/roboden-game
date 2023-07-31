@@ -330,7 +330,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		numIron = 0
 		numCrystals /= 2
 		numGold = int(float64(numGold) * 0.7)
-		numOil = int(float64(numOil) * 1.7)
+		numOil = int(float64(numOil) * 1.5)
 	}
 
 	numRedOil := 0

@@ -80,7 +80,6 @@ func (c *TerminalMenu) initUI() {
 	d := c.scene.Dict()
 
 	tinyFont := assets.BitmapFont1
-	normalFont := assets.BitmapFont2
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra")+" -> "+d.Get("menu.terminal"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
@@ -165,7 +164,7 @@ func (c *TerminalMenu) initUI() {
 		},
 	}
 
-	textinput := eui.NewTextInput(uiResources, normalFont,
+	textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.SteamInfo.SteamDeck},
 		widget.TextInputOpts.Placeholder(d.Get("menu.terminal.placeholder")),
 		widget.TextInputOpts.SubmitHandler(func(args *widget.TextInputChangedEventArgs) {
 			if args.InputText == "" {

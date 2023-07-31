@@ -13,6 +13,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gameinput"
+	"github.com/quasilyte/roboden-game/steamsdk"
 	"github.com/quasilyte/roboden-game/userdevice"
 	"golang.org/x/image/font"
 )
@@ -606,7 +607,11 @@ func NewPanel(res *Resources, minWidth, minHeight int, opts ...widget.ContainerO
 	return widget.NewContainer(options...)
 }
 
-func NewTextInput(res *Resources, ff font.Face, opts ...widget.TextInputOpt) *widget.TextInput {
+type TextInputConfig struct {
+	SteamDeck bool
+}
+
+func NewTextInput(res *Resources, config TextInputConfig, opts ...widget.TextInputOpt) *widget.TextInput {
 	options := []widget.TextInputOpt{
 		// widget.TextInputOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 		// 	Stretch: true,
@@ -625,7 +630,26 @@ func NewTextInput(res *Resources, ff font.Face, opts ...widget.TextInputOpt) *wi
 	}
 	options = append(options, opts...)
 	t := widget.NewTextInput(options...)
+
+	if config.SteamDeck {
+		t.GetWidget().FocusEvent.AddHandler(func(args any) {
+			focusEvent := args.(*widget.WidgetFocusEventArgs)
+			if !focusEvent.Focused {
+				return
+			}
+			_ = steamsdk.ShowSteamDeckKeyboard(WidgetRect(t.GetWidget()))
+		})
+	}
+
 	return t
+}
+
+func WidgetRect(w *widget.Widget) gmath.Rect {
+	rect := w.Rect
+	return gmath.Rect{
+		Min: gmath.Vec{X: float64(rect.Min.X), Y: float64(rect.Min.Y)},
+		Max: gmath.Vec{X: float64(rect.Max.X), Y: float64(rect.Max.Y)},
+	}
 }
 
 func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {

@@ -35,7 +35,11 @@ func main() {
 		case !steamInfo.Enabled:
 			state.Logf("running a non-Steam build")
 		default:
-			state.Logf("Steam SDK initialized successfully")
+			steamDeckSuffix := ""
+			if steamInfo.SteamDeck {
+				steamDeckSuffix = " (Steam Deck)"
+			}
+			state.Logf("Steam SDK initialized successfully" + steamDeckSuffix)
 		}
 		state.SteamInfo = steamInfo
 	}

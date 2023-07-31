@@ -59,7 +59,7 @@ func (c *UserNameMenu) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.user_name"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	textinput := eui.NewTextInput(uiResources, assets.BitmapFont2,
+	textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.SteamInfo.SteamDeck},
 		widget.TextInputOpts.WidgetOpts(
 			widget.WidgetOpts.MinSize(480, 0),
 		),

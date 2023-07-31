@@ -8,7 +8,7 @@ require (
 	github.com/ebitenui/ebitenui v0.5.5-0.20230624233435-1e70bd0b3fb0
 	github.com/hajimehoshi/bitmapfont/v3 v3.0.0-alpha
 	github.com/hajimehoshi/ebiten/v2 v2.5.0-alpha.12.0.20230228174701-7c0fbce0cfd8
-	github.com/hajimehoshi/go-steamworks v0.0.0-20230316070542-ff530cb9ba1d
+	github.com/hajimehoshi/go-steamworks v0.0.0-20230731093655-018554ce3efc
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e
 	github.com/quasilyte/ge v0.0.0-20230720204729-09c6db995adc

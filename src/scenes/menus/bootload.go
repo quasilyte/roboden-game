@@ -123,6 +123,10 @@ func (c *BootloadController) prepareBackground() {
 }
 
 func (c *BootloadController) steamSync(ctx *ge.Context, config *assets.Config, progress *float64) {
+	if !c.state.SteamInfo.Enabled {
+		return
+	}
+
 	progressPerItem := 1.0 / float64(len(c.state.Persistent.PlayerStats.Achievements))
 
 	for i, a := range c.state.Persistent.PlayerStats.Achievements {

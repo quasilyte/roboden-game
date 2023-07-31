@@ -259,4 +259,8 @@ const SeasonNumber = 1
 //
 // * Misc:
 //   - Trim trailing whitespace in the username
-const BuildNumber int = 14
+//   - Disabling replays from mismatching game versions
+//
+// * Steam Deck:
+//   - Showing the on-screen keyboard when appropriate
+const BuildNumber int = 15

@@ -4,6 +4,7 @@ package userdevice
 
 import (
 	"errors"
+
 	"github.com/hajimehoshi/go-steamworks"
 )
 
@@ -14,9 +15,7 @@ func GetInfo() Info {
 }
 
 func GetSteamInfo(config SteamAppConfig) (SteamInfo, error) {
-	info := SteamInfo{
-		Enabled: true,
-	}
+	info := SteamInfo{}
 
 	if config.SteamAppID == 0 {
 		return info, nil
@@ -26,7 +25,9 @@ func GetSteamInfo(config SteamAppConfig) (SteamInfo, error) {
 		return info, errors.New("steamworks.Init() failed")
 	}
 
+	info.Enabled = true
 	info.Initialized = true
+	info.SteamDeck = steamworks.SteamUtils().IsSteamRunningOnSteamDeck()
 
 	return info, nil
 }

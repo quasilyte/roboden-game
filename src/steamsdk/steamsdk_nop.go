@@ -4,7 +4,13 @@ package steamsdk
 
 import (
 	"errors"
+
+	"github.com/quasilyte/gmath"
 )
+
+func ShowSteamDeckKeyboard(textFieldRect gmath.Rect) bool {
+	return false
+}
 
 func ClearAchievements(names []string) {}
 

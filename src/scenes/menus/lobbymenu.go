@@ -769,7 +769,7 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 		)
 
 		const maxSeedLen = 18
-		textinput := eui.NewTextInput(uiResources, tinyFont,
+		textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.SteamInfo.SteamDeck},
 			widget.TextInputOpts.WidgetOpts(
 				widget.WidgetOpts.CursorEnterHandler(func(args *widget.WidgetCursorEnterEventArgs) {
 					c.setHelpText(c.optionDescriptionText("menu.lobby.game_seed"))

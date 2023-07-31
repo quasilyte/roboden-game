@@ -4,11 +4,18 @@ package steamsdk
 
 import (
 	"errors"
+
+	"github.com/hajimehoshi/go-steamworks"
+	"github.com/quasilyte/gmath"
 )
 
-import (
-	"github.com/hajimehoshi/go-steamworks"
-)
+func ShowSteamDeckKeyboard(textFieldRect gmath.Rect) bool {
+	x := int32(textFieldRect.Min.X)
+	y := int32(textFieldRect.Min.Y)
+	width := int32(textFieldRect.Width())
+	height := int32(textFieldRect.Height())
+	return steamworks.SteamUtils().ShowFloatingGamepadTextInput(steamworks.EFloatingGamepadTextInputMode_ModeNumeric, x, y, width, height)
+}
 
 func ClearAchievements(names []string) {
 	for _, name := range names {

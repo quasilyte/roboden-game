@@ -9,6 +9,9 @@ type SteamInfo struct {
 
 	// Whether this game is built with -steam tag.
 	Enabled bool
+
+	// Whether this game is running under a Steam Deck device.
+	SteamDeck bool
 }
 
 type SteamAppConfig struct {

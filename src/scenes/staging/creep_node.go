@@ -943,16 +943,21 @@ func (c *creepNode) updateHowitzer(delta float64) {
 	}
 
 	if c.specialModifier == howitzerIdle {
-		hasTargets := c.findHowitzerTarget(1.1) != nil
-		if c.specialDelay == 0 && (hasTargets || c.world.rand.Chance(0.25)) {
+		if !c.insideForest && c.specialDelay == 0 && (c.findHowitzerTarget(1.1) != nil || c.world.rand.Chance(0.25)) {
 			c.specialModifier = howitzerPreparing
 			c.setAnimSprite(c.altSprite, -1)
 			c.anim.Rewind()
 			c.sprite.Visible = false
 			c.altSprite.Visible = true
 		} else {
+			var dst gmath.Vec
 			dist := c.world.rand.FloatRange(96, 256)
-			dst := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(c.pos)
+			if len(c.world.allColonies) != 0 && c.world.rand.Chance(0.2) {
+				colony := gmath.RandElem(c.world.rand, c.world.allColonies)
+				dst = colony.pos.DirectionTo(c.pos).Mulf(dist).Add(c.pos)
+			} else {
+				dst = gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(c.pos)
+			}
 			c.SendTo(dst)
 		}
 		return

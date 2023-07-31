@@ -6,15 +6,16 @@ const (
 	GamepadLayoutXbox GamepadLayoutKind = iota
 	GamepadLayoutPlayStation
 	GamepadLayoutNintendoSwitch
+	GamepadLayoutSteamDeck
 )
 
 var (
-	gamepadY     = [...]string{"Y", "△", "X"}
-	gamepadB     = [...]string{"B", "○", "A"}
-	gamepadA     = [...]string{"A", "×", "B"}
-	gamepadX     = [...]string{"X", "□", "Y"}
-	gamepadStart = [...]string{"START", "START", "+"}
-	gamepadBack  = [...]string{"BACK", "SELECT", "-"}
+	gamepadY     = [...]string{"Y", "△", "X", "Y"}
+	gamepadB     = [...]string{"B", "○", "A", "B"}
+	gamepadA     = [...]string{"A", "×", "B", "A"}
+	gamepadX     = [...]string{"X", "□", "Y", "X"}
+	gamepadStart = [...]string{"START", "START", "+", "☰"}
+	gamepadBack  = [...]string{"BACK", "SELECT", "-", "❐"}
 )
 
 func getKeyName(layout GamepadLayoutKind, key string) string {

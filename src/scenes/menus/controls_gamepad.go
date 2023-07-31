@@ -162,7 +162,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 		Input:      c.state.CombinedInput,
 		Value:      &options.GamepadSettings[c.id].Layout,
 		Label:      d.Get("menu.controls.gamepad_layout"),
-		ValueNames: []string{"Xbox", "PlayStation", "Nintendo Switch"},
+		ValueNames: []string{"Xbox", "PlayStation", "Nintendo Switch", "Steam Deck"},
 		OnPressed: func() {
 			h.SetGamepadLayout(gameinput.GamepadLayoutKind(options.GamepadSettings[c.id].Layout))
 			grid.RemoveChildren()

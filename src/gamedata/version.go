@@ -263,4 +263,5 @@ const SeasonNumber = 1
 //
 // * Steam Deck:
 //   - Showing the on-screen keyboard when appropriate
+//   - Added Steam Deck layout option
 const BuildNumber int = 15

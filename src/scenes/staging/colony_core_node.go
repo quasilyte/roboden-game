@@ -794,17 +794,22 @@ func (c *colonyCoreNode) startLanding() {
 	c.markCells(c.relocationPoint)
 }
 
+func (c *colonyCoreNode) canLandAt(coord pathing.GridCoord) bool {
+	pos := c.world.pathgrid.CoordToPos(coord).Sub(gmath.Vec{X: 16, Y: 16})
+	return c.world.CellIsFree2x2(coord) && !c.world.HasTreesAt(pos, 40)
+}
+
 func (c *colonyCoreNode) updateRelocating(delta float64) {
 	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
 		switch c.stats {
 		case gamedata.DenCoreStats:
 			// The landing spot could be unavailable by the moment we reach it.
 			coord := c.world.pathgrid.PosToCoord(c.relocationPoint)
-			if c.world.CellIsFree2x2(coord) {
+			if c.canLandAt(coord) {
 				c.startLanding()
 				return
 			}
-			newSpot := c.findLandingSpot(coord, true)
+			newSpot := c.findLandingSpot(coord, 3)
 			if !newSpot.IsZero() {
 				c.relocationPoint = newSpot
 				c.waypoint = newSpot.Sub(gmath.Vec{Y: c.stats.FlightHeight})
@@ -855,10 +860,10 @@ func (c *colonyCoreNode) findArkHoverSpot() gmath.Vec {
 	return c.pos
 }
 
-func (c *colonyCoreNode) findLandingSpot(coord pathing.GridCoord, recurse bool) gmath.Vec {
+func (c *colonyCoreNode) findLandingSpot(coord pathing.GridCoord, numTries int) gmath.Vec {
 	freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
 		probe := coord.Add(offset)
-		return c.world.CellIsFree2x2(probe)
+		return c.canLandAt(probe)
 	})
 	if !freeCoord.IsZero() {
 		pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})
@@ -866,10 +871,10 @@ func (c *colonyCoreNode) findLandingSpot(coord pathing.GridCoord, recurse bool) 
 	}
 
 	var freePos gmath.Vec
-	if recurse {
+	if numTries > 0 {
 		randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
-			freePos = c.findLandingSpot(probe, false)
+			freePos = c.findLandingSpot(probe, numTries-1)
 			return !freePos.IsZero()
 		})
 	}

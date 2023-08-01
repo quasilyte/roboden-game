@@ -2473,7 +2473,7 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 func (a *colonyAgentNode) updateFollow(delta float64) {
 	if a.moveTowards(delta) {
 		target := a.target.(*creepNode)
-		if a.waypointsLeft == 0 || target.IsDisposed() {
+		if a.waypointsLeft == 0 || target.IsDisposed() || !target.CanBeTargeted() {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}

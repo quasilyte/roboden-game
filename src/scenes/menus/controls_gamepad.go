@@ -112,7 +112,7 @@ func (c *ControlsGamepadMenuController) checkGamepad() {
 }
 
 func (c *ControlsGamepadMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

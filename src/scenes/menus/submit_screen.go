@@ -53,7 +53,7 @@ func (c *submitScreenController) spawnTask() {
 }
 
 func (c *submitScreenController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	d := c.scene.Dict()
 
 	root := eui.NewAnchorContainer()

@@ -56,7 +56,7 @@ func (c *LeaderboardLoadingController) getBoardCache() *serverapi.LeaderboardRes
 }
 
 func (c *LeaderboardLoadingController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 
 	root := eui.NewAnchorContainer()
 	rowContainer := eui.NewRowLayoutContainer(10, nil)

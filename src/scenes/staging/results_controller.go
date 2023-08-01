@@ -93,6 +93,7 @@ func newResultsController(state *session.State, config *gamedata.LevelConfig, ba
 
 func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
+	eui.AddBackground(c.state.BackgroundImage, scene)
 
 	firstTime := false
 	if c.rewards == nil {

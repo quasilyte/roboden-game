@@ -101,6 +101,7 @@ func (c *rewardsController) Update(delta float64) {
 }
 
 func (c *rewardsController) initUI() {
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

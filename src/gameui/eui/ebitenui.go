@@ -825,3 +825,14 @@ func nineSliceImage(i *ebiten.Image, centerWidth, centerHeight int) *image.NineS
 		[3]int{(w - centerWidth) / 2, centerWidth, w - (w-centerWidth)/2 - centerWidth},
 		[3]int{(h - centerHeight) / 2, centerHeight, h - (h-centerHeight)/2 - centerHeight})
 }
+
+func AddBackground(img *ebiten.Image, scene *ge.Scene) {
+	if img == nil {
+		return
+	}
+	s := ge.NewSprite(scene.Context())
+	s.Centered = false
+	s.SetColorScale(ge.ColorScale{R: 0.35, G: 0.35, B: 0.35, A: 1})
+	s.SetImage(resource.Image{Data: img})
+	scene.AddGraphics(s)
+}

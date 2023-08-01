@@ -56,7 +56,7 @@ type State struct {
 
 	Resources Resources
 
-	DemoFrame *ebiten.Image
+	BackgroundImage *ebiten.Image
 
 	Context *ge.Context
 

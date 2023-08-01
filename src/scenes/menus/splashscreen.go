@@ -65,7 +65,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.controller.EventBeforeLeaveScene.Connect(nil, func(gsignal.Void) {
 		// Just in case demo stops by a victory/defeat,
 		// make sure that we capture that last frame.
-		c.state.DemoFrame = c.controller.RenderDemoFrame()
+		c.state.BackgroundImage = c.controller.RenderDemoFrame()
 	})
 
 	logo := scene.NewSprite(assets.ImageLogo)
@@ -138,7 +138,7 @@ func (c *SplashScreenController) handleInput() {
 }
 
 func (c *SplashScreenController) stopDemo() {
-	c.state.DemoFrame = c.controller.RenderDemoFrame()
+	c.state.BackgroundImage = c.controller.RenderDemoFrame()
 
 	c.scene.Audio().PauseCurrentMusic()
 	c.scene.Context().ChangeScene(c.menuController)

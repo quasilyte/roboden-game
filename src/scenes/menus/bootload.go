@@ -119,7 +119,7 @@ func (c *BootloadController) prepareBackground() {
 	bg.LoadTilesetWithRand(c.scene.Context(), c.scene.Rand(), width, height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
 	img := ebiten.NewImage(int(width), int(height))
 	bg.Draw(img)
-	c.state.DemoFrame = img
+	c.state.BackgroundImage = img
 }
 
 func (c *BootloadController) steamSync(ctx *ge.Context, config *assets.Config, progress *float64) {

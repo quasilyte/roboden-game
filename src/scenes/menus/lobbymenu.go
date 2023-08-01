@@ -150,7 +150,7 @@ func (c *LobbyMenuController) prepareRecipeIcons() {
 }
 
 func (c *LobbyMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := widget.NewContainer(

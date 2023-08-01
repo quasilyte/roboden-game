@@ -70,7 +70,7 @@ func (c *TerminalMenu) setOutput(s string) {
 }
 
 func (c *TerminalMenu) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

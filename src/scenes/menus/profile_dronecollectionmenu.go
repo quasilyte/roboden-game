@@ -40,7 +40,7 @@ func (c *ProfileDroneCollectionMenuController) Update(delta float64) {
 }
 
 func (c *ProfileDroneCollectionMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

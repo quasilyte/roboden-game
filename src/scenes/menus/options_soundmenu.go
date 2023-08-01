@@ -32,7 +32,7 @@ func (c *OptionsSoundMenuController) Update(delta float64) {
 }
 
 func (c *OptionsSoundMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

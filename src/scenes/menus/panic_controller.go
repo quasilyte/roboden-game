@@ -32,6 +32,7 @@ func NewPanicController(panicInfo *ge.PanicInfo) *PanicController {
 
 func (c *PanicController) Init(scene *ge.Scene) {
 	ebiten.SetCursorMode(ebiten.CursorModeVisible)
+	scene.Audio().PauseCurrentMusic()
 
 	c.scene = scene
 

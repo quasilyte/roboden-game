@@ -24,11 +24,13 @@ func _() {
 	_ = x[CreepUberBoss-13]
 	_ = x[CreepWisp-14]
 	_ = x[CreepWispLair-15]
+	_ = x[CreepFortress-16]
+	_ = x[CreepTemplar-17]
 }
 
-const _CreepKind_name = "PrimitiveWandererStunnerAssaultDominatorBuilderTurretTurretConstructionCrawlerBaseConstructionBaseCrawlerBaseCrawlerHowitzerServantUberBossWispWispLair"
+const _CreepKind_name = "PrimitiveWandererStunnerAssaultDominatorBuilderTurretTurretConstructionCrawlerBaseConstructionBaseCrawlerBaseCrawlerHowitzerServantUberBossWispWispLairFortressTemplar"
 
-var _CreepKind_index = [...]uint8{0, 17, 24, 31, 40, 47, 53, 71, 94, 98, 109, 116, 124, 131, 139, 143, 151}
+var _CreepKind_index = [...]uint8{0, 17, 24, 31, 40, 47, 53, 71, 94, 98, 109, 116, 124, 131, 139, 143, 151, 159, 166}
 
 func (i CreepKind) String() string {
 	if i < 0 || i >= CreepKind(len(_CreepKind_index)-1) {

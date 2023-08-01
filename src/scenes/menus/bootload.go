@@ -172,8 +172,9 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, config *assets.Config, p
 		imageID resource.ImageID
 		length  float64
 	}{
-		{gamedata.StunnerCreepStats, assets.ImageStunnerLine, gamedata.StunnerCreepStats.Weapon.AttackRange * 1.05},
-		{gamedata.UberBossCreepStats, assets.ImageBossLaserLine, gamedata.UberBossCreepStats.Weapon.AttackRange * 1.05},
+		{gamedata.StunnerCreepStats, assets.ImageStunnerLine, gamedata.StunnerCreepStats.Weapon.AttackRange * 1.1},
+		{gamedata.TemplarCreepStats, assets.ImageTemplarLine, gamedata.TemplarCreepStats.Weapon.AttackRange * 1.1},
+		{gamedata.UberBossCreepStats, assets.ImageBossLaserLine, gamedata.UberBossCreepStats.Weapon.AttackRange * 1.1},
 	}
 
 	progressPerItem := 1.0 / float64(len(steps)+len(creepSteps))

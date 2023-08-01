@@ -154,6 +154,8 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		}
 	}
 	switch c.stats.Kind {
+	case gamedata.CreepFortress:
+		c.specialDelay = c.scene.Rand().FloatRange(70, 120)
 	case gamedata.CreepWispLair:
 		c.attackDelay = c.scene.Rand().FloatRange(30, 50)
 	case gamedata.CreepWisp:
@@ -256,6 +258,10 @@ func (c *creepNode) Update(delta float64) {
 		c.updateWisp(delta)
 	case gamedata.CreepWispLair:
 		c.updateWispLair(delta)
+	case gamedata.CreepFortress:
+		c.updateFortress(delta)
+	case gamedata.CreepTemplar:
+		c.updateTemplar(delta)
 	default:
 		panic("unexpected creep kind in update()")
 	}
@@ -312,6 +318,12 @@ func (c *creepNode) explode() {
 	case gamedata.CreepTurret, gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepHowitzer:
 		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
 		c.world.CreateScrapsAt(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
+	case gamedata.CreepFortress:
+		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
+		c.world.CreateScrapsAt(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 4}))
+		for i := 0; i < 3; i++ {
+			c.world.CreateScrapsAt(scrapCreepSource, c.pos.Add(c.world.rand.Offset(-12, 12)))
+		}
 	case gamedata.CreepTurretConstruction, gamedata.CreepCrawlerBaseConstruction:
 		createExplosion(c.world, normalEffectLayer, c.pos)
 		c.world.CreateScrapsAt(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
@@ -493,22 +505,32 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 			burstDelay = 0.25
 		}
 		targetVelocity := target.GetVelocity()
-		for i := 0; i < burstSize; i++ {
-			burstCorrectedPos := *target.GetPos()
-			if i != 0 {
-				burstCorrectedPos = burstCorrectedPos.Add(targetVelocity.Mulf(burstDelay))
+		j := 0
+		attacksPerBurst := c.stats.Weapon.AttacksPerBurst
+		for i := 0; i < burstSize; i += attacksPerBurst {
+			if i+attacksPerBurst > burstSize {
+				// This happens only once for the last burst wave
+				// if attacks-per-burst are not aligned with burstSize (like with Devourer).
+				attacksPerBurst = burstSize - i
 			}
-			toPos := snipePos(c.stats.Weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
-			fireDelay := float64(i) * burstDelay
-			p := c.world.newProjectileNode(projectileConfig{
-				World:     c.world,
-				Weapon:    weapon,
-				Attacker:  c,
-				ToPos:     toPos.Add(c.scene.Rand().Offset(-4, 4)),
-				Target:    target,
-				FireDelay: fireDelay,
-			})
-			c.world.nodeRunner.AddProjectile(p)
+			for i := 0; i < attacksPerBurst; i++ {
+				burstCorrectedPos := *target.GetPos()
+				if i != 0 {
+					burstCorrectedPos = burstCorrectedPos.Add(targetVelocity.Mulf(burstDelay))
+				}
+				toPos := snipePos(c.stats.Weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
+				fireDelay := float64(j) * burstDelay
+				p := c.world.newProjectileNode(projectileConfig{
+					World:     c.world,
+					Weapon:    weapon,
+					Attacker:  c,
+					ToPos:     toPos.Add(c.scene.Rand().Offset(-4, 4)),
+					Target:    target,
+					FireDelay: fireDelay,
+				})
+				c.world.nodeRunner.AddProjectile(p)
+			}
+			j++
 		}
 		return
 	}
@@ -520,6 +542,13 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 	} else {
 		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.BeamTexture, c.stats.BeamSlideSpeed, c.stats.BeamOpaqueTime)
 		c.world.nodeRunner.AddObject(beam)
+		if c.stats.BeamExplosion != assets.ImageNone {
+			createEffect(c.world, effectConfig{
+				Pos:   target.GetPos().Add(c.world.localRand.Offset(-6, 6)),
+				Layer: effectLayerFromBool(target.IsFlying()),
+				Image: c.stats.BeamExplosion,
+			})
+		}
 	}
 
 	if c.stats.Kind == gamedata.CreepDominator {
@@ -1141,6 +1170,69 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	}
 }
 
+func (c *creepNode) updateFortress(delta float64) {
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
+	const maxUnits = 20.0
+	if c.specialModifier > maxUnits {
+		return
+	}
+
+	if c.specialDelay != 0 {
+		return
+	}
+	spawnDelay := c.world.rand.FloatRange(20, 35)
+	c.specialDelay = spawnDelay
+	c.specialModifier++
+
+	spawnPos := c.pos.Sub(gmath.Vec{Y: 16})
+	creep := c.world.NewCreepNode(spawnPos, gamedata.TemplarCreepStats)
+	creep.waypoint = spawnPos.Sub(gmath.Vec{Y: agentFlightHeight})
+	creep.spawnedFromBase = true
+	c.world.nodeRunner.AddObject(creep)
+	creep.SetHeight(0)
+	creep.EventDestroyed.Connect(c, func(arg *creepNode) {
+		c.specialModifier--
+	})
+
+	createEffect(c.world, effectConfig{
+		Pos:   spawnPos,
+		Layer: aboveEffectLayer,
+		Image: assets.ImageCreepCreatedEffect,
+	})
+}
+
+func (c *creepNode) updateTemplar(delta float64) {
+	if c.world.fortress == nil {
+		c.wandererMovement(delta)
+		return
+	}
+
+	if c.waypoint.IsZero() {
+		c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+		if c.specialDelay == 0 {
+			offset := gmath.Vec{X: 620, Y: 620}
+			sector := gmath.Rect{
+				Min: c.world.fortress.pos.Sub(offset),
+				Max: c.world.fortress.pos.Add(offset),
+			}
+			c.setWaypoint(randomSectorPos(c.world.rand, sector))
+		}
+		return
+	}
+
+	if c.moveTowards(delta, c.waypoint) {
+		c.waypoint = gmath.Vec{}
+		if c.spawnedFromBase {
+			c.spawnedFromBase = false
+			c.shadowComponent.SetVisibility(true)
+			c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
+		} else {
+			c.specialDelay = c.world.rand.FloatRange(3, 10)
+		}
+	}
+}
+
 func (c *creepNode) updateWispLair(delta float64) {
 	// It regenerates 1 health over 5 seconds (*0.2).
 	// 12 hp over minute.
@@ -1282,6 +1374,12 @@ func (c *creepNode) updateCreepBase(delta float64) {
 		creep.spawnedFromBase = true
 		c.world.nodeRunner.AddObject(creep)
 		creep.SetHeight(0)
+
+		createEffect(c.world, effectConfig{
+			Pos:   spawnPos,
+			Layer: aboveEffectLayer,
+			Image: assets.ImageCreepCreatedEffect,
+		})
 	}
 }
 

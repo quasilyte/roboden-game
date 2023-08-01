@@ -38,6 +38,10 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, 0)
 
 	config := c.state.SplashLevelConfig.Clone()
+	if scene.Rand().Chance(0.4) {
+		config.InitialCreeps = 0
+		config.CreepFortress = true
+	}
 	config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, scene.Rand())
 	config.TurretDesign = gamedata.PickTurretDesign(scene.Rand())
 	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())

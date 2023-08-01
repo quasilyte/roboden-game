@@ -16,7 +16,6 @@ type projectileNode struct {
 	toPos     gmath.Vec
 	target    targetable
 	fireDelay float64
-	speed     float64
 	weapon    *gamedata.WeaponStats
 	world     *worldState
 
@@ -177,28 +176,7 @@ func (p *projectileNode) Update(delta float64) {
 	travelled := p.weapon.ProjectileSpeed * delta
 
 	if !p.world.simulation && p.weapon.TrailEffect != gamedata.ProjectileTrailNone {
-		p.trailCounter -= delta
-		switch p.weapon.TrailEffect {
-		case gamedata.ProjectileTrailSmoke:
-			if p.trailCounter <= 0 {
-				p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
-				p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageProjectileSmoke))
-			}
-		case gamedata.ProjectileTrailRoomba:
-			if p.trailCounter <= 0 {
-				p.trailCounter = p.world.localRand.FloatRange(0.1, 0.2)
-				effect := newEffectNode(p.world, p.pos, slightlyAboveEffectLayer, assets.ImageRoombaLaserTrail)
-				effect.rotation = p.rotation
-				p.world.nodeRunner.AddObject(effect)
-			}
-		case gamedata.ProjectileTrailFire:
-			if p.trailCounter <= 0 {
-				p.trailCounter = p.world.localRand.FloatRange(0.06, 0.1)
-				effect := newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageFireTrail)
-				effect.rotation = p.rotation
-				p.world.nodeRunner.AddObject(effect)
-			}
-		}
+		p.updateTrail(delta)
 	}
 
 	if p.arcProgressionScaling == 0 {
@@ -225,6 +203,34 @@ func (p *projectileNode) Update(delta float64) {
 	}
 	p.pos = newPos
 	p.setSpriteVisibility(true)
+}
+
+func (p *projectileNode) updateTrail(delta float64) {
+	p.trailCounter -= delta
+	if p.trailCounter > 0 {
+		return
+	}
+
+	switch p.weapon.TrailEffect {
+	case gamedata.ProjectileTrailSmoke:
+		p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageProjectileSmoke))
+	case gamedata.ProjectileTrailRoomba:
+		p.trailCounter = p.world.localRand.FloatRange(0.1, 0.2)
+		effect := newEffectNode(p.world, p.pos, slightlyAboveEffectLayer, assets.ImageRoombaLaserTrail)
+		effect.rotation = p.rotation
+		p.world.nodeRunner.AddObject(effect)
+	case gamedata.ProjectileTrailEnergySpear:
+		p.trailCounter = p.world.localRand.FloatRange(0.03, 0.08)
+		effect := newEffectNode(p.world, p.pos, slightlyAboveEffectLayer, assets.ImageEnergySpearTrail)
+		effect.rotation = p.rotation
+		p.world.nodeRunner.AddObject(effect)
+	case gamedata.ProjectileTrailFire:
+		p.trailCounter = p.world.localRand.FloatRange(0.06, 0.1)
+		effect := newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageFireTrail)
+		effect.rotation = p.rotation
+		p.world.nodeRunner.AddObject(effect)
+	}
 }
 
 func (p *projectileNode) Dispose() {

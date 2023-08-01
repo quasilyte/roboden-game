@@ -237,6 +237,10 @@ const SeasonNumber = 1
 //
 // # Version 15
 //
+// * New content:
+//   - New Fortress creep (available via difficulty setting)
+//   - New Templar creep
+//
 // * Gameplay:
 //   - Increase dreadnough max crawlers limit
 //

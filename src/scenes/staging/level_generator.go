@@ -239,10 +239,10 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 	}
 }
 
-func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stats *gamedata.CreepStats) int {
+func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stats *gamedata.CreepStats, pad float64) int {
 	rand := &g.rng
 	placed := 0
-	pos := correctedPos(sector, g.randomPos(sector), 128)
+	pos := correctedPos(sector, g.randomPos(sector), pad)
 	initialPos := pos
 	unitPos := pos
 	for i := 0; i < maxSize; i++ {
@@ -504,7 +504,7 @@ func (g *levelGenerator) placeCreeps() {
 	for numTurrets > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numTurrets -= g.placeCreepsCluster(sector, 1, gamedata.TurretCreepStats)
+		numTurrets -= g.placeCreepsCluster(sector, 1, gamedata.TurretCreepStats, 140)
 	}
 
 	numCrawlers := int(math.Round(float64(rand.IntRange(8, 12)) * multiplier))
@@ -515,7 +515,7 @@ func (g *levelGenerator) placeCreeps() {
 		if g.rng.Chance(0.4) {
 			stats = gamedata.HeavyCrawlerCreepStats
 		}
-		numCrawlers -= g.placeCreepsCluster(sector, 1, stats)
+		numCrawlers -= g.placeCreepsCluster(sector, 1, stats, 128)
 	}
 
 	numSpecial := 0
@@ -529,28 +529,55 @@ func (g *levelGenerator) placeCreeps() {
 	for numSpecial > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numSpecial -= g.placeCreepsCluster(sector, 1, specialStats)
+		numSpecial -= g.placeCreepsCluster(sector, 1, specialStats, 196)
 	}
 }
 
 func (g *levelGenerator) placeCreepBases() {
 	numWispLairs := 0
-	hasWispLair := false
 	if gamedata.EnvironmentKind(g.world.config.Environment) == gamedata.EnvForest {
 		numWispLairs = 1
-		hasWispLair = true
 	}
+	hasWispLair := numWispLairs > 0
 	for numWispLairs > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numWispLairs -= g.placeCreepsCluster(sector, 1, gamedata.WispLairCreepStats)
+		numWispLairs -= g.placeCreepsCluster(sector, 1, gamedata.WispLairCreepStats, 196)
 	}
-	if hasWispLair {
+
+	numFortresses := 0
+	if g.world.config.CreepFortress {
+		numFortresses = 1
+	}
+	hasFortresses := numFortresses > 0
+	for numFortresses > 0 {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numFortresses -= g.placeCreepsCluster(sector, 1, gamedata.FortressCreepStats, 256)
+	}
+
+	if hasWispLair || hasFortresses {
 		for _, creep := range g.world.creeps {
-			if creep.stats.Kind == gamedata.CreepWispLair {
+			switch creep.stats.Kind {
+			case gamedata.CreepWispLair:
 				g.world.wispLair = creep
-				break
+			case gamedata.CreepFortress:
+				g.world.fortress = creep
 			}
+		}
+	}
+
+	if g.world.fortress != nil {
+		// Place turrets around the fortress.
+		offsets := []gmath.Vec{
+			{X: -34, Y: -34},
+			{X: 34, Y: -34},
+			{X: 34, Y: 34},
+			{X: -34, Y: 34},
+		}
+		for _, offset := range offsets {
+			turret := g.world.NewCreepNode(g.world.fortress.pos.Add(offset), gamedata.TurretCreepStats)
+			g.world.nodeRunner.AddObject(turret)
 		}
 	}
 
@@ -584,10 +611,10 @@ func (g *levelGenerator) placeCreepBases() {
 			g.world.sessionState.Logf("deployed a creep base %d at %v distance is %f", i+1, basePos, basePos.DistanceTo(g.playerSpawn))
 		}
 		baseRegion := gmath.Rect{
-			Min: basePos.Sub(gmath.Vec{X: 96, Y: 96}),
-			Max: basePos.Add(gmath.Vec{X: 96, Y: 96}),
+			Min: basePos.Sub(gmath.Vec{X: 128, Y: 128}),
+			Max: basePos.Add(gmath.Vec{X: 128, Y: 128}),
 		}
-		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats)
+		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, 64)
 		base := g.world.NewCreepNode(basePos, gamedata.BaseCreepStats)
 		base.super = i == 0 && g.world.config.SuperCreeps
 		if i == 1 || i == 3 {

@@ -427,6 +427,14 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
+		b := c.newBoolOptionButton(&c.config.CreepFortress, "menu.lobby.creep_fortress", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(b)
+	}
+
+	{
 		b := c.newOptionButton(&c.config.CreepDifficulty, "menu.lobby.creeps_difficulty", []string{
 			"25%",
 			"50%",

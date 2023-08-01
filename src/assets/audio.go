@@ -86,7 +86,7 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioRepellerBeam:        {Path: "$sfx/repeller_beam.wav", Volume: -0.4},
 		AudioDestroyerBeam:       {Path: "$sfx/destroyer_beam.wav", Volume: -0.3},
 		AudioStealth:             {Path: "$sfx/stealth.wav", Volume: -0.25},
-		AudioMarauderShot:        {Path: "$sfx/marauder_shot.wav", Volume: -0.45},
+		AudioMarauderShot:        {Path: "$sfx/marauder_shot.wav", Volume: -0.5},
 		AudioPrismShot:           {Path: "$sfx/prism_shot.wav", Volume: -0.45},
 		AudioSkirmisherShot:      {Path: "$sfx/skirmisher_shot.wav", Volume: -0.3},
 		AudioScarabShot:          {Path: "$sfx/scarab_shot.wav", Volume: -0.4},
@@ -97,6 +97,8 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioHeavyCrawlerShot:    {Path: "$sfx/heavy_crawler_shot.wav", Volume: -0.25},
 		AudioEliteCrawlerShot:    {Path: "$sfx/elite_crawler_shot.wav", Volume: -0.35},
 		AudioStealthCrawlerShot:  {Path: "$sfx/stealth_crawler_shot.wav", Volume: -0.3},
+		AudioFortressAttack:      {Path: "$sfx/fortress_attack.wav", Volume: -0.3},
+		AudioTemplarAttack:       {Path: "$sfx/templar_attack.wav", Volume: -0.4},
 		AudioCloning1:            {Path: "$sfx/cloning1.wav", Volume: -0.3},
 		AudioCloning2:            {Path: "$sfx/cloning2.wav", Volume: -0.3},
 		AudioMerging1:            {Path: "$sfx/merging1.wav", Volume: -0.65},
@@ -185,6 +187,8 @@ const (
 	AudioHeavyCrawlerShot
 	AudioEliteCrawlerShot
 	AudioStealthCrawlerShot
+	AudioFortressAttack
+	AudioTemplarAttack
 	AudioRepellerBeam
 	AudioDestroyerBeam
 	AudioPrismShot

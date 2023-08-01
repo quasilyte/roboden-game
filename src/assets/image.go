@@ -96,6 +96,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTeleportEffectBig:          {Path: "image/effects/teleport_effect_big.png", FrameWidth: 64},
 		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 24},
 		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 24},
+		ImageEnergySpearTrail:           {Path: "image/effects/energy_spear_trail.png", FrameWidth: 12},
 		ImageFireTrail:                  {Path: "image/effects/fire_trail.png", FrameWidth: 7},
 		ImageRoombaLaserTrail:           {Path: "image/effects/roomba_shot_trail.png", FrameWidth: 7},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
@@ -106,6 +107,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
 		ImageTargeterShotExplosion:      {Path: "image/effects/targeter_shot_explosion.png", FrameWidth: 15},
 		ImagePrismShotExplosion:         {Path: "image/effects/prism_shot_explosion.png", FrameWidth: 15},
+		ImageStunExplosion:              {Path: "image/effects/stun_explosion.png", FrameWidth: 24},
 		ImageScoutIonExplosion:          {Path: "image/effects/scout_ion_explosion.png", FrameWidth: 5},
 		ImageShockerExplosion:           {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
 		ImageFighterLaserExplosion:      {Path: "image/effects/fighter_laser_explosion.png", FrameWidth: 14},
@@ -230,9 +232,12 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCreepTier1:          {Path: "image/creeps/tier1_creep.png", FrameHeight: 9},
 		ImageServantCreep:        {Path: "image/creeps/servant_creep.png", FrameWidth: 15, FrameHeight: 13},
 		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png", FrameHeight: 16},
+		ImageCreepTemplar:        {Path: "image/creeps/templar_creep.png"},
 		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25, FrameHeight: 22},
 		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23, FrameHeight: 24},
 		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png", FrameHeight: 25},
+		ImageAoeTurretCreep:      {Path: "image/creeps/aoe_turret_creep.png", FrameHeight: 25},
+		ImageFortressCreep:       {Path: "image/creeps/fortress_creep.png", FrameWidth: 43},
 		ImageUberBoss:            {Path: "image/creeps/uber_boss.png", FrameWidth: 40, FrameHeight: 40},
 		ImageUberBossDoor:        {Path: "image/creeps/uber_boss_door.png"},
 		ImageCreepBase:           {Path: "image/creeps/creep_base.png", FrameWidth: 32, FrameHeight: 32},
@@ -290,6 +295,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageBomb:                     {Path: "image/projectile/bomb.png"},
 		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                  {Path: "image/projectile/missile.png"},
+		ImageEnergySpear:              {Path: "image/projectile/energy_spear.png"},
 
 		ImageFlamerLine:    {Path: "image/lines/flamer_line.png"},
 		ImageTargeterLine:  {Path: "image/lines/targeter_line.png"},
@@ -301,6 +307,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageBeamtowerLine: {Path: "image/lines/beamtower_line.png"},
 		ImageTetherLine:    {Path: "image/lines/tether_line.png"},
 		ImageCourierLine:   {Path: "image/lines/courier_line.png"},
+		ImageTemplarLine:   {Path: "image/lines/templar_line.png"},
 
 		ImageUIGamepadRadar:    {Path: "image/ui/gamepad_radar.png"},
 		ImageUIGamepadRadarDot: {Path: "image/ui/gamepad_radar_dot.png"},
@@ -404,6 +411,7 @@ const (
 	ImagePriorityBar
 	ImagePriorityIcons
 
+	ImageEnergySpearTrail
 	ImageFireTrail
 	ImageRoombaLaserTrail
 	ImageProjectileSmoke
@@ -412,6 +420,7 @@ const (
 	ImageMergingComplete
 	ImageCloningComplete
 	ImagePrismShotExplosion
+	ImageStunExplosion
 	ImageCommanderShotExplosion
 	ImageTargeterShotExplosion
 	ImageStealthLaserExplosion
@@ -572,9 +581,12 @@ const (
 	ImageCreepTier1
 	ImageServantCreep
 	ImageCreepTier2
+	ImageCreepTemplar
 	ImageCreepTier3
 	ImageCreepDominator
 	ImageTurretCreep
+	ImageAoeTurretCreep
+	ImageFortressCreep
 	ImageBuilderCreep
 	ImageCrawlerCreepBase
 	ImageWispLair
@@ -626,6 +638,7 @@ const (
 	ImageBomb
 	ImageAntiAirMissile
 	ImageMissile
+	ImageEnergySpear
 
 	ImageBossLaserLine
 	ImageFlamerLine
@@ -637,6 +650,7 @@ const (
 	ImageBeamtowerLine
 	ImageTetherLine
 	ImageCourierLine
+	ImageTemplarLine
 
 	ImageUIGamepadRadar
 	ImageUIGamepadRadarDot

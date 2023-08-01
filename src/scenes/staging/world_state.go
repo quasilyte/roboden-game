@@ -43,6 +43,7 @@ type worldState struct {
 
 	boss              *creepNode
 	wispLair          *creepNode
+	fortress          *creepNode
 	creepCoordinator  *creepCoordinator
 	creepsPlayerState *creepsPlayerState
 
@@ -399,6 +400,8 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 			w.result.CreepBasesDestroyed++
 		case gamedata.CreepWispLair:
 			w.wispLair = nil
+		case gamedata.CreepFortress:
+			w.fortress = nil
 		case gamedata.CreepUberBoss:
 			if !x.IsFlying() {
 				w.result.GroundBossDefeat = true

@@ -13,6 +13,7 @@ type DamageValue struct {
 	Slow   float64
 	Aggro  float64
 	Mark   float64
+	Stun   float64
 }
 
 type WeaponStats struct {
@@ -34,6 +35,7 @@ type WeaponStats struct {
 	AttacksPerBurst           int
 	BurstDelay                float64
 	Reload                    float64
+	EnergyCost                float64
 	AttackSound               resource.AudioID
 	FireOffset                gmath.Vec
 	ArcPower                  float64
@@ -56,6 +58,7 @@ const (
 	ProjectileTrailSmoke
 	ProjectileTrailRoomba
 	ProjectileTrailFire
+	ProjectileTrailEnergySpear
 )
 
 type ProjectileExplosionKind int

@@ -29,6 +29,8 @@ const (
 	CreepUberBoss
 	CreepWisp
 	CreepWispLair
+	CreepFortress
+	CreepTemplar
 )
 
 type CreepStats struct {
@@ -54,6 +56,7 @@ type CreepStats struct {
 	BeamSlideSpeed float64
 	BeamOpaqueTime float64
 	BeamTexture    *ge.Texture
+	BeamExplosion  resource.ImageID
 
 	TargetKind    TargetKind
 	Disarmable    bool
@@ -99,6 +102,36 @@ var TurretCreepStats = &CreepStats{
 		TargetFlags:     TargetFlying | TargetGround,
 	}),
 	Size:          40,
+	CanBeRepelled: false,
+	Disarmable:    false,
+	Building:      true,
+	TargetKind:    TargetGround,
+}
+
+var FortressCreepStats = &CreepStats{
+	Kind:      CreepFortress,
+	Image:     assets.ImageFortressCreep,
+	Speed:     0,
+	MaxHealth: 375,
+	Weapon: InitWeaponStats(&WeaponStats{
+		MaxTargets:      1,
+		AttackSound:     assets.AudioFortressAttack,
+		AttackRange:     350,
+		ImpactArea:      18,
+		ProjectileSpeed: 450,
+		Damage:          DamageValue{Health: 5, Energy: 10, Morale: 0.2},
+		BurstSize:       5,
+		AttacksPerBurst: 2,
+		BurstDelay:      0.1,
+		ProjectileImage: assets.ImageEnergySpear,
+		TrailEffect:     ProjectileTrailEnergySpear,
+		Reload:          2.7,
+		FireOffset:      gmath.Vec{Y: -1},
+		TargetFlags:     TargetFlying,
+		ArcPower:        0.4,
+		RandArc:         true,
+	}),
+	Size:          64,
 	CanBeRepelled: false,
 	Disarmable:    false,
 	Building:      true,
@@ -423,7 +456,7 @@ var DominatorCreepStats = &CreepStats{
 		BurstSize:   1,
 		AttackSound: assets.AudioDominatorShot,
 		AttackRange: 280,
-		Damage:      DamageValue{Health: 8, Morale: 4},
+		Damage:      DamageValue{Health: 8, Morale: 0.8},
 		Reload:      1.65,
 		TargetFlags: TargetFlying | TargetGround,
 	}),
@@ -468,6 +501,31 @@ var UberBossCreepStats = &CreepStats{
 	Disarmable:     false,
 	CanBeRepelled:  false,
 	Flying:         true, // Most of the time...
+	TargetKind:     TargetFlying,
+}
+
+var TemplarCreepStats = &CreepStats{
+	Kind:        CreepTemplar,
+	Image:       assets.ImageCreepTemplar,
+	ShadowImage: assets.ImageMediumShadow,
+	Tier:        1,
+	Speed:       40,
+	MaxHealth:   40,
+	Weapon: InitWeaponStats(&WeaponStats{
+		MaxTargets:  1,
+		BurstSize:   1,
+		AttackSound: assets.AudioTemplarAttack,
+		AttackRange: 300,
+		Damage:      DamageValue{Health: 1, Stun: 0.9},
+		Reload:      2.6,
+		TargetFlags: TargetFlying,
+	}),
+	BeamExplosion:  assets.ImageStunExplosion,
+	BeamSlideSpeed: 2.5,
+	BeamOpaqueTime: 0.2,
+	Disarmable:     true,
+	CanBeRepelled:  true,
+	Flying:         true,
 	TargetKind:     TargetFlying,
 }
 

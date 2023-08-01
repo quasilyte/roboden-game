@@ -26,6 +26,23 @@ var turretDamageTextureList = []resource.ImageID{
 	assets.ImageTurretDamageMask4,
 }
 
+var stunnableModes = [256]bool{
+	agentModeStandby:         true,
+	agentModeMineEssence:     true,
+	agentModeCourierFlight:   true,
+	agentModeScavenge:        true,
+	agentModeReturn:          true,
+	agentModeRepairBase:      true,
+	agentModeRepairTurret:    true,
+	agentModePatrol:          true,
+	agentModeMove:            true,
+	agentModeFollow:          true,
+	agentModeFollowCommander: true,
+	agentModePanic:           true,
+	agentModeRecycleReturn:   true,
+	agentModeBuildBuilding:   true,
+}
+
 type colonyAgentMode uint8
 
 const (
@@ -133,6 +150,7 @@ type colonyAgentNode struct {
 	energyRegenRate float64
 	slow            float64
 	lifetime        float64
+	energyTarget    float64
 
 	insideForest bool
 	tether       bool
@@ -1008,6 +1026,17 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 		return
 	}
 
+	if damage.Stun != 0 && a.energy < a.maxEnergy*0.95 {
+		if stunnableModes[a.mode] && a.scene.Rand().Chance(damage.Stun) {
+			a.clearCargo()
+			a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
+			a.energyTarget = gmath.ClampMax(a.energy+a.scene.Rand().FloatRange(6, 12), a.maxEnergy-0.01)
+			return
+		} else {
+			a.energy = gmath.ClampMin(a.energy-10, 0)
+		}
+	}
+
 	if damage.Morale != 0 && a.stats.Kind != gamedata.AgentCommander {
 		// Note that agentModeFollowCommander is not listed here.
 		// A commanded unit is immune to the panic effect.
@@ -1245,7 +1274,7 @@ func (a *colonyAgentNode) doDisintegratorAttack() {
 	a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
 	playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
 	a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, aboveEffectLayer, assets.ImagePurpleIonZap))
-	a.specialDelay = a.scene.Rand().FloatRange(9, 12)
+	a.energyTarget = a.energy + a.scene.Rand().FloatRange(22, 35)
 }
 
 func (a *colonyAgentNode) doScavenge() {
@@ -1478,7 +1507,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	if a.attackDelay != 0 {
 		return
 	}
-	if a.IsCloaked() || a.insideForest {
+	if a.IsCloaked() || a.insideForest || a.mode == agentModeForcedCharging {
 		return
 	}
 
@@ -1495,6 +1524,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	}
 
 	a.attackDelay = a.stats.Weapon.Reload * reloadMultiplier
+	a.energy = gmath.ClampMin(a.energy-a.stats.Weapon.EnergyCost, 0)
 
 	switch a.stats.Kind {
 	case gamedata.AgentDestroyer:
@@ -2492,6 +2522,7 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 			}
 		}
 		if a.colonyCore.mode == colonyModeNormal && !a.hasTrait(traitNeverStop) && a.energy < 40 && a.scene.Rand().Chance(0.2) {
+			a.energyBill *= 0.5
 			a.AssignMode(agentModeCharging, gmath.Vec{}, nil)
 			return
 		}
@@ -2524,9 +2555,8 @@ func (a *colonyAgentNode) updatePosing(delta float64) {
 
 func (a *colonyAgentNode) updateForcedCharging(delta float64) {
 	a.energy = gmath.ClampMax(a.energy+delta*2.0*a.energyRegenRate, a.maxEnergy)
-	a.specialDelay -= delta
-	if a.specialDelay <= 0 {
-		a.specialDelay = 0
+	if a.energy >= a.energyTarget {
+		a.energyTarget = 0
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }

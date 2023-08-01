@@ -18,9 +18,15 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score -= (config.TechProgressRate - 5) * 5
 		score += (config.Teleporters - 1) * 5
 		score += (config.OilRegenRate - 2) * 5
-		score += (config.Resources - 2) * 15
+		score += (config.Resources - 2) * 20
+		if config.CreepFortress {
+			score -= 30
+		}
 
 	case "classic":
+		if config.CreepFortress {
+			score += 25
+		}
 		if config.InterfaceMode < 2 {
 			score += 5
 		}
@@ -35,7 +41,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 				score += 35
 			}
 		}
-		score += 10 - (config.Resources * 5)
+		score -= (config.Resources - 2) * 15
 		score += (config.NumCreepBases - 2) * 15
 		score += (config.BossDifficulty - 1) * 15
 		score += (config.CreepSpawnRate - 1) * 10
@@ -45,15 +51,18 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score += 10 - (config.OilRegenRate * 5)
 		score += 20 - pointsAllocated
 	case "arena", "inf_arena":
+		if config.CreepFortress {
+			score += 30
+		}
 		if config.InterfaceMode == 0 {
 			score += 5
 		}
 		score += (config.ArenaProgression - 1) * 20
 		if config.RawGameMode == "inf_arena" {
-			score += 30 - (config.Resources * 15)
+			score -= (config.Resources - 2) * 30
 			score += config.InitialCreeps * 5
 		} else {
-			score += 20 - (config.Resources * 10)
+			score -= (config.Resources - 2) * 15
 			score += config.InitialCreeps * 10
 		}
 		score += (config.CreepDifficulty - 3) * 20

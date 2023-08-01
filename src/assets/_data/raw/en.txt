@@ -255,6 +255,12 @@ Every wave is harder than the previous one and this option controls by how much.
 How many creep units will be placed on the map from the very beginning.
 This option affects how easy the early game exploration for the colonies will be.
 
+##menu.lobby.creep_fortress : Creep fortress
+##menu.lobby.creep_fortress.description
+The fortress makes it hard to explore the region it's located in.
+It produces unique sentinel drones to patrol the area.
+It does not attack the colonies if they're out of its range.
+
 ##menu.lobby.boss_difficulty : Dreadnought power
 ##menu.lobby.boss_difficulty.description
 The dreadnought power level.
@@ -264,7 +270,7 @@ It affects the number of units it will produce and how hard it will be to defeat
 ##menu.lobby.super_creeps.description
 Whether enemies can have super versions of units.
 This is similar to the elite drones the player may have.
-Turning it on makes the game significantly harder.
+Turning it on makes the game significantly harder for the colonies.
 
 ##menu.lobby.starting_resources : Starting resources
 ##menu.lobby.starting_resources.description

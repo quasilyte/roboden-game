@@ -209,6 +209,11 @@ It's easier to play with them, but it's more immersive otherwise.
 The number of resources the generated world has.
 Fewer resources mean it will be hard to play a long battle.
 
+##menu.lobby.gold_enabled : Gold
+##menu.lobby.gold_enabled.description
+Whether a map will have gold deposits.
+On moon environment, disabling gold doubles the iron resources capacity.
+
 ##menu.lobby.world_size : World size
 ##menu.lobby.world_size.description
 The generated world size.

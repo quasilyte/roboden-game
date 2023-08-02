@@ -221,6 +221,10 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	}
 
 	e.capacity = scene.Rand().IntRange(e.stats.capacity.Min, e.stats.capacity.Max)
+	if e.stats == ironSource && !e.world.config.GoldEnabled {
+		// If gold is disabled, iron has doubled capacity.
+		e.capacity *= 2
+	}
 	e.resource = e.capacity
 	if e.stats == organicSource {
 		e.resource = int(float64(e.resource) * scene.Rand().FloatRange(0.4, 0.9))

@@ -604,6 +604,14 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 	}
 
 	{
+		b := c.newBoolOptionButton(&c.config.GoldEnabled, "menu.lobby.gold_enabled", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(b)
+	}
+
+	{
 		b := c.newOptionButton(&c.config.WorldSize, "menu.lobby.world_size", []string{
 			d.Get("menu.option.very_small"),
 			d.Get("menu.option.small"),

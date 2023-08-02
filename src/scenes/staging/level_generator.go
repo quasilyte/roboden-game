@@ -354,6 +354,10 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		numOil = int(float64(numOil) * 1.5)
 	}
 
+	if !g.world.config.GoldEnabled {
+		numGold = 0
+	}
+
 	numRedOil := 0
 	numRedCrystals := 0
 	if g.world.config.EliteResources {

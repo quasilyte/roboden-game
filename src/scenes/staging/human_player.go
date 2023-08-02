@@ -322,6 +322,12 @@ func (p *humanPlayer) HandleInput() {
 		}
 	}
 
+	if p.screenButtons != nil && p.state.camera.UI.Visible {
+		if p.screenButtons.HandleInput(clickPos) {
+			return
+		}
+	}
+
 	if selectedColony != nil && p.world.movementEnabled {
 		if pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice); ok {
 			globalClickPos := p.state.camera.AbsClickPos(pos)
@@ -332,10 +338,6 @@ func (p *humanPlayer) HandleInput() {
 				return
 			}
 		}
-	}
-
-	if p.screenButtons != nil && p.state.camera.UI.Visible {
-		p.screenButtons.HandleInput(clickPos)
 	}
 }
 

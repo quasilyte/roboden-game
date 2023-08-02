@@ -66,13 +66,14 @@ func (n *screenButtonsNode) GetChoiceUnderCursor(pos gmath.Vec) screenButtonKind
 	return screenButtonUnknown
 }
 
-func (n *screenButtonsNode) HandleInput(clickPos gmath.Vec) {
+func (n *screenButtonsNode) HandleInput(clickPos gmath.Vec) bool {
 	if n.exitButtonRect.Contains(clickPos) {
 		n.EventExitButtonPressed.Emit(gsignal.Void{})
-		return
+		return true
 	}
 	if n.toggleButtonRect.Contains(clickPos) {
 		n.EventToggleButtonPressed.Emit(gsignal.Void{})
-		return
+		return true
 	}
+	return false
 }

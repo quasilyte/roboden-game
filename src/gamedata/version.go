@@ -251,6 +251,7 @@ const SeasonNumber = 1
 //   - Fixed devourer levels when joining a commander's group
 //   - Fixed a intro mission crash when "keyboard" input method was selected
 //   - Escape/back inside a results screen no longer skips through rewards
+//   - Fixed a virtual cursor click over a screen buttons like "exit"
 //
 // * Visuals:
 //   - Improved some effects layer arrangement

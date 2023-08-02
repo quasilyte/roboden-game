@@ -6,21 +6,25 @@ const (
 	InfArenaModeCost int = 4000
 	ReverseModeCost  int = 7500
 
-	ArkCoreCost int = 2500
+	SuperCreepsOptionCost int = 5000
+	FortressOptionCost    int = 7000
+	IonMortarOptionCost   int = 10000
+
+	ArkCoreCost int = 3000
 
 	RoombaDroneCost        int = 1000
 	MortarDroneCost        int = 1500
 	AntiAirDroneCost       int = 2500
 	DisintegratorDroneCost int = 3500
 	CommanderDroneCost     int = 4500
-	PrismDroneCost         int = 5500
-	TargeterDronecost      int = 6500
-	DefenderDroneCost      int = 7500
-	SkirmisherDroneCost    int = 8500
-	KamikazeDroneCost      int = 9500
-	ScarabDroneCost        int = 11500
-	FirebugDroneCost       int = 13500
+	PrismDroneCost         int = 6000
+	TargeterDronecost      int = 7500
+	DefenderDroneCost      int = 9000
+	KamikazeDroneCost      int = 10500
+	SkirmisherDroneCost    int = 12000
+	ScarabDroneCost        int = 14000
+	FirebugDroneCost       int = 16000
 
 	BeamTowerTurretCost int = 3000
-	HarvesterTurretCost int = 5000
+	HarvesterTurretCost int = 6000
 )

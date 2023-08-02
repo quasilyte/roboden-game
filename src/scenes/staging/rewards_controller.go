@@ -38,6 +38,8 @@ type gameRewards struct {
 	newCores             []string
 	newDrones            []gamedata.ColonyAgentKind
 	newTurrets           []gamedata.ColonyAgentKind
+	newOptions           []string
+	newModes             []string
 }
 
 func (rewards *gameRewards) IsEmpty() bool {
@@ -45,7 +47,9 @@ func (rewards *gameRewards) IsEmpty() bool {
 		len(rewards.upgradedAchievements) == 0 &&
 		len(rewards.newCores) == 0 &&
 		len(rewards.newDrones) == 0 &&
-		len(rewards.newTurrets) == 0
+		len(rewards.newTurrets) == 0 &&
+		len(rewards.newOptions) == 0 &&
+		len(rewards.newModes) == 0
 }
 
 func newRewardsController(state *session.State, rewards gameRewards, backController ge.SceneController) *rewardsController {
@@ -141,6 +145,12 @@ func (c *rewardsController) initUI() {
 	}
 	for _, kind := range c.rewards.newTurrets {
 		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_turret"), d.Get("turret", strings.ToLower(kind.String()))})
+	}
+	for _, id := range c.rewards.newOptions {
+		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_option"), d.Get("menu.lobby", id)})
+	}
+	for _, id := range c.rewards.newModes {
+		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_mode"), d.Get("menu.leaderboard", id)})
 	}
 	panel.AddChild(c.grid)
 

@@ -2,6 +2,7 @@ package contentlock
 
 import (
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/session"
@@ -64,12 +65,36 @@ type Result struct {
 	CoresUnlocked   []string
 	DronesUnlocked  []gamedata.ColonyAgentKind
 	TurretsUnlocked []gamedata.ColonyAgentKind
+	OptionsUnlocked []string
+	ModesUnlocked   []string
 }
 
 func Update(state *session.State) *Result {
 	result := &Result{}
 
 	stats := &state.Persistent.PlayerStats
+
+	for id, info := range gamedata.GameModeInfoMap {
+		if stats.TotalScore < info.ScoreCost {
+			continue
+		}
+		if xslices.Contains(stats.ModesUnlocked, id) {
+			continue
+		}
+		result.ModesUnlocked = append(result.ModesUnlocked, id)
+		stats.ModesUnlocked = append(stats.ModesUnlocked, id)
+	}
+
+	for id, o := range gamedata.LobbyOptionMap {
+		if stats.TotalScore < o.ScoreCost {
+			continue
+		}
+		if xslices.Contains(stats.OptionsUnlocked, id) {
+			continue
+		}
+		result.OptionsUnlocked = append(result.OptionsUnlocked, id)
+		stats.OptionsUnlocked = append(stats.OptionsUnlocked, id)
+	}
 
 	coresUnlocked := map[string]struct{}{}
 	for _, name := range stats.CoresUnlocked {

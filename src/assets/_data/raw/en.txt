@@ -84,10 +84,11 @@
 ##menu.profile.progress.turrets_unlocked : Turrets unlocked
 ##menu.profile.progress.drones_unlocked : Tier 2 drones unlocked
 ##menu.profile.progress.t3drones_seen : Tier 3 drones discovered
+##menu.profile.progress.extra_options_unlocked : Extra options unlocked
 
 ##menu.tier : tier
 ##menu.back : Back
-##menu.lobby_back : To The Menu
+##menu.lobby_back : Done
 
 ##menu.options.gameplay : Gameplay
 ##menu.options.sound : Sound
@@ -332,6 +333,8 @@ some special differences that will affect the gameplay.
 ##menu.results.new_core : Colony unlocked
 ##menu.results.new_drone : Drone unlocked
 ##menu.results.new_turret : Turret unlocked
+##menu.results.new_option : Option unlocked
+##menu.results.new_mode : Mode unlocked
 
 ##menu.controls.keyboard : Keyboard
 ##menu.controls.gamepad : Gamepad

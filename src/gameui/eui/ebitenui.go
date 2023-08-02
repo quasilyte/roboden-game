@@ -525,7 +525,7 @@ type BoolSelectButtonConfig struct {
 	OnHover   func()
 }
 
-func NewBoolSelectButton(config BoolSelectButtonConfig) widget.PreferredSizeLocateableWidget {
+func NewBoolSelectButton(config BoolSelectButtonConfig) *widget.Button {
 	var slider gmath.Slider
 	slider.SetBounds(0, 1)
 	value := config.Value

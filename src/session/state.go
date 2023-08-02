@@ -108,10 +108,12 @@ type PersistentData struct {
 type PlayerStats struct {
 	Achievements []Achievement
 
+	OptionsUnlocked []string
 	CoresUnlocked   []string
 	TurretsUnlocked []string
 	DronesUnlocked  []string
 	Tier3DronesSeen []string
+	ModesUnlocked   []string
 
 	TutorialCompleted bool
 

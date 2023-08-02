@@ -84,6 +84,7 @@
 ##menu.profile.progress.turrets_unlocked : Турелей открыто
 ##menu.profile.progress.drones_unlocked : Дронов второго тира открыто
 ##menu.profile.progress.t3drones_seen : Дронов третьего тира открыто
+##menu.profile.progress.extra_options_unlocked : Открыто настроек игры
 
 ##menu.tier : тир
 ##menu.back : Назад
@@ -332,6 +333,8 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.results.new_core : Колония разблокирована
 ##menu.results.new_drone : Дрон разблокирован
 ##menu.results.new_turret : Турель разблокирована
+##menu.results.new_option : Разблокирована опция
+##menu.results.new_mode : Разблокирован режим
 
 ##menu.controls.keyboard : Клавиатура
 ##menu.controls.gamepad : Геймпад

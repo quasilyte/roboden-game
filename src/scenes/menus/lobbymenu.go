@@ -322,7 +322,6 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
 			widget.GridLayoutOpts.Spacing(4, 4),
 		)),
-		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
 	{
@@ -402,7 +401,6 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
 			widget.GridLayoutOpts.Spacing(4, 4),
 		)),
-		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
 	if c.mode == gamedata.ModeClassic {
@@ -427,7 +425,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
-		b := c.newBoolOptionButton(&c.config.CreepFortress, "menu.lobby.creep_fortress", []string{
+		b := c.newUnlockableBoolOptionButton(&c.config.CreepFortress, "creep_fortress", "menu.lobby.creep_fortress", []string{
 			d.Get("menu.option.off"),
 			d.Get("menu.option.on"),
 		})
@@ -435,7 +433,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
-		b := c.newBoolOptionButton(&c.config.IonMortars, "menu.lobby.ion_mortars", []string{
+		b := c.newUnlockableBoolOptionButton(&c.config.IonMortars, "ion_mortars", "menu.lobby.ion_mortars", []string{
 			d.Get("menu.option.off"),
 			d.Get("menu.option.on"),
 		})
@@ -503,12 +501,11 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"150%",
 		}))
 
-		if c.state.Persistent.PlayerStats.TotalScore >= gamedata.ArenaModeCost {
-			tab.AddChild(c.newBoolOptionButton(&c.config.SuperCreeps, "menu.lobby.super_creeps", []string{
-				d.Get("menu.option.off"),
-				d.Get("menu.option.on"),
-			}))
-		}
+		superCreeps := c.newUnlockableBoolOptionButton(&c.config.SuperCreeps, "super_creeps", "menu.lobby.super_creeps", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(superCreeps)
 	}
 
 	if c.mode == gamedata.ModeArena || c.mode == gamedata.ModeInfArena {
@@ -542,20 +539,36 @@ func (c *LobbyMenuController) optionDescriptionText(key string) string {
 	return fmt.Sprintf("%s\n\n%s", d.Get(key), d.Get(key, "description"))
 }
 
-func (c *LobbyMenuController) newBoolOptionButton(value *bool, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
-	return eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+func (c *LobbyMenuController) newBoolOptionButton(value *bool, langKey string, valueNames []string) widget.PreferredSizeLocateableWidget {
+	return c.newUnlockableBoolOptionButton(value, "", langKey, valueNames)
+}
+
+func (c *LobbyMenuController) newUnlockableBoolOptionButton(value *bool, id, langKey string, valueNames []string) widget.PreferredSizeLocateableWidget {
+	var b *widget.Button
+	playerStats := &c.state.Persistent.PlayerStats
+	b = eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
 		Scene:      c.scene,
 		Resources:  c.state.Resources.UI,
 		Value:      value,
-		Label:      c.scene.Dict().Get(key),
+		Label:      c.scene.Dict().Get(langKey),
 		ValueNames: valueNames,
 		OnPressed: func() {
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		},
 		OnHover: func() {
-			c.setHelpText(c.optionDescriptionText(key))
+			s := c.optionDescriptionText(langKey)
+			if b.GetWidget().Disabled {
+				s += fmt.Sprintf("\n\n%s: %d/%d", c.scene.Dict().Get("drone.score_required"), playerStats.TotalScore, gamedata.LobbyOptionMap[id].ScoreCost)
+			}
+			c.setHelpText(s)
 		},
 	})
+
+	if id != "" && !xslices.Contains(playerStats.OptionsUnlocked, id) {
+		b.GetWidget().Disabled = true
+	}
+
+	return b
 }
 
 func (c *LobbyMenuController) newOptionButtonWithDisabled(value *int, key string, disabled []int, valueNames []string) *widget.Button {
@@ -589,7 +602,6 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
 			widget.GridLayoutOpts.Spacing(4, 4),
 		)),
-		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
 	{
@@ -654,7 +666,6 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
 			widget.GridLayoutOpts.Spacing(4, 4),
 		)),
-		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
 	tinyFont := assets.BitmapFont1

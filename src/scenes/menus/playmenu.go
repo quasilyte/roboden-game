@@ -5,6 +5,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -116,7 +117,7 @@ func (c *PlayMenuController) initUI() {
 		buttonsContainer.AddChild(b)
 	}
 
-	score := c.state.Persistent.PlayerStats.TotalScore
+	playerStats := &c.state.Persistent.PlayerStats
 
 	{
 		label := d.Get("menu.play.classic")
@@ -128,7 +129,7 @@ func (c *PlayMenuController) initUI() {
 			},
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("classic", gamedata.ClassicModeCost)) },
 		})
-		b.GetWidget().Disabled = score < gamedata.ClassicModeCost
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "classic")
 		buttonsContainer.AddChild(b)
 	}
 
@@ -142,7 +143,7 @@ func (c *PlayMenuController) initUI() {
 			},
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("arena", gamedata.ArenaModeCost)) },
 		})
-		b.GetWidget().Disabled = score < gamedata.ArenaModeCost
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "arena")
 		buttonsContainer.AddChild(b)
 	}
 
@@ -156,7 +157,7 @@ func (c *PlayMenuController) initUI() {
 			},
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("inf_arena", gamedata.InfArenaModeCost)) },
 		})
-		b.GetWidget().Disabled = score < gamedata.InfArenaModeCost
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "inf_arena")
 		buttonsContainer.AddChild(b)
 	}
 
@@ -170,7 +171,7 @@ func (c *PlayMenuController) initUI() {
 			},
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("reverse", gamedata.ReverseModeCost)) },
 		})
-		b.GetWidget().Disabled = score < gamedata.ReverseModeCost
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "reverse")
 		buttonsContainer.AddChild(b)
 	}
 

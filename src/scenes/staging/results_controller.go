@@ -128,8 +128,13 @@ func (c *resultsController) updateProgress() {
 	stats.TotalPlayTime += c.results.TimePlayed
 
 	if c.config.GameMode == gamedata.ModeTutorial {
-		stats.TutorialCompleted = true
-		stats.TotalScore += c.results.Score
+		if !stats.TutorialCompleted {
+			stats.TotalScore += c.results.Score
+			if !xslices.Contains(stats.ModesUnlocked, "classic") {
+				stats.ModesUnlocked = append(stats.ModesUnlocked, "classic")
+			}
+			stats.TutorialCompleted = true
+		}
 		return
 	}
 
@@ -177,6 +182,8 @@ func (c *resultsController) updateProgress() {
 	c.rewards.newCores = contentUpdates.CoresUnlocked
 	c.rewards.newDrones = contentUpdates.DronesUnlocked
 	c.rewards.newTurrets = contentUpdates.TurretsUnlocked
+	c.rewards.newOptions = contentUpdates.OptionsUnlocked
+	c.rewards.newModes = contentUpdates.ModesUnlocked
 }
 
 func (c *resultsController) Update(delta float64) {

@@ -59,21 +59,6 @@ func (c *ProfileProgressMenuController) initUI() {
 
 	stats := c.state.Persistent.PlayerStats
 
-	modesTotal := 4
-	modesUnlocked := 0
-	if stats.TotalScore >= gamedata.ClassicModeCost {
-		modesUnlocked++
-	}
-	if stats.TotalScore >= gamedata.ArenaModeCost {
-		modesUnlocked++
-	}
-	if stats.TotalScore >= gamedata.InfArenaModeCost {
-		modesUnlocked++
-	}
-	if stats.TotalScore >= gamedata.ReverseModeCost {
-		modesUnlocked++
-	}
-
 	smallFont := assets.BitmapFont1
 
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
@@ -84,7 +69,8 @@ func (c *ProfileProgressMenuController) initUI() {
 		{d.Get("menu.profile.progress.turrets_unlocked"), fmt.Sprintf("%d/%d", len(stats.TurretsUnlocked), len(gamedata.TurretStatsList))},
 		{d.Get("menu.profile.progress.drones_unlocked"), fmt.Sprintf("%d/%d", len(stats.DronesUnlocked), numDrones)},
 		{d.Get("menu.profile.progress.t3drones_seen"), fmt.Sprintf("%d/%d", len(stats.Tier3DronesSeen), len(gamedata.Tier3agentMergeRecipes))},
-		{d.Get("menu.profile.progress.modes_unlocked"), fmt.Sprintf("%d/%d", modesUnlocked, modesTotal)},
+		{d.Get("menu.profile.progress.modes_unlocked"), fmt.Sprintf("%d/%d", len(stats.ModesUnlocked), len(gamedata.GameModeInfoMap))},
+		{d.Get("menu.profile.progress.extra_options_unlocked"), fmt.Sprintf("%d/%d", len(stats.OptionsUnlocked), len(gamedata.LobbyOptionMap))},
 	}
 	for _, pair := range lines {
 		grid.AddChild(eui.NewLabel(pair[0], smallFont))

@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type Response struct {
@@ -15,19 +16,30 @@ type Response struct {
 }
 
 func PostJSON(targetURL string, jsonBytes []byte) (Response, error) {
-	var result Response
+	var err error
+	for i := 0; i < 2; i++ {
+		var result Response
+		result, err = tryPostJSON(targetURL, jsonBytes)
+		if err == nil {
+			return result, nil
+		}
+		time.Sleep(time.Second / 2)
+	}
+	return Response{}, err
+}
+
+func tryPostJSON(targetURL string, jsonBytes []byte) (Response, error) {
 	resp, err := http.Post(targetURL, "application/json", bytes.NewReader(jsonBytes))
 	if err != nil {
-		return result, err
+		return Response{}, err
 	}
 	defer resp.Body.Close()
-	data, err := io.ReadAll(resp.Body)
+	var data []byte
+	data, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return result, err
+		return Response{}, err
 	}
-	result.Data = data
-	result.Code = resp.StatusCode
-	return result, nil
+	return Response{Data: data, Code: resp.StatusCode}, nil
 }
 
 func GetBytes(targetURL string) ([]byte, error) {

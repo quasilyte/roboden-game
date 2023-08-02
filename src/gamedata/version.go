@@ -264,10 +264,12 @@ const SeasonNumber = 1
 //   - Increased Guardians's evo points cost (8 -> 9)
 //   - Make evo points generation slightly slower
 //   - Some drones now use energy when attacking
+//   - Unallocated drone point now grants 2 difficulty points instead of 1
 //
 // * Misc:
 //   - Trim trailing whitespace in the username
 //   - Disabling replays from mismatching game versions
+//   - New modes and options are now listed in the rewards screen
 //
 // * Steam Deck:
 //   - Showing the on-screen keyboard when appropriate

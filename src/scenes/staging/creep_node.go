@@ -762,27 +762,38 @@ func (c *creepNode) updateBuilder(delta float64) {
 	}
 
 	if c.waypoint.IsZero() {
-		turretPos := c.pos.Add(gmath.Vec{Y: agentFlightHeight})
-		if c.specialDelay == 0 && c.canBuildHere(turretPos) {
-			// Start building.
-			buildingStats := gamedata.TurretConstructionCreepStats
-			if c.scene.Rand().Chance(0.35) {
-				buildingStats = gamedata.CrawlerBaseConstructionCreepStats
+		if c.specialDelay == 0 {
+			turretPos := c.pos.Add(gmath.Vec{Y: agentFlightHeight})
+			if c.canBuildHere(turretPos) {
+				// Start building.
+				buildingStats := gamedata.TurretConstructionCreepStats
+				if c.scene.Rand().Chance(0.35) {
+					buildingStats = gamedata.CrawlerBaseConstructionCreepStats
+				}
+				if c.world.config.IonMortars && buildingStats == gamedata.TurretConstructionCreepStats {
+					if c.scene.Rand().Chance(0.4) {
+						buildingStats = gamedata.IonMortarConstructionCreepStats
+					}
+				}
+				turret := c.world.NewCreepNode(turretPos, buildingStats)
+				turret.super = c.super && c.world.rand.Chance(0.4)
+				turret.specialTarget = c
+				c.specialTarget = turret
+				c.world.nodeRunner.AddObject(turret)
+				lasers := newBuilderLaserNode(c.world, c.pos)
+				c.EventBuildingStop.Connect(lasers, lasers.OnBuildingStop)
+				c.world.nodeRunner.AddObject(lasers)
+				return
 			}
-			if c.world.config.IonMortars && buildingStats == gamedata.TurretConstructionCreepStats {
-				if c.scene.Rand().Chance(0.4) {
-					buildingStats = gamedata.IonMortarConstructionCreepStats
+			// Try finding a better spot nearby.
+			for i := 0; i < 5; i++ {
+				pos := turretPos.Add(c.world.rand.Offset(-160, 160))
+				pos = c.world.AdjustCellPos(correctedPos(c.world.rect, pos, 320), 4)
+				if c.canBuildHere(pos) {
+					c.waypoint = pos.Sub(gmath.Vec{Y: agentFlightHeight})
+					return
 				}
 			}
-			turret := c.world.NewCreepNode(turretPos, buildingStats)
-			turret.super = c.super && c.world.rand.Chance(0.4)
-			turret.specialTarget = c
-			c.specialTarget = turret
-			c.world.nodeRunner.AddObject(turret)
-			lasers := newBuilderLaserNode(c.world, c.pos)
-			c.EventBuildingStop.Connect(lasers, lasers.OnBuildingStop)
-			c.world.nodeRunner.AddObject(lasers)
-			return
 		}
 		nextWaypoint := correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 400)
 		nextWaypoint = c.world.AdjustCellPos(nextWaypoint, 4).Sub(gmath.Vec{Y: agentFlightHeight})

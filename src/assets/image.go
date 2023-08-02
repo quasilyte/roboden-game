@@ -97,6 +97,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 24},
 		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 24},
 		ImageEnergySpearTrail:           {Path: "image/effects/energy_spear_trail.png", FrameWidth: 12},
+		ImageIonMortarTrail:             {Path: "image/effects/ion_mortar_trail.png", FrameWidth: 11},
+		ImageSuperIonMortarTrail:        {Path: "image/effects/super_ion_mortar_trail.png", FrameWidth: 11},
 		ImageFireTrail:                  {Path: "image/effects/fire_trail.png", FrameWidth: 7},
 		ImageRoombaLaserTrail:           {Path: "image/effects/roomba_shot_trail.png", FrameWidth: 7},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
@@ -109,6 +111,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImagePrismShotExplosion:         {Path: "image/effects/prism_shot_explosion.png", FrameWidth: 15},
 		ImageStunExplosion:              {Path: "image/effects/stun_explosion.png", FrameWidth: 24},
 		ImageScoutIonExplosion:          {Path: "image/effects/scout_ion_explosion.png", FrameWidth: 5},
+		ImageIonBlast:                   {Path: "image/effects/ion_blast.png", FrameWidth: 32},
+		ImageSuperIonBlast:              {Path: "image/effects/super_ion_blast.png", FrameWidth: 32},
 		ImageShockerExplosion:           {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
 		ImageFighterLaserExplosion:      {Path: "image/effects/fighter_laser_explosion.png", FrameWidth: 14},
 		ImageHeavyCrawlerLaserExplosion: {Path: "image/effects/heavy_crawler_laser_explosion.png", FrameWidth: 14},
@@ -236,7 +240,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25, FrameHeight: 22},
 		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23, FrameHeight: 24},
 		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png", FrameHeight: 25},
-		ImageAoeTurretCreep:      {Path: "image/creeps/aoe_turret_creep.png", FrameHeight: 25},
+		ImageIonMortarCreep:      {Path: "image/creeps/ion_mortar_creep.png", FrameHeight: 25},
 		ImageFortressCreep:       {Path: "image/creeps/fortress_creep.png", FrameWidth: 43},
 		ImageUberBoss:            {Path: "image/creeps/uber_boss.png", FrameWidth: 40, FrameHeight: 40},
 		ImageUberBossDoor:        {Path: "image/creeps/uber_boss_door.png"},
@@ -296,6 +300,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                  {Path: "image/projectile/missile.png"},
 		ImageEnergySpear:              {Path: "image/projectile/energy_spear.png"},
+		ImageIonMortarProjectile:      {Path: "image/projectile/ion_mortar_projectile.png"},
+		ImageSuperIonMortarProjectile: {Path: "image/projectile/super_ion_mortar_projectile.png"},
 
 		ImageFlamerLine:    {Path: "image/lines/flamer_line.png"},
 		ImageTargeterLine:  {Path: "image/lines/targeter_line.png"},
@@ -411,6 +417,8 @@ const (
 	ImagePriorityBar
 	ImagePriorityIcons
 
+	ImageIonMortarTrail
+	ImageSuperIonMortarTrail
 	ImageEnergySpearTrail
 	ImageFireTrail
 	ImageRoombaLaserTrail
@@ -428,6 +436,8 @@ const (
 	ImageScarabShotExplosion
 	ImageCripplerBlasterExplosion
 	ImageScoutIonExplosion
+	ImageIonBlast
+	ImageSuperIonBlast
 	ImageShockerExplosion
 	ImageFighterLaserExplosion
 	ImageHeavyCrawlerLaserExplosion
@@ -585,7 +595,7 @@ const (
 	ImageCreepTier3
 	ImageCreepDominator
 	ImageTurretCreep
-	ImageAoeTurretCreep
+	ImageIonMortarCreep
 	ImageFortressCreep
 	ImageBuilderCreep
 	ImageCrawlerCreepBase
@@ -639,6 +649,8 @@ const (
 	ImageAntiAirMissile
 	ImageMissile
 	ImageEnergySpear
+	ImageIonMortarProjectile
+	ImageSuperIonMortarProjectile
 
 	ImageBossLaserLine
 	ImageFlamerLine

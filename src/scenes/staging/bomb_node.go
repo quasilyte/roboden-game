@@ -47,7 +47,7 @@ func (b *bombNode) explode() {
 		Image: assets.ImageBombExplosion,
 		Layer: slightlyAboveEffectLayer,
 	})
-	playExplosionSound(b.world, b.pos)
+	playSound(b.world, assets.AudioExplosion1, b.pos)
 
 	// Bombs deal some extra damage to the dreadnought
 	// and a lot of extra damage to buildings.

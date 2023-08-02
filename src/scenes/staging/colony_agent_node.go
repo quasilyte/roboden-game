@@ -1030,7 +1030,7 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 		if stunnableModes[a.mode] && a.scene.Rand().Chance(damage.Stun) {
 			a.clearCargo()
 			a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
-			a.energyTarget = gmath.ClampMax(a.energy+a.scene.Rand().FloatRange(6, 12), a.maxEnergy-0.01)
+			a.energyTarget = gmath.ClampMax(a.energy+a.scene.Rand().FloatRange(4, 8), a.maxEnergy-0.01)
 			return
 		} else {
 			a.energy = gmath.ClampMin(a.energy-10, 0)
@@ -2139,7 +2139,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 			Image:    assets.ImageBigVerticalExplosion1,
 			Rotation: a.pos.AngleToPoint(creep.pos) - math.Pi/2,
 		})
-		playExplosionSound(a.world(), a.pos)
+		playSound(a.world(), assets.AudioExplosion1, a.pos)
 		creep.OnDamage(gamedata.DamageValue{Health: explosionDamage}, a)
 		for _, otherCreep := range a.world().creeps {
 			if !otherCreep.IsFlying() || otherCreep == creep {

@@ -50,6 +50,9 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	if scene.Rand().Chance(0.4) {
 		config.Environment = int(gamedata.EnvForest)
 	}
+	if scene.Rand().Chance(0.3) {
+		config.IonMortars = true
+	}
 	config.Seed = scene.Rand().PositiveInt64()
 	for i := 0; i < 3; i++ {
 		config.ExtraDrones = append(config.ExtraDrones, gamedata.WorkerAgentStats)

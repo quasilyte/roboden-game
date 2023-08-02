@@ -3,7 +3,6 @@ package staging
 import (
 	"math"
 
-	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
@@ -87,13 +86,13 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 
 		if inversed {
 			if p.toPos.Y <= p.pos.Y {
-				arcPower *= 0.3
-				speed *= 1.5
+				arcPower *= 0.45
+				speed *= 1.4
 			}
 		} else {
 			if p.toPos.Y >= p.pos.Y {
-				arcPower *= 0.3
-				speed *= 1.5
+				arcPower *= 0.45
+				speed *= 1.4
 			}
 		}
 		dist := p.pos.DistanceTo(p.toPos)
@@ -212,6 +211,13 @@ func (p *projectileNode) updateTrail(delta float64) {
 	}
 
 	switch p.weapon.TrailEffect {
+	case gamedata.ProjectileTrailIonMortar, gamedata.ProjectileTrailSuperIonMortar:
+		p.trailCounter = p.world.localRand.FloatRange(0.06, 0.12)
+		img := assets.ImageIonMortarTrail
+		if p.weapon.TrailEffect == gamedata.ProjectileTrailSuperIonMortar {
+			img = assets.ImageSuperIonMortarTrail
+		}
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, img))
 	case gamedata.ProjectileTrailSmoke:
 		p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageProjectileSmoke))
@@ -260,6 +266,12 @@ func (p *projectileNode) createExplosion() {
 
 	explosionPos := p.pos.Add(p.world.localRand.Offset(-4, 4))
 	switch explosionKind {
+	case gamedata.ProjectileExplosionIonBlast:
+		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageIonBlast, Layer: layer})
+		playSound(p.world, assets.AudioIonBlast1, explosionPos)
+	case gamedata.ProjectileExplosionSuperIonBlast:
+		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageSuperIonBlast, Layer: layer})
+		playSound(p.world, assets.AudioIonBlast1, explosionPos)
 	case gamedata.ProjectileExplosionServant:
 		effect := newEffectNode(p.world, explosionPos, layer, assets.ImageServantShotExplosion)
 		p.world.nodeRunner.AddObject(effect)
@@ -303,16 +315,17 @@ func (p *projectileNode) createExplosion() {
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionPurple:
-		soundIndex := p.world.localRand.IntRange(0, 2)
-		sound := assets.AudioPurpleExplosion1 + resource.AudioID(soundIndex)
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, layer, assets.ImagePurpleExplosion))
-		playSound(p.world, sound, explosionPos)
+		playSound(p.world, assets.AudioPurpleExplosion1, explosionPos)
 	}
 }
 
 func (p *projectileNode) detonate() {
 	p.Dispose()
 	if p.target.IsDisposed() {
+		if p.weapon.AlwaysExplodes {
+			p.createExplosion()
+		}
 		return
 	}
 

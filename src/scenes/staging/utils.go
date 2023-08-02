@@ -383,7 +383,7 @@ func createAreaExplosion(world *worldState, rect gmath.Rect, layer effectLayer) 
 			}
 		}
 	}
-	playExplosionSound(world, center)
+	playSound(world, assets.AudioExplosion1, center)
 }
 
 func createMuteExplosion(world *worldState, layer effectLayer, pos gmath.Vec) {
@@ -407,12 +407,6 @@ func playIonExplosionSound(world *worldState, pos gmath.Vec) {
 	playSound(world, explosionSound, pos)
 }
 
-func playExplosionSound(world *worldState, pos gmath.Vec) {
-	explosionSoundIndex := world.localRand.IntRange(0, 4)
-	explosionSound := resource.AudioID(int(assets.AudioExplosion1) + explosionSoundIndex)
-	playSound(world, explosionSound, pos)
-}
-
 func createBigVerticalExplosion(world *worldState, pos gmath.Vec) {
 	if world.simulation {
 		return
@@ -423,7 +417,7 @@ func createBigVerticalExplosion(world *worldState, pos gmath.Vec) {
 		img = assets.ImageBigVerticalExplosion2
 	}
 	world.nodeRunner.AddObject(newEffectNode(world, pos, normalEffectLayer, img))
-	playExplosionSound(world, pos)
+	playSound(world, assets.AudioExplosion1, pos)
 }
 
 func createExplosion(world *worldState, layer effectLayer, pos gmath.Vec) {
@@ -432,7 +426,7 @@ func createExplosion(world *worldState, layer effectLayer, pos gmath.Vec) {
 	}
 
 	createMuteExplosion(world, layer, pos)
-	playExplosionSound(world, pos)
+	playSound(world, assets.AudioExplosion1, pos)
 }
 
 func spriteRect(pos gmath.Vec, sprite *ge.Sprite) gmath.Rect {
@@ -481,6 +475,10 @@ func retreatPos(rand *gmath.Rand, dist float64, objectPos, threatPos gmath.Vec) 
 func playSound(world *worldState, id resource.AudioID, pos gmath.Vec) {
 	for _, cam := range world.cameras {
 		if cam.ContainsPos(pos) {
+			numSamples := assets.NumAudioSamples(id)
+			if numSamples != 1 {
+				id = id + resource.AudioID(world.localRand.IntRange(0, numSamples-1))
+			}
 			world.rootScene.Audio().PlaySound(id)
 			return
 		}

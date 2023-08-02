@@ -225,8 +225,8 @@ func (c *creepNode) Update(delta float64) {
 			for _, target := range targets {
 				c.doAttack(target, weapon)
 			}
-			if !c.stats.Weapon.ProjectileFireSound {
-				playSound(c.world, c.stats.Weapon.AttackSound, c.pos)
+			if !weapon.ProjectileFireSound {
+				playSound(c.world, weapon.AttackSound, c.pos)
 			}
 		}
 	}
@@ -497,16 +497,16 @@ func (c *creepNode) spawnServants(n int, colony *colonyCoreNode) {
 }
 
 func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
-	if c.stats.Weapon.ProjectileImage != assets.ImageNone {
-		burstSize := c.stats.Weapon.BurstSize
-		burstDelay := c.stats.Weapon.BurstDelay
+	if weapon.ProjectileImage != assets.ImageNone {
+		burstSize := weapon.BurstSize
+		burstDelay := weapon.BurstDelay
 		if c.super && c.stats == gamedata.StealthCrawlerCreepStats {
 			burstSize += 2
 			burstDelay = 0.25
 		}
 		targetVelocity := target.GetVelocity()
 		j := 0
-		attacksPerBurst := c.stats.Weapon.AttacksPerBurst
+		attacksPerBurst := weapon.AttacksPerBurst
 		for i := 0; i < burstSize; i += attacksPerBurst {
 			if i+attacksPerBurst > burstSize {
 				// This happens only once for the last burst wave
@@ -518,7 +518,7 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 				if i != 0 {
 					burstCorrectedPos = burstCorrectedPos.Add(targetVelocity.Mulf(burstDelay))
 				}
-				toPos := snipePos(c.stats.Weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
+				toPos := snipePos(weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
 				fireDelay := float64(j) * burstDelay
 				p := c.world.newProjectileNode(projectileConfig{
 					World:     c.world,
@@ -768,6 +768,11 @@ func (c *creepNode) updateBuilder(delta float64) {
 			buildingStats := gamedata.TurretConstructionCreepStats
 			if c.scene.Rand().Chance(0.35) {
 				buildingStats = gamedata.CrawlerBaseConstructionCreepStats
+			}
+			if c.world.config.IonMortars && buildingStats == gamedata.TurretConstructionCreepStats {
+				if c.scene.Rand().Chance(0.4) {
+					buildingStats = gamedata.IonMortarConstructionCreepStats
+				}
 			}
 			turret := c.world.NewCreepNode(turretPos, buildingStats)
 			turret.super = c.super && c.world.rand.Chance(0.4)
@@ -1151,10 +1156,15 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	}
 
 	if c.specialModifier >= 1 {
-		resultStats := gamedata.CrawlerBaseCreepStats
-		if c.stats.Kind == gamedata.CreepTurretConstruction {
+		var resultStats *gamedata.CreepStats
+		switch c.stats {
+		case gamedata.IonMortarConstructionCreepStats:
+			resultStats = gamedata.IonMortarCreepStats
+		case gamedata.TurretConstructionCreepStats:
 			resultStats = gamedata.TurretCreepStats
 			c.world.onCreepTurretBuild()
+		case gamedata.CrawlerBaseConstructionCreepStats:
+			resultStats = gamedata.CrawlerBaseCreepStats
 		}
 		result := c.world.NewCreepNode(c.pos, resultStats)
 		result.super = c.super

@@ -94,6 +94,7 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioAntiAirMissiles:     {Path: "$sfx/aa_missiles.wav", Volume: -0.5},
 		AudioMissile:             {Path: "$sfx/missile.wav", Volume: -0.3},
 		AudioTankShot:            {Path: "$sfx/tank_shot.wav", Volume: -0.3},
+		AudioIonMortarShot:       {Path: "$sfx/ion_mortar_shot.wav", Volume: -0.3},
 		AudioHeavyCrawlerShot:    {Path: "$sfx/heavy_crawler_shot.wav", Volume: -0.25},
 		AudioEliteCrawlerShot:    {Path: "$sfx/elite_crawler_shot.wav", Volume: -0.35},
 		AudioStealthCrawlerShot:  {Path: "$sfx/stealth_crawler_shot.wav", Volume: -0.3},
@@ -115,6 +116,10 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioExplosion3:          {Path: "$sfx/explosion3.wav", Volume: -0.45},
 		AudioExplosion4:          {Path: "$sfx/explosion4.wav", Volume: -0.45},
 		AudioExplosion5:          {Path: "$sfx/explosion5.wav", Volume: -0.45},
+		AudioIonBlast1:           {Path: "$sfx/ion_blast1.wav", Volume: -0.45},
+		AudioIonBlast2:           {Path: "$sfx/ion_blast2.wav", Volume: -0.45},
+		AudioIonBlast3:           {Path: "$sfx/ion_blast3.wav", Volume: -0.45},
+		AudioIonBlast4:           {Path: "$sfx/ion_blast4.wav", Volume: -0.45},
 		AudioTeleportCharge:      {Path: "$sfx/teleport_charge.wav", Volume: -0.2},
 		AudioTeleportDone:        {Path: "$sfx/teleport_done.wav", Volume: -0.2},
 		AudioOrganicRestored:     {Path: "$sfx/organic_restored.wav", Volume: -0.2},
@@ -132,6 +137,19 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		if singleThread {
 			runtime.Gosched()
 		}
+	}
+}
+
+func NumAudioSamples(id resource.AudioID) int {
+	switch id {
+	case AudioPurpleExplosion1:
+		return 3
+	case AudioExplosion1:
+		return 5
+	case AudioIonBlast1:
+		return 4
+	default:
+		return 1
 	}
 }
 
@@ -193,6 +211,7 @@ const (
 	AudioDestroyerBeam
 	AudioPrismShot
 	AudioSkirmisherShot
+	AudioIonMortarShot
 	AudioScarabShot
 	AudioAntiAirMissiles
 	AudioMissile
@@ -213,6 +232,10 @@ const (
 	AudioExplosion3
 	AudioExplosion4
 	AudioExplosion5
+	AudioIonBlast1
+	AudioIonBlast2
+	AudioIonBlast3
+	AudioIonBlast4
 	AudioTeleportCharge
 	AudioTeleportDone
 	AudioOrganicRestored

@@ -435,6 +435,14 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
+		b := c.newBoolOptionButton(&c.config.IonMortars, "menu.lobby.ion_mortars", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(b)
+	}
+
+	{
 		b := c.newOptionButton(&c.config.CreepDifficulty, "menu.lobby.creeps_difficulty", []string{
 			"25%",
 			"50%",
@@ -446,6 +454,8 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"200%",
 			"225%",
 			"250%",
+			"275%",
+			"300%",
 		})
 		tab.AddChild(b)
 	}

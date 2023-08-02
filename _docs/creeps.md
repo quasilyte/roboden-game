@@ -13,6 +13,7 @@ In addition to that, there are creep-specific bonuses.
 | Crawler Factory | +5 max units, +25% production speed, spawns super crawlers sometimes (20%) |
 | Howitzer | +10% artillery attack range |
 | Turret | +30% attack range |
+| Ion Mortar | +2 projectiles in a burst (2 -> 4) |
 | Tier 1 Drone | +1 attack target (1 -> 2) |
 | Tier 2 Drone | Attacks also apply slow condition, burn more energy |
 | Tier 3 Drone | +1 attack target (1 -> 2) |

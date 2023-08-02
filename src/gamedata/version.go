@@ -240,6 +240,7 @@ const SeasonNumber = 1
 // * New content:
 //   - New Fortress creep (available via difficulty setting)
 //   - New Templar creep
+//   - New Ion Mortar creep turret (available via difficulty setting)
 //
 // * Gameplay:
 //   - Increase dreadnough max crawlers limit
@@ -260,6 +261,7 @@ const SeasonNumber = 1
 //   - Increased Devourer's evo points cost (11 -> 12)
 //   - Increased Guardians's evo points cost (8 -> 9)
 //   - Make evo points generation slightly slower
+//   - Some drones now use energy when attacking
 //
 // * Misc:
 //   - Trim trailing whitespace in the username

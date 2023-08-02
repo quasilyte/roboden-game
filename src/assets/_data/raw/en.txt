@@ -261,6 +261,13 @@ The fortress makes it hard to explore the region it's located in.
 It produces unique sentinel drones to patrol the area.
 It does not attack the colonies if they're out of its range.
 
+##menu.lobby.ion_mortars : Ion mortars
+##menu.lobby.ion_mortars.description
+Whether creeps have ion mortar pits available.
+The ion mortar pits have a very long range, but low accuracy.
+Their attacks deal medium damage and burn a lot of the drone's energy.
+These mortars can't attack ground targets.
+
 ##menu.lobby.boss_difficulty : Dreadnought power
 ##menu.lobby.boss_difficulty.description
 The dreadnought power level.

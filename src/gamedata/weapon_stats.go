@@ -59,6 +59,8 @@ const (
 	ProjectileTrailRoomba
 	ProjectileTrailFire
 	ProjectileTrailEnergySpear
+	ProjectileTrailIonMortar
+	ProjectileTrailSuperIonMortar
 )
 
 type ProjectileExplosionKind int
@@ -66,6 +68,8 @@ type ProjectileExplosionKind int
 const (
 	ProjectileExplosionNone ProjectileExplosionKind = iota
 	ProjectileExplosionNormal
+	ProjectileExplosionIonBlast
+	ProjectileExplosionSuperIonBlast
 	ProjectileExplosionAbomb
 	ProjectileExplosionBigVertical
 	ProjectileExplosionPurple

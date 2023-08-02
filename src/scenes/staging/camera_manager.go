@@ -233,6 +233,10 @@ func (m *cameraManager) Update(delta float64) {
 					switch creep.stats.Kind {
 					case gamedata.CreepHowitzer, gamedata.CreepBuilder, gamedata.CreepServant:
 						return true
+					case gamedata.CreepTurret:
+						if creep.stats == gamedata.IonMortarCreepStats {
+							return m.world.localRand.Chance(0.5)
+						}
 					case gamedata.CreepFortress:
 						return m.world.localRand.Chance(0.6)
 					case gamedata.CreepCrawlerBase, gamedata.CreepBase:

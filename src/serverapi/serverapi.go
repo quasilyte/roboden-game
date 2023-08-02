@@ -64,6 +64,7 @@ type ReplayLevelConfig struct {
 	FogOfWar      bool `json:"fog_of_war"`
 	SuperCreeps   bool `json:"super_creps"`
 	CreepFortress bool `json:"creep_fortress"`
+	IonMortars    bool `json:"ion_mortars"`
 
 	InitialCreeps     int `json:"initial_creeps"`
 	NumCreepBases     int `json:"num_creep_bases"`

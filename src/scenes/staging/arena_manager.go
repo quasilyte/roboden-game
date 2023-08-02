@@ -57,6 +57,7 @@ type arenaManager struct {
 	stunnerCreepInfo        *arenaCreepInfo
 	assaultCreepInfo        *arenaCreepInfo
 	builderCreepInfo        *arenaCreepInfo
+	templarCreepInfo        *arenaCreepInfo
 
 	EventVictory gsignal.Event[gsignal.Void]
 }
@@ -152,11 +153,17 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		cost:     creepFragScore(gamedata.BuilderCreepStats),
 		minLevel: 7,
 	}
+	m.templarCreepInfo = &arenaCreepInfo{
+		stats:    gamedata.TemplarCreepStats,
+		cost:     creepFragScore(gamedata.TemplarCreepStats),
+		minLevel: 11,
+	}
 
 	m.basicFlyingCreeps = []*arenaCreepInfo{
 		m.wandererCreepInfo,
 		m.stunnerCreepInfo,
 		m.assaultCreepInfo,
+		m.templarCreepInfo,
 	}
 	m.basicGroundCreeps = []*arenaCreepInfo{
 		m.crawlerCreepInfo,

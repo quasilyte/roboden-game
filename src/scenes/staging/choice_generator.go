@@ -38,6 +38,7 @@ const (
 	specialBuyStealthCrawlers
 	specialBuyHeavyCrawlers
 	specialBuyBuilders
+	specialBuyTemplars
 	specialBuyAssaults
 	specialBuyDominator
 	specialBuyHowitzer
@@ -183,6 +184,12 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			special:      specialBuyBuilders,
 			minTechLevel: 0.5,
 			stats:        gamedata.BuilderCreepStats,
+		},
+		{
+			maxUnits:     4,
+			special:      specialBuyTemplars,
+			minTechLevel: 0.5,
+			stats:        gamedata.TemplarCreepStats,
 		},
 		{
 			maxUnits:     4,

@@ -29,15 +29,16 @@ func _() {
 	_ = x[specialBuyStealthCrawlers-18]
 	_ = x[specialBuyHeavyCrawlers-19]
 	_ = x[specialBuyBuilders-20]
-	_ = x[specialBuyAssaults-21]
-	_ = x[specialBuyDominator-22]
-	_ = x[specialBuyHowitzer-23]
-	_ = x[_creepCardLast-24]
+	_ = x[specialBuyTemplars-21]
+	_ = x[specialBuyAssaults-22]
+	_ = x[specialBuyDominator-23]
+	_ = x[specialBuyHowitzer-24]
+	_ = x[_creepCardLast-25]
 }
 
-const _specialChoiceKind_name = "ChoiceNoneIncreaseRadiusDecreaseRadiusBuildGunpointBuildColonyAttackChoiceMoveColonySendCreepsRallySpawnCrawlersBossAttackIncreaseTechAtomicBomb_creepCardFirstBuyCrawlersBuyWanderersBuyEliteCrawlersBuyStunnersBuyStealthCrawlersBuyHeavyCrawlersBuyBuildersBuyAssaultsBuyDominatorBuyHowitzer_creepCardLast"
+const _specialChoiceKind_name = "ChoiceNoneIncreaseRadiusDecreaseRadiusBuildGunpointBuildColonyAttackChoiceMoveColonySendCreepsRallySpawnCrawlersBossAttackIncreaseTechAtomicBomb_creepCardFirstBuyCrawlersBuyWanderersBuyEliteCrawlersBuyStunnersBuyStealthCrawlersBuyHeavyCrawlersBuyBuildersBuyTemplarsBuyAssaultsBuyDominatorBuyHowitzer_creepCardLast"
 
-var _specialChoiceKind_index = [...]uint16{0, 10, 24, 38, 51, 62, 68, 84, 94, 99, 112, 122, 134, 144, 159, 170, 182, 198, 209, 227, 243, 254, 265, 277, 288, 302}
+var _specialChoiceKind_index = [...]uint16{0, 10, 24, 38, 51, 62, 68, 84, 94, 99, 112, 122, 134, 144, 159, 170, 182, 198, 209, 227, 243, 254, 265, 276, 288, 299, 313}
 
 func (i specialChoiceKind) String() string {
 	if i < 0 || i >= specialChoiceKind(len(_specialChoiceKind_index)-1) {

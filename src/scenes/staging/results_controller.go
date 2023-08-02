@@ -181,7 +181,11 @@ func (c *resultsController) updateProgress() {
 
 func (c *resultsController) Update(delta float64) {
 	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
-		c.back()
+		if c.rewards.IsEmpty() {
+			c.back()
+		} else {
+			c.claimRewards()
+		}
 		return
 	}
 }
@@ -432,13 +436,17 @@ func (c *resultsController) initUI() {
 		}))
 	} else {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.results.claim_rewards"), func() {
-			c.scene.Context().ChangeScene(newRewardsController(c.state, *c.rewards, c.backController))
+			c.claimRewards()
 		}))
 	}
 
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
+}
+
+func (c *resultsController) claimRewards() {
+	c.scene.Context().ChangeScene(newRewardsController(c.state, *c.rewards, c.backController))
 }
 
 func (c *resultsController) back() {

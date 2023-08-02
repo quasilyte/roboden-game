@@ -250,6 +250,7 @@ const SeasonNumber = 1
 //   - Fixed dreadnought sprite flashing component
 //   - Fixed devourer levels when joining a commander's group
 //   - Fixed a intro mission crash when "keyboard" input method was selected
+//   - Escape/back inside a results screen no longer skips through rewards
 //
 // * Visuals:
 //   - Improved some effects layer arrangement

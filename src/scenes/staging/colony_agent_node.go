@@ -1179,6 +1179,10 @@ func (a *colonyAgentNode) doConsumeDrone() {
 }
 
 func (a *colonyAgentNode) tetherTarget(target *colonyAgentNode) {
+	if target.mode == agentModeForcedCharging {
+		target.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		target.energy = gmath.ClampMax(target.energy+5, target.maxEnergy)
+	}
 	target.tether = true
 	if target.energyBill > 50 {
 		target.energyBill = gmath.ClampMin(target.energyBill-20, 50)
@@ -1378,13 +1382,13 @@ func (a *colonyAgentNode) walkTetherTargets(colony *colonyCoreNode, num int, f f
 			return false
 		}
 		switch x.mode {
-		case agentModeKamikazeAttack, agentModeBomberAttack, agentModeConsumeDrone, agentModeCharging, agentModeForcedCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging, agentModePosing:
+		case agentModeKamikazeAttack, agentModeBomberAttack, agentModeConsumeDrone, agentModeCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging, agentModePosing:
 			// Modes that are never targeted.
 			return false
 		}
 
 		switch x.mode {
-		case agentModeMineEssence, agentModeReturn, agentModeCourierFlight:
+		case agentModeMineEssence, agentModeReturn, agentModeCourierFlight, agentModeForcedCharging:
 			// The best modes to be hastened.
 			processed++
 			f(x)

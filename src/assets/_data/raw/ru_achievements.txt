@@ -73,6 +73,11 @@
 ##achievement.turretdamage.description
 Нанесите вражеской колонии как минимум 25% урона своими наземными турелями.
 
+##achievement.leet : 1337
+##achievement.leet.description
+Победите в игре с сидом 1337.
+Этот сид активирует особые правила, так что бой будет непростым.
+
 ##achievement.antidominator : Анти-доминация
 ##achievement.antidominator.description
 Уничтожьте всех врагов класса доминатор до того, как закончится таймер финальной волны.

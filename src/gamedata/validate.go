@@ -40,6 +40,9 @@ func IsSendableReplay(r serverapi.GameReplay) bool {
 	if !IsRunnableReplay(r) {
 		return false
 	}
+	if SpecialSeedMap[r.Config.Seed] {
+		return false
+	}
 	if r.Results.Score <= 0 {
 		return false
 	}

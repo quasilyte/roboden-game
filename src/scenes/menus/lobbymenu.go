@@ -783,7 +783,12 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 }
 
 func (c *LobbyMenuController) randomSeed() int64 {
-	return c.scene.Rand().PositiveInt64()
+	for {
+		seed := c.scene.Rand().PositiveInt64()
+		if !gamedata.SpecialSeedMap[seed] {
+			return seed
+		}
+	}
 }
 
 func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widget.Container {

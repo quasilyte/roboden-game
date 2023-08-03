@@ -217,7 +217,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 	}
 
 	difficultyLevel := 1
-	if c.results.DifficultyScore >= 150 {
+	if c.results.DifficultyScore >= 160 {
 		difficultyLevel = 2
 	}
 
@@ -271,6 +271,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = c.results.GroundBossDefeat
 		case "turretdamage":
 			unlocked = c.results.EnemyColonyDamageFromTurrets >= (c.results.EnemyColonyDamage * 0.25)
+		case "leet":
+			unlocked = c.config.Seed == 1337
 
 		case "antidominator":
 			unlocked = c.results.DominatorsSurvived == 0

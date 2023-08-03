@@ -73,6 +73,11 @@ Destroy the dreadnought in the moment when it's close to the ground.
 ##achievement.turretdamage.description
 Deal at least 25% damage to the dreadnought using ground turrets.
 
+##achievement.leet : 1337
+##achievement.leet.description
+Win a match with a seed set to 1337.
+This seed enables some special rules, so be prepared.
+
 ##achievement.antidominator : Anti-domination
 ##achievement.antidominator.description
 Destroy all dominator class enemies before the final wave countdown reaches zero.

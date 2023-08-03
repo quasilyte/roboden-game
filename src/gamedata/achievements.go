@@ -135,6 +135,11 @@ var AchievementList = []*Achievement{
 		Mode: ModeClassic,
 		Icon: assets.ImageAchievementTurretDamage,
 	},
+	{
+		Name: "leet",
+		Mode: ModeClassic,
+		Icon: assets.ImageAchievementLeet,
+	},
 
 	// Arena mode achievements.
 	{

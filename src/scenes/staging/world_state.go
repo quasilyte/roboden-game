@@ -478,6 +478,7 @@ func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r
 		if skipIdling && nearBaseModeTable[byte(a.mode)] {
 			continue
 		}
+		// Since normal drones can't be inside forest, this condition will suffice.
 		if a.IsCloaked() {
 			continue
 		}
@@ -630,7 +631,7 @@ func (w *worldState) FindTargetableAgents(pos gmath.Vec, skipGround bool, r floa
 	randIterate(w.rand, w.allColonies, func(c *colonyCoreNode) bool {
 		skipIdling := false
 		dist := c.pos.DistanceTo(pos)
-		colonyEffectiveRadius := c.realRadius * 0.8
+		colonyEffectiveRadius := c.PatrolRadius()
 		if dist > colonyEffectiveRadius {
 			skipIdling = (dist - colonyEffectiveRadius) > r
 		}

@@ -68,7 +68,12 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 
 	switch roll := world.rand.Float(); {
 	case roll < 0.05: // 5%
-		p.maxColonies = 1
+		if world.coreDesign == gamedata.ArkCoreStats {
+			// Bot should never play a solo Ark game.
+			p.maxColonies = 2
+		} else {
+			p.maxColonies = 1
+		}
 	case roll < 0.25: // 20%
 		p.maxColonies = 2
 	case roll < 0.80: // 55%

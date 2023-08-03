@@ -266,6 +266,9 @@ const SeasonNumber = 1
 //   - Some drones now use energy when attacking
 //   - Unallocated drone point now grants 2 difficulty points instead of 1
 //
+// * Computer player (colony bots):
+//   - Will no longer play a solo base tactic with Ark core design
+//
 // * Misc:
 //   - Trim trailing whitespace in the username
 //   - New modes and options are now listed in the rewards screen

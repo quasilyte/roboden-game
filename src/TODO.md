@@ -15,7 +15,6 @@ todo engine:
 
 new achievements:
 * iron will - win 3 matches in a row without quitting
-* gladiator - publish your score to the leaderboard
 * wisp slayer - hunt down every wisp on the map
 
 loading screen hints:

@@ -25,6 +25,9 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if config.IonMortars {
 			score -= 15
 		}
+		if !config.GoldEnabled {
+			score -= 25
+		}
 
 	case "classic":
 		if config.CreepFortress {
@@ -35,6 +38,9 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 		if config.InterfaceMode < 2 {
 			score += 5
+		}
+		if !config.GoldEnabled {
+			score += 20
 		}
 		if config.NumCreepBases != 0 {
 			score += (config.CreepDifficulty - 3) * 15
@@ -65,6 +71,9 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 		if config.InterfaceMode == 0 {
 			score += 5
+		}
+		if !config.GoldEnabled {
+			score += 30
 		}
 		score += (config.ArenaProgression - 1) * 20
 		if config.RawGameMode == "inf_arena" {

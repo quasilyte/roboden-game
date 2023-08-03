@@ -241,6 +241,7 @@ const SeasonNumber = 1
 //   - New Fortress creep (available via difficulty setting)
 //   - New Templar creep
 //   - New Ion Mortar creep turret (available via difficulty setting)
+//   - A "gold" option that disables the gold resource deposits
 //
 // * Gameplay:
 //   - Increase dreadnough max crawlers limit

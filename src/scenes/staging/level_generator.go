@@ -55,8 +55,8 @@ func newLevelGenerator(scene *ge.Scene, bg *ge.TiledBackground, world *worldStat
 func (g *levelGenerator) Generate() {
 	g.playerSpawn = g.world.rect.Center()
 	resourceMultipliers := []float64{
-		0.4,
-		0.75,
+		0.35,
+		0.7,
 		1, // Default
 		1.25,
 		1.6,
@@ -364,7 +364,7 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		numRedOil = gmath.ClampMin(int(float64(rand.IntRange(2, 3))*multiplier), 2)
 		numRedCrystals = int(float64(rand.IntRange(10, 15)) * multiplier)
 	}
-	if g.world.config.Seed == 1337 {
+	if g.world.seedKind == gamedata.SeedLeet {
 		numRedCrystals *= 2
 	}
 
@@ -525,7 +525,7 @@ func (g *levelGenerator) placeCreeps() {
 	if g.world.config.IonMortars {
 		numIonMortars = int(2 * multiplier)
 	}
-	if g.world.config.Seed == 1337 {
+	if g.world.seedKind == gamedata.SeedLeet {
 		numIonMortars += 8
 	}
 	placedSuperMortar := false
@@ -685,7 +685,7 @@ func (g *levelGenerator) placeCreepBases() {
 		}
 		super := i == 0 && g.world.config.SuperCreeps
 
-		if g.world.config.Seed == 1337 {
+		if g.world.seedKind == gamedata.SeedLeet {
 			for attempt := 0; attempt < 3; attempt++ {
 				crawlersFactory := g.placeCreep(baseRegion, gamedata.CrawlerBaseCreepStats, creepPlacingConfig{
 					CreepInit: func(creep *creepNode) {

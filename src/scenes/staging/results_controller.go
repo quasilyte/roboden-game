@@ -74,6 +74,8 @@ type battleResults struct {
 	DifficultyScore      int
 	DronePointsAllocated int
 
+	SeedKind gamedata.SeedKind
+
 	OnlyTier1Military bool
 
 	Replay [][]serverapi.PlayerAction
@@ -272,7 +274,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "turretdamage":
 			unlocked = c.results.EnemyColonyDamageFromTurrets >= (c.results.EnemyColonyDamage * 0.25)
 		case "leet":
-			unlocked = c.config.Seed == 1337
+			unlocked = c.results.SeedKind == gamedata.SeedLeet
 
 		case "antidominator":
 			unlocked = c.results.DominatorsSurvived == 0

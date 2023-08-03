@@ -339,6 +339,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	}
 
 	world := &worldState{
+		seedKind:             gamedata.GetSeedKind(c.config.Seed, c.config.RawGameMode),
 		sessionState:         c.state,
 		cameras:              make([]*viewport.Camera, 0, 2),
 		stage:                viewport.NewCameraStage(c.config.ExecMode == gamedata.ExecuteSimulation),
@@ -1086,6 +1087,7 @@ func (c *Controller) prepareBattleResults() {
 	}
 
 	c.world.result.BossDefeated = c.world.boss == nil
+	c.world.result.SeedKind = c.world.seedKind
 
 	c.world.result.Ticks = c.nodeRunner.ticks
 	c.world.result.TimePlayed = time.Second * time.Duration(c.nodeRunner.timePlayed)

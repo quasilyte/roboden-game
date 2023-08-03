@@ -88,6 +88,7 @@ type worldState struct {
 	result battleResults
 
 	simulation   bool
+	seedKind     gamedata.SeedKind
 	config       *gamedata.LevelConfig
 	gameSettings *session.GameSettings
 	deviceInfo   userdevice.Info

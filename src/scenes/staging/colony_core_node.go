@@ -265,7 +265,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 
 func (c *colonyCoreNode) IsFlying() bool {
 	if c.stats == gamedata.ArkCoreStats {
-		return c.shadowComponent.height > 0
+		return true
 	}
 	switch c.mode {
 	case colonyModeNormal, colonyModeTeleporting:

@@ -70,8 +70,12 @@ var crawlerSpawnPositions = []pathing.GridPath{
 	pathing.MakeGridPath(pathing.DirDown),
 	pathing.MakeGridPath(pathing.DirDown, pathing.DirLeft),
 	pathing.MakeGridPath(pathing.DirDown, pathing.DirRight),
+
 	pathing.MakeGridPath(pathing.DirDown, pathing.DirLeft, pathing.DirUp),
 	pathing.MakeGridPath(pathing.DirDown, pathing.DirRight, pathing.DirUp),
+
+	pathing.MakeGridPath(pathing.DirDown, pathing.DirLeft, pathing.DirUp, pathing.DirUp),
+	pathing.MakeGridPath(pathing.DirDown, pathing.DirRight, pathing.DirUp, pathing.DirUp),
 }
 
 func newCreepNode(world *worldState, stats *gamedata.CreepStats, pos gmath.Vec) *creepNode {
@@ -815,19 +819,27 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 	if c.world.config.GameMode == gamedata.ModeReverse {
 		techLevel := c.world.creepsPlayerState.techLevel
 		switch {
-		case techLevel < 0.1:
+		case techLevel < 0.1: // 0-10%
 			minCrawlers = 2
 			maxCrawlers = 4
-		case techLevel < 0.2:
+		case techLevel < 0.2: // 10-20%
 			minCrawlers = 3
 			maxCrawlers = 4
-		case techLevel < 0.3:
+		case techLevel < 0.3: // 20-30%
 			minCrawlers = 4
 			maxCrawlers = 5
-		default:
+		case techLevel < 0.5: // 30-50%
 			minCrawlers = 5
-			maxCrawlers = 5
+			maxCrawlers = 6
+		case techLevel < 0.7: // 50-70%
+			minCrawlers = 6
+			maxCrawlers = 7
+		default:
+			minCrawlers = 7
+			maxCrawlers = 7
 		}
+		minCrawlers = 7
+		maxCrawlers = 7
 	} else {
 		minCrawlers = 3
 		maxCrawlers = 4
@@ -837,7 +849,7 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 			maxCrawlers = 5
 		case 3:
 			minCrawlers = 5
-			maxCrawlers = 5
+			maxCrawlers = 7
 		}
 	}
 

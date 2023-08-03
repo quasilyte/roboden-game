@@ -266,6 +266,7 @@ const SeasonNumber = 1
 //   - Make evo points generation slightly slower
 //   - Some drones now use energy when attacking
 //   - Unallocated drone point now grants 2 difficulty points instead of 1
+//   - Dreadnought can now dispatch up to 7 crawlers (this limit was at 5 previously)
 //
 // * Computer player (colony bots):
 //   - Will no longer play a solo base tactic with Ark core design

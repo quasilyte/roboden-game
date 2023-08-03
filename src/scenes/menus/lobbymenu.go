@@ -1068,6 +1068,9 @@ func (c *LobbyMenuController) onCoreToggled(selectedCore *gamedata.ColonyCoreSta
 			b.widget.Toggle()
 		}
 	}
+	if c.difficultyLabel != nil {
+		c.updateDifficultyScore(c.calcDifficultyScore())
+	}
 }
 
 func (c *LobbyMenuController) onTurretToggled(selectedTurret *gamedata.AgentStats) {

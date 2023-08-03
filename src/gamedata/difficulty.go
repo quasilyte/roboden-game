@@ -16,7 +16,6 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score += config.StartingResources * 5
 		score -= (config.InitialCreeps - 1) * 15
 		score -= (config.TechProgressRate - 5) * 5
-		score += (config.Teleporters - 1) * 5
 		score += (config.OilRegenRate - 2) * 5
 		score += (config.Resources - 2) * 20
 		if config.CreepFortress {
@@ -59,9 +58,12 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score += (config.CreepSpawnRate - 1) * 10
 		score += (config.InitialCreeps - 1) * 10
 		score -= config.StartingResources * 4
-		score += 5 - (config.Teleporters * 5)
 		score += 10 - (config.OilRegenRate * 5)
 		score += 40 - (2 * pointsAllocated)
+		if config.CoreDesign != "ark" {
+			score += 5 - (config.Teleporters * 5)
+		}
+
 	case "arena", "inf_arena":
 		if config.CreepFortress {
 			score += 30
@@ -85,9 +87,11 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 		score += (config.CreepDifficulty - 3) * 20
 		score -= config.StartingResources * 2
-		score += 5 - (config.Teleporters * 5)
 		score += 10 - (config.OilRegenRate * 5)
 		score += 40 - (2 * pointsAllocated)
+		if config.CoreDesign != "ark" {
+			score += 5 - (config.Teleporters * 5)
+		}
 	}
 
 	if config.FogOfWar {

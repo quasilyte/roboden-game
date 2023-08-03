@@ -14,9 +14,7 @@ todo engine:
 - an ability to "load" a transformed image (like original image + rotated hue)
 
 new achievements:
-* firestorm - win with fortress, ion mortars and fog of war enabled
 * iron will - win 3 matches in a row without quitting
-* spectator - watch a splash screen simulation until the end
 * gladiator - publish your score to the leaderboard
 * wisp slayer - hunt down every wisp on the map
 

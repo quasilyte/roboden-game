@@ -73,6 +73,8 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 		// Just in case demo stops by a victory/defeat,
 		// make sure that we capture that last frame.
 		c.state.BackgroundImage = c.controller.RenderDemoFrame()
+
+		c.state.UnlockAchievement(session.Achievement{Name: "spectator", Elite: true})
 	})
 
 	logo := scene.NewSprite(assets.ImageLogo)

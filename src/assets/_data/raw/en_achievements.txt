@@ -117,3 +117,8 @@ It's not simple to find, but it's there!
 ##achievement.terminal.description
 This is probably the most obscure achievement this game has.
 The hint is there, for what it's worth.
+
+##achievement.spectator : Spectator
+##achievement.spectator.description
+Watch a splash screen simulation until the end.
+Enjoy the cinematic camera while at it.

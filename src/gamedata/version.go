@@ -238,6 +238,8 @@ const SeasonNumber = 1
 // # Version 15
 //
 // * New content:
+//   - Add Spectator achievement
+//   - Add 1337 achievement
 //   - New Fortress creep (available via difficulty setting)
 //   - New Templar creep
 //   - New Ion Mortar creep turret (available via difficulty setting)

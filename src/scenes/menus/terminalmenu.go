@@ -248,10 +248,9 @@ func (c *TerminalMenu) initUI() {
 }
 
 func (c *TerminalMenu) maybeGrantAchievement() {
-	c.state.UnlockAchievement(session.Achievement{
-		Name:  "terminal",
-		Elite: true,
-	})
+	if c.state.UnlockAchievement(session.Achievement{Name: "terminal", Elite: true}) {
+		c.scene.Context().SaveGameData("save", c.state.Persistent)
+	}
 }
 
 func (c *TerminalMenu) back() {

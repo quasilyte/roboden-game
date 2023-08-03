@@ -74,7 +74,9 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 		// make sure that we capture that last frame.
 		c.state.BackgroundImage = c.controller.RenderDemoFrame()
 
-		c.state.UnlockAchievement(session.Achievement{Name: "spectator", Elite: true})
+		if c.state.UnlockAchievement(session.Achievement{Name: "spectator", Elite: true}) {
+			c.scene.Context().SaveGameData("save", c.state.Persistent)
+		}
 	})
 
 	logo := scene.NewSprite(assets.ImageLogo)

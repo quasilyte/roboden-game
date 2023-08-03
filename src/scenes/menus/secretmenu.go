@@ -20,7 +20,9 @@ func NewSecretMenuController(state *session.State) *SecretMenuController {
 
 func (c *SecretMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
-	c.state.UnlockAchievement(session.Achievement{Name: "secret", Elite: true})
+	if c.state.UnlockAchievement(session.Achievement{Name: "secret", Elite: true}) {
+		c.scene.Context().SaveGameData("save", c.state.Persistent)
+	}
 	c.initUI()
 }
 

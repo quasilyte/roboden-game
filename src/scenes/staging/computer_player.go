@@ -68,18 +68,19 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 
 	switch roll := world.rand.Float(); {
 	case roll < 0.05: // 5%
-		if world.coreDesign == gamedata.ArkCoreStats {
-			// Bot should never play a solo Ark game.
-			p.maxColonies = 2
-		} else {
-			p.maxColonies = 1
-		}
+		p.maxColonies = 1
 	case roll < 0.25: // 20%
 		p.maxColonies = 2
 	case roll < 0.80: // 55%
 		p.maxColonies = 3
 	default: // 20%
 		p.maxColonies = 4
+	}
+	if world.coreDesign == gamedata.ArkCoreStats {
+		// This effectively means that min number of Ark colonies for the bot is 2.
+		// Since their drone limit is ~2 times smaller, it's required to have
+		// more Ark colonies to handle the late game properly.
+		p.maxColonies++
 	}
 
 	if p.world.debugLogs {

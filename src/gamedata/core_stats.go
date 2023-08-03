@@ -97,7 +97,7 @@ var ArkCoreStats = &ColonyCoreStats{
 
 	Speed:          26,
 	JumpDist:       600,
-	DroneLimit:     100,
+	DroneLimit:     80,
 	ResourcesLimit: 250,
 	MaxHealth:      80,
 

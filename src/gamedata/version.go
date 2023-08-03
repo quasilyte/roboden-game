@@ -268,8 +268,11 @@ const SeasonNumber = 1
 //
 // * Misc:
 //   - Trim trailing whitespace in the username
-//   - Disabling replays from mismatching game versions
 //   - New modes and options are now listed in the rewards screen
+//
+// * Replays:
+//   - Disabling replays from mismatching game versions
+//   - Showing the game seed in the replay's description
 //
 // * Steam Deck:
 //   - Showing the on-screen keyboard when appropriate

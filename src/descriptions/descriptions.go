@@ -33,6 +33,7 @@ func ReplayText(d *langs.Dictionary, r *session.SavedReplay) string {
 		resultsKey := r.ResultTag
 		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.replay.game_result"), strings.ToLower(d.Get(resultsKey))))
 	}
+	lines = append(lines, fmt.Sprintf("%s: %d", d.Get("menu.lobby.game_seed"), r.Replay.Config.Seed))
 	lines = append(lines, fmt.Sprintf("%s: %d%%", d.Get("menu.lobby.tab.difficulty"), r.Replay.Config.DifficultyScore))
 
 	showScore := false

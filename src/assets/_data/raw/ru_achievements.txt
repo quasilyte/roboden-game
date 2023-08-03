@@ -122,3 +122,7 @@
 ##achievement.spectator.description
 Досмотрите симуляцию на экране заставки (splash screen) до конца.
 Насладитесь кинематографической камерой в процессе.
+
+##achievement.gladiator : Гладиатор
+##achievement.gladiator.description
+Отправьте свои результаты и станьте участником глобальной таблицы лидеров.

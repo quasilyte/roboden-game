@@ -42,7 +42,7 @@ func enqueueReplay(state *session.State, replay serverapi.GameReplay) {
 	state.Context.SaveGameData("save", state.Persistent)
 }
 
-func SendOrEnqueueScore(state *session.State, season int, replay serverapi.GameReplay) {
+func SendOrEnqueueScore(state *session.State, season int, replay serverapi.GameReplay) bool {
 	sendResult, err := SendScore(state, season, replay)
 	if err != nil || sendResult.TryAgain {
 		if err != nil {
@@ -51,9 +51,10 @@ func SendOrEnqueueScore(state *session.State, season int, replay serverapi.GameR
 			state.Logf("the server asked to try again later")
 		}
 		enqueueReplay(state, replay)
-		return
+		return false
 	}
 	state.Logf("queued game replay successfully")
+	return true
 }
 
 type SendScoreResult struct {

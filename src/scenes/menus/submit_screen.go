@@ -21,6 +21,7 @@ type submitScreenController struct {
 	spinner        *widget.Text
 	spinnerFrames  []string
 	t              float64
+	success        bool
 }
 
 func NewSubmitScreenController(state *session.State, backController ge.SceneController, replays []serverapi.GameReplay) ge.SceneController {
@@ -41,12 +42,19 @@ func (c *submitScreenController) Init(scene *ge.Scene) {
 func (c *submitScreenController) spawnTask() {
 	initTask := gtask.StartTask(func(ctx *gtask.TaskContext) {
 		for _, replay := range c.replays {
-			clientkit.SendOrEnqueueScore(c.state, gamedata.SeasonNumber, replay)
+			if clientkit.SendOrEnqueueScore(c.state, gamedata.SeasonNumber, replay) {
+				c.success = true
+			}
 		}
 	})
 
 	initTask.EventCompleted.Connect(nil, func(gsignal.Void) {
 		c.scene.Context().ChangeScene(c.backController)
+		if c.success {
+			if c.state.UnlockAchievement(session.Achievement{Name: "gladiator", Elite: true}) {
+				c.scene.Context().SaveGameData("save", c.state.Persistent)
+			}
+		}
 	})
 
 	c.scene.AddObject(initTask)

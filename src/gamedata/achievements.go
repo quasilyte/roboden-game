@@ -188,4 +188,9 @@ var AchievementList = []*Achievement{
 		Mode: ModeUnknown,
 		Icon: assets.ImageAchievementSpectator,
 	},
+	{
+		Name: "gladiator",
+		Mode: ModeUnknown,
+		Icon: assets.ImageAchievementGladiator,
+	},
 }

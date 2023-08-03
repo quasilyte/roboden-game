@@ -122,3 +122,7 @@ The hint is there, for what it's worth.
 ##achievement.spectator.description
 Watch a splash screen simulation until the end.
 Enjoy the cinematic camera while at it.
+
+##achievement.gladiator : Gladiator
+##achievement.gladiator.description
+Submit your results and enter the global leadership table!

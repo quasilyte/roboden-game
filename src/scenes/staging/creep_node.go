@@ -1495,13 +1495,18 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			c.specialModifier--
 			if c.specialModifier > 0 {
 				spawnPos := c.crawlerSpawnPos()
-				crawlerStats := gamedata.CrawlerCreepStats
-				eliteChance := c.world.EliteCrawlerChance()
-				if c.world.rand.Chance(eliteChance) {
-					if c.world.rand.Chance(0.3) {
-						crawlerStats = gamedata.HeavyCrawlerCreepStats
-					} else {
-						crawlerStats = gamedata.EliteCrawlerCreepStats
+				var crawlerStats *gamedata.CreepStats
+				if c.world.seedKind == gamedata.SeedLeet {
+					crawlerStats = gamedata.StealthCrawlerCreepStats
+				} else {
+					crawlerStats = gamedata.CrawlerCreepStats
+					eliteChance := c.world.EliteCrawlerChance()
+					if c.world.rand.Chance(eliteChance) {
+						if c.world.rand.Chance(0.3) {
+							crawlerStats = gamedata.HeavyCrawlerCreepStats
+						} else {
+							crawlerStats = gamedata.EliteCrawlerCreepStats
+						}
 					}
 				}
 				crawler := c.world.NewCreepNode(spawnPos, crawlerStats)

@@ -270,6 +270,8 @@ const SeasonNumber = 1
 //   - Some drones now use energy when attacking
 //   - Unallocated drone point now grants 2 difficulty points instead of 1
 //   - Dreadnought can now dispatch up to 7 crawlers (this limit was at 5 previously)
+//   - Reduced Ark colony drone limit (100 -> 80)
+//   - Wisps will retreat for longer distances
 //
 // * Computer player (colony bots):
 //   - Will no longer play a solo base tactic with Ark core design

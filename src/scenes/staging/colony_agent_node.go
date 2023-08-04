@@ -1903,9 +1903,10 @@ func (a *colonyAgentNode) updateMercFactory(delta float64) {
 			hatch.Visible = true
 		}
 	}
-	if a.health < a.maxHealth*0.5 {
+	if a.health < a.maxHealth*0.3 {
 		// Keep the hatch open when heavily damaged.
-		a.lifetime = 2
+		a.target.(*ge.Sprite).Visible = false
+		a.lifetime = 1
 		return
 	}
 

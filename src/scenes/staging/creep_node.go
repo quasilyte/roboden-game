@@ -159,7 +159,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 	switch c.stats.Kind {
 	case gamedata.CreepFortress:
-		c.specialDelay = c.scene.Rand().FloatRange(70, 120)
+		c.specialDelay = c.scene.Rand().FloatRange(3.5*60, 4.5*60)
 	case gamedata.CreepWispLair:
 		c.attackDelay = c.scene.Rand().FloatRange(30, 50)
 	case gamedata.CreepWisp:
@@ -1221,7 +1221,7 @@ func (c *creepNode) updateFortress(delta float64) {
 	if c.specialDelay != 0 {
 		return
 	}
-	spawnDelay := c.world.rand.FloatRange(20, 35)
+	spawnDelay := c.world.rand.FloatRange(25, 40)
 	c.specialDelay = spawnDelay
 	c.specialModifier++
 

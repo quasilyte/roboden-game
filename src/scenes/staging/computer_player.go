@@ -31,7 +31,8 @@ type computerPlayer struct {
 	buildColonyDelay float64
 	buildTurretDelay float64
 
-	maxColonies int
+	colonyTargetRadius float64
+	maxColonies        int
 
 	colonyPower           int
 	calculatedColonyPower bool
@@ -81,6 +82,15 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 		// Since their drone limit is ~2 times smaller, it's required to have
 		// more Ark colonies to handle the late game properly.
 		p.maxColonies++
+	}
+
+	switch world.coreDesign {
+	case gamedata.DenCoreStats:
+		p.colonyTargetRadius = 360
+	case gamedata.ArkCoreStats:
+		p.colonyTargetRadius = 260
+	default:
+		panic("bot can't play on this core design")
 	}
 
 	if p.world.debugLogs {
@@ -564,7 +574,7 @@ func (p *computerPlayer) maybeBuildTurret(colony *computerColony) bool {
 
 func (p *computerPlayer) maybeUseSpecial(colony *computerColony) bool {
 	if p.choiceSelection.special.special == specialIncreaseRadius {
-		increaseRadius := (colony.node.resources > 100 && colony.node.realRadius < 320) ||
+		increaseRadius := (colony.node.resources > 100 && colony.node.realRadius < p.colonyTargetRadius) ||
 			(colony.node.realRadius < 200 && p.world.rand.Chance(0.5))
 		if increaseRadius {
 			return p.tryExecuteAction(colony.node, 4, gmath.Vec{})

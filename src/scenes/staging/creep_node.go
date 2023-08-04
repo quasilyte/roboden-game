@@ -579,7 +579,7 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 		c.world.nodeRunner.AddObject(rearBeam2)
 	}
 
-	target.OnDamage(weapon.Damage, c)
+	target.OnDamage(multipliedDamage(target, weapon), c)
 }
 
 func (c *creepNode) retreatFrom(pos gmath.Vec, minRange, maxRange float64) {

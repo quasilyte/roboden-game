@@ -28,7 +28,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 			score -= 15
 		}
 		if !config.GoldEnabled {
-			score -= 25
+			score -= 35
 		}
 
 	case "classic":
@@ -42,7 +42,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 			score += 5
 		}
 		if !config.GoldEnabled {
-			score += 20
+			score += 25
 		}
 		if !config.AncientRuins {
 			score += 15
@@ -84,7 +84,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 			score += 5
 		}
 		if !config.GoldEnabled {
-			score += 30
+			score += 35
 		}
 		score += (config.ArenaProgression - 1) * 20
 		if config.RawGameMode == "inf_arena" {

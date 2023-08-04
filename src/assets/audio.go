@@ -49,7 +49,7 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioChoiceMade:          {Path: "$sfx/choice_made.wav", Volume: -0.45},
 		AudioChoiceReady:         {Path: "$sfx/choice_ready.wav", Volume: -0.55},
 		AudioColonyLanded:        {Path: "$sfx/colony_landed.wav", Volume: -0.2},
-		AudioHarvesterEffect:     {Path: "$sfx/harvester.wav", Volume: -0.25},
+		AudioHarvesterEffect:     {Path: "$sfx/harvester.wav", Volume: -0.2},
 		AudioEssenceCollected:    {Path: "$sfx/essence_collected.wav", Volume: -0.55},
 		AudioCourierResourceBeam: {Path: "$sfx/courier_resource_beam.wav", Volume: -0.3},
 		AudioAgentProduced:       {Path: "$sfx/agent_produced.wav", Volume: -0.4},

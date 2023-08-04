@@ -881,6 +881,10 @@ func (a *colonyAgentNode) IsFlying() bool {
 	return a.stats.IsFlying
 }
 
+func (a *colonyAgentNode) GetTargetInfo() targetInfo {
+	return targetInfo{building: a.stats.IsBuilding, flying: a.IsFlying()}
+}
+
 func (a *colonyAgentNode) ReceiveEnergyDamage(damage float64) {
 	a.energy = gmath.ClampMin(a.energy-damage, 0)
 }

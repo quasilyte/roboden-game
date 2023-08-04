@@ -97,6 +97,8 @@
 ##drone.ability.consume_for_power : Gets permanent power when consuming a drone
 ##drone.ability.bomb_attack : Attacks only when ordered
 ##drone.ability.bomb_aoe : The bombs deal massive area of effect damage
+##drone.ability.more_building_damage_f : %d%% more damage against buildings
+##drone.ability.less_building_damage_f : %d%% less damage against buildings
 
 ##turret.harvester : Harvester
 ##turret.harvester.description

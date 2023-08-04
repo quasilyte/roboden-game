@@ -2,6 +2,7 @@ package descriptions
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -276,11 +277,16 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier, global
 		if drone.Weapon.Damage.Slow > 0 {
 			traits = append(traits, d.Get("drone.ability.slow"))
 		}
+		if drone.Weapon.BuildingDamageBonus > 0 {
+			traits = append(traits, fmt.Sprintf(d.Get("drone.ability.more_building_damage_f"), int(math.Abs(drone.Weapon.BuildingDamageBonus*100))))
+		} else if drone.Weapon.BuildingDamageBonus < 0 {
+			traits = append(traits, fmt.Sprintf(d.Get("drone.ability.less_building_damage_f"), int(math.Abs(drone.Weapon.BuildingDamageBonus*100))))
+		}
 	}
 	if drone.CanCloak {
 		traits = append(traits, d.Get("drone.ability.cloak_hide"))
 		if drone.Kind == gamedata.AgentMarauder {
-			traits = append(traits, d.Get("drone.ability.cloak_hide"))
+			traits = append(traits, d.Get("drone.ability.cloak_scavenge"))
 		}
 	}
 	if len(traits) != 0 {

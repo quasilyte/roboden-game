@@ -142,6 +142,10 @@ func (c *constructionNode) Destroy() {
 	c.Dispose()
 }
 
+func (c *constructionNode) GetTargetInfo() targetInfo {
+	return targetInfo{building: true, flying: false}
+}
+
 func (c *constructionNode) IsFlying() bool { return false }
 
 func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source targetable) {

@@ -242,6 +242,7 @@ type AgentStats struct {
 	HasSupport bool
 	IsFlying   bool
 	IsTurret   bool
+	IsBuilding bool
 	IsNeutral  bool
 	MaxPayload int
 
@@ -275,14 +276,15 @@ type DroneDocs struct {
 }
 
 var MercFactoryAgentStats = InitDroneStats(&AgentStats{
-	Kind:      AgentMercFactory,
-	IsFlying:  false,
-	IsTurret:  true,
-	IsNeutral: true,
-	Image:     assets.ImageMercFactoryAgent,
-	Size:      SizeLarge,
-	Upkeep:    0,
-	MaxHealth: 150,
+	Kind:       AgentMercFactory,
+	IsFlying:   false,
+	IsTurret:   true,
+	IsBuilding: true,
+	IsNeutral:  true,
+	Image:      assets.ImageMercFactoryAgent,
+	Size:       SizeLarge,
+	Upkeep:     0,
+	MaxHealth:  150,
 })
 
 var MercAgentStats = InitDroneStats(&AgentStats{
@@ -317,13 +319,14 @@ var TurretStatsList = []*AgentStats{
 }
 
 var GunpointAgentStats = InitDroneStats(&AgentStats{
-	Kind:      AgentGunpoint,
-	IsFlying:  false,
-	IsTurret:  true,
-	Image:     assets.ImageGunpointAgent,
-	Size:      SizeLarge,
-	Upkeep:    12,
-	MaxHealth: 100,
+	Kind:       AgentGunpoint,
+	IsFlying:   false,
+	IsTurret:   true,
+	IsBuilding: true,
+	Image:      assets.ImageGunpointAgent,
+	Size:       SizeLarge,
+	Upkeep:     12,
+	MaxHealth:  100,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     280,
 		Reload:          2,
@@ -341,26 +344,28 @@ var GunpointAgentStats = InitDroneStats(&AgentStats{
 })
 
 var HarvesterAgentStats = InitDroneStats(&AgentStats{
-	ScoreCost: HarvesterTurretCost,
-	Kind:      AgentHarvester,
-	IsFlying:  false,
-	IsTurret:  true,
-	Image:     assets.ImageHarvesterAgent,
-	Size:      SizeLarge,
-	Upkeep:    14,
-	MaxHealth: 60,
-	Speed:     8,
+	ScoreCost:  HarvesterTurretCost,
+	Kind:       AgentHarvester,
+	IsFlying:   false,
+	IsTurret:   true,
+	IsBuilding: false,
+	Image:      assets.ImageHarvesterAgent,
+	Size:       SizeLarge,
+	Upkeep:     14,
+	MaxHealth:  60,
+	Speed:      8,
 })
 
 var BeamTowerAgentStats = InitDroneStats(&AgentStats{
-	ScoreCost: BeamTowerTurretCost,
-	Kind:      AgentBeamTower,
-	IsFlying:  false,
-	IsTurret:  true,
-	Image:     assets.ImageBeamtowerAgent,
-	Size:      SizeLarge,
-	Upkeep:    14,
-	MaxHealth: 50,
+	ScoreCost:  BeamTowerTurretCost,
+	Kind:       AgentBeamTower,
+	IsFlying:   false,
+	IsTurret:   true,
+	IsBuilding: true,
+	Image:      assets.ImageBeamtowerAgent,
+	Size:       SizeLarge,
+	Upkeep:     14,
+	MaxHealth:  50,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange: 380,
 		Reload:      3.1,
@@ -379,6 +384,7 @@ var TetherBeaconAgentStats = InitDroneStats(&AgentStats{
 	Kind:           AgentTetherBeacon,
 	IsFlying:       false,
 	IsTurret:       true,
+	IsBuilding:     true,
 	Image:          assets.ImageTetherBeaconAgent,
 	Size:           SizeLarge,
 	Upkeep:         8,
@@ -804,6 +810,7 @@ var PrismAgentStats = InitDroneStats(&AgentStats{
 		MaxTargets:                1,
 		BurstSize:                 1,
 		TargetFlags:               TargetFlying | TargetGround,
+		BuildingDamageBonus:       -0.25,
 	}),
 	BeamExplosion: assets.ImagePrismShotExplosion,
 })
@@ -867,6 +874,7 @@ var FighterAgentStats = InitDroneStats(&AgentStats{
 		MaxTargets:                1,
 		BurstSize:                 1,
 		TargetFlags:               TargetFlying | TargetGround,
+		BuildingDamageBonus:       -0.4,
 	}),
 })
 
@@ -1031,6 +1039,7 @@ var ScarabAgentStats = InitDroneStats(&AgentStats{
 		Accuracy:                  0.95,
 		TargetFlags:               TargetGround,
 		Explosion:                 ProjectileExplosionScarab,
+		BuildingDamageBonus:       0.25,
 	}),
 })
 
@@ -1075,6 +1084,7 @@ var DevourerAgentStats = InitDroneStats(&AgentStats{
 		BurstSize:                 3,
 		TargetFlags:               TargetFlying | TargetGround,
 		Explosion:                 ProjectileExplosionScarab,
+		BuildingDamageBonus:       0.25,
 	}),
 })
 
@@ -1168,6 +1178,7 @@ var DestroyerAgentStats = InitDroneStats(&AgentStats{
 		MaxTargets:                1,
 		BurstSize:                 1,
 		TargetFlags:               TargetFlying | TargetGround,
+		BuildingDamageBonus:       -0.4,
 	}),
 })
 

@@ -264,6 +264,10 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.drawOrder = c.pos.Y
 }
 
+func (c *colonyCoreNode) GetTargetInfo() targetInfo {
+	return targetInfo{building: true, flying: c.IsFlying()}
+}
+
 func (c *colonyCoreNode) IsFlying() bool {
 	if c.stats == gamedata.ArkCoreStats {
 		return true

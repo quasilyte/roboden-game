@@ -42,10 +42,12 @@ type WeaponStats struct {
 	Accuracy                  float64
 	TargetFlags               TargetKind
 
-	GroundDamageBonus      float64
-	FlyingDamageBonus      float64
-	GroundTargetDamageMult float64
-	FlyingTargetDamageMult float64
+	GroundDamageBonus        float64
+	FlyingDamageBonus        float64
+	BuildingDamageBonus      float64
+	GroundTargetDamageMult   float64
+	FlyingTargetDamageMult   float64
+	BuildingTargetDamageMult float64
 
 	RoundProjectile bool
 	RandArc         bool
@@ -112,5 +114,6 @@ func InitWeaponStats(stats *WeaponStats) *WeaponStats {
 	stats.AttackRangeSqr = stats.AttackRange * stats.AttackRange
 	stats.FlyingTargetDamageMult = 1 + stats.FlyingDamageBonus
 	stats.GroundTargetDamageMult = 1 + stats.GroundDamageBonus
+	stats.BuildingTargetDamageMult = 1 + stats.BuildingDamageBonus
 	return stats
 }

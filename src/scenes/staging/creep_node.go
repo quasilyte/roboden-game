@@ -280,6 +280,13 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 	return c.pos.VecTowards(c.waypoint, c.movementSpeed())
 }
 
+func (c *creepNode) GetTargetInfo() targetInfo {
+	return targetInfo{
+		building: c.stats.Building,
+		flying:   c.IsFlying(),
+	}
+}
+
 func (c *creepNode) IsFlying() bool {
 	if c.stats.Kind == gamedata.CreepUberBoss {
 		return !c.altSprite.Visible

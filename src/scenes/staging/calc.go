@@ -94,10 +94,17 @@ func multipliedDamage(target targetable, weapon *gamedata.WeaponStats) gamedata.
 }
 
 func damageMultiplier(target targetable, weapon *gamedata.WeaponStats) float64 {
-	if target.IsFlying() {
-		return weapon.FlyingTargetDamageMult
+	info := target.GetTargetInfo()
+	var m float64
+	if info.flying {
+		m = weapon.FlyingTargetDamageMult
+	} else {
+		m = weapon.GroundTargetDamageMult
 	}
-	return weapon.GroundTargetDamageMult
+	if info.building {
+		m *= weapon.BuildingTargetDamageMult
+	}
+	return m
 }
 
 func superCreepCostMultiplier(stats *gamedata.CreepStats) int {

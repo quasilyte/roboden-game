@@ -39,6 +39,12 @@ type targetable interface {
 	OnDamage(damage gamedata.DamageValue, source targetable)
 	IsDisposed() bool
 	IsFlying() bool
+	GetTargetInfo() targetInfo
+}
+
+type targetInfo struct {
+	flying   bool
+	building bool
 }
 
 type projectileConfig struct {

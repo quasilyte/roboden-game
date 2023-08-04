@@ -273,6 +273,7 @@ const SeasonNumber = 1
 //   - Dreadnought can now dispatch up to 7 crawlers (this limit was at 5 previously)
 //   - Reduced Ark colony drone limit (100 -> 80)
 //   - Wisps will retreat for longer distances
+//   - Added damage vs buildings modifier
 //
 // * Computer player (colony bots):
 //   - Will no longer play a solo base tactic with Ark core design

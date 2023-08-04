@@ -97,6 +97,8 @@
 ##drone.ability.consume_for_power : Получает постоянные бонусы при таком поглощении
 ##drone.ability.bomb_attack : Атакует только по приказу
 ##drone.ability.bomb_aoe : Бомбы наносят высокий урон по области
+##drone.ability.more_building_damage_f : На %d%% больше урона по зданиям
+##drone.ability.less_building_damage_f : На %d%% меньше урона по зданиям
 
 ##turret.harvester : Собиратель
 ##turret.harvester.description

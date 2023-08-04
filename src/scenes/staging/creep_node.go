@@ -446,7 +446,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		if c.scene.Rand().Chance(0.5) {
 			c.wasRetreating = true
 			c.specialTarget = nil
-			c.retreatFrom(*source.GetPos(), 150, 200)
+			c.retreatFrom(*source.GetPos(), 180, 300)
 		}
 	}
 

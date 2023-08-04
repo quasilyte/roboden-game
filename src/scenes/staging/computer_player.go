@@ -583,19 +583,15 @@ func (p *computerPlayer) maybeUseSpecial(colony *computerColony) bool {
 
 	if p.choiceSelection.special.special == specialDecreaseRadius {
 		if colony.node.resources < 80 && p.world.rand.Chance(0.6) {
-			preferredRadius := 400.0
+			preferredRadius := 0.0
 			numDrones := colony.node.NumAgents()
 			switch {
 			case numDrones < 10:
 				preferredRadius = 150
 			case numDrones < 20:
-				preferredRadius = 200
-			case numDrones < 30:
-				preferredRadius = 250
-			case numDrones < 40:
-				preferredRadius = 300
+				preferredRadius = 180
 			}
-			if colony.node.realRadius > preferredRadius {
+			if preferredRadius != 0 && colony.node.realRadius > preferredRadius {
 				return p.tryExecuteAction(colony.node, 4, gmath.Vec{})
 			}
 		}

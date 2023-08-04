@@ -166,7 +166,7 @@ func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
 			switch a.mode {
 			case agentModeMakeClone:
 				numCloning++
-			case agentModeBomberAttack, agentModeKamikazeAttack, agentModeConsumeDrone, agentModeCloakHide, agentModeCourierFlight:
+			case agentModeBomberAttack, agentModeKamikazeAttack, agentModeConsumeDrone, agentModeCloakHide, agentModeCourierFlight, agentModeCaptureBuilding:
 				numSpectacular++
 			case agentModeRepairBase, agentModeRepairTurret:
 				numRepairs++

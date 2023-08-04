@@ -227,7 +227,7 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	}
 	e.resource = e.capacity
 	if e.stats == organicSource {
-		e.resource = int(float64(e.resource) * scene.Rand().FloatRange(0.4, 0.9))
+		e.resource = int(float64(e.resource) * scene.Rand().FloatRange(0.2, 0.5))
 		e.percengage = float64(e.resource) / float64(e.capacity)
 	} else {
 		e.percengage = 1.0

@@ -183,6 +183,12 @@ func (c *creepCoordinator) findColonyToAttack(pos gmath.Vec, r float64) *colonyC
 }
 
 func (c *creepCoordinator) tryAttackingRuins() {
+	leader := gmath.RandElem(c.world.rand, c.crawlers)
+	if leader.specialModifier != crawlerIdle {
+		c.attackRuinsDelay = c.world.rand.FloatRange(8, 20)
+		return
+	}
+
 	b := randIterate(c.world.rand, c.world.neutralBuildings, func(b *neutralBuildingNode) bool {
 		return b.agent != nil
 	})
@@ -191,8 +197,13 @@ func (c *creepCoordinator) tryAttackingRuins() {
 		return
 	}
 
-	group := c.collectGroup(b.pos, 250, c.world.rand.IntRange(1, 4))
+	group := c.collectGroup(leader.pos, 250, 5)
+	if len(group) < 2 {
+		c.attackRuinsDelay = c.world.rand.FloatRange(10, 20)
+		return
+	}
 
+	c.attackRuinsDelay = c.world.rand.FloatRange(100, 200)
 	c.sendCreepsToAttack(group, b.pos)
 }
 

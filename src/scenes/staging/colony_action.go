@@ -39,4 +39,5 @@ const (
 	actionRepairTurret
 	actionBuildBuilding
 	actionGetReinforcements
+	actionCaptureBuilding
 )

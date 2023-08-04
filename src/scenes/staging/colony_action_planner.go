@@ -230,9 +230,17 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 }
 
 func (p *colonyActionPlanner) combatUnitProbability() float64 {
-	if p.numTier1WorkerAgents < 4 {
+	if p.numTier1WorkerAgents == 0 {
 		return 0
 	}
+	if p.numTier1CombatAgents > 5 {
+		resourcesPercentage := gmath.Clamp(p.colony.resources/p.colony.maxVisualResources(), 0, 1)
+		minWorkers := gmath.Clamp(int(12*(1.0-resourcesPercentage)), 2, 12)
+		if p.numTier1WorkerAgents < minWorkers {
+			return 0
+		}
+	}
+
 	if p.colony.GetSecurityPriority() > 0.1 {
 		minCombatUnits := int(math.Round((p.colony.GetSecurityPriority() - 0.1) * 20))
 		if len(p.colony.agents.fighters) < minCombatUnits {
@@ -331,6 +339,20 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 }
 
 func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
+	if p.colony.captureDelay == 0 && p.colony.GetGrowthPriority() > 0.2 && p.colony.resources > 60 {
+		p.colony.captureDelay = p.world.rand.FloatRange(10, 20)
+		b := randIterate(p.world.rand, p.world.neutralBuildings, func(b *neutralBuildingNode) bool {
+			return b.agent == nil && b.pos.DistanceSquaredTo(p.colony.pos) <= p.colony.realRadiusSqr
+		})
+		if b != nil {
+			return colonyAction{
+				Kind:     actionCaptureBuilding,
+				Value:    b,
+				TimeCost: 1.2,
+			}
+		}
+	}
+
 	canRepairColony := p.colony.agents.NumAvailableWorkers() != 0 &&
 		p.colony.health < p.colony.maxHealth &&
 		p.colony.resources > 30

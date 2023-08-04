@@ -98,6 +98,7 @@ type colonyCoreNode struct {
 	upkeepDelay   float64
 	cloningDelay  float64
 	resourceDelay float64
+	captureDelay  float64
 
 	actionDelay float64
 	priorities  *weightContainer[colonyPriority]
@@ -430,9 +431,12 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	turret.colonyCore = c
 	c.EventTurretAccepted.Emit(turret)
 
-	if turret.stats.Kind == gamedata.AgentHarvester {
+	switch turret.stats.Kind {
+	case gamedata.AgentHarvester:
 		turret.mode = agentModeHarvester
-	} else {
+	case gamedata.AgentMercFactory:
+		turret.mode = agentModeMercFactory
+	default:
 		turret.mode = agentModeGuardForever
 	}
 }
@@ -480,6 +484,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 
 	c.updateResourceRects()
 
+	c.captureDelay = gmath.ClampMin(c.captureDelay-delta, 0)
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
 	c.resourceDelay = gmath.ClampMin(c.resourceDelay-delta, 0)
 	c.heavyDamageWarningCooldown = gmath.ClampMin(c.heavyDamageWarningCooldown-delta, 0)
@@ -1174,6 +1179,20 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			}
 		})
 		return true
+
+	case actionCaptureBuilding:
+		captureCost := 20.0
+		ok := false
+		if c.resources < captureCost {
+			return false
+		}
+		c.pickWorkerUnits(1, func(a *colonyAgentNode) {
+			if a.AssignMode(agentModeCaptureBuilding, gmath.Vec{}, action.Value) {
+				c.resources -= captureCost
+				ok = true
+			}
+		})
+		return ok
 
 	case actionRecycleAgent:
 		a := action.Value.(*colonyAgentNode)

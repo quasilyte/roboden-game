@@ -372,6 +372,14 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		tab.AddChild(b)
 	}
 
+	{
+		b := c.newBoolOptionButton(&c.config.AncientRuins, "menu.lobby.ancient_ruins", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(b)
+	}
+
 	if c.config.RawGameMode != "reverse" {
 		b := c.newBoolOptionButton(&c.config.FogOfWar, "menu.lobby.fog_of_war", []string{
 			d.Get("menu.option.off"),

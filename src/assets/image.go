@@ -170,6 +170,9 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageColonyCoreHatch:    {Path: "image/colonies/colony_core_hatch.png"},
 		ImageColonyCoreDiode:    {Path: "image/colonies/colony_core_diode.png", FrameWidth: 4},
 
+		ImageMercFactoryHatch: {Path: "image/drones/merc_factory_hatch.png"},
+
+		ImageMercFactoryAgent:   {Path: "image/drones/merc_factory_agent.png"},
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
@@ -177,6 +180,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageRoombaAgent:        {Path: "image/drones/roomba_agent.png", FrameWidth: 17, FrameHeight: 14},
 		ImageWorkerAgent:        {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
 		ImageScoutAgent:         {Path: "image/drones/scout_agent.png", FrameWidth: 11, FrameHeight: 14},
+		ImageMercAgent:          {Path: "image/drones/merc_agent.png", FrameWidth: 13, FrameHeight: 12},
 		ImageFirebugAgent:       {Path: "image/drones/firebug_agent.png", FrameWidth: 19, FrameHeight: 20},
 		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 14},
 		ImageScavengerAgent:     {Path: "image/drones/scavenger_agent.png", FrameWidth: 15, FrameHeight: 12},
@@ -208,11 +212,12 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTargeterAgent:      {Path: "image/drones/targeter_agent.png", FrameWidth: 15, FrameHeight: 14},
 		ImageBomberAgent:        {Path: "image/drones/bomber_agent.png", FrameWidth: 23, FrameHeight: 18},
 
-		ImageColonyDamageMask:  {Path: "image/shaders/colony_damage_mask.png"},
-		ImageTurretDamageMask1: {Path: "image/shaders/turret_damage_mask1.png"},
-		ImageTurretDamageMask2: {Path: "image/shaders/turret_damage_mask2.png"},
-		ImageTurretDamageMask3: {Path: "image/shaders/turret_damage_mask3.png"},
-		ImageTurretDamageMask4: {Path: "image/shaders/turret_damage_mask4.png"},
+		ImageColonyDamageMask:   {Path: "image/shaders/colony_damage_mask.png"},
+		ImageBuildingDamageMask: {Path: "image/shaders/building_damage_mask.png"},
+		ImageTurretDamageMask1:  {Path: "image/shaders/turret_damage_mask1.png"},
+		ImageTurretDamageMask2:  {Path: "image/shaders/turret_damage_mask2.png"},
+		ImageTurretDamageMask3:  {Path: "image/shaders/turret_damage_mask3.png"},
+		ImageTurretDamageMask4:  {Path: "image/shaders/turret_damage_mask4.png"},
 
 		ImageEssenceSourceDissolveMask:    {Path: "image/resources/essence_source_dissolve_mask.png"},
 		ImageEssenceRedCrystalSource:      {Path: "image/resources/red_crystal.png"},
@@ -306,10 +311,11 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageIonMortarProjectile:      {Path: "image/projectile/ion_mortar_projectile.png"},
 		ImageSuperIonMortarProjectile: {Path: "image/projectile/super_ion_mortar_projectile.png"},
 
+		ImageBossLaserLine: {Path: "image/lines/boss_laser_line.png"},
+		ImageMercLine:      {Path: "image/lines/merc_line.png"},
 		ImageFlamerLine:    {Path: "image/lines/flamer_line.png"},
 		ImageTargeterLine:  {Path: "image/lines/targeter_line.png"},
 		ImageStunnerLine:   {Path: "image/lines/stunner_line.png"},
-		ImageBossLaserLine: {Path: "image/lines/boss_laser_line.png"},
 		ImageRepairLine:    {Path: "image/lines/repair_line.png"},
 		ImageRechargerLine: {Path: "image/lines/recharger_line.png"},
 		ImageDefenderLine:  {Path: "image/lines/defender_line.png"},
@@ -479,6 +485,7 @@ const (
 	ImageCreepCreatedEffect
 
 	ImageColonyDamageMask
+	ImageBuildingDamageMask
 	ImageTurretDamageMask1
 	ImageTurretDamageMask2
 	ImageTurretDamageMask3
@@ -531,12 +538,14 @@ const (
 	ImageArkCoreSelector
 	ImageArkCoreAllianceColor
 
+	ImageMercFactoryHatch
 	ImageColonyCoreHatch
 	ImageColonyCoreDiode
 	ImageArkShadow
 	ImageDenShadow
 	ImageTeleporter
 	ImageTeleporterLights
+	ImageMercFactoryAgent
 	ImageHarvesterAgent
 	ImageGunpointAgent
 	ImageBeamtowerAgent
@@ -549,6 +558,7 @@ const (
 	ImageScarabAgent
 	ImageDevourerAgent
 	ImageScoutAgent
+	ImageMercAgent
 	ImageClonerAgent
 	ImageScavengerAgent
 	ImageCourierAgent
@@ -626,6 +636,7 @@ const (
 	ImageLandCrack4
 	ImageTrees
 
+	ImageMercProjectile
 	ImageCommanderProjectile
 	ImageRoombaProjectile
 	ImageScarabProjectile
@@ -659,6 +670,7 @@ const (
 	ImageSuperIonMortarProjectile
 
 	ImageBossLaserLine
+	ImageMercLine
 	ImageFlamerLine
 	ImageTargeterLine
 	ImageStunnerLine

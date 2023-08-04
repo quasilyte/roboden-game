@@ -6,6 +6,7 @@ import (
 
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 
@@ -56,6 +57,7 @@ const (
 	agentModeScavenge
 	agentModeRepairBase
 	agentModeRepairTurret
+	agentModeCaptureBuilding
 	agentModeReturn
 	agentModePatrol
 	agentModeFollow
@@ -84,6 +86,10 @@ const (
 	agentModeConsumeDrone
 	agentModeFollowCommander
 	agentModeBomberAttack
+
+	agentModeMercFactory
+	agentModeMercPatrol
+	agentModeMercTakeoff
 )
 
 type agentTraitBits uint64
@@ -129,7 +135,7 @@ type colonyAgentNode struct {
 	payload         int
 	cloneGen        int
 	rank            int
-	extraLevel      int // Devourer level
+	extraLevel      int // Devourer level; merc factory units num
 	commanderID     int
 	faction         gamedata.FactionTag
 	cargoValue      float64
@@ -324,8 +330,12 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 			a.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 			a.sprite.Shader.SetFloatValue("HP", 1.0)
 			a.sprite.Shader.Enabled = false
-			damageTexture := gmath.RandElem(a.world().localRand, turretDamageTextureList)
-			a.sprite.Shader.Texture1 = scene.LoadImage(damageTexture)
+			if a.stats.IsNeutral {
+				a.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageBuildingDamageMask)
+			} else {
+				damageTexture := gmath.RandElem(a.world().localRand, turretDamageTextureList)
+				a.sprite.Shader.Texture1 = scene.LoadImage(damageTexture)
+			}
 		}
 	}
 
@@ -366,7 +376,28 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.world().nodeRunner.AddObject(l)
 	}
 
+	if a.stats.IsNeutral {
+		a.initNeutral()
+	}
+
 	a.SetHeight(agentFlightHeight)
+}
+
+func (a *colonyAgentNode) initNeutral() {
+	switch a.stats {
+	case gamedata.MercFactoryAgentStats:
+		hatch := a.scene.NewSprite(assets.ImageMercFactoryHatch)
+		hatch.Pos.Base = &a.pos
+		hatch.Pos.Offset.Y = -11
+		hatch.Visible = false
+		a.lifetime = 1
+		a.world().stage.AddSprite(hatch)
+		a.EventDestroyed.Connect(nil, func(*colonyAgentNode) {
+			hatch.Dispose()
+		})
+		a.target = hatch
+		a.specialDelay = a.scene.Rand().FloatRange(10, 15)
+	}
 }
 
 func (a *colonyAgentNode) SetHeight(h float64) {
@@ -615,6 +646,18 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.shadowComponent.SetVisibility(false)
 		return true
 
+	case agentModeCaptureBuilding:
+		const energyCost = 20.0
+		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+			return false
+		}
+		a.target = target
+		a.mode = mode
+		a.energyBill += energyCost
+		a.dist = a.scene.Rand().FloatRange(5, 7) // working time
+		a.setWaypoint(gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(target.(*neutralBuildingNode).pos))
+		return true
+
 	case agentModeRepairTurret:
 		energyCost := 40.0
 		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
@@ -787,6 +830,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRepairBase(delta)
 	case agentModeRepairTurret:
 		a.updateRepairTurret(delta)
+	case agentModeCaptureBuilding:
+		a.updateCaptureBuilding(delta)
 	case agentModeKamikazeAttack:
 		a.updateKamikazeAttack(delta)
 	case agentModeBomberAttack:
@@ -799,6 +844,12 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRoombaWait(delta)
 	case agentModeHarvester:
 		a.updateHarvester(delta)
+	case agentModeMercFactory:
+		a.updateMercFactory(delta)
+	case agentModeMercTakeoff:
+		a.updateMercTakeoff(delta)
+	case agentModeMercPatrol:
+		a.updateMercPatrol(delta)
 	case agentModeGuardForever:
 		// Just chill.
 	}
@@ -851,7 +902,7 @@ func (a *colonyAgentNode) doCloak(d float64) {
 func (a *colonyAgentNode) explode() {
 	if !a.stats.IsFlying {
 		createAreaExplosion(a.world(), spriteRect(a.pos, a.sprite), normalEffectLayer)
-		if a.IsTurret() || a.scene.Rand().Chance(0.3) {
+		if !a.stats.IsNeutral && a.IsTurret() || a.scene.Rand().Chance(0.3) {
 			a.world().CreateScrapsAt(scrapSource, a.pos.Add(gmath.Vec{Y: 2}))
 		}
 		return
@@ -871,10 +922,12 @@ func (a *colonyAgentNode) explode() {
 		createExplosion(a.world(), aboveEffectLayer, a.pos)
 	} else {
 		var scraps *essenceSourceStats
-		if roll > 0.6 {
-			scraps = smallScrapSource
-			if a.stats.Size != gamedata.SizeSmall {
-				scraps = scrapSource
+		if !a.stats.IsNeutral {
+			if roll > 0.6 {
+				scraps = smallScrapSource
+				if a.stats.Size != gamedata.SizeSmall {
+					scraps = scrapSource
+				}
 			}
 		}
 
@@ -1797,6 +1850,104 @@ func (a *colonyAgentNode) handleForestTransition(nextWaypoint gmath.Vec) {
 	}
 }
 
+func (a *colonyAgentNode) updateMercTakeoff(delta float64) {
+	height := a.shadowComponent.height + delta*30
+	if a.moveTowards(delta) {
+		height = agentFlightHeight
+	}
+	a.shadowComponent.UpdateHeight(a.pos, height, agentFlightHeight)
+	if height == agentFlightHeight {
+		a.mode = agentModeMercPatrol
+		a.shadowComponent.SetVisibility(true)
+	}
+}
+
+func (a *colonyAgentNode) updateMercPatrol(delta float64) {
+	factory := a.target.(*colonyAgentNode)
+	if factory.IsDisposed() {
+		a.OnDamage(gamedata.DamageValue{Health: 1000}, a)
+		return
+	}
+
+	a.energy = gmath.ClampMax(a.energy+delta*0.5*a.energyRegenRate, a.maxEnergy)
+	a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
+
+	if a.attackDelay > 1 {
+		a.waypoint = gmath.Vec{}
+		return
+	}
+
+	if a.waypoint.IsZero() {
+		// a.dist is squared.
+		if a.pos.DistanceSquaredTo(factory.waypoint) < a.dist {
+			return
+		}
+		a.setWaypoint(factory.waypoint.Add(a.scene.Rand().Offset(-40, 40)))
+	}
+	if a.moveTowards(delta) {
+		a.waypoint = gmath.Vec{}
+	}
+}
+
+func (a *colonyAgentNode) updateMercFactory(delta float64) {
+	// Hatch closing ticker.
+	if a.lifetime > 0 {
+		a.lifetime -= delta
+		if a.lifetime <= 0 {
+			hatch := a.target.(*ge.Sprite)
+			a.lifetime = 0
+			hatch.Visible = true
+		}
+	}
+	if a.health < a.maxHealth*0.5 {
+		// Keep the hatch open when heavily damaged.
+		a.lifetime = 2
+		return
+	}
+
+	// Produce new units.
+	const maxUnits = 3
+	if a.specialDelay == 0 {
+		if a.extraLevel >= maxUnits {
+			a.specialDelay = a.scene.Rand().FloatRange(6, 12)
+		} else {
+			a.specialDelay = a.scene.Rand().FloatRange(25, 35)
+			a.extraLevel++
+			spawnPos := a.pos.Sub(gmath.Vec{Y: 12})
+			unit := newColonyAgentNode(a.colonyCore, gamedata.MercAgentStats, spawnPos)
+			unit.mode = agentModeMercTakeoff
+			unit.target = a
+			unit.dist = a.scene.Rand().FloatRange(20, 80)
+			unit.dist *= unit.dist
+			world := a.world()
+			world.nodeRunner.AddObject(unit)
+			world.mercs = append(world.mercs, unit)
+			unit.setWaypoint(unit.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
+			unit.SetHeight(0)
+			unit.shadowComponent.SetVisibility(false)
+			unit.EventDestroyed.Connect(nil, func(*colonyAgentNode) {
+				a.extraLevel--
+				a.specialDelay += 10
+				world.mercs = xslices.Remove(world.mercs, unit)
+			})
+			hatch := a.target.(*ge.Sprite)
+			hatch.Visible = false
+			a.lifetime = 2
+		}
+	}
+
+	// Choose a new waypoint for troops.
+	a.supportDelay = gmath.ClampMin(a.supportDelay-(delta*a.reloadRate), 0)
+	if a.supportDelay == 0 {
+		a.supportDelay = a.scene.Rand().FloatRange(10, 20)
+		rect := gmath.Rect{
+			Min: a.pos.Sub(gmath.Vec{X: 840, Y: 840}),
+			Max: a.pos.Add(gmath.Vec{X: 840, Y: 840}),
+		}
+		a.waypoint = correctedPos(a.world().rect, randomSectorPos(a.scene.Rand(), rect), 64)
+	}
+}
+
 func (a *colonyAgentNode) updateHarvester(delta float64) {
 	var target *essenceSourceNode
 	if a.target != nil {
@@ -2156,6 +2307,38 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 			otherCreep.OnDamage(gamedata.DamageValue{Health: explosionDamage * 0.5}, a)
 		}
 		a.Destroy()
+		return
+	}
+}
+
+func (a *colonyAgentNode) updateCaptureBuilding(delta float64) {
+	if a.hasWaypoint() {
+		target := a.target.(*neutralBuildingNode)
+		if a.moveTowards(delta) {
+			a.clearWaypoint()
+			buildPos := ge.Pos{
+				Base:   &target.pos,
+				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-10, 10)},
+			}
+			beam := newCloningBeamNode(a.world(), false, &a.pos, buildPos)
+			a.cloningBeam = beam
+			a.world().nodeRunner.AddObject(beam)
+			return
+		}
+		return
+	}
+	a.dist -= delta
+	if a.dist <= 0 {
+		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		target := a.target.(*neutralBuildingNode)
+		if target.agent == nil {
+			constructed := newColonyAgentNode(a.colonyCore, target.stats, target.pos)
+			a.colonyCore.AcceptTurret(constructed)
+			a.world().nodeRunner.AddObject(constructed)
+			constructed.health = constructed.maxHealth * 0.01
+			constructed.updateHealthShader()
+			target.AssignAgent(constructed)
+		}
 		return
 	}
 }

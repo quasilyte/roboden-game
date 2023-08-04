@@ -8,6 +8,7 @@ import (
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type tooltipManager struct {
@@ -146,6 +147,22 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 
 func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 	d := m.scene.Dict()
+
+	for _, b := range m.world.neutralBuildings {
+		if b.pos.DistanceSquaredTo(pos) > (26 * 26) {
+			continue
+		}
+		status := "needs_repair"
+		if b.agent != nil {
+			status = "functioning"
+		}
+		var tag string
+		switch b.stats {
+		case gamedata.MercFactoryAgentStats:
+			tag = "merc_factory"
+		}
+		return d.Get("game.hint.building", tag) + "\n" + d.Get("game.hint.building_status", status)
+	}
 
 	for _, tp := range m.world.teleporters {
 		if tp.pos.DistanceSquaredTo(pos) > (26 * 26) {

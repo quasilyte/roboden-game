@@ -71,6 +71,12 @@ const (
 	AgentBeamTower
 	AgentHarvester
 
+	// Neutral buildings
+	AgentMercFactory
+
+	// Other units
+	AgentMerc
+
 	agentLast
 )
 
@@ -236,6 +242,7 @@ type AgentStats struct {
 	HasSupport bool
 	IsFlying   bool
 	IsTurret   bool
+	IsNeutral  bool
 	MaxPayload int
 
 	SelfRepair float64
@@ -266,6 +273,41 @@ type DroneDocs struct {
 	DefenseRating     int
 	UpkeepRating      int
 }
+
+var MercFactoryAgentStats = InitDroneStats(&AgentStats{
+	Kind:      AgentMercFactory,
+	IsFlying:  false,
+	IsTurret:  true,
+	IsNeutral: true,
+	Image:     assets.ImageMercFactoryAgent,
+	Size:      SizeLarge,
+	Upkeep:    0,
+	MaxHealth: 150,
+})
+
+var MercAgentStats = InitDroneStats(&AgentStats{
+	Kind:        AgentMerc,
+	IsFlying:    true,
+	IsNeutral:   true,
+	Image:       assets.ImageMercAgent,
+	Size:        SizeMedium,
+	DiodeOffset: 1,
+	Tier:        2,
+	Speed:       65,
+	MaxHealth:   25,
+	SelfRepair:  0.25,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRangeMarkMultiplier: 1.3,
+		AttackRange:               220,
+		Reload:                    2.5,
+		AttackSound:               assets.AudioMercShot,
+		Damage:                    DamageValue{Health: 6},
+		MaxTargets:                1,
+		TargetFlags:               TargetFlying | TargetGround,
+	}),
+	BeamOpaqueTime: 0.15,
+	BeamSlideSpeed: 5.0,
+})
 
 var TurretStatsList = []*AgentStats{
 	GunpointAgentStats,

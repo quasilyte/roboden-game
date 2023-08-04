@@ -21,6 +21,7 @@ var classicSeedMap = map[int64]SeedKind{
 	// Effects:
 	// * +8 ion mortars on the map
 	// * Every air base has a crawlers factory nearby
+	// * Dreadnought always spawns stealth crawlers
 	// * x2 red crystals on the map
 	1337: SeedLeet,
 }

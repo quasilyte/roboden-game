@@ -63,6 +63,7 @@ func (g *levelGenerator) Generate() {
 	}
 	g.placeForests()
 	g.placeTeleporters()
+	g.placeAncientRuins()
 	g.placePlayers()
 	g.placeWalls()
 	g.placeCreepBases()
@@ -190,6 +191,27 @@ func (g *levelGenerator) placeTeleporters() {
 		g.world.nodeRunner.AddObject(tp1)
 		g.world.teleporters = append(g.world.teleporters, tp2)
 		g.world.nodeRunner.AddObject(tp2)
+	}
+}
+
+func (g *levelGenerator) placeAncientRuins() {
+	if !g.world.config.AncientRuins {
+		return
+	}
+
+	g.sectorSlider.TrySetValue(g.world.rand.IntRange(0, len(g.sectors)-1))
+	for attempt := 0; attempt < 10; attempt++ {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Dec()
+		pos := g.randomFreePos(sector, 48, 168)
+		if pos.IsZero() {
+			continue
+		}
+		pos = g.world.pathgrid.AlignPos(pos)
+		b := newNeutralBuildingNode(g.world, gamedata.MercFactoryAgentStats, pos)
+		b.Init(g.scene)
+		g.world.neutralBuildings = append(g.world.neutralBuildings, b)
+		break
 	}
 }
 

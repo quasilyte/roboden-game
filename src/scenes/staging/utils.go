@@ -207,6 +207,11 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 		}
 	}
 
+	for _, b := range world.neutralBuildings {
+		if b.pos.DistanceTo(pos) < (radius + 40) {
+			return false
+		}
+	}
 	for _, source := range world.essenceSources {
 		if source.pos.DistanceTo(pos) < (radius + source.stats.size) {
 			return false

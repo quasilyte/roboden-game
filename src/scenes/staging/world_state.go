@@ -32,14 +32,16 @@ type worldState struct {
 
 	visionCircle *ebiten.Image
 
-	players        []player
-	allColonies    []*colonyCoreNode
-	essenceSources []*essenceSourceNode
-	creeps         []*creepNode
-	constructions  []*constructionNode
-	walls          []*wallClusterNode
-	forests        []*forestClusterNode
-	teleporters    []*teleporterNode
+	players          []player
+	allColonies      []*colonyCoreNode
+	essenceSources   []*essenceSourceNode
+	creeps           []*creepNode
+	mercs            []*colonyAgentNode
+	constructions    []*constructionNode
+	walls            []*wallClusterNode
+	forests          []*forestClusterNode
+	teleporters      []*teleporterNode
+	neutralBuildings []*neutralBuildingNode
 
 	boss              *creepNode
 	wispLair          *creepNode
@@ -575,11 +577,27 @@ func (w *worldState) FindTargetableAgents(pos gmath.Vec, skipGround bool, r floa
 	// Also, this "find" function is used to collect N units, not a single unit (see its usage).
 
 	found := false
+	radiusSqr := r * r
+
+	// Neutral units have the highest priority.
+	if len(w.mercs) != 0 {
+		randIterate(w.rand, w.mercs, func(a *colonyAgentNode) bool {
+			if a.pos.DistanceSquaredTo(pos) > radiusSqr {
+				return false
+			}
+			if f(a) {
+				found = true
+				return true
+			}
+			return false
+		})
+		if found {
+			return
+		}
+	}
 
 	if !skipGround {
-		radiusSqr := r * r
-
-		// Turrets have the highest targeting priority.
+		// Turrets have the second highest targeting priority.
 		randIterate(w.rand, w.allColonies, func(c *colonyCoreNode) bool {
 			if len(c.turrets) == 0 {
 				return false

@@ -20,10 +20,11 @@ type creepCoordinator struct {
 	crawlers   []*creepNode
 	groupSlice []*creepNode
 
-	scoutingDelay float64
-	attackDelay   float64
-	scatterDelay  float64
-	relocateDelay float64
+	scoutingDelay    float64
+	attackDelay      float64
+	attackRuinsDelay float64
+	scatterDelay     float64
+	relocateDelay    float64
 }
 
 func newCreepCoordinator(world *worldState) *creepCoordinator {
@@ -48,9 +49,17 @@ func (c *creepCoordinator) Update(delta float64) {
 	c.scatterDelay = gmath.ClampMin(c.scatterDelay-delta, 0)
 	c.relocateDelay = gmath.ClampMin(c.relocateDelay-delta, 0)
 
+	if len(c.world.neutralBuildings) != 0 {
+		c.attackRuinsDelay = gmath.ClampMin(c.attackRuinsDelay-delta, 0)
+		if c.attackRuinsDelay == 0 {
+			c.tryAttackingRuins()
+		}
+	}
+
 	if c.attackDelay == 0 {
 		c.tryLaunchingAttack()
 	}
+
 	if c.scoutingDelay == 0 {
 		c.sendScout()
 	}
@@ -157,7 +166,7 @@ func (c *creepCoordinator) Rally(pos gmath.Vec) {
 		}
 	}
 	if closestTarget != nil {
-		c.sendCreepsToAttack(group, closestTarget)
+		c.sendCreepsToAttack(group, closestTarget.pos)
 		return
 	}
 	c.scatterCreeps(group)
@@ -171,6 +180,20 @@ func (c *creepCoordinator) findColonyToAttack(pos gmath.Vec, r float64) *colonyC
 	return randIterate(c.world.rand, c.world.allColonies, func(c *colonyCoreNode) bool {
 		return c.pos.DistanceSquaredTo(pos) <= rSqr
 	})
+}
+
+func (c *creepCoordinator) tryAttackingRuins() {
+	b := randIterate(c.world.rand, c.world.neutralBuildings, func(b *neutralBuildingNode) bool {
+		return b.agent != nil
+	})
+	if b == nil {
+		c.attackRuinsDelay = c.world.rand.FloatRange(20, 50)
+		return
+	}
+
+	group := c.collectGroup(b.pos, 250, c.world.rand.IntRange(1, 4))
+
+	c.sendCreepsToAttack(group, b.pos)
 }
 
 func (c *creepCoordinator) tryLaunchingAttack() {
@@ -206,7 +229,7 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 		c.attackDelay = c.world.rand.FloatRange(30.0, 70.0)
 	}
 
-	c.sendCreepsToAttack(group, target)
+	c.sendCreepsToAttack(group, target.pos)
 }
 
 func (c *creepCoordinator) scatterCreeps(group []*creepNode) {
@@ -217,16 +240,16 @@ func (c *creepCoordinator) scatterCreeps(group []*creepNode) {
 	}
 }
 
-func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, target *colonyCoreNode) {
+func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, targetPos gmath.Vec) {
 	for _, creep := range group {
 		dist := c.world.rand.FloatRange(creep.stats.Weapon.AttackRange*0.5, creep.stats.Weapon.AttackRange*0.8)
 		dir := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist)
-		targetPos := dir.Add(target.pos)
-		if c.world.HasTreesAt(targetPos, 0) {
+		waypoint := dir.Add(targetPos)
+		if c.world.HasTreesAt(waypoint, 0) {
 			// Try to find a better spot.
-			targetPos = dir.Mulf(-1).Add(target.pos)
+			waypoint = dir.Mulf(-1).Add(targetPos)
 		}
-		creep.SendTo(targetPos)
+		creep.SendTo(waypoint)
 	}
 }
 

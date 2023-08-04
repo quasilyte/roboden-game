@@ -278,6 +278,8 @@ const SeasonNumber = 1
 // * Computer player (colony bots):
 //   - Will no longer play a solo base tactic with Ark core design
 //   - Better max radius selection strategy
+//   - Better evolution-related choice selection
+//   - Uses Attack action more often with Firebug & Bomber drones
 //
 // * Misc:
 //   - Trim trailing whitespace in the username

@@ -36,6 +36,9 @@ type computerPlayer struct {
 
 	colonyPower           int
 	calculatedColonyPower bool
+
+	hasFirebugs bool
+	hasBombers  bool
 }
 
 type computerColony struct {
@@ -95,6 +98,15 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 
 	if p.world.debugLogs {
 		p.world.sessionState.Logf("max colonies: %d", p.maxColonies)
+	}
+
+	for _, recipe := range p.world.tier2recipes {
+		switch recipe.Result.Kind {
+		case gamedata.AgentFirebug:
+			p.hasFirebugs = true
+		case gamedata.AgentBomber:
+			p.hasBombers = true
+		}
 	}
 
 	p.world.EventColonyCreated.Connect(p, func(colony *colonyCoreNode) {
@@ -312,7 +324,7 @@ func (p *computerPlayer) maybeDoAttackAction(colony *computerColony) bool {
 
 	colonyPower := p.selectedColonyPower()
 	bossDanger, _ := calcPosDanger(p.world, p.state, p.world.boss.pos, 200)
-	bossDanger = int(float64(bossDanger) * p.world.rand.FloatRange(0.9, 1.5))
+	bossDanger = int(float64(bossDanger) * p.world.rand.FloatRange(0.95, 1.5))
 	if colonyPower < bossDanger {
 		return false
 	}
@@ -322,7 +334,7 @@ func (p *computerPlayer) maybeDoAttackAction(colony *computerColony) bool {
 		if otherColony.node == colony.node {
 			continue
 		}
-		if otherColony.node.pos.DistanceSquaredTo(p.world.boss.pos) > 1.5*otherColony.node.MaxFlyDistanceSqr() {
+		if otherColony.node.pos.DistanceSquaredTo(p.world.boss.pos) > 1.55*otherColony.node.MaxFlyDistanceSqr() {
 			continue
 		}
 		colonyPower := p.calcColonyPower(otherColony.node)
@@ -607,6 +619,25 @@ func (p *computerPlayer) maybeUseSpecial(colony *computerColony) bool {
 				}
 			}
 		}
+
+		if p.hasFirebugs || p.hasBombers {
+			numUnits := 0
+			for _, a := range colony.node.agents.fighters {
+				switch a.stats.Kind {
+				case gamedata.AgentFirebug, gamedata.AgentBomber:
+					numUnits++
+				}
+			}
+			if numUnits > 2 {
+				// 3 => 0.1
+				// 10 => 0.8
+				// 12 => 1.0
+				chance := float64(numUnits-2) * 0.1
+				if chance >= 1 || p.world.rand.Chance(chance) {
+					return p.tryExecuteAction(colony.node, 4, gmath.Vec{})
+				}
+			}
+		}
 	}
 
 	return false
@@ -665,7 +696,8 @@ func (p *computerPlayer) maybeChangePriorities(colony *computerColony) bool {
 	}
 
 	if colony.node.evoPoints < blueEvoThreshold && colony.moveDelay >= 10 && c.NumAgents() >= 20 && len(p.evolutionCards) != 0 {
-		needMoreEvolution := (c.agents.tier2Num >= 4 && c.agents.tier3Num < 15)
+		needMoreEvolution := (c.agents.tier2Num >= 4 && c.agents.tier3Num < 15) ||
+			(c.agents.tier2Num < 5 && c.GetEvolutionPriority() < 0.05)
 		if needMoreEvolution {
 			increaseElolutionChance := gmath.Clamp(0.1+(1.0-(p.world.rand.FloatRange(0.7, 1.0)*c.GetGrowthPriority())), 0, 1)
 			if p.world.rand.Chance(increaseElolutionChance) {

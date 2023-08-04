@@ -164,7 +164,7 @@ func creepFragScore(stats *gamedata.CreepStats) int {
 		return 85
 
 	case gamedata.UberBossCreepStats:
-		return 220
+		return 230
 
 	default:
 		return 0

@@ -27,6 +27,7 @@ type computerPlayer struct {
 	evolutionCards []int
 	securityCards  []int
 
+	captureDelay     float64
 	actionDelay      float64
 	buildColonyDelay float64
 	buildTurretDelay float64
@@ -170,6 +171,7 @@ func (p *computerPlayer) Update(computedDelta, delta float64) {
 
 	p.state.selectedColony = p.state.colonies[0]
 
+	p.captureDelay = gmath.ClampMin(p.captureDelay-delta, 0)
 	p.actionDelay = gmath.ClampMin(p.actionDelay-computedDelta, 0)
 	p.buildColonyDelay = gmath.ClampMin(p.buildColonyDelay-computedDelta, 0)
 	p.buildTurretDelay = gmath.ClampMin(p.buildTurretDelay-computedDelta, 0)
@@ -743,7 +745,23 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) bool {
 		}
 	}
 
-	// Reason to move 3: close to the map boundary.
+	// Reason to move 3: can capture something.
+	if len(p.world.neutralBuildings) != 0 && p.captureDelay == 0 && colony.node.resources > 80 && p.world.rand.Chance(0.4) {
+		b := randIterate(p.world.rand, p.world.neutralBuildings, func(b *neutralBuildingNode) bool {
+			return b.agent == nil && b.pos.DistanceSquaredTo(colony.node.pos) < colony.node.MaxFlyDistanceSqr()+96
+		})
+		if b != nil {
+			danger, _ := calcPosDanger(p.world, p.state, colony.node.pos, colony.node.realRadius+100)
+			if danger < 2*p.selectedColonyPower() {
+				p.captureDelay = p.world.rand.FloatRange(50, 100)
+				return p.tryExecuteAction(colony.node, -1, b.pos.Add(p.world.rand.Offset(-128, 128)))
+			} else {
+				p.captureDelay = p.world.rand.FloatRange(15, 30)
+			}
+		}
+	}
+
+	// Reason to move 4: close to the map boundary.
 	// This is just inconvenient for the player.
 	if !p.world.innerRect.Contains(colony.node.pos) && p.world.rand.Chance(0.9) {
 		pos := randomSectorPos(p.world.rand, p.world.innerRect)

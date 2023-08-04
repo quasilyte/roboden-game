@@ -306,6 +306,7 @@ var MercAgentStats = InitDroneStats(&AgentStats{
 		Damage:                    DamageValue{Health: 6},
 		MaxTargets:                1,
 		TargetFlags:               TargetFlying | TargetGround,
+		BuildingDamageBonus:       -0.25,
 	}),
 	BeamOpaqueTime: 0.15,
 	BeamSlideSpeed: 5.0,

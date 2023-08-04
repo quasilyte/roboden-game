@@ -1213,7 +1213,7 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 func (c *creepNode) updateFortress(delta float64) {
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 
-	const maxUnits = 20.0
+	const maxUnits = 15.0
 	if c.specialModifier > maxUnits {
 		return
 	}

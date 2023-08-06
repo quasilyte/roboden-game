@@ -320,6 +320,8 @@ type choiceGenerator struct {
 	spawnCrawlers        bool
 	specialChoiceKinds   []specialChoiceKind
 
+	forcedSpecialChoice specialChoiceKind
+
 	creepsState *creepsPlayerState
 
 	EventChoiceReady    gsignal.Event[choiceSelection]
@@ -418,6 +420,7 @@ func (g *choiceGenerator) activateChoice(i int) bool {
 	cooldown := 10.0
 	if i == 4 {
 		// A special action is selected.
+		g.forcedSpecialChoice = specialChoiceNone
 		choice.Option = specialChoicesTable[g.specialOptionIndex]
 		cooldown = choice.Option.cost
 		if choice.Option.special == specialIncreaseTech {
@@ -492,12 +495,10 @@ func (g *choiceGenerator) GetChoices() choiceSelection {
 }
 
 func (g *choiceGenerator) ForceSpecialChoice(kind specialChoiceKind) {
-	if g.state != choiceReady {
-		g.state = choiceReady
-		g.prepareChoiceOptions()
+	g.forcedSpecialChoice = kind
+	if g.state == choiceReady {
+		g.generateChoices()
 	}
-	g.specialOptionIndex = int(kind)
-	g.EventChoiceReady.Emit(g.GetChoices())
 }
 
 func (g *choiceGenerator) prepareChoiceOptions() {
@@ -517,6 +518,10 @@ func (g *choiceGenerator) prepareChoiceOptions() {
 	g.beforeSpecialShuffle--
 	specialIndex := g.beforeSpecialShuffle
 
+	if g.forcedSpecialChoice != specialChoiceNone {
+		g.specialOptionIndex = int(g.forcedSpecialChoice)
+		return
+	}
 	specialOptionKind := g.specialChoiceKinds[specialIndex]
 	switch specialOptionKind {
 	case specialRally:

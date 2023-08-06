@@ -725,9 +725,9 @@ func (c *LobbyMenuController) updateDifficultyScore(score int) {
 		tag = d.Get("menu.option.normal")
 	case score < 160:
 		tag = d.Get("menu.option.hard")
-	case score < 200:
+	case score < 220:
 		tag = d.Get("menu.option.very_hard")
-	case score < 300:
+	case score < 350:
 		tag = d.Get("menu.option.impossible")
 	default:
 		tag = d.Get("menu.difficulty_score_despair")

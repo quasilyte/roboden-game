@@ -60,7 +60,16 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 		score -= (config.Resources - 2) * 15
 		score += (config.NumCreepBases - 2) * 15
-		score += (config.BossDifficulty - 1) * 15
+		score += (config.BossDifficulty - 1) * 20
+		if config.BossDifficulty == 0 {
+			// Extra penalty for the weakest boss.
+			score -= 15
+		} else {
+			// Extra 15 for the boss not being the weakest & super.
+			if config.SuperCreeps {
+				score += 15
+			}
+		}
 		score += (config.CreepSpawnRate - 1) * 10
 		score += (config.InitialCreeps - 1) * 10
 		score -= config.StartingResources * 4

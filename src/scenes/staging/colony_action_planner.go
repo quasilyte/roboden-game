@@ -718,6 +718,29 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 		// evolution=75% => ~44%
 		evoPointsChance := gmath.Clamp((p.colony.GetEvolutionPriority()*0.65)-0.05, 0, 0.5)
 		if p.world.rand.Chance(evoPointsChance) {
+			if p.colony.resources < p.colony.maxVisualResources() && p.colony.evoPoints > blueEvoThreshold && len(p.world.neutralBuildings) != 0 {
+				var powerPlant *neutralBuildingNode
+				for _, b := range p.world.neutralBuildings {
+					if b.agent == nil || b.stats != gamedata.PowerPlantAgentStats {
+						continue
+					}
+					if b.agent.health < b.agent.maxHealth*0.3 || b.agent.specialDelay != 0 {
+						continue
+					}
+					if b.pos.DistanceSquaredTo(p.colony.pos) < (256 * 256) {
+						powerPlant = b
+						break
+					}
+				}
+				if powerPlant != nil {
+					return colonyAction{
+						Kind:     actionConvertEvo,
+						TimeCost: 1.0,
+						Value:    powerPlant,
+					}
+				}
+			}
+
 			return colonyAction{
 				Kind:     actionGenerateEvo,
 				TimeCost: 1.0,

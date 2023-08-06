@@ -25,6 +25,7 @@ const (
 	actionNone colonyActionKind = iota
 	actionRecycleAgent
 	actionGenerateEvo
+	actionConvertEvo
 	actionMineEssence
 	actionSendCourier
 	actionCloneAgent

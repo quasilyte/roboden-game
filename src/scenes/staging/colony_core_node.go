@@ -1033,8 +1033,25 @@ func (c *colonyCoreNode) markCells(pos gmath.Vec) {
 	c.world.MarkPos2x2(pos)
 }
 
+func (c *colonyCoreNode) createEvoBeam(to ge.Pos) {
+	if c.world.simulation {
+		return
+	}
+	from := c.evoDiode.Pos
+	beam := newBeamNode(c.world, from, to, evoBeamColor)
+	beam.width = 2
+	c.world.nodeRunner.AddObject(beam)
+}
+
 func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	switch action.Kind {
+	case actionConvertEvo:
+		target := action.Value.(*neutralBuildingNode)
+		c.createEvoBeam(ge.Pos{Base: &target.pos, Offset: gmath.Vec{Y: 13}})
+		c.resources += 4
+		target.agent.specialDelay = 1.2
+		return true
+
 	case actionGenerateEvo:
 		evoGain := 0.0
 		var connectedWorker *colonyAgentNode
@@ -1064,14 +1081,10 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			return false
 		})
 		if connectedWorker != nil {
-			beam := newBeamNode(c.world, c.evoDiode.Pos, ge.Pos{Base: &connectedWorker.pos}, evoBeamColor)
-			beam.width = 2
-			c.world.nodeRunner.AddObject(beam)
+			c.createEvoBeam(ge.Pos{Base: &connectedWorker.pos})
 		}
 		if connectedFighter != nil {
-			beam := newBeamNode(c.world, c.evoDiode.Pos, ge.Pos{Base: &connectedFighter.pos}, evoBeamColor)
-			beam.width = 2
-			c.world.nodeRunner.AddObject(beam)
+			c.createEvoBeam(ge.Pos{Base: &connectedFighter.pos})
 		}
 		// Initial colony radius is 128, minimal radius is 96.
 		// Every increase radius action adds ~30 to the radius.

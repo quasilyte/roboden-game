@@ -430,6 +430,7 @@ Win by destroying all colonies.
 
 Split-screen multiplayer: competitive (PvP).
 
+##game.hint.building.power_plant : Power plant
 ##game.hint.building.merc_factory : Drone factory
 ##game.hint.building_status.needs_repair : Needs repair
 ##game.hint.building_status.functioning : Functioning

@@ -73,6 +73,7 @@ const (
 
 	// Neutral buildings
 	AgentMercFactory
+	AgentPowerPlant
 
 	// Other units
 	AgentMerc
@@ -275,6 +276,18 @@ type DroneDocs struct {
 	UpkeepRating      int
 }
 
+var PowerPlantAgentStats = InitDroneStats(&AgentStats{
+	Kind:       AgentPowerPlant,
+	IsFlying:   false,
+	IsTurret:   true,
+	IsBuilding: true,
+	IsNeutral:  true,
+	Image:      assets.ImagePowerPlantAgent,
+	Size:       SizeLarge,
+	Upkeep:     0,
+	MaxHealth:  140,
+})
+
 var MercFactoryAgentStats = InitDroneStats(&AgentStats{
 	Kind:       AgentMercFactory,
 	IsFlying:   false,
@@ -284,7 +297,7 @@ var MercFactoryAgentStats = InitDroneStats(&AgentStats{
 	Image:      assets.ImageMercFactoryAgent,
 	Size:       SizeLarge,
 	Upkeep:     0,
-	MaxHealth:  150,
+	MaxHealth:  170,
 })
 
 var MercAgentStats = InitDroneStats(&AgentStats{

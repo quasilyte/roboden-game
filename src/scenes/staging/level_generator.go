@@ -213,6 +213,21 @@ func (g *levelGenerator) placeAncientRuins() {
 		g.world.neutralBuildings = append(g.world.neutralBuildings, b)
 		break
 	}
+
+	g.sectorSlider.TrySetValue(g.world.rand.IntRange(0, len(g.sectors)-1))
+	for attempt := 0; attempt < 10; attempt++ {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Dec()
+		pos := g.randomFreePos(sector, 48, 168)
+		if pos.IsZero() {
+			continue
+		}
+		pos = g.world.pathgrid.AlignPos(pos)
+		b := newNeutralBuildingNode(g.world, gamedata.PowerPlantAgentStats, pos)
+		b.Init(g.scene)
+		g.world.neutralBuildings = append(g.world.neutralBuildings, b)
+		break
+	}
 }
 
 func (g *levelGenerator) placePlayers() {
@@ -329,7 +344,7 @@ func (g *levelGenerator) adjustResourcePos(pos gmath.Vec) gmath.Vec {
 func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, kind *essenceSourceStats) int {
 	rand := &g.rng
 	placed := 0
-	pos := correctedPos(sector, g.randomPos(sector), 196)
+	pos := correctedPos(sector, g.randomPos(sector), 96)
 	initialPos := pos
 	for i := 0; i < maxSize; i++ {
 		pos = g.adjustResourcePos(pos)

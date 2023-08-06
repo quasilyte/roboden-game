@@ -173,6 +173,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageMercFactoryHatch: {Path: "image/drones/merc_factory_hatch.png"},
 
 		ImageMercFactoryAgent:   {Path: "image/drones/merc_factory_agent.png"},
+		ImagePowerPlantAgent:    {Path: "image/drones/power_plant_agent.png"},
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
@@ -546,6 +547,7 @@ const (
 	ImageTeleporter
 	ImageTeleporterLights
 	ImageMercFactoryAgent
+	ImagePowerPlantAgent
 	ImageHarvesterAgent
 	ImageGunpointAgent
 	ImageBeamtowerAgent

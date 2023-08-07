@@ -438,8 +438,8 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	switch turret.stats.Kind {
 	case gamedata.AgentHarvester:
 		turret.mode = agentModeHarvester
-	case gamedata.AgentMercFactory:
-		turret.mode = agentModeMercFactory
+	case gamedata.AgentDroneFactory:
+		turret.mode = agentModeRelictDroneFactory
 	default:
 		turret.mode = agentModeGuardForever
 	}

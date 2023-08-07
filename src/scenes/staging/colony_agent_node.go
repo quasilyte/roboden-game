@@ -87,9 +87,9 @@ const (
 	agentModeFollowCommander
 	agentModeBomberAttack
 
-	agentModeMercFactory
-	agentModeMercPatrol
-	agentModeMercTakeoff
+	agentModeRelictDroneFactory
+	agentModeRelictPatrol
+	agentModeRelictTakeoff
 )
 
 type agentTraitBits uint64
@@ -135,7 +135,7 @@ type colonyAgentNode struct {
 	payload         int
 	cloneGen        int
 	rank            int
-	extraLevel      int // Devourer level; merc factory units num
+	extraLevel      int // Devourer level; drone factory units num
 	commanderID     int
 	faction         gamedata.FactionTag
 	cargoValue      float64
@@ -385,8 +385,8 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 
 func (a *colonyAgentNode) initNeutral() {
 	switch a.stats {
-	case gamedata.MercFactoryAgentStats:
-		hatch := a.scene.NewSprite(assets.ImageMercFactoryHatch)
+	case gamedata.DroneFactoryAgentStats:
+		hatch := a.scene.NewSprite(assets.ImageRelictFactoryHatch)
 		hatch.Pos.Base = &a.pos
 		hatch.Pos.Offset.Y = -11
 		hatch.Visible = false
@@ -844,12 +844,12 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRoombaWait(delta)
 	case agentModeHarvester:
 		a.updateHarvester(delta)
-	case agentModeMercFactory:
-		a.updateMercFactory(delta)
-	case agentModeMercTakeoff:
-		a.updateMercTakeoff(delta)
-	case agentModeMercPatrol:
-		a.updateMercPatrol(delta)
+	case agentModeRelictDroneFactory:
+		a.updateRelictDroneFactory(delta)
+	case agentModeRelictTakeoff:
+		a.updateRelictTakeoff(delta)
+	case agentModeRelictPatrol:
+		a.updateRelictPatrol(delta)
 	case agentModeGuardForever:
 		// Just chill.
 	}
@@ -1855,19 +1855,19 @@ func (a *colonyAgentNode) handleForestTransition(nextWaypoint gmath.Vec) {
 	}
 }
 
-func (a *colonyAgentNode) updateMercTakeoff(delta float64) {
+func (a *colonyAgentNode) updateRelictTakeoff(delta float64) {
 	height := a.shadowComponent.height + delta*30
 	if a.moveTowards(delta) {
 		height = agentFlightHeight
 	}
 	a.shadowComponent.UpdateHeight(a.pos, height, agentFlightHeight)
 	if height == agentFlightHeight {
-		a.mode = agentModeMercPatrol
+		a.mode = agentModeRelictPatrol
 		a.shadowComponent.SetVisibility(true)
 	}
 }
 
-func (a *colonyAgentNode) updateMercPatrol(delta float64) {
+func (a *colonyAgentNode) updateRelictPatrol(delta float64) {
 	factory := a.target.(*colonyAgentNode)
 	if factory.IsDisposed() {
 		a.OnDamage(gamedata.DamageValue{Health: 1000}, a)
@@ -1894,7 +1894,7 @@ func (a *colonyAgentNode) updateMercPatrol(delta float64) {
 	}
 }
 
-func (a *colonyAgentNode) updateMercFactory(delta float64) {
+func (a *colonyAgentNode) updateRelictDroneFactory(delta float64) {
 	// Hatch closing ticker.
 	if a.lifetime > 0 {
 		a.lifetime -= delta
@@ -1920,8 +1920,8 @@ func (a *colonyAgentNode) updateMercFactory(delta float64) {
 			a.specialDelay = a.scene.Rand().FloatRange(20, 30)
 			a.extraLevel++
 			spawnPos := a.pos.Sub(gmath.Vec{Y: 12})
-			unit := newColonyAgentNode(a.colonyCore, gamedata.MercAgentStats, spawnPos)
-			unit.mode = agentModeMercTakeoff
+			unit := newColonyAgentNode(a.colonyCore, gamedata.RelictAgentStats, spawnPos)
+			unit.mode = agentModeRelictTakeoff
 			unit.target = a
 			unit.dist = a.scene.Rand().FloatRange(20, 80)
 			unit.dist *= unit.dist

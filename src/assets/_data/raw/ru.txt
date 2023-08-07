@@ -438,7 +438,7 @@ x1.5 означает, что игра будет работать на 50% бы
 
 ##game.hint.building.tower : Башня подавления
 ##game.hint.building.power_plant : Электростанция
-##game.hint.building.merc_factory : Фабрика дронов
+##game.hint.building.drone_factory : Фабрика дронов
 ##game.hint.building_status.needs_repair : Требует ремонта
 ##game.hint.building_status.functioning : Функционирует
 ##game.hint.screen_button.toggle : Переключить вид

@@ -170,11 +170,12 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageColonyCoreHatch:    {Path: "image/colonies/colony_core_hatch.png"},
 		ImageColonyCoreDiode:    {Path: "image/colonies/colony_core_diode.png", FrameWidth: 4},
 
-		ImageMercFactoryHatch: {Path: "image/drones/merc_factory_hatch.png"},
+		ImageRelictFactoryHatch: {Path: "image/relicts/drone_factory_hatch.png"},
+		ImageRelictFactoryAgent: {Path: "image/relicts/drone_factory_agent.png"},
+		ImagePowerPlantAgent:    {Path: "image/relicts/power_plant_agent.png"},
+		ImageTowerArtifact:      {Path: "image/relicts/tower_artifact.png"},
+		ImageRelictAgent:        {Path: "image/relicts/relict_agent.png", FrameWidth: 13, FrameHeight: 12},
 
-		ImageMercFactoryAgent:   {Path: "image/drones/merc_factory_agent.png"},
-		ImagePowerPlantAgent:    {Path: "image/drones/power_plant_agent.png"},
-		ImageTowerArtifact:      {Path: "image/drones/tower_artifact.png"},
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
@@ -182,7 +183,6 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageRoombaAgent:        {Path: "image/drones/roomba_agent.png", FrameWidth: 17, FrameHeight: 14},
 		ImageWorkerAgent:        {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
 		ImageScoutAgent:         {Path: "image/drones/scout_agent.png", FrameWidth: 11, FrameHeight: 14},
-		ImageMercAgent:          {Path: "image/drones/merc_agent.png", FrameWidth: 13, FrameHeight: 12},
 		ImageFirebugAgent:       {Path: "image/drones/firebug_agent.png", FrameWidth: 19, FrameHeight: 20},
 		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 14},
 		ImageScavengerAgent:     {Path: "image/drones/scavenger_agent.png", FrameWidth: 15, FrameHeight: 12},
@@ -314,19 +314,19 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageIonMortarProjectile:      {Path: "image/projectile/ion_mortar_projectile.png"},
 		ImageSuperIonMortarProjectile: {Path: "image/projectile/super_ion_mortar_projectile.png"},
 
-		ImageBossLaserLine: {Path: "image/lines/boss_laser_line.png"},
-		ImageTempestLine:   {Path: "image/lines/tempest_line.png"},
-		ImageMercLine:      {Path: "image/lines/merc_line.png"},
-		ImageFlamerLine:    {Path: "image/lines/flamer_line.png"},
-		ImageTargeterLine:  {Path: "image/lines/targeter_line.png"},
-		ImageStunnerLine:   {Path: "image/lines/stunner_line.png"},
-		ImageRepairLine:    {Path: "image/lines/repair_line.png"},
-		ImageRechargerLine: {Path: "image/lines/recharger_line.png"},
-		ImageDefenderLine:  {Path: "image/lines/defender_line.png"},
-		ImageBeamtowerLine: {Path: "image/lines/beamtower_line.png"},
-		ImageTetherLine:    {Path: "image/lines/tether_line.png"},
-		ImageCourierLine:   {Path: "image/lines/courier_line.png"},
-		ImageTemplarLine:   {Path: "image/lines/templar_line.png"},
+		ImageBossLaserLine:   {Path: "image/lines/boss_laser_line.png"},
+		ImageTempestLine:     {Path: "image/lines/tempest_line.png"},
+		ImageRelictAgentLine: {Path: "image/lines/relict_agent_line.png"},
+		ImageFlamerLine:      {Path: "image/lines/flamer_line.png"},
+		ImageTargeterLine:    {Path: "image/lines/targeter_line.png"},
+		ImageStunnerLine:     {Path: "image/lines/stunner_line.png"},
+		ImageRepairLine:      {Path: "image/lines/repair_line.png"},
+		ImageRechargerLine:   {Path: "image/lines/recharger_line.png"},
+		ImageDefenderLine:    {Path: "image/lines/defender_line.png"},
+		ImageBeamtowerLine:   {Path: "image/lines/beamtower_line.png"},
+		ImageTetherLine:      {Path: "image/lines/tether_line.png"},
+		ImageCourierLine:     {Path: "image/lines/courier_line.png"},
+		ImageTemplarLine:     {Path: "image/lines/templar_line.png"},
 
 		ImageUIGamepadRadar:    {Path: "image/ui/gamepad_radar.png"},
 		ImageUIGamepadRadarDot: {Path: "image/ui/gamepad_radar_dot.png"},
@@ -543,14 +543,14 @@ const (
 	ImageArkCoreSelector
 	ImageArkCoreAllianceColor
 
-	ImageMercFactoryHatch
+	ImageRelictFactoryHatch
 	ImageColonyCoreHatch
 	ImageColonyCoreDiode
 	ImageArkShadow
 	ImageDenShadow
 	ImageTeleporter
 	ImageTeleporterLights
-	ImageMercFactoryAgent
+	ImageRelictFactoryAgent
 	ImageTowerArtifact
 	ImagePowerPlantAgent
 	ImageHarvesterAgent
@@ -565,7 +565,7 @@ const (
 	ImageScarabAgent
 	ImageDevourerAgent
 	ImageScoutAgent
-	ImageMercAgent
+	ImageRelictAgent
 	ImageClonerAgent
 	ImageScavengerAgent
 	ImageCourierAgent
@@ -643,7 +643,6 @@ const (
 	ImageLandCrack4
 	ImageTrees
 
-	ImageMercProjectile
 	ImageCommanderProjectile
 	ImageRoombaProjectile
 	ImageScarabProjectile
@@ -678,7 +677,7 @@ const (
 
 	ImageBossLaserLine
 	ImageTempestLine
-	ImageMercLine
+	ImageRelictAgentLine
 	ImageFlamerLine
 	ImageTargeterLine
 	ImageStunnerLine

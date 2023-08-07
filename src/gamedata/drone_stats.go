@@ -72,12 +72,12 @@ const (
 	AgentHarvester
 
 	// Neutral buildings
-	AgentMercFactory
+	AgentDroneFactory
 	AgentPowerPlant
 	AgentTowerArtifact
 
 	// Other units
-	AgentMerc
+	AgentRelict
 
 	agentLast
 )
@@ -314,23 +314,23 @@ var PowerPlantAgentStats = InitDroneStats(&AgentStats{
 	MaxHealth:  140,
 })
 
-var MercFactoryAgentStats = InitDroneStats(&AgentStats{
-	Kind:       AgentMercFactory,
+var DroneFactoryAgentStats = InitDroneStats(&AgentStats{
+	Kind:       AgentDroneFactory,
 	IsFlying:   false,
 	IsTurret:   true,
 	IsBuilding: true,
 	IsNeutral:  true,
-	Image:      assets.ImageMercFactoryAgent,
+	Image:      assets.ImageRelictFactoryAgent,
 	Size:       SizeLarge,
 	Upkeep:     0,
 	MaxHealth:  170,
 })
 
-var MercAgentStats = InitDroneStats(&AgentStats{
-	Kind:        AgentMerc,
+var RelictAgentStats = InitDroneStats(&AgentStats{
+	Kind:        AgentRelict,
 	IsFlying:    true,
 	IsNeutral:   true,
-	Image:       assets.ImageMercAgent,
+	Image:       assets.ImageRelictAgent,
 	Size:        SizeMedium,
 	DiodeOffset: 1,
 	Tier:        2,
@@ -341,7 +341,7 @@ var MercAgentStats = InitDroneStats(&AgentStats{
 		AttackRangeMarkMultiplier: 1.3,
 		AttackRange:               220,
 		Reload:                    2.5,
-		AttackSound:               assets.AudioMercShot,
+		AttackSound:               assets.AudioRelictAgentShot,
 		Damage:                    DamageValue{Health: 6},
 		MaxTargets:                1,
 		TargetFlags:               TargetFlying | TargetGround,
@@ -352,7 +352,7 @@ var MercAgentStats = InitDroneStats(&AgentStats{
 })
 
 var ArtifactsList = []*AgentStats{
-	MercFactoryAgentStats,
+	DroneFactoryAgentStats,
 	PowerPlantAgentStats,
 	TowerArtifactAgentStats,
 }

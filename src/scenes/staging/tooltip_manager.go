@@ -158,8 +158,8 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 		}
 		var tag string
 		switch b.stats {
-		case gamedata.MercFactoryAgentStats:
-			tag = "merc_factory"
+		case gamedata.DroneFactoryAgentStats:
+			tag = "drone_factory"
 		case gamedata.PowerPlantAgentStats:
 			tag = "power_plant"
 		case gamedata.TowerArtifactAgentStats:

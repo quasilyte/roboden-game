@@ -165,8 +165,8 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, config *assets.Config, p
 		length  float64
 	}{
 		{gamedata.CourierAgentStats, assets.ImageCourierLine, 120},
-		{gamedata.RepairAgentStats, assets.ImageRepairLine, gamedata.RepairAgentStats.SupportRange * 1.3},
-		{gamedata.RechargerAgentStats, assets.ImageRechargerLine, gamedata.RepairAgentStats.SupportRange * 1.3},
+		{gamedata.RepairAgentStats, assets.ImageRepairLine, gamedata.RepairAgentStats.SupportRange * 1.4},
+		{gamedata.RechargerAgentStats, assets.ImageRechargerLine, gamedata.RepairAgentStats.SupportRange * 1.4},
 		{gamedata.DefenderAgentStats, assets.ImageDefenderLine, gamedata.DefenderAgentStats.Weapon.AttackRange * 1.05},
 		{gamedata.GuardianAgentStats, assets.ImageDefenderLine, gamedata.GuardianAgentStats.Weapon.AttackRange * 1.05},
 		{gamedata.BeamTowerAgentStats, assets.ImageBeamtowerLine, gamedata.BeamTowerAgentStats.Weapon.AttackRange * 1.1},

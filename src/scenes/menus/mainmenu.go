@@ -33,10 +33,7 @@ func (c *MainMenuController) Init(scene *ge.Scene) {
 	c.cursor = gameui.NewCursorNode(&c.state.CombinedInput, scene.Context().WindowRect())
 	scene.AddObject(c.cursor)
 
-	scene.Audio().SetGroupVolume(assets.SoundGroupMusic,
-		assets.VolumeMultiplier(c.state.Persistent.Settings.MusicVolumeLevel))
-	scene.Audio().SetGroupVolume(assets.SoundGroupEffect,
-		assets.VolumeMultiplier(c.state.Persistent.Settings.EffectsVolumeLevel))
+	c.state.AdjustVolumeLevels()
 
 	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
 		scene.Audio().ContinueMusic(assets.AudioMusicTrack3)

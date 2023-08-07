@@ -186,6 +186,13 @@ type SavedReplay struct {
 	Replay    serverapi.GameReplay
 }
 
+func (state *State) AdjustVolumeLevels() {
+	state.Context.Audio.SetGroupVolume(assets.SoundGroupMusic,
+		assets.VolumeMultiplier(state.Persistent.Settings.MusicVolumeLevel))
+	state.Context.Audio.SetGroupVolume(assets.SoundGroupEffect,
+		assets.VolumeMultiplier(state.Persistent.Settings.EffectsVolumeLevel))
+}
+
 func (state *State) ReloadInputs() {
 	state.BoundInputs[0] = state.resolveInputMethod(gameinput.PlayerInputMethod(state.Persistent.Settings.Player1InputMethod))
 	state.BoundInputs[1] = state.resolveInputMethod(gameinput.PlayerInputMethod(state.Persistent.Settings.Player2InputMethod))

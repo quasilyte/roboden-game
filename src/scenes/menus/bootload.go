@@ -97,6 +97,8 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		}
 	})
 	initTask.EventCompleted.Connect(nil, func(gsignal.Void) {
+		c.state.AdjustVolumeLevels()
+
 		if !c.state.Persistent.GaveInputPrompt {
 			c.scene.Context().ChangeScene(NewControlsPromptController(c.state))
 			return

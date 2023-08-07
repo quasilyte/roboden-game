@@ -322,7 +322,7 @@ var MercAgentStats = InitDroneStats(&AgentStats{
 		BuildingDamageBonus:       -0.25,
 	}),
 	BeamOpaqueTime: 0.15,
-	BeamSlideSpeed: 5.0,
+	BeamSlideSpeed: 4.6,
 })
 
 var TurretStatsList = []*AgentStats{

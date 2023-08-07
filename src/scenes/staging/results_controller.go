@@ -23,6 +23,8 @@ type resultsController struct {
 	state  *session.State
 	config *gamedata.LevelConfig
 
+	hasPlayers bool
+
 	scene          *ge.Scene
 	backController ge.SceneController
 
@@ -97,6 +99,11 @@ func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
 	eui.AddBackground(c.state.BackgroundImage, scene)
 
+	switch c.config.PlayersMode {
+	case serverapi.PmodeSinglePlayer, serverapi.PmodeTwoPlayers:
+		c.hasPlayers = true
+	}
+
 	firstTime := false
 	if c.rewards == nil {
 		firstTime = true
@@ -137,6 +144,10 @@ func (c *resultsController) updateProgress() {
 			}
 			stats.TutorialCompleted = true
 		}
+		return
+	}
+
+	if !c.hasPlayers {
 		return
 	}
 
@@ -377,7 +388,7 @@ func (c *resultsController) initUI() {
 		[2]string{d.Get("menu.results.drones_total"), itoa(c.results.DronesProduced)},
 		[2]string{d.Get("menu.results.creeps_defeated"), itoa(c.results.CreepsDefeated)},
 	)
-	if c.config.GameMode != gamedata.ModeTutorial {
+	if c.config.GameMode != gamedata.ModeTutorial && c.hasPlayers {
 		if (c.config.GameMode == gamedata.ModeInfArena) || c.results.Victory {
 			if c.highScore {
 				lines = append(lines, [2]string{d.Get("menu.results.score"), fmt.Sprintf("%v (%s)", c.results.Score, d.Get("menu.results.new_record"))})

@@ -40,6 +40,7 @@ type computerPlayer struct {
 
 	hasFirebugs bool
 	hasBombers  bool
+	hasPrisms   bool
 }
 
 type computerColony struct {
@@ -107,6 +108,8 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 			p.hasFirebugs = true
 		case gamedata.AgentBomber:
 			p.hasBombers = true
+		case gamedata.AgentPrism:
+			p.hasPrisms = true
 		}
 	}
 
@@ -596,6 +599,23 @@ func (p *computerPlayer) maybeUseSpecial(colony *computerColony) bool {
 	}
 
 	if p.choiceSelection.special.special == specialDecreaseRadius {
+		if p.hasPrisms && colony.node.realRadius > 140 && (float64(colony.node.NumAgents())/float64(colony.node.stats.DroneLimit)) >= 0.65 {
+			numUnits := 0
+			for _, a := range colony.node.agents.fighters {
+				switch a.stats.Kind {
+				case gamedata.AgentPrism:
+					numUnits++
+				}
+			}
+			if numUnits > 5 {
+				// 6 => 0.1
+				// 15 => 1.0
+				chance := float64(numUnits-5) * 0.1
+				if chance >= 1 || p.world.rand.Chance(chance) {
+					return p.tryExecuteAction(colony.node, 4, gmath.Vec{})
+				}
+			}
+		}
 		if colony.node.resources < 80 && p.world.rand.Chance(0.6) {
 			preferredRadius := 0.0
 			numDrones := colony.node.NumAgents()

@@ -219,7 +219,7 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 
 	if colony.attackDelay == 0 {
 		if p.maybeDoAttackAction(colony) {
-			colony.attackDelay = p.world.rand.FloatRange(60, 120)
+			colony.attackDelay = p.world.rand.FloatRange(50, 110)
 			return true
 		}
 		colony.attackDelay = p.world.rand.FloatRange(15, 30)
@@ -301,7 +301,7 @@ func (p *computerPlayer) maybeDoAttacking(colony *computerColony) bool {
 	if p.world.boss == nil {
 		return false
 	}
-	if p.selectedColonyPower() < 100 {
+	if p.selectedColonyPower() < 90 {
 		return false
 	}
 
@@ -823,6 +823,14 @@ func (p *computerPlayer) calcColonyPower(c *colonyCoreNode) int {
 		score += int(droneScore)
 		return false
 	})
+	switch {
+	case c.realRadius < 150:
+		score = int(float64(score) * 1.2)
+	case c.realRadius < 200:
+		score = int(float64(score) * 1.1)
+	case c.realRadius < 250:
+		score = int(float64(score) * 1.05)
+	}
 	return score
 }
 

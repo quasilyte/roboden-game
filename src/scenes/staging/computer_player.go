@@ -819,7 +819,7 @@ func (p *computerPlayer) calcColonyPower(c *colonyCoreNode) int {
 		if a.faction == gamedata.RedFactionTag {
 			droneScore += cost * 0.1
 		}
-		droneScore *= ((a.health / a.maxHealth) + 0.2) * p.world.droneHealthMultiplier
+		droneScore *= ((a.health / a.maxHealth) + 0.2) * p.world.dronePowerMultiplier
 		score += int(droneScore)
 		return false
 	})

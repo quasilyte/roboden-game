@@ -185,7 +185,9 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 	}
 
 	if m.world.boss != nil && m.world.boss.pos.DistanceSquaredTo(pos) < (22*22) {
-		return d.Get("game.hint.dreadnought")
+		boss := m.world.boss
+		hpPercentage := boss.health / boss.maxHealth
+		return fmt.Sprintf("%s (%d%%)", d.Get("game.hint.dreadnought"), int(math.Round(100*hpPercentage)))
 	}
 
 	if m.world.wispLair != nil && m.world.wispLair.pos.DistanceSquaredTo(pos) < (22*22) {

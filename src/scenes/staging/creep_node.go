@@ -158,6 +158,13 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		}
 	}
 	switch c.stats.Kind {
+	case gamedata.CreepUberBoss:
+		if !c.world.simulation && c.world.graphicsSettings.AllShadersEnabled {
+			c.sprite.Shader = c.scene.NewShader(assets.ShaderColonyDamage)
+			c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageDreadnoughtDamageMask)
+			c.sprite.Shader.SetFloatValue("HP", 1.0)
+			c.sprite.Shader.Enabled = false
+		}
 	case gamedata.CreepFortress:
 		c.specialDelay = c.scene.Rand().FloatRange(3.5*60, 4.5*60)
 	case gamedata.CreepWispLair:
@@ -185,6 +192,15 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 
 	c.health = c.maxHealth
+}
+
+func (c *creepNode) updateHealthShader() {
+	if c.sprite.Shader.IsNil() {
+		return
+	}
+	percentage := c.health / c.maxHealth
+	c.sprite.Shader.SetFloatValue("HP", percentage)
+	c.sprite.Shader.Enabled = percentage < 0.95
 }
 
 func (c *creepNode) dispose() {
@@ -322,6 +338,7 @@ func (c *creepNode) explode() {
 				fall.FrameOffsetY = c.sprite.FrameHeight
 			}
 			c.world.nodeRunner.AddObject(fall)
+			fall.sprite.Shader = c.sprite.Shader
 		} else {
 			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
 		}
@@ -458,6 +475,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 	}
 
 	if c.stats.Kind == gamedata.CreepUberBoss {
+		c.updateHealthShader()
 		if a, ok := source.(*colonyAgentNode); ok && a.IsTurret() {
 			c.world.result.EnemyColonyDamageFromTurrets += damage.Health
 		} else {
@@ -1470,6 +1488,12 @@ func (c *creepNode) updateServant(delta float64) {
 func (c *creepNode) updateUberBoss(delta float64) {
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 	if c.specialDelay == 0 && c.specialModifier == 0 {
+		// This code executes every ~7 seconds when Dreadnought is flying.
+		// It makes the Dreadnought regenerate around 17 hp per minute.
+		// We disable this regeneration if Dreandougth is in combat.
+		c.health = gmath.ClampMax(c.health+2, c.maxHealth)
+		c.updateHealthShader()
+
 		if c.maybeSpawnCrawlers() {
 			// Time until the first crawler is spawned.
 			c.specialDelay = c.scene.Rand().FloatRange(7, 10)
@@ -1477,11 +1501,6 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			c.specialDelay = c.scene.Rand().FloatRange(3, 7)
 		}
 	}
-
-	// It regenerates 1 health over 4 seconds (*0.25).
-	// Meaning it's 15 health per minute.
-	// In other words, 10 minutes recover 150 health for this guy.
-	c.health = gmath.ClampMax(c.health+(delta*0.25), c.maxHealth)
 
 	const crawlersSpawnHeight float64 = 10
 	if c.specialModifier != 0 && c.shadowComponent.height != crawlersSpawnHeight {

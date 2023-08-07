@@ -237,6 +237,9 @@ const SeasonNumber = 1
 //
 // # Version 15
 //
+// * UX:
+//   - Show Dreadnought health level in the tooltip
+//
 // * New content:
 //   - Add Spectator achievement
 //   - Add 1337 achievement
@@ -261,6 +264,7 @@ const SeasonNumber = 1
 // * Visuals:
 //   - Improved some effects layer arrangement
 //   - Make screen shaking more intensive
+//   - Added a damage shader to Dreadnought
 //
 // * Balance:
 //   - Bombers now deal extra damage to buildings and dreadnought

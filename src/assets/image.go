@@ -213,12 +213,13 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTargeterAgent:      {Path: "image/drones/targeter_agent.png", FrameWidth: 15, FrameHeight: 14},
 		ImageBomberAgent:        {Path: "image/drones/bomber_agent.png", FrameWidth: 23, FrameHeight: 18},
 
-		ImageColonyDamageMask:   {Path: "image/shaders/colony_damage_mask.png"},
-		ImageBuildingDamageMask: {Path: "image/shaders/building_damage_mask.png"},
-		ImageTurretDamageMask1:  {Path: "image/shaders/turret_damage_mask1.png"},
-		ImageTurretDamageMask2:  {Path: "image/shaders/turret_damage_mask2.png"},
-		ImageTurretDamageMask3:  {Path: "image/shaders/turret_damage_mask3.png"},
-		ImageTurretDamageMask4:  {Path: "image/shaders/turret_damage_mask4.png"},
+		ImageDreadnoughtDamageMask: {Path: "image/shaders/dreadnought_damage_mask.png"},
+		ImageColonyDamageMask:      {Path: "image/shaders/colony_damage_mask.png"},
+		ImageBuildingDamageMask:    {Path: "image/shaders/building_damage_mask.png"},
+		ImageTurretDamageMask1:     {Path: "image/shaders/turret_damage_mask1.png"},
+		ImageTurretDamageMask2:     {Path: "image/shaders/turret_damage_mask2.png"},
+		ImageTurretDamageMask3:     {Path: "image/shaders/turret_damage_mask3.png"},
+		ImageTurretDamageMask4:     {Path: "image/shaders/turret_damage_mask4.png"},
 
 		ImageEssenceSourceDissolveMask:    {Path: "image/resources/essence_source_dissolve_mask.png"},
 		ImageEssenceRedCrystalSource:      {Path: "image/resources/red_crystal.png"},
@@ -485,6 +486,7 @@ const (
 	ImageDisappearSmokeBig
 	ImageCreepCreatedEffect
 
+	ImageDreadnoughtDamageMask
 	ImageColonyDamageMask
 	ImageBuildingDamageMask
 	ImageTurretDamageMask1

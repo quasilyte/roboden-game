@@ -414,7 +414,7 @@ func (c *resultsController) initUI() {
 		key := c.config.RawGameMode + "_highscore"
 		c.scene.Context().SaveGameData(key, replay)
 	}
-	if c.hasPlayers && gamedata.IsRunnableReplay(replay) {
+	if gamedata.IsRunnableReplay(replay) {
 		r := session.SavedReplay{
 			Date:      time.Now(),
 			ResultTag: c.resultTag,

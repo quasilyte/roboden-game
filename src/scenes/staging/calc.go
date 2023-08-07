@@ -159,7 +159,7 @@ func creepFragScore(stats *gamedata.CreepStats) int {
 	case gamedata.ServantCreepStats:
 		return 30
 	case gamedata.DominatorCreepStats:
-		return 60
+		return 65
 	case gamedata.HowitzerCreepStats:
 		return 85
 

@@ -1391,22 +1391,37 @@ func (a *colonyAgentNode) doRecharge() {
 	})
 	if target != nil {
 		if !a.world().simulation {
-			a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RechargerAgentStats))
+			a.createBeam(target, gamedata.RechargerAgentStats)
 		}
 		target.energy = gmath.ClampMax(target.energy+rechargerEnergyRecorery, target.maxEnergy)
 		playSound(a.world(), assets.AudioRechargerBeam, a.pos)
 	}
 }
 
-func (a *colonyAgentNode) createBeam(target targetable, beamStats *gamedata.AgentStats) *beamNode {
-	from := ge.Pos{Base: &a.pos, Offset: gmath.Vec{Y: a.stats.FireOffset}}
-	to := ge.Pos{Base: target.GetPos(), Offset: gmath.Vec{Y: -2}}
+func (a *colonyAgentNode) createBeam(target targetable, beamStats *gamedata.AgentStats) {
+	offset := gmath.Vec{Y: a.stats.FireOffset}
+	targetPos := target.GetPos()
+	if a.stats.BeamShift != 0 {
+		shift := targetPos.DirectionTo(a.pos).Mulf(a.stats.BeamShift)
+		offset = offset.Add(shift)
+	}
+	from := ge.Pos{Base: &a.pos, Offset: offset}
+	to := ge.Pos{Base: targetPos, Offset: gmath.Vec{Y: -2}}
 	if beamStats.BeamTexture == nil {
 		beam := newBeamNode(a.world(), from, to, beamStats.BeamColor)
 		beam.width = beamStats.BeamWidth
-		return beam
+		a.world().nodeRunner.AddObject(beam)
+	} else {
+		beam := newTextureBeamNode(a.world(), from, to, beamStats.BeamTexture, beamStats.BeamSlideSpeed, beamStats.BeamOpaqueTime)
+		a.world().nodeRunner.AddObject(beam)
 	}
-	return newTextureBeamNode(a.world(), from, to, beamStats.BeamTexture, beamStats.BeamSlideSpeed, beamStats.BeamOpaqueTime)
+	if a.stats.BeamExplosion != assets.ImageNone {
+		createEffect(a.world(), effectConfig{
+			Pos:   target.GetPos().Add(a.world().localRand.Offset(-6, 6)),
+			Layer: effectLayerFromBool(target.IsFlying()),
+			Image: a.stats.BeamExplosion,
+		})
+	}
 }
 
 func (a *colonyAgentNode) doRepair() {
@@ -1418,7 +1433,7 @@ func (a *colonyAgentNode) doRepair() {
 	})
 	if target != nil {
 		if !a.world().simulation {
-			a.world().nodeRunner.AddObject(a.createBeam(target, gamedata.RepairAgentStats))
+			a.createBeam(target, gamedata.RepairAgentStats)
 		}
 		target.health = gmath.ClampMax(target.health+3, target.maxHealth)
 		playSound(a.world(), assets.AudioRepairBeam, a.pos)
@@ -1534,21 +1549,7 @@ func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
 		} else {
 			// TODO: this code is duplited with creep node.
 			if !a.world().simulation {
-				if a.stats.BeamTexture == nil {
-					beam := newBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamColor)
-					beam.width = a.stats.BeamWidth
-					a.world().nodeRunner.AddObject(beam)
-				} else {
-					beam := newTextureBeamNode(a.world(), ge.Pos{Base: &a.pos, Offset: a.stats.Weapon.FireOffset}, ge.Pos{Base: target.GetPos()}, a.stats.BeamTexture, a.stats.BeamSlideSpeed, a.stats.BeamOpaqueTime)
-					a.world().nodeRunner.AddObject(beam)
-					if a.stats.BeamExplosion != assets.ImageNone {
-						createEffect(a.world(), effectConfig{
-							Pos:   target.GetPos().Add(a.world().localRand.Offset(-6, 6)),
-							Layer: effectLayerFromBool(target.IsFlying()),
-							Image: a.stats.BeamExplosion,
-						})
-					}
-				}
+				a.createBeam(target, a.stats)
 			}
 			target.OnDamage(multipliedDamage(target, a.stats.Weapon), a)
 		}

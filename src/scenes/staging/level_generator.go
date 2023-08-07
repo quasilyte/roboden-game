@@ -199,34 +199,31 @@ func (g *levelGenerator) placeAncientRuins() {
 		return
 	}
 
-	g.sectorSlider.TrySetValue(g.world.rand.IntRange(0, len(g.sectors)-1))
-	for attempt := 0; attempt < 10; attempt++ {
-		sector := g.sectors[g.sectorSlider.Value()]
-		g.sectorSlider.Dec()
-		pos := g.randomFreePos(sector, 48, 168)
-		if pos.IsZero() {
-			continue
-		}
-		pos = g.world.pathgrid.AlignPos(pos)
-		b := newNeutralBuildingNode(g.world, gamedata.MercFactoryAgentStats, pos)
-		b.Init(g.scene)
-		g.world.neutralBuildings = append(g.world.neutralBuildings, b)
-		break
-	}
+	artifactsPool := make([]*gamedata.AgentStats, len(gamedata.ArtifactsList))
+	copy(artifactsPool, gamedata.ArtifactsList)
+	gmath.Shuffle(g.world.rand, artifactsPool)
 
-	g.sectorSlider.TrySetValue(g.world.rand.IntRange(0, len(g.sectors)-1))
-	for attempt := 0; attempt < 10; attempt++ {
-		sector := g.sectors[g.sectorSlider.Value()]
-		g.sectorSlider.Dec()
-		pos := g.randomFreePos(sector, 48, 168)
-		if pos.IsZero() {
-			continue
+	numArtifacts := 2
+	if g.world.config.WorldSize == 3 {
+		numArtifacts++
+	}
+	artifacts := artifactsPool[:numArtifacts]
+
+	for _, a := range artifacts {
+		g.sectorSlider.TrySetValue(g.world.rand.IntRange(0, len(g.sectors)-1))
+		for attempt := 0; attempt < 10; attempt++ {
+			sector := g.sectors[g.sectorSlider.Value()]
+			g.sectorSlider.Dec()
+			pos := g.randomFreePos(sector, 48, 168)
+			if pos.IsZero() {
+				continue
+			}
+			pos = g.world.pathgrid.AlignPos(pos)
+			b := newNeutralBuildingNode(g.world, a, pos)
+			b.Init(g.scene)
+			g.world.neutralBuildings = append(g.world.neutralBuildings, b)
+			break
 		}
-		pos = g.world.pathgrid.AlignPos(pos)
-		b := newNeutralBuildingNode(g.world, gamedata.PowerPlantAgentStats, pos)
-		b.Init(g.scene)
-		g.world.neutralBuildings = append(g.world.neutralBuildings, b)
-		break
 	}
 }
 

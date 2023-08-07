@@ -429,6 +429,20 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		}
 	}
 
+	if damage.Morale != 0 && c.stats.CanBeRepelled {
+		if c.wasRetreating {
+			return
+		}
+		retreatChance := damage.Morale
+		if c.stats.Kind == gamedata.CreepCrawler {
+			retreatChance *= 0.6
+		}
+		if c.scene.Rand().Chance(retreatChance) {
+			c.wasRetreating = true
+			c.retreatFrom(*source.GetPos(), 150, 250)
+		}
+	}
+
 	if c.stats.Kind == gamedata.CreepCrawler {
 		if c.specialModifier == crawlerGuard {
 			c.specialModifier = crawlerIdle
@@ -441,16 +455,6 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 			c.waypoint = c.world.pathgrid.AlignPos(c.pos)
 		}
 		return
-	}
-
-	if damage.Morale != 0 && c.stats.CanBeRepelled && c.stats.Kind != gamedata.CreepServant && c.stats.Kind != gamedata.CreepBuilder {
-		if c.wasRetreating {
-			return
-		}
-		if c.scene.Rand().Chance(damage.Morale * 0.15) {
-			c.wasRetreating = true
-			c.retreatFrom(*source.GetPos(), 150, 200)
-		}
 	}
 
 	if c.stats.Kind == gamedata.CreepDominator && damage.Health != 0 {
@@ -601,7 +605,7 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 }
 
 func (c *creepNode) retreatFrom(pos gmath.Vec, minRange, maxRange float64) {
-	c.setWaypoint(retreatPos(c.scene.Rand(), c.scene.Rand().FloatRange(minRange, maxRange), c.pos, pos))
+	c.SendTo(retreatPos(c.scene.Rand(), c.scene.Rand().FloatRange(minRange, maxRange), c.pos, pos))
 	c.wasAttacking = false
 }
 

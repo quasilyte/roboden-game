@@ -74,6 +74,7 @@ const (
 	// Neutral buildings
 	AgentMercFactory
 	AgentPowerPlant
+	AgentTowerArtifact
 
 	// Other units
 	AgentMerc
@@ -262,6 +263,7 @@ type AgentStats struct {
 	BeamColor      color.RGBA
 	BeamSlideSpeed float64
 	BeamOpaqueTime float64
+	BeamShift      float64
 	BeamTexture    *ge.Texture
 	BeamExplosion  resource.ImageID
 
@@ -275,6 +277,30 @@ type DroneDocs struct {
 	DefenseRating     int
 	UpkeepRating      int
 }
+
+var TowerArtifactAgentStats = InitDroneStats(&AgentStats{
+	Kind:       AgentTowerArtifact,
+	IsFlying:   false,
+	IsTurret:   true,
+	IsBuilding: true,
+	IsNeutral:  true,
+	Image:      assets.ImageTowerArtifact,
+	Size:       SizeLarge,
+	Upkeep:     0,
+	MaxHealth:  130,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange: 420,
+		Reload:      3.1,
+		MaxTargets:  4,
+		AttackSound: assets.AudioArtifactTowerAttack,
+		Damage:      DamageValue{Health: 4, Morale: 0.9},
+		TargetFlags: TargetGround | TargetFlying,
+	}),
+	FireOffset:     -14,
+	BeamOpaqueTime: 0.1,
+	BeamSlideSpeed: 1.5,
+	BeamShift:      14,
+})
 
 var PowerPlantAgentStats = InitDroneStats(&AgentStats{
 	Kind:       AgentPowerPlant,
@@ -324,6 +350,12 @@ var MercAgentStats = InitDroneStats(&AgentStats{
 	BeamOpaqueTime: 0.15,
 	BeamSlideSpeed: 4.6,
 })
+
+var ArtifactsList = []*AgentStats{
+	MercFactoryAgentStats,
+	PowerPlantAgentStats,
+	TowerArtifactAgentStats,
+}
 
 var TurretStatsList = []*AgentStats{
 	GunpointAgentStats,
@@ -534,7 +566,7 @@ var TruckerAgentStats = InitDroneStats(&AgentStats{
 		ProjectileImage:           assets.ImageCourierProjectile,
 		ImpactArea:                15,
 		ProjectileSpeed:           170,
-		Damage:                    DamageValue{Health: 2, Slow: 1, Morale: 1},
+		Damage:                    DamageValue{Health: 2, Slow: 1, Morale: 0.2},
 		MaxTargets:                2,
 		BurstSize:                 1,
 		ProjectileRotateSpeed:     24,
@@ -564,7 +596,7 @@ var CourierAgentStats = InitDroneStats(&AgentStats{
 		ProjectileImage:           assets.ImageCourierProjectile,
 		ImpactArea:                10,
 		ProjectileSpeed:           170,
-		Damage:                    DamageValue{Health: 2, Slow: 1, Morale: 1},
+		Damage:                    DamageValue{Health: 2, Slow: 1, Morale: 0.2},
 		MaxTargets:                1,
 		BurstSize:                 1,
 		ProjectileRotateSpeed:     24,

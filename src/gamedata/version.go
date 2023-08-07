@@ -250,6 +250,8 @@ const SeasonNumber = 1
 //   - New Ion Mortar creep turret (available via difficulty setting)
 //   - A "gold" option that disables the gold resource deposits
 //   - Added a Drone factory neutral building
+//   - Added a Power plant neutral building
+//   - Added a Turret neutral building
 //
 // * Gameplay:
 //   - Increase dreadnough max crawlers limit

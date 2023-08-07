@@ -174,6 +174,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 
 		ImageMercFactoryAgent:   {Path: "image/drones/merc_factory_agent.png"},
 		ImagePowerPlantAgent:    {Path: "image/drones/power_plant_agent.png"},
+		ImageTowerArtifact:      {Path: "image/drones/tower_artifact.png"},
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
@@ -314,6 +315,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageSuperIonMortarProjectile: {Path: "image/projectile/super_ion_mortar_projectile.png"},
 
 		ImageBossLaserLine: {Path: "image/lines/boss_laser_line.png"},
+		ImageTempestLine:   {Path: "image/lines/tempest_line.png"},
 		ImageMercLine:      {Path: "image/lines/merc_line.png"},
 		ImageFlamerLine:    {Path: "image/lines/flamer_line.png"},
 		ImageTargeterLine:  {Path: "image/lines/targeter_line.png"},
@@ -549,6 +551,7 @@ const (
 	ImageTeleporter
 	ImageTeleporterLights
 	ImageMercFactoryAgent
+	ImageTowerArtifact
 	ImagePowerPlantAgent
 	ImageHarvesterAgent
 	ImageGunpointAgent
@@ -674,6 +677,7 @@ const (
 	ImageSuperIonMortarProjectile
 
 	ImageBossLaserLine
+	ImageTempestLine
 	ImageMercLine
 	ImageFlamerLine
 	ImageTargeterLine

@@ -248,6 +248,7 @@ func (c *creepCoordinator) scatterCreeps(group []*creepNode) {
 		dist := c.world.rand.FloatRange(128, 400)
 		targetPos := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(creep.pos)
 		creep.SendTo(targetPos)
+		creep.wasRetreating = false
 	}
 }
 
@@ -261,6 +262,7 @@ func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, targetPos gmat
 			waypoint = dir.Mulf(-1).Add(targetPos)
 		}
 		creep.SendTo(waypoint)
+		creep.wasRetreating = false
 	}
 }
 

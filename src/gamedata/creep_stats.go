@@ -353,7 +353,7 @@ var CrawlerCreepStats = &CreepStats{
 	}),
 	Size:          24,
 	Disarmable:    true,
-	CanBeRepelled: false,
+	CanBeRepelled: true,
 	TargetKind:    TargetGround,
 }
 
@@ -378,7 +378,7 @@ var EliteCrawlerCreepStats = &CreepStats{
 	}),
 	Size:          24,
 	Disarmable:    true,
-	CanBeRepelled: false,
+	CanBeRepelled: true,
 	TargetKind:    TargetGround,
 }
 
@@ -408,7 +408,7 @@ var HeavyCrawlerCreepStats = &CreepStats{
 	}),
 	Size:          24,
 	Disarmable:    true,
-	CanBeRepelled: false,
+	CanBeRepelled: true,
 	TargetKind:    TargetGround,
 }
 

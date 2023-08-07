@@ -28,7 +28,7 @@ func newNeutralBuildingNode(world *worldState, stats *gamedata.AgentStats, pos g
 func (b *neutralBuildingNode) Init(scene *ge.Scene) {
 	b.sprite = scene.NewSprite(b.stats.Image)
 	b.sprite.Pos.Base = &b.pos
-	b.sprite.SetColorScaleRGBA(250, 240, 240, 255)
+	b.sprite.SetColorScaleRGBA(240, 240, 240, 255)
 	b.sprite.Shader = scene.NewShader(assets.ShaderColonyDamage)
 	b.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageBuildingDamageMask)
 	b.sprite.Shader.SetFloatValue("HP", 0.001)

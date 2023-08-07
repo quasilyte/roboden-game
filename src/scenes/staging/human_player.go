@@ -24,6 +24,8 @@ type humanPlayer struct {
 	input     *gameinput.Handler
 	choiceGen *choiceGenerator
 
+	tooltipManager *tooltipManager
+
 	recipeTab            *recipeTabNode
 	choiceWindow         *choiceWindowNode
 	rpanel               *rpanelNode
@@ -135,6 +137,7 @@ func (p *humanPlayer) Init() {
 			ttm.OnStopHover()
 		})
 		p.scene.AddObject(ttm)
+		p.tooltipManager = ttm
 	}
 
 	if p.world.config.InterfaceMode >= 2 {
@@ -414,6 +417,10 @@ func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {
 }
 
 func (p *humanPlayer) onToggleButtonClicked(gsignal.Void) {
+	if p.tooltipManager != nil {
+		p.tooltipManager.removeTooltip()
+	}
+
 	if p.creepsState == nil {
 		p.selectNextColony(true)
 		return

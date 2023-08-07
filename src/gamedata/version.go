@@ -285,6 +285,11 @@ const SeasonNumber = 1
 //   - Trim trailing whitespace in the username
 //   - New modes and options are now listed in the rewards screen
 //
+// * Tutorial:
+//   - Pinned the special choice that is required to continue
+//   - Removed the radius increase context hint (it's already in the main course)
+//   - Removed the north attack notice (it was redundant)
+//
 // * Replays:
 //   - Disabling replays from mismatching game versions
 //   - Showing the game seed in the replay's description

@@ -96,7 +96,7 @@ on the disk or press $gamepad_y/$gamepad_b/$gamepad_a/$gamepad_x.
 A small squad of enemy scouts entered the sector.
 The colony should be able to defend itself.
 
-Any casualties will be replenished, provided that
+Any casualties can be replenished, provided that
 there are enough resources.
 
 ##tutorial.factions
@@ -108,24 +108,18 @@ a newly produced drone belonging to that faction.
 Select a disk and see how the distribution changes.
 
 ##tutorial.factions2.keyboard
-Factions are important to get tier 2 drones.
+Factions (colors) are important to get tier 2 drones.
 When two tier 1 drones combine, a tier 2 drone emerges.
 To see what drones are available, press the ALT key.
 
 [press ENTER to continue]
 
 ##tutorial.factions2.gamepad
-Factions are important to get tier 2 drones.
+Factions (colors) are important to get tier 2 drones.
 When two tier 1 drones combine, a tier 2 drone emerges.
 To see what drones are available, press the R2 button.
 
 [press ENTER to continue]
-
-##tutorial.crawlers_attack_notice
-More enemies are coming from the north.
-
-Move the colony away from that side to avoid
-a head-on confrontation.
 
 ##tutorial.build_turret.keyboard
 The next enemy group consist of ground units.
@@ -157,6 +151,8 @@ appears on the selection.
 ##tutorial.base_leveling
 Increasing the radius and evolving the drones
 are the two main ways to create a stronger colony.
+To get more drones and territory - increase the radius,
+to get better units - increase the evolution priority.
 
 [press ENTER to continue]
 
@@ -193,11 +189,6 @@ all three segments are filled.
 ##tutorial.context.attack_action
 The attack action makes most colony combat
 drones seek for the targets nearby.
-
-##tutorial.context.increase_radius
-The selected colony's influence radius is increased.
-Drones will cover more territory now,
-and the colony will build more of them.
 
 ##tutorial.context.decrease_radius
 Decreasing the colony's influence radius is

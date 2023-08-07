@@ -39,7 +39,6 @@ type tutorialManager struct {
 	creep     *creepNode
 
 	explainedAttack           bool
-	explainedIncreaseRadius   bool
 	explainedDecreaseRadius   bool
 	explainedResourcePool     bool
 	explainedBaseConstruction bool
@@ -183,14 +182,6 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		})
 	}
 
-	if !m.explainedIncreaseRadius && m.choice.Option.special == specialIncreaseRadius {
-		m.explainedIncreaseRadius = true
-		m.messageManager.AddMessage(queuedMessageInfo{
-			text:  m.scene.Dict().Get("tutorial.context.increase_radius"),
-			timer: 20,
-		})
-	}
-
 	if !m.explainedDecreaseRadius && m.choice.Option.special == specialDecreaseRadius {
 		m.explainedDecreaseRadius = true
 		m.messageManager.AddMessage(queuedMessageInfo{
@@ -303,48 +294,54 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return m.nextPressed
 
 	case 9:
-		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 0), Y: 516}, d.Get("tutorial.resources_priority"))
-		m.nextPressed = false
+		m.stepTicks = 20
 		return true
 	case 10:
-		return m.nextPressed
+		return m.stepTicks == 0
 
 	case 11:
-		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 1), Y: 516}, d.Get("tutorial.growth_priority"))
+		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 0), Y: 516}, d.Get("tutorial.resources_priority"))
 		m.nextPressed = false
 		return true
 	case 12:
 		return m.nextPressed
 
 	case 13:
-		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 2), Y: 516}, d.Get("tutorial.evolution_priority"))
+		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 1), Y: 516}, d.Get("tutorial.growth_priority"))
 		m.nextPressed = false
 		return true
 	case 14:
 		return m.nextPressed
 
 	case 15:
-		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 3), Y: 516}, d.Get("tutorial.security_priority"))
+		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 2), Y: 516}, d.Get("tutorial.evolution_priority"))
 		m.nextPressed = false
 		return true
 	case 16:
 		return m.nextPressed
 
 	case 17:
+		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 3), Y: 516}, d.Get("tutorial.security_priority"))
+		m.nextPressed = false
+		return true
+	case 18:
+		return m.nextPressed
+
+	case 19:
 		s := m.input.ReplaceKeyNames(d.Get("tutorial.enable_choices", m.world.inputMode))
 		m.addHintNode(ge.Pos{}, s)
 		m.EventEnableChoices.Emit(gsignal.Void{})
 		return true
-	case 18:
+	case 20:
 		return len(m.choice.Option.effects) != 0
 
-	case 19:
+	case 21:
 		m.stepTicks = 10
 		return true
-	case 20:
+	case 22:
 		return m.stepTicks == 0
 
-	case 21:
+	case 23:
 		var creeps []arenaWaveUnit
 		for i := 0; i < 6; i++ {
 			super := i == 0
@@ -362,36 +359,35 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		}
 		m.addHintNode(ge.Pos{Base: &m.creep.pos}, d.Get("tutorial.enemy_scouts"))
 		return true
-	case 22:
+	case 24:
 		return m.creep == nil
 
-	case 23:
+	case 25:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.factions"))
 		return true
-	case 24:
+	case 26:
 		return len(m.choice.Option.effects) != 0
 
-	case 25:
+	case 27:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.factions2", m.world.inputMode))
 		m.nextPressed = false
 		return true
-	case 26:
+	case 28:
 		return m.nextPressed
 
-	case 27:
-		m.addHintNode(ge.Pos{}, d.Get("tutorial.crawlers_attack_notice"))
+	case 29:
 		m.stepTicks = 20
 		return true
-	case 28:
+	case 30:
 		return m.stepTicks == 0
 
-	case 29:
+	case 31:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.build_turret", m.world.inputMode))
 		m.EventEnableSpecialChoices.Emit(gsignal.Void{})
 		m.EventForceSpecialChoice.Emit(specialBuildGunpoint)
 		m.stepTicks = 70
 		return true
-	case 30:
+	case 32:
 		foundTurret := false
 		if m.stepTicks <= 40 {
 			for _, c := range m.world.constructions {
@@ -411,7 +407,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		}
 		return m.stepTicks == 0 || foundTurret
 
-	case 31:
+	case 33:
 		var creeps []arenaWaveUnit
 		for i := 0; i < 5; i++ {
 			creeps = append(creeps, arenaWaveUnit{stats: gamedata.CrawlerCreepStats})
@@ -429,16 +425,16 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		m.addHintNode(ge.Pos{Offset: spawnPos}, d.Get("tutorial.crawlers_attack"))
 		m.stepTicks = 15
 		return true
-	case 32:
+	case 34:
 		return m.stepTicks == 0
 
-	case 33:
+	case 35:
 		m.stepTicks = 40
 		return true
-	case 34:
+	case 36:
 		return len(m.world.creeps) == 0 || m.stepTicks == 0
 
-	case 35:
+	case 37:
 		var creeps []arenaWaveUnit
 		for i := 0; i < 3; i++ {
 			creeps = append(creeps, arenaWaveUnit{stats: gamedata.BuilderCreepStats})
@@ -450,38 +446,38 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		m.addHintNode(ge.Pos{Offset: spawnPos}, d.Get("tutorial.builders_attack"))
 		m.stepTicks = 10
 		return true
-	case 36:
+	case 38:
 		return m.stepTicks == 0
 
-	case 37:
+	case 39:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.increase_radius"))
 		m.EventForceSpecialChoice.Emit(specialIncreaseRadius)
 		return true
-	case 38:
+	case 40:
 		return m.choice.Option.special == specialIncreaseRadius
 
-	case 39:
+	case 41:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.base_leveling"))
 		m.nextPressed = false
 		return true
-	case 40:
+	case 42:
 		return m.nextPressed
 
-	case 41:
+	case 43:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_attack_warning"))
 		m.stepTicks = 25
 		return true
-	case 42:
-		return m.stepTicks == 0
-
-	case 43:
-		m.stepTicks = 80
-		return true
-
 	case 44:
 		return m.stepTicks == 0
 
 	case 45:
+		m.stepTicks = 80
+		return true
+
+	case 46:
+		return m.stepTicks == 0
+
+	case 47:
 		var creeps []arenaWaveUnit
 		for i := 0; i < 6; i++ {
 			creeps = append(creeps, arenaWaveUnit{stats: gamedata.WandererCreepStats})
@@ -498,16 +494,16 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		m.addHintNode(ge.Pos{Offset: spawnPos}, d.Get("tutorial.final_attack"))
 		m.stepTicks = 15
 		return true
-	case 46:
-		return m.stepTicks == 0
-
-	case 47:
-		m.stepTicks = 25
-		return true
 	case 48:
 		return m.stepTicks == 0
 
 	case 49:
+		m.stepTicks = 25
+		return true
+	case 50:
+		return m.stepTicks == 0
+
+	case 51:
 		var howitzer *creepNode
 		for _, creep := range m.world.creeps {
 			if creep.stats.Kind == gamedata.CreepHowitzer {
@@ -518,23 +514,23 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		m.creep = howitzer
 		return true
 
-	case 50:
+	case 52:
 		if m.creep == nil {
 			return true
 		}
 		m.addHintNode(ge.Pos{Base: &m.creep.pos}, d.Get("tutorial.final_goal"))
 		return true
-	case 51:
+	case 53:
 		return m.creep == nil
 
-	case 52:
+	case 54:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_message"))
 		m.nextPressed = false
 		return true
-	case 53:
+	case 55:
 		return m.nextPressed
 
-	case 54:
+	case 56:
 		m.EventTriggerVictory.Emit(gsignal.Void{})
 	}
 
@@ -567,7 +563,7 @@ func (m *tutorialManager) findResourceStash(minDist float64) ge.Pos {
 	colony := m.world.allColonies[0]
 
 	for _, res := range m.world.essenceSources {
-		if res.stats.scrap || res.stats == redOilSource {
+		if res.stats.scrap || res.stats == redOilSource || res.stats == redCrystalSource {
 			continue
 		}
 		dist := res.pos.DistanceTo(colony.pos)

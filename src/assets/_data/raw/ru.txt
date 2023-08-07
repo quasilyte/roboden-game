@@ -3,6 +3,11 @@
 ##game.splash.presskey.keyboard : Нажмите ENTER для продолжения
 ##game.splash.presskey.gamepad : Нажмите START для продолжения
 
+##game.onboard.welcome : Добро пожаловать в Рободен!
+##game.onboard.select_input_method
+Выберите предпочитаемое устройство ввода.
+Этот выбор можно будет изменить в настройках игры.
+
 ##boot.wasm : Веб-версия скачивает ресурсы, это займёт какое-то время
 ##boot.title : Запускаем Рободен, пожалуйста, подождите
 ##boot.load_ui : Загружаем интерфейс
@@ -346,6 +351,7 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.results.new_option : Разблокирована опция
 ##menu.results.new_mode : Разблокирован режим
 
+##menu.controls.auto_infer : Определять автоматически
 ##menu.controls.keyboard : Клавиатура
 ##menu.controls.gamepad : Геймпад
 ##menu.controls.touch : Тачскрин

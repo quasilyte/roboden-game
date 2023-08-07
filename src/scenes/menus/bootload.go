@@ -97,6 +97,11 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		}
 	})
 	initTask.EventCompleted.Connect(nil, func(gsignal.Void) {
+		if !c.state.Persistent.GaveInputPrompt {
+			c.scene.Context().ChangeScene(NewControlsPromptController(c.state))
+			return
+		}
+
 		if c.state.Persistent.Settings.Demo {
 			c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
 		} else {

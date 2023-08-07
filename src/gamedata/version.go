@@ -239,6 +239,7 @@ const SeasonNumber = 1
 //
 // * UX:
 //   - Show Dreadnought health level in the tooltip
+//   - Give an input device prompt for the new players
 //
 // * New content:
 //   - Add Spectator achievement

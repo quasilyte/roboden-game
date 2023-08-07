@@ -3,6 +3,11 @@
 ##game.splash.presskey.keyboard : Press ENTER to continue
 ##game.splash.presskey.gamepad : Press START to continue
 
+##game.onboard.welcome : Welcome to Roboden!
+##game.onboard.select_input_method
+Please select your preferred input device.
+You can change this decision later.
+
 ##boot.wasm : Web build needs to download assets, it can take a while
 ##boot.title : Starting Roboden, please wait
 ##boot.load_ui : Loading UI resources
@@ -346,6 +351,7 @@ some special differences that will affect the gameplay.
 ##menu.results.new_option : Option unlocked
 ##menu.results.new_mode : Mode unlocked
 
+##menu.controls.auto_infer : Auto-Detect
 ##menu.controls.keyboard : Keyboard
 ##menu.controls.gamepad : Gamepad
 ##menu.controls.touch : Touchscreen

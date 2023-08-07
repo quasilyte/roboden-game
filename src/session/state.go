@@ -93,6 +93,8 @@ func (state *State) GetGamepadInput(id int) *gameinput.Handler {
 type PersistentData struct {
 	Settings GameSettings
 
+	GaveInputPrompt bool
+
 	PlayerName string
 
 	NumPendingSubmissions int

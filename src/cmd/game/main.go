@@ -115,6 +115,9 @@ func main() {
 		contentlock.Update(state)
 		ctx.SaveGameData("save", state.Persistent)
 	} else {
+		if state.Persistent.PlayerStats.TotalPlayTime > 0 {
+			state.Persistent.GaveInputPrompt = true
+		}
 		contentlock.Update(state)
 	}
 	state.ReloadInputs()

@@ -110,6 +110,8 @@ func (c *PlayMenuController) initUI() {
 				back := NewPlayMenuController(c.state)
 				config := c.state.TutorialLevelConfig.Clone()
 				config.Seed = c.scene.Rand().PositiveInt64()
+				config.CreepDifficulty = c.state.Persistent.Settings.IntroDifficulty
+				config.GameSpeed = c.state.Persistent.Settings.IntroSpeed
 				c.scene.Context().ChangeScene(staging.NewController(c.state, config, back))
 			},
 			OnHover: func() { c.setHelpText(d.Get("menu.overview.intro_mission")) },

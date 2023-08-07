@@ -153,6 +153,10 @@ func (c *TerminalMenu) initUI() {
 			key:     "replay.dump",
 			handler: c.onReplayDump,
 		},
+		{
+			key:     "intro.settings",
+			handler: c.onIntroSettings,
+		},
 
 		{
 			key:     "steam.clear_achievements",
@@ -216,7 +220,7 @@ func (c *TerminalMenu) initUI() {
 		}),
 		widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
 			good := true
-			if len(newInputText) > 36 {
+			if len(newInputText) > 65 {
 				good = false
 			}
 			if good {
@@ -630,6 +634,37 @@ func (c *TerminalMenu) onDebugLogs(ctx *terminalCommandContext) (string, error) 
 	oldValue := c.state.Persistent.Settings.DebugLogs
 	c.state.Persistent.Settings.DebugLogs = args.enable
 	return fmt.Sprintf("Set debug.logs to %v (was %v)", args.enable, oldValue), nil
+}
+
+func (c *TerminalMenu) onIntroSettings(ctx *terminalCommandContext) (string, error) {
+	type argsType struct {
+		difficulty int
+		speed      int
+	}
+	if ctx.parsedArgs == nil {
+		args := &argsType{}
+		ctx.parsedArgs = args
+		ctx.fs.IntVar(&args.difficulty, "difficulty", 0, "controls the intro mission difficulty")
+		ctx.fs.IntVar(&args.speed, "speed", 0, "controls the intro mission speed")
+		return "", nil
+	}
+	args := ctx.parsedArgs.(*argsType)
+	switch args.difficulty {
+	case 0, 1, 2:
+		// OK.
+	default:
+		return "", fmt.Errorf("invalid difficulty value: %d", args.difficulty)
+	}
+	switch args.speed {
+	case 0, 1, 2:
+		// OK.
+	default:
+		return "", fmt.Errorf("invalid speed value: %d", args.speed)
+	}
+	c.state.Persistent.Settings.IntroDifficulty = args.difficulty
+	c.state.Persistent.Settings.IntroSpeed = args.speed
+	speedLabels := []string{"x1.0", "x1.2", "x1.5"}
+	return fmt.Sprintf("intro settings: speed=%s difficulty=%d", speedLabels[args.speed], args.difficulty), nil
 }
 
 func (c *TerminalMenu) onReplayDump(ctx *terminalCommandContext) (string, error) {

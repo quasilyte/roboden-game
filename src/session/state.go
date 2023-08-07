@@ -161,6 +161,8 @@ type GameSettings struct {
 	DebugDroneLabels   bool
 	Demo               bool
 	ScreenButtons      bool
+	IntroDifficulty    int
+	IntroSpeed         int
 	GamepadSettings    [2]GamepadSettings
 	Graphics           GraphicsSettings
 	Player1InputMethod int

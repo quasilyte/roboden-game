@@ -286,6 +286,7 @@ const SeasonNumber = 1
 //   - New modes and options are now listed in the rewards screen
 //
 // * Tutorial:
+//   - The difficulty & speed is now configurable via the terminal
 //   - Pinned the special choice that is required to continue
 //   - Removed the radius increase context hint (it's already in the main course)
 //   - Removed the north attack notice (it was redundant)

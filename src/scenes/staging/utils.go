@@ -354,7 +354,7 @@ func createAreaExplosion(world *worldState, rect gmath.Rect, layer effectLayer) 
 		}
 		shakePower := 0
 		if maxSideSize >= 32 {
-			shakePower = 35 + (int(maxSideSize) - 32)
+			shakePower = 40 + (int(maxSideSize) - 32)
 		}
 		if shakePower != 0 {
 			world.ShakeCamera(shakePower, center)

@@ -1914,9 +1914,9 @@ func (a *colonyAgentNode) updateMercFactory(delta float64) {
 	const maxUnits = 3
 	if a.specialDelay == 0 {
 		if a.extraLevel >= maxUnits {
-			a.specialDelay = a.scene.Rand().FloatRange(6, 12)
+			a.specialDelay = a.scene.Rand().FloatRange(5, 10)
 		} else {
-			a.specialDelay = a.scene.Rand().FloatRange(25, 35)
+			a.specialDelay = a.scene.Rand().FloatRange(20, 30)
 			a.extraLevel++
 			spawnPos := a.pos.Sub(gmath.Vec{Y: 12})
 			unit := newColonyAgentNode(a.colonyCore, gamedata.MercAgentStats, spawnPos)
@@ -1944,7 +1944,7 @@ func (a *colonyAgentNode) updateMercFactory(delta float64) {
 	// Choose a new waypoint for troops.
 	a.supportDelay = gmath.ClampMin(a.supportDelay-(delta*a.reloadRate), 0)
 	if a.supportDelay == 0 {
-		a.supportDelay = a.scene.Rand().FloatRange(10, 20)
+		a.supportDelay = a.scene.Rand().FloatRange(6, 12)
 		rect := gmath.Rect{
 			Min: a.pos.Sub(gmath.Vec{X: 840, Y: 840}),
 			Max: a.pos.Add(gmath.Vec{X: 840, Y: 840}),

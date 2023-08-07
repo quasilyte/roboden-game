@@ -75,8 +75,7 @@ Deal at least 25% damage to the dreadnought using ground turrets.
 
 ##achievement.leet : 1337
 ##achievement.leet.description
-Win a match with a seed set to 1337.
-This seed enables some special rules, so be prepared.
+Win a match with a seed set to 1337. This seed enables some special rules, so be prepared.
 
 ##achievement.antidominator : Anti-domination
 ##achievement.antidominator.description
@@ -120,8 +119,7 @@ The hint is there, for what it's worth.
 
 ##achievement.spectator : Spectator
 ##achievement.spectator.description
-Watch a splash screen simulation until the end.
-Enjoy the cinematic camera while at it.
+Watch a splash screen simulation until the end. Enjoy the cinematic camera while at it.
 
 ##achievement.gladiator : Gladiator
 ##achievement.gladiator.description

@@ -75,8 +75,7 @@
 
 ##achievement.leet : 1337
 ##achievement.leet.description
-Победите в игре с сидом 1337.
-Этот сид активирует особые правила, так что бой будет непростым.
+Победите в игре с сидом 1337. Этот сид активирует особые правила, так что бой будет непростым.
 
 ##achievement.antidominator : Анти-доминация
 ##achievement.antidominator.description
@@ -120,8 +119,7 @@
 
 ##achievement.spectator : Наблюдатель
 ##achievement.spectator.description
-Досмотрите симуляцию на экране заставки (splash screen) до конца.
-Насладитесь кинематографической камерой в процессе.
+Досмотрите симуляцию на экране заставки (splash screen) до конца. Насладитесь кинематографической камерой в процессе.
 
 ##achievement.gladiator : Гладиатор
 ##achievement.gladiator.description

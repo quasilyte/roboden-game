@@ -21,7 +21,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if config.CreepFortress {
 			score -= 30
 		}
-		if !config.AncientRuins {
+		if !config.Relicts {
 			score -= 20
 		}
 		if config.IonMortars {
@@ -44,7 +44,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if !config.GoldEnabled {
 			score += 25
 		}
-		if !config.AncientRuins {
+		if !config.Relicts {
 			score += 15
 		}
 		if config.NumCreepBases != 0 {
@@ -83,7 +83,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if config.CreepFortress {
 			score += 30
 		}
-		if !config.AncientRuins {
+		if !config.Relicts {
 			score += 20
 		}
 		if config.IonMortars {

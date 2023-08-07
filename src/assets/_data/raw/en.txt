@@ -178,9 +178,9 @@ In other words, 10 minutes of the actual gameplay will progress the game time by
 This options toggles the fog of war.
 If turned on, the map is not revealed from the start.
 
-##menu.lobby.ancient_ruins : Ancient ruins
-##menu.lobby.ancient_ruins.description
-Ancient ruins are unique buildings that can be repaired by worker drones.
+##menu.lobby.relicts : Relicts
+##menu.lobby.relicts.description
+Relicts are unique buildings that can be repaired by worker drones.
 When repaired, they can serve the colony that captured them.
 
 ##menu.lobby.num_teleporters : Teleporters
@@ -436,6 +436,7 @@ Win by destroying all colonies.
 
 Split-screen multiplayer: competitive (PvP).
 
+##game.hint.building.tower : Repulse tower
 ##game.hint.building.power_plant : Power plant
 ##game.hint.building.merc_factory : Drone factory
 ##game.hint.building_status.needs_repair : Needs repair

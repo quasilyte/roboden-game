@@ -63,7 +63,7 @@ func (g *levelGenerator) Generate() {
 	}
 	g.placeForests()
 	g.placeTeleporters()
-	g.placeAncientRuins()
+	g.placeRelicts()
 	g.placePlayers()
 	g.placeWalls()
 	g.placeCreepBases()
@@ -194,8 +194,8 @@ func (g *levelGenerator) placeTeleporters() {
 	}
 }
 
-func (g *levelGenerator) placeAncientRuins() {
-	if !g.world.config.AncientRuins {
+func (g *levelGenerator) placeRelicts() {
+	if !g.world.config.Relicts {
 		return
 	}
 

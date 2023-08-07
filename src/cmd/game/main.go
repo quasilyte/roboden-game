@@ -184,7 +184,7 @@ func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.TurretDesign = gamedata.GunpointAgentStats.Kind.String()
 	config.CoreDesign = gamedata.DenCoreStats.Name
 
-	config.AncientRuins = true
+	config.Relicts = true
 	config.GoldEnabled = true
 	config.OilRegenRate = 2
 	config.Terrain = 1
@@ -264,7 +264,7 @@ func getDefaultSessionState() *session.State {
 		state.TutorialLevelConfig = &config
 		config.WorldSize = 0
 		config.Resources = 1
-		config.AncientRuins = false
+		config.Relicts = false
 		config.StartingResources = 0
 		config.Teleporters = 1
 		config.InterfaceMode = 2

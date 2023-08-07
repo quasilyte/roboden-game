@@ -162,6 +162,8 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 			tag = "merc_factory"
 		case gamedata.PowerPlantAgentStats:
 			tag = "power_plant"
+		case gamedata.TowerArtifactAgentStats:
+			tag = "tower"
 		}
 		return d.Get("game.hint.building", tag) + "\n" + d.Get("game.hint.building_status", status)
 	}

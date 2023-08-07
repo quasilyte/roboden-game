@@ -62,7 +62,7 @@ type ReplayLevelConfig struct {
 	PlayersMode   int `json:"players_mode"`
 	InterfaceMode int `json:"ui_mode"`
 
-	AncientRuins  bool `json:"ancient_ruins"`
+	Relicts       bool `json:"relicts"`
 	FogOfWar      bool `json:"fog_of_war"`
 	SuperCreeps   bool `json:"super_creps"`
 	CreepFortress bool `json:"creep_fortress"`

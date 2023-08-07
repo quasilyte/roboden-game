@@ -373,7 +373,7 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 	}
 
 	{
-		b := c.newBoolOptionButton(&c.config.AncientRuins, "menu.lobby.ancient_ruins", []string{
+		b := c.newBoolOptionButton(&c.config.Relicts, "menu.lobby.relicts", []string{
 			d.Get("menu.option.off"),
 			d.Get("menu.option.on"),
 		})

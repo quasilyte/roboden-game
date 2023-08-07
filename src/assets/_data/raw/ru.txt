@@ -178,9 +178,9 @@ x1.5 означает, что игра будет работать на 50% бы
 Эта опция включает/выключает туман войны.
 Если включена, большая часть карты будет закрыта, пока территории не будут исследованы.
 
-##menu.lobby.ancient_ruins : Древние руины
-##menu.lobby.ancient_ruins.description
-Древние руины - это уникальные сооружения, которые могут быть отремонтированы рабочими дронами.
+##menu.lobby.relicts : Реликты
+##menu.lobby.relicts.description
+Реликты - это уникальные сооружения, которые могут быть отремонтированы рабочими дронами.
 После ремонта они начинают функционировать и приносить пользу захватившей их колонии.
 
 ##menu.lobby.num_teleporters : Телепортеры
@@ -436,6 +436,11 @@ x1.5 означает, что игра будет работать на 50% бы
 
 Мультиплеер с разделённым экраном: соревновательный (PvP).
 
+##game.hint.building.tower : Башня подавления
+##game.hint.building.power_plant : Электростанция
+##game.hint.building.merc_factory : Фабрика дронов
+##game.hint.building_status.needs_repair : Требует ремонта
+##game.hint.building_status.functioning : Функционирует
 ##game.hint.screen_button.toggle : Переключить вид
 ##game.hint.screen_button.exit : Выйти
 ##game.hint.rpanel.garrison : Юниты в гарнизонах

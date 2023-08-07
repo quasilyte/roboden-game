@@ -418,7 +418,7 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 
 	if damage.Disarm != 0 && c.stats.Disarmable {
 		disarmImmune := c.super && c.stats == gamedata.CrawlerCreepStats
-		if !disarmImmune && c.scene.Rand().Chance(damage.Disarm*0.1) {
+		if !disarmImmune && c.scene.Rand().Chance(damage.Disarm) {
 			c.disarm = 2.5
 			createEffect(c.world, effectConfig{
 				Pos:   c.pos,

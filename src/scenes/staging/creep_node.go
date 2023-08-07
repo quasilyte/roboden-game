@@ -1488,12 +1488,6 @@ func (c *creepNode) updateServant(delta float64) {
 func (c *creepNode) updateUberBoss(delta float64) {
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 	if c.specialDelay == 0 && c.specialModifier == 0 {
-		// This code executes every ~7 seconds when Dreadnought is flying.
-		// It makes the Dreadnought regenerate around 17 hp per minute.
-		// We disable this regeneration if Dreandougth is in combat.
-		c.health = gmath.ClampMax(c.health+2, c.maxHealth)
-		c.updateHealthShader()
-
 		if c.maybeSpawnCrawlers() {
 			// Time until the first crawler is spawned.
 			c.specialDelay = c.scene.Rand().FloatRange(7, 10)
@@ -1501,6 +1495,12 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			c.specialDelay = c.scene.Rand().FloatRange(3, 7)
 		}
 	}
+
+	// It regenerates 1 health over 4 seconds (*0.25).
+	// Meaning it's 15 health per minute.
+	// In other words, 10 minutes recover 150 health for this guy.
+	c.health = gmath.ClampMax(c.health+(delta*0.25), c.maxHealth)
+	c.updateHealthShader()
 
 	const crawlersSpawnHeight float64 = 10
 	if c.specialModifier != 0 && c.shadowComponent.height != crawlersSpawnHeight {

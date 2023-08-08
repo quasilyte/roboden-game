@@ -348,7 +348,9 @@ func (m *arenaManager) prepareWave() {
 	case m.level%5 == 0:
 		m.levelStartDelay = 4.0 * 60
 		budgetStep = 20
-		if !m.infArena {
+		if m.infArena {
+			budgetStep += m.level
+		} else {
 			budgetStep += 2 * m.level
 		}
 	case m.level == 1:

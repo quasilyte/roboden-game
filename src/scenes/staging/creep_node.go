@@ -1038,8 +1038,8 @@ func (c *creepNode) updateHowitzer(delta float64) {
 		} else {
 			var dst gmath.Vec
 			dist := c.world.rand.FloatRange(96, 256)
-			if len(c.world.allColonies) != 0 && c.world.rand.Chance(0.2) {
-				colony := gmath.RandElem(c.world.rand, c.world.allColonies)
+			colony := gmath.RandElem(c.world.rand, c.world.allColonies)
+			if colony != nil && colony.pos.DistanceTo(c.pos) > 420 && c.world.rand.Chance(0.2) {
 				dst = colony.pos.DirectionTo(c.pos).Mulf(dist).Add(c.pos)
 			} else {
 				dst = gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(c.pos)

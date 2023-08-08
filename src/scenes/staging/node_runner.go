@@ -63,11 +63,7 @@ func (r *nodeRunner) ComputeDelta(delta float64) float64 {
 	return delta * r.speedMultiplier
 }
 
-func (r *nodeRunner) Update(computedDelta float64) {
-	if r.paused {
-		return
-	}
-
+func (r *nodeRunner) runTick(computedDelta float64) {
 	r.timePlayed += computedDelta
 	r.ticks++
 
@@ -98,4 +94,18 @@ func (r *nodeRunner) Update(computedDelta float64) {
 	r.objects = liveObjects
 	r.objects = append(r.objects, r.addedObjects...)
 	r.addedObjects = r.addedObjects[:0]
+}
+
+func (r *nodeRunner) Update(delta float64) {
+	if r.paused {
+		return
+	}
+
+	if r.speedMultiplier == 2 {
+		// Run two ticks at x1 speed.
+		r.runTick(delta)
+		r.runTick(delta)
+	} else {
+		r.runTick(r.ComputeDelta(delta))
+	}
 }

@@ -121,7 +121,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 		{cfg.BossDifficulty, 0, 3},
 		{cfg.ArenaProgression, 0, 7},
 		{cfg.StartingResources, 0, 2},
-		{cfg.GameSpeed, 0, 2},
+		{cfg.GameSpeed, 0, 3},
 		{cfg.Teleporters, 0, 2},
 		{cfg.WorldSize, 0, 3},
 		{cfg.Resources, 0, 4},

@@ -329,6 +329,8 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		gameSpeed = 1.2
 	case 2:
 		gameSpeed = 1.5
+	case 3:
+		gameSpeed = 2.0
 	}
 	c.nodeRunner = newNodeRunner(gameSpeed)
 	c.nodeRunner.Init(c.scene)
@@ -1320,7 +1322,7 @@ func (c *Controller) Update(delta float64) {
 		mm.Update(delta)
 	}
 	c.musicPlayer.Update(delta)
-	c.nodeRunner.Update(computedDelta)
+	c.nodeRunner.Update(delta)
 
 	if !c.nodeRunner.IsPaused() {
 		if c.fogOfWar != nil {

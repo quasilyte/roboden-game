@@ -52,7 +52,7 @@ func ReplayText(d *langs.Dictionary, r *session.SavedReplay) string {
 
 	timePlayed := time.Second * time.Duration(r.Replay.Results.Time)
 	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.results.time_played"), timeutil.FormatDurationCompact(timePlayed)))
-	gameSpeedValues := []string{"x1.0", "x1.2", "x1.5"}
+	gameSpeedValues := []string{"x1.0", "x1.2", "x1.5", "x2.0"}
 	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.lobby.game_speed"), gameSpeedValues[r.Replay.Config.GameSpeed]))
 
 	return strings.Join(lines, "\n")

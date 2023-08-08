@@ -390,9 +390,10 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 
 	{
 		b := c.newOptionButton(&c.config.GameSpeed, "menu.lobby.game_speed", []string{
-			"x1",
+			"x1.0",
 			"x1.2",
 			"x1.5",
+			"x2.0",
 		})
 		tab.AddChild(b)
 	}

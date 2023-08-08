@@ -188,6 +188,7 @@ func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
 	config.GoldEnabled = true
 	config.OilRegenRate = 2
 	config.Terrain = 1
+	config.GameSpeed = 1
 	config.Resources = 2
 	config.WorldSize = 2
 	config.CreepDifficulty = 3

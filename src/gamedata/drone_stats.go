@@ -1280,7 +1280,7 @@ var RepellerAgentStats = InitDroneStats(&AgentStats{
 	IsFlying:    true,
 	Image:       assets.ImageRepellerAgent,
 	Size:        SizeMedium,
-	DiodeOffset: 7,
+	DiodeOffset: 3,
 	Tier:        2,
 	PointCost:   3,
 	Cost:        28,

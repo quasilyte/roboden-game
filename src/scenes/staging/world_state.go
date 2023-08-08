@@ -37,6 +37,7 @@ type worldState struct {
 	essenceSources   []*essenceSourceNode
 	creeps           []*creepNode
 	mercs            []*colonyAgentNode
+	turrets          []*colonyAgentNode
 	constructions    []*constructionNode
 	walls            []*wallClusterNode
 	forests          []*forestClusterNode
@@ -603,22 +604,17 @@ func (w *worldState) FindTargetableAgents(pos gmath.Vec, skipGround bool, r floa
 
 	if !skipGround {
 		// Turrets have the second highest targeting priority.
-		randIterate(w.rand, w.allColonies, func(c *colonyCoreNode) bool {
-			if len(c.turrets) == 0 {
+		randIterate(w.rand, w.turrets, func(turret *colonyAgentNode) bool {
+			if turret.insideForest {
 				return false
 			}
-			for _, turret := range c.turrets {
-				if turret.insideForest {
-					continue
-				}
-				distSqr := turret.pos.DistanceSquaredTo(pos)
-				if distSqr > radiusSqr {
-					continue
-				}
-				if f(turret) {
-					found = true
-					return true
-				}
+			distSqr := turret.pos.DistanceSquaredTo(pos)
+			if distSqr > radiusSqr {
+				return false
+			}
+			if f(turret) {
+				found = true
+				return true
 			}
 			return false
 		})

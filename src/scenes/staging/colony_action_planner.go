@@ -364,9 +364,9 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	}
 	canRepairTurret := p.colony.agents.NumAvailableWorkers() != 0 &&
 		p.colony.resources > 40 &&
-		len(p.colony.turrets) > 0
+		len(p.world.turrets) > 0
 	if canRepairTurret && p.world.rand.Chance(0.3) {
-		for _, turret := range p.colony.turrets {
+		for _, turret := range p.world.turrets {
 			if turret.health >= turret.maxHealth*0.9 {
 				continue
 			}

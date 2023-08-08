@@ -29,6 +29,8 @@ func getTurretPower(stats *gamedata.AgentStats) int {
 		return 35
 	case gamedata.BeamTowerAgentStats:
 		return 45
+	case gamedata.TowerArtifactAgentStats, gamedata.DroneFactoryAgentStats:
+		return 50
 	default:
 		return 0
 	}
@@ -63,13 +65,14 @@ func calcPosDanger(world *worldState, pstate *playerState, pos gmath.Vec, r floa
 	})
 	dangerDecrease := 0
 	rSqr := r * r
-	if turretPower := getTurretPower(world.turretDesign); turretPower != 0 {
-		for _, c := range pstate.colonies {
-			for _, turret := range c.turrets {
-				if turret.pos.DistanceSquaredTo(pos) < rSqr {
-					dangerDecrease += turretPower
-				}
-			}
+	turretPower := 0
+	for _, turret := range world.turrets {
+		power := getTurretPower(turret.stats)
+		if power == 0 {
+			continue
+		}
+		if turret.pos.DistanceSquaredTo(pos) < rSqr {
+			dangerDecrease += turretPower
 		}
 	}
 	if pstate.hasRoombas {

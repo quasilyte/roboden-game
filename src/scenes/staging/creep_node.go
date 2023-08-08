@@ -895,11 +895,11 @@ func (c *creepNode) isNearEnemyBase(dist float64) bool {
 		if colony.pos.DistanceSquaredTo(c.pos) < distSqr {
 			return true
 		}
-		if !c.cloaking {
-			for _, turret := range colony.turrets {
-				if turret.pos.DistanceSquaredTo(c.pos) < distSqr {
-					return true
-				}
+	}
+	if !c.cloaking {
+		for _, turret := range c.world.turrets {
+			if turret.pos.DistanceSquaredTo(c.pos) < distSqr {
+				return true
 			}
 		}
 	}

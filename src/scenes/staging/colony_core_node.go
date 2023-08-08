@@ -84,9 +84,10 @@ type colonyCoreNode struct {
 	evoPoints        float64
 	world            *worldState
 
-	agents  *colonyAgentContainer
-	turrets []*colonyAgentNode
-	roombas []*colonyAgentNode
+	agents          *colonyAgentContainer
+	roombas         []*colonyAgentNode
+	turrets         []*colonyAgentNode
+	numTurretsBuilt int
 
 	planner *colonyActionPlanner
 
@@ -354,8 +355,8 @@ func (c *colonyCoreNode) Destroy() {
 	for _, turret := range c.turrets {
 		turret.OnDamage(gamedata.DamageValue{Health: 1000}, c)
 	}
-	for _, turret := range c.roombas {
-		turret.OnDamage(gamedata.DamageValue{Health: 1000}, c)
+	for _, roomba := range c.roombas {
+		roomba.OnDamage(gamedata.DamageValue{Health: 1000}, c)
 	}
 	c.EventDestroyed.Emit(c)
 	c.Dispose()
@@ -427,10 +428,18 @@ func (c *colonyCoreNode) AddGatheredResources(value float64) {
 
 func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	turret.EventDestroyed.Connect(c, func(x *colonyAgentNode) {
+		if !x.stats.IsNeutral {
+			c.numTurretsBuilt--
+		}
 		c.world.UnmarkPos(x.pos)
+		c.world.turrets = xslices.Remove(c.world.turrets, x)
 		c.turrets = xslices.Remove(c.turrets, x)
 	})
+	if !turret.stats.IsNeutral {
+		c.numTurretsBuilt++
+	}
 	c.world.MarkPos(turret.pos)
+	c.world.turrets = append(c.world.turrets, turret)
 	c.turrets = append(c.turrets, turret)
 	turret.colonyCore = c
 	c.EventTurretAccepted.Emit(turret)

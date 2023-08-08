@@ -248,7 +248,7 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 		p.buildColonyDelay = p.world.rand.FloatRange(30, 60)
 	}
 
-	if p.buildTurretDelay == 0 && p.choiceSelection.special.special == specialBuildGunpoint && len(colony.node.turrets) < colony.maxTurrets {
+	if p.buildTurretDelay == 0 && p.choiceSelection.special.special == specialBuildGunpoint && colony.node.numTurretsBuilt < colony.maxTurrets {
 		if p.maybeBuildTurret(colony) {
 			p.buildTurretDelay = p.world.rand.FloatRange(40, 2*90)
 			return true

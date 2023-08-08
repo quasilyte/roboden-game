@@ -222,12 +222,12 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 			return false
 		}
 	}
-	for _, colony := range world.allColonies {
-		for _, turret := range colony.turrets {
-			if turret.pos.DistanceTo(pos) < (radius + 32) {
-				return false
-			}
+	for _, turret := range world.turrets {
+		if turret.pos.DistanceTo(pos) < (radius + 32) {
+			return false
 		}
+	}
+	for _, colony := range world.allColonies {
 		// TODO: flying colonies are not a problem.
 		if colony == skipColony {
 			continue

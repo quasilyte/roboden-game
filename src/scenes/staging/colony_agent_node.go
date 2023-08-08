@@ -2178,8 +2178,8 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 		return
 	}
 
-	if len(a.colonyCore.turrets) != 0 && a.scene.Rand().Chance(0.15) {
-		turret := gmath.RandElem(a.scene.Rand(), a.colonyCore.turrets)
+	if len(a.world().turrets) != 0 && a.scene.Rand().Chance(0.15) {
+		turret := gmath.RandElem(a.scene.Rand(), a.world().turrets)
 		a.sendTo(turret.pos.Add(a.scene.Rand().Offset(-80, 80)))
 		a.mode = agentModeRoombaGuard
 		return

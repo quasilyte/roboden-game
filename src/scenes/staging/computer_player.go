@@ -774,6 +774,7 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) bool {
 			danger, _ := calcPosDanger(p.world, p.state, colony.node.pos, colony.node.realRadius+100)
 			if danger < 2*p.selectedColonyPower() {
 				p.captureDelay = p.world.rand.FloatRange(50, 100)
+				colony.moveDelay += p.world.rand.FloatRange(40, 70)
 				return p.tryExecuteAction(colony.node, -1, b.pos.Add(p.world.rand.Offset(-128, 128)))
 			} else {
 				p.captureDelay = p.world.rand.FloatRange(15, 30)

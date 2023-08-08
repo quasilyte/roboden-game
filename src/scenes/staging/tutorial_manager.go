@@ -51,6 +51,8 @@ type tutorialManager struct {
 
 	nextPressed bool
 
+	skipMovementHint bool
+
 	hint *messageNode
 
 	updateDelay float64
@@ -174,6 +176,27 @@ func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
 }
 
 func (m *tutorialManager) maybeCompleteStep() bool {
+	if !m.skipMovementHint {
+		colony := m.world.allColonies[0]
+		if !colony.waypoint.IsZero() {
+			// Maybe the colony was already on the move?
+			for _, res := range m.world.essenceSources {
+				if res.pos.DistanceSquaredTo(colony.relocationPoint) < (128 * 128) {
+					m.skipMovementHint = true
+					break
+				}
+			}
+		} else {
+			// Maybe it's already around some resources.
+			for _, res := range m.world.essenceSources {
+				if res.pos.DistanceSquaredTo(colony.pos) < (128 * 128) {
+					m.skipMovementHint = true
+					break
+				}
+			}
+		}
+	}
+
 	if !m.explainedAttack && m.choice.Option.special == specialAttack {
 		m.explainedAttack = true
 		m.messageManager.AddMessage(queuedMessageInfo{
@@ -269,15 +292,21 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return m.nextPressed
 
 	case 4:
-		m.addHintNode(ge.Pos{}, d.Get("tutorial.move", m.world.inputMode))
+		if !m.skipMovementHint {
+			m.addHintNode(ge.Pos{}, d.Get("tutorial.move", m.world.inputMode))
+		}
 		return true
 
 	case 5:
+		if m.skipMovementHint {
+			return true
+		}
 		if m.choice.Option.special != specialChoiceMoveColony {
 			return false
 		}
 		for _, res := range m.world.essenceSources {
 			if res.pos.DistanceSquaredTo(m.choice.Pos) < (128 * 128) {
+				m.skipMovementHint = true
 				return true
 			}
 		}

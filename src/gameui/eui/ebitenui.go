@@ -287,6 +287,55 @@ func NewBigItemButton(res *Resources, img *ebiten.Image, onclick func()) *ItemBu
 	}
 }
 
+type RecipeView struct {
+	Container *widget.Container
+	Icon1     *widget.Graphic
+	Icon2     *widget.Graphic
+	Separator *widget.Text
+}
+
+func NewRecipeView(res *Resources) *RecipeView {
+	iconsContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
+			widget.RowLayoutOpts.Spacing(4),
+			widget.RowLayoutOpts.Padding(widget.Insets{
+				Top: 14,
+			}),
+		)),
+	)
+
+	icon1 := widget.NewGraphic()
+	iconsContainer.AddChild(icon1)
+
+	separator := widget.NewText(
+		widget.TextOpts.Text("", assets.BitmapFont2, res.Button.TextColors.Idle),
+		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
+	)
+	iconsContainer.AddChild(separator)
+
+	icon2 := widget.NewGraphic()
+	iconsContainer.AddChild(icon2)
+
+	n := &RecipeView{
+		Container: iconsContainer,
+		Icon1:     icon1,
+		Icon2:     icon2,
+		Separator: separator,
+	}
+	return n
+}
+
+func (r *RecipeView) SetImages(a, b *ebiten.Image) {
+	r.Icon1.Image = a
+	r.Icon2.Image = b
+	if a == nil && b == nil {
+		r.Separator.Label = ""
+	} else {
+		r.Separator.Label = "+"
+	}
+}
+
 type ItemButton struct {
 	Widget widget.PreferredSizeLocateableWidget
 	button *widget.Button

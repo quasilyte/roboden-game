@@ -15,6 +15,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/descriptions"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/serverapi"
@@ -38,11 +39,9 @@ type LobbyMenuController struct {
 	colonyTab *widget.TabBookTab
 	worldTab  *widget.TabBookTab
 
-	helpPanel         *widget.Container
-	helpLabel         *widget.Text
-	helpIcon1         *widget.Graphic
-	helpIconSeparator *widget.Text
-	helpIcon2         *widget.Graphic
+	helpPanel  *widget.Container
+	helpLabel  *widget.Text
+	helpRecipe *eui.RecipeView
 
 	recipeIcons map[gamedata.RecipeSubject]*ebiten.Image
 
@@ -102,51 +101,7 @@ func (c *LobbyMenuController) Update(delta float64) {
 }
 
 func (c *LobbyMenuController) prepareRecipeIcons() {
-	workerImage := c.scene.LoadImage(assets.ImageWorkerAgent)
-	workerFrame := workerImage.Data.SubImage(image.Rectangle{
-		Max: image.Point{X: int(workerImage.DefaultFrameWidth), Y: int(workerImage.DefaultFrameHeight)},
-	}).(*ebiten.Image)
-
-	scoutImage := c.scene.LoadImage(assets.ImageScoutAgent)
-	scoutFrame := scoutImage.Data.SubImage(image.Rectangle{
-		Max: image.Point{X: int(scoutImage.DefaultFrameWidth), Y: int(scoutImage.DefaultFrameHeight)},
-	}).(*ebiten.Image)
-
-	diode := c.scene.LoadImage(assets.ImageFactionDiode).Data
-	diodeSize := diode.Bounds().Size()
-
-	c.recipeIcons = make(map[gamedata.RecipeSubject]*ebiten.Image)
-	for _, recipe := range gamedata.Tier2agentMergeRecipes {
-		subjects := []gamedata.RecipeSubject{
-			recipe.Drone1,
-			recipe.Drone2,
-		}
-		for _, s := range subjects {
-			if _, ok := c.recipeIcons[s]; ok {
-				continue
-			}
-
-			diodeOffset := gamedata.WorkerAgentStats.DiodeOffset + 1
-			droneFrame := workerFrame
-			if s.Kind == gamedata.AgentScout {
-				droneFrame = scoutFrame
-				diodeOffset = gamedata.ScoutAgentStats.DiodeOffset + 2
-			}
-			frameSize := droneFrame.Bounds().Size()
-			img := ebiten.NewImage(32, 32)
-			var drawOptions ebiten.DrawImageOptions
-			drawOptions.GeoM.Scale(2, 2)
-			drawOptions.GeoM.Translate(16-float64(frameSize.X), 16-float64(frameSize.Y))
-			img.DrawImage(droneFrame, &drawOptions)
-			drawOptions.GeoM.Reset()
-			drawOptions.GeoM.Scale(2, 2)
-			drawOptions.GeoM.Translate(16-float64(diodeSize.X), 16-float64(diodeSize.Y)+diodeOffset)
-			drawOptions.ColorM.ScaleWithColor(gamedata.FactionByTag(s.Faction).Color)
-			img.DrawImage(diode, &drawOptions)
-
-			c.recipeIcons[s] = img
-		}
-	}
+	c.recipeIcons = gameui.GenerateRecipePreviews(c.scene, false)
 }
 
 func (c *LobbyMenuController) initUI() {
@@ -760,41 +715,14 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 	c.helpPanel = panel
 
 	tinyFont := assets.BitmapFont1
-	normalFont := assets.BitmapFont2
 
 	label := eui.NewLabel("", tinyFont)
 	label.MaxWidth = 305
 	c.helpLabel = label
 	panel.AddChild(label)
 
-	{
-		iconsContainer := widget.NewContainer(
-			widget.ContainerOpts.Layout(widget.NewRowLayout(
-				widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-				widget.RowLayoutOpts.Spacing(4),
-				widget.RowLayoutOpts.Padding(widget.Insets{
-					Top: 12,
-				}),
-			)),
-		)
-
-		icon1 := widget.NewGraphic()
-		c.helpIcon1 = icon1
-		iconsContainer.AddChild(icon1)
-
-		separator := widget.NewText(
-			widget.TextOpts.Text("", normalFont, uiResources.Button.TextColors.Idle),
-			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
-		)
-		c.helpIconSeparator = separator
-		iconsContainer.AddChild(separator)
-
-		icon2 := widget.NewGraphic()
-		c.helpIcon2 = icon2
-		iconsContainer.AddChild(icon2)
-
-		panel.AddChild(iconsContainer)
-	}
+	c.helpRecipe = eui.NewRecipeView(uiResources)
+	panel.AddChild(c.helpRecipe.Container)
 
 	return panel
 }
@@ -928,9 +856,7 @@ func (c *LobbyMenuController) createBasesPanel(uiResources *eui.Resources) *widg
 
 func (c *LobbyMenuController) setHelpText(s string) {
 	c.helpLabel.Label = s
-	c.helpIcon1.Image = nil
-	c.helpIconSeparator.Label = ""
-	c.helpIcon2.Image = nil
+	c.helpRecipe.SetImages(nil, nil)
 	c.helpPanel.RequestRelayout()
 }
 
@@ -1041,15 +967,7 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 			} else {
 				c.helpLabel.Label = descriptions.LockedDroneText(c.scene.Dict(), &c.state.Persistent.PlayerStats, drone)
 			}
-			if available {
-				c.helpIcon1.Image = c.recipeIcons[recipe.Drone1]
-				c.helpIconSeparator.Label = "+"
-				c.helpIcon2.Image = c.recipeIcons[recipe.Drone2]
-			} else {
-				c.helpIcon1.Image = nil
-				c.helpIconSeparator.Label = ""
-				c.helpIcon2.Image = nil
-			}
+			c.helpRecipe.SetImages(c.recipeIcons[recipe.Drone1], c.recipeIcons[recipe.Drone2])
 			c.helpPanel.RequestRelayout()
 		})
 	}

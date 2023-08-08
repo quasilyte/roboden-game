@@ -46,6 +46,10 @@ func newColonyActionPlanner(colony *colonyCoreNode, rand *gmath.Rand) *colonyAct
 func (p *colonyActionPlanner) PickAction() colonyAction {
 	p.leadingFaction = p.colony.factionWeights.MaxKey()
 	p.numPatrolAgents = 0
+	p.numTier1Agents = 0
+	p.numTier1CombatAgents = 0
+	p.numTier1WorkerAgents = 0
+	p.numGarrisonAgents = 0
 	p.agentCountTable = [gamedata.AgentKindNum]uint8{}
 	leadingFactionAgents := 0
 	leadingFactionCombatAgents := 0

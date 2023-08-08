@@ -23,7 +23,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 			score -= 30
 		}
 		if !config.Relicts {
-			score -= 20
+			score -= 10
 		}
 		if config.IonMortars {
 			score -= 15

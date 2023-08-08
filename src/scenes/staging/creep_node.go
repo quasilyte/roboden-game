@@ -850,7 +850,7 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 		switch {
 		case techLevel < 0.1: // 0-10%
 			minCrawlers = 2
-			maxCrawlers = 2
+			maxCrawlers = 3
 		case techLevel < 0.2: // 10-20%
 			minCrawlers = 3
 			maxCrawlers = 4
@@ -867,8 +867,6 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 			minCrawlers = 7
 			maxCrawlers = 7
 		}
-		minCrawlers = 7
-		maxCrawlers = 7
 	} else {
 		minCrawlers = 3
 		maxCrawlers = 4

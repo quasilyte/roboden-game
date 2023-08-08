@@ -245,6 +245,12 @@ These bases produce more and more units over time, but they can't be replaced af
 Tech progress rate specifies how much creeps tech level increase when they use a dedicated disk.
 Faster tech progress rate makes the game easier for the dreadnought.
 
+##menu.lobby.reverse_super_creep_rate : Super creeps rate
+##menu.lobby.reverse_super_creep_rate.description
+A chance of a unit released from a garrison being extra powerful.
+The default rate is somewhat balanced.
+A lower rate makes the game harder for the Dreadnought.
+
 ##menu.lobby.creep_spawn_rate : Creep spawn rate
 ##menu.lobby.creep_spawn_rate.description
 This option controls the enemy unit spawn frequency.

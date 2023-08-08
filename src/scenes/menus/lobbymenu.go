@@ -490,6 +490,14 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"110%",
 			"120%",
 		}))
+
+		tab.AddChild(c.newOptionButton(&c.config.ReverseSuperCreepRate, "menu.lobby.reverse_super_creep_rate", []string{
+			"x0.1",
+			"x0.4",
+			"x0.7",
+			"x1.0",
+			"x1.3",
+		}))
 	}
 
 	if c.mode == gamedata.ModeClassic || c.mode == gamedata.ModeReverse {

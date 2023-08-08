@@ -68,16 +68,17 @@ type ReplayLevelConfig struct {
 	CreepFortress bool `json:"creep_fortress"`
 	IonMortars    bool `json:"ion_mortars"`
 
-	InitialCreeps     int `json:"initial_creeps"`
-	NumCreepBases     int `json:"num_creep_bases"`
-	CreepDifficulty   int `json:"creep_difficulty"`
-	DronesPower       int `json:"drones_power"`
-	CreepSpawnRate    int `json:"creep_spawn_rate"`
-	TechProgressRate  int `json:"tech_progress_rate"`
-	BossDifficulty    int `json:"boss_difficulty"`
-	ArenaProgression  int `json:"arena_progression"`
-	StartingResources int `json:"starting_resources"`
-	GameSpeed         int `json:"game_speed"`
+	InitialCreeps         int `json:"initial_creeps"`
+	NumCreepBases         int `json:"num_creep_bases"`
+	CreepDifficulty       int `json:"creep_difficulty"`
+	DronesPower           int `json:"drones_power"`
+	CreepSpawnRate        int `json:"creep_spawn_rate"`
+	TechProgressRate      int `json:"tech_progress_rate"`
+	ReverseSuperCreepRate int `json:"reverse_super_creep_rate"`
+	BossDifficulty        int `json:"boss_difficulty"`
+	ArenaProgression      int `json:"arena_progression"`
+	StartingResources     int `json:"starting_resources"`
+	GameSpeed             int `json:"game_speed"`
 
 	Teleporters int `json:"teleporters"`
 

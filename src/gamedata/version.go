@@ -252,6 +252,7 @@ const SeasonNumber = 1
 //   - Added a Drone factory neutral building
 //   - Added a Power plant neutral building
 //   - Added a Turret neutral building
+//   - Added "super creep rate" option in Reverse mode
 //
 // * Gameplay:
 //   - Increase dreadnough max crawlers limit
@@ -281,6 +282,7 @@ const SeasonNumber = 1
 //   - Reduced Ark colony drone limit (100 -> 80)
 //   - Wisps will retreat for longer distances
 //   - Added damage vs buildings modifier
+//   - Increased wave budget scaling in infinite arena mode
 //
 // * Computer player (colony bots):
 //   - Will no longer play a solo base tactic with Ark core design

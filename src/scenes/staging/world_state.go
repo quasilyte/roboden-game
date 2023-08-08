@@ -82,6 +82,8 @@ type worldState struct {
 	bossHealthMultiplier  float64
 	oilRegenMultiplier    float64
 
+	superCreepChanceMultiplier float64
+
 	numRedCrystals int
 
 	gridCounters map[int]uint8
@@ -253,6 +255,7 @@ func (w *worldState) Init() {
 	w.creepHealthMultiplier = 0.25 + (float64(w.config.CreepDifficulty) * 0.25)
 	w.bossHealthMultiplier = 0.7 + (float64(w.config.BossDifficulty) * 0.3)
 	w.oilRegenMultiplier = float64(w.config.OilRegenRate) * 0.5
+	w.superCreepChanceMultiplier = 0.1 + (float64(w.config.ReverseSuperCreepRate) * 0.3)
 
 	if w.config.FogOfWar && w.config.ExecMode != gamedata.ExecuteSimulation {
 		w.visionCircle = ebiten.NewImage(int(colonyVisionRadius*2), int(colonyVisionRadius*2))

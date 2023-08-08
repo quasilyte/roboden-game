@@ -18,6 +18,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score -= (config.TechProgressRate - 5) * 5
 		score += (config.OilRegenRate - 2) * 5
 		score += (config.Resources - 2) * 20
+		score -= (config.ReverseSuperCreepRate - 3) * 15
 		if config.CreepFortress {
 			score -= 30
 		}

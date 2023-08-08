@@ -203,12 +203,13 @@ func getDefaultSessionState() *session.State {
 		ExtraMusic: runtime.GOARCH != "wasm",
 		ReverseLevelConfig: newLevelConfig(&gamedata.LevelConfig{
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
-				Teleporters:      1,
-				RawGameMode:      "reverse",
-				TechProgressRate: 5,
-				DronesPower:      1,
-				InitialCreeps:    1,
-				BossDifficulty:   2,
+				Teleporters:           1,
+				RawGameMode:           "reverse",
+				TechProgressRate:      5,
+				ReverseSuperCreepRate: 3,
+				DronesPower:           1,
+				InitialCreeps:         1,
+				BossDifficulty:        2,
 			},
 		}),
 		ArenaLevelConfig: newLevelConfig(&gamedata.LevelConfig{

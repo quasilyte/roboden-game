@@ -165,14 +165,32 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	if p.colony.failedResource != nil {
 		p.colony.failedResourceTick++
-		if p.colony.failedResourceTick > 8 {
+		if p.colony.failedResourceTick > 7 {
 			p.colony.failedResource = nil
+		}
+	}
+
+	if len(p.colony.agents.workers) == 0 && p.colony.resources < 80 && p.numTier1Agents != 0 {
+		// This is a very bad situation.
+		// The colony may need to recycle some scouts ASAP to create workers instead.
+		if p.world.rand.Chance(0.25) {
+			drone := p.colony.agents.Find(searchFighters|searchRandomized, func(a *colonyAgentNode) bool {
+				return a.stats == gamedata.ScoutAgentStats
+			})
+			if drone != nil {
+				return colonyAction{
+					Kind:     actionRecycleAgent,
+					Value:    drone,
+					TimeCost: 1.3,
+				}
+			}
 		}
 	}
 
 	if p.colony.agents.NumAvailableWorkers() == 0 {
 		return colonyAction{}
 	}
+
 	baseNeedsResources := p.colony.resources <= p.colony.maxVisualResources()
 	if !baseNeedsResources {
 		return colonyAction{}

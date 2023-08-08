@@ -290,7 +290,7 @@ var TowerArtifactAgentStats = InitDroneStats(&AgentStats{
 	MaxHealth:  130,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange: 420,
-		Reload:      3.1,
+		Reload:      3.6,
 		MaxTargets:  4,
 		AttackSound: assets.AudioArtifactTowerAttack,
 		Damage:      DamageValue{Health: 4, Morale: 0.9},

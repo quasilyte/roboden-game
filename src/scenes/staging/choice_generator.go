@@ -118,7 +118,7 @@ var specialChoicesTable = [...]choiceOption{
 	},
 	specialBossAttack: {
 		special: specialBossAttack,
-		cost:    45,
+		cost:    40,
 		icon:    assets.ImageActionBossAttack,
 	},
 	specialIncreaseTech: {

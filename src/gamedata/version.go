@@ -282,7 +282,8 @@ const SeasonNumber = 1
 //   - Reduced Ark colony drone limit (100 -> 80)
 //   - Wisps will retreat for longer distances
 //   - Added damage vs buildings modifier
-//   - Increased wave budget scaling in infinite arena mode
+//   - Increased wave budget scaling in Infinite Arena mode
+//   - Decrease "attack colony" action time cost in Reverse mode
 //
 // * Computer player (colony bots):
 //   - Will no longer play a solo base tactic with Ark core design

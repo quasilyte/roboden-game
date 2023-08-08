@@ -37,6 +37,9 @@ type humanPlayer struct {
 	colonyDestination    *ge.Line
 	screenSeparator      *ge.Line
 
+	droneSelectorsUsed int
+	droneSelectors     []*ge.Sprite
+
 	creepsState *creepsPlayerState
 
 	canPing   bool
@@ -138,6 +141,14 @@ func (p *humanPlayer) Init() {
 		})
 		p.scene.AddObject(ttm)
 		p.tooltipManager = ttm
+		ttm.EventHighlightDrones.Connect(nil, func(drone *gamedata.AgentStats) {
+			p.highlightDrones(drone)
+		})
+		ttm.EventTooltipClosed.Connect(nil, func(gsignal.Void) {
+			if p.droneSelectorsUsed != 0 {
+				p.hideDroneSelectors()
+			}
+		})
 	}
 
 	if p.world.config.InterfaceMode >= 2 {
@@ -410,6 +421,42 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.pos
 	p.colonyDestination.BeginPos.Base = &p.state.selectedColony.pos
 	p.colonyDestination.EndPos.Base = &p.state.selectedColony.relocationPoint
+}
+
+func (p *humanPlayer) highlightDrones(droneStats *gamedata.AgentStats) {
+	if p.state.selectedColony == nil {
+		return
+	}
+
+	p.state.selectedColony.agents.Each(func(drone *colonyAgentNode) {
+		if drone.stats != droneStats {
+			return
+		}
+		s := p.makeDroneSelector()
+		s.Pos.Base = &drone.pos
+		s.Visible = true
+	})
+}
+
+func (p *humanPlayer) hideDroneSelectors() {
+	for _, s := range p.droneSelectors {
+		s.Visible = false
+	}
+	p.droneSelectorsUsed = 0
+}
+
+func (p *humanPlayer) makeDroneSelector() *ge.Sprite {
+	numSelectors := p.droneSelectorsUsed
+	p.droneSelectorsUsed++
+
+	if numSelectors < len(p.droneSelectors) {
+		return p.droneSelectors[numSelectors]
+	}
+
+	s := p.scene.NewSprite(assets.ImageDroneSelector)
+	p.droneSelectors = append(p.droneSelectors, s)
+	p.state.camera.Private.AddGraphicsSlightlyAbove(s)
+	return s
 }
 
 func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {

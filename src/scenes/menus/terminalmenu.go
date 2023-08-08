@@ -645,7 +645,7 @@ func (c *TerminalMenu) onIntroSettings(ctx *terminalCommandContext) (string, err
 		args := &argsType{}
 		ctx.parsedArgs = args
 		ctx.fs.IntVar(&args.difficulty, "difficulty", 0, "controls the intro mission difficulty")
-		ctx.fs.IntVar(&args.speed, "speed", 0, "controls the intro mission speed")
+		ctx.fs.IntVar(&args.speed, "speed", 1, "controls the intro mission speed")
 		return "", nil
 	}
 	args := ctx.parsedArgs.(*argsType)
@@ -656,14 +656,14 @@ func (c *TerminalMenu) onIntroSettings(ctx *terminalCommandContext) (string, err
 		return "", fmt.Errorf("invalid difficulty value: %d", args.difficulty)
 	}
 	switch args.speed {
-	case 0, 1, 2:
+	case 0, 1, 2, 3:
 		// OK.
 	default:
 		return "", fmt.Errorf("invalid speed value: %d", args.speed)
 	}
 	c.state.Persistent.Settings.IntroDifficulty = args.difficulty
 	c.state.Persistent.Settings.IntroSpeed = args.speed
-	speedLabels := []string{"x1.0", "x1.2", "x1.5"}
+	speedLabels := []string{"x1.0", "x1.2", "x1.5", "x2.0"}
 	return fmt.Sprintf("intro settings: speed=%s difficulty=%d", speedLabels[args.speed], args.difficulty), nil
 }
 

@@ -241,6 +241,7 @@ const SeasonNumber = 1
 //   - Show Dreadnought health level in the tooltip
 //   - Give an input device prompt for the new players
 //   - Display drone recipe in the Drone Collection menu as well (even for T3 drones)
+//   - Add drone highlighting when hovering over a recipe tab entry
 //
 // * New content:
 //   - Add Spectator achievement

@@ -8,6 +8,7 @@ import (
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
@@ -23,6 +24,9 @@ type tooltipManager struct {
 	tooltipTime float64
 
 	message *messageNode
+
+	EventHighlightDrones gsignal.Event[*gamedata.AgentStats]
+	EventTooltipClosed   gsignal.Event[gsignal.Void]
 }
 
 func newTooltipManager(p *humanPlayer, allTips bool) *tooltipManager {
@@ -61,6 +65,7 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 		drone := m.player.recipeTab.GetDroneUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
 		if drone != nil {
 			m.createTooltip(pos, d.Get("drone", strings.ToLower(drone.Kind.String())))
+			m.EventHighlightDrones.Emit(drone)
 			return
 		}
 	}
@@ -211,6 +216,7 @@ func (m *tooltipManager) removeTooltip() {
 	if m.message != nil {
 		m.message.Dispose()
 		m.message = nil
+		m.EventTooltipClosed.Emit(gsignal.Void{})
 	}
 }
 

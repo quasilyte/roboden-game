@@ -154,6 +154,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTeleporter:       {Path: "image/teleporter.png"},
 		ImageTeleporterLights: {Path: "image/teleporter_lights.png"},
 
+		ImageDroneSelector: {Path: "image/ui/drone_selector.png"},
+
 		ImageDenCore:              {Path: "image/colonies/den_core.png"},
 		ImageDenCoreFlying:        {Path: "image/colonies/den_core_flying.png"},
 		ImageDenCoreSelector:      {Path: "image/colonies/den_core_selector.png"},
@@ -532,6 +534,8 @@ const (
 	ImageColonyResourceBar1
 	ImageColonyResourceBar2
 	ImageColonyResourceBar3
+
+	ImageDroneSelector
 
 	ImageDenCore
 	ImageDenCoreFlying

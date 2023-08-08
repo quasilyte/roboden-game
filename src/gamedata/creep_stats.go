@@ -286,7 +286,7 @@ var WispCreepStats = &CreepStats{
 	Speed:         20,
 	MaxHealth:     35,
 	Disarmable:    false,
-	CanBeRepelled: true,
+	CanBeRepelled: false,
 	Flying:        true,
 	TargetKind:    TargetFlying,
 }

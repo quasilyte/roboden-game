@@ -45,6 +45,8 @@ func (c *ControlsKeyboardMenuController) initUI() {
 
 	smallFont := assets.BitmapFont1
 
+	options := &c.state.Persistent.Settings
+
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.keyboard"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
@@ -63,6 +65,17 @@ func (c *ControlsKeyboardMenuController) initUI() {
 		grid.AddChild(rightLabel)
 	}
 	panel.AddChild(grid)
+
+	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+		Resources: uiResources,
+		Input:     c.state.CombinedInput,
+		Value:     &options.WheelScrollingMode,
+		Label:     d.Get("menu.controls.wheel_scroll"),
+		ValueNames: []string{
+			d.Get("menu.controls.wheel_scroll.drag"),
+			d.Get("menu.controls.wheel_scroll.float"),
+		},
+	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

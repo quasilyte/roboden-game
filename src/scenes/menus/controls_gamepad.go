@@ -167,8 +167,6 @@ func (c *ControlsGamepadMenuController) initUI() {
 			h.SetGamepadLayout(gameinput.GamepadLayoutKind(options.GamepadSettings[c.id].Layout))
 			grid.RemoveChildren()
 			initControlsGrid(h.ReplaceKeyNames(d.Get("menu.controls.gamepad.text")))
-
-			// TODO: update bindings text.
 		},
 	}))
 

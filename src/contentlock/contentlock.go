@@ -17,6 +17,7 @@ func GetDefaultData() session.PersistentData {
 	return session.PersistentData{
 		// The default settings.
 		Settings: session.GameSettings{
+			WheelScrollingMode: int(gameinput.WheelScrollDrag),
 			Player1InputMethod: int(gameinput.InputMethodCombined),
 			Player2InputMethod: int(gameinput.InputMethodGamepad2),
 			IntroSpeed:         1,

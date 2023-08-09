@@ -8,6 +8,13 @@ import (
 	"github.com/quasilyte/gsignal"
 )
 
+type WheelScrollStyle int
+
+const (
+	WheelScrollDrag WheelScrollStyle = iota
+	WheelScrollFloat
+)
+
 type PlayerInputMethod int
 
 const (

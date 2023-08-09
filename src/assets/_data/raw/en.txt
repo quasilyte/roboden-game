@@ -364,6 +364,9 @@ some special differences that will affect the gameplay.
 ##menu.controls.method_combined : combined
 ##menu.controls.method_keyboard : keyboard
 ##menu.controls.method_gamepad : gamepad
+##menu.controls.wheel_scroll : Middle mouse button scroll
+##menu.controls.wheel_scroll.drag : drag
+##menu.controls.wheel_scroll.float : float
 ##menu.controls.player_label : Player
 ##menu.controls.gamepad_deadzone : Joystick deadzone
 ##menu.controls.gamepad_layout : Layout
@@ -378,7 +381,7 @@ some special differences that will affect the gameplay.
 The red dot should be centered if joystick is resting.
 
 ##menu.controls.keyboard.text
-Pan camera | Middle mouse button + move, edge scroll, W/A/S/D
+Pan camera | Middle mouse button + drag, edge scroll, W/A/S/D
 Move colony | RMB click on the destination
 Select colony | LMB click on the colony
 Toggle colony | TAB

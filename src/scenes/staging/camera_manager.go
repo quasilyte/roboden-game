@@ -25,6 +25,8 @@ type cameraManager struct {
 	mode  cameraMode
 	input *gameinput.Handler
 
+	wheelScrollStyle gameinput.WheelScrollStyle
+
 	cameraPanStartPos        gmath.Vec
 	cameraPanDragPos         gmath.Vec
 	cameraPanSpeed           float64
@@ -71,6 +73,8 @@ func newCameraManager(world *worldState, cam *viewport.Camera) *cameraManager {
 		m.cameraPanBoundary += 2 * float64(m.world.gameSettings.EdgeScrollRange-1)
 	}
 
+	m.wheelScrollStyle = gameinput.WheelScrollStyle(m.world.gameSettings.WheelScrollingMode)
+
 	return m
 }
 
@@ -114,14 +118,21 @@ func (m *cameraManager) HandleInput() {
 			cameraPan.Y -= m.cameraPanSpeed
 		}
 		if cameraPan.IsZero() {
-			if info, ok := m.input.JustPressedActionInfo(controls.ActionPanAlt); ok {
-				m.cameraPanDragPos = m.Offset
-				m.cameraPanStartPos = info.Pos
-			} else if info, ok := m.input.PressedActionInfo(controls.ActionPanAlt); ok {
-				m.cameraToggleTarget = gmath.Vec{}
-				posDelta := m.cameraPanStartPos.Sub(info.Pos).Mulf(m.cameraDragSpeed)
-				newPos := m.cameraPanDragPos.Add(posDelta)
-				m.SetOffset(newPos)
+			if m.wheelScrollStyle == gameinput.WheelScrollDrag {
+				if info, ok := m.input.JustPressedActionInfo(controls.ActionPanAlt); ok {
+					m.cameraPanDragPos = m.Offset
+					m.cameraPanStartPos = info.Pos
+				} else if info, ok := m.input.PressedActionInfo(controls.ActionPanAlt); ok {
+					m.cameraToggleTarget = gmath.Vec{}
+					posDelta := m.cameraPanStartPos.Sub(info.Pos).Mulf(m.cameraDragSpeed)
+					newPos := m.cameraPanDragPos.Add(posDelta)
+					m.SetOffset(newPos)
+				}
+			} else {
+				if info, ok := m.input.PressedActionInfo(controls.ActionPanAlt); ok {
+					cameraCenter := m.Rect.Center()
+					cameraPan = gmath.RadToVec(cameraCenter.AngleToPoint(info.Pos)).Mulf(m.cameraPanSpeed * 0.8)
+				}
 			}
 		}
 		if cameraPan.IsZero() && m.cameraPanBoundary != 0 {

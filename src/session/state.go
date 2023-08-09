@@ -157,6 +157,7 @@ type GameSettings struct {
 	ScrollingSpeed     int
 	EdgeScrollRange    int
 	HintMode           int
+	WheelScrollingMode int
 	ShowFPS            bool
 	ShowTimer          bool
 	DebugLogs          bool

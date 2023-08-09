@@ -245,7 +245,7 @@ const SeasonNumber = 1
 //   - Auto-fill player's name from the Steam account (this can be changed in the menu later)
 //
 // * Controls:
-//   - Reworked the middle mouse button scroll behavior
+//   - Reworked the default middle mouse button scroll behavior (can be reverted in the keyboard controls section)
 //
 // * New content:
 //   - Add Spectator achievement

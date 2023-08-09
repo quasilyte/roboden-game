@@ -288,6 +288,7 @@ const SeasonNumber = 1
 //   - Added damage vs buildings modifier
 //   - Increased wave budget scaling in Infinite Arena mode
 //   - Decrease "attack colony" action time cost in Reverse mode
+//   - Scale the number of wisps with a map size
 //
 // * Computer player (colony bots):
 //   - Will no longer play a solo base tactic with Ark core design

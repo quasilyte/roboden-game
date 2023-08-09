@@ -86,6 +86,7 @@ type worldState struct {
 	superCreepChanceMultiplier float64
 
 	numRedCrystals int
+	wispLimit      float64
 
 	gridCounters map[int]uint8
 	pathgrid     *pathing.Grid
@@ -261,6 +262,17 @@ func (w *worldState) Init() {
 	if w.config.FogOfWar && w.config.ExecMode != gamedata.ExecuteSimulation {
 		w.visionCircle = ebiten.NewImage(int(colonyVisionRadius*2), int(colonyVisionRadius*2))
 		gedraw.DrawCircle(w.visionCircle, gmath.Vec{X: colonyVisionRadius, Y: colonyVisionRadius}, colonyVisionRadius, color.RGBA{A: 255})
+	}
+
+	switch w.config.WorldSize {
+	case 0:
+		w.wispLimit = 8
+	case 1:
+		w.wispLimit = 10
+	case 2:
+		w.wispLimit = 14
+	case 3:
+		w.wispLimit = 18
 	}
 }
 

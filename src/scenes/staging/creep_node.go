@@ -1301,8 +1301,7 @@ func (c *creepNode) updateWispLair(delta float64) {
 	if c.attackDelay != 0 {
 		return
 	}
-	const maxUnits = 15
-	if c.specialModifier > maxUnits {
+	if c.specialModifier > c.world.wispLimit {
 		return
 	}
 

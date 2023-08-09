@@ -1352,7 +1352,7 @@ var DisintegratorAgentStats = InitDroneStats(&AgentStats{
 		ProjectileSpeed:           210,
 		ProjectileRotateSpeed:     26,
 		Reload:                    10, // Approx, for balance calculations
-		Damage:                    DamageValue{Health: 15},
+		Damage:                    DamageValue{Health: 16},
 		MaxTargets:                1,
 		BurstSize:                 1,
 		Explosion:                 ProjectileExplosionPurple,

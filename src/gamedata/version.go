@@ -242,6 +242,7 @@ const SeasonNumber = 1
 //   - Give an input device prompt for the new players
 //   - Display drone recipe in the Drone Collection menu as well (even for T3 drones)
 //   - Add drone highlighting when hovering over a recipe tab entry
+//   - Auto-fill player's name from the Steam account (this can be changed in the menu later)
 //
 // * Controls:
 //   - Reworked the middle mouse button scroll behavior

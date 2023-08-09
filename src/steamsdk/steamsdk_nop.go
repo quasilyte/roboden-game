@@ -8,6 +8,10 @@ import (
 	"github.com/quasilyte/gmath"
 )
 
+func PlayerName() string {
+	return ""
+}
+
 func ShowSteamDeckKeyboard(textFieldRect gmath.Rect) bool {
 	return false
 }

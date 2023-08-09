@@ -9,6 +9,10 @@ import (
 	"github.com/quasilyte/gmath"
 )
 
+func PlayerName() string {
+	return steamworks.SteamFriends().GetPersonaName()
+}
+
 func ShowSteamDeckKeyboard(textFieldRect gmath.Rect) bool {
 	x := int32(textFieldRect.Min.X)
 	y := int32(textFieldRect.Min.Y)

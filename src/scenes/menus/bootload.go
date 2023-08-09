@@ -100,7 +100,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		c.state.AdjustVolumeLevels()
 
 		if !c.state.Persistent.GaveInputPrompt {
-			c.scene.Context().ChangeScene(NewControlsPromptController(c.state))
+			c.onFirstLaunch()
 			return
 		}
 
@@ -117,6 +117,19 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
+}
+
+func (c *BootloadController) onFirstLaunch() {
+	if c.state.SteamInfo.Initialized {
+		// Infer the player's name from the Steam account info.
+		name := steamsdk.PlayerName()
+		if gamedata.IsValidUsername(name) {
+			c.state.Persistent.PlayerName = name
+			c.scene.Context().SaveGameData("save", c.state.Persistent)
+		}
+	}
+
+	c.scene.Context().ChangeScene(NewControlsPromptController(c.state))
 }
 
 func (c *BootloadController) prepareBackground() {

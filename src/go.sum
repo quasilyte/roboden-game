@@ -15,6 +15,8 @@ github.com/hajimehoshi/go-steamworks v0.0.0-20230316070542-ff530cb9ba1d h1:FlA8b
 github.com/hajimehoshi/go-steamworks v0.0.0-20230316070542-ff530cb9ba1d/go.mod h1:dXOYZp8y+T57rJesE7OBBI9ZWtu85NwaaBTb3PEeLU4=
 github.com/hajimehoshi/go-steamworks v0.0.0-20230731093655-018554ce3efc h1:x98dfV14atasNTPVFhHJ6U/N/gTkTjCHp39V+YaMB9o=
 github.com/hajimehoshi/go-steamworks v0.0.0-20230731093655-018554ce3efc/go.mod h1:dXOYZp8y+T57rJesE7OBBI9ZWtu85NwaaBTb3PEeLU4=
+github.com/hajimehoshi/go-steamworks v0.0.0-20230809071343-ee1a81910acc h1:su3G3PSnbcv2j3nAsryljGCsoxjgdu7oNxUXRyj7NCk=
+github.com/hajimehoshi/go-steamworks v0.0.0-20230809071343-ee1a81910acc/go.mod h1:dXOYZp8y+T57rJesE7OBBI9ZWtu85NwaaBTb3PEeLU4=
 github.com/hajimehoshi/oto/v2 v2.4.0 h1:2A8QvGJZ7nXwcfIIthaqWdzDn9Ul/er6oASiKcsfiLg=
 github.com/hajimehoshi/oto/v2 v2.4.0/go.mod h1:74bRBgfJaEDpP3NyVyHIYBJE4DgzJ2IP5l/st5qcJog=
 github.com/jezek/xgb v1.1.0 h1:wnpxJzP1+rkbGclEkmwpVFQWpuE2PUGNUzP8SbfFobk=

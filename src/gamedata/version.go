@@ -243,6 +243,9 @@ const SeasonNumber = 1
 //   - Display drone recipe in the Drone Collection menu as well (even for T3 drones)
 //   - Add drone highlighting when hovering over a recipe tab entry
 //
+// * Controls:
+//   - Reworked the middle mouse button scroll behavior
+//
 // * New content:
 //   - Add Spectator achievement
 //   - Add 1337 achievement
@@ -268,6 +271,7 @@ const SeasonNumber = 1
 //   - Fixed a intro mission crash when "keyboard" input method was selected
 //   - Escape/back inside a results screen no longer skips through rewards
 //   - Fixed a virtual cursor click over a screen buttons like "exit"
+//   - Fixed the right/down edge scroll with its range set to 1
 //
 // * Visuals:
 //   - Improved some effects layer arrangement

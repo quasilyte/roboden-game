@@ -25,8 +25,10 @@ type cameraManager struct {
 	mode  cameraMode
 	input *gameinput.Handler
 
+	cameraPanStartPos        gmath.Vec
 	cameraPanDragPos         gmath.Vec
 	cameraPanSpeed           float64
+	cameraDragSpeed          float64
 	cameraPanBoundary        float64
 	cameraToggleSpeed        float64
 	cameraToggleProgress     float64
@@ -43,26 +45,23 @@ func newCameraManager(world *worldState, cam *viewport.Camera) *cameraManager {
 		Camera: cam,
 	}
 
-	if m.world.deviceInfo.IsMobile {
-		switch m.world.gameSettings.ScrollingSpeed {
-		case 0:
-			m.cameraPanSpeed = 0.5
-		case 1:
-			m.cameraPanSpeed = 0.8
-		case 2:
-			// The default speed, x1 factor.
-			// This is the most pleasant and convenient to use, but could
-			// be too slow for a pro player.
-			m.cameraPanSpeed = 1
-		case 3:
-			// Just a bit faster.
-			m.cameraPanSpeed = 1.2
-		case 4:
-			m.cameraPanSpeed = 2
-		}
-	} else {
-		m.cameraPanSpeed = float64(m.world.gameSettings.ScrollingSpeed+1) * 4
+	switch m.world.gameSettings.ScrollingSpeed {
+	case 0:
+		m.cameraDragSpeed = 0.5
+	case 1:
+		m.cameraDragSpeed = 0.8
+	case 2:
+		// The default speed, x1 factor.
+		// This is the most pleasant and convenient to use, but could
+		// be too slow for a pro player.
+		m.cameraDragSpeed = 1
+	case 3:
+		// Just a bit faster.
+		m.cameraDragSpeed = 1.2
+	case 4:
+		m.cameraDragSpeed = 2
 	}
+	m.cameraPanSpeed = float64(m.world.gameSettings.ScrollingSpeed+1) * 4
 
 	if m.world.gameSettings.EdgeScrollRange != 0 {
 		m.cameraPanBoundary = 1
@@ -115,18 +114,23 @@ func (m *cameraManager) HandleInput() {
 			cameraPan.Y -= m.cameraPanSpeed
 		}
 		if cameraPan.IsZero() {
-			if info, ok := m.input.PressedActionInfo(controls.ActionPanAlt); ok {
-				cameraCenter := m.Rect.Center()
-				cameraPan = gmath.RadToVec(cameraCenter.AngleToPoint(info.Pos)).Mulf(m.cameraPanSpeed * 0.8)
+			if info, ok := m.input.JustPressedActionInfo(controls.ActionPanAlt); ok {
+				m.cameraPanDragPos = m.Offset
+				m.cameraPanStartPos = info.Pos
+			} else if info, ok := m.input.PressedActionInfo(controls.ActionPanAlt); ok {
+				m.cameraToggleTarget = gmath.Vec{}
+				posDelta := m.cameraPanStartPos.Sub(info.Pos).Mulf(m.cameraDragSpeed)
+				newPos := m.cameraPanDragPos.Add(posDelta)
+				m.SetOffset(newPos)
 			}
 		}
 		if cameraPan.IsZero() && m.cameraPanBoundary != 0 {
 			// Mouse cursor can pan the camera too.
 			cursor := m.input.CursorPos().Sub(m.ScreenPos)
-			if cursor.X > m.Rect.Width()-m.cameraPanBoundary {
+			if cursor.X >= m.Rect.Width()-m.cameraPanBoundary {
 				cameraPan.X += m.cameraPanSpeed
 			}
-			if cursor.Y > m.Rect.Height()-m.cameraPanBoundary {
+			if cursor.Y >= m.Rect.Height()-m.cameraPanBoundary {
 				cameraPan.Y += m.cameraPanSpeed
 			}
 			if cursor.X < m.cameraPanBoundary {
@@ -148,7 +152,7 @@ func (m *cameraManager) HandleInput() {
 		}
 		if info, ok := m.input.PressedActionInfo(controls.ActionPanDrag); ok {
 			m.cameraToggleTarget = gmath.Vec{}
-			posDelta := info.StartPos.Sub(info.Pos).Mulf(m.cameraPanSpeed)
+			posDelta := info.StartPos.Sub(info.Pos).Mulf(m.cameraDragSpeed)
 			newPos := m.cameraPanDragPos.Add(posDelta)
 			m.SetOffset(newPos)
 		}

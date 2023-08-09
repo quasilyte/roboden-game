@@ -93,7 +93,7 @@ func (state *State) GetGamepadInput(id int) *gameinput.Handler {
 type PersistentData struct {
 	Settings GameSettings
 
-	GaveInputPrompt bool
+	FirstLaunch bool
 
 	PlayerName string
 

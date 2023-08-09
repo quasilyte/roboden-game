@@ -60,7 +60,6 @@ func (c *ControlsPromptController) initUI() {
 
 func (c *ControlsPromptController) selectControls(inputMethod gameinput.PlayerInputMethod) {
 	c.state.Persistent.Settings.Player1InputMethod = int(inputMethod)
-	c.state.Persistent.GaveInputPrompt = true
 	c.state.ReloadInputs()
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
 	c.scene.Context().ChangeScene(NewSplashScreenController(c.state))

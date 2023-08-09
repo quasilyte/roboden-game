@@ -99,7 +99,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 	initTask.EventCompleted.Connect(nil, func(gsignal.Void) {
 		c.state.AdjustVolumeLevels()
 
-		if !c.state.Persistent.GaveInputPrompt {
+		if c.state.Persistent.FirstLaunch {
 			c.onFirstLaunch()
 			return
 		}
@@ -125,9 +125,11 @@ func (c *BootloadController) onFirstLaunch() {
 		name := steamsdk.PlayerName()
 		if gamedata.IsValidUsername(name) {
 			c.state.Persistent.PlayerName = name
-			c.scene.Context().SaveGameData("save", c.state.Persistent)
 		}
 	}
+
+	c.state.Persistent.FirstLaunch = false
+	c.scene.Context().SaveGameData("save", c.state.Persistent)
 
 	c.scene.Context().ChangeScene(NewControlsPromptController(c.state))
 }

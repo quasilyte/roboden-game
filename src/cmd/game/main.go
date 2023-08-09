@@ -109,16 +109,28 @@ func main() {
 	state.FirstGamepadInput = keymaps.FirstGamepadInput
 	state.SecondGamepadInput = keymaps.SecondGamepadInput
 
-	if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
-		state.Logf("can't load game data: %v", err)
-		state.Persistent = contentlock.GetDefaultData()
-		contentlock.Update(state)
-		ctx.SaveGameData("save", state.Persistent)
-	} else {
-		if state.Persistent.PlayerStats.TotalPlayTime > 0 {
-			state.Persistent.GaveInputPrompt = true
+	if ctx.CheckGameData("save") {
+		if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
+			state.Logf("can't load game data: %v", err)
+			state.Persistent = contentlock.GetDefaultData()
+			contentlock.Update(state)
+			ctx.SaveGameData("save", state.Persistent)
+		} else {
+			// Loaded without errors.
+			if state.Persistent.FirstLaunch && state.Persistent.PlayerStats.TotalPlayTime > 0 {
+				// We introduced the first launch flag after the release.
+				// Some players may have already played the game,
+				// so we don't want them to be marked as first-timers.
+				state.Persistent.FirstLaunch = false
+				ctx.SaveGameData("save", state.Persistent)
+			}
+			// Re-check the content.
+			contentlock.Update(state)
 		}
-		contentlock.Update(state)
+	} else {
+		// This is a first launch.
+		state.Logf("save data does not exist")
+		ctx.SaveGameData("save", state.Persistent)
 	}
 	state.ReloadInputs()
 	state.ReloadLanguage(ctx)

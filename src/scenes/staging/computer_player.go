@@ -466,7 +466,7 @@ func (p *computerPlayer) maybeRetreatFromBoss(colony *computerColony) bool {
 	}
 
 	bossDist := boss.pos.DistanceTo(colony.node.pos)
-	if bossDist > colony.node.PatrolRadius()+400 {
+	if bossDist > colony.node.PatrolRadius()+360 {
 		return false
 	}
 
@@ -476,7 +476,7 @@ func (p *computerPlayer) maybeRetreatFromBoss(colony *computerColony) bool {
 		return false
 	}
 
-	if p.world.rand.Chance(0.9) {
+	if p.world.rand.Chance(0.65) {
 		// Try to get out of the boss movement trajectory.
 		bossDir := boss.waypoint.DirectionTo(boss.pos)
 		probe1 := bossDir.Rotated(gmath.Rad(p.world.rand.FloatRange(0.45, 1.1))).Mulf(colony.node.MaxFlyDistance()).Add(colony.node.pos)
@@ -508,8 +508,8 @@ func (p *computerPlayer) maybeHandleHowitzerThreat(colony *computerColony) bool 
 	// If the attacks persist, this field will be re-assigned again.
 	colony.howitzerAttacker = nil
 
-	danger, _ := p.calcPosDanger(howitzer.pos, 300)
-	requiredPower := int(float64(danger) * p.world.rand.FloatRange(0.9, 1.4))
+	danger, _ := p.calcPosDanger(howitzer.pos, 250)
+	requiredPower := int(float64(danger) * p.world.rand.FloatRange(0.9, 1.3))
 
 	colonyPower := p.selectedColonyPower()
 	var colonyForAttack *colonyCoreNode
@@ -988,8 +988,7 @@ func (p *computerPlayer) calcPosResources(colony *colonyCoreNode, pos gmath.Vec,
 
 func (p *computerPlayer) findRandomResourcesSpot(colony *computerColony) gmath.Vec {
 	pos := randomSectorPos(p.world.rand, p.world.innerRect)
-	dir := gmath.RadToVec(colony.node.pos.AngleToPoint(pos))
-	waypointPos := dir.Mulf(colony.node.MaxFlyDistance()).Add(colony.node.pos)
+	waypointPos := colony.node.pos.MoveTowards(pos, colony.node.MaxFlyDistance())
 	danger, _ := p.calcPosDanger(waypointPos, colony.node.PatrolRadius()+100)
 	power := p.selectedColonyPower()
 	if 2*danger > power {
@@ -1080,7 +1079,7 @@ func (p *computerPlayer) moveColonyToResources(currentResourcesScore int, colony
 		return 0
 	}
 
-	nextMoveDelay := 45.0
+	nextMoveDelay := 55.0
 	if bestScorePos.DistanceSquaredTo(colony.node.pos) > 1.25*colony.node.MaxFlyDistanceSqr() {
 		nextMoveDelay = 5
 	}

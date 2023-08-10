@@ -40,7 +40,7 @@ func IsSendableReplay(r serverapi.GameReplay) bool {
 	if !IsRunnableReplay(r) {
 		return false
 	}
-	if GetSeedKind(r.Config.Seed, r.Config.RawGameMode) == SeedNormal {
+	if GetSeedKind(r.Config.Seed, r.Config.RawGameMode) != SeedNormal {
 		return false
 	}
 	if r.Results.Score <= 0 {

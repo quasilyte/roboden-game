@@ -249,7 +249,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCreepTier1:          {Path: "image/creeps/tier1_creep.png", FrameHeight: 9},
 		ImageServantCreep:        {Path: "image/creeps/servant_creep.png", FrameWidth: 15, FrameHeight: 13},
 		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png", FrameHeight: 16},
-		ImageCreepTemplar:        {Path: "image/creeps/templar_creep.png"},
+		ImageCreepTemplar:        {Path: "image/creeps/templar_creep.png", FrameWidth: 19, FrameHeight: 14},
 		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25, FrameHeight: 22},
 		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23, FrameHeight: 24},
 		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png", FrameHeight: 25},

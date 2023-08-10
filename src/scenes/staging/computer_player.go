@@ -893,7 +893,7 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) float64 {
 				p.captureDelay = p.world.rand.FloatRange(50, 100)
 				p.executeMoveAction(colony.node, b.pos.Add(p.world.rand.Offset(-128, 128)))
 				colony.retreatPos = gmath.Vec{}
-				return 60
+				return 70
 			} else {
 				p.captureDelay = p.world.rand.FloatRange(15, 30)
 			}

@@ -185,7 +185,7 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, config *assets.Config, p
 		{gamedata.DefenderAgentStats, assets.ImageDefenderLine, gamedata.DefenderAgentStats.Weapon.AttackRange * 1.05},
 		{gamedata.GuardianAgentStats, assets.ImageDefenderLine, gamedata.GuardianAgentStats.Weapon.AttackRange * 1.05},
 		{gamedata.BeamTowerAgentStats, assets.ImageBeamtowerLine, gamedata.BeamTowerAgentStats.Weapon.AttackRange * 1.1},
-		{gamedata.TowerArtifactAgentStats, assets.ImageTempestLine, gamedata.TowerArtifactAgentStats.Weapon.AttackRange * 1.1},
+		{gamedata.RepulseTowerAgentStats, assets.ImageTempestLine, gamedata.RepulseTowerAgentStats.Weapon.AttackRange * 1.1},
 		{gamedata.TetherBeaconAgentStats, assets.ImageTetherLine, gamedata.TetherBeaconAgentStats.SupportRange * 1.5},
 		{gamedata.TargeterAgentStats, assets.ImageTargeterLine, gamedata.TargeterAgentStats.Weapon.AttackRange * 1.15},
 		{gamedata.FirebugAgentStats, assets.ImageFlamerLine, gamedata.FirebugAgentStats.Weapon.AttackRange * 2},

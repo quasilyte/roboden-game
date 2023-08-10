@@ -175,7 +175,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageRelictFactoryHatch: {Path: "image/relicts/drone_factory_hatch.png"},
 		ImageRelictFactoryAgent: {Path: "image/relicts/drone_factory_agent.png"},
 		ImagePowerPlantAgent:    {Path: "image/relicts/power_plant_agent.png"},
-		ImageTowerArtifact:      {Path: "image/relicts/tower_artifact.png"},
+		ImageRepulseTower:       {Path: "image/relicts/tower_artifact.png"},
 		ImageRelictAgent:        {Path: "image/relicts/relict_agent.png", FrameWidth: 13, FrameHeight: 12},
 
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
@@ -555,7 +555,7 @@ const (
 	ImageTeleporter
 	ImageTeleporterLights
 	ImageRelictFactoryAgent
-	ImageTowerArtifact
+	ImageRepulseTower
 	ImagePowerPlantAgent
 	ImageHarvesterAgent
 	ImageGunpointAgent

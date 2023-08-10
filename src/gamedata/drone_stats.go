@@ -74,7 +74,7 @@ const (
 	// Neutral buildings
 	AgentDroneFactory
 	AgentPowerPlant
-	AgentTowerArtifact
+	AgentRepulseTower
 
 	// Other units
 	AgentRelict
@@ -278,21 +278,21 @@ type DroneDocs struct {
 	UpkeepRating      int
 }
 
-var TowerArtifactAgentStats = InitDroneStats(&AgentStats{
-	Kind:       AgentTowerArtifact,
+var RepulseTowerAgentStats = InitDroneStats(&AgentStats{
+	Kind:       AgentRepulseTower,
 	IsFlying:   false,
 	IsTurret:   true,
 	IsBuilding: true,
 	IsNeutral:  true,
-	Image:      assets.ImageTowerArtifact,
+	Image:      assets.ImageRepulseTower,
 	Size:       SizeLarge,
 	Upkeep:     0,
 	MaxHealth:  130,
 	Weapon: InitWeaponStats(&WeaponStats{
-		AttackRange: 420,
+		AttackRange: 440,
 		Reload:      3.6,
 		MaxTargets:  4,
-		AttackSound: assets.AudioArtifactTowerAttack,
+		AttackSound: assets.AudioRepulseTowerAttack,
 		Damage:      DamageValue{Health: 4, Morale: 0.9},
 		TargetFlags: TargetGround | TargetFlying,
 	}),
@@ -354,7 +354,7 @@ var RelictAgentStats = InitDroneStats(&AgentStats{
 var ArtifactsList = []*AgentStats{
 	DroneFactoryAgentStats,
 	PowerPlantAgentStats,
-	TowerArtifactAgentStats,
+	RepulseTowerAgentStats,
 }
 
 var TurretStatsList = []*AgentStats{

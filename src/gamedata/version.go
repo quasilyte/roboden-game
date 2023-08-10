@@ -264,6 +264,7 @@ const SeasonNumber = 1
 //   - Increase dreadnough max crawlers limit
 //   - Added x2 game speed
 //   - Made x1.2 game speed default (was x1.0, but it's kinda slow)
+//   - Reworked colonies movement
 //
 // * Bug fixes:
 //   - Fixed harvester en description

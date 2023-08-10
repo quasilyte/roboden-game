@@ -394,17 +394,11 @@ func (g *choiceGenerator) TryExecute(cardIndex int, pos gmath.Vec) bool {
 }
 
 func (g *choiceGenerator) activateMoveChoice(pos gmath.Vec) bool {
-	if g.state != choiceReady {
-		return false
-	}
-	cooldown := 8.0
-	g.startCharging(cooldown)
 	g.EventChoiceSelected.Emit(selectedChoice{
-		Index:    -1,
-		Option:   choiceOption{special: specialChoiceMoveColony},
-		Pos:      pos,
-		Cooldown: cooldown,
-		Player:   g.player,
+		Index:  -1,
+		Option: choiceOption{special: specialChoiceMoveColony},
+		Pos:    pos,
+		Player: g.player,
 	})
 	return true
 }

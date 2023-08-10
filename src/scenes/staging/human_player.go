@@ -100,8 +100,11 @@ func (p *humanPlayer) CreateChoiceWindow(disableSpecial bool) {
 
 	p.choiceGen.EventChoiceReady.Connect(p, p.choiceWindow.RevealChoices)
 	p.choiceGen.EventChoiceSelected.Connect(p, func(choice selectedChoice) {
+		if choice.Index == -1 {
+			return
+		}
 		p.choiceWindow.StartCharging(choice.Cooldown, choice.Index)
-		if p.rpanel != nil && choice.Index != -1 {
+		if p.rpanel != nil {
 			p.rpanel.UpdateMetrics()
 		}
 	})

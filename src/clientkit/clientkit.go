@@ -53,8 +53,12 @@ func SendOrEnqueueScore(state *session.State, season int, replay serverapi.GameR
 		enqueueReplay(state, replay)
 		return false
 	}
-	state.Logf("queued game replay successfully")
-	return true
+	if sendResult.Queued {
+		state.Logf("queued game replay successfully")
+	} else {
+		state.Logf("failed to queue game replay")
+	}
+	return sendResult.Queued
 }
 
 type SendScoreResult struct {

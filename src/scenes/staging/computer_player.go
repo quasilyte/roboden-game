@@ -852,7 +852,7 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) float64 {
 	colonyPower := int(float64(p.selectedColonyPower()) * p.world.rand.FloatRange(0.9, 1.1))
 	danger, dangerousPos := p.calcPosDanger(colony.node.pos, colony.node.realRadius+100)
 	doRetreat := (danger >= p.world.rand.IntRange(700, 1000)) ||
-		(colony.retreatPos.IsZero() && danger > (int(2.2*float64(colonyPower))+2) && colony.node.resources < 120) ||
+		(colony.retreatPos.IsZero() && danger > (int(2.2*float64(colonyPower))+15) && colony.node.resources < 120) ||
 		(colony.retreatPos.IsZero() && danger > 30 && colonyPower < 40 && resourcesScore < 40 && colony.node.resources < 50)
 	if doRetreat {
 		if delay := p.maybeRetreatFrom(colony, dangerousPos); delay != 0 {

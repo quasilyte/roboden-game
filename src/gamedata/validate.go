@@ -69,7 +69,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 	if replay.GameVersion < 0 {
 		return false
 	}
-	if len(replay.Actions) > 2000 {
+	if len(replay.Actions) > 6000 {
 		return false
 	}
 	if (time.Second * time.Duration(replay.Results.Time)) > 8*time.Hour {

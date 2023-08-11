@@ -552,7 +552,7 @@ var TruckerAgentStats = InitDroneStats(&AgentStats{
 	DiodeOffset:          4,
 	Tier:                 3,
 	Cost:                 40,
-	Upkeep:               10,
+	Upkeep:               4,
 	CanGather:            true,
 	MaxPayload:           3,
 	Speed:                85,

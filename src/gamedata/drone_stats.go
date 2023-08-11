@@ -420,8 +420,8 @@ var BeamTowerAgentStats = InitDroneStats(&AgentStats{
 		MaxTargets:  1,
 		BurstSize:   1,
 		TargetFlags: TargetFlying,
-		FireOffset:  gmath.Vec{Y: -16},
 	}),
+	FireOffset:     -16,
 	BeamOpaqueTime: 0.1,
 	BeamSlideSpeed: 0.4,
 })

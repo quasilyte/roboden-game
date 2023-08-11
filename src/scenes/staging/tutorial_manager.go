@@ -51,7 +51,8 @@ type tutorialManager struct {
 
 	nextPressed bool
 
-	skipMovementHint bool
+	alreadyMoved   bool
+	nearReasources bool
 
 	hint *messageNode
 
@@ -158,6 +159,9 @@ func (m *tutorialManager) runUpdateFunc() {
 func (m *tutorialManager) OnChoice(choice selectedChoice) {
 	m.choice = choice
 	m.runUpdateFunc()
+	if choice.Option.special == specialChoiceMoveColony {
+		m.alreadyMoved = true
+	}
 }
 
 func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
@@ -176,13 +180,16 @@ func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
 }
 
 func (m *tutorialManager) maybeCompleteStep() bool {
-	if !m.skipMovementHint {
+	if m.choice.Option.special == specialChoiceMoveColony {
+		m.alreadyMoved = true
+	}
+	if !m.nearReasources {
 		colony := m.world.allColonies[0]
 		if !colony.waypoint.IsZero() {
 			// Maybe the colony was already on the move?
 			for _, res := range m.world.essenceSources {
 				if res.pos.DistanceSquaredTo(colony.relocationPoint) < (128 * 128) {
-					m.skipMovementHint = true
+					m.nearReasources = true
 					break
 				}
 			}
@@ -190,7 +197,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 			// Maybe it's already around some resources.
 			for _, res := range m.world.essenceSources {
 				if res.pos.DistanceSquaredTo(colony.pos) < (128 * 128) {
-					m.skipMovementHint = true
+					m.nearReasources = true
 					break
 				}
 			}
@@ -292,13 +299,13 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return m.nextPressed
 
 	case 4:
-		if !m.skipMovementHint {
+		if !m.nearReasources || !m.alreadyMoved {
 			m.addHintNode(ge.Pos{}, d.Get("tutorial.move", m.world.inputMode))
 		}
 		return true
 
 	case 5:
-		if m.skipMovementHint {
+		if m.nearReasources && m.alreadyMoved {
 			return true
 		}
 		if m.choice.Option.special != specialChoiceMoveColony {
@@ -306,7 +313,6 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		}
 		for _, res := range m.world.essenceSources {
 			if res.pos.DistanceSquaredTo(m.choice.Pos) < (128 * 128) {
-				m.skipMovementHint = true
 				return true
 			}
 		}

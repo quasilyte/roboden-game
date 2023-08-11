@@ -1111,7 +1111,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		target := action.Value.(*colonyCoreNode)
 		if target.resources*1.2 < c.resources && c.resources > 60 {
 			courier.payload = courier.maxPayload()
-			courier.cargoValue = float64(courier.payload) * 10
+			courier.cargoValue = float64(courier.payload) * 12
 			c.resources -= courier.cargoValue
 		}
 		return courier.AssignMode(agentModeCourierFlight, gmath.Vec{}, action.Value)

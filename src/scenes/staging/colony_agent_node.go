@@ -2647,7 +2647,7 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 			// Now go back and bring some resources.
 			if dist > 115 {
 				a.payload = a.maxPayload()
-				a.cargoValue = float64(a.payload) * (math.Trunc((dist-100)/15) * 0.08)
+				a.cargoValue = float64(a.payload) * (math.Trunc((dist-115)/15) * 0.1)
 				a.cargoValue = gmath.ClampMax(a.cargoValue, 10)
 				a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
 			} else {

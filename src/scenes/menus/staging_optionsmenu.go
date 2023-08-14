@@ -8,6 +8,7 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
+	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/session"
 )
 
@@ -16,14 +17,14 @@ type StagingOptionsMenuController struct {
 
 	scene *ge.Scene
 
-	backController ge.SceneController
+	backController *staging.Controller
 }
 
 func NewStagingOptionsController(state *session.State) *StagingOptionsMenuController {
 	return &StagingOptionsMenuController{state: state}
 }
 
-func (c *StagingOptionsMenuController) WithBackController(controller ge.SceneController) *StagingOptionsMenuController {
+func (c *StagingOptionsMenuController) WithBackController(controller *staging.Controller) *StagingOptionsMenuController {
 	c.backController = controller
 	return c
 }
@@ -41,7 +42,7 @@ func (c *StagingOptionsMenuController) Update(delta float64) {
 }
 
 func (c *StagingOptionsMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.backController.RenderDemoFrame(), c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()

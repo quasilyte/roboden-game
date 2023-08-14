@@ -538,6 +538,11 @@ func (c *Controller) doInit(scene *ge.Scene) {
 }
 
 func (c *Controller) Init(scene *ge.Scene) {
+	if c.world != nil {
+		c.continueScene(scene)
+		return
+	}
+
 	c.doInit(scene)
 	runtime.GC()
 }
@@ -646,7 +651,7 @@ func (c *Controller) createPlayers() {
 					c.onPausePressed()
 				})
 				human.EventExitPressed.Connect(c, func(gsignal.Void) {
-					c.onExitButtonClicked()
+					c.onMenuButtonClicked()
 				})
 				if human.CanPing() {
 					human.EventPing.Connect(c, func(pingPos gmath.Vec) {
@@ -685,26 +690,13 @@ func (c *Controller) onVictoryTrigger(gsignal.Void) {
 	c.victory()
 }
 
-func (c *Controller) onExitButtonClicked() {
-	if len(c.exitNotices) != 0 {
-		c.leaveScene(c.backController)
-		return
-	}
-	if c.transitionQueued {
-		return
-	}
-
-	d := c.scene.Dict()
+func (c *Controller) onMenuButtonClicked() {
 	for _, cam := range c.world.cameras {
 		cam.UI.Visible = true
-		c.nodeRunner.SetPaused(true)
-		exitNotice := newScreenTutorialHintNode(cam, gmath.Vec{}, gmath.Vec{}, d.Get("game.exit.notice", c.world.inputMode))
-		c.exitNotices = append(c.exitNotices, exitNotice)
-		c.scene.AddObject(exitNotice)
-		noticeSize := gmath.Vec{X: exitNotice.width, Y: exitNotice.height}
-		noticeCenterPos := cam.Rect.Center().Sub(noticeSize.Mulf(0.5))
-		exitNotice.SetPos(noticeCenterPos)
 	}
+
+	c.nodeRunner.SetPaused(true)
+	c.leaveScene(c.backController)
 }
 
 func (c *Controller) canBuildHere(pos gmath.Vec, turret bool) bool {
@@ -1208,7 +1200,7 @@ func (c *Controller) handleInput() {
 	}
 
 	if c.sharedActionIsJustPressed(controls.ActionBack) {
-		c.onExitButtonClicked()
+		c.onMenuButtonClicked()
 		return
 	}
 
@@ -1382,4 +1374,16 @@ func (c *Controller) leaveScene(controller ge.SceneController) {
 
 	c.scene.Audio().PauseCurrentMusic()
 	c.scene.Context().ChangeScene(controller)
+}
+
+func (c *Controller) continueScene(scene *ge.Scene) {
+	c.scene.Audio().ContinueCurrentMusic()
+
+	for _, cam := range c.world.cameras {
+		c.nodeRunner.SetPaused(false)
+		cam.UI.Visible = false
+		scene.AddGraphics(cam)
+	}
+
+	*c.scene = *scene
 }

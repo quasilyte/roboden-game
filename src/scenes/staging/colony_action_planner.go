@@ -46,6 +46,10 @@ func newColonyActionPlanner(colony *colonyCoreNode, rand *gmath.Rand) *colonyAct
 func (p *colonyActionPlanner) PickAction() colonyAction {
 	p.leadingFaction = p.colony.factionWeights.MaxKey()
 	p.numPatrolAgents = 0
+	p.numTier1Agents = 0
+	p.numTier1CombatAgents = 0
+	p.numTier1WorkerAgents = 0
+	p.numGarrisonAgents = 0
 	p.agentCountTable = [gamedata.AgentKindNum]uint8{}
 	leadingFactionAgents := 0
 	leadingFactionCombatAgents := 0
@@ -66,7 +70,7 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 		case 2:
 			if a.stats.Kind == gamedata.AgentCommander {
 				id := len(p.commanders)
-				a.extraLevel = id
+				a.commanderID = id
 				p.commanders = append(p.commanders, commanderDroneInfo{
 					leader: a,
 				})
@@ -81,10 +85,10 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 		if a.faction == p.leadingFaction {
 			leadingFactionCombatAgents++
 		}
-		if a.mode == agentModePatrol {
+		switch a.mode {
+		case agentModePatrol, agentModeFollowCommander:
 			p.numPatrolAgents++
-		}
-		if a.mode == agentModeStandby {
+		case agentModeStandby:
 			p.numGarrisonAgents++
 		}
 	})
@@ -135,6 +139,7 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 	}
 
 	selectedColony := gmath.RandElem(p.world.rand, *potentialTargets)
+	maxVisualResources := selectedColony.maxVisualResources()
 	if p.colony.resources >= maxVisualResources && selectedColony.resources >= maxVisualResources {
 		return colonyAction{}
 	}
@@ -160,15 +165,33 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	if p.colony.failedResource != nil {
 		p.colony.failedResourceTick++
-		if p.colony.failedResourceTick > 8 {
+		if p.colony.failedResourceTick > 7 {
 			p.colony.failedResource = nil
+		}
+	}
+
+	if len(p.colony.agents.workers) == 0 && p.colony.resources < 80 && p.numTier1Agents != 0 {
+		// This is a very bad situation.
+		// The colony may need to recycle some scouts ASAP to create workers instead.
+		if p.world.rand.Chance(0.25) {
+			drone := p.colony.agents.Find(searchFighters|searchRandomized, func(a *colonyAgentNode) bool {
+				return a.stats == gamedata.ScoutAgentStats
+			})
+			if drone != nil {
+				return colonyAction{
+					Kind:     actionRecycleAgent,
+					Value:    drone,
+					TimeCost: 1.3,
+				}
+			}
 		}
 	}
 
 	if p.colony.agents.NumAvailableWorkers() == 0 {
 		return colonyAction{}
 	}
-	baseNeedsResources := p.colony.resources <= maxVisualResources
+
+	baseNeedsResources := p.colony.resources <= p.colony.maxVisualResources()
 	if !baseNeedsResources {
 		return colonyAction{}
 	}
@@ -229,9 +252,17 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 }
 
 func (p *colonyActionPlanner) combatUnitProbability() float64 {
-	if p.numTier1WorkerAgents < 2 {
+	if p.numTier1WorkerAgents == 0 {
 		return 0
 	}
+	if p.numTier1CombatAgents > 5 {
+		resourcesPercentage := gmath.Clamp(p.colony.resources/p.colony.maxVisualResources(), 0, 1)
+		minWorkers := gmath.Clamp(int(12*(1.0-resourcesPercentage)), 2, 12)
+		if p.numTier1WorkerAgents < minWorkers {
+			return 0
+		}
+	}
+
 	if p.colony.GetSecurityPriority() > 0.1 {
 		minCombatUnits := int(math.Round((p.colony.GetSecurityPriority() - 0.1) * 20))
 		if len(p.colony.agents.fighters) < minCombatUnits {
@@ -330,6 +361,20 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 }
 
 func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
+	if p.colony.captureDelay == 0 && p.colony.GetGrowthPriority() > 0.2 && p.colony.resources > 60 {
+		p.colony.captureDelay = p.world.rand.FloatRange(10, 20)
+		b := randIterate(p.world.rand, p.world.neutralBuildings, func(b *neutralBuildingNode) bool {
+			return b.agent == nil && b.pos.DistanceSquaredTo(p.colony.pos) <= p.colony.realRadiusSqr
+		})
+		if b != nil {
+			return colonyAction{
+				Kind:     actionCaptureBuilding,
+				Value:    b,
+				TimeCost: 1.2,
+			}
+		}
+	}
+
 	canRepairColony := p.colony.agents.NumAvailableWorkers() != 0 &&
 		p.colony.health < p.colony.maxHealth &&
 		p.colony.resources > 30
@@ -341,9 +386,9 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	}
 	canRepairTurret := p.colony.agents.NumAvailableWorkers() != 0 &&
 		p.colony.resources > 40 &&
-		len(p.colony.turrets) > 0
+		len(p.world.turrets) > 0
 	if canRepairTurret && p.world.rand.Chance(0.3) {
-		for _, turret := range p.colony.turrets {
+		for _, turret := range p.world.turrets {
 			if turret.health >= turret.maxHealth*0.9 {
 				continue
 			}
@@ -461,7 +506,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 	var closestAttacker *creepNode
 	closestAttackerDist := float64(math.MaxFloat64)
 	for _, creep := range p.world.creeps {
-		if creep.IsCloaked() {
+		if !creep.CanBeTargeted() {
 			continue
 		}
 		dist := creep.pos.DistanceTo(p.colony.pos)
@@ -511,7 +556,14 @@ func (p *colonyActionPlanner) maybeAttachToCommander() (commander, follower *col
 		if u.mode != agentModeFollowCommander {
 			continue
 		}
-		p.commanders[u.target.(*colonyAgentNode).extraLevel].numUnits++
+		commander := u.target.(*colonyAgentNode)
+		if commander.IsDisposed() {
+			// This can happen when commander was destroyed before
+			// the planner update() call. This assignment will be removed
+			// after the drone (the follower) will get its turn.
+			continue
+		}
+		p.commanders[commander.commanderID].numUnits++
 	}
 
 	const maxUnitsPerCommander = 4
@@ -525,7 +577,10 @@ func (p *colonyActionPlanner) maybeAttachToCommander() (commander, follower *col
 
 	// We have a commander. Do we have a follower to assign to it?
 	follower = p.colony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
-		return a != commander && a.stats.Kind != gamedata.AgentCommander && !a.stats.CanGather
+		return a != commander &&
+			a.stats.Kind != gamedata.AgentCommander &&
+			a.stats.Weapon != nil &&
+			!a.stats.CanGather
 	})
 	if follower == nil {
 		return nil, nil
@@ -619,7 +674,7 @@ func (p *colonyActionPlanner) tryMergingAction() colonyAction {
 		Value2:   secondAgent,
 		Value3:   recipe.EvoCost,
 		Value4:   int(recipe.Result.Kind),
-		TimeCost: 0.9,
+		TimeCost: 1.0,
 	}
 }
 
@@ -678,16 +733,39 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 	}
 
 	if p.colony.agents.tier2Num > 0 {
-		// evolution=10% => ~2.5%
-		// evolution=20% => ~10%
-		// evolution=40% => ~25%
-		// evolution=60% => ~40%
-		// evolution=75% => ~50%
-		evoPointsChance := gmath.Clamp((p.colony.GetEvolutionPriority()*0.7)-0.05, 0, 0.5)
+		// evolution=10% => ~1.5%
+		// evolution=20% => ~8%
+		// evolution=40% => ~21%
+		// evolution=60% => ~34%
+		// evolution=75% => ~44%
+		evoPointsChance := gmath.Clamp((p.colony.GetEvolutionPriority()*0.65)-0.05, 0, 0.5)
 		if p.world.rand.Chance(evoPointsChance) {
+			if p.colony.resources < p.colony.maxVisualResources() && p.colony.evoPoints > blueEvoThreshold && len(p.world.neutralBuildings) != 0 {
+				var powerPlant *neutralBuildingNode
+				for _, b := range p.world.neutralBuildings {
+					if b.agent == nil || b.stats != gamedata.PowerPlantAgentStats {
+						continue
+					}
+					if b.agent.health < b.agent.maxHealth*0.3 || b.agent.specialDelay != 0 {
+						continue
+					}
+					if b.pos.DistanceSquaredTo(p.colony.pos) < (256 * 256) {
+						powerPlant = b
+						break
+					}
+				}
+				if powerPlant != nil {
+					return colonyAction{
+						Kind:     actionConvertEvo,
+						TimeCost: 1.0,
+						Value:    powerPlant,
+					}
+				}
+			}
+
 			return colonyAction{
 				Kind:     actionGenerateEvo,
-				TimeCost: 0.4,
+				TimeCost: 1.0,
 			}
 		}
 	}

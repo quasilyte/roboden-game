@@ -40,6 +40,9 @@ func IsSendableReplay(r serverapi.GameReplay) bool {
 	if !IsRunnableReplay(r) {
 		return false
 	}
+	if GetSeedKind(r.Config.Seed, r.Config.RawGameMode) != SeedNormal {
+		return false
+	}
 	if r.Results.Score <= 0 {
 		return false
 	}
@@ -66,7 +69,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 	if replay.GameVersion < 0 {
 		return false
 	}
-	if len(replay.Actions) > 2000 {
+	if len(replay.Actions) > 6000 {
 		return false
 	}
 	if (time.Second * time.Duration(replay.Results.Time)) > 8*time.Hour {
@@ -111,14 +114,14 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 	toValidate := [...]optionValidator{
 		{cfg.InitialCreeps, 0, 2},
 		{cfg.NumCreepBases, 0, 5},
-		{cfg.CreepDifficulty, 0, 9},
+		{cfg.CreepDifficulty, 0, 11},
 		{cfg.DronesPower, 0, 6},
-		{cfg.TechProgressRate, 0, 5},
+		{cfg.TechProgressRate, 0, 7},
 		{cfg.CreepSpawnRate, 0, 3},
 		{cfg.BossDifficulty, 0, 3},
 		{cfg.ArenaProgression, 0, 7},
 		{cfg.StartingResources, 0, 2},
-		{cfg.GameSpeed, 0, 2},
+		{cfg.GameSpeed, 0, 3},
 		{cfg.Teleporters, 0, 2},
 		{cfg.WorldSize, 0, 3},
 		{cfg.Resources, 0, 4},
@@ -134,4 +137,32 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 	}
 
 	return true
+}
+
+func isValidChar(ch byte) bool {
+	isLetter := func(ch byte) bool {
+		return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+	}
+	isDigit := func(ch byte) bool {
+		return ch >= '0' && ch <= '9'
+	}
+	return isLetter(ch) || isDigit(ch) || ch == ' ' || ch == '_'
+}
+
+func IsValidUsername(s string) bool {
+	nonSpace := 0
+	if len(s) > serverapi.MaxNameLength {
+		return false
+	}
+	for i := 0; i < len(s); i++ {
+		ch := s[i]
+		isValid := isValidChar(ch)
+		if !isValid {
+			return false
+		}
+		if ch != ' ' {
+			nonSpace++
+		}
+	}
+	return nonSpace != 0
 }

@@ -7,6 +7,10 @@ import (
 	"github.com/quasilyte/gmath"
 )
 
+func PickColonyDesign(designsUnlocked []string, rng *gmath.Rand) string {
+	return gmath.RandElem(rng, designsUnlocked)
+}
+
 func PickTurretDesign(rng *gmath.Rand) string {
 	switch turretRoll := rng.Float(); {
 	case turretRoll < 0.35:

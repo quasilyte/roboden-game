@@ -8,6 +8,14 @@ import (
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
+type screenButtonKind int
+
+const (
+	screenButtonUnknown screenButtonKind = iota
+	screenButtonExit
+	screenButtonToggle
+)
+
 type screenButtonsNode struct {
 	toggleButtonRect gmath.Rect
 	exitButtonRect   gmath.Rect
@@ -48,13 +56,24 @@ func (n *screenButtonsNode) Init(scene *ge.Scene) {
 	n.cam.UI.AddGraphics(sprite)
 }
 
-func (n *screenButtonsNode) HandleInput(clickPos gmath.Vec) {
+func (n *screenButtonsNode) GetChoiceUnderCursor(pos gmath.Vec) screenButtonKind {
+	if n.exitButtonRect.Contains(pos) {
+		return screenButtonExit
+	}
+	if n.toggleButtonRect.Contains(pos) {
+		return screenButtonToggle
+	}
+	return screenButtonUnknown
+}
+
+func (n *screenButtonsNode) HandleInput(clickPos gmath.Vec) bool {
 	if n.exitButtonRect.Contains(clickPos) {
 		n.EventExitButtonPressed.Emit(gsignal.Void{})
-		return
+		return true
 	}
 	if n.toggleButtonRect.Contains(clickPos) {
 		n.EventToggleButtonPressed.Emit(gsignal.Void{})
-		return
+		return true
 	}
+	return false
 }

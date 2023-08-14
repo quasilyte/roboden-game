@@ -23,6 +23,8 @@ type resultsController struct {
 	state  *session.State
 	config *gamedata.LevelConfig
 
+	hasPlayers bool
+
 	scene          *ge.Scene
 	backController ge.SceneController
 
@@ -74,6 +76,8 @@ type battleResults struct {
 	DifficultyScore      int
 	DronePointsAllocated int
 
+	SeedKind gamedata.SeedKind
+
 	OnlyTier1Military bool
 
 	Replay [][]serverapi.PlayerAction
@@ -93,6 +97,12 @@ func newResultsController(state *session.State, config *gamedata.LevelConfig, ba
 
 func (c *resultsController) Init(scene *ge.Scene) {
 	c.scene = scene
+	eui.AddBackground(c.state.BackgroundImage, scene)
+
+	switch c.config.PlayersMode {
+	case serverapi.PmodeSinglePlayer, serverapi.PmodeTwoPlayers:
+		c.hasPlayers = true
+	}
 
 	firstTime := false
 	if c.rewards == nil {
@@ -127,8 +137,17 @@ func (c *resultsController) updateProgress() {
 	stats.TotalPlayTime += c.results.TimePlayed
 
 	if c.config.GameMode == gamedata.ModeTutorial {
-		stats.TutorialCompleted = true
-		stats.TotalScore += c.results.Score
+		if !stats.TutorialCompleted {
+			stats.TotalScore += c.results.Score
+			if !xslices.Contains(stats.ModesUnlocked, "classic") {
+				stats.ModesUnlocked = append(stats.ModesUnlocked, "classic")
+			}
+			stats.TutorialCompleted = true
+		}
+		return
+	}
+
+	if !c.hasPlayers {
 		return
 	}
 
@@ -173,13 +192,20 @@ func (c *resultsController) updateProgress() {
 
 	contentUpdates := contentlock.Update(c.state)
 	c.rewards.newAchievements, c.rewards.upgradedAchievements = c.checkAchievements()
+	c.rewards.newCores = contentUpdates.CoresUnlocked
 	c.rewards.newDrones = contentUpdates.DronesUnlocked
 	c.rewards.newTurrets = contentUpdates.TurretsUnlocked
+	c.rewards.newOptions = contentUpdates.OptionsUnlocked
+	c.rewards.newModes = contentUpdates.ModesUnlocked
 }
 
 func (c *resultsController) Update(delta float64) {
 	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
-		c.back()
+		if c.rewards.IsEmpty() {
+			c.back()
+		} else {
+			c.claimRewards()
+		}
 		return
 	}
 }
@@ -188,7 +214,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 	var newAchievements []string
 	var upgradedAchievements []string
 
-	if c.config.PlayersMode == serverapi.PmodeTwoPlayers && c.config.GameMode == gamedata.ModeReverse {
+	if c.config.PlayersMode != serverapi.PmodeSinglePlayer {
 		return nil, nil
 	}
 
@@ -204,10 +230,11 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 	}
 
 	difficultyLevel := 1
-	if c.results.DifficultyScore >= 150 {
+	if c.results.DifficultyScore >= 160 {
 		difficultyLevel = 2
 	}
 
+	needSave := false
 	for _, a := range gamedata.AchievementList {
 		if alreadyAchieved[a.Name] >= difficultyLevel {
 			continue
@@ -257,6 +284,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = c.results.GroundBossDefeat
 		case "turretdamage":
 			unlocked = c.results.EnemyColonyDamageFromTurrets >= (c.results.EnemyColonyDamage * 0.25)
+		case "leet":
+			unlocked = c.results.SeedKind == gamedata.SeedLeet
 
 		case "antidominator":
 			unlocked = c.results.DominatorsSurvived == 0
@@ -286,10 +315,18 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		} else {
 			newAchievements = append(newAchievements, a.Name)
 		}
-		stats.Achievements = append(stats.Achievements, session.Achievement{
+
+		updated := c.state.UnlockAchievement(session.Achievement{
 			Name:  a.Name,
 			Elite: elite,
 		})
+		if updated {
+			needSave = true
+		}
+	}
+
+	if needSave {
+		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}
 
 	return newAchievements, upgradedAchievements
@@ -333,10 +370,11 @@ func (c *resultsController) initUI() {
 	titleLabel := eui.NewCenteredLabel(titleString, assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel := eui.NewTextPanel(uiResources, 0, 0)
 
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
 		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
+	panel.AddChild(grid)
 
 	itoa := strconv.Itoa
 
@@ -350,7 +388,7 @@ func (c *resultsController) initUI() {
 		[2]string{d.Get("menu.results.drones_total"), itoa(c.results.DronesProduced)},
 		[2]string{d.Get("menu.results.creeps_defeated"), itoa(c.results.CreepsDefeated)},
 	)
-	if c.config.GameMode != gamedata.ModeTutorial {
+	if c.config.GameMode != gamedata.ModeTutorial && c.hasPlayers {
 		if (c.config.GameMode == gamedata.ModeInfArena) || c.results.Victory {
 			if c.highScore {
 				lines = append(lines, [2]string{d.Get("menu.results.score"), fmt.Sprintf("%v (%s)", c.results.Score, d.Get("menu.results.new_record"))})
@@ -368,9 +406,7 @@ func (c *resultsController) initUI() {
 		grid.AddChild(eui.NewLabel(pair[1], smallFont))
 	}
 
-	rowContainer.AddChild(grid)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(panel)
 
 	replay := c.makeGameReplay()
 	if c.config.GameMode != gamedata.ModeTutorial && c.highScore {
@@ -422,13 +458,17 @@ func (c *resultsController) initUI() {
 		}))
 	} else {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.results.claim_rewards"), func() {
-			c.scene.Context().ChangeScene(newRewardsController(c.state, *c.rewards, c.backController))
+			c.claimRewards()
 		}))
 	}
 
 	uiObject := eui.NewSceneObject(root)
 	c.scene.AddGraphics(uiObject)
 	c.scene.AddObject(uiObject)
+}
+
+func (c *resultsController) claimRewards() {
+	c.scene.Context().ChangeScene(newRewardsController(c.state, *c.rewards, c.backController))
 }
 
 func (c *resultsController) back() {

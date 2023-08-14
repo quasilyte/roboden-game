@@ -16,6 +16,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/descriptions"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/serverapi"
@@ -30,6 +31,7 @@ type LobbyMenuController struct {
 
 	droneButtons         []droneButton
 	turretButtons        []droneButton
+	coreButtons          []coreButton
 	pointsAllocatedLabel *widget.Text
 	difficultyLabel      *widget.Text
 
@@ -38,15 +40,18 @@ type LobbyMenuController struct {
 	colonyTab *widget.TabBookTab
 	worldTab  *widget.TabBookTab
 
-	helpPanel         *widget.Container
-	helpLabel         *widget.Text
-	helpIcon1         *widget.Graphic
-	helpIconSeparator *widget.Text
-	helpIcon2         *widget.Graphic
+	helpPanel  *widget.Container
+	helpLabel  *widget.Text
+	helpRecipe *eui.RecipeView
 
 	recipeIcons map[gamedata.RecipeSubject]*ebiten.Image
 
 	scene *ge.Scene
+}
+
+type coreButton struct {
+	widget *eui.ItemButton
+	core   *gamedata.ColonyCoreStats
 }
 
 type droneButton struct {
@@ -97,55 +102,11 @@ func (c *LobbyMenuController) Update(delta float64) {
 }
 
 func (c *LobbyMenuController) prepareRecipeIcons() {
-	workerImage := c.scene.LoadImage(assets.ImageWorkerAgent)
-	workerFrame := workerImage.Data.SubImage(image.Rectangle{
-		Max: image.Point{X: int(workerImage.DefaultFrameWidth), Y: int(workerImage.DefaultFrameHeight)},
-	}).(*ebiten.Image)
-
-	scoutImage := c.scene.LoadImage(assets.ImageScoutAgent)
-	scoutFrame := scoutImage.Data.SubImage(image.Rectangle{
-		Max: image.Point{X: int(scoutImage.DefaultFrameWidth), Y: int(scoutImage.DefaultFrameHeight)},
-	}).(*ebiten.Image)
-
-	diode := c.scene.LoadImage(assets.ImageFactionDiode).Data
-	diodeSize := diode.Bounds().Size()
-
-	c.recipeIcons = make(map[gamedata.RecipeSubject]*ebiten.Image)
-	for _, recipe := range gamedata.Tier2agentMergeRecipes {
-		subjects := []gamedata.RecipeSubject{
-			recipe.Drone1,
-			recipe.Drone2,
-		}
-		for _, s := range subjects {
-			if _, ok := c.recipeIcons[s]; ok {
-				continue
-			}
-
-			diodeOffset := gamedata.WorkerAgentStats.DiodeOffset + 1
-			droneFrame := workerFrame
-			if s.Kind == gamedata.AgentScout {
-				droneFrame = scoutFrame
-				diodeOffset = gamedata.ScoutAgentStats.DiodeOffset + 2
-			}
-			frameSize := droneFrame.Bounds().Size()
-			img := ebiten.NewImage(32, 32)
-			var drawOptions ebiten.DrawImageOptions
-			drawOptions.GeoM.Scale(2, 2)
-			drawOptions.GeoM.Translate(16-float64(frameSize.X), 16-float64(frameSize.Y))
-			img.DrawImage(droneFrame, &drawOptions)
-			drawOptions.GeoM.Reset()
-			drawOptions.GeoM.Scale(2, 2)
-			drawOptions.GeoM.Translate(16-float64(diodeSize.X), 16-float64(diodeSize.Y)+diodeOffset)
-			drawOptions.ColorM.ScaleWithColor(gamedata.FactionByTag(s.Faction).Color)
-			img.DrawImage(diode, &drawOptions)
-
-			c.recipeIcons[s] = img
-		}
-	}
+	c.recipeIcons = gameui.GenerateRecipePreviews(c.scene, false)
 }
 
 func (c *LobbyMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := widget.NewContainer(
@@ -177,7 +138,7 @@ func (c *LobbyMenuController) initUI() {
 				StretchHorizontal: true,
 				StretchVertical:   true,
 			}),
-			widget.WidgetOpts.MinSize(0, (1080/2)-47),
+			widget.WidgetOpts.MinSize(572, (1080/2)-47),
 		),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
@@ -239,8 +200,13 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
 		c.saveConfig()
 
+		if c.config.PlayersMode == serverapi.PmodeSinglePlayer && c.mode == gamedata.ModeReverse {
+			c.config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, c.scene.Rand())
+			c.config.TurretDesign = gamedata.PickTurretDesign(c.scene.Rand())
+			c.config.Tier2Recipes = gamedata.CreateDroneBuild(c.scene.Rand())
+		}
+
 		c.config.GameMode = c.mode
-		c.config.DifficultyScore = c.calcDifficultyScore()
 		c.config.DronePointsAllocated = c.calcAllocatedPoints()
 		if c.seedInput.GetText() != "" {
 			seed, err := strconv.ParseInt(c.seedInput.GetText(), 10, 64)
@@ -250,11 +216,6 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 			c.config.Seed = seed
 		} else {
 			c.config.Seed = c.randomSeed()
-		}
-
-		if c.config.PlayersMode == serverapi.PmodeSinglePlayer && c.mode == gamedata.ModeReverse {
-			c.config.TurretDesign = gamedata.PickTurretDesign(c.scene.Rand())
-			c.config.Tier2Recipes = gamedata.CreateDroneBuild(c.scene.Rand())
 		}
 
 		c.config.Finalize()
@@ -322,7 +283,6 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
 			widget.GridLayoutOpts.Spacing(4, 4),
 		)),
-		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
 	{
@@ -373,6 +333,14 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		tab.AddChild(b)
 	}
 
+	{
+		b := c.newBoolOptionButton(&c.config.Relicts, "menu.lobby.relicts", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(b)
+	}
+
 	if c.config.RawGameMode != "reverse" {
 		b := c.newBoolOptionButton(&c.config.FogOfWar, "menu.lobby.fog_of_war", []string{
 			d.Get("menu.option.off"),
@@ -383,9 +351,10 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 
 	{
 		b := c.newOptionButton(&c.config.GameSpeed, "menu.lobby.game_speed", []string{
-			"x1",
+			"x1.0",
 			"x1.2",
 			"x1.5",
+			"x2.0",
 		})
 		tab.AddChild(b)
 	}
@@ -402,7 +371,6 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
 			widget.GridLayoutOpts.Spacing(4, 4),
 		)),
-		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
 	if c.mode == gamedata.ModeClassic {
@@ -427,6 +395,22 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
+		b := c.newUnlockableBoolOptionButton(&c.config.CreepFortress, "creep_fortress", "menu.lobby.creep_fortress", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(b)
+	}
+
+	{
+		b := c.newUnlockableBoolOptionButton(&c.config.IonMortars, "ion_mortars", "menu.lobby.ion_mortars", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(b)
+	}
+
+	{
 		b := c.newOptionButton(&c.config.CreepDifficulty, "menu.lobby.creeps_difficulty", []string{
 			"25%",
 			"50%",
@@ -438,6 +422,8 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"200%",
 			"225%",
 			"250%",
+			"275%",
+			"300%",
 		})
 		tab.AddChild(b)
 	}
@@ -457,12 +443,22 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 
 	if c.mode == gamedata.ModeReverse {
 		tab.AddChild(c.newOptionButton(&c.config.TechProgressRate, "menu.lobby.tech_progress_rate", []string{
+			"50%",
 			"60%",
 			"70%",
 			"80%",
 			"90%",
 			"100%",
 			"110%",
+			"120%",
+		}))
+
+		tab.AddChild(c.newOptionButton(&c.config.ReverseSuperCreepRate, "menu.lobby.reverse_super_creep_rate", []string{
+			"x0.1",
+			"x0.4",
+			"x0.7",
+			"x1.0",
+			"x1.3",
 		}))
 	}
 
@@ -483,12 +479,11 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"150%",
 		}))
 
-		if c.state.Persistent.PlayerStats.TotalScore >= gamedata.ArenaModeCost {
-			tab.AddChild(c.newBoolOptionButton(&c.config.SuperCreeps, "menu.lobby.super_creeps", []string{
-				d.Get("menu.option.off"),
-				d.Get("menu.option.on"),
-			}))
-		}
+		superCreeps := c.newUnlockableBoolOptionButton(&c.config.SuperCreeps, "super_creeps", "menu.lobby.super_creeps", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(superCreeps)
 	}
 
 	if c.mode == gamedata.ModeArena || c.mode == gamedata.ModeInfArena {
@@ -522,20 +517,36 @@ func (c *LobbyMenuController) optionDescriptionText(key string) string {
 	return fmt.Sprintf("%s\n\n%s", d.Get(key), d.Get(key, "description"))
 }
 
-func (c *LobbyMenuController) newBoolOptionButton(value *bool, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
-	return eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+func (c *LobbyMenuController) newBoolOptionButton(value *bool, langKey string, valueNames []string) widget.PreferredSizeLocateableWidget {
+	return c.newUnlockableBoolOptionButton(value, "", langKey, valueNames)
+}
+
+func (c *LobbyMenuController) newUnlockableBoolOptionButton(value *bool, id, langKey string, valueNames []string) widget.PreferredSizeLocateableWidget {
+	var b *widget.Button
+	playerStats := &c.state.Persistent.PlayerStats
+	b = eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
 		Scene:      c.scene,
 		Resources:  c.state.Resources.UI,
 		Value:      value,
-		Label:      c.scene.Dict().Get(key),
+		Label:      c.scene.Dict().Get(langKey),
 		ValueNames: valueNames,
 		OnPressed: func() {
 			c.updateDifficultyScore(c.calcDifficultyScore())
 		},
 		OnHover: func() {
-			c.setHelpText(c.optionDescriptionText(key))
+			s := c.optionDescriptionText(langKey)
+			if b.GetWidget().Disabled {
+				s += fmt.Sprintf("\n\n%s: %d/%d", c.scene.Dict().Get("drone.score_required"), playerStats.TotalScore, gamedata.LobbyOptionMap[id].ScoreCost)
+			}
+			c.setHelpText(s)
 		},
 	})
+
+	if id != "" && !xslices.Contains(playerStats.OptionsUnlocked, id) {
+		b.GetWidget().Disabled = true
+	}
+
+	return b
 }
 
 func (c *LobbyMenuController) newOptionButtonWithDisabled(value *int, key string, disabled []int, valueNames []string) *widget.Button {
@@ -569,7 +580,6 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
 			widget.GridLayoutOpts.Spacing(4, 4),
 		)),
-		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
 	{
@@ -579,6 +589,14 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			d.Get("menu.option.normal"),
 			d.Get("menu.option.rich"),
 			d.Get("menu.option.very_rich"),
+		})
+		tab.AddChild(b)
+	}
+
+	{
+		b := c.newBoolOptionButton(&c.config.GoldEnabled, "menu.lobby.gold_enabled", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
 		})
 		tab.AddChild(b)
 	}
@@ -612,6 +630,14 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 		tab.AddChild(b)
 	}
 
+	{
+		b := c.newOptionButton(&c.config.Environment, "menu.lobby.environment", []string{
+			d.Get("menu.lobby.moon"),
+			d.Get("menu.lobby.forest"),
+		})
+		tab.AddChild(b)
+	}
+
 	c.worldTab = tab
 
 	return tab
@@ -626,7 +652,6 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 			widget.GridLayoutOpts.Stretch([]bool{true}, nil),
 			widget.GridLayoutOpts.Spacing(4, 4),
 		)),
-		widget.ContainerOpts.AutoDisableChildren(),
 	)
 
 	tinyFont := assets.BitmapFont1
@@ -670,9 +695,9 @@ func (c *LobbyMenuController) updateDifficultyScore(score int) {
 		tag = d.Get("menu.option.normal")
 	case score < 160:
 		tag = d.Get("menu.option.hard")
-	case score < 200:
+	case score < 220:
 		tag = d.Get("menu.option.very_hard")
-	case score < 300:
+	case score < 350:
 		tag = d.Get("menu.option.impossible")
 	default:
 		tag = d.Get("menu.difficulty_score_despair")
@@ -692,51 +717,29 @@ func (c *LobbyMenuController) calcAllocatedPoints() int {
 }
 
 func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widget.Container {
-	panel := eui.NewPanel(uiResources, 0, 0)
+	panel := eui.NewTextPanel(uiResources, 0, 0)
 	c.helpPanel = panel
 
 	tinyFont := assets.BitmapFont1
-	normalFont := assets.BitmapFont2
 
 	label := eui.NewLabel("", tinyFont)
-	label.MaxWidth = 300
+	label.MaxWidth = 305
 	c.helpLabel = label
 	panel.AddChild(label)
 
-	{
-		iconsContainer := widget.NewContainer(
-			widget.ContainerOpts.Layout(widget.NewRowLayout(
-				widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-				widget.RowLayoutOpts.Spacing(4),
-				widget.RowLayoutOpts.Padding(widget.Insets{
-					Top: 12,
-				}),
-			)),
-		)
-
-		icon1 := widget.NewGraphic()
-		c.helpIcon1 = icon1
-		iconsContainer.AddChild(icon1)
-
-		separator := widget.NewText(
-			widget.TextOpts.Text("", normalFont, uiResources.Button.TextColors.Idle),
-			widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
-		)
-		c.helpIconSeparator = separator
-		iconsContainer.AddChild(separator)
-
-		icon2 := widget.NewGraphic()
-		c.helpIcon2 = icon2
-		iconsContainer.AddChild(icon2)
-
-		panel.AddChild(iconsContainer)
-	}
+	c.helpRecipe = eui.NewRecipeView(uiResources)
+	panel.AddChild(c.helpRecipe.Container)
 
 	return panel
 }
 
 func (c *LobbyMenuController) randomSeed() int64 {
-	return c.scene.Rand().PositiveInt64()
+	for {
+		seed := c.scene.Rand().PositiveInt64()
+		if gamedata.GetSeedKind(seed, c.mode.String()) == gamedata.SeedNormal {
+			return seed
+		}
+	}
 }
 
 func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widget.Container {
@@ -758,9 +761,15 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 			)),
 		)
 
-		textinput := eui.NewTextInput(uiResources, tinyFont,
+		const maxSeedLen = 18
+		textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.SteamInfo.SteamDeck},
+			widget.TextInputOpts.WidgetOpts(
+				widget.WidgetOpts.CursorEnterHandler(func(args *widget.WidgetCursorEnterEventArgs) {
+					c.setHelpText(c.optionDescriptionText("menu.lobby.game_seed"))
+				}),
+			),
 			widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
-				if len(newInputText) > 15 {
+				if len(newInputText) > maxSeedLen {
 					return false, nil
 				}
 				onlyDigits := true
@@ -773,9 +782,13 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 				}
 				return onlyDigits, nil
 			}))
-		textinput.SetText(strconv.FormatInt(c.randomSeed(), 10))
-		c.seedInput = textinput
+		randSeed := strconv.FormatInt(c.randomSeed(), 10)
+		if len(randSeed) >= maxSeedLen {
+			randSeed = randSeed[:maxSeedLen]
+		}
+		textinput.SetText(randSeed)
 		grid.AddChild(textinput)
+		c.seedInput = textinput
 		label := widget.NewLabel(
 			widget.LabelOpts.TextOpts(
 				widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
@@ -806,10 +819,41 @@ func (c *LobbyMenuController) createBasesPanel(uiResources *eui.Resources) *widg
 			widget.GridLayoutOpts.Columns(6),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 
-	// TODO: add bases list.
-	b := eui.NewBigItemButton(uiResources, c.scene.LoadImage(assets.ImageColonyCore).Data, func() {})
-	b.Toggle()
-	grid.AddChild(b.Widget)
+	for i := range gamedata.CoreStatsList {
+		core := gamedata.CoreStatsList[i]
+		var b *eui.ItemButton
+		available := xslices.Contains(c.state.Persistent.PlayerStats.CoresUnlocked, core.Name)
+		var img *ebiten.Image
+		if available {
+			img = c.scene.LoadImage(core.Image).Data
+		} else {
+			img = c.scene.LoadImage(assets.ImageLock).Data
+		}
+		b = eui.NewBigItemButton(uiResources, img, func() {
+			if c.config.CoreDesign != core.Name {
+				b.Toggle()
+				c.onCoreToggled(core)
+			}
+		})
+		b.SetDisabled(!available)
+		grid.AddChild(b.Widget)
+		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+			var s string
+			if available {
+				s = descriptions.CoreText(c.scene.Dict(), core)
+			} else {
+				s = descriptions.LockedCoreText(c.scene.Dict(), &c.state.Persistent.PlayerStats, core)
+			}
+			c.setHelpText(s)
+		})
+		if c.config.CoreDesign == core.Name {
+			b.Toggle()
+		}
+		c.coreButtons = append(c.coreButtons, coreButton{
+			widget: b,
+			core:   core,
+		})
+	}
 
 	panel.AddChild(grid)
 
@@ -818,9 +862,7 @@ func (c *LobbyMenuController) createBasesPanel(uiResources *eui.Resources) *widg
 
 func (c *LobbyMenuController) setHelpText(s string) {
 	c.helpLabel.Label = s
-	c.helpIcon1.Image = nil
-	c.helpIconSeparator.Label = ""
-	c.helpIcon2.Image = nil
+	c.helpRecipe.SetImages(nil, nil)
 	c.helpPanel.RequestRelayout()
 }
 
@@ -927,19 +969,11 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 		})
 		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
 			if available {
-				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, false)
+				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, false, false)
 			} else {
 				c.helpLabel.Label = descriptions.LockedDroneText(c.scene.Dict(), &c.state.Persistent.PlayerStats, drone)
 			}
-			if available {
-				c.helpIcon1.Image = c.recipeIcons[recipe.Drone1]
-				c.helpIconSeparator.Label = "+"
-				c.helpIcon2.Image = c.recipeIcons[recipe.Drone2]
-			} else {
-				c.helpIcon1.Image = nil
-				c.helpIconSeparator.Label = ""
-				c.helpIcon2.Image = nil
-			}
+			c.helpRecipe.SetImages(c.recipeIcons[recipe.Drone1], c.recipeIcons[recipe.Drone2])
 			c.helpPanel.RequestRelayout()
 		})
 	}
@@ -964,6 +998,19 @@ func (c *LobbyMenuController) updateTier2Recipes() {
 			continue
 		}
 		c.config.Tier2Recipes = append(c.config.Tier2Recipes, b.recipe.Result.Kind.String())
+	}
+}
+
+func (c *LobbyMenuController) onCoreToggled(selectedCore *gamedata.ColonyCoreStats) {
+	c.config.CoreDesign = selectedCore.Name
+	for _, b := range c.coreButtons {
+		toggle := (b.core != selectedCore && b.widget.IsToggled())
+		if toggle {
+			b.widget.Toggle()
+		}
+	}
+	if c.difficultyLabel != nil {
+		c.updateDifficultyScore(c.calcDifficultyScore())
 	}
 }
 

@@ -43,6 +43,7 @@ const (
 	ActionDebug
 
 	ActionMoveCursor
+	ActionTestLeftStick
 
 	ActionChoice1
 	ActionChoice2
@@ -63,6 +64,8 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 	gamepadKeymap := input.Keymap{
 		ActionSkipDemo: {input.KeyGamepadStart},
 
+		ActionNextTutorialMessage: {input.KeyGamepadLStick},
+
 		ActionPanRight: {input.KeyGamepadLStickRight, input.KeyGamepadRight},
 		ActionPanDown:  {input.KeyGamepadLStickDown, input.KeyGamepadDown},
 		ActionPanLeft:  {input.KeyGamepadLStickLeft, input.KeyGamepadLeft},
@@ -77,7 +80,7 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 		ActionToggleInterface: {input.KeyGamepadL2},
 
 		ActionBack:  {input.KeyGamepadBack},
-		ActionPause: {input.KeyGamepadStart},
+		ActionPause: {input.KeyGamepadStart, input.KeyGamepadHome},
 
 		ActionMenuFocusRight: {input.KeyGamepadRight},
 		ActionMenuFocusDown:  {input.KeyGamepadDown},
@@ -91,7 +94,8 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 		ActionChoice5:    {input.KeyGamepadR1},
 		ActionMoveChoice: {input.KeyGamepadRStick},
 
-		ActionMoveCursor: {input.KeyGamepadRStickMotion},
+		ActionTestLeftStick: {input.KeyGamepadLStickMotion},
+		ActionMoveCursor:    {input.KeyGamepadRStickMotion},
 
 		ActionClick: {input.KeyGamepadRStick},
 	}
@@ -150,9 +154,9 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 	}
 
 	return KeymapSet{
-		CombinedInput:      gameinput.Handler{Handler: ctx.Input.NewHandler(0, mainKeymap)},
-		KeyboardInput:      gameinput.Handler{Handler: ctx.Input.NewHandler(0, keyboardKeymap)},
-		FirstGamepadInput:  gameinput.Handler{Handler: ctx.Input.NewHandler(0, gamepadKeymap)},
-		SecondGamepadInput: gameinput.Handler{Handler: ctx.Input.NewHandler(1, gamepadKeymap)},
+		CombinedInput:      gameinput.Handler{InputMethod: gameinput.InputMethodCombined, Handler: ctx.Input.NewHandler(0, mainKeymap)},
+		KeyboardInput:      gameinput.Handler{InputMethod: gameinput.InputMethodKeyboard, Handler: ctx.Input.NewHandler(0, keyboardKeymap)},
+		FirstGamepadInput:  gameinput.Handler{InputMethod: gameinput.InputMethodGamepad1, Handler: ctx.Input.NewHandler(0, gamepadKeymap)},
+		SecondGamepadInput: gameinput.Handler{InputMethod: gameinput.InputMethodGamepad2, Handler: ctx.Input.NewHandler(1, gamepadKeymap)},
 	}
 }

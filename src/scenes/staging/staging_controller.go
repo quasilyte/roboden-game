@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"math"
 	"os"
+	"runtime"
 	"runtime/pprof"
 	"time"
 
@@ -51,7 +52,6 @@ type Controller struct {
 
 	tutorialManager *tutorialManager
 	messageManagers []*messageManager
-	recipeTab       *recipeTabNode
 
 	arenaManager *arenaManager
 	nodeRunner   *nodeRunner
@@ -166,7 +166,7 @@ func (c *Controller) IsExcitingDemoFrame() (gmath.Vec, bool) {
 			switch a.mode {
 			case agentModeMakeClone:
 				numCloning++
-			case agentModeKamikazeAttack, agentModeConsumeDrone, agentModeCloakHide, agentModeCourierFlight:
+			case agentModeBomberAttack, agentModeKamikazeAttack, agentModeConsumeDrone, agentModeCloakHide, agentModeCourierFlight, agentModeCaptureBuilding:
 				numSpectacular++
 			case agentModeRepairBase, agentModeRepairTurret:
 				numRepairs++
@@ -280,11 +280,11 @@ func (c *Controller) GetSimulationResult() (serverapi.GameResults, bool) {
 	return result, true
 }
 
-func (c *Controller) Init(scene *ge.Scene) {
+func (c *Controller) doInit(scene *ge.Scene) {
 	scene.Context().Rand.SetSeed((c.config.Seed + 42) * 21917)
 	c.scene = scene
 
-	c.musicPlayer = newMusicPlayer(scene)
+	c.musicPlayer = newMusicPlayer(scene, c.state.ExtraMusic)
 	c.musicPlayer.Start()
 
 	if c.state.CPUProfile != "" {
@@ -329,6 +329,8 @@ func (c *Controller) Init(scene *ge.Scene) {
 		gameSpeed = 1.2
 	case 2:
 		gameSpeed = 1.5
+	case 3:
+		gameSpeed = 2.0
 	}
 	c.nodeRunner = newNodeRunner(gameSpeed)
 	c.nodeRunner.Init(c.scene)
@@ -339,23 +341,29 @@ func (c *Controller) Init(scene *ge.Scene) {
 	}
 
 	world := &worldState{
-		cameras:          make([]*viewport.Camera, 0, 2),
-		stage:            viewport.NewCameraStage(c.config.ExecMode == gamedata.ExecuteSimulation),
-		rootScene:        scene,
-		nodeRunner:       c.nodeRunner,
-		graphicsSettings: c.state.Persistent.Settings.Graphics,
-		pathgrid:         pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
-		config:           &c.config,
-		gameSettings:     &c.state.Persistent.Settings,
-		deviceInfo:       c.state.Device,
-		debugLogs:        c.state.Persistent.Settings.DebugLogs,
-		droneLabels:      c.state.Persistent.Settings.DebugDroneLabels && c.config.ExecMode == gamedata.ExecuteNormal,
-		rand:             scene.Rand(),
-		localRand:        &localRand,
-		tmpTargetSlice:   make([]targetable, 0, 20),
-		tmpColonySlice:   make([]*colonyCoreNode, 0, 4),
-		width:            viewportWorld.Width,
-		height:           viewportWorld.Height,
+		seedKind:             gamedata.GetSeedKind(c.config.Seed, c.config.RawGameMode),
+		sessionState:         c.state,
+		cameras:              make([]*viewport.Camera, 0, 2),
+		stage:                viewport.NewCameraStage(c.config.ExecMode == gamedata.ExecuteSimulation),
+		rootScene:            scene,
+		nodeRunner:           c.nodeRunner,
+		graphicsSettings:     c.state.Persistent.Settings.Graphics,
+		pathgrid:             pathing.NewGrid(viewportWorld.Width, viewportWorld.Height, 0),
+		config:               &c.config,
+		gameSettings:         &c.state.Persistent.Settings,
+		deviceInfo:           c.state.Device,
+		hintsMode:            c.state.Persistent.Settings.HintMode,
+		debugLogs:            c.state.Persistent.Settings.DebugLogs,
+		droneLabels:          c.state.Persistent.Settings.DebugDroneLabels && c.config.ExecMode == gamedata.ExecuteNormal,
+		cameraShakingEnabled: c.state.Persistent.Settings.Graphics.CameraShakingEnabled,
+		screenButtonsEnabled: c.state.Persistent.Settings.ScreenButtons,
+		rand:                 scene.Rand(),
+		localRand:            &localRand,
+		tmpTargetSlice:       make([]targetable, 0, 20),
+		tmpTargetSlice2:      make([]targetable, 0, 8),
+		tmpColonySlice:       make([]*colonyCoreNode, 0, 4),
+		width:                viewportWorld.Width,
+		height:               viewportWorld.Height,
 		rect: gmath.Rect{
 			Max: gmath.Vec{
 				X: viewportWorld.Width,
@@ -371,8 +379,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 		},
 		tier2recipes: tier2recipes,
 		turretDesign: gamedata.FindTurretByName(c.config.TurretDesign),
+		coreDesign:   gamedata.FindCoreByName(c.config.CoreDesign),
+		hasForests:   gamedata.EnvironmentKind(c.config.Environment) == gamedata.EnvForest,
 	}
-	world.inputMode = c.state.DetectInputMode()
+	world.inputMode = c.state.GetInput(0).DetectInputMode()
 	world.creepCoordinator = newCreepCoordinator(world)
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
 	c.world = world
@@ -381,6 +391,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 	world.EventCheckDefeatState.Connect(c, func(gsignal.Void) {
 		c.checkDefeat()
 	})
+
+	if world.cameraShakingEnabled {
+		world.EventCameraShake.Connect(c, c.onCameraShake)
+	}
 
 	if c.config.FogOfWar && !c.world.simulation {
 		fogOfWar := ebiten.NewImage(int(world.width), int(world.height))
@@ -396,14 +410,25 @@ func (c *Controller) Init(scene *ge.Scene) {
 		// Use local rand for the tileset generation.
 		// Otherwise, we'll get incorrect results during the simulation.
 		bg = ge.NewTiledBackground(scene.Context())
-		bg.LoadTilesetWithRand(scene.Context(), &localRand, viewportWorld.Width, viewportWorld.Height, assets.ImageBackgroundTiles, assets.RawTilesJSON)
+		var img resource.ImageID
+		var tileset resource.RawID
+		switch gamedata.EnvironmentKind(c.config.Environment) {
+		case gamedata.EnvMoon:
+			img = assets.ImageBackgroundTiles
+			tileset = assets.RawTilesJSON
+		case gamedata.EnvForest:
+			img = assets.ImageBackgroundForestTiles
+			tileset = assets.RawForestTilesJSON
+		}
+		bg.LoadTilesetWithRand(scene.Context(), &localRand, viewportWorld.Width, viewportWorld.Height, img, tileset)
 	}
 	c.world.stage.SetBackground(bg)
 
 	c.camera = c.createCameraManager(viewportWorld, true, c.state.GetInput(0))
 
 	forceCenter := c.config.ExecMode == gamedata.ExecuteReplay ||
-		c.config.PlayersMode == serverapi.PmodeTwoBots
+		c.config.PlayersMode == serverapi.PmodeTwoBots ||
+		c.config.PlayersMode == serverapi.PmodeSingleBot
 	if forceCenter {
 		c.camera.CenterOn(c.world.rect.Center())
 	}
@@ -420,6 +445,19 @@ func (c *Controller) Init(scene *ge.Scene) {
 		}
 
 		if c.config.ExecMode == gamedata.ExecuteNormal && isHumanPlayer(colony.player) {
+			colony.EventDestroyed.Connect(c, func(colony *colonyCoreNode) {
+				cam := colony.player.GetState().camera
+				center := cam.AbsPos(cam.Rect.Center())
+				if center.DistanceTo(colony.pos) < 300 {
+					return
+				}
+				c.messageManagers[colony.player.GetState().id].AddMessage(queuedMessageInfo{
+					text:          scene.Dict().Get("game.notice.base_destroyed"),
+					timer:         8,
+					targetPos:     ge.Pos{Offset: *colony.GetPos()},
+					forceWorldPos: true,
+				})
+			})
 			colony.EventUnderAttack.Connect(c, func(colony *colonyCoreNode) {
 				cam := colony.player.GetState().camera
 				center := cam.AbsPos(cam.Rect.Center())
@@ -429,7 +467,7 @@ func (c *Controller) Init(scene *ge.Scene) {
 				c.messageManagers[colony.player.GetState().id].AddMessage(queuedMessageInfo{
 					text:          scene.Dict().Get("game.notice.base_under_attack"),
 					trackedObject: colony,
-					timer:         5,
+					timer:         8,
 					targetPos:     ge.Pos{Base: colony.GetPos()},
 				})
 			})
@@ -471,7 +509,13 @@ func (c *Controller) Init(scene *ge.Scene) {
 		c.nodeRunner.AddObject(c.tutorialManager)
 		c.tutorialManager.EventTriggerVictory.Connect(c, c.onVictoryTrigger)
 		c.tutorialManager.EventEnableChoices.Connect(c, func(gsignal.Void) {
-			c.world.players[0].(*humanPlayer).CreateChoiceWindow()
+			c.world.players[0].(*humanPlayer).CreateChoiceWindow(true)
+		})
+		c.tutorialManager.EventEnableSpecialChoices.Connect(c, func(gsignal.Void) {
+			c.world.players[0].(*humanPlayer).EnableSpecialChoices()
+		})
+		c.tutorialManager.EventForceSpecialChoice.Connect(c, func(kind specialChoiceKind) {
+			c.world.players[0].(*humanPlayer).ForceSpecialChoice(kind)
 		})
 	}
 
@@ -486,17 +530,24 @@ func (c *Controller) Init(scene *ge.Scene) {
 
 	c.world.stage.SortBelowLayer()
 
-	if len(c.world.cameras) != 0 {
-		c.recipeTab = newRecipeTabNode(c.world)
-		c.recipeTab.Visible = false
-		c.world.cameras[0].UI.AddGraphics(c.recipeTab)
-		scene.AddObject(c.recipeTab)
-	}
-
 	if c.fogOfWar != nil {
 		for _, colony := range c.world.allColonies {
 			c.updateFogOfWar(colony.pos)
 		}
+	}
+}
+
+func (c *Controller) Init(scene *ge.Scene) {
+	c.doInit(scene)
+	runtime.GC()
+}
+
+func (c *Controller) onCameraShake(cameraShake CameraShakeData) {
+	for _, cam := range c.world.cameras {
+		if !cam.ContainsPos(cameraShake.Pos) {
+			continue
+		}
+		cam.Shake(cameraShake.Power)
 	}
 }
 
@@ -538,6 +589,8 @@ func (c *Controller) createCamera(viewportWorld *viewport.World) *viewport.Camer
 
 func (c *Controller) createPlayers() {
 	c.world.players = make([]player, 0, len(c.config.Players))
+	hasMouseInput := false
+	hasPlayers := false
 	isSimulation := c.world.config.ExecMode == gamedata.ExecuteReplay ||
 		c.world.config.ExecMode == gamedata.ExecuteSimulation
 	for i, pk := range c.config.Players {
@@ -554,11 +607,15 @@ func (c *Controller) createPlayers() {
 		var p player
 		switch pk {
 		case gamedata.PlayerHuman:
+			hasPlayers = true
 			if isSimulation {
 				p = newReplayPlayer(c.world, pstate, choiceGen)
 				pstate.replay = c.replayActions[i]
 			} else {
 				playerInput := c.state.GetInput(i)
+				if playerInput.HasMouseInput() {
+					hasMouseInput = true
+				}
 				pstate.camera = c.camera
 				if i != 0 {
 					c.secondCamera = c.createCameraManager(c.camera.World, false, playerInput)
@@ -576,7 +633,19 @@ func (c *Controller) createPlayers() {
 					choiceGen:   choiceGen,
 					creepsState: creepsState,
 				})
-				human.EventExitPressed.Connect(c, func(arg gsignal.Void) {
+
+				if i == 0 {
+					human.EventRecipesToggled.Connect(c, func(visible bool) {
+						c.world.result.OpenedEvolutionTab = true
+						if c.debugInfo != nil {
+							c.debugInfo.Visible = !visible
+						}
+					})
+				}
+				human.EventPauseRequest.Connect(c, func(gsignal.Void) {
+					c.onPausePressed()
+				})
+				human.EventExitPressed.Connect(c, func(gsignal.Void) {
 					c.onExitButtonClicked()
 				})
 				if human.CanPing() {
@@ -604,6 +673,12 @@ func (c *Controller) createPlayers() {
 		c.nodeRunner.AddObject(choiceGen)
 		c.world.players = append(c.world.players, p)
 	}
+
+	if c.world.config.ExecMode == gamedata.ExecuteNormal {
+		if !hasMouseInput && hasPlayers {
+			ebiten.SetCursorMode(ebiten.CursorModeHidden)
+		}
+	}
 }
 
 func (c *Controller) onVictoryTrigger(gsignal.Void) {
@@ -630,7 +705,26 @@ func (c *Controller) onExitButtonClicked() {
 		noticeCenterPos := cam.Rect.Center().Sub(noticeSize.Mulf(0.5))
 		exitNotice.SetPos(noticeCenterPos)
 	}
+}
 
+func (c *Controller) canBuildHere(pos gmath.Vec, turret bool) bool {
+	if !turret && c.world.coreDesign == gamedata.ArkCoreStats {
+		for _, colony := range c.world.allColonies {
+			if colony.pos.DistanceSquaredTo(pos) < (8 * 8) {
+				return false
+			}
+		}
+	}
+	return !c.hasTeleportersAt(pos)
+}
+
+func (c *Controller) hasTeleportersAt(pos gmath.Vec) bool {
+	for _, tp := range c.world.teleporters {
+		if tp.pos.DistanceSquaredTo(pos) < (52 * 52) {
+			return true
+		}
+	}
+	return false
 }
 
 func (c *Controller) executeAction(choice selectedChoice) bool {
@@ -711,7 +805,8 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		coord := c.world.pathgrid.PosToCoord(selectedColony.pos)
 		freeCoord := randIterate(c.world.rand, colonyNearCellOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
-			return c.world.pathgrid.CellIsFree(probe)
+			return c.world.CellIsFree(probe, layerLandColony) &&
+				c.canBuildHere(c.world.pathgrid.CoordToPos(probe), true)
 		})
 		if !freeCoord.IsZero() {
 			pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord))
@@ -728,7 +823,8 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		coord := p.PosToCoord(selectedColony.pos)
 		freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
-			return c.world.CellIsFree2x2(probe)
+			return c.world.CellIsFree2x2(probe, layerLandColony) &&
+				c.canBuildHere(p.CoordToPos(probe).Sub(gmath.Vec{X: 16, Y: 16}), false)
 		})
 		if !freeCoord.IsZero() {
 			pos := p.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})
@@ -775,12 +871,21 @@ func (c *Controller) launchAbomb() bool {
 	if c.world.boss == nil {
 		return false
 	}
-	target := gmath.RandElem(c.world.rand, c.world.allColonies)
+	target := randIterate(c.world.rand, c.world.allColonies, func(colony *colonyCoreNode) bool {
+		return colony.waypoint.IsZero()
+	})
+	if target == nil {
+		target = gmath.RandElem(c.world.rand, c.world.allColonies)
+	}
+	toPos := target.pos.Add(c.scene.Rand().Offset(-10, 10))
+	if !target.IsFlying() {
+		toPos = toPos.Add(gmath.Vec{Y: 16})
+	}
 	abomb := c.world.newProjectileNode(projectileConfig{
 		World:      c.world,
 		Weapon:     gamedata.AtomicBombWeapon,
 		Attacker:   c.world.boss,
-		ToPos:      target.pos.Add(c.scene.Rand().Offset(-10, 10)).Add(gmath.Vec{Y: 16}),
+		ToPos:      toPos,
 		Target:     target,
 		FireOffset: gmath.Vec{Y: -20},
 	})
@@ -822,7 +927,7 @@ func (c *Controller) doBossAttack() bool {
 		return false
 	}
 	dir := closestColony.pos.Add(c.world.rand.Offset(-60, 60)).DirectionTo(c.world.boss.pos)
-	targetPos := dir.Mulf(c.world.rand.FloatRange(200, 400)).Add(c.world.boss.pos)
+	targetPos := dir.Mulf(c.world.rand.FloatRange(300, 500)).Add(c.world.boss.pos)
 	c.world.boss.waypoint = targetPos
 	return true
 }
@@ -865,31 +970,70 @@ func (c *Controller) launchAttack(selectedColony *colonyCoreNode) {
 	if selectedColony.agents.NumAvailableFighters() == 0 {
 		return
 	}
-	closeTargets := c.world.tmpTargetSlice[:0]
+
+	c.world.tmpTargetSlice = c.world.tmpTargetSlice[:0]
+	c.world.tmpTargetSlice2 = c.world.tmpTargetSlice2[:0]
+	closeFlyingTargets := &c.world.tmpTargetSlice
+	closeGroundTargets := &c.world.tmpTargetSlice2
 	maxDist := selectedColony.AttackRadius() * c.world.rand.FloatRange(0.95, 1.1)
 	for _, creep := range c.world.creeps {
-		if len(closeTargets) >= 5 {
+		if len(*closeFlyingTargets)+len(*closeGroundTargets) >= 8 {
 			break
 		}
-		if creep.IsCloaked() {
+		if !creep.CanBeTargeted() {
 			continue
 		}
 		if creep.pos.DistanceTo(selectedColony.pos) > maxDist {
 			continue
 		}
-		closeTargets = append(closeTargets, creep)
+		if creep.IsFlying() {
+			*closeFlyingTargets = append(*closeFlyingTargets, creep)
+		} else {
+			*closeGroundTargets = append(*closeGroundTargets, creep)
+		}
 	}
-	if len(closeTargets) == 0 {
+	if len(*closeFlyingTargets)+len(*closeGroundTargets) == 0 {
 		return
 	}
+
 	maxDispatched := gmath.Clamp(int(float64(selectedColony.agents.NumAvailableFighters())*0.6), 1, 15)
 	selectedColony.agents.Find(searchFighters|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
-		target := gmath.RandElem(c.world.rand, closeTargets)
-		kind := gamedata.TargetGround
-		if target.IsFlying() {
-			kind = gamedata.TargetFlying
+		if a.stats == gamedata.BomberAgentStats {
+			if len(*closeGroundTargets) == 0 {
+				return false
+			}
+			target := gmath.RandElem(c.world.rand, *closeGroundTargets)
+			maxDispatched--
+			a.AssignMode(agentModeBomberAttack, gmath.Vec{}, target)
+			return maxDispatched <= 0
 		}
-		if !a.CanAttack(kind) {
+
+		var target targetable
+		if a.stats.Weapon != nil {
+			var targetSlice []targetable
+			switch a.stats.Weapon.TargetFlags {
+			case gamedata.TargetFlying:
+				targetSlice = *closeFlyingTargets
+			case gamedata.TargetGround:
+				targetSlice = *closeGroundTargets
+			default:
+				// Can attack both.
+				switch {
+				case len(*closeGroundTargets) == 0:
+					targetSlice = *closeFlyingTargets
+				case len(*closeFlyingTargets) == 0:
+					targetSlice = *closeGroundTargets
+				default:
+					if c.world.rand.Bool() {
+						targetSlice = *closeFlyingTargets
+					} else {
+						targetSlice = *closeGroundTargets
+					}
+				}
+			}
+			target = gmath.RandElem(c.world.rand, targetSlice)
+		}
+		if target == nil {
 			return false
 		}
 		maxDispatched--
@@ -898,9 +1042,20 @@ func (c *Controller) launchAttack(selectedColony *colonyCoreNode) {
 	})
 }
 
+func (c *Controller) colonyCanMoveAt(core *colonyCoreNode, coord pathing.GridCoord) bool {
+	switch core.stats {
+	case gamedata.ArkCoreStats:
+		return c.world.CellIsFree(coord, layerNormal)
+	case gamedata.DenCoreStats:
+		return c.world.CellIsFree2x2(coord, layerLandColony)
+	default:
+		return false
+	}
+}
+
 func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gmath.Vec) bool {
 	coord := c.world.pathgrid.PosToCoord(dst)
-	if c.world.CellIsFree2x2(coord) {
+	if c.colonyCanMoveAt(core, coord) {
 		pos := c.world.pathgrid.CoordToPos(coord).Sub(gmath.Vec{X: 16, Y: 16})
 		core.doRelocation(pos)
 		return true
@@ -908,7 +1063,7 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gm
 
 	freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
 		probe := coord.Add(offset)
-		return c.world.CellIsFree2x2(probe)
+		return c.colonyCanMoveAt(core, probe)
 	})
 	if !freeCoord.IsZero() {
 		pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})
@@ -917,8 +1072,8 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gm
 	}
 
 	if dist > 160 {
-		nextDst := dst.MoveTowards(core.pos, 96)
-		return c.launchRelocation(core, dist-96, nextDst)
+		nextDst := dst.MoveTowards(core.pos, 64)
+		return c.launchRelocation(core, dist-64, nextDst)
 	}
 
 	return false
@@ -933,6 +1088,7 @@ func (c *Controller) prepareBattleResults() {
 	}
 
 	c.world.result.BossDefeated = c.world.boss == nil
+	c.world.result.SeedKind = c.world.seedKind
 
 	c.world.result.Ticks = c.nodeRunner.ticks
 	c.world.result.TimePlayed = time.Second * time.Duration(c.nodeRunner.timePlayed)
@@ -1060,14 +1216,6 @@ func (c *Controller) handleInput() {
 		return
 	}
 
-	if c.sharedActionIsJustPressed(controls.ActionShowRecipes) {
-		if c.debugInfo != nil {
-			c.debugInfo.Visible = c.recipeTab.Visible
-		}
-		c.recipeTab.Visible = !c.recipeTab.Visible
-		c.world.result.OpenedEvolutionTab = true
-	}
-
 	for _, p := range c.world.players {
 		p.HandleInput()
 	}
@@ -1173,7 +1321,7 @@ func (c *Controller) Update(delta float64) {
 		mm.Update(delta)
 	}
 	c.musicPlayer.Update(delta)
-	c.nodeRunner.Update(computedDelta)
+	c.nodeRunner.Update(delta)
 
 	if !c.nodeRunner.IsPaused() {
 		if c.fogOfWar != nil {
@@ -1227,6 +1375,10 @@ func (c *Controller) IsDisposed() bool { return false }
 
 func (c *Controller) leaveScene(controller ge.SceneController) {
 	c.EventBeforeLeaveScene.Emit(gsignal.Void{})
+
+	if !c.world.simulation {
+		ebiten.SetCursorMode(ebiten.CursorModeVisible)
+	}
 
 	c.scene.Audio().PauseCurrentMusic()
 	c.scene.Context().ChangeScene(controller)

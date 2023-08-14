@@ -38,10 +38,21 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, 0)
 
 	config := c.state.SplashLevelConfig.Clone()
+	if scene.Rand().Chance(0.4) {
+		config.InitialCreeps = 0
+		config.CreepFortress = true
+	}
+	config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, scene.Rand())
 	config.TurretDesign = gamedata.PickTurretDesign(scene.Rand())
 	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())
 	config.ExecMode = gamedata.ExecuteDemo
 	config.PlayersMode = serverapi.PmodeSingleBot
+	if scene.Rand().Chance(0.4) {
+		config.Environment = int(gamedata.EnvForest)
+	}
+	if scene.Rand().Chance(0.3) {
+		config.IonMortars = true
+	}
 	config.Seed = scene.Rand().PositiveInt64()
 	for i := 0; i < 3; i++ {
 		config.ExtraDrones = append(config.ExtraDrones, gamedata.WorkerAgentStats)
@@ -61,7 +72,11 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.controller.EventBeforeLeaveScene.Connect(nil, func(gsignal.Void) {
 		// Just in case demo stops by a victory/defeat,
 		// make sure that we capture that last frame.
-		c.state.DemoFrame = c.controller.RenderDemoFrame()
+		c.state.BackgroundImage = c.controller.RenderDemoFrame()
+
+		if c.state.UnlockAchievement(session.Achievement{Name: "spectator", Elite: true}) {
+			c.scene.Context().SaveGameData("save", c.state.Persistent)
+		}
 	})
 
 	logo := scene.NewSprite(assets.ImageLogo)
@@ -72,7 +87,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	presskeyLabel := ge.NewLabel(assets.BitmapFont2)
 	presskeyLabel.Width = scene.Context().WindowWidth
 	presskeyLabel.AlignHorizontal = ge.AlignHorizontalCenter
-	presskeyLabel.Text = scene.Dict().Get("game.splash.presskey", c.state.DetectInputMode())
+	presskeyLabel.Text = scene.Dict().Get("game.splash.presskey", c.state.CombinedInput.DetectInputMode())
 	presskeyLabel.ColorScale.SetRGBA(0x9d, 0xd7, 0x93, 0xff)
 	presskeyLabel.Pos.Offset.Y = logo.Pos.Offset.Y + 54
 	scene.AddGraphics(presskeyLabel)
@@ -134,7 +149,7 @@ func (c *SplashScreenController) handleInput() {
 }
 
 func (c *SplashScreenController) stopDemo() {
-	c.state.DemoFrame = c.controller.RenderDemoFrame()
+	c.state.BackgroundImage = c.controller.RenderDemoFrame()
 
 	c.scene.Audio().PauseCurrentMusic()
 	c.scene.Context().ChangeScene(c.menuController)

@@ -9,6 +9,7 @@ import (
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/langs"
+	"github.com/quasilyte/ge/xslices"
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -16,6 +17,7 @@ import (
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes"
 	"github.com/quasilyte/roboden-game/serverapi"
+	"github.com/quasilyte/roboden-game/steamsdk"
 	"github.com/quasilyte/roboden-game/userdevice"
 )
 
@@ -25,11 +27,14 @@ type State struct {
 	MemProfile       string
 	MemProfileWriter io.WriteCloser
 
+	ExtraMusic bool
+
 	ServerProtocol string
 	ServerHost     string
 	ServerPath     string
 
-	Device userdevice.Info
+	Device    userdevice.Info
+	SteamInfo userdevice.SteamInfo
 
 	CombinedInput      gameinput.Handler
 	KeyboardInput      gameinput.Handler
@@ -51,19 +56,44 @@ type State struct {
 
 	Resources Resources
 
-	DemoFrame *ebiten.Image
+	BackgroundImage *ebiten.Image
 
 	Context *ge.Context
 
 	SentHighscores bool
+
+	StdoutLogs []string
+}
+
+func (state *State) Logf(format string, args ...any) {
+	s := format
+	if len(args) != 0 {
+		s = fmt.Sprintf(format, args...)
+	}
+
+	fmt.Println(s)
+
+	if len(state.StdoutLogs) >= 100 {
+		state.StdoutLogs = state.StdoutLogs[:0]
+	}
+	state.StdoutLogs = append(state.StdoutLogs, s)
 }
 
 func (state *State) GetInput(id int) *gameinput.Handler {
 	return state.BoundInputs[id]
 }
 
+func (state *State) GetGamepadInput(id int) *gameinput.Handler {
+	if id == 0 {
+		return &state.FirstGamepadInput
+	}
+	return &state.SecondGamepadInput
+}
+
 type PersistentData struct {
 	Settings GameSettings
+
+	FirstLaunch bool
 
 	PlayerName string
 
@@ -80,9 +110,12 @@ type PersistentData struct {
 type PlayerStats struct {
 	Achievements []Achievement
 
+	OptionsUnlocked []string
+	CoresUnlocked   []string
 	TurretsUnlocked []string
 	DronesUnlocked  []string
 	Tier3DronesSeen []string
+	ModesUnlocked   []string
 
 	TutorialCompleted bool
 
@@ -112,17 +145,10 @@ type Resources struct {
 }
 
 type GamepadSettings struct {
+	Layout        int
 	DeadzoneLevel int
+	CursorSpeed   int
 }
-
-type PlayerInputMethod int
-
-const (
-	InputMethodCombined PlayerInputMethod = iota
-	InputMethodKeyboard
-	InputMethodGamepad1
-	InputMethodGamepad2
-)
 
 type GameSettings struct {
 	Lang               string
@@ -130,11 +156,16 @@ type GameSettings struct {
 	EffectsVolumeLevel int
 	ScrollingSpeed     int
 	EdgeScrollRange    int
+	HintMode           int
+	WheelScrollingMode int
 	ShowFPS            bool
 	ShowTimer          bool
 	DebugLogs          bool
 	DebugDroneLabels   bool
 	Demo               bool
+	ScreenButtons      bool
+	IntroDifficulty    int
+	IntroSpeed         int
 	GamepadSettings    [2]GamepadSettings
 	Graphics           GraphicsSettings
 	Player1InputMethod int
@@ -142,9 +173,12 @@ type GameSettings struct {
 }
 
 type GraphicsSettings struct {
-	ShadowsEnabled    bool
-	AllShadersEnabled bool
-	FullscreenEnabled bool
+	ShadowsEnabled       bool
+	VSyncEnabled         bool
+	CameraShakingEnabled bool
+	AllShadersEnabled    bool
+	FullscreenEnabled    bool
+	AspectRation         int
 }
 
 type SavedReplay struct {
@@ -153,20 +187,56 @@ type SavedReplay struct {
 	Replay    serverapi.GameReplay
 }
 
-func (state *State) ReloadInputs() {
-	state.BoundInputs[0] = state.resolveInputMethod(PlayerInputMethod(state.Persistent.Settings.Player1InputMethod))
-	state.BoundInputs[1] = state.resolveInputMethod(PlayerInputMethod(state.Persistent.Settings.Player2InputMethod))
+func (state *State) AdjustVolumeLevels() {
+	state.Context.Audio.SetGroupVolume(assets.SoundGroupMusic,
+		assets.VolumeMultiplier(state.Persistent.Settings.MusicVolumeLevel))
+	state.Context.Audio.SetGroupVolume(assets.SoundGroupEffect,
+		assets.VolumeMultiplier(state.Persistent.Settings.EffectsVolumeLevel))
 }
 
-func (state *State) resolveInputMethod(method PlayerInputMethod) *gameinput.Handler {
+func (state *State) ReloadInputs() {
+	state.BoundInputs[0] = state.resolveInputMethod(gameinput.PlayerInputMethod(state.Persistent.Settings.Player1InputMethod))
+	state.BoundInputs[1] = state.resolveInputMethod(gameinput.PlayerInputMethod(state.Persistent.Settings.Player2InputMethod))
+}
+
+func (state *State) UnlockAchievement(a Achievement) bool {
+	stats := &state.Persistent.PlayerStats
+
+	current := xslices.Find(stats.Achievements, func(existing *Achievement) bool {
+		return existing.Name == a.Name
+	})
+
+	if current != nil {
+		if current.Elite {
+			return false // Can't be improved
+		}
+		if !current.Elite && !a.Elite {
+			return false // Doesn't improve the rank
+		}
+		// Upgrade the current achievemnt.
+		current.Elite = a.Elite
+	} else {
+		// It's a new achievement. Add it to the list.
+		stats.Achievements = append(stats.Achievements, a)
+	}
+
+	if state.SteamInfo.Initialized {
+		result := steamsdk.UnlockAchievement(a.Name)
+		state.Logf("setting %q steam achievement: %v", a.Name, result)
+	}
+
+	return true
+}
+
+func (state *State) resolveInputMethod(method gameinput.PlayerInputMethod) *gameinput.Handler {
 	switch method {
-	case InputMethodCombined:
+	case gameinput.InputMethodCombined:
 		return &state.CombinedInput
-	case InputMethodKeyboard:
+	case gameinput.InputMethodKeyboard:
 		return &state.KeyboardInput
-	case InputMethodGamepad1:
+	case gameinput.InputMethodGamepad1:
 		return &state.FirstGamepadInput
-	case InputMethodGamepad2:
+	case gameinput.InputMethodGamepad2:
 		return &state.SecondGamepadInput
 	default:
 		return &state.CombinedInput
@@ -198,14 +268,6 @@ func (state *State) ReloadLanguage(ctx *ge.Context) {
 		panic(err)
 	}
 	ctx.Dict = dict
-}
-
-func (state *State) DetectInputMode() string {
-	inputMode := "keyboard"
-	if state.CombinedInput.GamepadConnected() {
-		inputMode = "gamepad"
-	}
-	return inputMode
 }
 
 func (state *State) FindNextReplayIndex() int {

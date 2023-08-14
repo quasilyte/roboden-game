@@ -24,6 +24,9 @@ type humanPlayer struct {
 	input     *gameinput.Handler
 	choiceGen *choiceGenerator
 
+	tooltipManager *tooltipManager
+
+	recipeTab            *recipeTabNode
 	choiceWindow         *choiceWindowNode
 	rpanel               *rpanelNode
 	cursor               *gameui.CursorNode
@@ -31,15 +34,21 @@ type humanPlayer struct {
 	screenButtons        *screenButtonsNode
 	colonySelector       *ge.Sprite
 	flyingColonySelector *ge.Sprite
+	colonyDestination    *ge.Line
 	screenSeparator      *ge.Line
+
+	droneSelectorsUsed int
+	droneSelectors     []*ge.Sprite
 
 	creepsState *creepsPlayerState
 
 	canPing   bool
 	pingDelay float64
 
-	EventExitPressed gsignal.Event[gsignal.Void]
-	EventPing        gsignal.Event[gmath.Vec]
+	EventRecipesToggled gsignal.Event[bool]
+	EventPauseRequest   gsignal.Event[gsignal.Void]
+	EventExitPressed    gsignal.Event[gsignal.Void]
+	EventPing           gsignal.Event[gmath.Vec]
 }
 
 type humanPlayerConfig struct {
@@ -85,25 +94,65 @@ func (p *humanPlayer) CanPing() bool {
 	return p.canPing
 }
 
-func (p *humanPlayer) CreateChoiceWindow() {
+func (p *humanPlayer) CreateChoiceWindow(disableSpecial bool) {
 	p.choiceWindow = newChoiceWindowNode(p.state.camera.Camera, p.world, p.input, p.cursor, p.creepsState != nil)
 	p.world.nodeRunner.AddObject(p.choiceWindow)
 
 	p.choiceGen.EventChoiceReady.Connect(p, p.choiceWindow.RevealChoices)
 	p.choiceGen.EventChoiceSelected.Connect(p, func(choice selectedChoice) {
+		if choice.Index == -1 {
+			return
+		}
 		p.choiceWindow.StartCharging(choice.Cooldown, choice.Index)
-		if p.rpanel != nil && choice.Index != -1 {
+		if p.rpanel != nil {
 			p.rpanel.UpdateMetrics()
 		}
 	})
+
+	if disableSpecial {
+		p.choiceWindow.SetSpecialChoiceEnabled(false)
+	}
 
 	if p.choiceGen.IsReady() {
 		p.choiceWindow.RevealChoices(p.choiceGen.GetChoices())
 	}
 }
 
+func (p *humanPlayer) EnableSpecialChoices() {
+	p.choiceWindow.SetSpecialChoiceEnabled(true)
+}
+
+func (p *humanPlayer) ForceSpecialChoice(kind specialChoiceKind) {
+	p.choiceGen.ForceSpecialChoice(kind)
+}
+
 func (p *humanPlayer) Init() {
+	p.colonyDestination = ge.NewLine(ge.Pos{}, ge.Pos{})
+	p.colonyDestination.Visible = false
+	p.colonyDestination.SetColorScaleRGBA(0x6e, 0x8e, 0xbd, 160)
+	p.state.camera.Private.AddGraphics(p.colonyDestination)
+
 	p.state.Init(p.world)
+
+	if p.world.hintsMode > 0 {
+		ttm := newTooltipManager(p, p.world.hintsMode > 1)
+		p.cursor.EventHover.Connect(p, func(hoverPos gmath.Vec) {
+			ttm.OnHover(hoverPos)
+		})
+		p.cursor.EventStopHover.Connect(p, func(gsignal.Void) {
+			ttm.OnStopHover()
+		})
+		p.scene.AddObject(ttm)
+		p.tooltipManager = ttm
+		ttm.EventHighlightDrones.Connect(nil, func(drone *gamedata.AgentStats) {
+			p.highlightDrones(drone)
+		})
+		ttm.EventTooltipClosed.Connect(nil, func(gsignal.Void) {
+			if p.droneSelectorsUsed != 0 {
+				p.hideDroneSelectors()
+			}
+		})
+	}
 
 	if p.world.config.InterfaceMode >= 2 {
 		if p.creepsState != nil {
@@ -128,7 +177,7 @@ func (p *humanPlayer) Init() {
 		buttonsPos = gmath.Vec{X: 8, Y: 470}
 	}
 
-	if len(p.world.cameras) == 1 {
+	if len(p.world.cameras) == 1 && p.world.screenButtonsEnabled {
 		p.screenButtons = newScreenButtonsNode(p.state.camera.Camera, buttonsPos, p.creepsState != nil)
 		p.screenButtons.Init(p.world.rootScene)
 		p.screenButtons.EventToggleButtonPressed.Connect(p, p.onToggleButtonClicked)
@@ -138,9 +187,13 @@ func (p *humanPlayer) Init() {
 	if p.creepsState != nil {
 		p.state.camera.CenterOn(p.world.boss.pos)
 	} else {
-		p.colonySelector = p.scene.NewSprite(assets.ImageColonyCoreSelector)
-		p.state.camera.Private.AddSpriteBelow(p.colonySelector)
-		p.flyingColonySelector = p.scene.NewSprite(assets.ImageColonyCoreSelector)
+		p.colonySelector = p.scene.NewSprite(p.world.coreDesign.SelectorImageID())
+		if p.world.coreDesign == gamedata.ArkCoreStats {
+			p.state.camera.Private.AddSprite(p.colonySelector)
+		} else {
+			p.state.camera.Private.AddSpriteBelow(p.colonySelector)
+		}
+		p.flyingColonySelector = p.scene.NewSprite(p.world.coreDesign.SelectorImageID())
 		p.state.camera.Private.AddSpriteSlightlyAbove(p.flyingColonySelector)
 
 		p.selectNextColony(true)
@@ -148,7 +201,14 @@ func (p *humanPlayer) Init() {
 	}
 
 	if p.world.config.GameMode != gamedata.ModeTutorial {
-		p.CreateChoiceWindow()
+		p.CreateChoiceWindow(false)
+	}
+
+	if p.creepsState == nil {
+		p.recipeTab = newRecipeTabNode(p.world)
+		p.recipeTab.Visible = false
+		p.state.camera.UI.AddGraphics(p.recipeTab)
+		p.scene.AddObject(p.recipeTab)
 	}
 
 	if len(p.world.cameras) == 2 && p.state.id == 0 {
@@ -159,6 +219,13 @@ func (p *humanPlayer) Init() {
 		p.screenSeparator.Visible = p.rpanel == nil || !p.state.camera.UI.Visible
 		p.scene.AddGraphicsAbove(p.screenSeparator, 1)
 	}
+
+	p.input.EventGamepadDisconnected.Connect(p, func(gsignal.Void) {
+		if p.world.nodeRunner.IsPaused() {
+			return
+		}
+		p.EventPauseRequest.Emit(gsignal.Void{})
+	})
 }
 
 func (p *humanPlayer) IsDisposed() bool { return false }
@@ -179,6 +246,8 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 		flying := p.state.selectedColony.IsFlying()
 		p.colonySelector.Visible = !flying
 		p.flyingColonySelector.Visible = flying
+		p.colonyDestination.Visible = !p.state.selectedColony.relocationPoint.IsZero() &&
+			p.state.selectedColony.mode != colonyModeTeleporting
 	}
 
 	if p.radar != nil {
@@ -189,12 +258,21 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 func (p *humanPlayer) HandleInput() {
 	selectedColony := p.state.selectedColony
 
+	p.input.Update()
+
 	if p.canPing && p.pingDelay == 0 {
 		if clickPos, ok := p.cursor.ClickPos(controls.ActionPing); ok {
 			p.pingDelay = 5.0
 			globalClickPos := p.state.camera.AbsClickPos(clickPos)
 			p.EventPing.Emit(globalClickPos)
 			return
+		}
+	}
+
+	if p.recipeTab != nil {
+		if p.input.ActionIsJustPressed(controls.ActionShowRecipes) {
+			p.recipeTab.Visible = !p.recipeTab.Visible
+			p.EventRecipesToggled.Emit(p.recipeTab.Visible)
 		}
 	}
 
@@ -210,7 +288,7 @@ func (p *humanPlayer) HandleInput() {
 		}
 	}
 
-	if (selectedColony != nil || p.creepsState != nil) && p.choiceWindow != nil {
+	if (selectedColony != nil || p.creepsState != nil) && p.choiceWindow != nil && p.state.camera.UI.Visible {
 		if cardIndex := p.choiceWindow.HandleInput(); cardIndex != -1 {
 			if !p.choiceGen.TryExecute(cardIndex, gmath.Vec{}) {
 				p.scene.Audio().PlaySound(assets.AudioError)
@@ -261,6 +339,12 @@ func (p *humanPlayer) HandleInput() {
 		}
 	}
 
+	if p.screenButtons != nil && p.state.camera.UI.Visible {
+		if p.screenButtons.HandleInput(clickPos) {
+			return
+		}
+	}
+
 	if selectedColony != nil && p.world.movementEnabled {
 		if pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice); ok {
 			globalClickPos := p.state.camera.AbsClickPos(pos)
@@ -271,10 +355,6 @@ func (p *humanPlayer) HandleInput() {
 				return
 			}
 		}
-	}
-
-	if p.screenButtons != nil {
-		p.screenButtons.HandleInput(clickPos)
 	}
 }
 
@@ -326,6 +406,7 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	if p.state.selectedColony == nil {
 		p.colonySelector.Visible = false
 		p.flyingColonySelector.Visible = false
+		p.colonyDestination.Visible = false
 		return
 	}
 	p.state.selectedColony.EventDestroyed.Connect(p, func(_ *colonyCoreNode) {
@@ -339,13 +420,46 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 			p.rpanel.UpdateMetrics()
 		})
 	}
-	p.colonySelector.Pos.Base = &p.state.selectedColony.spritePos
-	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.spritePos
+	p.colonySelector.Pos.Base = &p.state.selectedColony.pos
+	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.pos
+	p.colonyDestination.BeginPos.Base = &p.state.selectedColony.pos
+	p.colonyDestination.EndPos.Base = &p.state.selectedColony.relocationPoint
 }
 
-func (p *humanPlayer) onPanelUpdateRequested(gsignal.Void) {
-	// FIXME: is it unused?
-	p.rpanel.UpdateMetrics()
+func (p *humanPlayer) highlightDrones(droneStats *gamedata.AgentStats) {
+	if p.state.selectedColony == nil {
+		return
+	}
+
+	p.state.selectedColony.agents.Each(func(drone *colonyAgentNode) {
+		if drone.stats != droneStats {
+			return
+		}
+		s := p.makeDroneSelector()
+		s.Pos.Base = &drone.pos
+		s.Visible = true
+	})
+}
+
+func (p *humanPlayer) hideDroneSelectors() {
+	for _, s := range p.droneSelectors {
+		s.Visible = false
+	}
+	p.droneSelectorsUsed = 0
+}
+
+func (p *humanPlayer) makeDroneSelector() *ge.Sprite {
+	numSelectors := p.droneSelectorsUsed
+	p.droneSelectorsUsed++
+
+	if numSelectors < len(p.droneSelectors) {
+		return p.droneSelectors[numSelectors]
+	}
+
+	s := p.scene.NewSprite(assets.ImageDroneSelector)
+	p.droneSelectors = append(p.droneSelectors, s)
+	p.state.camera.Private.AddGraphicsSlightlyAbove(s)
+	return s
 }
 
 func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {
@@ -353,6 +467,10 @@ func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {
 }
 
 func (p *humanPlayer) onToggleButtonClicked(gsignal.Void) {
+	if p.tooltipManager != nil {
+		p.tooltipManager.removeTooltip()
+	}
+
 	if p.creepsState == nil {
 		p.selectNextColony(true)
 		return

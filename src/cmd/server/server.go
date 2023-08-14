@@ -132,14 +132,14 @@ func (s *apiServer) InitDatabases() error {
 		dbPath := filepath.Join(s.dataFolder, dbFilename)
 		conn, err := sqliteConnect(dbPath)
 		if err != nil {
-			return err
+			return fmt.Errorf("season%d: %w", i, err)
 		}
 		db := &seasonDB{
 			id:   i,
 			conn: conn,
 		}
 		if err := db.PrepareQueries(); err != nil {
-			return err
+			return fmt.Errorf("season%d: %w", i, err)
 		}
 		s.seasons = append(s.seasons, db)
 		s.logger.Info("opened %s", dbFilename)
@@ -575,10 +575,16 @@ func (s *apiServer) NewHandler(f func(*http.Request) (any, error)) func(http.Res
 			w.Header().Set("Content-Type", "application/json")
 			return
 		}
-		data, err := json.Marshal(v)
-		if err != nil {
-			s.writeError(w, err)
-			return
+
+		var data []byte
+		if vData, ok := v.([]byte); ok {
+			data = vData
+		} else {
+			data, err = json.Marshal(v)
+			if err != nil {
+				s.writeError(w, err)
+				return
+			}
 		}
 
 		w.Header().Set("Content-Type", "application/json")

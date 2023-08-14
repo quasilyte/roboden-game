@@ -24,16 +24,15 @@ type beamNode struct {
 }
 
 var (
-	dominatorBeamColorRear   = ge.RGB(0x5433c3)
-	builderBeamColor         = color.RGBA{R: 0xae, G: 0x4c, B: 0x78, A: 150}
-	destroyerBeamColor       = ge.RGB(0xf58f54)
-	courierResourceBeamColor = ge.RGB(0xd2e352)
-	prismBeamColor1          = ge.RGB(0x529eb8)
-	prismBeamColor2          = ge.RGB(0x61bad8)
-	prismBeamColor3          = ge.RGB(0x7bdbfc)
-	prismBeamColor4          = ge.RGB(0xccf2ff)
-	prismBeamColor5          = ge.RGB(0xffffff)
-	evoBeamColor             = ge.RGB(0xa641c2)
+	dominatorBeamColorRear = ge.RGB(0x5433c3)
+	builderBeamColor       = color.RGBA{R: 0xae, G: 0x4c, B: 0x78, A: 150}
+	destroyerBeamColor     = ge.RGB(0xf58f54)
+	prismBeamColor1        = ge.RGB(0x529eb8)
+	prismBeamColor2        = ge.RGB(0x61bad8)
+	prismBeamColor3        = ge.RGB(0x7bdbfc)
+	prismBeamColor4        = ge.RGB(0xccf2ff)
+	prismBeamColor5        = ge.RGB(0xffffff)
+	evoBeamColor           = ge.RGB(0xa641c2)
 )
 
 var prismBeamColors = []color.RGBA{

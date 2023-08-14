@@ -1,3 +1,8 @@
+##tutorial.next.keyboard
+[press ENTER to continue]
+##tutorial.next.gamepad
+[click left joystick to continue]
+
 ##tutorial.greeting
 Enemies are planning to capture this sector.
 Prepare and repel the attack.
@@ -15,8 +20,22 @@ Locate a resource stash by following a marker.
 
 [press ENTER to continue]
 
+##tutorial.camera.gamepad
+To pan the camera, use the D-pad or left joystick.
+Locate a resource stash by following a marker.
+
+[press ENTER to continue]
+
 ##tutorial.move.keyboard
 The right mouse click sends the selected colony
+to the destination. The colony will fly toward
+the spot, but its max jump distance is limited.
+
+Move the colony closer to the resources.
+
+##tutorial.move.gamepad
+The right joystick controls the virtual cursor.
+Right joystick click sends the selected colony
 to the destination. The colony will fly toward
 the spot, but its max jump distance is limited.
 
@@ -65,11 +84,19 @@ decreasing the others.
 Try activating them. Use a left mouse click
 on the disk or press a hotkey: 1-4.
 
+##tutorial.enable_choices.gamepad
+These disks on the right will affect these priorities.
+Keep in mind that increasing one priority always means
+decreasing the others.
+
+Try activating them. Use a right stick click
+on the disk or press $gamepad_y/$gamepad_b/$gamepad_a/$gamepad_x.
+
 ##tutorial.enemy_scouts
 A small squad of enemy scouts entered the sector.
 The colony should be able to defend itself.
 
-Any casualties will be replenished, provided that
+Any casualties can be replenished, provided that
 there are enough resources.
 
 ##tutorial.factions
@@ -81,17 +108,18 @@ a newly produced drone belonging to that faction.
 Select a disk and see how the distribution changes.
 
 ##tutorial.factions2.keyboard
-Factions are important to get tier 2 drones.
+Factions (colors) are important to get tier 2 drones.
 When two tier 1 drones combine, a tier 2 drone emerges.
-To see what drones you can get, press ALT.
+To see what drones are available, press the ALT key.
 
 [press ENTER to continue]
 
-##tutorial.crawlers_attack_notice
-More enemies are coming from the north.
+##tutorial.factions2.gamepad
+Factions (colors) are important to get tier 2 drones.
+When two tier 1 drones combine, a tier 2 drone emerges.
+To see what drones are available, press the R2 button.
 
-Move the colony away from that side to avoid
-a head-on confrontation.
+[press ENTER to continue]
 
 ##tutorial.build_turret.keyboard
 The next enemy group consist of ground units.
@@ -99,6 +127,13 @@ Construct a turret to make this battle easier.
 
 The turret construction disk can appear
 as a fifth disk and is activated by the 5 key.
+
+##tutorial.build_turret.gamepad
+The next enemy group consist of ground units.
+Construct a turret to make this battle easier.
+
+The turret construction disk can appear
+as a fifth disk and is activated by the R1 button.
 
 ##tutorial.crawlers_attack
 Enemy ground units detected!
@@ -116,6 +151,8 @@ appears on the selection.
 ##tutorial.base_leveling
 Increasing the radius and evolving the drones
 are the two main ways to create a stronger colony.
+To get more drones and territory - increase the radius,
+to get better units - increase the evolution priority.
 
 [press ENTER to continue]
 
@@ -153,11 +190,6 @@ all three segments are filled.
 The attack action makes most colony combat
 drones seek for the targets nearby.
 
-##tutorial.context.increase_radius
-The selected colony's influence radius is increased.
-Drones will cover more territory now,
-and the colony will build more of them.
-
 ##tutorial.context.decrease_radius
 Decreasing the colony's influence radius is
 useful after it reached the desired drone count.
@@ -171,8 +203,16 @@ The other colony should be nearby to
 complete this process.
 
 ##tutorial.context.second_base.keyboard
-To switch between the colonies, press TAB.
+To switch between the colonies, press the TAB key.
 Alternatively, do a left mouse click over
+a colony that should be selected.
+
+The colonies share the disk selection,
+but not priorities.
+
+##tutorial.context.second_base.gamepad
+To switch between the colonies, press the L1 button.
+Alternatively, do a right stick click over
 a colony that should be selected.
 
 The colonies share the disk selection,
@@ -181,7 +221,7 @@ but not priorities.
 ##tutorial.context.fighter_drone
 This is a tier 2 combat drone, the Fighter.
 It's created out of a pair of tier 1
-combat drones of the red faction.
+combat drones: red + green.
 
 ##tutorial.context.destroyer_drone
 This is a tier 3 combat drone, the Destroyer.

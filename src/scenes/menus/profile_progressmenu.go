@@ -35,7 +35,7 @@ func (c *ProfileProgressMenuController) Update(delta float64) {
 }
 
 func (c *ProfileProgressMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -52,23 +52,12 @@ func (c *ProfileProgressMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.progress"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel := eui.NewTextPanel(uiResources, 0, 0)
+	rowContainer.AddChild(panel)
 
 	numDrones := len(gamedata.Tier2agentMergeRecipes)
 
 	stats := c.state.Persistent.PlayerStats
-
-	modesTotal := 4
-	modesUnlocked := 1
-	if stats.TotalScore >= gamedata.ArenaModeCost {
-		modesUnlocked++
-	}
-	if stats.TotalScore >= gamedata.InfArenaModeCost {
-		modesUnlocked++
-	}
-	if stats.TotalScore >= gamedata.ReverseModeCost {
-		modesUnlocked++
-	}
 
 	smallFont := assets.BitmapFont1
 
@@ -76,18 +65,18 @@ func (c *ProfileProgressMenuController) initUI() {
 		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
 	lines := [][2]string{
 		{d.Get("menu.profile.progress.achievements"), fmt.Sprintf("%d/%d", len(stats.Achievements), len(gamedata.AchievementList))},
+		{d.Get("menu.profile.progress.cores_unlocked"), fmt.Sprintf("%d/%d", len(stats.CoresUnlocked), len(gamedata.CoreStatsList))},
 		{d.Get("menu.profile.progress.turrets_unlocked"), fmt.Sprintf("%d/%d", len(stats.TurretsUnlocked), len(gamedata.TurretStatsList))},
 		{d.Get("menu.profile.progress.drones_unlocked"), fmt.Sprintf("%d/%d", len(stats.DronesUnlocked), numDrones)},
 		{d.Get("menu.profile.progress.t3drones_seen"), fmt.Sprintf("%d/%d", len(stats.Tier3DronesSeen), len(gamedata.Tier3agentMergeRecipes))},
-		{d.Get("menu.profile.progress.modes_unlocked"), fmt.Sprintf("%d/%d", modesUnlocked, modesTotal)},
+		{d.Get("menu.profile.progress.modes_unlocked"), fmt.Sprintf("%d/%d", len(stats.ModesUnlocked), len(gamedata.GameModeInfoMap))},
+		{d.Get("menu.profile.progress.extra_options_unlocked"), fmt.Sprintf("%d/%d", len(stats.OptionsUnlocked), len(gamedata.LobbyOptionMap))},
 	}
 	for _, pair := range lines {
 		grid.AddChild(eui.NewLabel(pair[0], smallFont))
 		grid.AddChild(eui.NewLabel(pair[1], smallFont))
 	}
-	rowContainer.AddChild(grid)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel.AddChild(grid)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

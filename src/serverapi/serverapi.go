@@ -54,26 +54,31 @@ const (
 )
 
 type ReplayLevelConfig struct {
-	Resources int `json:"resources"`
+	Resources   int  `json:"resources"`
+	GoldEnabled bool `json:"gold_enabled"`
 
 	RawGameMode string `json:"mode"`
 
 	PlayersMode   int `json:"players_mode"`
 	InterfaceMode int `json:"ui_mode"`
 
-	FogOfWar    bool `json:"fog_of_war"`
-	SuperCreeps bool `json:"super_creps"`
+	Relicts       bool `json:"relicts"`
+	FogOfWar      bool `json:"fog_of_war"`
+	SuperCreeps   bool `json:"super_creps"`
+	CreepFortress bool `json:"creep_fortress"`
+	IonMortars    bool `json:"ion_mortars"`
 
-	InitialCreeps     int `json:"initial_creeps"`
-	NumCreepBases     int `json:"num_creep_bases"`
-	CreepDifficulty   int `json:"creep_difficulty"`
-	DronesPower       int `json:"drones_power"`
-	CreepSpawnRate    int `json:"creep_spawn_rate"`
-	TechProgressRate  int `json:"tech_progress_rate"`
-	BossDifficulty    int `json:"boss_difficulty"`
-	ArenaProgression  int `json:"arena_progression"`
-	StartingResources int `json:"starting_resources"`
-	GameSpeed         int `json:"game_speed"`
+	InitialCreeps         int `json:"initial_creeps"`
+	NumCreepBases         int `json:"num_creep_bases"`
+	CreepDifficulty       int `json:"creep_difficulty"`
+	DronesPower           int `json:"drones_power"`
+	CreepSpawnRate        int `json:"creep_spawn_rate"`
+	TechProgressRate      int `json:"tech_progress_rate"`
+	ReverseSuperCreepRate int `json:"reverse_super_creep_rate"`
+	BossDifficulty        int `json:"boss_difficulty"`
+	ArenaProgression      int `json:"arena_progression"`
+	StartingResources     int `json:"starting_resources"`
+	GameSpeed             int `json:"game_speed"`
 
 	Teleporters int `json:"teleporters"`
 
@@ -82,6 +87,7 @@ type ReplayLevelConfig struct {
 	WorldSize    int `json:"world_size"`
 	OilRegenRate int `json:"oil_regen_rage"`
 	Terrain      int `json:"terrain"`
+	Environment  int `json:"environment"`
 
 	DifficultyScore int `json:"difficulty"`
 
@@ -89,6 +95,7 @@ type ReplayLevelConfig struct {
 	Tier2Recipes         []string `json:"tier2_recipes"`
 
 	TurretDesign string `json:"turret_design"`
+	CoreDesign   string `json:"core_design"`
 }
 
 type LeaderboardResp struct {

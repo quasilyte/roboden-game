@@ -1,7 +1,6 @@
 package menus
 
 import (
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 
 	"github.com/quasilyte/roboden-game/assets"
@@ -33,7 +32,7 @@ func (c *OptionsExtraMenuController) Update(delta float64) {
 }
 
 func (c *OptionsExtraMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -85,7 +84,7 @@ func (c *OptionsExtraMenuController) initUI() {
 		}))
 	}
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	if !c.state.Device.IsMobile {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.terminal"), func() {

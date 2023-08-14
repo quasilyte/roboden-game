@@ -2,7 +2,6 @@ package staging
 
 import (
 	"fmt"
-	"image"
 	"sort"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -10,6 +9,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
@@ -81,18 +81,6 @@ func newWallClusterNode(config wallClusterConfig) *wallClusterNode {
 func (w *wallClusterNode) IsDisposed() bool { return false }
 
 func (w *wallClusterNode) Init(scene *ge.Scene) {
-}
-
-func (w *wallClusterNode) createSubImage(img resource.Image, offsetX int) *ebiten.Image {
-	_, height := img.Data.Size()
-	min := image.Point{
-		X: offsetX,
-		Y: 0,
-	}
-	return img.Data.SubImage(image.Rectangle{
-		Min: min,
-		Max: image.Point{X: min.X + int(img.DefaultFrameWidth), Y: height},
-	}).(*ebiten.Image)
 }
 
 func (w *wallClusterNode) initChunks(bg *ge.TiledBackground, scene *ge.Scene) {
@@ -172,13 +160,20 @@ func (w *wallClusterNode) drawMountains(bg *ge.TiledBackground, scene *ge.Scene)
 			panic("unexpected chunk size")
 		}
 
+		switch gamedata.EnvironmentKind(w.world.config.Environment) {
+		case gamedata.EnvMoon:
+			// That's the default.
+		case gamedata.EnvForest:
+			texture += 5
+		}
+
 		for j := 0; j < numSprites; j++ {
 			img := scene.LoadImage(texture)
 			width, height := img.Data.Size()
 			numFrames := width / int(img.DefaultFrameWidth)
 			var drawOptions ebiten.DrawImageOptions
 			frameOffset := w.world.localRand.IntRange(0, numFrames-1) * int(img.DefaultFrameWidth)
-			subImage := w.createSubImage(img, frameOffset)
+			subImage := createSubImage(img, frameOffset)
 			if w.world.localRand.Bool() {
 				drawOptions.GeoM.Scale(-1, 1)
 				drawOptions.GeoM.Translate(img.DefaultFrameWidth, 0)
@@ -264,6 +259,10 @@ func (w *wallClusterNode) initGeometryRect() {
 			break
 		}
 	}
+
+	originOffset := gmath.Vec{X: wallTileSize / 2, Y: wallTileSize / 2}
+	w.rect.Min = w.rect.Min.Sub(originOffset)
+	w.rect.Max = w.rect.Max.Add(originOffset)
 }
 
 func (w *wallClusterNode) initOriented(bg *ge.TiledBackground, scene *ge.Scene) {
@@ -333,7 +332,7 @@ func (w *wallClusterNode) initOriented(bg *ge.TiledBackground, scene *ge.Scene) 
 			img := scene.LoadImage(texture)
 			drawOptions.GeoM.Translate(w.points[i].X-(wallTileSize/2), w.points[i].Y-(wallTileSize/2))
 			frameOffset := int(connectionsMask) * int(wallTileSize)
-			subImage := w.createSubImage(img, frameOffset)
+			subImage := createSubImage(img, frameOffset)
 			bg.DrawImage(subImage, &drawOptions)
 		}
 	}

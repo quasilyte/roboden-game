@@ -1,7 +1,6 @@
 package menus
 
 import (
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 
@@ -34,7 +33,7 @@ func (c *OptionsMenuController) Update(delta float64) {
 }
 
 func (c *OptionsMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -47,16 +46,16 @@ func (c *OptionsMenuController) initUI() {
 
 	options := &c.state.Persistent.Settings
 
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.gameplay"), func() {
+		c.scene.Context().ChangeScene(NewOptionsGameplayMenuController(c.state))
+	}))
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.sound"), func() {
 		c.scene.Context().ChangeScene(NewOptionsSoundMenuController(c.state))
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.graphics"), func() {
 		c.scene.Context().ChangeScene(NewOptionsGraphicsMenuController(c.state))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.camera"), func() {
-		c.scene.Context().ChangeScene(NewOptionsCameraMenuController(c.state))
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.controls"), func() {
@@ -88,7 +87,7 @@ func (c *OptionsMenuController) initUI() {
 		}))
 	}
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

@@ -3,6 +3,17 @@
 <script src="wasm_exec.js"></script>
 
 <script>
+    function _localStorageAvailable() {
+        try {
+            const key = `storage__test__`;
+            window.localStorage.setItem(key, null);
+            window.localStorage.removeItem(key);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
     if (!WebAssembly.instantiateStreaming) {
         WebAssembly.instantiateStreaming = async (resp, importObject) => {
             const source = await (await resp).arrayBuffer();

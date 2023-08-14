@@ -29,6 +29,12 @@ type levelGenerator struct {
 	pendingResources []*essenceSourceNode
 }
 
+type creepPlacingConfig struct {
+	CreepInit func(creep *creepNode)
+	Pad       float64
+	NoScraps  bool
+}
+
 func newLevelGenerator(scene *ge.Scene, bg *ge.TiledBackground, world *worldState) *levelGenerator {
 	g := &levelGenerator{
 		scene: scene,
@@ -49,13 +55,15 @@ func newLevelGenerator(scene *ge.Scene, bg *ge.TiledBackground, world *worldStat
 func (g *levelGenerator) Generate() {
 	g.playerSpawn = g.world.rect.Center()
 	resourceMultipliers := []float64{
-		0.4,
-		0.75,
+		0.35,
+		0.7,
 		1, // Default
 		1.25,
 		1.6,
 	}
+	g.placeForests()
 	g.placeTeleporters()
+	g.placeRelicts()
 	g.placePlayers()
 	g.placeWalls()
 	g.placeCreepBases()
@@ -123,6 +131,15 @@ func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
 	return randomSectorPos(&g.rng, sector)
 }
 
+func (g *levelGenerator) fillPathgridRect(rect gmath.Rect, tag uint8) {
+	for y := rect.Min.Y; y < rect.Max.Y; y += wallTileSize {
+		for x := rect.Min.X; x < rect.Max.X; x += wallTileSize {
+			pos := gmath.Vec{X: x, Y: y}
+			g.world.MarkPos(pos, tag)
+		}
+	}
+}
+
 func (g *levelGenerator) fillPathgrid() {
 	w := g.world
 
@@ -137,16 +154,11 @@ func (g *levelGenerator) fillPathgrid() {
 	// 2. Wall tiles have the same grid size as path grid cells.
 	for _, wall := range g.world.walls {
 		if wall.rectShape {
-			for y := wall.rect.Min.Y; y <= wall.rect.Max.Y; y += pathing.CellSize {
-				for x := wall.rect.Min.X; x <= wall.rect.Max.X; x += pathing.CellSize {
-					pos := gmath.Vec{X: x, Y: y}
-					w.MarkPos(pos)
-				}
-			}
+			g.fillPathgridRect(wall.rect, ptagBlocked)
 			continue
 		}
 		for _, pos := range wall.points {
-			w.MarkPos(pos)
+			w.MarkPos(pos, ptagBlocked)
 		}
 	}
 }
@@ -186,6 +198,39 @@ func (g *levelGenerator) placeTeleporters() {
 	}
 }
 
+func (g *levelGenerator) placeRelicts() {
+	if !g.world.config.Relicts {
+		return
+	}
+
+	artifactsPool := make([]*gamedata.AgentStats, len(gamedata.ArtifactsList))
+	copy(artifactsPool, gamedata.ArtifactsList)
+	gmath.Shuffle(g.world.rand, artifactsPool)
+
+	numArtifacts := 2
+	if g.world.config.WorldSize == 3 {
+		numArtifacts++
+	}
+	artifacts := artifactsPool[:numArtifacts]
+
+	for _, a := range artifacts {
+		g.sectorSlider.TrySetValue(g.world.rand.IntRange(0, len(g.sectors)-1))
+		for attempt := 0; attempt < 10; attempt++ {
+			sector := g.sectors[g.sectorSlider.Value()]
+			g.sectorSlider.Dec()
+			pos := g.randomFreePos(sector, 48, 168)
+			if pos.IsZero() {
+				continue
+			}
+			pos = g.world.pathgrid.AlignPos(pos)
+			b := newNeutralBuildingNode(g.world, a, pos)
+			b.Init(g.scene)
+			g.world.neutralBuildings = append(g.world.neutralBuildings, b)
+			break
+		}
+	}
+}
+
 func (g *levelGenerator) placePlayers() {
 	if g.world.config.GameMode == gamedata.ModeReverse {
 		// In reverse mode, there is always only 1 player controlling the colony.
@@ -219,9 +264,9 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 
 	switch g.world.config.StartingResources {
 	case 1:
-		core.resources = maxVisualResources / 3
+		core.resources = core.maxVisualResources() / 3
 	case 2:
-		core.resources = maxVisualResources
+		core.resources = core.maxVisualResources()
 	}
 
 	for i := 0; i < 5; i++ {
@@ -238,10 +283,21 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 	}
 }
 
-func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stats *gamedata.CreepStats) int {
+func (g *levelGenerator) placeCreep(sector gmath.Rect, stats *gamedata.CreepStats, config creepPlacingConfig) *creepNode {
+	_, creep := g.placeCreepsClusterImpl(sector, 1, stats, config)
+	return creep
+}
+
+func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stats *gamedata.CreepStats, config creepPlacingConfig) int {
+	numPlaced, _ := g.placeCreepsClusterImpl(sector, maxSize, stats, config)
+	return numPlaced
+}
+
+func (g *levelGenerator) placeCreepsClusterImpl(sector gmath.Rect, maxSize int, stats *gamedata.CreepStats, config creepPlacingConfig) (int, *creepNode) {
 	rand := &g.rng
 	placed := 0
-	pos := correctedPos(sector, g.randomPos(sector), 128)
+	var placedCreep *creepNode
+	pos := correctedPos(sector, g.randomPos(sector), config.Pad)
 	initialPos := pos
 	unitPos := pos
 	for i := 0; i < maxSize; i++ {
@@ -252,6 +308,9 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stat
 			break
 		}
 		creep := g.world.NewCreepNode(pos, stats)
+		if config.CreepInit != nil {
+			config.CreepInit(creep)
+		}
 		if stats.Kind == gamedata.CreepCrawler {
 			creep.specialModifier = crawlerGuard
 		}
@@ -263,20 +322,20 @@ func (g *levelGenerator) placeCreepsCluster(sector gmath.Rect, maxSize int, stat
 		} else {
 			pos = pos.Add(direction)
 		}
+		placedCreep = creep
 		placed++
 	}
 	// Creep groups may have some scraps near them.
-	if placed != 0 && rand.Chance(0.7) {
+	if !config.NoScraps && placed != 0 && rand.Chance(0.7) {
 		numScraps := rand.IntRange(1, 2)
 		for i := 0; i < numScraps; i++ {
 			scrapPos := g.adjustResourcePos(gmath.RadToVec(rand.Rad()).Mulf(rand.FloatRange(64, 128)).Add(unitPos))
 			if posIsFree(g.world, nil, scrapPos, 8) {
-				source := g.world.NewEssenceSourceNode(scrapSource, scrapPos)
-				g.world.nodeRunner.AddObject(source)
+				g.world.CreateScrapsAt(scrapSource, scrapPos)
 			}
 		}
 	}
-	return placed
+	return placed, placedCreep
 }
 
 func (g *levelGenerator) adjustResourcePos(pos gmath.Vec) gmath.Vec {
@@ -286,7 +345,7 @@ func (g *levelGenerator) adjustResourcePos(pos gmath.Vec) gmath.Vec {
 func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, kind *essenceSourceStats) int {
 	rand := &g.rng
 	placed := 0
-	pos := correctedPos(sector, g.randomPos(sector), 196)
+	pos := correctedPos(sector, g.randomPos(sector), 96)
 	initialPos := pos
 	for i := 0; i < maxSize; i++ {
 		pos = g.adjustResourcePos(pos)
@@ -316,11 +375,26 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		1.1,
 	}
 	multiplier := resMultiplier * worldSizeMultipliers[g.world.config.WorldSize]
-	numIron := int(float64(rand.IntRange(26, 38)) * multiplier)
+	numIron := int(float64(rand.IntRange(28, 42)) * multiplier)
 	numScrap := int(float64(rand.IntRange(6, 8)) * multiplier)
 	numGold := int(float64(rand.IntRange(20, 28)) * multiplier)
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
+	numOrganic := int(float64(rand.IntRange(16, 24)) * multiplier)
+
+	switch gamedata.EnvironmentKind(g.world.config.Environment) {
+	case gamedata.EnvMoon:
+		numOrganic = 0
+	case gamedata.EnvForest:
+		numIron = 0
+		numCrystals /= 2
+		numGold = int(float64(numGold) * 0.7)
+		numOil = int(float64(numOil) * 1.5)
+	}
+
+	if !g.world.config.GoldEnabled {
+		numGold = 0
+	}
 
 	numRedOil := 0
 	numRedCrystals := 0
@@ -328,10 +402,20 @@ func (g *levelGenerator) placeResources(resMultiplier float64) {
 		numRedOil = gmath.ClampMin(int(float64(rand.IntRange(2, 3))*multiplier), 2)
 		numRedCrystals = int(float64(rand.IntRange(10, 15)) * multiplier)
 	}
+	if g.world.seedKind == gamedata.SeedLeet {
+		numRedCrystals *= 2
+	}
 
 	g.world.numRedCrystals = numRedCrystals
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
+
+	for numOrganic > 0 {
+		clusterSize := rand.IntRange(1, 2)
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numOrganic -= g.placeResourceCluster(sector, clusterSize, organicSource)
+	}
 
 	for numIron > 0 {
 		clusterSize := rand.IntRange(2, 6)
@@ -413,13 +497,23 @@ func (g *levelGenerator) deployStartingResources() {
 				source.stats != smallScrapSource
 		})
 		if !hasResources {
-			for i := 0; i < 2; i++ {
+			resNum := 0
+			var res *essenceSourceStats
+			switch gamedata.EnvironmentKind(g.world.config.Environment) {
+			case gamedata.EnvMoon:
+				res = ironSource
+				resNum = 2
+			case gamedata.EnvForest:
+				res = oilSource
+				resNum = 1
+			}
+			for i := 0; i < resNum; i++ {
 				for j := 0; j < 5; j++ {
 					pos := g.adjustResourcePos(gmath.RadToVec(rand.Rad()).Mulf(80).Add(core.pos))
 					if !posIsFree(g.world, nil, pos, 14) {
 						continue
 					}
-					essence := g.world.NewEssenceSourceNode(ironSource, pos)
+					essence := g.world.NewEssenceSourceNode(res, pos)
 					g.pendingResources = append(g.pendingResources, essence)
 					break
 				}
@@ -453,12 +547,7 @@ func (g *levelGenerator) placeBoss() {
 }
 
 func (g *levelGenerator) placeCreeps() {
-	if g.world.config.InitialCreeps == 0 {
-		return
-	}
-
 	rand := &g.rng
-
 	worldSizeMultipliers := []float64{
 		0.7,
 		0.9,
@@ -470,13 +559,59 @@ func (g *levelGenerator) placeCreeps() {
 		multiplier *= 2
 	}
 
+	numIonMortars := 0
+	if g.world.config.IonMortars {
+		numIonMortars = int(2 * multiplier)
+	}
+	if g.world.seedKind == gamedata.SeedLeet {
+		numIonMortars += 8
+	}
+	placedSuperMortar := false
+	for numIonMortars > 0 {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		creep := g.placeCreep(sector, gamedata.IonMortarCreepStats, creepPlacingConfig{
+			Pad:      200,
+			NoScraps: true,
+			CreepInit: func(creep *creepNode) {
+				if !placedSuperMortar && g.world.config.SuperCreeps {
+					creep.super = true
+					placedSuperMortar = true
+				}
+			},
+		})
+		if creep != nil {
+			region := gmath.Rect{
+				Min: creep.pos.Sub(gmath.Vec{X: 96, Y: 96}),
+				Max: creep.pos.Add(gmath.Vec{X: 96, Y: 96}),
+			}
+			numGuards := 2
+			guardStats := gamedata.HeavyCrawlerCreepStats
+			if rand.Bool() {
+				numGuards = rand.IntRange(3, 5)
+				guardStats = gamedata.CrawlerCreepStats
+			}
+			for try := 0; try < 5 && numGuards > 0; try++ {
+				numGuards -= g.placeCreepsCluster(region, numGuards, guardStats, creepPlacingConfig{
+					Pad:      8,
+					NoScraps: true,
+				})
+			}
+			numIonMortars--
+		}
+	}
+
+	if g.world.config.InitialCreeps == 0 {
+		return
+	}
+
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 
 	numTurrets := int(math.Round(float64(rand.IntRange(4, 5)) * multiplier))
 	for numTurrets > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numTurrets -= g.placeCreepsCluster(sector, 1, gamedata.TurretCreepStats)
+		numTurrets -= g.placeCreepsCluster(sector, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 140})
 	}
 
 	numCrawlers := int(math.Round(float64(rand.IntRange(8, 12)) * multiplier))
@@ -487,7 +622,7 @@ func (g *levelGenerator) placeCreeps() {
 		if g.rng.Chance(0.4) {
 			stats = gamedata.HeavyCrawlerCreepStats
 		}
-		numCrawlers -= g.placeCreepsCluster(sector, 1, stats)
+		numCrawlers -= g.placeCreepsCluster(sector, 1, stats, creepPlacingConfig{Pad: 128})
 	}
 
 	numSpecial := 0
@@ -501,11 +636,58 @@ func (g *levelGenerator) placeCreeps() {
 	for numSpecial > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numSpecial -= g.placeCreepsCluster(sector, 1, specialStats)
+		numSpecial -= g.placeCreepsCluster(sector, 1, specialStats, creepPlacingConfig{Pad: 196, NoScraps: true})
 	}
 }
 
 func (g *levelGenerator) placeCreepBases() {
+	numWispLairs := 0
+	if gamedata.EnvironmentKind(g.world.config.Environment) == gamedata.EnvForest {
+		numWispLairs = 1
+	}
+	hasWispLair := numWispLairs > 0
+	for numWispLairs > 0 {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numWispLairs -= g.placeCreepsCluster(sector, 1, gamedata.WispLairCreepStats, creepPlacingConfig{Pad: 196})
+	}
+
+	numFortresses := 0
+	if g.world.config.CreepFortress {
+		numFortresses = 1
+	}
+	hasFortresses := numFortresses > 0
+	for numFortresses > 0 {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numFortresses -= g.placeCreepsCluster(sector, 1, gamedata.FortressCreepStats, creepPlacingConfig{Pad: 256})
+	}
+
+	if hasWispLair || hasFortresses {
+		for _, creep := range g.world.creeps {
+			switch creep.stats.Kind {
+			case gamedata.CreepWispLair:
+				g.world.wispLair = creep
+			case gamedata.CreepFortress:
+				g.world.fortress = creep
+			}
+		}
+	}
+
+	if g.world.fortress != nil {
+		// Place turrets around the fortress.
+		offsets := []gmath.Vec{
+			{X: -34, Y: -34},
+			{X: 34, Y: -34},
+			{X: 34, Y: 34},
+			{X: -34, Y: 34},
+		}
+		for _, offset := range offsets {
+			turret := g.world.NewCreepNode(g.world.fortress.pos.Add(offset), gamedata.TurretCreepStats)
+			g.world.nodeRunner.AddObject(turret)
+		}
+	}
+
 	if g.world.config.NumCreepBases == 0 {
 		return // Zero bases
 	}
@@ -530,18 +712,35 @@ func (g *levelGenerator) placeCreepBases() {
 	for i := 0; i < numBases; i++ {
 		border := borders[borderSlider.Value()]
 		borderSlider.Inc()
-		basePos := g.randomFreePos(border, 48, 16)
+		basePos := g.randomFreePos(border, 48, 32)
 		basePos = g.world.AdjustCellPos(basePos, 6)
 		if g.world.debugLogs {
-			fmt.Println("deployed a creep base", i+1, "at", basePos, "distance is", basePos.DistanceTo(g.playerSpawn))
+			g.world.sessionState.Logf("deployed a creep base %d at %v distance is %f", i+1, basePos, basePos.DistanceTo(g.playerSpawn))
 		}
 		baseRegion := gmath.Rect{
-			Min: basePos.Sub(gmath.Vec{X: 96, Y: 96}),
-			Max: basePos.Add(gmath.Vec{X: 96, Y: 96}),
+			Min: basePos.Sub(gmath.Vec{X: 148, Y: 148}),
+			Max: basePos.Add(gmath.Vec{X: 148, Y: 148}),
 		}
-		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats)
+		super := i == 0 && g.world.config.SuperCreeps
+
+		if g.world.seedKind == gamedata.SeedLeet {
+			for attempt := 0; attempt < 3; attempt++ {
+				crawlersFactory := g.placeCreep(baseRegion, gamedata.CrawlerBaseCreepStats, creepPlacingConfig{
+					CreepInit: func(creep *creepNode) {
+						creep.super = super
+					},
+					NoScraps: true,
+					Pad:      8,
+				})
+				if crawlersFactory != nil {
+					break
+				}
+			}
+		}
+
+		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 24, NoScraps: true})
 		base := g.world.NewCreepNode(basePos, gamedata.BaseCreepStats)
-		base.super = i == 0 && g.world.config.SuperCreeps
+		base.super = super
 		if i == 1 || i == 3 {
 			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
 		} else {
@@ -550,6 +749,80 @@ func (g *levelGenerator) placeCreepBases() {
 			base.attackDelay = g.rng.FloatRange(40, 50)
 		}
 		g.world.nodeRunner.AddObject(base)
+	}
+}
+
+func (g *levelGenerator) placeForests() {
+	if gamedata.EnvironmentKind(g.world.config.Environment) != gamedata.EnvForest {
+		return
+	}
+
+	rand := &g.rng
+
+	playerTerritory := gmath.Rect{
+		Min: g.playerSpawn.Sub(gmath.Vec{X: 96, Y: 96}),
+		Max: g.playerSpawn.Add(gmath.Vec{X: 96, Y: 96}),
+	}
+
+	maxForests := g.world.config.WorldSize + 2
+	if g.world.config.WorldSize == 3 {
+		maxForests++
+	}
+	switch g.world.config.Terrain {
+	case 0: // flat
+		maxForests--
+	case 2: // less flat
+		maxForests++
+	}
+
+	var trees []pendingImage
+
+	for _, sector := range g.sectors {
+		numForests := rand.IntRange(1, maxForests)
+		for i := 0; i < numForests; i++ {
+			pos := g.world.pathgrid.AlignPos(g.randomFreePos(sector, 32, 96)).Sub(gmath.Vec{
+				X: pathing.CellSize * 0.5,
+				Y: pathing.CellSize * 0.5,
+			})
+			width := g.world.rand.IntRange(6, 16)
+			height := g.world.rand.IntRange(6, 16)
+
+			xOverflow := (pos.X + float64(width)*32) - (g.world.width - 32.0)
+			yOverflow := (pos.Y + float64(height)*32) - (g.world.height - 32.0)
+			if xOverflow > 0 {
+				pos.X -= xOverflow
+			}
+			if yOverflow > 0 {
+				pos.Y -= yOverflow
+			}
+
+			forest := newForestClusterNode(g.world, forestClusterConfig{
+				pos:    pos,
+				width:  width,
+				height: height,
+			})
+			if forest.outerRect.Overlaps(playerTerritory) {
+				continue
+			}
+
+			trees = append(trees, forest.init(g.scene)...)
+
+			// TODO: move it to fillPathgrid step or maybe get rid of that stage instead?
+			forest.walkRects(func(rect gmath.Rect) {
+				g.fillPathgridRect(rect, ptagForest)
+			})
+
+			g.world.forests = append(g.world.forests, forest)
+		}
+	}
+
+	if len(trees) != 0 {
+		sort.SliceStable(trees, func(i, j int) bool {
+			return trees[i].drawOrder < trees[j].drawOrder
+		})
+		for _, img := range trees {
+			g.bg.DrawImage(img.data, &img.options)
+		}
 	}
 }
 
@@ -570,6 +843,13 @@ func (g *levelGenerator) placeWalls() {
 	multiplier := worldSizeMultipliers[g.world.config.WorldSize] * terrainMultiplier[g.world.config.Terrain]
 	numWallClusters := int(float64(rand.IntRange(8, 10)) * multiplier)
 	numMountains := int(float64(rand.IntRange(5, 9)) * multiplier)
+
+	switch gamedata.EnvironmentKind(g.world.config.Environment) {
+	case gamedata.EnvMoon:
+		// Nothing to do.
+	case gamedata.EnvForest:
+		numWallClusters = 0
+	}
 
 	const (
 		// A simple 1x1 wall tile (rect shape: true).
@@ -822,11 +1102,7 @@ func (g *levelGenerator) placeWalls() {
 		}
 
 		// Positions should be rounded to a tile size.
-		{
-			x := math.Floor(pos.X/wallTileSize) * wallTileSize
-			y := math.Floor(pos.Y/wallTileSize) * wallTileSize
-			pos = gmath.Vec{X: x + wallTileSize/2, Y: y + wallTileSize/2}
-		}
+		pos = g.world.pathgrid.AlignPos(pos)
 
 		currentPos := pos
 		mountainLength := g.rng.IntRange(3, 10)

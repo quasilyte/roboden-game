@@ -1,7 +1,6 @@
 package menus
 
 import (
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
@@ -32,11 +31,11 @@ func (c *ProfileMenuController) Update(delta float64) {
 }
 
 func (c *ProfileMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainerWithMinWidth(320, 10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
@@ -64,7 +63,7 @@ func (c *ProfileMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewReplayMenuController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	if !c.state.Device.IsMobile {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.set_user_name"), func() {

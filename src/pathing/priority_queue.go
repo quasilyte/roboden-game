@@ -19,6 +19,8 @@ func newPriorityQueue[T any]() *priorityQueue[T] {
 }
 
 func (q *priorityQueue[T]) Reset() {
+	buckets := &q.buckets
+
 	// Reslice storage slices back.
 	// To avoid traversing all len(q.buckets),
 	// we have some offset to skip uninteresting (already empty) buckets.
@@ -29,8 +31,8 @@ func (q *priorityQueue[T]) Reset() {
 	mask >>= offset
 	i := offset
 	for mask != 0 {
-		if i < uint(len(q.buckets)) {
-			q.buckets[i] = q.buckets[i][:0]
+		if i < uint(len(buckets)) {
+			buckets[i] = buckets[i][:0]
 		}
 		mask >>= 1
 		i++
@@ -53,13 +55,15 @@ func (q *priorityQueue[T]) Push(priority int, value T) {
 }
 
 func (q *priorityQueue[T]) Pop() T {
+	buckets := &q.buckets
+
 	// Using uints here and explicit len check to avoid the
 	// implicitly inserted bound check.
 	i := uint(bits.TrailingZeros64(q.mask))
-	if i < uint(len(q.buckets)) {
-		e := q.buckets[i][len(q.buckets[i])-1]
-		q.buckets[i] = q.buckets[i][:len(q.buckets[i])-1]
-		if len(q.buckets[i]) == 0 {
+	if i < uint(len(buckets)) {
+		e := buckets[i][len(buckets[i])-1]
+		buckets[i] = buckets[i][:len(buckets[i])-1]
+		if len(buckets[i]) == 0 {
 			q.mask &^= 1 << i
 		}
 		return e

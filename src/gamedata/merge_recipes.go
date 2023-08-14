@@ -184,13 +184,13 @@ var Tier3agentMergeRecipes = []AgentMergeRecipe{
 	{
 		Drone1:  RecipeSubject{Kind: AgentFighter},
 		Drone2:  RecipeSubject{Kind: AgentFighter},
-		EvoCost: 11,
+		EvoCost: 17,
 		Result:  DestroyerAgentStats,
 	},
 	{
 		Drone1:  RecipeSubject{Kind: AgentScarab},
 		Drone2:  RecipeSubject{Kind: AgentScarab},
-		EvoCost: 11,
+		EvoCost: 12,
 		Result:  DevourerAgentStats,
 	},
 	{
@@ -202,8 +202,14 @@ var Tier3agentMergeRecipes = []AgentMergeRecipe{
 	{
 		Drone1:  RecipeSubject{Kind: AgentSkirmisher},
 		Drone2:  RecipeSubject{Kind: AgentDefender},
-		EvoCost: 8,
+		EvoCost: 9,
 		Result:  GuardianAgentStats,
+	},
+	{
+		Drone1:  RecipeSubject{Kind: AgentKamikaze},
+		Drone2:  RecipeSubject{Kind: AgentFirebug},
+		EvoCost: 7,
+		Result:  BomberAgentStats,
 	},
 }
 

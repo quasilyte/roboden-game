@@ -34,7 +34,7 @@ func (c *ControlsKeyboardMenuController) Update(delta float64) {
 }
 
 func (c *ControlsKeyboardMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -45,10 +45,13 @@ func (c *ControlsKeyboardMenuController) initUI() {
 
 	smallFont := assets.BitmapFont1
 
+	options := &c.state.Persistent.Settings
+
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.keyboard"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel := eui.NewTextPanel(uiResources, 0, 0)
+	rowContainer.AddChild(panel)
 
 	controlsText := d.Get("menu.controls.keyboard.text")
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
@@ -61,9 +64,18 @@ func (c *ControlsKeyboardMenuController) initUI() {
 		rightLabel := eui.NewLabel(right, smallFont)
 		grid.AddChild(rightLabel)
 	}
-	rowContainer.AddChild(grid)
+	panel.AddChild(grid)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+		Resources: uiResources,
+		Input:     c.state.CombinedInput,
+		Value:     &options.WheelScrollingMode,
+		Label:     d.Get("menu.controls.wheel_scroll"),
+		ValueNames: []string{
+			d.Get("menu.controls.wheel_scroll.drag"),
+			d.Get("menu.controls.wheel_scroll.float"),
+		},
+	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

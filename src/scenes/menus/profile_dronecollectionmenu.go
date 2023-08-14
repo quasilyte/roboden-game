@@ -11,6 +11,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/descriptions"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 )
@@ -19,6 +20,10 @@ type ProfileDroneCollectionMenuController struct {
 	state *session.State
 
 	scene *ge.Scene
+
+	recipeIcons map[gamedata.RecipeSubject]*ebiten.Image
+
+	helpRecipe *eui.RecipeView
 
 	helpLabel *widget.Text
 }
@@ -29,6 +34,7 @@ func NewProfileDroneCollectionMenuController(state *session.State) *ProfileDrone
 
 func (c *ProfileDroneCollectionMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
+	c.recipeIcons = gameui.GenerateRecipePreviews(c.scene, true)
 	c.initUI()
 }
 
@@ -40,7 +46,7 @@ func (c *ProfileDroneCollectionMenuController) Update(delta float64) {
 }
 
 func (c *ProfileDroneCollectionMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -82,14 +88,7 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 			Max: image.Point{X: int(img.DefaultFrameWidth), Y: int(img.DefaultFrameHeight)},
 		}).(*ebiten.Image)
 	}
-	var drones []*gamedata.AgentStats
-	drones = append(drones, gamedata.WorkerAgentStats, gamedata.ScoutAgentStats)
-	for _, recipe := range gamedata.Tier2agentMergeRecipes {
-		drones = append(drones, recipe.Result)
-	}
-	for _, recipe := range gamedata.Tier3agentMergeRecipes {
-		drones = append(drones, recipe.Result)
-	}
+	drones := gamedata.AllDroneStats()
 	droneIsUnlocked := func(d *gamedata.AgentStats) bool {
 		switch d.Tier {
 		case 2:
@@ -108,19 +107,30 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 		b.SetDisabled(true)
 		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
 			if available {
-				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, true)
+				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, true, true)
+				if drone.Tier == 1 {
+					c.helpRecipe.SetImages(nil, nil)
+				} else {
+					recipe := gamedata.FindRecipeByName(drone.Kind.String())
+					c.helpRecipe.SetImages(c.recipeIcons[recipe.Drone1], c.recipeIcons[recipe.Drone2])
+				}
 			} else if drone.Tier == 2 {
 				c.helpLabel.Label = descriptions.LockedDroneText(c.scene.Dict(), &c.state.Persistent.PlayerStats, drone)
+				c.helpRecipe.SetImages(nil, nil)
 			} else {
 				c.helpLabel.Label = d.Get("drone.undiscovered")
+				c.helpRecipe.SetImages(nil, nil)
 			}
 		})
 		leftGrid.AddChild(b.Widget)
 	}
 	leftPanel.AddChild(leftGrid)
 
-	rightPanel := eui.NewPanel(uiResources, 380, 0)
+	rightPanel := eui.NewTextPanel(uiResources, 380, 0)
 	rightPanel.AddChild(helpLabel)
+
+	c.helpRecipe = eui.NewRecipeView(uiResources)
+	rightPanel.AddChild(c.helpRecipe.Container)
 
 	rootGrid.AddChild(leftPanel)
 	rootGrid.AddChild(rightPanel)

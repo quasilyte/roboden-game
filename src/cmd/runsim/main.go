@@ -6,16 +6,14 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
-	"github.com/quasilyte/roboden-game/gameinput"
+	"github.com/quasilyte/roboden-game/runsim"
 	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/serverapi"
-	"github.com/quasilyte/roboden-game/session"
 )
 
 func main() {
@@ -39,50 +37,17 @@ func main() {
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, "")
 	ctx.Dict = langs.NewDictionary("en", 2)
 
-	var progress float64
-	assets.RegisterImageResources(ctx, &progress)
-	assets.RegisterRawResources(ctx)
-	assets.RegisterShaderResources(ctx, &progress)
+	runsim.PrepareAssets(ctx)
 
-	state := &session.State{
-		Persistent: session.PersistentData{
-			Settings: session.GameSettings{
-				Graphics: session.GraphicsSettings{
-					ShadowsEnabled:    false,
-					AllShadersEnabled: false,
-				},
-				MusicVolumeLevel:   0,
-				EffectsVolumeLevel: 0,
-			},
-		},
-	}
-	state.CombinedInput = gameinput.Handler{
-		Handler: ctx.Input.NewHandler(0, nil),
-	}
+	state := runsim.NewState(ctx)
 
 	config.Finalize()
+
 	controller := staging.NewController(state, config, nil)
 	controller.SetReplayActions(replayData.Actions)
-	runner, scene := ge.NewSimulatedScene(ctx, controller)
-	controller.Init(scene)
-
-	timeout := (time.Duration(*timeoutFlag) * time.Second)
-
-	var simResult serverapi.GameResults
-	start := time.Now()
-OuterLoop:
-	for {
-		for i := 0; i < 60*60; i++ {
-			runner.Update(1.0 / 60.0)
-			var stop bool
-			simResult, stop = controller.GetSimulationResult()
-			if stop {
-				break OuterLoop
-			}
-		}
-		if time.Since(start) >= timeout {
-			panic("simulation takes too long")
-		}
+	simResult, err := runsim.Run(state, *timeoutFlag, controller)
+	if err != nil {
+		panic(err)
 	}
 
 	encodedResult, err := json.Marshal(simResult)

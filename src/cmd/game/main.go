@@ -2,19 +2,20 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/contentlock"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/scenes/menus"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
@@ -23,6 +24,25 @@ import (
 
 func main() {
 	state := getDefaultSessionState()
+
+	{
+		steamInfo, err := userdevice.GetSteamInfo(userdevice.SteamAppConfig{
+			SteamAppID: 2416030,
+		})
+		switch {
+		case err != nil:
+			state.Logf("failed to get Steam info: %v", err)
+		case !steamInfo.Enabled:
+			state.Logf("running a non-Steam build")
+		default:
+			steamDeckSuffix := ""
+			if steamInfo.SteamDeck {
+				steamDeckSuffix = " (Steam Deck)"
+			}
+			state.Logf("Steam SDK initialized successfully" + steamDeckSuffix)
+		}
+		state.SteamInfo = steamInfo
+	}
 
 	var gameDataFolder string
 	var serverAddress string
@@ -49,7 +69,7 @@ func main() {
 			state.ServerHost = parsedAddress.Host
 			state.ServerPath = parsedAddress.Path
 		}
-		fmt.Printf("server proto=%q host=%q path=%q\n", state.ServerProtocol, state.ServerHost, state.ServerPath)
+		state.Logf("server proto=%q host=%q path=%q", state.ServerProtocol, state.ServerHost, state.ServerPath)
 	} else {
 		// On wasm (inside the browser) we're hardcoding the server data for now.
 		state.ServerProtocol = "https"
@@ -72,11 +92,11 @@ func main() {
 		} else {
 			gameLocation, err := os.Executable()
 			if err != nil {
-				fmt.Printf("error getting executable path: %v\n", err)
+				state.Logf("error getting executable path: %v", err)
 				gameLocation = os.Args[0]
 			}
 			gameLocation = filepath.Dir(gameLocation)
-			fmt.Printf("game location: %q\n", gameLocation)
+			state.Logf("game location: %q", gameLocation)
 			gameDataFolder = filepath.Join(gameLocation, "roboden_data")
 		}
 	}
@@ -89,34 +109,59 @@ func main() {
 	state.FirstGamepadInput = keymaps.FirstGamepadInput
 	state.SecondGamepadInput = keymaps.SecondGamepadInput
 
-	if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
-		fmt.Printf("can't load game data: %v", err)
-		state.Persistent = contentlock.GetDefaultData()
-		contentlock.Update(state)
-		ctx.SaveGameData("save", state.Persistent)
+	if ctx.CheckGameData("save") {
+		if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
+			state.Logf("can't load game data: %v", err)
+			state.Persistent = contentlock.GetDefaultData()
+			contentlock.Update(state)
+			ctx.SaveGameData("save", state.Persistent)
+		} else {
+			// Loaded without errors.
+			if state.Persistent.FirstLaunch && state.Persistent.PlayerStats.TotalPlayTime > 0 {
+				// We introduced the first launch flag after the release.
+				// Some players may have already played the game,
+				// so we don't want them to be marked as first-timers.
+				state.Persistent.FirstLaunch = false
+				ctx.SaveGameData("save", state.Persistent)
+			}
+			// Re-check the content.
+			contentlock.Update(state)
+		}
 	} else {
-		contentlock.Update(state)
+		// This is a first launch.
+		state.Logf("save data does not exist")
+		ctx.SaveGameData("save", state.Persistent)
 	}
 	state.ReloadInputs()
 	state.ReloadLanguage(ctx)
 
 	state.CombinedInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[0].DeadzoneLevel)
-	state.FirstGamepadInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[1].DeadzoneLevel)
+	state.FirstGamepadInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[0].DeadzoneLevel)
 	state.SecondGamepadInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[1].DeadzoneLevel)
+
+	state.CombinedInput.SetVirtualCursorSpeed(state.Persistent.Settings.GamepadSettings[0].CursorSpeed)
+	state.FirstGamepadInput.SetVirtualCursorSpeed(state.Persistent.Settings.GamepadSettings[0].CursorSpeed)
+	state.SecondGamepadInput.SetVirtualCursorSpeed(state.Persistent.Settings.GamepadSettings[1].CursorSpeed)
+
+	state.CombinedInput.SetGamepadLayout(gameinput.GamepadLayoutKind(state.Persistent.Settings.GamepadSettings[0].Layout))
+	state.FirstGamepadInput.SetGamepadLayout(gameinput.GamepadLayoutKind(state.Persistent.Settings.GamepadSettings[0].Layout))
+	state.SecondGamepadInput.SetGamepadLayout(gameinput.GamepadLayoutKind(state.Persistent.Settings.GamepadSettings[1].Layout))
 
 	ctx.FullScreen = state.Persistent.Settings.Graphics.FullscreenEnabled
 
 	registerScenes(state)
 	state.Context = ctx
 
-	fmt.Println("is mobile?", state.Device.IsMobile)
-	fmt.Println("game commit version:", CommitHash)
+	state.Logf("is mobile? %v", state.Device.IsMobile)
+	state.Logf("game commit version: %v", CommitHash)
 
 	ctx.NewPanicController = func(panicInfo *ge.PanicInfo) ge.SceneController {
 		return menus.NewPanicController(panicInfo)
 	}
 
 	gamedata.Validate()
+
+	ebiten.SetVsyncEnabled(state.Persistent.Settings.Graphics.VSyncEnabled)
 
 	if err := ge.RunGame(ctx, menus.NewBootloadController(state)); err != nil {
 		panic(err)
@@ -149,26 +194,35 @@ func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
 		gamedata.ServoAgentStats.Kind.String(),
 	}
 	config.TurretDesign = gamedata.GunpointAgentStats.Kind.String()
+	config.CoreDesign = gamedata.DenCoreStats.Name
 
+	config.Relicts = true
+	config.GoldEnabled = true
 	config.OilRegenRate = 2
 	config.Terrain = 1
+	config.GameSpeed = 1
 	config.Resources = 2
 	config.WorldSize = 2
 	config.CreepDifficulty = 3
-	config.BossDifficulty = 1
+	if config.BossDifficulty == 0 {
+		config.BossDifficulty = 1
+	}
 
 	return &config
 }
 
 func getDefaultSessionState() *session.State {
 	state := &session.State{
+		ExtraMusic: runtime.GOARCH != "wasm",
 		ReverseLevelConfig: newLevelConfig(&gamedata.LevelConfig{
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
-				Teleporters:      1,
-				RawGameMode:      "reverse",
-				TechProgressRate: 4,
-				DronesPower:      1,
-				InitialCreeps:    1,
+				Teleporters:           1,
+				RawGameMode:           "reverse",
+				TechProgressRate:      5,
+				ReverseSuperCreepRate: 3,
+				DronesPower:           1,
+				InitialCreeps:         1,
+				BossDifficulty:        2,
 			},
 		}),
 		ArenaLevelConfig: newLevelConfig(&gamedata.LevelConfig{
@@ -224,6 +278,7 @@ func getDefaultSessionState() *session.State {
 		state.TutorialLevelConfig = &config
 		config.WorldSize = 0
 		config.Resources = 1
+		config.Relicts = false
 		config.StartingResources = 0
 		config.Teleporters = 1
 		config.InterfaceMode = 2
@@ -246,6 +301,13 @@ func getDefaultSessionState() *session.State {
 		}
 
 		config.Finalize()
+	}
+
+	for _, core := range gamedata.CoreStatsList {
+		if core.ScoreCost != 0 {
+			continue
+		}
+		state.Persistent.PlayerStats.CoresUnlocked = append(state.Persistent.PlayerStats.CoresUnlocked, core.Name)
 	}
 
 	for _, recipe := range gamedata.Tier2agentMergeRecipes {

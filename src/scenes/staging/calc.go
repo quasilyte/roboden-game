@@ -29,6 +29,8 @@ func getTurretPower(stats *gamedata.AgentStats) int {
 		return 35
 	case gamedata.BeamTowerAgentStats:
 		return 45
+	case gamedata.RepulseTowerAgentStats, gamedata.DroneFactoryAgentStats:
+		return 50
 	default:
 		return 0
 	}
@@ -63,13 +65,14 @@ func calcPosDanger(world *worldState, pstate *playerState, pos gmath.Vec, r floa
 	})
 	dangerDecrease := 0
 	rSqr := r * r
-	if turretPower := getTurretPower(world.turretDesign); turretPower != 0 {
-		for _, c := range pstate.colonies {
-			for _, turret := range c.turrets {
-				if turret.pos.DistanceSquaredTo(pos) < rSqr {
-					dangerDecrease += turretPower
-				}
-			}
+	turretPower := 0
+	for _, turret := range world.turrets {
+		power := getTurretPower(turret.stats)
+		if power == 0 {
+			continue
+		}
+		if turret.pos.DistanceSquaredTo(pos) < rSqr {
+			dangerDecrease += turretPower
 		}
 	}
 	if pstate.hasRoombas {
@@ -94,10 +97,17 @@ func multipliedDamage(target targetable, weapon *gamedata.WeaponStats) gamedata.
 }
 
 func damageMultiplier(target targetable, weapon *gamedata.WeaponStats) float64 {
-	if target.IsFlying() {
-		return weapon.FlyingTargetDamageMult
+	info := target.GetTargetInfo()
+	var m float64
+	if info.flying {
+		m = weapon.FlyingTargetDamageMult
+	} else {
+		m = weapon.GroundTargetDamageMult
 	}
-	return weapon.GroundTargetDamageMult
+	if info.building {
+		m *= weapon.BuildingTargetDamageMult
+	}
+	return m
 }
 
 func superCreepCostMultiplier(stats *gamedata.CreepStats) int {
@@ -135,23 +145,29 @@ func creepFragScore(stats *gamedata.CreepStats) int {
 		return 6
 	case gamedata.StunnerCreepStats:
 		return 9
+	case gamedata.TemplarCreepStats:
+		return 13
 	case gamedata.AssaultCreepStats:
 		return 15
 	case gamedata.BuilderCreepStats:
 		return 30
 
 	case gamedata.TurretCreepStats:
-		return 20
+		return 18
+	case gamedata.IonMortarCreepStats:
+		return 14
+	case gamedata.FortressCreepStats:
+		return 50
 
 	case gamedata.ServantCreepStats:
 		return 30
 	case gamedata.DominatorCreepStats:
-		return 60
+		return 65
 	case gamedata.HowitzerCreepStats:
 		return 85
 
 	case gamedata.UberBossCreepStats:
-		return 200
+		return 235
 
 	default:
 		return 0

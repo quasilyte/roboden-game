@@ -24,11 +24,11 @@ type creepNode struct {
 	anim      *ge.Animation
 	sprite    *ge.Sprite
 	altSprite *ge.Sprite
-	shadow    *ge.Sprite
 
 	scene *ge.Scene
 
-	flashComponent damageFlashComponent
+	shadowComponent shadowComponent
+	flashComponent  damageFlashComponent
 
 	world *worldState
 	stats *gamedata.CreepStats
@@ -37,12 +37,12 @@ type creepNode struct {
 
 	spawnPos        gmath.Vec
 	pos             gmath.Vec
-	spritePos       gmath.Vec
 	waypoint        gmath.Vec
 	wasAttacking    bool
 	wasRetreating   bool
 	spawnedFromBase bool
 	cloaking        bool
+	insideForest    bool
 	super           bool
 
 	path            pathing.GridPath
@@ -55,7 +55,6 @@ type creepNode struct {
 	slow      float64
 	health    float64
 	maxHealth float64
-	height    float64
 	marked    float64
 
 	attackDelay float64
@@ -71,8 +70,12 @@ var crawlerSpawnPositions = []pathing.GridPath{
 	pathing.MakeGridPath(pathing.DirDown),
 	pathing.MakeGridPath(pathing.DirDown, pathing.DirLeft),
 	pathing.MakeGridPath(pathing.DirDown, pathing.DirRight),
+
 	pathing.MakeGridPath(pathing.DirDown, pathing.DirLeft, pathing.DirUp),
 	pathing.MakeGridPath(pathing.DirDown, pathing.DirRight, pathing.DirUp),
+
+	pathing.MakeGridPath(pathing.DirDown, pathing.DirLeft, pathing.DirUp, pathing.DirUp),
+	pathing.MakeGridPath(pathing.DirDown, pathing.DirRight, pathing.DirUp, pathing.DirUp),
 }
 
 func newCreepNode(world *worldState, stats *gamedata.CreepStats, pos gmath.Vec) *creepNode {
@@ -97,9 +100,25 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		}
 	}
 
-	c.sprite = scene.NewSprite(c.stats.Image)
-	c.sprite.Pos.Base = &c.spritePos
 	if c.stats.ShadowImage != assets.ImageNone {
+		if c.world.graphicsSettings.ShadowsEnabled {
+			c.shadowComponent.Init(c.world, c.stats.ShadowImage)
+			c.shadowComponent.SetVisibility(!c.spawnedFromBase)
+		}
+		if c.stats.Kind == gamedata.CreepUberBoss {
+			c.shadowComponent.offset = 4
+		} else {
+			c.shadowComponent.offset = 2
+		}
+		c.shadowComponent.UpdatePos(c.pos)
+		c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
+	}
+
+	c.sprite = scene.NewSprite(c.stats.Image)
+	c.sprite.Pos.Base = &c.pos
+	if c.stats.Kind == gamedata.CreepUberBoss {
+		c.world.stage.AddSpriteSlightlyAbove(c.sprite)
+	} else if c.stats.ShadowImage != assets.ImageNone {
 		c.world.stage.AddSpriteAbove(c.sprite)
 	} else {
 		c.world.stage.AddSprite(c.sprite)
@@ -121,23 +140,10 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 	c.flashComponent.sprite = c.sprite
 
-	c.height = agentFlightHeight
-
-	if c.stats.ShadowImage != assets.ImageNone && c.world.graphicsSettings.ShadowsEnabled {
-		c.shadow = scene.NewSprite(c.stats.ShadowImage)
-		c.shadow.Pos.Base = &c.spritePos
-		c.world.stage.AddSprite(c.shadow)
-		c.shadow.Pos.Offset.Y = c.height
-		c.shadow.SetAlpha(0.5)
-		if c.spawnedFromBase {
-			c.shadow.Visible = false
-		}
-	}
-
 	if c.stats.Kind == gamedata.CreepUberBoss {
 		c.altSprite = scene.NewSprite(assets.ImageUberBossDoor)
 		c.altSprite.Visible = false
-		c.altSprite.Pos.Base = &c.spritePos
+		c.altSprite.Pos.Base = &c.pos
 		c.altSprite.Pos.Offset.Y = 13
 		c.world.stage.AddSprite(c.altSprite)
 		c.maxHealth *= c.world.bossHealthMultiplier
@@ -146,12 +152,25 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		if c.stats.Kind == gamedata.CreepHowitzer {
 			c.altSprite = scene.NewSprite(assets.ImageHowitzerPreparing)
 			c.altSprite.Visible = false
-			c.altSprite.Pos.Base = &c.spritePos
+			c.altSprite.Pos.Base = &c.pos
 			c.altSprite.Pos.Offset.Y = -3
 			c.world.stage.AddSprite(c.altSprite)
 		}
 	}
 	switch c.stats.Kind {
+	case gamedata.CreepUberBoss:
+		if !c.world.simulation && c.world.graphicsSettings.AllShadersEnabled {
+			c.sprite.Shader = c.scene.NewShader(assets.ShaderColonyDamage)
+			c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageDreadnoughtDamageMask)
+			c.sprite.Shader.SetFloatValue("HP", 1.0)
+			c.sprite.Shader.Enabled = false
+		}
+	case gamedata.CreepFortress:
+		c.specialDelay = c.scene.Rand().FloatRange(3.5*60, 4.5*60)
+	case gamedata.CreepWispLair:
+		c.attackDelay = c.scene.Rand().FloatRange(30, 50)
+	case gamedata.CreepWisp:
+		c.specialDelay = c.scene.Rand().FloatRange(2, 20)
 	case gamedata.CreepServant:
 		c.specialDelay = c.scene.Rand().FloatRange(0.5, 3)
 	case gamedata.CreepBuilder:
@@ -164,21 +183,29 @@ func (c *creepNode) Init(scene *ge.Scene) {
 			c.sprite.Shader.SetFloatValue("Time", 0)
 		}
 	case gamedata.CreepHowitzer:
-		pos := ge.Pos{Base: &c.spritePos, Offset: gmath.Vec{Y: -10}}
+		pos := ge.Pos{Base: &c.pos, Offset: gmath.Vec{Y: -10}}
 		trunk := newHowitzerTrunkNode(c.world.stage, pos)
 		c.specialTarget = trunk
 		c.world.nodeRunner.AddObject(trunk)
 		trunk.SetVisibility(false)
+		c.specialDelay = c.scene.Rand().FloatRange(20, 30)
 	}
 
 	c.health = c.maxHealth
 }
 
-func (c *creepNode) Dispose() {
-	c.sprite.Dispose()
-	if c.shadow != nil {
-		c.shadow.Dispose()
+func (c *creepNode) updateHealthShader() {
+	if c.sprite.Shader.IsNil() {
+		return
 	}
+	percentage := c.health / c.maxHealth
+	c.sprite.Shader.SetFloatValue("HP", percentage)
+	c.sprite.Shader.Enabled = percentage < 0.95
+}
+
+func (c *creepNode) dispose() {
+	c.sprite.Dispose()
+	c.shadowComponent.Dispose()
 	if c.altSprite != nil {
 		c.altSprite.Dispose()
 	}
@@ -194,7 +221,7 @@ func (c *creepNode) Destroy() {
 	if c.stats.Kind == gamedata.CreepBuilder && c.specialTarget != nil {
 		c.EventBuildingStop.Emit(gsignal.Void{})
 	}
-	c.Dispose()
+	c.dispose()
 }
 
 func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
@@ -202,18 +229,12 @@ func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 func (c *creepNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
 
-	if !c.world.simulation {
-		// FIXME: this should be fixed in the ge package.
-		c.spritePos.X = math.Round(c.pos.X)
-		c.spritePos.Y = math.Round(c.pos.Y)
-	}
-
 	c.marked = gmath.ClampMin(c.marked-delta, 0)
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
 	c.aggro = gmath.ClampMin(c.aggro-delta, 0)
 	c.disarm = gmath.ClampMin(c.disarm-delta, 0)
 	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
-	if c.stats.Weapon != nil && c.attackDelay == 0 && c.disarm == 0 && !c.cloaking {
+	if c.stats.Weapon != nil && c.attackDelay == 0 && c.disarm == 0 && !c.cloaking && !c.insideForest {
 		c.attackDelay = c.stats.Weapon.Reload * c.scene.Rand().FloatRange(0.8, 1.2)
 		targets := c.findTargets()
 		weapon := c.stats.Weapon
@@ -224,8 +245,8 @@ func (c *creepNode) Update(delta float64) {
 			for _, target := range targets {
 				c.doAttack(target, weapon)
 			}
-			if !c.stats.Weapon.ProjectileFireSound {
-				playSound(c.world, c.stats.Weapon.AttackSound, c.pos)
+			if !weapon.ProjectileFireSound {
+				playSound(c.world, weapon.AttackSound, c.pos)
 			}
 		}
 	}
@@ -253,6 +274,14 @@ func (c *creepNode) Update(delta float64) {
 		// Do nothing.
 	case gamedata.CreepTurretConstruction, gamedata.CreepCrawlerBaseConstruction:
 		c.updateTurretConstruction(delta)
+	case gamedata.CreepWisp:
+		c.updateWisp(delta)
+	case gamedata.CreepWispLair:
+		c.updateWispLair(delta)
+	case gamedata.CreepFortress:
+		c.updateFortress(delta)
+	case gamedata.CreepTemplar:
+		c.updateTemplar(delta)
 	default:
 		panic("unexpected creep kind in update()")
 	}
@@ -265,6 +294,13 @@ func (c *creepNode) GetVelocity() gmath.Vec {
 		return gmath.Vec{}
 	}
 	return c.pos.VecTowards(c.waypoint, c.movementSpeed())
+}
+
+func (c *creepNode) GetTargetInfo() targetInfo {
+	return targetInfo{
+		building: c.stats.Building,
+		flying:   c.IsFlying(),
+	}
 }
 
 func (c *creepNode) IsFlying() bool {
@@ -286,40 +322,48 @@ func (c *creepNode) TargetKind() gamedata.TargetKind {
 
 func (c *creepNode) explode() {
 	switch c.stats.Kind {
+	case gamedata.CreepWisp:
+		createEffect(c.world, effectConfig{
+			Pos:   c.pos,
+			Image: assets.ImageWispExplosion,
+			Layer: aboveEffectLayer,
+		})
+	case gamedata.CreepWispLair:
+		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
 	case gamedata.CreepUberBoss:
 		if c.IsFlying() {
-			shadowImg := assets.ImageNone
-			if c.shadow != nil {
-				shadowImg = c.shadow.ImageID()
-			}
-
-			fall := newDroneFallNode(c.world, nil, c.stats.Image, shadowImg, c.pos, c.height)
+			shadowImg := c.shadowComponent.GetImageID()
+			fall := newDroneFallNode(c.world, nil, c.stats.Image, shadowImg, c.pos, c.shadowComponent.height)
 			if c.super {
 				fall.FrameOffsetY = c.sprite.FrameHeight
 			}
 			c.world.nodeRunner.AddObject(fall)
+			fall.sprite.Shader = c.sprite.Shader
 		} else {
-			createAreaExplosion(c.world, spriteRect(c.pos, c.altSprite), true)
+			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
 		}
 
 	case gamedata.CreepTurret, gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepHowitzer:
-		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), true)
-		scraps := c.world.NewEssenceSourceNode(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
-		c.world.nodeRunner.AddObject(scraps)
+		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
+		c.world.CreateScrapsAt(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 7}))
+	case gamedata.CreepFortress:
+		createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
+		c.world.CreateScrapsAt(bigScrapCreepSource, c.pos.Add(gmath.Vec{Y: 4}))
+		for i := 0; i < 3; i++ {
+			c.world.CreateScrapsAt(scrapCreepSource, c.pos.Add(c.world.rand.Offset(-12, 12)))
+		}
 	case gamedata.CreepTurretConstruction, gamedata.CreepCrawlerBaseConstruction:
-		createExplosion(c.world, false, c.pos)
-		scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
-		c.world.nodeRunner.AddObject(scraps)
+		createExplosion(c.world, normalEffectLayer, c.pos)
+		c.world.CreateScrapsAt(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 	case gamedata.CreepCrawler:
-		createExplosion(c.world, false, c.pos)
+		createExplosion(c.world, normalEffectLayer, c.pos)
 		if c.world.rand.Chance(0.3) {
-			scraps := c.world.NewEssenceSourceNode(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
-			c.world.nodeRunner.AddObject(scraps)
+			c.world.CreateScrapsAt(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 		}
 	default:
 		roll := c.scene.Rand().Float()
 		if roll < 0.3 {
-			createExplosion(c.world, true, c.pos)
+			createExplosion(c.world, aboveEffectLayer, c.pos)
 		} else {
 			var scraps *essenceSourceStats
 			if roll > 0.65 {
@@ -332,11 +376,7 @@ func (c *creepNode) explode() {
 					scraps = bigScrapCreepSource
 				}
 			}
-			shadowImg := assets.ImageNone
-			if c.shadow != nil {
-				shadowImg = c.shadow.ImageID()
-			}
-
+			shadowImg := c.shadowComponent.GetImageID()
 			fall := newDroneFallNode(c.world, scraps, c.stats.Image, shadowImg, c.pos, agentFlightHeight)
 			if c.super {
 				fall.FrameOffsetY = c.sprite.FrameHeight
@@ -378,10 +418,28 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 
 	if damage.Disarm != 0 && c.stats.Disarmable {
 		disarmImmune := c.super && c.stats == gamedata.CrawlerCreepStats
-		if !disarmImmune && c.scene.Rand().Chance(damage.Disarm*0.1) {
+		if !disarmImmune && c.scene.Rand().Chance(damage.Disarm) {
 			c.disarm = 2.5
-			c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, c.IsFlying(), assets.ImageIonZap))
+			createEffect(c.world, effectConfig{
+				Pos:   c.pos,
+				Layer: effectLayerFromBool(c.IsFlying()),
+				Image: assets.ImageIonZap,
+			})
 			playIonExplosionSound(c.world, c.pos)
+		}
+	}
+
+	if damage.Morale != 0 && c.stats.CanBeRepelled {
+		if c.wasRetreating {
+			return
+		}
+		retreatChance := damage.Morale
+		if c.stats.Kind == gamedata.CreepCrawler {
+			retreatChance *= 0.6
+		}
+		if c.scene.Rand().Chance(retreatChance) {
+			c.wasRetreating = true
+			c.retreatFrom(*source.GetPos(), 150, 250)
 		}
 	}
 
@@ -391,22 +449,12 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		}
 		if c.specialModifier == crawlerIdle && (c.pos.DistanceTo(*source.GetPos()) > c.stats.Weapon.AttackRange*0.8) && c.world.rand.Chance(0.45) {
 			followPos := c.pos.MoveTowards(*source.GetPos(), 64*c.world.rand.FloatRange(0.8, 1.4))
-			p := c.world.BuildPath(c.pos, followPos)
+			p := c.world.BuildPath(c.pos, followPos, layerNormal)
 			c.specialModifier = crawlerMove
 			c.path = p.Steps
 			c.waypoint = c.world.pathgrid.AlignPos(c.pos)
 		}
 		return
-	}
-
-	if damage.Morale != 0 && c.stats.CanBeRepelled && c.stats.Kind != gamedata.CreepServant && c.stats.Kind != gamedata.CreepBuilder {
-		if c.wasRetreating {
-			return
-		}
-		if c.scene.Rand().Chance(damage.Morale * 0.15) {
-			c.wasRetreating = true
-			c.retreatFrom(*source.GetPos(), 150, 200)
-		}
 	}
 
 	if c.stats.Kind == gamedata.CreepDominator && damage.Health != 0 {
@@ -419,37 +467,47 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		}
 	}
 
+	if c.stats.Kind == gamedata.CreepWisp {
+		if c.wasRetreating {
+			return
+		}
+		if c.scene.Rand().Chance(0.5) {
+			c.wasRetreating = true
+			c.specialTarget = nil
+			c.retreatFrom(*source.GetPos(), 180, 300)
+		}
+	}
+
 	if c.stats.Kind == gamedata.CreepUberBoss {
+		c.updateHealthShader()
 		if a, ok := source.(*colonyAgentNode); ok && a.IsTurret() {
 			c.world.result.EnemyColonyDamageFromTurrets += damage.Health
 		} else {
 			c.world.result.EnemyColonyDamage += damage.Health
 		}
 		colony := getUnitColony(source)
-		if c.IsFlying() {
-			// Stage 0: send 2 servants. (very easy and above)
-			// Stage 1: send 3 servants. (easy and above)
-			// Stage 2: send 4 servants. (normal and above)
-			// Stage 3: send 5 servants. (hard)
-			maxStage := c.world.config.BossDifficulty
-			if c.bossStage <= maxStage {
-				hpPercentage := c.health / c.maxHealth
-				if hpPercentage < 0.8 && c.bossStage == 0 {
-					c.spawnServants(2, colony)
-					c.bossStage++
-				}
-				if hpPercentage < 0.6 && c.bossStage == 1 {
-					c.spawnServants(3, colony)
-					c.bossStage++
-				}
-				if hpPercentage < 0.4 && c.bossStage == 2 {
-					c.spawnServants(4, colony)
-					c.bossStage++
-				}
-				if hpPercentage < 0.2 && c.bossStage == 3 {
-					c.spawnServants(5, colony)
-					c.bossStage++
-				}
+		// Stage 0: send 2 servants. (very easy and above)
+		// Stage 1: send 3 servants. (easy and above)
+		// Stage 2: send 4 servants. (normal and above)
+		// Stage 3: send 5 servants. (hard)
+		maxStage := c.world.config.BossDifficulty
+		if c.bossStage <= maxStage {
+			hpPercentage := c.health / c.maxHealth
+			if hpPercentage < 0.8 && c.bossStage == 0 {
+				c.spawnServants(2, colony)
+				c.bossStage++
+			}
+			if hpPercentage < 0.6 && c.bossStage == 1 {
+				c.spawnServants(3, colony)
+				c.bossStage++
+			}
+			if hpPercentage < 0.4 && c.bossStage == 2 {
+				c.spawnServants(4, colony)
+				c.bossStage++
+			}
+			if hpPercentage < 0.2 && c.bossStage == 3 {
+				c.spawnServants(5, colony)
+				c.bossStage++
 			}
 		}
 	}
@@ -472,41 +530,58 @@ func (c *creepNode) spawnServants(n int, colony *colonyCoreNode) {
 }
 
 func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
-	if c.stats.Weapon.ProjectileImage != assets.ImageNone {
-		burstSize := c.stats.Weapon.BurstSize
-		burstDelay := c.stats.Weapon.BurstDelay
+	if weapon.ProjectileImage != assets.ImageNone {
+		burstSize := weapon.BurstSize
+		burstDelay := weapon.BurstDelay
 		if c.super && c.stats == gamedata.StealthCrawlerCreepStats {
 			burstSize += 2
 			burstDelay = 0.25
 		}
 		targetVelocity := target.GetVelocity()
-		for i := 0; i < burstSize; i++ {
-			burstCorrectedPos := *target.GetPos()
-			if i != 0 {
-				burstCorrectedPos = burstCorrectedPos.Add(targetVelocity.Mulf(burstDelay))
+		j := 0
+		attacksPerBurst := weapon.AttacksPerBurst
+		for i := 0; i < burstSize; i += attacksPerBurst {
+			if i+attacksPerBurst > burstSize {
+				// This happens only once for the last burst wave
+				// if attacks-per-burst are not aligned with burstSize (like with Devourer).
+				attacksPerBurst = burstSize - i
 			}
-			toPos := snipePos(c.stats.Weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
-			fireDelay := float64(i) * burstDelay
-			p := c.world.newProjectileNode(projectileConfig{
-				World:     c.world,
-				Weapon:    weapon,
-				Attacker:  c,
-				ToPos:     toPos.Add(c.scene.Rand().Offset(-4, 4)),
-				Target:    target,
-				FireDelay: fireDelay,
-			})
-			c.world.nodeRunner.AddProjectile(p)
+			for i := 0; i < attacksPerBurst; i++ {
+				burstCorrectedPos := *target.GetPos()
+				if i != 0 {
+					burstCorrectedPos = burstCorrectedPos.Add(targetVelocity.Mulf(burstDelay))
+				}
+				toPos := snipePos(weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
+				fireDelay := float64(j) * burstDelay
+				p := c.world.newProjectileNode(projectileConfig{
+					World:     c.world,
+					Weapon:    weapon,
+					Attacker:  c,
+					ToPos:     toPos.Add(c.scene.Rand().Offset(-4, 4)),
+					Target:    target,
+					FireDelay: fireDelay,
+				})
+				c.world.nodeRunner.AddProjectile(p)
+			}
+			j++
 		}
 		return
 	}
 
 	if c.stats.BeamTexture == nil {
-		beam := newBeamNode(c.world, ge.Pos{Base: &c.spritePos}, ge.Pos{Base: target.GetPos()}, c.stats.BeamColor)
+		beam := newBeamNode(c.world, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.BeamColor)
 		beam.width = c.stats.BeamWidth
 		c.world.nodeRunner.AddObject(beam)
 	} else {
-		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.spritePos}, ge.Pos{Base: target.GetPos()}, c.stats.BeamTexture, c.stats.BeamSlideSpeed, c.stats.BeamOpaqueTime)
+		beam := newTextureBeamNode(c.world, ge.Pos{Base: &c.pos}, ge.Pos{Base: target.GetPos()}, c.stats.BeamTexture, c.stats.BeamSlideSpeed, c.stats.BeamOpaqueTime)
 		c.world.nodeRunner.AddObject(beam)
+		if c.stats.BeamExplosion != assets.ImageNone {
+			createEffect(c.world, effectConfig{
+				Pos:   target.GetPos().Add(c.world.localRand.Offset(-6, 6)),
+				Layer: effectLayerFromBool(target.IsFlying()),
+				Image: c.stats.BeamExplosion,
+			})
+		}
 	}
 
 	if c.stats.Kind == gamedata.CreepDominator {
@@ -515,22 +590,22 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 		vec1 := targetDir.Rotated(deg90rad).Mulf(4)
 		vec2 := targetDir.Rotated(-deg90rad).Mulf(4)
 
-		rearBeam1pos := ge.Pos{Base: &c.spritePos, Offset: vec1}
+		rearBeam1pos := ge.Pos{Base: &c.pos, Offset: vec1}
 		rearBeam1targetPos := ge.Pos{Base: target.GetPos(), Offset: vec2}
 		rearBeam1 := newBeamNode(c.world, rearBeam1pos, rearBeam1targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam1)
 
-		rearBeam2pos := ge.Pos{Base: &c.spritePos, Offset: vec2}
+		rearBeam2pos := ge.Pos{Base: &c.pos, Offset: vec2}
 		rearBeam2targetPos := ge.Pos{Base: target.GetPos(), Offset: vec1}
 		rearBeam2 := newBeamNode(c.world, rearBeam2pos, rearBeam2targetPos, dominatorBeamColorRear)
 		c.world.nodeRunner.AddObject(rearBeam2)
 	}
 
-	target.OnDamage(weapon.Damage, c)
+	target.OnDamage(multipliedDamage(target, weapon), c)
 }
 
 func (c *creepNode) retreatFrom(pos gmath.Vec, minRange, maxRange float64) {
-	c.setWaypoint(retreatPos(c.scene.Rand(), c.scene.Rand().FloatRange(minRange, maxRange), c.pos, pos))
+	c.SendTo(retreatPos(c.scene.Rand(), c.scene.Rand().FloatRange(minRange, maxRange), c.pos, pos))
 	c.wasAttacking = false
 }
 
@@ -540,7 +615,7 @@ func (c *creepNode) SendTo(pos gmath.Vec) {
 		return
 	}
 
-	p := c.world.BuildPath(c.pos, pos)
+	p := c.world.BuildPath(c.pos, pos, layerNormal)
 	c.path = p.Steps
 	c.waypoint = c.world.pathgrid.AlignPos(c.pos)
 	switch c.stats.Kind {
@@ -586,7 +661,7 @@ func (c *creepNode) findTargets() []targetable {
 	}
 
 	skipGroundTargets := c.stats.Weapon.TargetFlags&gamedata.TargetGround == 0
-	c.world.FindColonyAgent(c.pos, skipGroundTargets, c.stats.Weapon.AttackRange, func(a *colonyAgentNode) bool {
+	c.world.FindTargetableAgents(c.pos, skipGroundTargets, c.stats.Weapon.AttackRange, func(a *colonyAgentNode) bool {
 		targets = append(targets, a)
 		return len(targets) >= maxTargets
 	})
@@ -594,24 +669,29 @@ func (c *creepNode) findTargets() []targetable {
 		return targets
 	}
 
-	if len(targets) >= maxTargets || skipGroundTargets {
-		return targets
-	}
-
-	for _, colony := range c.world.constructions {
-		if len(targets) >= maxTargets {
-			return targets
-		}
-		if colony.pos.DistanceSquaredTo(c.pos) > c.stats.Weapon.AttackRangeSqr {
-			continue
-		}
-		targets = append(targets, colony)
-	}
-
 	if len(targets) >= maxTargets {
 		return targets
 	}
+
+	if !skipGroundTargets {
+		for _, colony := range c.world.constructions {
+			if len(targets) >= maxTargets {
+				return targets
+			}
+			if colony.pos.DistanceSquaredTo(c.pos) > c.stats.Weapon.AttackRangeSqr {
+				continue
+			}
+			targets = append(targets, colony)
+		}
+		if len(targets) >= maxTargets {
+			return targets
+		}
+	}
+
 	randIterate(c.world.rand, c.world.allColonies, func(colony *colonyCoreNode) bool {
+		if !colony.IsFlying() && skipGroundTargets {
+			return false
+		}
 		if colony.pos.DistanceSquaredTo(c.pos) > c.stats.Weapon.AttackRangeSqr {
 			return false
 		}
@@ -653,10 +733,11 @@ func (c *creepNode) wandererMovement(delta float64) {
 
 	if c.moveTowards(delta, c.waypoint) {
 		c.waypoint = gmath.Vec{}
-		if c.shadow != nil {
-			c.shadow.Visible = true
+		if c.spawnedFromBase {
+			c.spawnedFromBase = false
+			c.shadowComponent.SetVisibility(true)
+			c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
 		}
-		c.height = agentFlightHeight
 	}
 }
 
@@ -714,22 +795,38 @@ func (c *creepNode) updateBuilder(delta float64) {
 	}
 
 	if c.waypoint.IsZero() {
-		turretPos := c.pos.Add(gmath.Vec{Y: agentFlightHeight})
-		if c.specialDelay == 0 && c.canBuildHere(turretPos) {
-			// Start building.
-			buildingStats := gamedata.TurretConstructionCreepStats
-			if c.scene.Rand().Chance(0.35) {
-				buildingStats = gamedata.CrawlerBaseConstructionCreepStats
+		if c.specialDelay == 0 {
+			turretPos := c.pos.Add(gmath.Vec{Y: agentFlightHeight})
+			if c.canBuildHere(turretPos) {
+				// Start building.
+				buildingStats := gamedata.TurretConstructionCreepStats
+				if c.scene.Rand().Chance(0.35) {
+					buildingStats = gamedata.CrawlerBaseConstructionCreepStats
+				}
+				if c.world.config.IonMortars && buildingStats == gamedata.TurretConstructionCreepStats {
+					if c.scene.Rand().Chance(0.4) {
+						buildingStats = gamedata.IonMortarConstructionCreepStats
+					}
+				}
+				turret := c.world.NewCreepNode(turretPos, buildingStats)
+				turret.super = c.super && c.world.rand.Chance(0.4)
+				turret.specialTarget = c
+				c.specialTarget = turret
+				c.world.nodeRunner.AddObject(turret)
+				lasers := newBuilderLaserNode(c.world, c.pos)
+				c.EventBuildingStop.Connect(lasers, lasers.OnBuildingStop)
+				c.world.nodeRunner.AddObject(lasers)
+				return
 			}
-			turret := c.world.NewCreepNode(turretPos, buildingStats)
-			turret.super = c.super && c.world.rand.Chance(0.4)
-			turret.specialTarget = c
-			c.specialTarget = turret
-			c.world.nodeRunner.AddObject(turret)
-			lasers := newBuilderLaserNode(c.world, c.pos)
-			c.EventBuildingStop.Connect(lasers, lasers.OnBuildingStop)
-			c.world.nodeRunner.AddObject(lasers)
-			return
+			// Try finding a better spot nearby.
+			for i := 0; i < 5; i++ {
+				pos := turretPos.Add(c.world.rand.Offset(-160, 160))
+				pos = c.world.AdjustCellPos(correctedPos(c.world.rect, pos, 320), 4)
+				if c.canBuildHere(pos) {
+					c.waypoint = pos.Sub(gmath.Vec{Y: agentFlightHeight})
+					return
+				}
+			}
 		}
 		nextWaypoint := correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 400)
 		nextWaypoint = c.world.AdjustCellPos(nextWaypoint, 4).Sub(gmath.Vec{Y: agentFlightHeight})
@@ -751,31 +848,35 @@ func (c *creepNode) maybeSpawnCrawlers() bool {
 	if c.world.config.GameMode == gamedata.ModeReverse {
 		techLevel := c.world.creepsPlayerState.techLevel
 		switch {
-		case techLevel < 0.1:
+		case techLevel < 0.1: // 0-10%
 			minCrawlers = 2
-			maxCrawlers = 4
-		case techLevel < 0.2:
+			maxCrawlers = 3
+		case techLevel < 0.2: // 10-20%
 			minCrawlers = 3
 			maxCrawlers = 4
-		case techLevel < 0.3:
+		case techLevel < 0.35: // 20-30%
 			minCrawlers = 4
 			maxCrawlers = 5
-		default:
+		case techLevel < 0.6: // 30-50%
 			minCrawlers = 5
-			maxCrawlers = 5
+			maxCrawlers = 6
+		case techLevel < 0.8: // 50-70%
+			minCrawlers = 6
+			maxCrawlers = 7
+		default:
+			minCrawlers = 7
+			maxCrawlers = 7
 		}
 	} else {
-		if c.world.NumActiveCrawlers() >= c.world.MaxActiveCrawlers() {
-			return false
-		}
-		minCrawlers = 2
-		maxCrawlers = 3
+		minCrawlers = 3
+		maxCrawlers = 4
 		switch c.world.config.BossDifficulty {
 		case 2:
+			minCrawlers = 4
 			maxCrawlers = 5
 		case 3:
-			minCrawlers = 3
-			maxCrawlers = 5
+			minCrawlers = 5
+			maxCrawlers = 7
 		}
 	}
 
@@ -794,11 +895,11 @@ func (c *creepNode) isNearEnemyBase(dist float64) bool {
 		if colony.pos.DistanceSquaredTo(c.pos) < distSqr {
 			return true
 		}
-		if !c.cloaking {
-			for _, turret := range colony.turrets {
-				if turret.pos.DistanceSquaredTo(c.pos) < distSqr {
-					return true
-				}
+	}
+	if !c.cloaking {
+		for _, turret := range c.world.turrets {
+			if turret.pos.DistanceSquaredTo(c.pos) < distSqr {
+				return true
 			}
 		}
 	}
@@ -842,10 +943,12 @@ func (c *creepNode) setAnimSprite(s *ge.Sprite, numFrames int) {
 }
 
 func (c *creepNode) updateHowitzer(delta float64) {
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
 	if !c.waypoint.IsZero() {
 		c.anim.Tick(delta)
 		if c.moveTowards(delta, c.waypoint) {
-			if c.path.HasNext() {
+			if c.specialDelay == 0 && c.path.HasNext() && !c.insideForest {
 				if c.isNearEnemyBase(c.stats.SpecialWeapon.AttackRange * 0.8) {
 					c.path = pathing.GridPath{}
 				}
@@ -853,10 +956,11 @@ func (c *creepNode) updateHowitzer(delta float64) {
 			if c.path.HasNext() {
 				d := c.path.Next()
 				aligned := c.world.pathgrid.AlignPos(c.pos)
-				c.waypoint = posMove(aligned, d).Add(c.world.rand.Offset(-4, 4))
+				nextPos := posMove(aligned, d)
+				c.handleForestTransition(nextPos)
+				c.waypoint = nextPos.Add(c.world.rand.Offset(-4, 4))
 				return
 			}
-			c.specialDelay = 0
 			c.specialModifier = howitzerIdle
 			c.waypoint = gmath.Vec{}
 			return
@@ -864,7 +968,6 @@ func (c *creepNode) updateHowitzer(delta float64) {
 	}
 
 	if c.specialModifier == howitzerReady {
-		c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 		if c.specialDelay == 0 {
 			target := c.findHowitzerTarget(1.0)
 			c.specialDelay = c.stats.SpecialWeapon.Reload * c.world.rand.FloatRange(0.8, 1.2)
@@ -898,7 +1001,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 
 	if c.specialModifier == howitzerFoldTurret {
 		if c.anim.Tick(delta) {
-			c.specialDelay = c.world.rand.FloatRange(3, 10)
+			c.specialDelay = c.world.rand.FloatRange(5, 15)
 			c.specialModifier = howitzerIdle
 			c.altSprite.Visible = false
 			c.sprite.Visible = true
@@ -924,19 +1027,53 @@ func (c *creepNode) updateHowitzer(delta float64) {
 	}
 
 	if c.specialModifier == howitzerIdle {
-		hasTargets := c.findHowitzerTarget(1.1) != nil
-		if c.specialDelay == 0 && (hasTargets || c.world.rand.Chance(0.25)) {
+		if !c.insideForest && c.specialDelay == 0 && (c.findHowitzerTarget(1.1) != nil || c.world.rand.Chance(0.25)) {
 			c.specialModifier = howitzerPreparing
 			c.setAnimSprite(c.altSprite, -1)
 			c.anim.Rewind()
 			c.sprite.Visible = false
 			c.altSprite.Visible = true
 		} else {
+			var dst gmath.Vec
 			dist := c.world.rand.FloatRange(96, 256)
-			dst := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(c.pos)
+			colony := gmath.RandElem(c.world.rand, c.world.allColonies)
+			if colony != nil && colony.pos.DistanceTo(c.pos) > 420 && c.world.rand.Chance(0.2) {
+				dst = colony.pos.DirectionTo(c.pos).Mulf(dist).Add(c.pos)
+			} else {
+				dst = gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(c.pos)
+			}
 			c.SendTo(dst)
 		}
 		return
+	}
+}
+
+func (c *creepNode) handleForestTransition(nextWaypoint gmath.Vec) {
+	if !c.world.hasForests {
+		return
+	}
+	needEffect := false
+	switch checkForestState(c.world, c.insideForest, c.pos, nextWaypoint) {
+	case forestStateEnter:
+		needEffect = true
+		c.insideForest = true
+		c.sprite.Visible = false
+	case forestStateLeave:
+		needEffect = true
+		c.insideForest = false
+		c.sprite.Visible = true
+	}
+
+	if needEffect {
+		img := assets.ImageDisappearSmokeSmall
+		if c.stats.Kind == gamedata.CreepHowitzer {
+			img = assets.ImageDisappearSmokeBig
+		}
+		createEffect(c.world, effectConfig{
+			Pos:            c.pos,
+			Image:          img,
+			AnimationSpeed: animationSpeedVerySlow,
+		})
 	}
 }
 
@@ -950,7 +1087,7 @@ func (c *creepNode) updateCrawler(delta float64) {
 		if c.moveTowards(delta, c.waypoint) {
 			// To avoid weird cases of walking above colony core or turret,
 			// stop if there are any targets in vicinity.
-			if c.path.HasNext() {
+			if c.path.HasNext() && !c.insideForest {
 				if c.isNearEnemyBase(96) {
 					c.path = pathing.GridPath{}
 				}
@@ -958,12 +1095,105 @@ func (c *creepNode) updateCrawler(delta float64) {
 			if c.path.HasNext() {
 				d := c.path.Next()
 				aligned := c.world.pathgrid.AlignPos(c.pos)
-				c.waypoint = posMove(aligned, d).Add(c.world.rand.Offset(-4, 4))
+				nextPos := posMove(aligned, d)
+				c.handleForestTransition(nextPos)
+				c.waypoint = nextPos.Add(c.world.rand.Offset(-4, 4))
 				return
 			}
 			c.specialModifier = crawlerIdle
 			c.waypoint = gmath.Vec{}
 			return
+		}
+	}
+}
+
+func (c *creepNode) updateWisp(delta float64) {
+	if c.anim != nil {
+		c.anim.Tick(delta)
+	}
+
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
+	// It regenerates 1 health over 2 seconds (*0.5).
+	// 30 hp over minute.
+	c.health = gmath.ClampMax(c.health+(delta*0.5), c.maxHealth)
+
+	if c.moveTowards(delta, c.waypoint) {
+		c.waypoint = gmath.Vec{}
+		if c.specialTarget != nil {
+			res := c.specialTarget.(*essenceSourceNode)
+			res.Restore(c.world.rand.IntRange(5, 8))
+			playSound(c.world, assets.AudioOrganicRestored, res.pos)
+			createEffect(c.world, effectConfig{
+				Pos:   res.pos,
+				Image: assets.ImageOrganicRestored,
+			})
+			c.specialTarget = nil
+			c.specialDelay = c.world.rand.FloatRange(20, 45)
+		}
+	}
+
+	if c.attackDelay == 0 && len(c.world.allColonies) != 0 {
+		const attackRange = 52
+		attacking := false
+		farFromTargets := true
+		for _, colony := range c.world.allColonies {
+			// Don't process the unlikely candidates.
+			if colony.pos.DistanceSquaredTo(c.pos) > (520 * 520) {
+				continue
+			}
+			farFromTargets = false
+			colony.agents.Each(func(a *colonyAgentNode) {
+				if a.IsCloaked() {
+					return
+				}
+				if a.pos.DistanceSquaredTo(c.pos) > (attackRange * attackRange) {
+					return
+				}
+				attacking = true
+				a.OnDamage(gamedata.DamageValue{Health: 20, Energy: 100}, c)
+			})
+		}
+		if attacking {
+			c.attackDelay = c.world.rand.FloatRange(10, 20)
+			createEffect(c.world, effectConfig{
+				Pos:   c.pos,
+				Image: assets.ImageWispShockwave,
+				Layer: aboveEffectLayer,
+			})
+			playSound(c.world, assets.AudioWispShocker, c.pos)
+		} else {
+			if farFromTargets {
+				c.attackDelay = c.world.rand.FloatRange(2.5, 5.75)
+			} else {
+				c.attackDelay = c.world.rand.FloatRange(0.5, 2.0)
+			}
+		}
+	}
+
+	if c.waypoint.IsZero() {
+		c.wasRetreating = false
+		if c.specialDelay == 0 && c.world.rand.Chance(0.80) {
+			randIterate(c.world.rand, c.world.essenceSources, func(res *essenceSourceNode) bool {
+				if res.stats != organicSource {
+					return false
+				}
+				if res.resource == res.capacity {
+					return false
+				}
+				c.specialTarget = res
+				c.waypoint = res.pos.Sub(gmath.Vec{Y: agentFlightHeight})
+				return true
+			})
+			if c.specialTarget == nil {
+				c.specialDelay = c.world.rand.FloatRange(15, 60)
+			}
+		} else {
+			if c.world.wispLair != nil && c.world.rand.Chance(0.25) {
+				c.setWaypoint(c.world.wispLair.pos.Add(c.world.rand.Offset(-64, 64)))
+			} else {
+				c.waypoint = correctedPos(c.world.rect, randomSectorPos(c.world.rand, c.world.rect), 196)
+			}
 		}
 	}
 }
@@ -976,10 +1206,15 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	}
 
 	if c.specialModifier >= 1 {
-		resultStats := gamedata.CrawlerBaseCreepStats
-		if c.stats.Kind == gamedata.CreepTurretConstruction {
+		var resultStats *gamedata.CreepStats
+		switch c.stats {
+		case gamedata.IonMortarConstructionCreepStats:
+			resultStats = gamedata.IonMortarCreepStats
+		case gamedata.TurretConstructionCreepStats:
 			resultStats = gamedata.TurretCreepStats
 			c.world.onCreepTurretBuild()
+		case gamedata.CrawlerBaseConstructionCreepStats:
+			resultStats = gamedata.CrawlerBaseCreepStats
 		}
 		result := c.world.NewCreepNode(c.pos, resultStats)
 		result.super = c.super
@@ -993,6 +1228,99 @@ func (c *creepNode) updateTurretConstruction(delta float64) {
 	if !c.sprite.Shader.IsNil() {
 		c.sprite.Shader.SetFloatValue("Time", c.specialModifier)
 	}
+}
+
+func (c *creepNode) updateFortress(delta float64) {
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
+	const maxUnits = 12.0
+	if c.specialModifier > maxUnits {
+		return
+	}
+
+	if c.specialDelay != 0 {
+		return
+	}
+	spawnDelay := c.world.rand.FloatRange(25, 40)
+	c.specialDelay = spawnDelay
+	c.specialModifier++
+
+	spawnPos := c.pos.Sub(gmath.Vec{Y: 16})
+	creep := c.world.NewCreepNode(spawnPos, gamedata.TemplarCreepStats)
+	creep.waypoint = spawnPos.Sub(gmath.Vec{Y: agentFlightHeight})
+	creep.spawnedFromBase = true
+	c.world.nodeRunner.AddObject(creep)
+	creep.SetHeight(0)
+	creep.EventDestroyed.Connect(c, func(arg *creepNode) {
+		c.specialModifier--
+	})
+
+	createEffect(c.world, effectConfig{
+		Pos:   spawnPos,
+		Layer: aboveEffectLayer,
+		Image: assets.ImageCreepCreatedEffect,
+	})
+}
+
+func (c *creepNode) updateTemplar(delta float64) {
+	if c.world.fortress == nil {
+		c.wandererMovement(delta)
+		return
+	}
+
+	if c.waypoint.IsZero() {
+		c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+		if c.specialDelay == 0 {
+			offset := gmath.Vec{X: 620, Y: 620}
+			sector := gmath.Rect{
+				Min: c.world.fortress.pos.Sub(offset),
+				Max: c.world.fortress.pos.Add(offset),
+			}
+			c.setWaypoint(randomSectorPos(c.world.rand, sector))
+		}
+		return
+	}
+
+	if c.moveTowards(delta, c.waypoint) {
+		c.waypoint = gmath.Vec{}
+		if c.spawnedFromBase {
+			c.spawnedFromBase = false
+			c.shadowComponent.SetVisibility(true)
+			c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
+		} else {
+			c.specialDelay = c.world.rand.FloatRange(3, 10)
+		}
+	}
+}
+
+func (c *creepNode) updateWispLair(delta float64) {
+	// It regenerates 1 health over 5 seconds (*0.2).
+	// 12 hp over minute.
+	c.health = gmath.ClampMax(c.health+(delta*0.2), c.maxHealth)
+
+	if c.attackDelay != 0 {
+		return
+	}
+	if c.specialModifier > c.world.wispLimit {
+		return
+	}
+
+	spawnPos := c.pos.Sub(gmath.Vec{Y: 20})
+	c.attackDelay = c.scene.Rand().FloatRange(25, 45)
+	c.specialModifier++
+
+	wisp := c.world.NewCreepNode(spawnPos, gamedata.WispCreepStats)
+	c.world.nodeRunner.AddObject(wisp)
+	wisp.EventDestroyed.Connect(c, func(arg *creepNode) {
+		c.specialModifier--
+	})
+	playSound(c.world, assets.AudioOrganicRestored, spawnPos)
+	createEffect(c.world, effectConfig{
+		Pos:     spawnPos,
+		Image:   assets.ImageWispExplosion,
+		Layer:   aboveEffectLayer,
+		Reverse: true,
+	})
 }
 
 func (c *creepNode) updateCreepCrawlerBase(delta float64) {
@@ -1025,6 +1353,12 @@ func (c *creepNode) updateCreepCrawlerBase(delta float64) {
 	c.world.nodeRunner.AddObject(crawler)
 	crawler.EventDestroyed.Connect(c, func(arg *creepNode) {
 		c.specialModifier--
+	})
+
+	createEffect(c.world, effectConfig{
+		Pos:   spawnPos,
+		Layer: slightlyAboveEffectLayer,
+		Image: assets.ImageCreepCreatedEffect,
 	})
 }
 
@@ -1098,8 +1432,23 @@ func (c *creepNode) updateCreepBase(delta float64) {
 		creep.waypoint = waypoint
 		creep.spawnedFromBase = true
 		c.world.nodeRunner.AddObject(creep)
-		creep.height = 0
+		creep.SetHeight(0)
+
+		createEffect(c.world, effectConfig{
+			Pos:   spawnPos,
+			Layer: aboveEffectLayer,
+			Image: assets.ImageCreepCreatedEffect,
+		})
 	}
+}
+
+func (c *creepNode) changePos(pos gmath.Vec) {
+	c.pos = pos
+	c.shadowComponent.UpdatePos(pos)
+}
+
+func (c *creepNode) SetHeight(h float64) {
+	c.shadowComponent.UpdateHeight(c.pos, h, agentFlightHeight)
 }
 
 func (c *creepNode) updateServant(delta float64) {
@@ -1138,18 +1487,9 @@ func (c *creepNode) updateServant(delta float64) {
 }
 
 func (c *creepNode) updateUberBoss(delta float64) {
-	if c.shadow != nil {
-		roundedHeight := math.Round(c.height)
-		c.shadow.Pos.Offset.Y = roundedHeight + 4
-		newShadowAlpha := float32(1.0 - ((roundedHeight / agentFlightHeight) * 0.5))
-		c.shadow.SetAlpha(newShadowAlpha)
-	}
-
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 	if c.specialDelay == 0 && c.specialModifier == 0 {
 		if c.maybeSpawnCrawlers() {
-			c.pos.X = math.Round(c.pos.X)
-			c.pos.Y = math.Round(c.pos.Y)
 			// Time until the first crawler is spawned.
 			c.specialDelay = c.scene.Rand().FloatRange(7, 10)
 		} else {
@@ -1161,33 +1501,39 @@ func (c *creepNode) updateUberBoss(delta float64) {
 	// Meaning it's 15 health per minute.
 	// In other words, 10 minutes recover 150 health for this guy.
 	c.health = gmath.ClampMax(c.health+(delta*0.25), c.maxHealth)
+	c.updateHealthShader()
 
 	const crawlersSpawnHeight float64 = 10
-	if c.specialModifier != 0 && c.height != crawlersSpawnHeight {
-		c.height -= delta * 5
+	if c.specialModifier != 0 && c.shadowComponent.height != crawlersSpawnHeight {
+		height := c.shadowComponent.height - delta*5
 		c.pos.Y += delta * 5
-		if c.height <= crawlersSpawnHeight {
-			c.height = crawlersSpawnHeight
+		if height <= crawlersSpawnHeight {
+			height = crawlersSpawnHeight
 			c.sprite.FrameOffset.X = c.sprite.FrameWidth
 			c.altSprite.Visible = true
-			c.flashComponent.sprite = c.altSprite
 		}
+		c.shadowComponent.UpdateHeight(c.pos, height, agentFlightHeight)
 		return
 	}
-	if c.specialModifier != 0 && c.height == crawlersSpawnHeight {
+	if c.specialModifier != 0 && c.shadowComponent.height == crawlersSpawnHeight {
 		if c.specialDelay == 0 {
 			// Time until next crawler is spawned.
 			c.specialDelay = c.scene.Rand().FloatRange(4, 6)
 			c.specialModifier--
 			if c.specialModifier > 0 {
 				spawnPos := c.crawlerSpawnPos()
-				crawlerStats := gamedata.CrawlerCreepStats
-				eliteChance := c.world.EliteCrawlerChance()
-				if c.world.rand.Chance(eliteChance) {
-					if c.world.rand.Chance(0.3) {
-						crawlerStats = gamedata.HeavyCrawlerCreepStats
-					} else {
-						crawlerStats = gamedata.EliteCrawlerCreepStats
+				var crawlerStats *gamedata.CreepStats
+				if c.world.seedKind == gamedata.SeedLeet {
+					crawlerStats = gamedata.StealthCrawlerCreepStats
+				} else {
+					crawlerStats = gamedata.CrawlerCreepStats
+					eliteChance := c.world.EliteCrawlerChance()
+					if c.world.rand.Chance(eliteChance) {
+						if c.world.rand.Chance(0.3) {
+							crawlerStats = gamedata.HeavyCrawlerCreepStats
+						} else {
+							crawlerStats = gamedata.EliteCrawlerCreepStats
+						}
 					}
 				}
 				crawler := c.world.NewCreepNode(spawnPos, crawlerStats)
@@ -1201,24 +1547,22 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			if c.world.config.GameMode == gamedata.ModeReverse {
 				c.specialDelay = 60 * 60 * 60 // ~never
 			} else {
-				c.specialDelay = c.scene.Rand().FloatRange(50, 70)
+				c.specialDelay = c.scene.Rand().FloatRange(50, 90)
 			}
 			c.sprite.FrameOffset.X = 0
 			c.altSprite.Visible = false
-			c.flashComponent.sprite = c.sprite
 			return
 		}
 		return
 	}
 
-	if c.height != agentFlightHeight {
-		c.height += delta * 5
+	if c.shadowComponent.height != agentFlightHeight {
+		height := c.shadowComponent.height + delta*5
 		c.pos.Y -= delta * 5
-		if c.height >= agentFlightHeight {
-			c.height = agentFlightHeight
-			c.pos.X = math.Round(c.pos.X)
-			c.pos.Y = math.Round(c.pos.Y)
+		if height >= agentFlightHeight {
+			height = agentFlightHeight
 		}
+		c.shadowComponent.UpdateHeight(c.pos, height, agentFlightHeight)
 		return
 	}
 
@@ -1239,6 +1583,10 @@ func (c *creepNode) setWaypoint(pos gmath.Vec) {
 	c.waypoint = correctedPos(c.world.rect, pos, 8)
 }
 
+func (c *creepNode) CanBeTargeted() bool {
+	return !c.cloaking && !c.insideForest
+}
+
 func (c *creepNode) IsCloaked() bool {
 	return c.cloaking
 }
@@ -1251,11 +1599,15 @@ func (c *creepNode) doUncloak() {
 func (c *creepNode) doCloak() {
 	c.cloaking = true
 	c.sprite.SetAlpha(0.2)
-	c.world.nodeRunner.AddObject(newEffectNode(c.world, c.pos, true, assets.ImageCloakWave))
+	createEffect(c.world, effectConfig{
+		Pos:   c.pos,
+		Layer: slightlyAboveEffectLayer,
+		Image: assets.ImageCloakWave,
+	})
 }
 
 func (c *creepNode) movementSpeed() float64 {
-	if c.spawnedFromBase && c.height == 0 {
+	if c.spawnedFromBase {
 		return c.stats.Speed * 0.5
 	}
 	multiplier := 1.0
@@ -1266,7 +1618,7 @@ func (c *creepNode) movementSpeed() float64 {
 }
 
 func (c *creepNode) moveTowards(delta float64, pos gmath.Vec) bool {
-	var reached bool
-	c.pos, reached = moveTowardsWithSpeed(c.pos, pos, delta, c.movementSpeed())
+	pos, reached := moveTowardsWithSpeed(c.pos, pos, delta, c.movementSpeed())
+	c.changePos(pos)
 	return reached
 }

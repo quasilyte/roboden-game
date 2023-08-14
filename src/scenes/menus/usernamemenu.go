@@ -1,11 +1,14 @@
 package menus
 
 import (
+	"strings"
+
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
@@ -41,36 +44,8 @@ func (c *UserNameMenu) Update(delta float64) {
 	}
 }
 
-func (c *UserNameMenu) isValidChar(ch byte) bool {
-	isLetter := func(ch byte) bool {
-		return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
-	}
-	isDigit := func(ch byte) bool {
-		return ch >= '0' && ch <= '9'
-	}
-	return isLetter(ch) || isDigit(ch) || ch == ' '
-}
-
-func (c *UserNameMenu) isValidUsername(s string) bool {
-	nonSpace := 0
-	if len(s) > serverapi.MaxNameLength {
-		return false
-	}
-	for i := 0; i < len(s); i++ {
-		ch := s[i]
-		isValid := c.isValidChar(ch)
-		if !isValid {
-			return false
-		}
-		if ch != ' ' {
-			nonSpace++
-		}
-	}
-	return nonSpace != 0
-}
-
 func (c *UserNameMenu) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -84,7 +59,7 @@ func (c *UserNameMenu) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.user_name"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	textinput := eui.NewTextInput(uiResources, assets.BitmapFont2,
+	textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.SteamInfo.SteamDeck},
 		widget.TextInputOpts.WidgetOpts(
 			widget.WidgetOpts.MinSize(480, 0),
 		),
@@ -92,13 +67,13 @@ func (c *UserNameMenu) initUI() {
 			if args.InputText == "" {
 				return
 			}
-			if !c.isValidUsername(args.InputText) {
+			if !gamedata.IsValidUsername(args.InputText) {
 				c.scene.Audio().PlaySound(assets.AudioError)
 				return
 			}
 		}),
 		widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
-			good := len(newInputText) <= serverapi.MaxNameLength && c.isValidUsername(newInputText)
+			good := len(newInputText) <= serverapi.MaxNameLength && gamedata.IsValidUsername(newInputText)
 			if !good && c.errorSoundDelay == 0 {
 				c.scene.Audio().PlaySound(assets.AudioError)
 				c.errorSoundDelay = 0.2
@@ -109,12 +84,13 @@ func (c *UserNameMenu) initUI() {
 	textinput.SetText(c.state.Persistent.PlayerName)
 	rowContainer.AddChild(textinput)
 
+	panel := eui.NewTextPanel(uiResources, 0, 0)
+
 	normalContainer := eui.NewAnchorContainer()
 	rulesLabel := eui.NewLabel(d.Get("menu.user_name_rules"), smallFont)
 	normalContainer.AddChild(rulesLabel)
-	rowContainer.AddChild(rulesLabel)
-
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel.AddChild(normalContainer)
+	rowContainer.AddChild(panel)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.save"), func() {
 		c.save(textinput.GetText())
@@ -127,7 +103,8 @@ func (c *UserNameMenu) initUI() {
 }
 
 func (c *UserNameMenu) save(name string) {
-	if c.isValidUsername(name) || name == "" {
+	name = strings.TrimSpace(name)
+	if gamedata.IsValidUsername(name) || name == "" {
 		c.state.Persistent.PlayerName = name
 		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}

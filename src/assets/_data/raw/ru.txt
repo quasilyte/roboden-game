@@ -1,5 +1,13 @@
 ##game.title : Рободен
 
+##game.splash.presskey.keyboard : Нажмите ENTER для продолжения
+##game.splash.presskey.gamepad : Нажмите START для продолжения
+
+##game.onboard.welcome : Добро пожаловать в Рободен!
+##game.onboard.select_input_method
+Выберите предпочитаемое устройство ввода.
+Этот выбор можно будет изменить в настройках игры.
+
 ##boot.wasm : Веб-версия скачивает ресурсы, это займёт какое-то время
 ##boot.title : Запускаем Рободен, пожалуйста, подождите
 ##boot.load_ui : Загружаем интерфейс
@@ -8,16 +16,18 @@
 ##boot.load_music : Загружаем музыку
 ##boot.load_shaders : Компилируем шейдеры
 ##boot.load_extra : Инициализируем данные
+##boot.steam_sync : Синхронизируемся со Steam
+##boot.almost_there : Почти готово
 
 ##menu.submit.title : Отправляем данные, пожалуйста, подождите
 
 ##menu.main.title : Главное меню
 ##menu.main.play : Играть
 ##menu.main.profile : Профиль
-##menu.main.settings : Настройки
+##menu.main.settings : Опции
 ##menu.main.credits : Авторы
 ##menu.main.exit : Выход
-##menu.main.build : Версия
+##menu.main.build : Версия игры
 ##menu.main.leaderboard : Рейтинг Игроков
 
 ##menu.leaderboard.placeholder : Загружаем данные...
@@ -25,6 +35,7 @@
 ##menu.leaderboard.classic : Классический
 ##menu.leaderboard.arena : Арена
 ##menu.leaderboard.inf_arena : Бесконечная Арена
+##menu.leaderboard.reverse : Реверсивный
 ##menu.leaderboard.season : Сезон
 ##menu.leaderboard.num_players : Участников
 ##menu.leaderboard.col_rank : позиция
@@ -33,13 +44,14 @@
 ##menu.leaderboard.col_score : очки
 ##menu.leaderboard.col_time : время
 
+##menu.save_replay : Сохранить Реплей
 ##menu.publish_score : Отправить Результат
 ##menu.publish_high_score : Отправить Рекорды
 ##menu.save : Сохранить
 ##menu.set_user_name : Изменить Никнейм
 ##menu.user_name : Никнейм
 ##menu.user_name_rules
-* Разрешены только английские буквы, цифры и пробелы
+* Разрешены только английские буквы, цифры, пробелы и символ нижнего подчёркивания
 * Должен содержать как минимум один непробельный символ
 * Не длиннее 20 символов
 * Пустой никнейм => нельзя делиться результатами
@@ -47,17 +59,23 @@
 ##tutorial.reward : Награда
 ##tutorial.reward_claimed : получено
 
-##ui.mission_objective : Условие прохождения
-##objective.boss : Уничтожить вражескую колонию
-
+##menu.play.intro_mission : Вступительная Миссия
 ##menu.play.classic : Классический Режим
 ##menu.play.arena : Режим Арены
-##menu.play.tutorial : Обучение
+##menu.play.inf_arena : Режим Бесконечной Арены
+##menu.play.reverse : Реверсивный Режим
 
 ##menu.profile.achievements : Достижения
 ##menu.profile.stats : Статистика
 ##menu.profile.progress : Прогресс
 ##menu.profile.dronebook : Коллекция Дронов
+##menu.profile.watch_replay : Смотреть Реплей
+
+##menu.replace.version_mismatch : несовместимая версия
+##menu.replay.game_result : Исход
+##menu.replay.last_played : Недавняя сессия
+##menu.replay.empty : Пустой Слот
+##menu.replay.notice : Реплеи - экспериментальная возможность с минимальной эргономикой
 
 ##menu.profile.stats.totalscore : Суммарное количество очков
 ##menu.profile.stats.classic_highscore : Рекорд в классическом режиме
@@ -67,20 +85,19 @@
 
 ##menu.profile.progress.achievements : Достижений получено
 ##menu.profile.progress.modes_unlocked : Режимов игры открыто
-##menu.profile.progress.bases_unlocked : Колоний открыто
+##menu.profile.progress.cores_unlocked : Колоний открыто
 ##menu.profile.progress.turrets_unlocked : Турелей открыто
 ##menu.profile.progress.drones_unlocked : Дронов второго тира открыто
 ##menu.profile.progress.t3drones_seen : Дронов третьего тира открыто
-##menu.profile.progress.tutorials_completed : Пройдено обучающих миссий
+##menu.profile.progress.extra_options_unlocked : Открыто настроек игры
 
 ##menu.tier : тир
 ##menu.back : Назад
-##menu.more : Ещё
 ##menu.lobby_back : Назад в Меню
 
+##menu.options.gameplay : Геймплей
 ##menu.options.sound : Звук
 ##menu.options.graphics : Графика
-##menu.options.camera : Камера
 ##menu.options.extra : Дополнительно
 ##menu.options.controls : Управление
 
@@ -103,6 +120,11 @@
 ##menu.option.mandatory : только необходимые
 ##menu.option.all : все
 
+##menu.power.weak : слабый
+##menu.power.normal : нормальный
+##menu.power.tough : сильный
+##menu.power.very_tough : очень сильный
+
 ##menu.option.very_easy : очень легко
 ##menu.option.easy : легко
 ##menu.option.hard : сложно
@@ -114,23 +136,36 @@
 ##menu.option.small : небольшой
 ##menu.option.big : большой
 
+##menu.options.hint_mode : Всплывающие подсказки
+##menu.options.screen_buttons : Экранные кнопки
 ##menu.options.effects_volume : Громкость эффектов
 ##menu.options.music_volume : Громкость музыки
 ##menu.options.scroll_speed : Скорость скроллинга
 ##menu.options.edge_scroll_range : Ширина границы прокрутки
 ##menu.options.show_fps : Отображать FPS
 ##menu.options.show_timer : Отображать таймер
+##menu.options.splash_screen : Экран заставки
 
 ##menu.options.graphics.shadows : Тени
+##menu.options.graphics.vsync : VSync
+##menu.options.graphics.camera_shaking : Тряска камеры
 ##menu.options.graphics.shaders : Шейдеры
 ##menu.options.graphics.fullscreen : Полноэкранный режим
+##menu.options.graphics.aspect_ratio : Соотношение сторон
 
 ##menu.credits.crew : команда
 ##menu.credits.assets : ассеты
+##menu.credits.special_thanks : благодарности
 ##menu.credits.thank_player : И тебе спасибо, дорогой игрок <3
 
 ##menu.lobby.points_allocated : Кредитов использовано
+
 ##menu.lobby.game_seed : Сид игры
+##menu.lobby.game_seed.description
+Игровой сид влияет на генерацию мира.
+Одинаковый сид создаёт идентичные миры при каждом запуске.
+Сид должен быть неотрицательным числом.
+В случае пустого сида будет использован случайный.
 
 ##menu.lobby.game_speed : Скорость игры
 ##menu.lobby.game_speed.description
@@ -143,10 +178,36 @@ x1.5 означает, что игра будет работать на 50% бы
 Эта опция включает/выключает туман войны.
 Если включена, большая часть карты будет закрыта, пока территории не будут исследованы.
 
+##menu.lobby.relicts : Реликты
+##menu.lobby.relicts.description
+Реликты - это уникальные сооружения, которые могут быть отремонтированы рабочими дронами.
+После ремонта они начинают функционировать и приносить пользу захватившей их колонии.
+
 ##menu.lobby.num_teleporters : Телепортеры
 ##menu.lobby.num_teleporters.description
 Сколько пар порталов будет размещено на игровой карте.
 Когда колония совершает посадку на такой портал, её переносит на связанный портал с другой стороны.
+
+##menu.lobby.players : Игроки
+##menu.lobby.players.description
+Эта опция определяет количество союзных колоний на карте, а также кто управляет ими.
+Для игры двух игроков потребуется как минимум один геймпад.
+При уничтожении любого из игроков, игра заканчивается поражением.
+Только режим с одним игроком открывает достижения и может быть опубликован.
+
+##menu.lobby.players.reverse : Игроки
+##menu.lobby.players.reverse.description
+В реверсивном режиме можно сыграть в режиме игрок-против-игрока.
+Первый игрок будет управлять дредноутом, а второй - колонией.
+Для игры двух игроков потребуется как минимум один геймпад.
+Если любой из этих игроков будет уничтожен, партия завершается.
+Только режим с одним игроком открывает достижения и может быть опубликован.
+
+##menu.lobby.player_mode.single_player : один игрок
+##menu.lobby.player_mode.single_bot : один бот
+##menu.lobby.player_mode.player_and_bot : игрок и бот
+##menu.lobby.player_mode.two_players : два игрока
+##menu.lobby.player_mode.two_bots : два бота
 
 ##menu.lobby.ui_mode : Графический интерфейс
 ##menu.lobby.ui_mode.description
@@ -163,7 +224,12 @@ x1.5 означает, что игра будет работать на 50% бы
 Размер генерируемого мира.
 Как правило, играть на более мелких картах сложнее.
 
-##menu.lobby.oil_regen_rate : Скорость восстановления нефти
+##menu.lobby.gold_enabled : Золото
+##menu.lobby.gold_enabled.description
+Контролирует наличие золотых ископаемых на карте.
+При игре на лунном окружении, отключение золота удваивает ёмкость железных руд.
+
+##menu.lobby.oil_regen_rate : Регенерация нефти
 ##menu.lobby.oil_regen_rate.description
 Как быстро восстанавливаются нефть и лавообразные ресуры.
 Эта опция может быть использована чтобы отключить эту регенерацию или сделать её быстрее.
@@ -173,15 +239,31 @@ x1.5 означает, что игра будет работать на 50% бы
 Количество вражеских баз, которые производят дронов.
 Эти базы наращивают эффективность со временем, но противник не может их восстановить после уничтожения.
 
+##menu.lobby.tech_progress_rate : Скорость тех прогресса
+##menu.lobby.tech_progress_rate.description
+Скорость технического прогресса влияет на временные затраты использования связанной дискеты действия.
+Более быстрый технический прогресс делает игру проще для дредноута.
+
+##menu.lobby.reverse_super_creep_rate : Количество супер крипов
+##menu.lobby.reverse_super_creep_rate.description
+Эта опция определяет шанс на появление элитных версий крипов.
+Частота по умолчанию достаточно сбалансирована.
+Пониженная частота делает игру за Дредноута сложнее.
+
 ##menu.lobby.creep_spawn_rate : Скорость появления врагов
 ##menu.lobby.creep_spawn_rate.description
 Эта опция контролирует интенсивность появления вражеских юнитов.
 Она действует только на появляющихся за пределами экрана юнитов на поздних этапах игры.
 Не влияет на заводы дронов противника, они будут работать с той же скоростью.
 
-##menu.lobby.creeps_difficulty : Сила юнитов противника
+##menu.lobby.drones_power : Сила дронов колонии
+##menu.lobby.drones_power.description
+Множитель силы дронов колонии.
+Более высокие значения усложняют игру для дредноута.
+
+##menu.lobby.creeps_difficulty : Сила юнитов дредноута
 ##menu.lobby.creeps_difficulty.description
-Множитель силы крипов.
+Множитель силы крипов (юнитов дредноута).
 В основном влияет на количество прочности юнитов.
 
 ##menu.lobby.arena_progression : Прогрессия сложности
@@ -189,17 +271,30 @@ x1.5 означает, что игра будет работать на 50% бы
 Эта опция определяет скорость роста сложности.
 Каждая следующая волна сложнее предыдущей, а этот множитель определяет на сколько именно.
 
-##menu.lobby.initial_creeps : Начальное кол-во противников
+##menu.lobby.initial_creeps : Стартовые крипы
 ##menu.lobby.initial_creeps.description
 Как много крипов будет размещено на карте с самого начала.
 Эта опция определяет на сколько легко будет исследовать мир на ранних этапах игры.
 
-##menu.lobby.boss_difficulty : Сила вражеской колонии
-##menu.lobby.boss_difficulty.description
-Уровень силы вражеской колонии.
-Влияет на количество юнитов, которых будет производить чужая колония, а так же на то, как трудно будет победить эту колонию в бою.
+##menu.lobby.creep_fortress : Крепость крипов
+##menu.lobby.creep_fortress.description
+Крепость удерживает сектор, в котором она находится.
+Она производит дронов, которые патрулируют её территорию.
+Эти дроны не атакуют колонию, если она находится вне этой территории.
 
-##menu.lobby.super_creeps : Супер противники
+##menu.lobby.ion_mortars : Ионные мортиры
+##menu.lobby.ion_mortars.description
+Переключить доступность ионных мортир для крипов.
+Ионные мортиры имеют очень высокую дальность огня, но низкую точность.
+Их атаки наносят средний урон и сжигают большое количество энергии цели.
+Эти мортиры не могут атаковать наземные цели.
+
+##menu.lobby.boss_difficulty : Сила дредноута
+##menu.lobby.boss_difficulty.description
+Уровень силы дредноута.
+Влияет на количество юнитов, которых будет производить дредноут, а так же на то, как трудно его будет победить в бою.
+
+##menu.lobby.super_creeps : Супер крипы
 ##menu.lobby.super_creeps.description
 Переключает наличие супер версий вражеских юнитов в игре.
 Супер юниты - это вражеский аналог элитных дронов игрока.
@@ -215,7 +310,18 @@ x1.5 означает, что игра будет работать на 50% бы
 Выберите, как много гор и разломов будет на карте.
 Есть варианты между почти полным их отсутствием и высоким насыщением.
 
+
+##menu.lobby.environment : Окружение
+##menu.lobby.environment.description
+Переключение между типами биома.
+
+Кроме визуальных различий, каждый биом имеет
+некоторые особенности, влияющие на игровой процесс.
+
 ##menu.lobby.go : Вперёд!
+
+##menu.lobby.moon : луна
+##menu.lobby.forest : лес
 
 ##menu.lobby.land_flat : плато
 ##menu.lobby.land_normal : сбалансированный
@@ -235,6 +341,8 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.results.the_end : Конец
 ##menu.results.victory : Победа
 ##menu.results.defeat : Поражение
+##menu.results.player1_win : Победа первого игрока
+##menu.results.player2_win : Победа второго игрока
 ##menu.results.time_played : Длительность
 ##menu.results.resources_gathered : Ресурсов собрано
 ##menu.results.drones_total : Дронов создано
@@ -243,51 +351,157 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.results.new_achievement : Получено достижение
 ##menu.results.upgraded_achievement : Получено элитное достижение
 ##menu.results.new_record : локальный рекорд
+##menu.results.new_core : Колония разблокирована
 ##menu.results.new_drone : Дрон разблокирован
 ##menu.results.new_turret : Турель разблокирована
+##menu.results.new_option : Разблокирована опция
+##menu.results.new_mode : Разблокирован режим
 
+##menu.controls.auto_infer : Определять автоматически
 ##menu.controls.keyboard : Клавиатура
 ##menu.controls.gamepad : Геймпад
 ##menu.controls.touch : Тачскрин
+##menu.controls.method_combined : комбо
+##menu.controls.method_keyboard : клавиатура
+##menu.controls.method_gamepad : геймпад
+##menu.controls.wheel_scroll : Прокрутка колёсиком
+##menu.controls.wheel_scroll.drag : перетягивание
+##menu.controls.wheel_scroll.float : скольжение
+##menu.controls.player_label : Игрок
+##menu.controls.gamepad_deadzone : Мёртвая зона джойстика
+##menu.controls.gamepad_layout : Раскладка
+##menu.controls.gamepad_cursor_speed : Скорость виртуального курсора
+
+##menu.controls.gamepad_status : Статус контроллера
+##menu.controls.gamepad_status.checking : загрузка
+##menu.controls.gamepad_status.not_connected : не подключен
+##menu.controls.gamepad_status.connected : подключен
+
+##menu.controls.gamepad.calibrate
+Красная точка должна быть в центре при неактивном стике.
 
 ##menu.controls.keyboard.text
-Управление камерой | Колёсико + перемещение, скролл у края экрана, WASD
+Управление камерой | Колёсико + перемещение, скролл у края экрана, W/A/S/D
 Перемещение колонии | ПКМ по месту назначения
-Выбор колонии | ЛКМ по колонии или TAB для переключения между колониями
-Выбор действия | ЛКМ по дискете или кнопки 1-5 на клавиатуре
-Пауза | Клавиша ПРОБЕЛ для переключения паузы
-Показать таблицу эволюции | Клавиша ALT
-Скрыть/показать интерфейс | Клавиша F11
-Выход/Назад | Клавиша ESC
+Выбор колонии | ЛКМ по колонии
+Следующая колония | TAB
+Выбор действия | ЛКМ по дискете, 1-5
+Пауза | ПРОБЕЛ
+Показать таблицу эволюции | ALT
+Скрыть/показать интерфейс | F11
+Пинг (кооператив) | CTRL + ЛКМ
+Выход/Назад | ESC
 
 ##menu.controls.gamepad.text
-Управление камерой | Крестовина (D-pad) или левый стик
+Управление камерой | Крестовина (D-pad), левый стик
 Перемещение колонии | Клик правым стиком по месту назначения
-Выбор колонии | Клик правым стиком по колонии или L1 для переключения между колониями
-Выбор действия | Клик правым стиком по карточке или кнопки Y, B, A, X и R1
-Пауза | START включает и выключает паузу
-Показать таблицу эволюции | Кнопка R2
-Скрыть/показать интерфейс | Кнопка L2
-Выход/Назад | Кнопки BACK и SELECT
+Выбор колонии | Клик правым стиком по колонии
+Следующая колония | L1
+Выбор действия | Клик правым стиком по карточке, Y, B, A, X и R1
+Пауза | START
+Показать таблицу эволюции | R2
+Скрыть/показать интерфейс | L2
+Пинг (кооператив) | Клик левым стиком
+Выход/Назад | BACK
+
+##menu.overview.intro_mission
+Вступительная миссия (время прохождения: ~15 минут)
+
+Режим с подсказками и постановочными ситуациями. Он позволит изучить основы геймплея и научиться защищать свою колонию.
+
+Выполнение этой миссии откроет доступ к классическому режиму.
 
 ##menu.overview.classic
->> В Классическом режиме вам нужно уничтожить вражескую колонию.
+Классический режим (время прохождения: ~35 минут)
 
->> У противника есть наземные фабрики дронов; уничтожте их, чтобы сократить вражескую численность.
+Победа в этом режиме достигается путём уничтожения вражеского флагмана - дредноута.
 
->> Вражеская колония сильна в бою, поэтому перед постарайтесь нарастить свою мощь перед атакой.
+Дредноут - очень опасный противник. Избегайте схваток с ним до того, как наберёте достаточно боевой мощи.
 
->> Собирайте ресурсы, увеличивайте радиус влияния, стройте колонии.
+Мультиплеер с разделённым экраном: кооперативный.
 
 ##menu.overview.arena
->> В режиме Арены вам нужно отражать атаки противника, которые нападают волнами.
+Режим арены (время прохождения: 60 минут)
 
->> После отражения 20-ой волны вы побеждаете, если конечно не включен бесконечный режим.
+Выдержите 20 волн атак.
 
->> Избегайте крупных скоплений противника: дайте им рассредоточиться, а затем нападайте!
+Мультиплеер с разделённым экраном: кооперативный.
+
+##menu.overview.inf_arena
+Режим бесконечной арены (~90 минут)
+
+Продержитесь как можно дольше, отражая волны атак.
+
+В этом режиме невозможно одержать победы, а счёт основан на том, как много волн вы продержались.
+
+Мультиплеер с разделённым экраном: кооперативный.
+
+##menu.overview.reverse
+Реверсивный режим (время прохождения: ~40 минут)
+
+Поменяйтесь местами и сыграйте за дредноута.
+
+Победа достигается при уничтожении всех колоний.
+
+Мультиплеер с разделённым экраном: соревновательный (PvP).
+
+##game.hint.building.tower : Башня подавления
+##game.hint.building.power_plant : Электростанция
+##game.hint.building.drone_factory : Фабрика дронов
+##game.hint.building_status.needs_repair : Требует ремонта
+##game.hint.building_status.functioning : Функционирует
+##game.hint.screen_button.toggle : Переключить вид
+##game.hint.screen_button.exit : Выйти
+##game.hint.rpanel.garrison : Юниты в гарнизонах
+##game.hint.rpanel.tech_progress_f : Технологический прогресс: %d%%
+##game.hint.rpanel.priority_resources : Приоритет ресурсов
+##game.hint.rpanel.priority_growth : Приоритет роста
+##game.hint.rpanel.priority_evolution : Приоритет эволюции
+##game.hint.rpanel.priority_security : Приоритет войск
+##game.hint.rpanel.factions : Распределение фракций
+##game.hint.action.priorities1_f : Увеличить приоритет: %s
+##game.hint.action.priorities2_f : Увеличить приоритеты: %s+%s
+##game.hint.action.garrison_f : Добавить в гарнизон (%s)
+##game.hint.action.increaseradius : Увеличить радиус колонии
+##game.hint.action.decreaseradius : Уменьшить радиус колонии
+##game.hint.action.buildgunpoint : Построить турель
+##game.hint.action.buildcolony : Построить колонию
+##game.hint.action.attack : Послать дронов в атаку
+##game.hint.action.sendcreeps : Выпустить юнитов из гарнизонов
+##game.hint.action.rally : Запустить в атаку ближайших юнитов
+##game.hint.action.spawncrawlers : Высадить юнитов из Дредноута
+##game.hint.action.bossattack : Послать Дредноут в атаку
+##game.hint.action.increasetech : Увеличить технологический уровень
+##game.hint.action.atomicbomb : Запустить атомную бомбу
+
+##game.hint.teleporter : Телепортер
+##game.hint.colony : Колония
+##game.hint.wisp_lair : Логово виспов
+##game.hint.dreadnought : Дредноут
+##game.hint.resource.scrap : Обломки (ресурс)
+##game.hint.resource.scrap.value : Очень низкая ценность
+##game.hint.resource.iron : Железо (ресурс)
+##game.hint.resource.iron.value : Низкая ценность
+##game.hint.resource.organic : Органика (ресурс)
+##game.hint.resource.organic.value : Средняя ценность
+##game.hint.resource.gold : Золото (ресурс)
+##game.hint.resource.gold.value : Средняя ценность
+##game.hint.resource.crystal : Кристаллы (ресурс)
+##game.hint.resource.crystal.value : Высокая ценность
+##game.hint.resource.oil : Нефть (ресурс)
+##game.hint.resource.oil.value : Средняя ценность, регенерирует
+##game.hint.resource.red_crystal : Алый кристалл (элитный ресурс)
+##game.hint.resource.red_crystal.value : Очень высокая ценность
+##game.hint.resource.red_oil : Алая нефть (элитный ресурс)
+##game.hint.resource.red_oil.value : Средняя ценность, регенерирует
+
+##game.notice.ping
+Союзник отметил эту локацию
 
 ##game.notice.base_under_attack
 Ваша колония атакована!
+##game.notice.base_destroyed
+Ваша колония уничтожена!
 
 ##game.exit.notice.keyboard
 Нажмите ещё раз, чтобы выйти.
@@ -300,10 +514,10 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.wave_last : Продержитесь, чтобы победить
 ##game.wave_starts_in : стартует через
 ##game.wave_units : Типы юнитов
-##game.wave_special_units : Особые юниты
+##game.wave_special_units : Угрозы
 ##game.wave_direction : Направления атаки
 ##game.wave_builders : строитель
-##game.wave_task_force : рейдеры
+##game.wave_task_force : рейдер
 ##game.wave_dominator : доминатор
 ##game.wave_howitzer : гаубица
 ##game.side.all : со всех сторон
@@ -316,12 +530,28 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.value.minute : м
 ##game.value.second : с
 
-##game.choice.resources : Ресурсы
-##game.choice.growth : Рост
-##game.choice.evolution : Эволюция
-##game.choice.security : Войска
+##game.choice.resources : ресурсы
+##game.choice.growth : рост
+##game.choice.evolution : эволюция
+##game.choice.security : войска
 ##game.choice.attack : Атаковать
 ##game.choice.build_colony : Построить колонию
 ##game.choice.build_gunpoint : Построить турель
 ##game.choice.increase_radius : Увеличить радиус
 ##game.choice.decrease_radius : Уменьшить радиус
+
+##menu.special_text
+Мои поздравления! Вы нашли письмо разработчиков!
+
+Мы с другом создали первый прототип этой игры во время двухнедельного геймджема.
+
+Нам очень понравился результат и мы решили дать этой игре шанс добраться до релиза в Steam.
+
+В идеальном мире, мы бы ещё дорабатывали эту игру несколько месяцев,
+но я решил поставить строгие временные рамки и релизить то, что есть.
+
+Если вам понравилась данная игра, пожалуйста, дайте мне знать.
+Я бы хотел продолжить работать над этой игрой после небольшого перерыва,
+но сначала я хотел бы увидеть что сообщество думает о ней.
+
+- quasilyte

@@ -23,6 +23,8 @@ const (
 	ModeTutorial
 
 	ModeAny
+
+	ModeUnknown
 )
 
 func (m Mode) String() string {
@@ -133,6 +135,11 @@ var AchievementList = []*Achievement{
 		Mode: ModeClassic,
 		Icon: assets.ImageAchievementTurretDamage,
 	},
+	{
+		Name: "leet",
+		Mode: ModeClassic,
+		Icon: assets.ImageAchievementLeet,
+	},
 
 	// Arena mode achievements.
 	{
@@ -163,5 +170,27 @@ var AchievementList = []*Achievement{
 		Name: "atomicfinisher",
 		Mode: ModeReverse,
 		Icon: assets.ImageAchievementAtomicFinisher,
+	},
+
+	// Other achievements.
+	{
+		Name: "secret",
+		Mode: ModeUnknown,
+		Icon: assets.ImageAchievementSecret,
+	},
+	{
+		Name: "terminal",
+		Mode: ModeUnknown,
+		Icon: assets.ImageAchievementTerminal,
+	},
+	{
+		Name: "spectator",
+		Mode: ModeUnknown,
+		Icon: assets.ImageAchievementSpectator,
+	},
+	{
+		Name: "gladiator",
+		Mode: ModeUnknown,
+		Icon: assets.ImageAchievementGladiator,
 	},
 }

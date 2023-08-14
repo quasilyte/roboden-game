@@ -33,10 +33,7 @@ func (c *MainMenuController) Init(scene *ge.Scene) {
 	c.cursor = gameui.NewCursorNode(&c.state.CombinedInput, scene.Context().WindowRect())
 	scene.AddObject(c.cursor)
 
-	scene.Audio().SetGroupVolume(assets.SoundGroupMusic,
-		assets.VolumeMultiplier(c.state.Persistent.Settings.MusicVolumeLevel))
-	scene.Audio().SetGroupVolume(assets.SoundGroupEffect,
-		assets.VolumeMultiplier(c.state.Persistent.Settings.EffectsVolumeLevel))
+	c.state.AdjustVolumeLevels()
 
 	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
 		scene.Audio().ContinueMusic(assets.AudioMusicTrack3)
@@ -54,7 +51,7 @@ func (c *MainMenuController) Update(delta float64) {
 }
 
 func (c *MainMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 
 	uiResources := c.state.Resources.UI
 
@@ -67,7 +64,7 @@ func (c *MainMenuController) initUI() {
 	logo := widget.NewGraphic(widget.GraphicOpts.Image(c.scene.LoadImage(assets.ImageLogo).Data))
 	rowContainer.AddChild(logo)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.play"), func() {
 		c.scene.Context().ChangeScene(NewPlayMenuController(c.state))
@@ -95,9 +92,14 @@ func (c *MainMenuController) initUI() {
 		}))
 	}
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	buildVersionLabel := eui.NewCenteredLabel(fmt.Sprintf("%s %d", d.Get("menu.main.build"), gamedata.BuildNumber), assets.BitmapFont1)
+	buildLabel := fmt.Sprintf("%s %d", d.Get("menu.main.build"), gamedata.BuildNumber)
+	if c.state.SteamInfo.Enabled {
+		buildLabel += " [Steam]"
+	}
+
+	buildVersionLabel := eui.NewCenteredLabel(buildLabel, assets.BitmapFont1)
 	rowContainer.AddChild(buildVersionLabel)
 
 	uiObject := eui.NewSceneObject(root)

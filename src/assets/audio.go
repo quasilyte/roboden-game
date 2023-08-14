@@ -9,11 +9,19 @@ import (
 	_ "image/png"
 )
 
-func RegisterMusicResource(ctx *ge.Context, progress *float64) {
+func RegisterMusicResource(ctx *ge.Context, config *Config, progress *float64) {
 	audioResources := map[resource.AudioID]resource.AudioInfo{
 		AudioMusicTrack1: {Path: "$music/deadly_windmills.ogg", Volume: -0.3, Group: SoundGroupMusic},
 		AudioMusicTrack2: {Path: "$music/war_path.ogg", Volume: -0.3, Group: SoundGroupMusic},
 		AudioMusicTrack3: {Path: "$music/crush.ogg", Volume: -0.3, Group: SoundGroupMusic},
+	}
+
+	if config.ExtraMusic {
+		audioResources[AudioMusicTrack4] = resource.AudioInfo{
+			Path:   "$music/track4.ogg",
+			Volume: -0.3,
+			Group:  SoundGroupMusic,
+		}
 	}
 
 	singleThread := runtime.GOMAXPROCS(-1) == 1
@@ -30,7 +38,7 @@ func RegisterMusicResource(ctx *ge.Context, progress *float64) {
 	}
 }
 
-func RegisterAudioResource(ctx *ge.Context, progress *float64) {
+func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 	audioResources := map[resource.AudioID]resource.AudioInfo{
 		AudioVictory:             {Path: "$sfx/victory.wav", Volume: -0.05},
 		AudioWaveStart:           {Path: "$sfx/wave_start.wav", Volume: 0},
@@ -41,18 +49,20 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioChoiceMade:          {Path: "$sfx/choice_made.wav", Volume: -0.45},
 		AudioChoiceReady:         {Path: "$sfx/choice_ready.wav", Volume: -0.55},
 		AudioColonyLanded:        {Path: "$sfx/colony_landed.wav", Volume: -0.2},
-		AudioHarvesterEffect:     {Path: "$sfx/harvester.wav", Volume: -0.25},
+		AudioHarvesterEffect:     {Path: "$sfx/harvester.wav", Volume: -0.2},
 		AudioEssenceCollected:    {Path: "$sfx/essence_collected.wav", Volume: -0.55},
 		AudioCourierResourceBeam: {Path: "$sfx/courier_resource_beam.wav", Volume: -0.3},
-		AudioAgentProduced:       {Path: "$sfx/agent_produced.wav", Volume: -0.3},
+		AudioAgentProduced:       {Path: "$sfx/agent_produced.wav", Volume: -0.4},
 		AudioAgentRecycled:       {Path: "$sfx/agent_recycled.wav", Volume: -0.3},
 		AudioAgentConsumed:       {Path: "$sfx/drone_consumed.wav", Volume: -0.25},
 		AudioAgentDestroyed:      {Path: "$sfx/agent_destroyed.wav", Volume: -0.25},
 		AudioFighterBeam:         {Path: "$sfx/fighter_beam.wav", Volume: -0.35},
+		AudioRelictAgentShot:     {Path: "$sfx/relict_agent_shot.wav", Volume: -0.35},
 		AudioDefenderShot:        {Path: "$sfx/defender_shot.wav", Volume: -0.5},
 		AudioFirebugShot:         {Path: "$sfx/flamethrower.wav", Volume: -0.2},
 		AudioGunpointShot:        {Path: "$sfx/gunpoint_shot.wav", Volume: -0.3},
 		AudioBeamTowerShot:       {Path: "$sfx/beamtower_shot.wav", Volume: -0.4},
+		AudioRepulseTowerAttack:  {Path: "$sfx/artifact_tower_attack.wav", Volume: -0.4},
 		AudioTetherShot:          {Path: "$sfx/tether_shot.wav", Volume: -0.05},
 		AudioWandererBeam:        {Path: "$sfx/wanderer_beam.wav", Volume: -0.3},
 		AudioScoutShot:           {Path: "$sfx/scout_shot.wav", Volume: -0.3},
@@ -78,7 +88,7 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioRepellerBeam:        {Path: "$sfx/repeller_beam.wav", Volume: -0.4},
 		AudioDestroyerBeam:       {Path: "$sfx/destroyer_beam.wav", Volume: -0.3},
 		AudioStealth:             {Path: "$sfx/stealth.wav", Volume: -0.25},
-		AudioMarauderShot:        {Path: "$sfx/marauder_shot.wav", Volume: -0.45},
+		AudioMarauderShot:        {Path: "$sfx/marauder_shot.wav", Volume: -0.5},
 		AudioPrismShot:           {Path: "$sfx/prism_shot.wav", Volume: -0.45},
 		AudioSkirmisherShot:      {Path: "$sfx/skirmisher_shot.wav", Volume: -0.3},
 		AudioScarabShot:          {Path: "$sfx/scarab_shot.wav", Volume: -0.4},
@@ -86,9 +96,12 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioAntiAirMissiles:     {Path: "$sfx/aa_missiles.wav", Volume: -0.5},
 		AudioMissile:             {Path: "$sfx/missile.wav", Volume: -0.3},
 		AudioTankShot:            {Path: "$sfx/tank_shot.wav", Volume: -0.3},
+		AudioIonMortarShot:       {Path: "$sfx/ion_mortar_shot.wav", Volume: -0.3},
 		AudioHeavyCrawlerShot:    {Path: "$sfx/heavy_crawler_shot.wav", Volume: -0.25},
-		AudioEliteCrawlerShot:    {Path: "$sfx/elite_crawler_shot.wav", Volume: -0.3},
+		AudioEliteCrawlerShot:    {Path: "$sfx/elite_crawler_shot.wav", Volume: -0.35},
 		AudioStealthCrawlerShot:  {Path: "$sfx/stealth_crawler_shot.wav", Volume: -0.3},
+		AudioFortressAttack:      {Path: "$sfx/fortress_attack.wav", Volume: -0.3},
+		AudioTemplarAttack:       {Path: "$sfx/templar_attack.wav", Volume: -0.4},
 		AudioCloning1:            {Path: "$sfx/cloning1.wav", Volume: -0.3},
 		AudioCloning2:            {Path: "$sfx/cloning2.wav", Volume: -0.3},
 		AudioMerging1:            {Path: "$sfx/merging1.wav", Volume: -0.65},
@@ -105,8 +118,14 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		AudioExplosion3:          {Path: "$sfx/explosion3.wav", Volume: -0.45},
 		AudioExplosion4:          {Path: "$sfx/explosion4.wav", Volume: -0.45},
 		AudioExplosion5:          {Path: "$sfx/explosion5.wav", Volume: -0.45},
+		AudioIonBlast1:           {Path: "$sfx/ion_blast1.wav", Volume: -0.45},
+		AudioIonBlast2:           {Path: "$sfx/ion_blast2.wav", Volume: -0.45},
+		AudioIonBlast3:           {Path: "$sfx/ion_blast3.wav", Volume: -0.45},
+		AudioIonBlast4:           {Path: "$sfx/ion_blast4.wav", Volume: -0.45},
 		AudioTeleportCharge:      {Path: "$sfx/teleport_charge.wav", Volume: -0.2},
 		AudioTeleportDone:        {Path: "$sfx/teleport_done.wav", Volume: -0.2},
+		AudioOrganicRestored:     {Path: "$sfx/organic_restored.wav", Volume: -0.2},
+		AudioWispShocker:         {Path: "$sfx/wisp_shocker.wav", Volume: -0.2},
 	}
 
 	singleThread := runtime.GOMAXPROCS(-1) == 1
@@ -120,6 +139,19 @@ func RegisterAudioResource(ctx *ge.Context, progress *float64) {
 		if singleThread {
 			runtime.Gosched()
 		}
+	}
+}
+
+func NumAudioSamples(id resource.AudioID) int {
+	switch id {
+	case AudioPurpleExplosion1:
+		return 3
+	case AudioExplosion1:
+		return 5
+	case AudioIonBlast1:
+		return 4
+	default:
+		return 1
 	}
 }
 
@@ -167,18 +199,23 @@ const (
 	AudioHowitzerLaserShot
 	AudioGunpointShot
 	AudioBeamTowerShot
+	AudioRepulseTowerAttack
 	AudioTetherShot
 	AudioDefenderShot
 	AudioFirebugShot
 	AudioFighterBeam
+	AudioRelictAgentShot
 	AudioTankShot
 	AudioHeavyCrawlerShot
 	AudioEliteCrawlerShot
 	AudioStealthCrawlerShot
+	AudioFortressAttack
+	AudioTemplarAttack
 	AudioRepellerBeam
 	AudioDestroyerBeam
 	AudioPrismShot
 	AudioSkirmisherShot
+	AudioIonMortarShot
 	AudioScarabShot
 	AudioAntiAirMissiles
 	AudioMissile
@@ -199,10 +236,17 @@ const (
 	AudioExplosion3
 	AudioExplosion4
 	AudioExplosion5
+	AudioIonBlast1
+	AudioIonBlast2
+	AudioIonBlast3
+	AudioIonBlast4
 	AudioTeleportCharge
 	AudioTeleportDone
+	AudioOrganicRestored
+	AudioWispShocker
 
 	AudioMusicTrack1
 	AudioMusicTrack2
 	AudioMusicTrack3
+	AudioMusicTrack4
 )

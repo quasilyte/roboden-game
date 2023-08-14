@@ -5,6 +5,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -54,7 +55,7 @@ func (c *PlayMenuController) setHelpText(s string) {
 }
 
 func (c *PlayMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -89,7 +90,7 @@ func (c *PlayMenuController) initUI() {
 		)),
 	)
 
-	leftPanel := eui.NewPanel(uiResources, 352, 0)
+	leftPanel := eui.NewPanel(uiResources, 360, 0)
 	leftPanel.AddChild(buttonsContainer)
 	rootGrid.AddChild(leftPanel)
 
@@ -97,7 +98,7 @@ func (c *PlayMenuController) initUI() {
 	helpLabel.MaxWidth = 320
 	c.helpLabel = helpLabel
 
-	rightPanel := eui.NewPanel(uiResources, 352, 0)
+	rightPanel := eui.NewTextPanel(uiResources, 360, 0)
 	rightPanel.AddChild(helpLabel)
 	rootGrid.AddChild(rightPanel)
 
@@ -109,6 +110,8 @@ func (c *PlayMenuController) initUI() {
 				back := NewPlayMenuController(c.state)
 				config := c.state.TutorialLevelConfig.Clone()
 				config.Seed = c.scene.Rand().PositiveInt64()
+				config.CreepDifficulty = c.state.Persistent.Settings.IntroDifficulty
+				config.GameSpeed = c.state.Persistent.Settings.IntroSpeed
 				c.scene.Context().ChangeScene(staging.NewController(c.state, config, back))
 			},
 			OnHover: func() { c.setHelpText(d.Get("menu.overview.intro_mission")) },
@@ -116,7 +119,7 @@ func (c *PlayMenuController) initUI() {
 		buttonsContainer.AddChild(b)
 	}
 
-	score := c.state.Persistent.PlayerStats.TotalScore
+	playerStats := &c.state.Persistent.PlayerStats
 
 	{
 		label := d.Get("menu.play.classic")
@@ -128,7 +131,7 @@ func (c *PlayMenuController) initUI() {
 			},
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("classic", gamedata.ClassicModeCost)) },
 		})
-		b.GetWidget().Disabled = score < gamedata.ClassicModeCost
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "classic")
 		buttonsContainer.AddChild(b)
 	}
 
@@ -142,7 +145,7 @@ func (c *PlayMenuController) initUI() {
 			},
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("arena", gamedata.ArenaModeCost)) },
 		})
-		b.GetWidget().Disabled = score < gamedata.ArenaModeCost
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "arena")
 		buttonsContainer.AddChild(b)
 	}
 
@@ -156,7 +159,7 @@ func (c *PlayMenuController) initUI() {
 			},
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("inf_arena", gamedata.InfArenaModeCost)) },
 		})
-		b.GetWidget().Disabled = score < gamedata.InfArenaModeCost
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "inf_arena")
 		buttonsContainer.AddChild(b)
 	}
 
@@ -170,7 +173,7 @@ func (c *PlayMenuController) initUI() {
 			},
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("reverse", gamedata.ReverseModeCost)) },
 		})
-		b.GetWidget().Disabled = score < gamedata.ReverseModeCost
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "reverse")
 		buttonsContainer.AddChild(b)
 	}
 

@@ -22,6 +22,8 @@ type worldState struct {
 	rand      *gmath.Rand
 	localRand *gmath.Rand
 
+	sessionState *session.State
+
 	rootScene  *ge.Scene
 	nodeRunner *nodeRunner
 
@@ -30,15 +32,21 @@ type worldState struct {
 
 	visionCircle *ebiten.Image
 
-	players        []player
-	allColonies    []*colonyCoreNode
-	essenceSources []*essenceSourceNode
-	creeps         []*creepNode
-	constructions  []*constructionNode
-	walls          []*wallClusterNode
-	teleporters    []*teleporterNode
+	players          []player
+	allColonies      []*colonyCoreNode
+	essenceSources   []*essenceSourceNode
+	creeps           []*creepNode
+	mercs            []*colonyAgentNode
+	turrets          []*colonyAgentNode
+	constructions    []*constructionNode
+	walls            []*wallClusterNode
+	forests          []*forestClusterNode
+	teleporters      []*teleporterNode
+	neutralBuildings []*neutralBuildingNode
 
 	boss              *creepNode
+	wispLair          *creepNode
+	fortress          *creepNode
 	creepCoordinator  *creepCoordinator
 	creepsPlayerState *creepsPlayerState
 
@@ -51,11 +59,17 @@ type worldState struct {
 	tier2recipes     []gamedata.AgentMergeRecipe
 	tier2recipeIndex map[gamedata.RecipeSubject][]gamedata.AgentMergeRecipe
 	turretDesign     *gamedata.AgentStats
+	coreDesign       *gamedata.ColonyCoreStats
 
-	droneLabels      bool
-	debugLogs        bool
-	evolutionEnabled bool
-	movementEnabled  bool
+	hasForests           bool
+	droneLabels          bool
+	debugLogs            bool
+	evolutionEnabled     bool
+	movementEnabled      bool
+	cameraShakingEnabled bool
+	screenButtonsEnabled bool
+
+	hintsMode int
 
 	width      float64
 	height     float64
@@ -64,11 +78,15 @@ type worldState struct {
 	spawnAreas []gmath.Rect
 
 	droneHealthMultiplier float64
+	dronePowerMultiplier  float64
 	creepHealthMultiplier float64
 	bossHealthMultiplier  float64
 	oilRegenMultiplier    float64
 
+	superCreepChanceMultiplier float64
+
 	numRedCrystals int
+	wispLimit      float64
 
 	gridCounters map[int]uint8
 	pathgrid     *pathing.Grid
@@ -77,22 +95,35 @@ type worldState struct {
 	result battleResults
 
 	simulation   bool
+	seedKind     gamedata.SeedKind
 	config       *gamedata.LevelConfig
 	gameSettings *session.GameSettings
 	deviceInfo   userdevice.Info
 
 	projectilePool []*projectileNode
 
-	tmpTargetSlice []targetable
-	tmpColonySlice []*colonyCoreNode
+	tmpTargetSlice  []targetable
+	tmpTargetSlice2 []targetable
+	tmpColonySlice  []*colonyCoreNode
 
 	inputMode string
 
 	EventCheckDefeatState gsignal.Event[gsignal.Void]
 	EventColonyCreated    gsignal.Event[*colonyCoreNode]
 
-	// EventUnmarked gsignal.Event[gmath.Vec]
-	// EventMarked   gsignal.Event[gmath.Vec]
+	EventCameraShake gsignal.Event[CameraShakeData]
+}
+
+type CameraShakeData struct {
+	Power int
+	Pos   gmath.Vec
+}
+
+func (w *worldState) ShakeCamera(power int, pos gmath.Vec) {
+	if !w.cameraShakingEnabled {
+		return
+	}
+	w.EventCameraShake.Emit(CameraShakeData{Power: power, Pos: pos})
 }
 
 func (w *worldState) Adjust2x2CellPos(pos gmath.Vec, offset float64) gmath.Vec {
@@ -108,28 +139,44 @@ func (w *worldState) AdjustCellPos(pos gmath.Vec, offset float64) gmath.Vec {
 	return roundedPos(aligned.Add(w.rand.Offset(-offset, offset)))
 }
 
-func (w *worldState) MarkPos(pos gmath.Vec) {
-	w.MarkCell(w.pathgrid.PosToCoord(pos))
+func (w *worldState) MarkCell(coord pathing.GridCoord, tag uint8) {
+	key := w.pathgrid.CoordToIndex(coord)
+	if v := w.gridCounters[key]; v == 0 {
+		w.pathgrid.SetCellTag(coord, tag)
+	}
+	w.gridCounters[key]++
+}
+
+func (w *worldState) MarkPos(pos gmath.Vec, tag uint8) {
+	w.MarkCell(w.pathgrid.PosToCoord(pos), tag)
 }
 
 func (w *worldState) UnmarkPos(pos gmath.Vec) {
 	w.UnmarkCell(w.pathgrid.PosToCoord(pos))
 }
 
-func (w *worldState) CellIsFree2x2(cell pathing.GridCoord) bool {
-	p := w.pathgrid
-	return p.CellIsFree(cell) &&
-		p.CellIsFree(cell.Add(pathing.GridCoord{X: -1})) &&
-		p.CellIsFree(cell.Add(pathing.GridCoord{X: -1, Y: -1})) &&
-		p.CellIsFree(cell.Add(pathing.GridCoord{Y: -1}))
+func (w *worldState) PosIsFree(pos gmath.Vec, l pathing.GridLayer) bool {
+	return w.pathgrid.GetCellValue(w.pathgrid.PosToCoord(pos), l) != 0
 }
 
-func (w *worldState) MarkPos2x2(pos gmath.Vec) {
+func (w *worldState) CellIsFree(cell pathing.GridCoord, l pathing.GridLayer) bool {
+	return w.pathgrid.GetCellValue(cell, l) != 0
+}
+
+func (w *worldState) CellIsFree2x2(cell pathing.GridCoord, l pathing.GridLayer) bool {
+	p := w.pathgrid
+	return p.GetCellValue(cell, l) != 0 &&
+		p.GetCellValue(cell.Add(pathing.GridCoord{X: -1}), l) != 0 &&
+		p.GetCellValue(cell.Add(pathing.GridCoord{X: -1, Y: -1}), l) != 0 &&
+		p.GetCellValue(cell.Add(pathing.GridCoord{Y: -1}), l) != 0
+}
+
+func (w *worldState) MarkPos2x2(pos gmath.Vec, tag uint8) {
 	cell := w.pathgrid.PosToCoord(pos)
-	w.MarkCell(cell)
-	w.MarkCell(cell.Add(pathing.GridCoord{X: -1}))
-	w.MarkCell(cell.Add(pathing.GridCoord{X: -1, Y: -1}))
-	w.MarkCell(cell.Add(pathing.GridCoord{Y: -1}))
+	w.MarkCell(cell, tag)
+	w.MarkCell(cell.Add(pathing.GridCoord{X: -1}), tag)
+	w.MarkCell(cell.Add(pathing.GridCoord{X: -1, Y: -1}), tag)
+	w.MarkCell(cell.Add(pathing.GridCoord{Y: -1}), tag)
 }
 
 func (w *worldState) UnmarkPos2x2(pos gmath.Vec) {
@@ -140,21 +187,11 @@ func (w *worldState) UnmarkPos2x2(pos gmath.Vec) {
 	w.UnmarkCell(cell.Add(pathing.GridCoord{Y: -1}))
 }
 
-func (w *worldState) MarkCell(coord pathing.GridCoord) {
-	key := w.pathgrid.CoordToIndex(coord)
-	if v := w.gridCounters[key]; v == 0 {
-		w.pathgrid.MarkCell(coord)
-		// w.EventMarked.Emit(w.pathgrid.CoordToPos(coord))
-	}
-	w.gridCounters[key]++
-}
-
 func (w *worldState) UnmarkCell(coord pathing.GridCoord) {
 	key := w.pathgrid.CoordToIndex(coord)
 	if v := w.gridCounters[key]; v == 1 {
-		w.pathgrid.UnmarkCell(coord)
+		w.pathgrid.SetCellTag(coord, 0)
 		delete(w.gridCounters, key)
-		// w.EventUnmarked.Emit(w.pathgrid.CoordToPos(coord))
 	} else {
 		w.gridCounters[key]--
 	}
@@ -224,14 +261,36 @@ func (w *worldState) Init() {
 	}
 
 	w.droneHealthMultiplier = 0.8 + (float64(w.config.DronesPower) * 0.2)
+	w.dronePowerMultiplier = 0.9 + (float64(w.config.DronesPower) * 0.1)
 	w.creepHealthMultiplier = 0.25 + (float64(w.config.CreepDifficulty) * 0.25)
 	w.bossHealthMultiplier = 0.7 + (float64(w.config.BossDifficulty) * 0.3)
 	w.oilRegenMultiplier = float64(w.config.OilRegenRate) * 0.5
+	w.superCreepChanceMultiplier = 0.1 + (float64(w.config.ReverseSuperCreepRate) * 0.3)
 
 	if w.config.FogOfWar && w.config.ExecMode != gamedata.ExecuteSimulation {
 		w.visionCircle = ebiten.NewImage(int(colonyVisionRadius*2), int(colonyVisionRadius*2))
 		gedraw.DrawCircle(w.visionCircle, gmath.Vec{X: colonyVisionRadius, Y: colonyVisionRadius}, colonyVisionRadius, color.RGBA{A: 255})
 	}
+
+	switch w.config.WorldSize {
+	case 0:
+		w.wispLimit = 8
+	case 1:
+		w.wispLimit = 10
+	case 2:
+		w.wispLimit = 14
+	case 3:
+		w.wispLimit = 18
+	}
+}
+
+func (w *worldState) HasTreesAt(pos gmath.Vec, r float64) bool {
+	for _, forest := range w.forests {
+		if forest.CollidesWith(pos, r) {
+			return true
+		}
+	}
+	return false
 }
 
 func (w *worldState) newProjectileNode(config projectileConfig) *projectileNode {
@@ -303,8 +362,10 @@ func (w *worldState) NewWallClusterNode(config wallClusterConfig) *wallClusterNo
 }
 
 func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
-	n := newColonyCoreNode(config)
 	playerState := config.Player.GetState()
+	n := newColonyCoreNode(config)
+	n.id = playerState.colonySeq
+	playerState.colonySeq++
 	n.EventDestroyed.Connect(nil, func(x *colonyCoreNode) {
 		w.allColonies = xslices.Remove(w.allColonies, x)
 		playerState.colonies = xslices.Remove(playerState.colonies, x)
@@ -327,16 +388,12 @@ func (w *worldState) NewConstructionNode(p player, pos, spriteOffset gmath.Vec, 
 		w.constructions = xslices.Remove(w.constructions, x)
 	})
 	if stats == colonyCoreConstructionStats {
-		w.MarkPos2x2(pos)
+		w.MarkPos2x2(pos, ptagBlocked)
 	} else {
-		w.MarkPos(pos)
+		w.MarkPos(pos, ptagBlocked)
 	}
 	w.constructions = append(w.constructions, n)
 	return n
-}
-
-func (w *worldState) NumActiveCrawlers() int {
-	return len(w.creepCoordinator.crawlers)
 }
 
 func (w *worldState) EliteCrawlerChance() float64 {
@@ -356,19 +413,6 @@ func (w *worldState) EliteCrawlerChance() float64 {
 	}
 }
 
-func (w *worldState) MaxActiveCrawlers() int {
-	switch w.config.BossDifficulty {
-	case 0:
-		return 15
-	case 1:
-		return 25
-	case 2:
-		return 40
-	default:
-		return 60
-	}
-}
-
 func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *creepNode {
 	n := newCreepNode(w, stats, pos)
 	n.EventDestroyed.Connect(nil, func(x *creepNode) {
@@ -383,6 +427,10 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 		switch x.stats.Kind {
 		case gamedata.CreepBase:
 			w.result.CreepBasesDestroyed++
+		case gamedata.CreepWispLair:
+			w.wispLair = nil
+		case gamedata.CreepFortress:
+			w.fortress = nil
 		case gamedata.CreepUberBoss:
 			if !x.IsFlying() {
 				w.result.GroundBossDefeat = true
@@ -394,13 +442,21 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 		}
 	})
 	if stats.Building {
-		w.MarkPos(pos)
+		w.MarkPos(pos, ptagBlocked)
 	}
 	w.creeps = append(w.creeps, n)
 	if stats.Kind == gamedata.CreepCrawler {
 		w.creepCoordinator.crawlers = append(w.creepCoordinator.crawlers, n)
 	}
 	return n
+}
+
+func (w *worldState) CreateScrapsAt(stats *essenceSourceStats, pos gmath.Vec) {
+	if w.HasTreesAt(pos, 16) {
+		return
+	}
+	scraps := w.NewEssenceSourceNode(stats, pos)
+	w.nodeRunner.AddObject(scraps)
 }
 
 func (w *worldState) NewEssenceSourceNode(stats *essenceSourceStats, pos gmath.Vec) *essenceSourceNode {
@@ -418,7 +474,7 @@ func (w *worldState) NewEssenceSourceNode(stats *essenceSourceStats, pos gmath.V
 		w.essenceSources = xslices.Remove(w.essenceSources, x)
 	})
 	if !stats.passable {
-		w.MarkPos(pos)
+		w.MarkPos(pos, ptagBlocked)
 	}
 	w.essenceSources = append(w.essenceSources, n)
 	return n
@@ -450,6 +506,7 @@ func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r
 		if skipIdling && nearBaseModeTable[byte(a.mode)] {
 			continue
 		}
+		// Since normal drones can't be inside forest, this condition will suffice.
 		if a.IsCloaked() {
 			continue
 		}
@@ -464,8 +521,8 @@ func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r
 	return nil
 }
 
-func (w *worldState) BuildPath(from, to gmath.Vec) pathing.BuildPathResult {
-	return w.bfs.BuildPath(w.pathgrid, w.pathgrid.PosToCoord(from), w.pathgrid.PosToCoord(to))
+func (w *worldState) BuildPath(from, to gmath.Vec, l pathing.GridLayer) pathing.BuildPathResult {
+	return w.bfs.BuildPath(w.pathgrid, w.pathgrid.PosToCoord(from), w.pathgrid.PosToCoord(to), l)
 }
 
 func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNode) bool) {
@@ -541,29 +598,43 @@ func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNod
 	}
 }
 
-func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, f func(a *colonyAgentNode) bool) {
+func (w *worldState) FindTargetableAgents(pos gmath.Vec, skipGround bool, r float64, f func(a *colonyAgentNode) bool) {
 	// TODO: use an agent container for turrets too?
 	// Also, this "find" function is used to collect N units, not a single unit (see its usage).
 
 	found := false
+	radiusSqr := r * r
 
-	if !skipGround {
-		radiusSqr := r * r
-
-		// Turrets have the highest targeting priority.
-		randIterate(w.rand, w.allColonies, func(c *colonyCoreNode) bool {
-			if len(c.turrets) == 0 {
+	// Neutral units have the highest priority.
+	if len(w.mercs) != 0 {
+		randIterate(w.rand, w.mercs, func(a *colonyAgentNode) bool {
+			if a.pos.DistanceSquaredTo(pos) > radiusSqr {
 				return false
 			}
-			for _, turret := range c.turrets {
-				distSqr := turret.pos.DistanceSquaredTo(pos)
-				if distSqr > radiusSqr {
-					continue
-				}
-				if f(turret) {
-					found = true
-					return true
-				}
+			if f(a) {
+				found = true
+				return true
+			}
+			return false
+		})
+		if found {
+			return
+		}
+	}
+
+	if !skipGround {
+		// Turrets have the second highest targeting priority.
+		randIterate(w.rand, w.turrets, func(turret *colonyAgentNode) bool {
+			if turret.insideForest {
+				return false
+			}
+			distSqr := turret.pos.DistanceSquaredTo(pos)
+			if distSqr > radiusSqr {
+				return false
+			}
+			if f(turret) {
+				found = true
+				return true
 			}
 			return false
 		})
@@ -577,6 +648,9 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, 
 				return false
 			}
 			for _, roomba := range c.roombas {
+				if roomba.insideForest {
+					continue
+				}
 				distSqr := roomba.pos.DistanceSquaredTo(pos)
 				if distSqr > radiusSqr {
 					continue
@@ -596,7 +670,7 @@ func (w *worldState) FindColonyAgent(pos gmath.Vec, skipGround bool, r float64, 
 	randIterate(w.rand, w.allColonies, func(c *colonyCoreNode) bool {
 		skipIdling := false
 		dist := c.pos.DistanceTo(pos)
-		colonyEffectiveRadius := c.realRadius * 0.8
+		colonyEffectiveRadius := c.PatrolRadius()
 		if dist > colonyEffectiveRadius {
 			skipIdling = (dist - colonyEffectiveRadius) > r
 		}

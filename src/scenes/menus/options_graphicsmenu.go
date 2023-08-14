@@ -1,7 +1,6 @@
 package menus
 
 import (
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 
@@ -34,11 +33,11 @@ func (c *OptionsGraphicsMenuController) Update(delta float64) {
 }
 
 func (c *OptionsGraphicsMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
-	rowContainer := eui.NewRowLayoutContainerWithMinWidth(400, 10, nil)
+	rowContainer := eui.NewRowLayoutContainerWithMinWidth(520, 10, nil)
 	root.AddChild(rowContainer)
 
 	normalFont := assets.BitmapFont3
@@ -55,6 +54,35 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			Resources: uiResources,
 			Value:     &options.Graphics.ShadowsEnabled,
 			Label:     d.Get("menu.options.graphics.shadows"),
+			ValueNames: []string{
+				d.Get("menu.option.off"),
+				d.Get("menu.option.on"),
+			},
+		}))
+	}
+
+	{
+		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
+			Resources: uiResources,
+			Value:     &options.Graphics.VSyncEnabled,
+			Label:     d.Get("menu.options.graphics.vsync"),
+			OnPressed: func() {
+				ebiten.SetVsyncEnabled(options.Graphics.VSyncEnabled)
+			},
+			ValueNames: []string{
+				d.Get("menu.option.off"),
+				d.Get("menu.option.on"),
+			},
+		}))
+	}
+
+	{
+		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
+			Resources: uiResources,
+			Value:     &options.Graphics.CameraShakingEnabled,
+			Label:     d.Get("menu.options.graphics.camera_shaking"),
 			ValueNames: []string{
 				d.Get("menu.option.off"),
 				d.Get("menu.option.on"),
@@ -91,7 +119,22 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		}))
 	}
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	{
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			Scene:     c.scene,
+			Resources: uiResources,
+			Input:     c.state.CombinedInput,
+			Value:     &options.Graphics.AspectRation,
+			Label:     d.Get("menu.options.graphics.aspect_ratio"),
+			ValueNames: []string{
+				"16:9",
+			},
+		})
+		rowContainer.AddChild(b)
+		b.GetWidget().Disabled = true
+	}
+
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

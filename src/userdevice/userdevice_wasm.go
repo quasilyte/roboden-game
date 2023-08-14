@@ -11,3 +11,7 @@ func GetInfo() Info {
 	result.IsMobile = js.Global().Call("matchMedia", "(hover: none)").Get("matches").Bool()
 	return result
 }
+
+func GetSteamInfo(config SteamAppConfig) (SteamInfo, error) {
+	return SteamInfo{}, nil
+}

@@ -1,8 +1,6 @@
 package staging
 
 import (
-	"fmt"
-
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
@@ -65,6 +63,13 @@ func (e *servantWaveNode) dealDamage() {
 				return
 			}
 			a.OnDamage(damage, e.owner)
+
+			createEffect(e.owner.world, effectConfig{
+				Pos:            a.pos,
+				Layer:          aboveEffectLayer,
+				Image:          assets.ImageServantShotExplosion,
+				AnimationSpeed: animationSpeedFast,
+			})
 		})
 	}
 }
@@ -72,7 +77,6 @@ func (e *servantWaveNode) dealDamage() {
 func (e *servantWaveNode) Update(delta float64) {
 	if e.anim.Tick(delta) {
 		if e.damageDelay > 0 {
-			fmt.Println("warning: servant: dealing damage after animation is over")
 			e.dealDamage()
 		}
 		e.Dispose()

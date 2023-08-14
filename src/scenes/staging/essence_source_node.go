@@ -6,9 +6,11 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 type essenceSourceStats struct {
+	name        string
 	image       resource.ImageID
 	capacity    gmath.Range[int]
 	regenDelay  float64 // 0 for "no regen"
@@ -18,110 +20,145 @@ type essenceSourceStats struct {
 	canRotate   bool
 	passable    bool
 	scrap       bool
+	canDeplete  bool
 	size        float64
 }
 
 var redCrystalSource = &essenceSourceStats{
+	name:        "red_crystal",
 	image:       assets.ImageEssenceRedCrystalSource,
 	capacity:    gmath.MakeRange(1, 1),
 	value:       20,
 	eliteValue:  3,
 	spritesheet: true,
+	canDeplete:  true,
 	size:        32,
 }
 
 var oilSource = &essenceSourceStats{
+	name:        "oil",
 	image:       assets.ImageEssenceSource,
 	capacity:    gmath.MakeRange(50, 80),
 	regenDelay:  7,
 	value:       4, // 200-320 total
 	spritesheet: true,
+	canDeplete:  false,
 	size:        32,
 }
 
 var redOilSource = &essenceSourceStats{
+	name:        "red_oil",
 	image:       assets.ImageRedEssenceSource,
 	capacity:    gmath.MakeRange(60, 80),
 	regenDelay:  9,
 	value:       5, // 300-400 total
 	eliteValue:  0.5,
 	spritesheet: true,
+	canDeplete:  false,
 	size:        32,
 }
 
 var goldSource = &essenceSourceStats{
+	name:        "gold",
 	image:       assets.ImageEssenceGoldSource,
 	capacity:    gmath.MakeRange(25, 40),
 	regenDelay:  0, // none
 	value:       6, // 150-240 total
 	spritesheet: true,
+	canDeplete:  true,
 	size:        20,
 }
 
 var crystalSource = &essenceSourceStats{
+	name:        "crystal",
 	image:       assets.ImageEssenceCrystalSource,
-	capacity:    gmath.MakeRange(10, 20),
+	capacity:    gmath.MakeRange(15, 20),
 	regenDelay:  0,  // none
-	value:       16, // 160-320 total
+	value:       16, // 240-320 total
 	spritesheet: true,
+	canDeplete:  true,
 	size:        16,
 }
 
 var ironSource = &essenceSourceStats{
+	name:        "iron",
 	image:       assets.ImageEssenceIronSource,
-	capacity:    gmath.MakeRange(60, 80),
-	regenDelay:  0, // none
-	value:       2, // 120-160 total
+	capacity:    gmath.MakeRange(105, 150),
+	regenDelay:  0,   // none
+	value:       1.5, // 160-220 total
 	spritesheet: true,
-	size:        18,
+	canDeplete:  true,
+	size:        20,
+}
+
+var organicSource = &essenceSourceStats{
+	name:        "organic",
+	image:       assets.ImageOrganicSource,
+	capacity:    gmath.MakeRange(20, 25),
+	regenDelay:  0,   // none
+	value:       4.0, // 80-100 total
+	spritesheet: true,
+	canDeplete:  false,
+	passable:    true,
+	size:        20,
 }
 
 var smallScrapSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceSmallScrapSource,
 	capacity:   gmath.MakeRange(4, 5),
 	regenDelay: 0, // none
 	value:      1, // 4-5
 	size:       14,
+	canDeplete: true,
 	passable:   true,
 	scrap:      true,
 }
 
 var scrapSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceScrapSource,
 	capacity:   gmath.MakeRange(8, 12),
 	regenDelay: 0, // none
 	value:      1, // 8-12
 	size:       16,
+	canDeplete: true,
 	passable:   true,
 	scrap:      true,
 }
 
 var smallScrapCreepSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceSmallScrapCreepSource,
 	capacity:   gmath.MakeRange(5, 7),
 	regenDelay: 0, // none
 	value:      2, // 10-14
 	size:       14,
+	canDeplete: true,
 	passable:   true,
 	scrap:      true,
 }
 
 var scrapCreepSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceScrapCreepSource,
 	capacity:   gmath.MakeRange(8, 14),
 	regenDelay: 0, // none
 	value:      2, // 16-28
 	size:       16,
+	canDeplete: true,
 	passable:   true,
 	scrap:      true,
 }
 
 var bigScrapCreepSource = &essenceSourceStats{
+	name:       "scrap",
 	image:      assets.ImageEssenceBigScrapCreepSource,
 	capacity:   gmath.MakeRange(12, 20),
 	regenDelay: 0, // none
 	value:      2, // 24-40
 	size:       20,
+	canDeplete: true,
 	passable:   true,
 	scrap:      true,
 }
@@ -159,7 +196,15 @@ func newEssenceSourceNode(world *worldState, stats *essenceSourceStats, pos gmat
 func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	e.scene = scene
 
-	e.sprite = scene.NewSprite(e.stats.image)
+	img := e.stats.image
+	switch gamedata.EnvironmentKind(e.world.config.Environment) {
+	case gamedata.EnvForest:
+		if e.stats == oilSource {
+			img++
+		}
+	}
+
+	e.sprite = scene.NewSprite(img)
 	e.sprite.Pos.Base = &e.pos
 	e.sprite.Rotation = &e.rotation
 	if !e.stats.spritesheet && e.world.graphicsSettings.AllShadersEnabled {
@@ -176,8 +221,17 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	}
 
 	e.capacity = scene.Rand().IntRange(e.stats.capacity.Min, e.stats.capacity.Max)
+	if e.stats == ironSource && !e.world.config.GoldEnabled {
+		// If gold is disabled, iron has doubled capacity.
+		e.capacity *= 2
+	}
 	e.resource = e.capacity
-	e.percengage = 1.0
+	if e.stats == organicSource {
+		e.resource = int(float64(e.resource) * scene.Rand().FloatRange(0.2, 0.5))
+		e.percengage = float64(e.resource) / float64(e.capacity)
+	} else {
+		e.percengage = 1.0
+	}
 	e.updateShader()
 }
 
@@ -196,6 +250,12 @@ func (e *essenceSourceNode) Update(delta float64) {
 	}
 }
 
+func (e *essenceSourceNode) Restore(n int) {
+	e.resource = gmath.ClampMax(e.resource+n, e.capacity)
+	e.percengage = float64(e.resource) / float64(e.capacity)
+	e.updateShader()
+}
+
 func (e *essenceSourceNode) Harvest(n int) int {
 	if e.IsDisposed() {
 		return 0
@@ -204,7 +264,8 @@ func (e *essenceSourceNode) Harvest(n int) int {
 	n = gmath.ClampMax(n, e.resource)
 	e.resource -= n
 	e.percengage = float64(e.resource) / float64(e.capacity)
-	if e.resource <= 0 && e.recoverDelayTimer == 0 {
+
+	if e.resource <= 0 && e.stats.canDeplete {
 		e.Destroy()
 		if e.stats == redCrystalSource {
 			e.world.result.RedCrystalsCollected++
@@ -212,6 +273,7 @@ func (e *essenceSourceNode) Harvest(n int) int {
 	} else {
 		e.updateShader()
 	}
+
 	return n
 }
 
@@ -237,6 +299,9 @@ func (e *essenceSourceNode) updateShader() {
 		return
 	}
 
+	if e.stats == organicSource {
+		e.sprite.Visible = e.percengage > 0
+	}
 	if e.percengage < 0.01 {
 		e.sprite.FrameOffset.X = e.sprite.ImageWidth() - e.sprite.FrameWidth
 		return

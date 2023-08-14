@@ -9,6 +9,10 @@ import (
 	"github.com/quasilyte/ge"
 )
 
+type Config struct {
+	ExtraMusic bool
+}
+
 const (
 	SoundGroupEffect uint = iota
 	SoundGroupMusic
@@ -17,16 +21,18 @@ const (
 func VolumeMultiplier(level int) float64 {
 	switch level {
 	case 1:
-		return 0.05
+		return 0.01
 	case 2:
-		return 0.10
+		return 0.05
 	case 3:
-		return 0.3
+		return 0.10
 	case 4:
-		return 0.55
+		return 0.3
 	case 5:
-		return 0.8
+		return 0.55
 	case 6:
+		return 0.8
+	case 7:
 		return 1.0
 	default:
 		return 0

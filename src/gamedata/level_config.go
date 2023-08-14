@@ -105,6 +105,13 @@ func (config *LevelConfig) Finalize() {
 			panic(fmt.Sprintf("unexpected mode: %d", config.PlayersMode))
 		}
 	}
+
+	pointsAllocated := 0
+	for _, drone := range config.Tier2Recipes {
+		stats := findRecipeByName(drone)
+		pointsAllocated += stats.Result.PointCost
+	}
+	config.DifficultyScore = CalcDifficultyScore(config.ReplayLevelConfig, pointsAllocated)
 }
 
 func (config *LevelConfig) Clone() LevelConfig {

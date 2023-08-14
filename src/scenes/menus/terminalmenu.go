@@ -3,8 +3,10 @@ package menus
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 	"unicode"
@@ -21,6 +23,7 @@ import (
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
+	"github.com/quasilyte/roboden-game/steamsdk"
 )
 
 type TerminalMenu struct {
@@ -67,7 +70,7 @@ func (c *TerminalMenu) setOutput(s string) {
 }
 
 func (c *TerminalMenu) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -77,12 +80,11 @@ func (c *TerminalMenu) initUI() {
 	d := c.scene.Dict()
 
 	tinyFont := assets.BitmapFont1
-	normalFont := assets.BitmapFont2
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra")+" -> "+d.Get("menu.terminal"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	outputPanel := eui.NewPanel(uiResources, 520, 200)
+	outputPanel := eui.NewTextPanel(uiResources, 520, 200)
 
 	normalContainer := eui.NewAnchorContainer()
 	outputTitle := eui.NewCenteredLabel(d.Get("menu.terminal.command_output_label"), tinyFont)
@@ -118,6 +120,10 @@ func (c *TerminalMenu) initUI() {
 		},
 
 		{
+			key:     "logs.grep",
+			handler: c.onLogsGrep,
+		},
+		{
 			key:     "save.info",
 			handler: c.onSaveInfo,
 		},
@@ -147,9 +153,22 @@ func (c *TerminalMenu) initUI() {
 			key:     "replay.dump",
 			handler: c.onReplayDump,
 		},
+		{
+			key:     "intro.settings",
+			handler: c.onIntroSettings,
+		},
+
+		{
+			key:     "steam.clear_achievements",
+			handler: c.onSteamClearAchievements,
+		},
+		{
+			key:     "steam.list_achievements",
+			handler: c.onSteamListAchievements,
+		},
 	}
 
-	textinput := eui.NewTextInput(uiResources, normalFont,
+	textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.SteamInfo.SteamDeck},
 		widget.TextInputOpts.Placeholder(d.Get("menu.terminal.placeholder")),
 		widget.TextInputOpts.SubmitHandler(func(args *widget.TextInputChangedEventArgs) {
 			if args.InputText == "" {
@@ -195,12 +214,13 @@ func (c *TerminalMenu) initUI() {
 					return
 				}
 			}
+			c.maybeGrantAchievement()
 			c.setOutput(c.commandOutputText(out))
 			c.scene.Audio().PlaySound(assets.AudioChoiceMade)
 		}),
 		widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
 			good := true
-			if len(newInputText) > 36 {
+			if len(newInputText) > 65 {
 				good = false
 			}
 			if good {
@@ -222,8 +242,6 @@ func (c *TerminalMenu) initUI() {
 	rowContainer.AddChild(outputTitle)
 	rowContainer.AddChild(outputPanel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
-
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
@@ -233,9 +251,62 @@ func (c *TerminalMenu) initUI() {
 	c.scene.AddObject(uiObject)
 }
 
+func (c *TerminalMenu) maybeGrantAchievement() {
+	if c.state.UnlockAchievement(session.Achievement{Name: "terminal", Elite: true}) {
+		c.scene.Context().SaveGameData("save", c.state.Persistent)
+	}
+}
+
 func (c *TerminalMenu) back() {
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
 	c.scene.Context().ChangeScene(NewOptionsExtraMenuController(c.state))
+}
+
+func (c *TerminalMenu) achievementNames() []string {
+	names := make([]string, len(gamedata.AchievementList))
+	for i, a := range gamedata.AchievementList {
+		names[i] = a.Name
+	}
+	return names
+}
+
+func (c *TerminalMenu) onSteamListAchievements(ctx *terminalCommandContext) (string, error) {
+	if !c.state.SteamInfo.Enabled {
+		return "", errors.New("steam is not enabled")
+	}
+	var allUnlocked []string
+	for _, name := range c.achievementNames() {
+		unlocked, err := steamsdk.IsAchievementUnlocked(name)
+		if err == nil && unlocked {
+			allUnlocked = append(allUnlocked, name)
+		}
+	}
+	return strings.Join(allUnlocked, ", "), nil
+}
+
+func (c *TerminalMenu) onSteamClearAchievements(ctx *terminalCommandContext) (string, error) {
+	type argsType struct {
+		confirm bool
+	}
+	if ctx.parsedArgs == nil {
+		args := &argsType{}
+		ctx.parsedArgs = args
+		ctx.fs.BoolVar(&args.confirm, "confirm", false, "acknowledge the risks, clear the Steam achievements")
+		return "", nil
+	}
+	args := ctx.parsedArgs.(*argsType)
+	if !args.confirm {
+		lines := []string{
+			"This operation will clear Steam achievements.",
+			"Provide a --confirm flag to perform this operation.",
+		}
+		return strings.Join(lines, "\n"), nil
+	}
+	if !c.state.SteamInfo.Enabled {
+		return "", errors.New("steam is not enabled")
+	}
+	steamsdk.ClearAchievements(c.achievementNames())
+	return "The Steam achievements are cleared.", nil
 }
 
 func (c *TerminalMenu) onSaveDelete(ctx *terminalCommandContext) (string, error) {
@@ -261,6 +332,63 @@ func (c *TerminalMenu) onSaveDelete(ctx *terminalCommandContext) (string, error)
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
 	c.state.ReloadLanguage(c.scene.Context())
 	return "The save data is cleared.", nil
+}
+
+func (c *TerminalMenu) onLogsGrep(ctx *terminalCommandContext) (string, error) {
+	type argsType struct {
+		pattern string
+		head    bool
+	}
+	if ctx.parsedArgs == nil {
+		args := &argsType{}
+		ctx.parsedArgs = args
+		ctx.fs.StringVar(&args.pattern, "pattern", ".*", "regexp pattern to apply")
+		ctx.fs.BoolVar(&args.head, "head", false, "reverse the search direction, scan first log entries first")
+		return "", nil
+	}
+	args := ctx.parsedArgs.(*argsType)
+	re, err := regexp.Compile(args.pattern)
+	if err != nil {
+		return "", err
+	}
+	results := make([]string, 0, 10)
+	start := 0
+	end := len(c.state.StdoutLogs)
+	step := 1
+	if !args.head {
+		start = len(c.state.StdoutLogs) - 1
+		end = -1
+		step = -1
+	}
+	numLines := 0
+	for i := start; i != end; i += step {
+		if numLines >= 10 {
+			break
+		}
+		l := c.state.StdoutLogs[i]
+		if !re.MatchString(l) {
+			continue
+		}
+		lines := strings.Split(l, "\n")
+		// We'll reverse lines later, if it's a multi-line text,
+		// append it to the result in reversed order.
+		for i := len(lines) - 1; i >= 0; i-- {
+			subLine := lines[i]
+			if numLines >= 10 {
+				break
+			}
+			numLines++
+			if i == 0 {
+				results = append(results, "> "+subLine)
+			} else {
+				results = append(results, "  "+subLine)
+			}
+		}
+	}
+	if !args.head {
+		reverseStrings(results)
+	}
+	return strings.Join(results, "\n"), nil
 }
 
 func (c *TerminalMenu) onSaveInfo(*terminalCommandContext) (string, error) {
@@ -506,6 +634,37 @@ func (c *TerminalMenu) onDebugLogs(ctx *terminalCommandContext) (string, error) 
 	oldValue := c.state.Persistent.Settings.DebugLogs
 	c.state.Persistent.Settings.DebugLogs = args.enable
 	return fmt.Sprintf("Set debug.logs to %v (was %v)", args.enable, oldValue), nil
+}
+
+func (c *TerminalMenu) onIntroSettings(ctx *terminalCommandContext) (string, error) {
+	type argsType struct {
+		difficulty int
+		speed      int
+	}
+	if ctx.parsedArgs == nil {
+		args := &argsType{}
+		ctx.parsedArgs = args
+		ctx.fs.IntVar(&args.difficulty, "difficulty", 0, "controls the intro mission difficulty")
+		ctx.fs.IntVar(&args.speed, "speed", 1, "controls the intro mission speed")
+		return "", nil
+	}
+	args := ctx.parsedArgs.(*argsType)
+	switch args.difficulty {
+	case 0, 1, 2:
+		// OK.
+	default:
+		return "", fmt.Errorf("invalid difficulty value: %d", args.difficulty)
+	}
+	switch args.speed {
+	case 0, 1, 2, 3:
+		// OK.
+	default:
+		return "", fmt.Errorf("invalid speed value: %d", args.speed)
+	}
+	c.state.Persistent.Settings.IntroDifficulty = args.difficulty
+	c.state.Persistent.Settings.IntroSpeed = args.speed
+	speedLabels := []string{"x1.0", "x1.2", "x1.5", "x2.0"}
+	return fmt.Sprintf("intro settings: speed=%s difficulty=%d", speedLabels[args.speed], args.difficulty), nil
 }
 
 func (c *TerminalMenu) onReplayDump(ctx *terminalCommandContext) (string, error) {

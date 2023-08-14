@@ -28,7 +28,6 @@ var colonyCoreConstructionStats = &constructionStats{
 	ConstructionSpeed: 0.01,
 	DamageModifier:    0.01,
 	Kind:              constructBase,
-	Image:             assets.ImageColonyCore,
 }
 
 var harvesterConstructionStats = &constructionStats{
@@ -97,7 +96,11 @@ func newConstructionNode(world *worldState, p player, pos, spriteOffset gmath.Ve
 }
 
 func (c *constructionNode) Init(scene *ge.Scene) {
-	c.sprite = scene.NewSprite(c.stats.Image)
+	imageID := c.stats.Image
+	if c.stats.Kind == constructBase {
+		imageID = c.world.coreDesign.Image
+	}
+	c.sprite = scene.NewSprite(imageID)
 	c.sprite.Pos.Base = &c.pos
 	c.sprite.Pos.Offset = c.spriteOffset
 	if !c.world.simulation {
@@ -139,6 +142,10 @@ func (c *constructionNode) Destroy() {
 	c.Dispose()
 }
 
+func (c *constructionNode) GetTargetInfo() targetInfo {
+	return targetInfo{building: true, flying: false}
+}
+
 func (c *constructionNode) IsFlying() bool { return false }
 
 func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source targetable) {
@@ -149,13 +156,13 @@ func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source targetab
 			Min: c.constructPosBase.Sub(gmath.Vec{X: xdelta, Y: 8}),
 			Max: c.constructPosBase.Add(gmath.Vec{X: xdelta, Y: 8}),
 		}
-		createAreaExplosion(c.world, rect, true)
+		createAreaExplosion(c.world, rect, normalEffectLayer)
 		c.Destroy()
 		return
 	}
 	explosionOffset := c.world.rand.FloatRange(-xdelta, xdelta)
 	explosionPos := c.constructPosBase.Add(gmath.Vec{X: explosionOffset, Y: c.world.rand.FloatRange(0, 4)})
-	createExplosion(c.world, false, explosionPos)
+	createExplosion(c.world, normalEffectLayer, explosionPos)
 	c.sprite.Shader.SetFloatValue("Time", c.progress)
 }
 

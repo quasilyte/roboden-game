@@ -9,7 +9,7 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 )
 
-//go:generate stringer -type=CreepKind -trimprefix=creep
+//go:generate stringer -type=CreepKind -trimprefix=Creep
 type CreepKind int
 
 const (
@@ -27,6 +27,10 @@ const (
 	CreepHowitzer
 	CreepServant
 	CreepUberBoss
+	CreepWisp
+	CreepWispLair
+	CreepFortress
+	CreepTemplar
 )
 
 type CreepStats struct {
@@ -52,6 +56,7 @@ type CreepStats struct {
 	BeamSlideSpeed float64
 	BeamOpaqueTime float64
 	BeamTexture    *ge.Texture
+	BeamExplosion  resource.ImageID
 
 	TargetKind    TargetKind
 	Disarmable    bool
@@ -76,6 +81,60 @@ var AtomicBombWeapon = InitWeaponStats(&WeaponStats{
 	AlwaysExplodes:      true,
 })
 
+var IonMortarCreepStats = &CreepStats{
+	Kind:      CreepTurret,
+	Image:     assets.ImageIonMortarCreep,
+	Speed:     0,
+	MaxHealth: 150,
+	Weapon: InitWeaponStats(&WeaponStats{
+		MaxTargets:          1,
+		BurstSize:           2,
+		BurstDelay:          0.4,
+		AttackSound:         assets.AudioIonMortarShot,
+		ProjectileFireSound: true,
+		AttackRange:         1000,
+		ImpactArea:          40,
+		ProjectileSpeed:     400,
+		Damage:              DamageValue{Health: 8, Energy: 50},
+		ProjectileImage:     assets.ImageIonMortarProjectile,
+		Explosion:           ProjectileExplosionIonBlast,
+		TrailEffect:         ProjectileTrailIonMortar,
+		Reload:              11.0,
+		FireOffset:          gmath.Vec{Y: -12},
+		TargetFlags:         TargetFlying,
+		AlwaysExplodes:      true,
+		ArcPower:            4.0,
+		Accuracy:            0.4,
+		RoundProjectile:     true,
+	}),
+	SuperWeapon: InitWeaponStats(&WeaponStats{
+		MaxTargets:          1,
+		BurstSize:           4,
+		BurstDelay:          0.2,
+		AttackSound:         assets.AudioIonMortarShot,
+		ProjectileFireSound: true,
+		AttackRange:         1050,
+		ImpactArea:          40,
+		ProjectileSpeed:     450,
+		Damage:              DamageValue{Health: 8, Energy: 50},
+		ProjectileImage:     assets.ImageSuperIonMortarProjectile,
+		Explosion:           ProjectileExplosionSuperIonBlast,
+		TrailEffect:         ProjectileTrailSuperIonMortar,
+		Reload:              12.0,
+		FireOffset:          gmath.Vec{Y: -12},
+		TargetFlags:         TargetFlying,
+		AlwaysExplodes:      true,
+		ArcPower:            4.0,
+		Accuracy:            0.4,
+		RoundProjectile:     true,
+	}),
+	Size:          28,
+	CanBeRepelled: false,
+	Disarmable:    false,
+	Building:      true,
+	TargetKind:    TargetGround,
+}
+
 var TurretCreepStats = &CreepStats{
 	Kind:      CreepTurret,
 	Image:     assets.ImageTurretCreep,
@@ -97,6 +156,36 @@ var TurretCreepStats = &CreepStats{
 		TargetFlags:     TargetFlying | TargetGround,
 	}),
 	Size:          40,
+	CanBeRepelled: false,
+	Disarmable:    false,
+	Building:      true,
+	TargetKind:    TargetGround,
+}
+
+var FortressCreepStats = &CreepStats{
+	Kind:      CreepFortress,
+	Image:     assets.ImageFortressCreep,
+	Speed:     0,
+	MaxHealth: 375,
+	Weapon: InitWeaponStats(&WeaponStats{
+		MaxTargets:      1,
+		AttackSound:     assets.AudioFortressAttack,
+		AttackRange:     350,
+		ImpactArea:      18,
+		ProjectileSpeed: 450,
+		Damage:          DamageValue{Health: 5, Energy: 10, Morale: 0.2},
+		BurstSize:       5,
+		AttacksPerBurst: 2,
+		BurstDelay:      0.1,
+		ProjectileImage: assets.ImageEnergySpear,
+		TrailEffect:     ProjectileTrailEnergySpear,
+		Reload:          2.7,
+		FireOffset:      gmath.Vec{Y: -1},
+		TargetFlags:     TargetFlying,
+		ArcPower:        0.4,
+		RandArc:         true,
+	}),
+	Size:          64,
 	CanBeRepelled: false,
 	Disarmable:    false,
 	Building:      true,
@@ -151,6 +240,18 @@ var TurretConstructionCreepStats = &CreepStats{
 	TargetKind:    TargetGround,
 }
 
+var IonMortarConstructionCreepStats = &CreepStats{
+	Kind:          CreepTurretConstruction,
+	Image:         assets.ImageIonMortarCreep,
+	Speed:         0,
+	MaxHealth:     35,
+	Size:          40,
+	Disarmable:    false,
+	CanBeRepelled: false,
+	Building:      true,
+	TargetKind:    TargetGround,
+}
+
 var WandererCreepStats = &CreepStats{
 	Kind:        CreepPrimitiveWanderer,
 	Image:       assets.ImageCreepTier1,
@@ -176,6 +277,32 @@ var WandererCreepStats = &CreepStats{
 	TargetKind:    TargetFlying,
 }
 
+var WispCreepStats = &CreepStats{
+	Kind:          CreepWisp,
+	Image:         assets.ImageWisp,
+	AnimSpeed:     0.12,
+	ShadowImage:   assets.ImageMediumShadow,
+	Tier:          2,
+	Speed:         20,
+	MaxHealth:     35,
+	Disarmable:    false,
+	CanBeRepelled: false,
+	Flying:        true,
+	TargetKind:    TargetFlying,
+}
+
+var WispLairCreepStats = &CreepStats{
+	Kind:          CreepWispLair,
+	Image:         assets.ImageWispLair,
+	Speed:         0,
+	MaxHealth:     160,
+	Size:          60,
+	Disarmable:    false,
+	CanBeRepelled: false,
+	Building:      true,
+	TargetKind:    TargetGround,
+}
+
 var ServantCreepStats = &CreepStats{
 	Kind:        CreepServant,
 	Image:       assets.ImageServantCreep,
@@ -195,6 +322,7 @@ var ServantCreepStats = &CreepStats{
 		ProjectileImage: assets.ImageServantProjectile,
 		Reload:          3.2,
 		TargetFlags:     TargetFlying | TargetGround,
+		Explosion:       ProjectileExplosionServant,
 	}),
 	Disarmable:    true,
 	CanBeRepelled: false,
@@ -209,22 +337,23 @@ var CrawlerCreepStats = &CreepStats{
 	Speed:     44,
 	MaxHealth: 18,
 	Weapon: InitWeaponStats(&WeaponStats{
-		MaxTargets:      1,
-		BurstSize:       2,
-		BurstDelay:      0.12,
-		AttackSound:     assets.AudioTankShot,
-		AttackRange:     170,
-		ImpactArea:      14,
-		ProjectileSpeed: 350,
-		Damage:          DamageValue{Health: 2},
-		ProjectileImage: assets.ImageTankProjectile,
-		Reload:          1.7,
-		TargetFlags:     TargetFlying | TargetGround,
-		FireOffset:      gmath.Vec{Y: -2},
+		MaxTargets:          1,
+		BurstSize:           2,
+		BurstDelay:          0.12,
+		AttackSound:         assets.AudioTankShot,
+		AttackRange:         170,
+		ImpactArea:          14,
+		ProjectileSpeed:     350,
+		Damage:              DamageValue{Health: 2},
+		ProjectileImage:     assets.ImageTankProjectile,
+		Reload:              1.7,
+		TargetFlags:         TargetFlying | TargetGround,
+		FireOffset:          gmath.Vec{Y: -2},
+		BuildingDamageBonus: -0.2,
 	}),
 	Size:          24,
 	Disarmable:    true,
-	CanBeRepelled: false,
+	CanBeRepelled: true,
 	TargetKind:    TargetGround,
 }
 
@@ -249,7 +378,7 @@ var EliteCrawlerCreepStats = &CreepStats{
 	}),
 	Size:          24,
 	Disarmable:    true,
-	CanBeRepelled: false,
+	CanBeRepelled: true,
 	TargetKind:    TargetGround,
 }
 
@@ -258,27 +387,28 @@ var HeavyCrawlerCreepStats = &CreepStats{
 	Image:     assets.ImageHeavyCrawlerCreep,
 	AnimSpeed: 0.16,
 	Speed:     30,
-	MaxHealth: 50,
+	MaxHealth: 60,
 	Weapon: InitWeaponStats(&WeaponStats{
-		MaxTargets:      1,
-		BurstSize:       5,
-		BurstDelay:      0.1,
-		AttackSound:     assets.AudioHeavyCrawlerShot,
-		AttackRange:     260,
-		ImpactArea:      12,
-		ProjectileSpeed: 280,
-		Damage:          DamageValue{Health: 2},
-		ProjectileImage: assets.ImageHeavyCrawlerProjectile,
-		Reload:          2.4,
-		TargetFlags:     TargetFlying | TargetGround,
-		FireOffset:      gmath.Vec{Y: -2},
-		Explosion:       ProjectileExplosionHeavyCrawlerLaser,
-		ArcPower:        1.5,
-		Accuracy:        0.85,
+		MaxTargets:          1,
+		BurstSize:           5,
+		BurstDelay:          0.1,
+		AttackSound:         assets.AudioHeavyCrawlerShot,
+		AttackRange:         260,
+		ImpactArea:          12,
+		ProjectileSpeed:     280,
+		Damage:              DamageValue{Health: 2},
+		ProjectileImage:     assets.ImageHeavyCrawlerProjectile,
+		Reload:              2.4,
+		TargetFlags:         TargetFlying | TargetGround,
+		FireOffset:          gmath.Vec{Y: -2},
+		Explosion:           ProjectileExplosionHeavyCrawlerLaser,
+		ArcPower:            1.5,
+		Accuracy:            0.85,
+		BuildingDamageBonus: 0.25,
 	}),
 	Size:          24,
 	Disarmable:    true,
-	CanBeRepelled: false,
+	CanBeRepelled: true,
 	TargetKind:    TargetGround,
 }
 
@@ -343,7 +473,7 @@ var StealthCrawlerCreepStats = &CreepStats{
 		AttackRange:         200,
 		ImpactArea:          14,
 		ProjectileSpeed:     320,
-		Damage:              DamageValue{Health: 3, Slow: 2},
+		Damage:              DamageValue{Health: 4, Slow: 2},
 		ProjectileImage:     assets.ImageStealthCrawlerProjectile,
 		Reload:              3.5,
 		TargetFlags:         TargetFlying | TargetGround,
@@ -363,18 +493,19 @@ var AssaultCreepStats = &CreepStats{
 	ShadowImage: assets.ImageBigShadow,
 	Tier:        3,
 	Speed:       30,
-	MaxHealth:   90,
+	MaxHealth:   95,
 	Weapon: InitWeaponStats(&WeaponStats{
-		MaxTargets:      1,
-		BurstSize:       1,
-		AttackSound:     assets.AudioAssaultShot,
-		AttackRange:     150,
-		ImpactArea:      10,
-		ProjectileSpeed: 460,
-		Damage:          DamageValue{Health: 3},
-		ProjectileImage: assets.ImageAssaultProjectile,
-		Reload:          0.7,
-		TargetFlags:     TargetFlying | TargetGround,
+		MaxTargets:          1,
+		BurstSize:           1,
+		AttackSound:         assets.AudioAssaultShot,
+		AttackRange:         150,
+		ImpactArea:          10,
+		ProjectileSpeed:     460,
+		Damage:              DamageValue{Health: 3},
+		ProjectileImage:     assets.ImageAssaultProjectile,
+		Reload:              0.7,
+		TargetFlags:         TargetFlying | TargetGround,
+		BuildingDamageBonus: 0.4,
 	}),
 	Disarmable:    true,
 	CanBeRepelled: true,
@@ -388,15 +519,16 @@ var DominatorCreepStats = &CreepStats{
 	ShadowImage: assets.ImageBigShadow,
 	Tier:        3,
 	Speed:       35,
-	MaxHealth:   200,
+	MaxHealth:   175,
 	Weapon: InitWeaponStats(&WeaponStats{
-		MaxTargets:  1,
-		BurstSize:   1,
-		AttackSound: assets.AudioDominatorShot,
-		AttackRange: 280,
-		Damage:      DamageValue{Health: 8, Morale: 4},
-		Reload:      1.65,
-		TargetFlags: TargetFlying | TargetGround,
+		MaxTargets:          1,
+		BurstSize:           1,
+		AttackSound:         assets.AudioDominatorShot,
+		AttackRange:         280,
+		Damage:              DamageValue{Health: 8, Morale: 0.8},
+		Reload:              1.65,
+		TargetFlags:         TargetFlying | TargetGround,
+		BuildingDamageBonus: -0.4,
 	}),
 	BeamColor:     ge.RGB(0x7a51f2),
 	BeamWidth:     1,
@@ -413,7 +545,7 @@ var BuilderCreepStats = &CreepStats{
 	ShadowImage:   assets.ImageBigShadow,
 	Tier:          3,
 	Speed:         40,
-	MaxHealth:     150,
+	MaxHealth:     190,
 	CanBeRepelled: false,
 	Disarmable:    false,
 	Flying:        true,
@@ -439,6 +571,31 @@ var UberBossCreepStats = &CreepStats{
 	Disarmable:     false,
 	CanBeRepelled:  false,
 	Flying:         true, // Most of the time...
+	TargetKind:     TargetFlying,
+}
+
+var TemplarCreepStats = &CreepStats{
+	Kind:        CreepTemplar,
+	Image:       assets.ImageCreepTemplar,
+	ShadowImage: assets.ImageMediumShadow,
+	Tier:        1,
+	Speed:       40,
+	MaxHealth:   40,
+	Weapon: InitWeaponStats(&WeaponStats{
+		MaxTargets:  1,
+		BurstSize:   1,
+		AttackSound: assets.AudioTemplarAttack,
+		AttackRange: 300,
+		Damage:      DamageValue{Health: 1, Stun: 0.9},
+		Reload:      2.6,
+		TargetFlags: TargetFlying,
+	}),
+	BeamExplosion:  assets.ImageStunExplosion,
+	BeamSlideSpeed: 2.5,
+	BeamOpaqueTime: 0.2,
+	Disarmable:     true,
+	CanBeRepelled:  true,
+	Flying:         true,
 	TargetKind:     TargetFlying,
 }
 

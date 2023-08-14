@@ -9,6 +9,7 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
+//go:generate stringer -type=specialChoiceKind -trimprefix=special
 type specialChoiceKind int
 
 const (
@@ -37,6 +38,7 @@ const (
 	specialBuyStealthCrawlers
 	specialBuyHeavyCrawlers
 	specialBuyBuilders
+	specialBuyTemplars
 	specialBuyAssaults
 	specialBuyDominator
 	specialBuyHowitzer
@@ -116,7 +118,7 @@ var specialChoicesTable = [...]choiceOption{
 	},
 	specialBossAttack: {
 		special: specialBossAttack,
-		cost:    50,
+		cost:    40,
 		icon:    assets.ImageActionBossAttack,
 	},
 	specialIncreaseTech: {
@@ -185,6 +187,12 @@ var creepOptionInfoList = func() []creepOptionInfo {
 		},
 		{
 			maxUnits:     4,
+			special:      specialBuyTemplars,
+			minTechLevel: 0.5,
+			stats:        gamedata.TemplarCreepStats,
+		},
+		{
+			maxUnits:     4,
 			special:      specialBuyAssaults,
 			minTechLevel: 0.6,
 			stats:        gamedata.AssaultCreepStats,
@@ -209,10 +217,12 @@ var creepOptionInfoList = func() []creepOptionInfo {
 		switch {
 		case e.stats.Kind == gamedata.CreepHowitzer:
 			cooldown *= 1.5
+		case e.stats.Kind == gamedata.CreepDominator:
+			cooldown *= 1.2
 		case e.stats.Kind == gamedata.CreepBuilder:
 			cooldown *= 0.85
-		case e.stats.Kind == gamedata.CreepDominator:
-			cooldown *= 0.7
+		case e.stats.Kind == gamedata.CreepStunner:
+			cooldown *= 0.9
 		case !e.stats.Flying:
 			cooldown *= 0.75
 		}
@@ -312,6 +322,8 @@ type choiceGenerator struct {
 	spawnCrawlers        bool
 	specialChoiceKinds   []specialChoiceKind
 
+	forcedSpecialChoice specialChoiceKind
+
 	creepsState *creepsPlayerState
 
 	EventChoiceReady    gsignal.Event[choiceSelection]
@@ -382,17 +394,11 @@ func (g *choiceGenerator) TryExecute(cardIndex int, pos gmath.Vec) bool {
 }
 
 func (g *choiceGenerator) activateMoveChoice(pos gmath.Vec) bool {
-	if g.state != choiceReady {
-		return false
-	}
-	cooldown := 8.0
-	g.startCharging(cooldown)
 	g.EventChoiceSelected.Emit(selectedChoice{
-		Index:    -1,
-		Option:   choiceOption{special: specialChoiceMoveColony},
-		Pos:      pos,
-		Cooldown: cooldown,
-		Player:   g.player,
+		Index:  -1,
+		Option: choiceOption{special: specialChoiceMoveColony},
+		Pos:    pos,
+		Player: g.player,
 	})
 	return true
 }
@@ -410,6 +416,7 @@ func (g *choiceGenerator) activateChoice(i int) bool {
 	cooldown := 10.0
 	if i == 4 {
 		// A special action is selected.
+		g.forcedSpecialChoice = specialChoiceNone
 		choice.Option = specialChoicesTable[g.specialOptionIndex]
 		cooldown = choice.Option.cost
 		if choice.Option.special == specialIncreaseTech {
@@ -460,7 +467,7 @@ func (g *choiceGenerator) generateChoicesForCreeps() {
 	for i := range g.shuffledOptions {
 		for {
 			creepIndex := g.world.rand.IntRange(0, maxIndexAvailable)
-			cardID := creepOptionInfoList[creepIndex].special - _creepCardFirst - 1
+			cardID := creepCardID(creepOptionInfoList[creepIndex].special)
 			dir := g.world.rand.IntRange(0, 3)
 			if combinationsSet[cardID][dir] {
 				continue
@@ -483,9 +490,14 @@ func (g *choiceGenerator) GetChoices() choiceSelection {
 	}
 }
 
-func (g *choiceGenerator) generateChoices() {
-	g.state = choiceReady
+func (g *choiceGenerator) ForceSpecialChoice(kind specialChoiceKind) {
+	g.forcedSpecialChoice = kind
+	if g.state == choiceReady {
+		g.generateChoices()
+	}
+}
 
+func (g *choiceGenerator) prepareChoiceOptions() {
 	if g.creepsState != nil {
 		g.generateChoicesForCreeps()
 	} else {
@@ -502,11 +514,15 @@ func (g *choiceGenerator) generateChoices() {
 	g.beforeSpecialShuffle--
 	specialIndex := g.beforeSpecialShuffle
 
+	if g.forcedSpecialChoice != specialChoiceNone {
+		g.specialOptionIndex = int(g.forcedSpecialChoice)
+		return
+	}
 	specialOptionKind := g.specialChoiceKinds[specialIndex]
 	switch specialOptionKind {
 	case specialRally:
 		if g.spawnCrawlers {
-			if g.creepsState.techLevel >= 2 {
+			if g.creepsState.techLevel >= 1.5 {
 				specialOptionKind = specialAtomicBomb
 			} else {
 				specialOptionKind = specialSpawnCrawlers
@@ -522,6 +538,10 @@ func (g *choiceGenerator) generateChoices() {
 		}
 	}
 	g.specialOptionIndex = int(specialOptionKind)
+}
 
+func (g *choiceGenerator) generateChoices() {
+	g.state = choiceReady
+	g.prepareChoiceOptions()
 	g.EventChoiceReady.Emit(g.GetChoices())
 }

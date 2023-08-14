@@ -35,15 +35,21 @@ type rewardsController struct {
 type gameRewards struct {
 	newAchievements      []string
 	upgradedAchievements []string
+	newCores             []string
 	newDrones            []gamedata.ColonyAgentKind
 	newTurrets           []gamedata.ColonyAgentKind
+	newOptions           []string
+	newModes             []string
 }
 
 func (rewards *gameRewards) IsEmpty() bool {
 	return len(rewards.newAchievements) == 0 &&
 		len(rewards.upgradedAchievements) == 0 &&
+		len(rewards.newCores) == 0 &&
 		len(rewards.newDrones) == 0 &&
-		len(rewards.newTurrets) == 0
+		len(rewards.newTurrets) == 0 &&
+		len(rewards.newOptions) == 0 &&
+		len(rewards.newModes) == 0
 }
 
 func newRewardsController(state *session.State, rewards gameRewards, backController ge.SceneController) *rewardsController {
@@ -99,6 +105,7 @@ func (c *rewardsController) Update(delta float64) {
 }
 
 func (c *rewardsController) initUI() {
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -111,7 +118,7 @@ func (c *rewardsController) initUI() {
 
 	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.results.rewards"), assets.BitmapFont3))
 
-	panel := eui.NewPanel(uiResources, 500, 0)
+	panel := eui.NewTextPanel(uiResources, 580, 0)
 	c.panel = panel
 
 	c.grid = widget.NewContainer(
@@ -130,11 +137,20 @@ func (c *rewardsController) initUI() {
 	for _, a := range c.rewards.upgradedAchievements {
 		c.lines = append(c.lines, [2]string{d.Get("menu.results.upgraded_achievement"), d.Get("achievement", a)})
 	}
+	for _, name := range c.rewards.newCores {
+		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_core"), d.Get("core", name)})
+	}
 	for _, kind := range c.rewards.newDrones {
 		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_drone"), d.Get("drone", strings.ToLower(kind.String()))})
 	}
 	for _, kind := range c.rewards.newTurrets {
 		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_turret"), d.Get("turret", strings.ToLower(kind.String()))})
+	}
+	for _, id := range c.rewards.newOptions {
+		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_option"), d.Get("menu.lobby", id)})
+	}
+	for _, id := range c.rewards.newModes {
+		c.lines = append(c.lines, [2]string{d.Get("menu.results.new_mode"), d.Get("menu.leaderboard", id)})
 	}
 	panel.AddChild(c.grid)
 

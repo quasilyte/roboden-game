@@ -1,5 +1,6 @@
 package staging
 
+//go:generate stringer -type=colonyPriority -trimprefix=priority
 type colonyPriority int
 
 const (
@@ -24,6 +25,7 @@ const (
 	actionNone colonyActionKind = iota
 	actionRecycleAgent
 	actionGenerateEvo
+	actionConvertEvo
 	actionMineEssence
 	actionSendCourier
 	actionCloneAgent
@@ -38,4 +40,5 @@ const (
 	actionRepairTurret
 	actionBuildBuilding
 	actionGetReinforcements
+	actionCaptureBuilding
 )

@@ -3,6 +3,11 @@
 ##game.splash.presskey.keyboard : Press ENTER to continue
 ##game.splash.presskey.gamepad : Press START to continue
 
+##game.onboard.welcome : Welcome to Roboden!
+##game.onboard.select_input_method
+Please select your preferred input device.
+You can change this decision later.
+
 ##boot.wasm : Web build needs to download assets, it can take a while
 ##boot.title : Starting Roboden, please wait
 ##boot.load_ui : Loading UI resources
@@ -11,6 +16,7 @@
 ##boot.load_music : Loading music
 ##boot.load_shaders : Compiling shaders
 ##boot.load_extra : Initializing game data
+##boot.steam_sync : Steam sync
 ##boot.almost_there : Almost there
 
 ##menu.submit.title : Sending data, please wait
@@ -21,7 +27,7 @@
 ##menu.main.settings : Settings
 ##menu.main.credits : Credits
 ##menu.main.exit : Exit
-##menu.main.build : Build
+##menu.main.build : Game build
 ##menu.main.leaderboard : Leaderboard
 
 ##menu.leaderboard.placeholder : Loading data...
@@ -45,15 +51,13 @@
 ##menu.set_user_name : Change Player Name
 ##menu.user_name : Player Name
 ##menu.user_name_rules
-* Only English letters, digits and spaces are allowed
+* Only English letters, digits, spaces, and underscores are allowed
 * Has to contain at least one non-space character
 * No longer than 20 characters
 * Empty username => can't submit scores
 
 ##tutorial.reward : Score reward
 ##tutorial.reward_claimed : claimed
-
-##ui.mission_objective : Mission objective
 
 ##menu.play.intro_mission : Intro Mission
 ##menu.play.classic : Classic Mode
@@ -67,6 +71,7 @@
 ##menu.profile.dronebook : Drone Collection
 ##menu.profile.watch_replay : Watch Replay
 
+##menu.replace.version_mismatch : version mismatch
 ##menu.replay.game_result : Result
 ##menu.replay.last_played : Last played
 ##menu.replay.empty : Empty Slot
@@ -80,19 +85,19 @@
 
 ##menu.profile.progress.achievements : Achievements
 ##menu.profile.progress.modes_unlocked : Game modes unlocked
-##menu.profile.progress.bases_unlocked : Colonies unlocked
+##menu.profile.progress.cores_unlocked : Colonies unlocked
 ##menu.profile.progress.turrets_unlocked : Turrets unlocked
 ##menu.profile.progress.drones_unlocked : Tier 2 drones unlocked
 ##menu.profile.progress.t3drones_seen : Tier 3 drones discovered
+##menu.profile.progress.extra_options_unlocked : Extra options unlocked
 
 ##menu.tier : tier
 ##menu.back : Back
-##menu.more : More
-##menu.lobby_back : To The Menu
+##menu.lobby_back : Done
 
+##menu.options.gameplay : Gameplay
 ##menu.options.sound : Sound
 ##menu.options.graphics : Graphics
-##menu.options.camera : Camera
 ##menu.options.extra : Extra
 ##menu.options.controls : Controls
 
@@ -131,6 +136,8 @@
 ##menu.option.small : small
 ##menu.option.big : big
 
+##menu.options.hint_mode : In-game tooltips
+##menu.options.screen_buttons : Screen buttons
 ##menu.options.effects_volume : Effects volume
 ##menu.options.music_volume : Music volume
 ##menu.options.scroll_speed : Scroll speed
@@ -140,17 +147,25 @@
 ##menu.options.splash_screen : Splash screen
 
 ##menu.options.graphics.shadows : Shadows
+##menu.options.graphics.vsync : VSync
+##menu.options.graphics.camera_shaking : Camera shaking
 ##menu.options.graphics.shaders : Shaders
 ##menu.options.graphics.fullscreen : Fullscreen
+##menu.options.graphics.aspect_ratio : Aspect ratio
 
 ##menu.credits.crew : crew
 ##menu.credits.assets : assets
+##menu.credits.special_thanks : special thanks
 ##menu.credits.thank_player : And thank you, dear player <3
 
-##menu.lobby.difficulty_very
-
 ##menu.lobby.points_allocated : Points allocated
+
 ##menu.lobby.game_seed : Game seed
+##menu.lobby.game_seed.description
+The game seed controls the random world generation.
+The same seed will create an identical world every time.
+A seed should be a positive number.
+If empty, a random seed will be used.
 
 ##menu.lobby.game_speed : Game speed
 ##menu.lobby.game_speed.description
@@ -161,26 +176,31 @@ In other words, 10 minutes of the actual gameplay will progress the game time by
 ##menu.lobby.fog_of_war : Fog of war
 ##menu.lobby.fog_of_war.description
 This options toggles the fog of war.
-If turned on, you won't have an entire map revealed from the start.
+If turned on, the map is not revealed from the start.
+
+##menu.lobby.relicts : Relicts
+##menu.lobby.relicts.description
+Relicts are unique buildings that can be repaired by worker drones.
+When repaired, they can serve the colony that captured them.
 
 ##menu.lobby.num_teleporters : Teleporters
 ##menu.lobby.num_teleporters.description
 How many pairs of teleporters will be placed on the map.
-If your colony lands on a teleportation platform, it will be transported to the connected teleporter.
+If a colony lands on a teleportation platform, it will be transported to the connected teleporter.
 
 ##menu.lobby.players : Players
 ##menu.lobby.players.description
 This option controls the number of allied colonies on the map and who controls them.
 Selecting two players will enable a split-screen local multiplayer.
-You will need at least 1 gamepad to play in the split-screen mode.
+At least 1 gamepad is needed to play in the split-screen mode.
 If any of the allied players is defeated, the game ends.
 Only the single player mode score is ranked and can be published.
 
 ##menu.lobby.players.reverse : Players
 ##menu.lobby.players.reverse.description
-In reverse game mode, it's possible to have a player-versus-player experience when split-screen is enabled.
-One player controls the creeps while another player controls the usual colony.
-You will need at least 1 gamepad to play in the split-screen mode.
+In reverse game mode, it's possible to have a PvP experience when split-screen is enabled.
+One player controls the dreadnought while another player controls the usual colony.
+At least 1 gamepad is needed to play in the split-screen mode.
 If any of the allied players is defeated, the game ends.
 Only the single player mode score is ranked and can be published.
 
@@ -200,6 +220,11 @@ It's easier to play with them, but it's more immersive otherwise.
 The number of resources the generated world has.
 Fewer resources mean it will be hard to play a long battle.
 
+##menu.lobby.gold_enabled : Gold
+##menu.lobby.gold_enabled.description
+Whether a map will have gold deposits.
+On moon environment, disabling gold doubles the iron resources capacity.
+
 ##menu.lobby.world_size : World size
 ##menu.lobby.world_size.description
 The generated world size.
@@ -207,7 +232,7 @@ It's usually harder to play on a smaller map.
 
 ##menu.lobby.oil_regen_rate : Oil regeneration rate
 ##menu.lobby.oil_regen_rate.description
-How fast the oil and magma-like resources regenerate over time.
+How fast the oil (normal and red) resources regenerate over time.
 This option can be used to completely disable that regeneration or make it faster.
 
 ##menu.lobby.num_creep_bases : Creep bases
@@ -217,8 +242,14 @@ These bases produce more and more units over time, but they can't be replaced af
 
 ##menu.lobby.tech_progress_rate : Tech progress rate
 ##menu.lobby.tech_progress_rate.description
-Tech progress rate specifies how much creeps tech level increase when they use a dedicated card.
-Faster tech progress rate makes the game easier for the creeps.
+Tech progress rate specifies how much creeps tech level increase when they use a dedicated disk.
+Faster tech progress rate makes the game easier for the dreadnought.
+
+##menu.lobby.reverse_super_creep_rate : Super creeps rate
+##menu.lobby.reverse_super_creep_rate.description
+A chance of a unit released from a garrison being extra powerful.
+The default rate is somewhat balanced.
+A lower rate makes the game harder for the Dreadnought.
 
 ##menu.lobby.creep_spawn_rate : Creep spawn rate
 ##menu.lobby.creep_spawn_rate.description
@@ -246,6 +277,19 @@ Every wave is harder than the previous one and this option controls by how much.
 How many creep units will be placed on the map from the very beginning.
 This option affects how easy the early game exploration for the colonies will be.
 
+##menu.lobby.creep_fortress : Creep fortress
+##menu.lobby.creep_fortress.description
+The fortress makes it hard to explore the region it's located in.
+It produces unique sentinel drones to patrol the area.
+It does not attack the colonies if they're out of its range.
+
+##menu.lobby.ion_mortars : Ion mortars
+##menu.lobby.ion_mortars.description
+Whether creeps have ion mortar pits available.
+The ion mortar pits have a very long range, but low accuracy.
+Their attacks deal medium damage and burn a lot of the drone's energy.
+These mortars can't attack ground targets.
+
 ##menu.lobby.boss_difficulty : Dreadnought power
 ##menu.lobby.boss_difficulty.description
 The dreadnought power level.
@@ -255,7 +299,7 @@ It affects the number of units it will produce and how hard it will be to defeat
 ##menu.lobby.super_creeps.description
 Whether enemies can have super versions of units.
 This is similar to the elite drones the player may have.
-Turning it on makes the game significantly harder.
+Turning it on makes the game significantly harder for the colonies.
 
 ##menu.lobby.starting_resources : Starting resources
 ##menu.lobby.starting_resources.description
@@ -265,9 +309,19 @@ Some drone builds can benefit from this early game advantage.
 ##menu.lobby.land : Terrain
 ##menu.lobby.land.description
 Choose how many mountains and landcracks the map will have.
-You can make them really rare or appear almost everywhere.
+Make them really rare or appear almost everywhere.
+
+##menu.lobby.environment : Environment
+##menu.lobby.environment.description
+Switches between biome types.
+
+Apart from the visual differences, each biome has
+some special differences that will affect the gameplay.
 
 ##menu.lobby.go : Go!
+
+##menu.lobby.moon : moon
+##menu.lobby.forest : forest
 
 ##menu.lobby.land_flat : flat
 ##menu.lobby.land_normal : balanced
@@ -297,39 +351,58 @@ You can make them really rare or appear almost everywhere.
 ##menu.results.new_achievement : New achievement
 ##menu.results.upgraded_achievement : Upgraded achievement
 ##menu.results.new_record : local record
+##menu.results.new_core : Colony unlocked
 ##menu.results.new_drone : Drone unlocked
 ##menu.results.new_turret : Turret unlocked
+##menu.results.new_option : Option unlocked
+##menu.results.new_mode : Mode unlocked
 
+##menu.controls.auto_infer : Auto-Detect
 ##menu.controls.keyboard : Keyboard
 ##menu.controls.gamepad : Gamepad
 ##menu.controls.touch : Touchscreen
 ##menu.controls.method_combined : combined
 ##menu.controls.method_keyboard : keyboard
 ##menu.controls.method_gamepad : gamepad
+##menu.controls.wheel_scroll : Middle mouse button scroll
+##menu.controls.wheel_scroll.drag : drag
+##menu.controls.wheel_scroll.float : float
 ##menu.controls.player_label : Player
 ##menu.controls.gamepad_deadzone : Joystick deadzone
+##menu.controls.gamepad_layout : Layout
+##menu.controls.gamepad_cursor_speed : Virtual cursor speed
+
+##menu.controls.gamepad_status : Controller status
+##menu.controls.gamepad_status.checking : checking
+##menu.controls.gamepad_status.not_connected : not connected
+##menu.controls.gamepad_status.connected : connected
+
+##menu.controls.gamepad.calibrate
+The red dot should be centered if joystick is resting.
 
 ##menu.controls.keyboard.text
-Pan camera | Middle mouse button + move, edge scroll or WASD keys
+Pan camera | Middle mouse button + drag, edge scroll, W/A/S/D
 Move colony | RMB click on the destination
-Select colony | LMB click on the colony or TAB to switch between colonies
-Action card select | LMB click on the card or press 1-5 on a keyboard
-Pause | SPACE button toggles the pause
-Toggle evolution sheet | ALT button
-Toggle user interface | F11 button
-Ping (Coop only) | ctrl + LMB click
-Exit/Back | ESC button
+Select colony | LMB click on the colony
+Toggle colony | TAB
+Action disk select | LMB click on the card, 1-5
+Pause | SPACE
+Toggle evolution sheet | ALT
+Toggle user interface | F11
+Ping (Coop only) | CTRL + LMB click
+Exit/Back | ESC
 
 ##menu.controls.gamepad.text
-Pan camera | D-pad keys or left stick
+Pan camera | D-pad, left stick
 Move colony | Right stick click on the destination
-Select colony | Right stick click on the colony or L1 to switch between colonies
-Action card select | Right stick click on the card or Y, B, A, X and R1 buttons
-Pause | START toggles the pause
+Select colony | Right stick click on the colony
+Toggle colony | L1
+Action disk select | Right stick click on the disk, $gamepad_y $gamepad_b $gamepad_a $gamepad_x R1
+Pause | $gamepad_start
 Toggle evolution sheet | R2 button
 Toggle user interface | L2 button
 Ping (Coop only) | Left stick click
-Exit/Back | BACK or SELECT button
+Exit/Back | $gamepad_back
 
 ##menu.overview.intro_mission
 Intro mission (est. time: 15 minutes)
@@ -372,11 +445,63 @@ Win by destroying all colonies.
 
 Split-screen multiplayer: competitive (PvP).
 
+##game.hint.building.tower : Repulse tower
+##game.hint.building.power_plant : Power plant
+##game.hint.building.drone_factory : Drone factory
+##game.hint.building_status.needs_repair : Needs repair
+##game.hint.building_status.functioning : Functioning
+##game.hint.screen_button.toggle : Toggle view
+##game.hint.screen_button.exit : Exit
+##game.hint.rpanel.garrison : Units in garrison
+##game.hint.rpanel.tech_progress_f : Tech progress: %d%%
+##game.hint.rpanel.priority_resources : Resources priority
+##game.hint.rpanel.priority_growth : Growth priority
+##game.hint.rpanel.priority_evolution : Evolution priority
+##game.hint.rpanel.priority_security : Security priority
+##game.hint.rpanel.factions : Faction distribution
+##game.hint.action.priorities1_f : Increase %s priority
+##game.hint.action.priorities2_f : Increase %s+%s priorities
+##game.hint.action.garrison_f : Add units to %s garrison
+##game.hint.action.increaseradius : Increase colony radius
+##game.hint.action.decreaseradius : Decrease colony radius
+##game.hint.action.buildgunpoint : Build turret
+##game.hint.action.buildcolony : Build colony
+##game.hint.action.attack : Attack
+##game.hint.action.sendcreeps : Release units from garrisons
+##game.hint.action.rally : Rally nearby units
+##game.hint.action.spawncrawlers : Dispatch units from Dreadnought
+##game.hint.action.bossattack : Attack with Dreadnought
+##game.hint.action.increasetech : Increase the tech level
+##game.hint.action.atomicbomb : Launch an atomic bomb
+
+##game.hint.teleporter : Teleporter
+##game.hint.colony : Colony
+##game.hint.wisp_lair : Wisp lair
+##game.hint.dreadnought : Dreadnought
+##game.hint.resource.scrap : Scrap resource
+##game.hint.resource.scrap.value : Very low value
+##game.hint.resource.iron : Iron resource
+##game.hint.resource.organic : Organic resource
+##game.hint.resource.organic.value : Normal value
+##game.hint.resource.iron.value : Low value
+##game.hint.resource.gold : Gold resource
+##game.hint.resource.gold.value : Normal value
+##game.hint.resource.crystal : Crystal resource
+##game.hint.resource.crystal.value : High value
+##game.hint.resource.oil : Oil resource
+##game.hint.resource.oil.value : Normal value, regenerates
+##game.hint.resource.red_crystal : Red crystal resource
+##game.hint.resource.red_crystal.value : Very high value, elite
+##game.hint.resource.red_oil : Red Oil resource
+##game.hint.resource.red_oil.value : Normal value, elite, regenerates
+
 ##game.notice.ping
-Your ally marked this spot
+An ally has marked this place
 
 ##game.notice.base_under_attack
-Your colony is under attack!
+A colony is under attack!
+##game.notice.base_destroyed
+A colony has been destroyed!
 
 ##game.exit.notice.keyboard
 Press the button again to quit.
@@ -389,10 +514,10 @@ To resume the game, press START.
 ##game.wave_last : Survive to win
 ##game.wave_starts_in : starts in
 ##game.wave_units : Unit types
-##game.wave_special_units : Special units
+##game.wave_special_units : Danger
 ##game.wave_direction : Attack directions
 ##game.wave_builders : builder
-##game.wave_task_force : raiders
+##game.wave_task_force : raider
 ##game.wave_dominator : dominator
 ##game.wave_howitzer : howitzer
 ##game.side.all : all
@@ -405,12 +530,29 @@ To resume the game, press START.
 ##game.value.minute : m
 ##game.value.second : s
 
-##game.choice.resources : Resources
-##game.choice.growth : Growth
-##game.choice.evolution : Evolution
-##game.choice.security : Security
+##game.choice.resources : resources
+##game.choice.growth : growth
+##game.choice.evolution : evolution
+##game.choice.security : security
 ##game.choice.attack : Attack
 ##game.choice.build_colony : Build new colony
 ##game.choice.build_gunpoint : Build turret
 ##game.choice.increase_radius : Increase radius
 ##game.choice.decrease_radius : Decrease radius
+
+##menu.special_text
+Congratulations! You found a secret letter!
+
+Me and my friend created the first build of this game during a two weeks game jam.
+
+We enjoyed the results a lot and decided
+to give this game a chance to see a Steam release.
+
+In a perfect world, this game could take several more months to get polished,
+but I decided to set some specific time constraints and release as is.
+
+If you like this game, please let me know.
+I'm interested to come back to it at some point to make it even better,
+but I want to see the community thinks of this game first.
+
+- quasilyte

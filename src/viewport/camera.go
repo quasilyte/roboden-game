@@ -20,6 +20,12 @@ type cameraObject interface {
 	BoundsRect() gmath.Rect
 }
 
+type sortableCameraObject struct {
+	graphics  cameraObject
+	prevOrder int
+	drawOrder *float64
+}
+
 type LayerContainer struct {
 	belowObjects         layer
 	objects              layer
@@ -41,23 +47,6 @@ func (c *LayerContainer) AddGraphics(o cameraObject) {
 		return
 	}
 	c.objects.Add(o)
-}
-
-func (c *LayerContainer) MoveSlightlyAboveSpriteDown(s *ge.Sprite) {
-	if c.headless {
-		return
-	}
-	index := xslices.Index(c.slightlyAboveObjects.sprites, s)
-	if index == -1 {
-		return
-	}
-	if index == 0 {
-		return // Already at the bottom (in terms of the rendering order)
-	}
-	// Since this "slightly above" layer is only used for colony cores (and their selectors),
-	// this slice is very small. If that will change, we'll need to find a different approach.
-	copy(c.slightlyAboveObjects.sprites[1:], c.slightlyAboveObjects.sprites[:index])
-	c.slightlyAboveObjects.sprites[0] = s
 }
 
 func (c *LayerContainer) AddSpriteSlightlyAbove(s *ge.Sprite) {
@@ -93,6 +82,13 @@ func (c *LayerContainer) AddSpriteBelow(s *ge.Sprite) {
 		return
 	}
 	c.belowObjects.AddSprite(s)
+}
+
+func (c *LayerContainer) AddSortableGraphicsSlightlyAbove(o cameraObject, order *float64) {
+	if c.headless {
+		return
+	}
+	c.slightlyAboveObjects.AddSortableObject(o, order)
 }
 
 type CameraStage struct {
@@ -152,6 +148,10 @@ type Camera struct {
 
 	// Objects that are only rendered for this player.
 	Private LayerContainer
+
+	shake      int // number of frames
+	shakeDelay int // in frames
+	shakeIndex uint
 
 	screen *ebiten.Image
 
@@ -253,6 +253,15 @@ func (c *Camera) drawLayer(screen *ebiten.Image, l *layer, drawOffset gmath.Vec)
 			}
 		}
 	}
+
+	if len(l.sortableObjects) != 0 {
+		for _, o := range l.sortableObjects {
+			if c.isVisible(o.graphics.BoundsRect()) {
+				o.graphics.DrawWithOffset(screen, drawOffset)
+			}
+		}
+		l.needSorting = true
+	}
 }
 
 func (c *Camera) isVisible(objectRect gmath.Rect) bool {
@@ -308,6 +317,11 @@ func (c *Camera) SetOffset(pos gmath.Vec) {
 	c.checkBounds()
 }
 
+func (c *Camera) Shake(value int) {
+	c.shake = value
+	c.shakeIndex += uint(value) * 97
+}
+
 func (c *Camera) Draw(screen *ebiten.Image) {
 	c.globalRect = c.Rect
 	c.globalRect.Min = c.Offset
@@ -323,6 +337,25 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 		X: -c.Offset.X,
 		Y: -c.Offset.Y,
 	}
+
+	rotation := 0.0
+	if c.shake > 0 {
+		c.shake--
+		if c.shakeDelay == 0 {
+			c.shakeDelay = 6
+			c.shakeIndex++
+			drawOffset = drawOffset.Add(shakeOffsets[c.shakeIndex%uint(len(shakeOffsets))])
+			switch c.shakeIndex % 3 {
+			case 0:
+				rotation = 0.005
+			case 2:
+				rotation = -0.005
+			}
+		} else {
+			c.shakeDelay--
+		}
+	}
+
 	c.stage.bg.DrawPartialWithOffset(c.screen, c.globalRect, drawOffset)
 	c.drawLayer(c.screen, &c.stage.belowObjects, drawOffset)
 	c.drawLayer(c.screen, &c.Private.belowObjects, drawOffset)
@@ -345,20 +378,37 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 
 	var options ebiten.DrawImageOptions
 	options.GeoM.Translate(c.ScreenPos.X, c.ScreenPos.Y)
+	if rotation != 0 {
+		width := float64(c.screen.Bounds().Dx())
+		height := float64(c.screen.Bounds().Dy())
+		options.GeoM.Translate(-width*0.5, -height*0.5)
+		options.GeoM.Rotate(rotation)
+		options.GeoM.Translate(width*0.5, height*0.5)
+	}
 	screen.DrawImage(c.screen, &options)
 }
 
 type layer struct {
 	sprites []*ge.Sprite
 	objects []cameraObject
+
+	sortableObjects []sortableCameraObject
+	needSorting     bool
+}
+
+func (l *layer) AddSprite(s *ge.Sprite) {
+	l.sprites = append(l.sprites, s)
 }
 
 func (l *layer) Add(o cameraObject) {
 	l.objects = append(l.objects, o)
 }
 
-func (l *layer) AddSprite(s *ge.Sprite) {
-	l.sprites = append(l.sprites, s)
+func (l *layer) AddSortableObject(o cameraObject, order *float64) {
+	l.sortableObjects = append(l.sortableObjects, sortableCameraObject{
+		graphics:  o,
+		drawOrder: order,
+	})
 }
 
 func (l *layer) filter() {
@@ -381,6 +431,44 @@ func (l *layer) filter() {
 		}
 		l.objects = liveObjects
 	}
+
+	if len(l.sortableObjects) != 0 {
+		l.filterSortableObjects()
+	}
+}
+
+func (l *layer) filterSortableObjects() {
+	liveSortableObjects := l.sortableObjects[:0]
+	changed := false
+	for _, o := range l.sortableObjects {
+		if o.graphics.IsDisposed() {
+			continue
+		}
+		// Use int-truncated values to sort less often.
+		// For instance, if prev value was 1.5 and not it's 1.7,
+		// we still consider it to be int(1) and skip the sorting phase.
+		order := int(*o.drawOrder)
+		if order != o.prevOrder {
+			changed = true
+		}
+		o.prevOrder = order
+		liveSortableObjects = append(liveSortableObjects, o)
+	}
+	l.sortableObjects = liveSortableObjects
+
+	if !l.needSorting {
+		return // Nothing else to do here
+	}
+
+	l.needSorting = false
+	if !changed {
+		return // There were no moves, nothing to do here
+	}
+
+	// prevOrder holds the current order value at this point.
+	xslices.SortStableFunc(l.sortableObjects, func(a, b sortableCameraObject) bool {
+		return a.prevOrder < b.prevOrder
+	})
 }
 
 func drawSlice(dst *ebiten.Image, slice []ge.SceneGraphics) []ge.SceneGraphics {
@@ -393,4 +481,21 @@ func drawSlice(dst *ebiten.Image, slice []ge.SceneGraphics) []ge.SceneGraphics {
 		live = append(live, o)
 	}
 	return live
+}
+
+var shakeOffsets = []gmath.Vec{
+	{X: 1, Y: 0},
+	{X: 2, Y: 1},
+	{X: 1, Y: 3},
+	{X: 2, Y: 1},
+	{X: 1, Y: 1},
+	{X: 2, Y: 0},
+	{X: -1, Y: -2},
+	{X: -2, Y: 0},
+	{X: -2, Y: 1},
+	{X: -1, Y: 2},
+	{X: 0, Y: 0},
+	{X: 1, Y: -1},
+	{X: 2, Y: -2},
+	{X: 0, Y: -3},
 }

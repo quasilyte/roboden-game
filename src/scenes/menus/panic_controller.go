@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
@@ -30,6 +31,9 @@ func NewPanicController(panicInfo *ge.PanicInfo) *PanicController {
 }
 
 func (c *PanicController) Init(scene *ge.Scene) {
+	ebiten.SetCursorMode(ebiten.CursorModeVisible)
+	scene.Audio().PauseCurrentMusic()
+
 	c.scene = scene
 
 	traceLines := strings.Split(c.panicInfo.Trace, "\n")
@@ -47,6 +51,7 @@ func (c *PanicController) Init(scene *ge.Scene) {
 		text = "A critical error has occured.\nPress ENTER to continue."
 	}
 
+	fmt.Println(c.panicInfo.Value)
 	fmt.Println(c.panicInfo.Trace)
 
 	errorLabel := ge.NewLabel(assets.BitmapFont1)

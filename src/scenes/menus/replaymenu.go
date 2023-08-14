@@ -40,7 +40,7 @@ func (c *ReplayMenuController) Update(delta float64) {
 }
 
 func (c *ReplayMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -98,12 +98,12 @@ func (c *ReplayMenuController) initUI() {
 				c.helpLabel.Label = descriptions.ReplayText(d, &r)
 			})
 		}
-		b.GetWidget().Disabled = !replayExists
+		b.GetWidget().Disabled = !replayExists || r.Replay.GameVersion != gamedata.BuildNumber
 		b.GetWidget().MinWidth = 220
 		leftGrid.AddChild(b)
 	}
 
-	rightPanel := eui.NewPanel(uiResources, 300, 0)
+	rightPanel := eui.NewTextPanel(uiResources, 320, 0)
 	rightPanel.AddChild(helpLabel)
 
 	rootGrid.AddChild(leftGrid)
@@ -113,7 +113,7 @@ func (c *ReplayMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.replay.notice"), smallFont))
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

@@ -13,7 +13,7 @@ type effectNode struct {
 	pos     gmath.Vec
 	image   resource.ImageID
 	anim    *ge.Animation
-	above   bool
+	layer   effectLayer
 	rotates bool
 	noFlip  bool
 
@@ -23,10 +23,10 @@ type effectNode struct {
 	EventCompleted gesignal.Event[gesignal.Void]
 }
 
-func newEffectNodeFromSprite(world *worldState, above bool, sprite *ge.Sprite) *effectNode {
+func newEffectNodeFromSprite(world *worldState, layer effectLayer, sprite *ge.Sprite) *effectNode {
 	e := &effectNode{
 		world: world,
-		above: above,
+		layer: layer,
 		anim:  ge.NewAnimation(sprite, -1),
 		scale: 1,
 	}
@@ -34,12 +34,12 @@ func newEffectNodeFromSprite(world *worldState, above bool, sprite *ge.Sprite) *
 	return e
 }
 
-func newEffectNode(world *worldState, pos gmath.Vec, above bool, image resource.ImageID) *effectNode {
+func newEffectNode(world *worldState, pos gmath.Vec, layer effectLayer, image resource.ImageID) *effectNode {
 	return &effectNode{
 		world: world,
 		pos:   pos,
 		image: image,
-		above: above,
+		layer: layer,
 		scale: 1,
 	}
 }
@@ -57,14 +57,16 @@ func (e *effectNode) Init(scene *ge.Scene) {
 	if !e.noFlip {
 		sprite.FlipHorizontal = e.world.localRand.Bool()
 	}
-	if e.above {
+	switch e.layer {
+	case aboveEffectLayer:
 		e.world.stage.AddSpriteAbove(sprite)
-	} else {
+	case slightlyAboveEffectLayer:
+		e.world.stage.AddSpriteSlightlyAbove(sprite)
+	default:
 		e.world.stage.AddSprite(sprite)
 	}
 	if e.anim == nil {
 		e.anim = ge.NewAnimation(sprite, -1)
-		e.anim.SetSecondsPerFrame(0.05)
 	}
 }
 

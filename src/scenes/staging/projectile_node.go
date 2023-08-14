@@ -3,7 +3,6 @@ package staging
 import (
 	"math"
 
-	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
@@ -40,6 +39,12 @@ type targetable interface {
 	OnDamage(damage gamedata.DamageValue, source targetable)
 	IsDisposed() bool
 	IsFlying() bool
+	GetTargetInfo() targetInfo
+}
+
+type targetInfo struct {
+	flying   bool
+	building bool
 }
 
 type projectileConfig struct {
@@ -87,13 +92,13 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 
 		if inversed {
 			if p.toPos.Y <= p.pos.Y {
-				arcPower *= 0.3
-				speed *= 1.5
+				arcPower *= 0.45
+				speed *= 1.4
 			}
 		} else {
 			if p.toPos.Y >= p.pos.Y {
-				arcPower *= 0.3
-				speed *= 1.5
+				arcPower *= 0.45
+				speed *= 1.4
 			}
 		}
 		dist := p.pos.DistanceTo(p.toPos)
@@ -176,28 +181,7 @@ func (p *projectileNode) Update(delta float64) {
 	travelled := p.weapon.ProjectileSpeed * delta
 
 	if !p.world.simulation && p.weapon.TrailEffect != gamedata.ProjectileTrailNone {
-		p.trailCounter -= delta
-		switch p.weapon.TrailEffect {
-		case gamedata.ProjectileTrailSmoke:
-			if p.trailCounter <= 0 {
-				p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
-				p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, true, assets.ImageProjectileSmoke))
-			}
-		case gamedata.ProjectileTrailRoomba:
-			if p.trailCounter <= 0 {
-				p.trailCounter = p.world.localRand.FloatRange(0.1, 0.2)
-				effect := newEffectNode(p.world, p.pos, true, assets.ImageRoombaLaserTrail)
-				effect.rotation = p.rotation
-				p.world.nodeRunner.AddObject(effect)
-			}
-		case gamedata.ProjectileTrailFire:
-			if p.trailCounter <= 0 {
-				p.trailCounter = p.world.localRand.FloatRange(0.06, 0.1)
-				effect := newEffectNode(p.world, p.pos, true, assets.ImageFireTrail)
-				effect.rotation = p.rotation
-				p.world.nodeRunner.AddObject(effect)
-			}
-		}
+		p.updateTrail(delta)
 	}
 
 	if p.arcProgressionScaling == 0 {
@@ -226,6 +210,41 @@ func (p *projectileNode) Update(delta float64) {
 	p.setSpriteVisibility(true)
 }
 
+func (p *projectileNode) updateTrail(delta float64) {
+	p.trailCounter -= delta
+	if p.trailCounter > 0 {
+		return
+	}
+
+	switch p.weapon.TrailEffect {
+	case gamedata.ProjectileTrailIonMortar, gamedata.ProjectileTrailSuperIonMortar:
+		p.trailCounter = p.world.localRand.FloatRange(0.06, 0.12)
+		img := assets.ImageIonMortarTrail
+		if p.weapon.TrailEffect == gamedata.ProjectileTrailSuperIonMortar {
+			img = assets.ImageSuperIonMortarTrail
+		}
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, img))
+	case gamedata.ProjectileTrailSmoke:
+		p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageProjectileSmoke))
+	case gamedata.ProjectileTrailRoomba:
+		p.trailCounter = p.world.localRand.FloatRange(0.1, 0.2)
+		effect := newEffectNode(p.world, p.pos, slightlyAboveEffectLayer, assets.ImageRoombaLaserTrail)
+		effect.rotation = p.rotation
+		p.world.nodeRunner.AddObject(effect)
+	case gamedata.ProjectileTrailEnergySpear:
+		p.trailCounter = p.world.localRand.FloatRange(0.03, 0.08)
+		effect := newEffectNode(p.world, p.pos, slightlyAboveEffectLayer, assets.ImageEnergySpearTrail)
+		effect.rotation = p.rotation
+		p.world.nodeRunner.AddObject(effect)
+	case gamedata.ProjectileTrailFire:
+		p.trailCounter = p.world.localRand.FloatRange(0.06, 0.1)
+		effect := newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageFireTrail)
+		effect.rotation = p.rotation
+		p.world.nodeRunner.AddObject(effect)
+	}
+}
+
 func (p *projectileNode) Dispose() {
 	if p.sprite != nil {
 		p.sprite.Dispose()
@@ -243,67 +262,84 @@ func (p *projectileNode) createExplosion() {
 		return
 	}
 
-	above := p.target.IsFlying()
-	if !above {
+	layer := aboveEffectLayer
+	if !p.target.IsFlying() {
 		target, ok := p.target.(*creepNode)
-		if ok && target.stats.Kind == gamedata.CreepUberBoss {
-			above = true
+		if !(ok && target.stats.Kind == gamedata.CreepUberBoss) {
+			layer = normalEffectLayer
 		}
 	}
 
 	explosionPos := p.pos.Add(p.world.localRand.Offset(-4, 4))
 	switch explosionKind {
+	case gamedata.ProjectileExplosionIonBlast:
+		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageIonBlast, Layer: layer})
+		playSound(p.world, assets.AudioIonBlast1, explosionPos)
+	case gamedata.ProjectileExplosionSuperIonBlast:
+		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageSuperIonBlast, Layer: layer})
+		playSound(p.world, assets.AudioIonBlast1, explosionPos)
+	case gamedata.ProjectileExplosionServant:
+		effect := newEffectNode(p.world, explosionPos, layer, assets.ImageServantShotExplosion)
+		p.world.nodeRunner.AddObject(effect)
+		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionNormal:
-		createExplosion(p.world, above, explosionPos)
+		createExplosion(p.world, layer, explosionPos)
 	case gamedata.ProjectileExplosionBigVertical:
 		createBigVerticalExplosion(p.world, explosionPos)
 	case gamedata.ProjectileExplosionAbomb:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, false, assets.ImageBigVerticalExplosion))
+		p.world.ShakeCamera(p.world.localRand.IntRange(45, 60), explosionPos)
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, slightlyAboveEffectLayer, assets.ImageNuclearExplosion))
 		playSound(p.world, assets.AudioAbombExplosion, explosionPos)
 	case gamedata.ProjectileExplosionCripplerBlaster:
-		effect := newEffectNode(p.world, explosionPos, above, assets.ImageCripplerBlasterExplosion)
+		effect := newEffectNode(p.world, explosionPos, layer, assets.ImageCripplerBlasterExplosion)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionGreenZap:
-		effect := newEffectNode(p.world, explosionPos, above, assets.ImageGreenZap)
+		effect := newEffectNode(p.world, explosionPos, layer, assets.ImageGreenZap)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionScoutIon:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, above, assets.ImageScoutIonExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, layer, assets.ImageScoutIonExplosion))
 	case gamedata.ProjectileExplosionRoombaShot:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, above, assets.ImageRoombaShotExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, layer, assets.ImageRoombaShotExplosion))
 	case gamedata.ProjectileExplosionScarab:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, above, assets.ImageScarabShotExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, layer, assets.ImageScarabShotExplosion))
 	case gamedata.ProjectileExplosionShocker:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, above, assets.ImageShockerExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, layer, assets.ImageShockerExplosion))
 	case gamedata.ProjectileExplosionStealthLaser:
-		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, above, assets.ImageStealthLaserExplosion))
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, layer, assets.ImageStealthLaserExplosion))
 	case gamedata.ProjectileExplosionCommanderLaser:
-		effect := newEffectNode(p.world, explosionPos, above, assets.ImageCommanderShotExplosion)
+		effect := newEffectNode(p.world, explosionPos, layer, assets.ImageCommanderShotExplosion)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionFighterLaser:
-		effect := newEffectNode(p.world, explosionPos, above, assets.ImageFighterLaserExplosion)
+		effect := newEffectNode(p.world, explosionPos, layer, assets.ImageFighterLaserExplosion)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionHeavyCrawlerLaser:
-		effect := newEffectNode(p.world, explosionPos, above, assets.ImageHeavyCrawlerLaserExplosion)
+		effect := newEffectNode(p.world, explosionPos, layer, assets.ImageHeavyCrawlerLaserExplosion)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionPurple:
-		soundIndex := p.world.localRand.IntRange(0, 2)
-		sound := assets.AudioPurpleExplosion1 + resource.AudioID(soundIndex)
-		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, above, assets.ImagePurpleExplosion))
-		playSound(p.world, sound, explosionPos)
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, layer, assets.ImagePurpleExplosion))
+		playSound(p.world, assets.AudioPurpleExplosion1, explosionPos)
 	}
 }
 
 func (p *projectileNode) detonate() {
 	p.Dispose()
 	if p.target.IsDisposed() {
+		if p.weapon.AlwaysExplodes {
+			p.createExplosion()
+		}
 		return
 	}
-	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > p.weapon.ImpactAreaSqr {
+
+	impactAreaSqr := p.weapon.ImpactAreaSqr
+	if p.guided {
+		impactAreaSqr *= 1.1
+	}
+	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > impactAreaSqr {
 		if p.weapon.AlwaysExplodes {
 			p.createExplosion()
 		}

@@ -281,7 +281,7 @@ func (c *colonyAgentContainer) randFindSlice(agents []*colonyAgentNode, f func(a
 	slider.SetBounds(0, len(agents)-1)
 	slider.TrySetValue(c.rand.IntRange(0, len(agents)-1))
 	for i := 0; i < len(agents); i++ {
-		a := agents[i]
+		a := agents[slider.Value()]
 		if f(a) {
 			return a
 		}

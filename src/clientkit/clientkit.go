@@ -8,19 +8,18 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/httpfetch"
 	"github.com/quasilyte/roboden-game/serverapi"
 	"github.com/quasilyte/roboden-game/session"
 )
 
-func GetLeaderboard(state *session.State, gameMode string) (*serverapi.LeaderboardResp, error) {
+func GetLeaderboard(state *session.State, season int, gameMode string) (*serverapi.LeaderboardResp, error) {
 	var u url.URL
 	u.Host = state.ServerHost
 	u.Scheme = state.ServerProtocol
 	u.Path = path.Join(state.ServerPath, "get-player-board")
 	q := u.Query()
-	q.Add("season", strconv.Itoa(gamedata.SeasonNumber))
+	q.Add("season", strconv.Itoa(season))
 	q.Add("mode", gameMode)
 	q.Add("name", state.Persistent.PlayerName)
 	u.RawQuery = q.Encode()
@@ -43,18 +42,23 @@ func enqueueReplay(state *session.State, replay serverapi.GameReplay) {
 	state.Context.SaveGameData("save", state.Persistent)
 }
 
-func SendOrEnqueueScore(state *session.State, replay serverapi.GameReplay) {
-	sendResult, err := SendScore(state, replay)
+func SendOrEnqueueScore(state *session.State, season int, replay serverapi.GameReplay) bool {
+	sendResult, err := SendScore(state, season, replay)
 	if err != nil || sendResult.TryAgain {
 		if err != nil {
-			fmt.Printf("sending game replay failed: %v\n", err)
+			state.Logf("sending game replay failed: %v", err)
 		} else {
-			fmt.Printf("the server asked to try again later\n")
+			state.Logf("the server asked to try again later")
 		}
 		enqueueReplay(state, replay)
-		return
+		return false
 	}
-	fmt.Printf("queued game replay successfully\n")
+	if sendResult.Queued {
+		state.Logf("queued game replay successfully")
+	} else {
+		state.Logf("failed to queue game replay")
+	}
+	return sendResult.Queued
 }
 
 type SendScoreResult struct {
@@ -62,13 +66,13 @@ type SendScoreResult struct {
 	Queued   bool
 }
 
-func SendScore(state *session.State, replay serverapi.GameReplay) (SendScoreResult, error) {
+func SendScore(state *session.State, season int, replay serverapi.GameReplay) (SendScoreResult, error) {
 	var u url.URL
 	u.Host = state.ServerHost
 	u.Scheme = state.ServerProtocol
 	u.Path = path.Join(state.ServerPath, "save-player-score")
 	q := u.Query()
-	q.Add("season", strconv.Itoa(gamedata.SeasonNumber))
+	q.Add("season", strconv.Itoa(season))
 	q.Add("mode", replay.Config.RawGameMode)
 	q.Add("name", state.Persistent.PlayerName)
 	u.RawQuery = q.Encode()

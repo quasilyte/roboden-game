@@ -1,7 +1,6 @@
 package staging
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -16,7 +15,7 @@ import (
 	"github.com/quasilyte/roboden-game/timeutil"
 )
 
-const maxArenaGroupBudget = 110
+const maxArenaGroupBudget = 120
 
 type arenaCreepInfo struct {
 	stats    *gamedata.CreepStats
@@ -58,6 +57,7 @@ type arenaManager struct {
 	stunnerCreepInfo        *arenaCreepInfo
 	assaultCreepInfo        *arenaCreepInfo
 	builderCreepInfo        *arenaCreepInfo
+	templarCreepInfo        *arenaCreepInfo
 
 	EventVictory gsignal.Event[gsignal.Void]
 }
@@ -153,11 +153,17 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		cost:     creepFragScore(gamedata.BuilderCreepStats),
 		minLevel: 7,
 	}
+	m.templarCreepInfo = &arenaCreepInfo{
+		stats:    gamedata.TemplarCreepStats,
+		cost:     creepFragScore(gamedata.TemplarCreepStats),
+		minLevel: 11,
+	}
 
 	m.basicFlyingCreeps = []*arenaCreepInfo{
 		m.wandererCreepInfo,
 		m.stunnerCreepInfo,
 		m.assaultCreepInfo,
+		m.templarCreepInfo,
 	}
 	m.basicGroundCreeps = []*arenaCreepInfo{
 		m.crawlerCreepInfo,
@@ -236,16 +242,7 @@ func (m *arenaManager) createWaveOverviewText() string {
 			if !hasAttackers {
 				continue
 			}
-			switch side {
-			case 0:
-				sideParts = append(sideParts, d.Get("game.side.east"))
-			case 1:
-				sideParts = append(sideParts, d.Get("game.side.south"))
-			case 2:
-				sideParts = append(sideParts, d.Get("game.side.west"))
-			case 3:
-				sideParts = append(sideParts, d.Get("game.side.north"))
-			}
+			sideParts = append(sideParts, d.Get(sideName(side)))
 		}
 		buf.WriteString(strings.Join(sideParts, ", "))
 	}
@@ -351,7 +348,9 @@ func (m *arenaManager) prepareWave() {
 	case m.level%5 == 0:
 		m.levelStartDelay = 4.0 * 60
 		budgetStep = 20
-		if !m.infArena {
+		if m.infArena {
+			budgetStep += m.level
+		} else {
 			budgetStep += 2 * m.level
 		}
 	case m.level == 1:
@@ -365,7 +364,7 @@ func (m *arenaManager) prepareWave() {
 
 	budget := m.waveBudget
 	if m.world.config.ExecMode != gamedata.ExecuteSimulation {
-		fmt.Printf("wave %d budget is %d\n", m.level, budget)
+		m.world.sessionState.Logf("wave %d budget is %d", m.level, budget)
 	}
 
 	// First decide which kind of attack we're doing.

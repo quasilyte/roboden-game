@@ -13,6 +13,7 @@ import (
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gameinput"
+	"github.com/quasilyte/roboden-game/steamsdk"
 	"github.com/quasilyte/roboden-game/userdevice"
 	"golang.org/x/image/font"
 )
@@ -188,6 +189,29 @@ func NewRowLayoutContainer(spacing int, rowscale []bool) *widget.Container {
 	return NewRowLayoutContainerWithMinWidth(0, spacing, rowscale)
 }
 
+func NewTransparentSeparator() widget.PreferredSizeLocateableWidget {
+	c := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Padding(widget.Insets{
+				Top:    4,
+				Bottom: 4,
+			}))),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(
+			widget.RowLayoutData{Stretch: true},
+		)))
+
+	c.AddChild(widget.NewGraphic(
+		widget.GraphicOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+			Stretch:   true,
+			MaxHeight: 1,
+		})),
+		widget.GraphicOpts.ImageNineSlice(image.NewNineSliceColor(color.RGBA{})),
+	))
+
+	return c
+}
+
 func NewSeparator(ld interface{}) widget.PreferredSizeLocateableWidget {
 	c := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
@@ -260,6 +284,55 @@ func NewBigItemButton(res *Resources, img *ebiten.Image, onclick func()) *ItemBu
 		Widget: container,
 		button: b,
 		res:    res.BigItemButton,
+	}
+}
+
+type RecipeView struct {
+	Container *widget.Container
+	Icon1     *widget.Graphic
+	Icon2     *widget.Graphic
+	Separator *widget.Text
+}
+
+func NewRecipeView(res *Resources) *RecipeView {
+	iconsContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
+			widget.RowLayoutOpts.Spacing(4),
+			widget.RowLayoutOpts.Padding(widget.Insets{
+				Top: 14,
+			}),
+		)),
+	)
+
+	icon1 := widget.NewGraphic()
+	iconsContainer.AddChild(icon1)
+
+	separator := widget.NewText(
+		widget.TextOpts.Text("", assets.BitmapFont2, res.Button.TextColors.Idle),
+		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
+	)
+	iconsContainer.AddChild(separator)
+
+	icon2 := widget.NewGraphic()
+	iconsContainer.AddChild(icon2)
+
+	n := &RecipeView{
+		Container: iconsContainer,
+		Icon1:     icon1,
+		Icon2:     icon2,
+		Separator: separator,
+	}
+	return n
+}
+
+func (r *RecipeView) SetImages(a, b *ebiten.Image) {
+	r.Icon1.Image = a
+	r.Icon2.Image = b
+	if a == nil && b == nil {
+		r.Separator.Label = ""
+	} else {
+		r.Separator.Label = "+"
 	}
 }
 
@@ -420,6 +493,8 @@ type SelectButtonConfig struct {
 	ValueNames     []string
 	DisabledValues []int
 
+	LayoutData any
+
 	OnPressed func()
 	OnHover   func()
 }
@@ -440,7 +515,11 @@ func NewSelectButton(config SelectButtonConfig) *widget.Button {
 		return key + ": " + valueNames[slider.Value()]
 	}
 
-	button := newButtonSelected(config.Resources, makeLabel())
+	buttonOpts := []widget.ButtonOpt{}
+	if config.LayoutData != nil {
+		buttonOpts = append(buttonOpts, widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(config.LayoutData)))
+	}
+	button := newButtonSelected(config.Resources, makeLabel(), buttonOpts...)
 
 	button.ClickedEvent.AddHandler(func(args interface{}) {
 		increase := false
@@ -495,7 +574,7 @@ type BoolSelectButtonConfig struct {
 	OnHover   func()
 }
 
-func NewBoolSelectButton(config BoolSelectButtonConfig) widget.PreferredSizeLocateableWidget {
+func NewBoolSelectButton(config BoolSelectButtonConfig) *widget.Button {
 	var slider gmath.Slider
 	slider.SetBounds(0, 1)
 	value := config.Value
@@ -527,19 +606,35 @@ func NewBoolSelectButton(config BoolSelectButtonConfig) widget.PreferredSizeLoca
 	return button
 }
 
-func newButtonSelected(res *Resources, text string) *widget.Button {
-	return widget.NewButton(
+func newButtonSelected(res *Resources, text string, opts ...widget.ButtonOpt) *widget.Button {
+	options := []widget.ButtonOpt{
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 			Stretch: true,
 		})),
 		widget.ButtonOpts.Image(res.ButtonSelected.Image),
 		widget.ButtonOpts.Text(text, res.ButtonSelected.FontFace, res.ButtonSelected.TextColors),
 		widget.ButtonOpts.TextPadding(res.ButtonSelected.Padding),
-	)
+	}
+	options = append(options, opts...)
+	return widget.NewButton(options...)
 }
 
-func NewPanel(res *Resources, minWidth, minHeight int) *widget.Container {
-	return widget.NewContainer(
+func NewTextPanel(res *Resources, minWidth, minHeight int) *widget.Container {
+	return NewPanel(res, minWidth, minHeight,
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Spacing(4),
+			widget.RowLayoutOpts.Padding(widget.Insets{
+				Top:    16,
+				Bottom: 16,
+				Left:   20,
+				Right:  20,
+			}),
+		)))
+}
+
+func NewPanel(res *Resources, minWidth, minHeight int, opts ...widget.ContainerOpt) *widget.Container {
+	options := []widget.ContainerOpt{
 		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
@@ -555,10 +650,17 @@ func NewPanel(res *Resources, minWidth, minHeight int) *widget.Container {
 			}),
 			widget.WidgetOpts.MinSize(minWidth, minHeight),
 		),
-	)
+	}
+	options = append(options, opts...)
+
+	return widget.NewContainer(options...)
 }
 
-func NewTextInput(res *Resources, ff font.Face, opts ...widget.TextInputOpt) *widget.TextInput {
+type TextInputConfig struct {
+	SteamDeck bool
+}
+
+func NewTextInput(res *Resources, config TextInputConfig, opts ...widget.TextInputOpt) *widget.TextInput {
 	options := []widget.TextInputOpt{
 		// widget.TextInputOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 		// 	Stretch: true,
@@ -577,7 +679,26 @@ func NewTextInput(res *Resources, ff font.Face, opts ...widget.TextInputOpt) *wi
 	}
 	options = append(options, opts...)
 	t := widget.NewTextInput(options...)
+
+	if config.SteamDeck {
+		t.GetWidget().FocusEvent.AddHandler(func(args any) {
+			focusEvent := args.(*widget.WidgetFocusEventArgs)
+			if !focusEvent.Focused {
+				return
+			}
+			_ = steamsdk.ShowSteamDeckKeyboard(WidgetRect(t.GetWidget()))
+		})
+	}
+
 	return t
+}
+
+func WidgetRect(w *widget.Widget) gmath.Rect {
+	rect := w.Rect
+	return gmath.Rect{
+		Min: gmath.Vec{X: float64(rect.Min.X), Y: float64(rect.Min.Y)},
+		Max: gmath.Vec{X: float64(rect.Max.X), Y: float64(rect.Max.Y)},
+	}
 }
 
 func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
@@ -594,12 +715,12 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 				Disabled: image.NewNineSlice(disabled, [3]int{9, 14, 6}, [3]int{9, 14, 6}),
 			},
 			Padding: widget.Insets{
-				Left:   8,
-				Right:  8,
-				Top:    4,
-				Bottom: 4,
+				Left:   14,
+				Right:  14,
+				Top:    14,
+				Bottom: 10,
 			},
-			FontFace: assets.BitmapFont2,
+			FontFace: assets.BitmapFont1,
 			TextColors: &widget.TextInputColor{
 				Idle:          NormalTextColor,
 				Disabled:      NormalTextColor,
@@ -752,4 +873,15 @@ func nineSliceImage(i *ebiten.Image, centerWidth, centerHeight int) *image.NineS
 	return image.NewNineSlice(i,
 		[3]int{(w - centerWidth) / 2, centerWidth, w - (w-centerWidth)/2 - centerWidth},
 		[3]int{(h - centerHeight) / 2, centerHeight, h - (h-centerHeight)/2 - centerHeight})
+}
+
+func AddBackground(img *ebiten.Image, scene *ge.Scene) {
+	if img == nil {
+		return
+	}
+	s := ge.NewSprite(scene.Context())
+	s.Centered = false
+	s.SetColorScale(ge.ColorScale{R: 0.35, G: 0.35, B: 0.35, A: 1})
+	s.SetImage(resource.Image{Data: img})
+	scene.AddGraphics(s)
 }

@@ -38,7 +38,7 @@ func (l *debugDroneLabelNode) Init(scene *ge.Scene) {
 	})
 
 	l.label = ge.NewLabel(assets.BitmapFont1)
-	l.label.Pos.Base = &l.drone.spritePos
+	l.label.Pos.Base = &l.drone.pos
 	l.label.Width = 32
 	l.label.Height = 24
 	l.label.Pos.Offset.X = -l.label.Width * 0.5

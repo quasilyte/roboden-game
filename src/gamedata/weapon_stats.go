@@ -13,6 +13,7 @@ type DamageValue struct {
 	Slow   float64
 	Aggro  float64
 	Mark   float64
+	Stun   float64
 }
 
 type WeaponStats struct {
@@ -34,16 +35,19 @@ type WeaponStats struct {
 	AttacksPerBurst           int
 	BurstDelay                float64
 	Reload                    float64
+	EnergyCost                float64
 	AttackSound               resource.AudioID
 	FireOffset                gmath.Vec
 	ArcPower                  float64
 	Accuracy                  float64
 	TargetFlags               TargetKind
 
-	GroundDamageBonus      float64
-	FlyingDamageBonus      float64
-	GroundTargetDamageMult float64
-	FlyingTargetDamageMult float64
+	GroundDamageBonus        float64
+	FlyingDamageBonus        float64
+	BuildingDamageBonus      float64
+	GroundTargetDamageMult   float64
+	FlyingTargetDamageMult   float64
+	BuildingTargetDamageMult float64
 
 	RoundProjectile bool
 	RandArc         bool
@@ -56,6 +60,9 @@ const (
 	ProjectileTrailSmoke
 	ProjectileTrailRoomba
 	ProjectileTrailFire
+	ProjectileTrailEnergySpear
+	ProjectileTrailIonMortar
+	ProjectileTrailSuperIonMortar
 )
 
 type ProjectileExplosionKind int
@@ -63,6 +70,8 @@ type ProjectileExplosionKind int
 const (
 	ProjectileExplosionNone ProjectileExplosionKind = iota
 	ProjectileExplosionNormal
+	ProjectileExplosionIonBlast
+	ProjectileExplosionSuperIonBlast
 	ProjectileExplosionAbomb
 	ProjectileExplosionBigVertical
 	ProjectileExplosionPurple
@@ -76,6 +85,7 @@ const (
 	ProjectileExplosionGreenZap
 	ProjectileExplosionRoombaShot
 	ProjectileExplosionScarab
+	ProjectileExplosionServant
 )
 
 type TargetKind int
@@ -104,5 +114,6 @@ func InitWeaponStats(stats *WeaponStats) *WeaponStats {
 	stats.AttackRangeSqr = stats.AttackRange * stats.AttackRange
 	stats.FlyingTargetDamageMult = 1 + stats.FlyingDamageBonus
 	stats.GroundTargetDamageMult = 1 + stats.GroundDamageBonus
+	stats.BuildingTargetDamageMult = 1 + stats.BuildingDamageBonus
 	return stats
 }

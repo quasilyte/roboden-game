@@ -1,7 +1,8 @@
 package gamedata
 
 // Season 0: build 11+
-const SeasonNumber = 0
+// Season 1: build 14+
+const SeasonNumber = 1
 
 // Version 2
 // - Added min movement radius to avoid accidental clicks
@@ -147,7 +148,7 @@ const SeasonNumber = 0
 // * Visuals:
 //   - Generate less looped land cracks.
 //
-// # Version 13 (Steam-focused build)
+// # Version 13 (pre-Steam itchio early access release)
 //
 // * New content:
 //   - A completely new tutorial mode (the intro mission)
@@ -166,13 +167,26 @@ const SeasonNumber = 0
 //   - Freighter: now has a zero upkeep
 //   - Roomba: increase upkeep (3 -> 9)
 //
+// * Creeps:
+//   - Added a 10-20 sec delay before a howitzer can start firing its artillery
+//
 // * UX:
 //   - Fixed camera snapping issue near the borders of the map
+//   - The message window is not half-transparent
+//   - Better gamepad configuration screen
+//   - Better drones overview (with stats)
+//   - Added seed option help on-hover text
+//   - A notification for the colony being destroyed
+//   - Added PlayStation and Nintendo Switch gamepads layout support
+//   - Auto-pause when gamepad is disconnected
+//   - In-game on-hover hints
+//   - Hide the less relevant cursor when in the game
 //
 // * Visual improvements:
 //   - Prism drone attack now has a hit impact effect
 //   - Better layers for colonies (especially when they're landing)
 //   - Better layers for explosions (they're above dreadnought now, as they should be)
+//   - Better layout in some of the menus
 //
 // * Gameplay:
 //   - Reworked the tutorial
@@ -180,10 +194,129 @@ const SeasonNumber = 0
 // * Bug fixes:
 //   - "Colony" settings tab is not properly disabled in Reverse mode
 //   - Splash screen no longer depends on the classic mode fog of war settings
+//   - No achievements in coop mode (this would be too easy)
+//   - Fixed uncentered camera in a single bot mode
+//   - Fixed a Seeker drone that was unlocked right away (should be unlocked at 1000 pts)
+//   - Can no longer build on top of the teleporter
 //
 // * Performance:
 //   - Precompute waypoint direction once for colony agents
 //
 // * Misc:
 //   - Updated ebitenui library version
-const BuildNumber int = 13
+//   - Underscore character '_' is now allowed in the username
+//
+// # Version 14 (Steam release)
+//
+// * New content:
+//   - A new Secret achievement
+//   - A new Terminal achievement
+//   - A new Ark colony core
+//   - A new music track (called Sexxxy Bit 3 by DROZERiX)
+//   - A new Biome (Forest)
+//   - A new tier 3 Bomber drone
+//
+// * Steam-related:
+//   - Integrated Steam SDK, implemented Steam achievements
+//   - "Steam" build label in the main menu
+//   - Added some debug commands to the terminal
+//
+// * UX:
+//   - The controller Home button now pauses the game too
+//   - Added colony destination point marker
+//   - Add an option to disable on-screen buttons
+//
+// * Visuals:
+//   - Made VSync option configurable
+//   - Brand new visual effects for many explosion-like animations
+//   - Camera shaking (can be turned off)
+//   - A textured beam for couriers
+//
+// * Misc:
+//   - Added a logs.grep terminal command
+//
+// # Version 15
+//
+// * UX:
+//   - Show Dreadnought health level in the tooltip
+//   - Give an input device prompt for the new players
+//   - Display drone recipe in the Drone Collection menu as well (even for T3 drones)
+//   - Add drone highlighting when hovering over a recipe tab entry
+//   - Auto-fill player's name from the Steam account (this can be changed in the menu later)
+//
+// * Controls:
+//   - Reworked the default middle mouse button scroll behavior (can be reverted in the keyboard controls section)
+//
+// * New content:
+//   - Add Spectator achievement
+//   - Add 1337 achievement
+//   - Add Gladiator achievement
+//   - New Fortress creep (available via difficulty setting)
+//   - New Templar creep
+//   - New Ion Mortar creep turret (available via difficulty setting)
+//   - A "gold" option that disables the gold resource deposits
+//   - Added a Drone factory neutral building
+//   - Added a Power plant neutral building
+//   - Added a Turret neutral building
+//   - Added "super creep rate" option in Reverse mode
+//
+// * Gameplay:
+//   - Increase dreadnough max crawlers limit
+//   - Added x2 game speed
+//   - Made x1.2 game speed default (was x1.0, but it's kinda slow)
+//   - Reworked colonies movement
+//
+// * Bug fixes:
+//   - Fixed harvester en description
+//   - Fixed dreadnought sprite flashing component
+//   - Fixed devourer levels when joining a commander's group
+//   - Fixed a intro mission crash when "keyboard" input method was selected
+//   - Escape/back inside a results screen no longer skips through rewards
+//   - Fixed a virtual cursor click over a screen buttons like "exit"
+//   - Fixed the right/down edge scroll with its range set to 1
+//
+// * Visuals:
+//   - Improved some effects layer arrangement
+//   - Make screen shaking more intensive
+//   - Added a damage shader to Dreadnought
+//
+// * Balance:
+//   - Bombers now deal extra damage to buildings and dreadnought
+//   - Increased Destroyer's evo points cost (11 -> 17)
+//   - Increased Devourer's evo points cost (11 -> 12)
+//   - Increased Guardians's evo points cost (8 -> 9)
+//   - Make evo points generation slightly slower
+//   - Some drones now use energy when attacking
+//   - Unallocated drone point now grants 2 difficulty points instead of 1
+//   - Dreadnought can now dispatch up to 7 crawlers (this limit was at 5 previously)
+//   - Reduced Ark colony drone limit (100 -> 80)
+//   - Wisps will retreat for longer distances
+//   - Added damage vs buildings modifier
+//   - Increased wave budget scaling in Infinite Arena mode
+//   - Decrease "attack colony" action time cost in Reverse mode
+//   - Scale the number of wisps with a map size
+//
+// * Computer player (colony bots):
+//   - Will no longer play a solo base tactic with Ark core design
+//   - Better max radius selection strategy
+//   - Better evolution-related choice selection
+//   - Uses Attack action more often with Firebug & Bomber drones
+//
+// * Misc:
+//   - Trim trailing whitespace in the username
+//   - New modes and options are now listed in the rewards screen
+//
+// * Tutorial:
+//   - The difficulty & speed is now configurable via the terminal
+//   - Pinned the special choice that is required to continue
+//   - Removed the radius increase context hint (it's already in the main course)
+//   - Removed the north attack notice (it was redundant)
+//
+// * Replays:
+//   - Disabling replays from mismatching game versions
+//   - Showing the game seed in the replay's description
+//
+// * Steam Deck:
+//   - Showing the on-screen keyboard when appropriate
+//   - Added Steam Deck layout option
+const BuildNumber int = 15

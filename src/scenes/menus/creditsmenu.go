@@ -3,8 +3,8 @@ package menus
 import (
 	"sort"
 	"strings"
+	"time"
 
-	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
@@ -35,7 +35,7 @@ func (c *CreditsMenuController) Update(delta float64) {
 }
 
 func (c *CreditsMenuController) initUI() {
-	addDemoBackground(c.state, c.scene)
+	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
 	root := eui.NewAnchorContainer()
@@ -49,7 +49,8 @@ func (c *CreditsMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.credits"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
+	panel := eui.NewTextPanel(uiResources, 0, 0)
+	rowContainer.AddChild(panel)
 
 	testers := []string{
 		"bontequero",
@@ -61,25 +62,31 @@ func (c *CreditsMenuController) initUI() {
 
 	lines := []string{
 		"[" + d.Get("menu.credits.crew") + "]",
-		"    quasilyte (Iskander senpai) - mashing on the keyboard",
+		"    quasilyte (Iskander senpai) - game maker",
 		"    shooQrow (Oleg) - graphics, co-game design, testing",
 		"    " + strings.Join(testers, ", ") + " - testing",
+		"",
 		"[" + d.Get("menu.credits.assets") + "]",
-		"    DROZERiX - Crush and War Path music tracks",
+		"    DROZERiX - Crush, War Path and Sexxxy Bit 3 music tracks",
 		"    JAM - Deadly Windmills music track",
-		"    unTied Games - pixel art explosions free asset pack",
+		"    unTied Games - super pixel effects packs (1, 2 & 3)",
+		"",
+		"[" + d.Get("menu.credits.special_thanks") + "]",
+		"    Hajime Hoshi - Ebitengine creator and maintainer (@hajimehoshi)",
+		"    Mark Carpenter - ebitenui maintainer (@mcarpenter622)",
+		"",
+		d.Get("menu.credits.thank_player"),
 	}
 
-	normalContainer := eui.NewAnchorContainer()
 	label := eui.NewLabel(strings.Join(lines, "\n"), smallFont)
-	normalContainer.AddChild(label)
-	rowContainer.AddChild(normalContainer)
+	panel.AddChild(label)
 
-	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.more"), func() {
-		c.scene.Context().ChangeScene(NewExtraCreditsMenuController(c.state))
-	}))
+	secretScreen := eui.NewButton(uiResources, c.scene, "???", func() {
+		c.scene.Context().ChangeScene(NewSecretMenuController(c.state))
+	})
+	rowContainer.AddChild(secretScreen)
+	secretTime := time.Duration(7*time.Hour + 7*time.Minute + 7*time.Second)
+	secretScreen.GetWidget().Disabled = c.state.Persistent.PlayerStats.TotalPlayTime < secretTime
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

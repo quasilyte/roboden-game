@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -17,10 +18,22 @@ import (
 // It's shared between the requests, so it shouldn't have unsynchronized state.
 type requestHandler struct {
 	server *apiServer
+
+	versionResponse []byte
 }
 
 func newRequestHandler(s *apiServer) *requestHandler {
-	return &requestHandler{server: s}
+	versionResponse := []byte(fmt.Sprintf(`{"version":"%s"}`, CommitHash))
+
+	return &requestHandler{
+		server:          s,
+		versionResponse: versionResponse,
+	}
+}
+
+func (h *requestHandler) HandleVersion(r *http.Request) (any, error) {
+	h.server.metrics.IncReqVersion()
+	return h.versionResponse, nil
 }
 
 func (h *requestHandler) HandleGetPlayerBoard(r *http.Request) (any, error) {
@@ -52,7 +65,8 @@ func (h *requestHandler) HandleGetPlayerBoard(r *http.Request) (any, error) {
 		NumSeasons: h.server.NumSeasons(),
 		NumPlayers: h.server.NumBoardPlayers(modeParam),
 	}
-	if playerName == "" {
+	playerName = strings.TrimSpace(playerName)
+	if playerName == "" || !gamedata.IsValidUsername(playerName) {
 		resp.Entries = h.server.Top10(modeParam)
 		return resp, nil
 	}
@@ -81,7 +95,8 @@ func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 		return nil, errBadParams
 	}
 	playerName := r.URL.Query().Get("name")
-	if playerName == "" {
+	playerName = strings.TrimSpace(playerName)
+	if playerName == "" || !gamedata.IsValidUsername(playerName) {
 		return nil, errBadParams
 	}
 	seasonNumber, err := strconv.Atoi(seasonParam)

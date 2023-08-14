@@ -20,10 +20,11 @@ type creepCoordinator struct {
 	crawlers   []*creepNode
 	groupSlice []*creepNode
 
-	scoutingDelay float64
-	attackDelay   float64
-	scatterDelay  float64
-	relocateDelay float64
+	scoutingDelay    float64
+	attackDelay      float64
+	attackRuinsDelay float64
+	scatterDelay     float64
+	relocateDelay    float64
 }
 
 func newCreepCoordinator(world *worldState) *creepCoordinator {
@@ -48,9 +49,17 @@ func (c *creepCoordinator) Update(delta float64) {
 	c.scatterDelay = gmath.ClampMin(c.scatterDelay-delta, 0)
 	c.relocateDelay = gmath.ClampMin(c.relocateDelay-delta, 0)
 
+	if len(c.world.neutralBuildings) != 0 {
+		c.attackRuinsDelay = gmath.ClampMin(c.attackRuinsDelay-delta, 0)
+		if c.attackRuinsDelay == 0 {
+			c.tryAttackingRuins()
+		}
+	}
+
 	if c.attackDelay == 0 {
 		c.tryLaunchingAttack()
 	}
+
 	if c.scoutingDelay == 0 {
 		c.sendScout()
 	}
@@ -84,7 +93,7 @@ func (c *creepCoordinator) sendScout() {
 	scoutingDest := gmath.RadToVec(c.world.rand.Rad()).Mulf(scoutingDist).Add(scout.pos)
 	scout.specialModifier = crawlerMove
 	scout.waypoint = c.world.pathgrid.AlignPos(scout.pos)
-	p := c.world.BuildPath(scout.waypoint, scoutingDest)
+	p := c.world.BuildPath(scout.waypoint, scoutingDest, layerNormal)
 	scout.path = p.Steps
 }
 
@@ -112,7 +121,7 @@ func (c *creepCoordinator) tryLaunchingRelocation() {
 		creepTargetPos := correctedPos(c.world.rect, targetPos.Add(c.world.rand.Offset(-96, 96)), 32)
 
 		creep.specialModifier = crawlerMove
-		p := c.world.BuildPath(creep.pos, creepTargetPos)
+		p := c.world.BuildPath(creep.pos, creepTargetPos, layerNormal)
 		creep.path = p.Steps
 		creep.waypoint = c.world.pathgrid.AlignPos(creep.pos)
 	}
@@ -157,7 +166,7 @@ func (c *creepCoordinator) Rally(pos gmath.Vec) {
 		}
 	}
 	if closestTarget != nil {
-		c.sendCreepsToAttack(group, closestTarget)
+		c.sendCreepsToAttack(group, closestTarget.pos)
 		return
 	}
 	c.scatterCreeps(group)
@@ -171,6 +180,31 @@ func (c *creepCoordinator) findColonyToAttack(pos gmath.Vec, r float64) *colonyC
 	return randIterate(c.world.rand, c.world.allColonies, func(c *colonyCoreNode) bool {
 		return c.pos.DistanceSquaredTo(pos) <= rSqr
 	})
+}
+
+func (c *creepCoordinator) tryAttackingRuins() {
+	leader := gmath.RandElem(c.world.rand, c.crawlers)
+	if leader.specialModifier != crawlerIdle {
+		c.attackRuinsDelay = c.world.rand.FloatRange(8, 20)
+		return
+	}
+
+	b := randIterate(c.world.rand, c.world.neutralBuildings, func(b *neutralBuildingNode) bool {
+		return b.agent != nil
+	})
+	if b == nil {
+		c.attackRuinsDelay = c.world.rand.FloatRange(20, 50)
+		return
+	}
+
+	group := c.collectGroup(leader.pos, 250, 5)
+	if len(group) < 2 {
+		c.attackRuinsDelay = c.world.rand.FloatRange(10, 20)
+		return
+	}
+
+	c.attackRuinsDelay = c.world.rand.FloatRange(100, 200)
+	c.sendCreepsToAttack(group, b.pos)
 }
 
 func (c *creepCoordinator) tryLaunchingAttack() {
@@ -206,7 +240,7 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 		c.attackDelay = c.world.rand.FloatRange(30.0, 70.0)
 	}
 
-	c.sendCreepsToAttack(group, target)
+	c.sendCreepsToAttack(group, target.pos)
 }
 
 func (c *creepCoordinator) scatterCreeps(group []*creepNode) {
@@ -214,14 +248,21 @@ func (c *creepCoordinator) scatterCreeps(group []*creepNode) {
 		dist := c.world.rand.FloatRange(128, 400)
 		targetPos := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(creep.pos)
 		creep.SendTo(targetPos)
+		creep.wasRetreating = false
 	}
 }
 
-func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, target *colonyCoreNode) {
+func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, targetPos gmath.Vec) {
 	for _, creep := range group {
 		dist := c.world.rand.FloatRange(creep.stats.Weapon.AttackRange*0.5, creep.stats.Weapon.AttackRange*0.8)
-		targetPos := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist).Add(target.pos)
-		creep.SendTo(targetPos)
+		dir := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist)
+		waypoint := dir.Add(targetPos)
+		if c.world.HasTreesAt(waypoint, 0) {
+			// Try to find a better spot.
+			waypoint = dir.Mulf(-1).Add(targetPos)
+		}
+		creep.SendTo(waypoint)
+		creep.wasRetreating = false
 	}
 }
 

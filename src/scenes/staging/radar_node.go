@@ -251,7 +251,10 @@ func (r *radarNode) updateDark() {
 }
 
 func (r *radarNode) update(delta float64) {
-	r.sprite.Visible = r.colony != nil
+	if r.world.nodeRunner.IsPaused() {
+		return
+	}
+
 	r.wave.Visible = r.colony != nil
 	if r.bossSpot.Visible && r.colony == nil {
 		r.setBossVisibility(false)

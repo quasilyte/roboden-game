@@ -61,7 +61,7 @@ func groundCreepSpawnPos(world *worldState, pos gmath.Vec, stats *gamedata.Creep
 			attemptPos.Y = world.height - 1
 		}
 		coord := world.pathgrid.PosToCoord(attemptPos)
-		if world.pathgrid.CellIsFree(coord) {
+		if world.CellIsFree(coord, layerNormal) {
 			creepPos = attemptPos
 			break
 		}

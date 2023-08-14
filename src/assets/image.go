@@ -9,7 +9,7 @@ import (
 	_ "image/png"
 )
 
-func RegisterImageResources(ctx *ge.Context, progress *float64) {
+func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) {
 	imageResources := map[resource.ImageID]resource.ImageInfo{
 		ImageLogo: {Path: "image/logo.png"},
 
@@ -27,6 +27,7 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageAchievementVictoryDrag:    {Path: "image/achievement/victorydrag.png"},
 		ImageAchievementT3Less:         {Path: "image/achievement/t3less.png"},
 		ImageAchievementTurretDamage:   {Path: "image/achievement/turretdamage.png"},
+		ImageAchievementLeet:           {Path: "image/achievement/leet.png"},
 		ImageAchievementPowerOf3:       {Path: "image/achievement/powerof3.png"},
 		ImageAchievementInfinite:       {Path: "image/achievement/infinite.png"},
 		ImageAchievementAntiDominator:  {Path: "image/achievement/antidominator.png"},
@@ -35,14 +36,19 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageAchievementColonyHunter:   {Path: "image/achievement/colonyhunter.png"},
 		ImageAchievementGroundControl:  {Path: "image/achievement/groundcontrol.png"},
 		ImageAchievementAtomicFinisher: {Path: "image/achievement/atomicfinisher.png"},
+		ImageAchievementSecret:         {Path: "image/achievement/secret.png"},
+		ImageAchievementTerminal:       {Path: "image/achievement/terminal.png"},
+		ImageAchievementSpectator:      {Path: "image/achievement/spectator.png"},
+		ImageAchievementGladiator:      {Path: "image/achievement/gladiator.png"},
 
 		ImageLock: {Path: "image/ui/lock.png"},
 
-		ImageSmallShadow:      {Path: "image/shadows/small_shadow.png"},
-		ImageMediumShadow:     {Path: "image/shadows/medium_shadow.png"},
-		ImageBigShadow:        {Path: "image/shadows/big_shadow.png"},
-		ImageUberBossShadow:   {Path: "image/shadows/uber_boss_shadow.png"},
-		ImageColonyCoreShadow: {Path: "image/shadows/colony_core_shadow.png"},
+		ImageSmallShadow:    {Path: "image/shadows/small_shadow.png"},
+		ImageMediumShadow:   {Path: "image/shadows/medium_shadow.png"},
+		ImageBigShadow:      {Path: "image/shadows/big_shadow.png"},
+		ImageUberBossShadow: {Path: "image/shadows/uber_boss_shadow.png"},
+		ImageDenShadow:      {Path: "image/shadows/den_shadow.png"},
+		ImageArkShadow:      {Path: "image/shadows/ark_shadow.png"},
 
 		ImageCursor: {Path: "image/cursor.png"},
 
@@ -89,9 +95,13 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageActionIncreaseTech:   {Path: "image/ui/action_increase_tech.png"},
 		ImageActionAbomb:          {Path: "image/ui/action_abomb.png"},
 
-		ImageTeleportEffect:             {Path: "image/effects/teleport.png", FrameWidth: 100},
-		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 50},
-		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 50},
+		ImageTeleportEffectSmall:        {Path: "image/effects/teleport_effect_small.png", FrameWidth: 32},
+		ImageTeleportEffectBig:          {Path: "image/effects/teleport_effect_big.png", FrameWidth: 64},
+		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 24},
+		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 24},
+		ImageEnergySpearTrail:           {Path: "image/effects/energy_spear_trail.png", FrameWidth: 12},
+		ImageIonMortarTrail:             {Path: "image/effects/ion_mortar_trail.png", FrameWidth: 11},
+		ImageSuperIonMortarTrail:        {Path: "image/effects/super_ion_mortar_trail.png", FrameWidth: 11},
 		ImageFireTrail:                  {Path: "image/effects/fire_trail.png", FrameWidth: 7},
 		ImageRoombaLaserTrail:           {Path: "image/effects/roomba_shot_trail.png", FrameWidth: 7},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
@@ -102,15 +112,29 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
 		ImageTargeterShotExplosion:      {Path: "image/effects/targeter_shot_explosion.png", FrameWidth: 15},
 		ImagePrismShotExplosion:         {Path: "image/effects/prism_shot_explosion.png", FrameWidth: 15},
+		ImageStunExplosion:              {Path: "image/effects/stun_explosion.png", FrameWidth: 24},
 		ImageScoutIonExplosion:          {Path: "image/effects/scout_ion_explosion.png", FrameWidth: 5},
+		ImageIonBlast:                   {Path: "image/effects/ion_blast.png", FrameWidth: 32},
+		ImageSuperIonBlast:              {Path: "image/effects/super_ion_blast.png", FrameWidth: 32},
 		ImageShockerExplosion:           {Path: "image/effects/shocker_explosion.png", FrameWidth: 8},
 		ImageFighterLaserExplosion:      {Path: "image/effects/fighter_laser_explosion.png", FrameWidth: 14},
 		ImageHeavyCrawlerLaserExplosion: {Path: "image/effects/heavy_crawler_laser_explosion.png", FrameWidth: 14},
-		ImageSmallExplosion1:            {Path: "image/effects/small_explosion1.png", FrameWidth: 32},
-		ImagePurpleExplosion:            {Path: "image/effects/purple_explosion.png", FrameWidth: 40},
-		ImageVerticalExplosion:          {Path: "image/effects/vertical_explosion.png", FrameWidth: 50},
-		ImageBigVerticalExplosion:       {Path: "image/effects/big_vertical_explosion.png", FrameWidth: 38},
-		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 64},
+		ImageSmallExplosion1:            {Path: "image/effects/small_explosion1.png", FrameWidth: 16},
+		ImageSmallExplosion2:            {Path: "image/effects/small_explosion2.png", FrameWidth: 16},
+		ImageSmallExplosion3:            {Path: "image/effects/small_explosion3.png", FrameWidth: 20},
+		ImageSmallExplosion4:            {Path: "image/effects/small_explosion4.png", FrameWidth: 16},
+		ImagePurpleExplosion:            {Path: "image/effects/purple_explosion.png", FrameWidth: 26},
+		ImageVerticalExplosion1:         {Path: "image/effects/vertical_explosion1.png", FrameWidth: 30},
+		ImageVerticalExplosion2:         {Path: "image/effects/vertical_explosion2.png", FrameWidth: 32},
+		ImageBigVerticalExplosion1:      {Path: "image/effects/big_vertical_explosion1.png", FrameWidth: 46},
+		ImageBigVerticalExplosion2:      {Path: "image/effects/big_vertical_explosion2.png", FrameWidth: 64},
+		ImageNuclearExplosion:           {Path: "image/effects/nuclear_explosion.png", FrameWidth: 128},
+		ImageBombExplosion:              {Path: "image/effects/bomb_explosion.png", FrameWidth: 64},
+		ImageBigExplosion:               {Path: "image/effects/big_explosion.png", FrameWidth: 32},
+		ImageServantShotExplosion:       {Path: "image/effects/servant_shot_explosion.png", FrameWidth: 16},
+		ImageWispExplosion:              {Path: "image/effects/wisp_explosion.png", FrameWidth: 32},
+		ImageWispShockwave:              {Path: "image/effects/wisp_shockwave.png", FrameWidth: 64},
+		ImageOrganicRestored:            {Path: "image/effects/organic_restored.png", FrameWidth: 24},
 		ImageIonZap:                     {Path: "image/effects/ion_zap.png", FrameWidth: 28},
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
 		ImageGreenZap:                   {Path: "image/effects/green_zap.png", FrameWidth: 14},
@@ -122,62 +146,83 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageSmokeSideDown:              {Path: "image/effects/smoke_side_down.png", FrameWidth: 8},
 		ImageSmokeSide:                  {Path: "image/effects/smoke_side.png", FrameWidth: 15},
 		ImageRoombaSmoke:                {Path: "image/effects/roomba_smoke.png", FrameWidth: 8},
+		ImageDisappearSmokeSmall:        {Path: "image/effects/disappear_small.png", FrameWidth: 32},
+		ImageDisappearSmokeBig:          {Path: "image/effects/disappear_big.png", FrameWidth: 64},
+		ImageCreepCreatedEffect:         {Path: "image/effects/creep_created.png", FrameWidth: 32},
 
-		ImageFactionDiode:            {Path: "image/faction_diode.png"},
-		ImageColonyResourceBar1:      {Path: "image/colony_resource_bar1.png"},
-		ImageColonyResourceBar2:      {Path: "image/colony_resource_bar2.png"},
-		ImageColonyResourceBar3:      {Path: "image/colony_resource_bar3.png"},
-		ImageColonyCoreSelector:      {Path: "image/colony_core_selector.png"},
-		ImageColonyCoreAllianceColor: {Path: "image/colony_core_alliance_color.png"},
-		ImageColonyCore:              {Path: "image/colony_core.png"},
-		ImageColonyCoreFlying:        {Path: "image/colony_core_flying.png"},
-		ImageColonyCoreHatch:         {Path: "image/colony_core_hatch.png"},
-		ImageColonyCoreDiode:         {Path: "image/colony_core_diode.png", FrameWidth: 4},
-		ImageTeleporter:              {Path: "image/teleporter.png"},
-		ImageTeleporterLights:        {Path: "image/teleporter_lights.png"},
+		ImageFactionDiode:     {Path: "image/faction_diode.png"},
+		ImageTeleporter:       {Path: "image/teleporter.png"},
+		ImageTeleporterLights: {Path: "image/teleporter_lights.png"},
+
+		ImageDroneSelector: {Path: "image/ui/drone_selector.png"},
+
+		ImageDenCore:              {Path: "image/colonies/den_core.png"},
+		ImageDenCoreFlying:        {Path: "image/colonies/den_core_flying.png"},
+		ImageDenCoreSelector:      {Path: "image/colonies/den_core_selector.png"},
+		ImageDenCoreAllianceColor: {Path: "image/colonies/den_core_alliance_color.png"},
+
+		ImageArkCore:              {Path: "image/colonies/ark_core.png"},
+		ImageArkCoreFlying:        {Path: "image/colonies/ark_core_flying.png"},
+		ImageArkCoreSelector:      {Path: "image/colonies/ark_core_selector.png"},
+		ImageArkCoreAllianceColor: {Path: "image/colonies/ark_core_alliance_color.png"},
+
+		ImageColonyResourceBar1: {Path: "image/colonies/colony_resource_bar1.png"},
+		ImageColonyResourceBar2: {Path: "image/colonies/colony_resource_bar2.png"},
+		ImageColonyResourceBar3: {Path: "image/colonies/colony_resource_bar3.png"},
+		ImageColonyCoreHatch:    {Path: "image/colonies/colony_core_hatch.png"},
+		ImageColonyCoreDiode:    {Path: "image/colonies/colony_core_diode.png", FrameWidth: 4},
+
+		ImageRelictFactoryHatch: {Path: "image/relicts/drone_factory_hatch.png"},
+		ImageRelictFactoryAgent: {Path: "image/relicts/drone_factory_agent.png"},
+		ImagePowerPlantAgent:    {Path: "image/relicts/power_plant_agent.png"},
+		ImageRepulseTower:       {Path: "image/relicts/tower_artifact.png"},
+		ImageRelictAgent:        {Path: "image/relicts/relict_agent.png", FrameWidth: 13, FrameHeight: 12},
 
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
 		ImageTetherBeaconAgent:  {Path: "image/drones/tether_beacon_agent.png"},
-		ImageRoombaAgent:        {Path: "image/drones/roomba_agent.png", FrameWidth: 17, FrameHeight: 13},
+		ImageRoombaAgent:        {Path: "image/drones/roomba_agent.png", FrameWidth: 17, FrameHeight: 14},
 		ImageWorkerAgent:        {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
-		ImageScoutAgent:         {Path: "image/drones/scout_agent.png", FrameWidth: 11, FrameHeight: 13},
-		ImageFirebugAgent:       {Path: "image/drones/firebug_agent.png", FrameWidth: 19, FrameHeight: 19},
-		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 13},
+		ImageScoutAgent:         {Path: "image/drones/scout_agent.png", FrameWidth: 11, FrameHeight: 14},
+		ImageFirebugAgent:       {Path: "image/drones/firebug_agent.png", FrameWidth: 19, FrameHeight: 20},
+		ImageClonerAgent:        {Path: "image/drones/cloner_agent.png", FrameWidth: 13, FrameHeight: 14},
 		ImageScavengerAgent:     {Path: "image/drones/scavenger_agent.png", FrameWidth: 15, FrameHeight: 12},
-		ImageCourierAgent:       {Path: "image/drones/courier_agent.png", FrameWidth: 15, FrameHeight: 15},
-		ImageDisintegratorAgent: {Path: "image/drones/disintegrator_agent.png", FrameWidth: 17, FrameHeight: 15},
+		ImageCourierAgent:       {Path: "image/drones/courier_agent.png", FrameWidth: 15, FrameHeight: 16},
+		ImageDisintegratorAgent: {Path: "image/drones/disintegrator_agent.png", FrameWidth: 17, FrameHeight: 16},
 		ImageTruckerAgent:       {Path: "image/drones/trucker_agent.png", FrameWidth: 27, FrameHeight: 22},
 		ImageMarauderAgent:      {Path: "image/drones/marauder_agent.png", FrameWidth: 29, FrameHeight: 20},
 		ImageMortarAgent:        {Path: "image/drones/mortar_agent.png", FrameWidth: 21, FrameHeight: 18},
-		ImageCripplerAgent:      {Path: "image/drones/crippler_agent.png", FrameWidth: 15, FrameHeight: 15},
-		ImageStormbringerAgent:  {Path: "image/drones/stormbringer_agent.png", FrameWidth: 21, FrameHeight: 19},
-		ImageRepairAgent:        {Path: "image/drones/repair_agent.png", FrameWidth: 17, FrameHeight: 13},
-		ImageAntiAirAgent:       {Path: "image/drones/antiair_agent.png", FrameWidth: 17, FrameHeight: 19},
+		ImageCripplerAgent:      {Path: "image/drones/crippler_agent.png", FrameWidth: 15, FrameHeight: 16},
+		ImageStormbringerAgent:  {Path: "image/drones/stormbringer_agent.png", FrameWidth: 21, FrameHeight: 20},
+		ImageRepairAgent:        {Path: "image/drones/repair_agent.png", FrameWidth: 17, FrameHeight: 14},
+		ImageAntiAirAgent:       {Path: "image/drones/antiair_agent.png", FrameWidth: 17, FrameHeight: 20},
 		ImageServoAgent:         {Path: "image/drones/servo_agent.png", FrameWidth: 15, FrameHeight: 22},
 		ImageRechargerAgent:     {Path: "image/drones/recharger_agent.png", FrameWidth: 17, FrameHeight: 20},
-		ImageGuardianAgent:      {Path: "image/drones/guardian_agent.png", FrameWidth: 31, FrameHeight: 21},
-		ImageFighterAgent:       {Path: "image/drones/fighter_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImageGuardianAgent:      {Path: "image/drones/guardian_agent.png", FrameWidth: 31, FrameHeight: 22},
+		ImageFighterAgent:       {Path: "image/drones/fighter_agent.png", FrameWidth: 15, FrameHeight: 16},
 		ImageDefenderAgent:      {Path: "image/drones/defender_agent.png", FrameWidth: 17, FrameHeight: 16},
 		ImageKamikazeAgent:      {Path: "image/drones/kamikaze_agent.png", FrameWidth: 15, FrameHeight: 12},
-		ImagePrismAgent:         {Path: "image/drones/prism_agent.png", FrameWidth: 15, FrameHeight: 15},
+		ImagePrismAgent:         {Path: "image/drones/prism_agent.png", FrameWidth: 15, FrameHeight: 16},
 		ImageDestroyerAgent:     {Path: "image/drones/destroyer_agent.png", FrameWidth: 33, FrameHeight: 24},
-		ImageRepellerAgent:      {Path: "image/drones/repeller_agent.png", FrameWidth: 15, FrameHeight: 13},
+		ImageRepellerAgent:      {Path: "image/drones/repeller_agent.png", FrameWidth: 15, FrameHeight: 14},
 		ImageFreighterAgent:     {Path: "image/drones/freighter_agent.png", FrameWidth: 17, FrameHeight: 16},
 		ImageRedminerAgent:      {Path: "image/drones/redminer_agent.png", FrameWidth: 13, FrameHeight: 18},
-		ImageGeneratorAgent:     {Path: "image/drones/generator_agent.png", FrameWidth: 15, FrameHeight: 17},
+		ImageGeneratorAgent:     {Path: "image/drones/generator_agent.png", FrameWidth: 15, FrameHeight: 18},
 		ImageSkirmisherAgent:    {Path: "image/drones/skirmisher_agent.png", FrameWidth: 19, FrameHeight: 12},
 		ImageScarabAgent:        {Path: "image/drones/scarab_agent.png", FrameWidth: 23, FrameHeight: 12},
 		ImageDevourerAgent:      {Path: "image/drones/devourer_agent.png", FrameWidth: 23, FrameHeight: 22},
 		ImageCommanderAgent:     {Path: "image/drones/commander_agent.png", FrameWidth: 17, FrameHeight: 14},
 		ImageTargeterAgent:      {Path: "image/drones/targeter_agent.png", FrameWidth: 15, FrameHeight: 14},
+		ImageBomberAgent:        {Path: "image/drones/bomber_agent.png", FrameWidth: 23, FrameHeight: 18},
 
-		ImageColonyDamageMask:  {Path: "image/shaders/colony_damage_mask.png"},
-		ImageTurretDamageMask1: {Path: "image/shaders/turret_damage_mask1.png"},
-		ImageTurretDamageMask2: {Path: "image/shaders/turret_damage_mask2.png"},
-		ImageTurretDamageMask3: {Path: "image/shaders/turret_damage_mask3.png"},
-		ImageTurretDamageMask4: {Path: "image/shaders/turret_damage_mask4.png"},
+		ImageDreadnoughtDamageMask: {Path: "image/shaders/dreadnought_damage_mask.png"},
+		ImageColonyDamageMask:      {Path: "image/shaders/colony_damage_mask.png"},
+		ImageBuildingDamageMask:    {Path: "image/shaders/building_damage_mask.png"},
+		ImageTurretDamageMask1:     {Path: "image/shaders/turret_damage_mask1.png"},
+		ImageTurretDamageMask2:     {Path: "image/shaders/turret_damage_mask2.png"},
+		ImageTurretDamageMask3:     {Path: "image/shaders/turret_damage_mask3.png"},
+		ImageTurretDamageMask4:     {Path: "image/shaders/turret_damage_mask4.png"},
 
 		ImageEssenceSourceDissolveMask:    {Path: "image/resources/essence_source_dissolve_mask.png"},
 		ImageEssenceRedCrystalSource:      {Path: "image/resources/red_crystal.png"},
@@ -190,7 +235,9 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageEssenceSmallScrapCreepSource: {Path: "image/resources/small_scrap_source_creep.png"},
 		ImageEssenceBigScrapCreepSource:   {Path: "image/resources/big_scrap_source_creep.png"},
 		ImageEssenceSource:                {Path: "image/resources/essence_source.png", FrameWidth: 32},
+		ImageEssenceForestOil:             {Path: "image/resources/forest_oil.png", FrameWidth: 32},
 		ImageRedEssenceSource:             {Path: "image/resources/red_essence_source.png", FrameWidth: 32},
+		ImageOrganicSource:                {Path: "image/resources/organic_source.png", FrameWidth: 20},
 
 		ImageHowitzerCreep:       {Path: "image/creeps/howitzer_creep.png", FrameWidth: 37, FrameHeight: 30},
 		ImageHowitzerPreparing:   {Path: "image/creeps/howitzer_preparing.png", FrameWidth: 37, FrameHeight: 36},
@@ -202,25 +249,40 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageCreepTier1:          {Path: "image/creeps/tier1_creep.png", FrameHeight: 9},
 		ImageServantCreep:        {Path: "image/creeps/servant_creep.png", FrameWidth: 15, FrameHeight: 13},
 		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png", FrameHeight: 16},
+		ImageCreepTemplar:        {Path: "image/creeps/templar_creep.png", FrameWidth: 19, FrameHeight: 14},
 		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25, FrameHeight: 22},
 		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23, FrameHeight: 24},
 		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png", FrameHeight: 25},
+		ImageIonMortarCreep:      {Path: "image/creeps/ion_mortar_creep.png", FrameHeight: 25},
+		ImageFortressCreep:       {Path: "image/creeps/fortress_creep.png", FrameWidth: 43},
 		ImageUberBoss:            {Path: "image/creeps/uber_boss.png", FrameWidth: 40, FrameHeight: 40},
 		ImageUberBossDoor:        {Path: "image/creeps/uber_boss_door.png"},
 		ImageCreepBase:           {Path: "image/creeps/creep_base.png", FrameWidth: 32, FrameHeight: 32},
 		ImageCrawlerCreepBase:    {Path: "image/creeps/crawler_base_creep.png", FrameHeight: 25},
 		ImageBuilderCreep:        {Path: "image/creeps/builder_creep.png", FrameWidth: 31, FrameHeight: 31},
+		ImageWispLair:            {Path: "image/creeps/wisp_lair.png"},
+		ImageWisp:                {Path: "image/creeps/wisp.png", FrameWidth: 22},
 
-		ImageBackgroundTiles: {Path: "image/landscape/tiles.png"},
-		ImageMountainSmall:   {Path: "image/landscape/mountain_small.png", FrameWidth: 32},
-		ImageMountainMedium:  {Path: "image/landscape/mountain_medium.png", FrameWidth: 48},
-		ImageMountainBig:     {Path: "image/landscape/mountain_big.png", FrameWidth: 64},
-		ImageMountainWide:    {Path: "image/landscape/mountain_wide.png", FrameWidth: 64},
-		ImageMountainTall:    {Path: "image/landscape/mountain_tall.png", FrameWidth: 48},
-		ImageLandCrack:       {Path: "image/landscape/landcrack.png", FrameWidth: 32},
-		ImageLandCrack2:      {Path: "image/landscape/landcrack2.png", FrameWidth: 32},
-		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
-		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
+		ImageBackgroundTiles:       {Path: "image/landscape/moon/tiles.png"},
+		ImageBackgroundForestTiles: {Path: "image/landscape/forest/tiles.png"},
+
+		ImageMountainSmall:        {Path: "image/landscape/moon/mountain_small.png", FrameWidth: 32},
+		ImageMountainMedium:       {Path: "image/landscape/moon/mountain_medium.png", FrameWidth: 48},
+		ImageMountainBig:          {Path: "image/landscape/moon/mountain_big.png", FrameWidth: 64},
+		ImageMountainWide:         {Path: "image/landscape/moon/mountain_wide.png", FrameWidth: 64},
+		ImageMountainTall:         {Path: "image/landscape/moon/mountain_tall.png", FrameWidth: 48},
+		ImageForestMountainSmall:  {Path: "image/landscape/forest/mountain_small.png", FrameWidth: 32},
+		ImageForestMountainMedium: {Path: "image/landscape/forest/mountain_medium.png", FrameWidth: 48},
+		ImageForestMountainBig:    {Path: "image/landscape/forest/mountain_big.png", FrameWidth: 64},
+		ImageForestMountainWide:   {Path: "image/landscape/forest/mountain_wide.png", FrameWidth: 64},
+		ImageForestMountainTall:   {Path: "image/landscape/forest/mountain_tall.png", FrameWidth: 48},
+
+		ImageLandCrack:  {Path: "image/landscape/landcrack.png", FrameWidth: 32},
+		ImageLandCrack2: {Path: "image/landscape/landcrack2.png", FrameWidth: 32},
+		ImageLandCrack3: {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
+		ImageLandCrack4: {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
+
+		ImageTrees: {Path: "image/landscape/forest/trees.png", FrameWidth: 32},
 
 		ImageCommanderProjectile:      {Path: "image/projectile/commander_projectile.png"},
 		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
@@ -247,18 +309,29 @@ func RegisterImageResources(ctx *ge.Context, progress *float64) {
 		ImageHowitzerProjectile:       {Path: "image/projectile/howitzer_projectile.png"},
 		ImageHowitzerLaserProjectile:  {Path: "image/projectile/howitzer_laser_projectile.png"},
 		ImageAbombMissile:             {Path: "image/projectile/abomb.png"},
+		ImageBomb:                     {Path: "image/projectile/bomb.png"},
 		ImageAntiAirMissile:           {Path: "image/projectile/aa_missile.png"},
 		ImageMissile:                  {Path: "image/projectile/missile.png"},
+		ImageEnergySpear:              {Path: "image/projectile/energy_spear.png"},
+		ImageIonMortarProjectile:      {Path: "image/projectile/ion_mortar_projectile.png"},
+		ImageSuperIonMortarProjectile: {Path: "image/projectile/super_ion_mortar_projectile.png"},
 
-		ImageFlamerLine:    {Path: "image/lines/flamer_line.png"},
-		ImageTargeterLine:  {Path: "image/lines/targeter_line.png"},
-		ImageStunnerLine:   {Path: "image/lines/stunner_line.png"},
-		ImageBossLaserLine: {Path: "image/lines/boss_laser_line.png"},
-		ImageRepairLine:    {Path: "image/lines/repair_line.png"},
-		ImageRechargerLine: {Path: "image/lines/recharger_line.png"},
-		ImageDefenderLine:  {Path: "image/lines/defender_line.png"},
-		ImageBeamtowerLine: {Path: "image/lines/beamtower_line.png"},
-		ImageTetherLine:    {Path: "image/lines/tether_line.png"},
+		ImageBossLaserLine:   {Path: "image/lines/boss_laser_line.png"},
+		ImageTempestLine:     {Path: "image/lines/tempest_line.png"},
+		ImageRelictAgentLine: {Path: "image/lines/relict_agent_line.png"},
+		ImageFlamerLine:      {Path: "image/lines/flamer_line.png"},
+		ImageTargeterLine:    {Path: "image/lines/targeter_line.png"},
+		ImageStunnerLine:     {Path: "image/lines/stunner_line.png"},
+		ImageRepairLine:      {Path: "image/lines/repair_line.png"},
+		ImageRechargerLine:   {Path: "image/lines/recharger_line.png"},
+		ImageDefenderLine:    {Path: "image/lines/defender_line.png"},
+		ImageBeamtowerLine:   {Path: "image/lines/beamtower_line.png"},
+		ImageTetherLine:      {Path: "image/lines/tether_line.png"},
+		ImageCourierLine:     {Path: "image/lines/courier_line.png"},
+		ImageTemplarLine:     {Path: "image/lines/templar_line.png"},
+
+		ImageUIGamepadRadar:    {Path: "image/ui/gamepad_radar.png"},
+		ImageUIGamepadRadarDot: {Path: "image/ui/gamepad_radar_dot.png"},
 
 		ImageUIButtonIdle:               {Path: "image/ebitenui/button-idle.png"},
 		ImageUIButtonHover:              {Path: "image/ebitenui/button-hover.png"},
@@ -325,6 +398,7 @@ const (
 	ImageAchievementVictoryDrag
 	ImageAchievementT3Less
 	ImageAchievementTurretDamage
+	ImageAchievementLeet
 	ImageAchievementPowerOf3
 	ImageAchievementInfinite
 	ImageAchievementNoPeeking
@@ -332,6 +406,10 @@ const (
 	ImageAchievementColonyHunter
 	ImageAchievementGroundControl
 	ImageAchievementAtomicFinisher
+	ImageAchievementSecret
+	ImageAchievementTerminal
+	ImageAchievementSpectator
+	ImageAchievementGladiator
 
 	ImageLock
 
@@ -357,13 +435,18 @@ const (
 	ImagePriorityBar
 	ImagePriorityIcons
 
+	ImageIonMortarTrail
+	ImageSuperIonMortarTrail
+	ImageEnergySpearTrail
 	ImageFireTrail
 	ImageRoombaLaserTrail
 	ImageProjectileSmoke
-	ImageTeleportEffect
+	ImageTeleportEffectBig
+	ImageTeleportEffectSmall
 	ImageMergingComplete
 	ImageCloningComplete
 	ImagePrismShotExplosion
+	ImageStunExplosion
 	ImageCommanderShotExplosion
 	ImageTargeterShotExplosion
 	ImageStealthLaserExplosion
@@ -371,14 +454,27 @@ const (
 	ImageScarabShotExplosion
 	ImageCripplerBlasterExplosion
 	ImageScoutIonExplosion
+	ImageIonBlast
+	ImageSuperIonBlast
 	ImageShockerExplosion
 	ImageFighterLaserExplosion
 	ImageHeavyCrawlerLaserExplosion
 	ImageSmallExplosion1
+	ImageSmallExplosion2
+	ImageSmallExplosion3
+	ImageSmallExplosion4
 	ImagePurpleExplosion
-	ImageVerticalExplosion
-	ImageBigVerticalExplosion
+	ImageVerticalExplosion1
+	ImageVerticalExplosion2
+	ImageBigVerticalExplosion1
+	ImageBigVerticalExplosion2
+	ImageNuclearExplosion
+	ImageBombExplosion
+	ImageServantShotExplosion
 	ImageBigExplosion
+	ImageWispExplosion
+	ImageWispShockwave
+	ImageOrganicRestored
 	ImageIonZap
 	ImagePurpleIonZap
 	ImageGreenZap
@@ -390,8 +486,13 @@ const (
 	ImageSmokeSideDown
 	ImageSmokeSide
 	ImageRoombaSmoke
+	ImageDisappearSmokeSmall
+	ImageDisappearSmokeBig
+	ImageCreepCreatedEffect
 
+	ImageDreadnoughtDamageMask
 	ImageColonyDamageMask
+	ImageBuildingDamageMask
 	ImageTurretDamageMask1
 	ImageTurretDamageMask2
 	ImageTurretDamageMask3
@@ -433,15 +534,29 @@ const (
 	ImageColonyResourceBar1
 	ImageColonyResourceBar2
 	ImageColonyResourceBar3
-	ImageColonyCoreSelector
-	ImageColonyCoreAllianceColor
-	ImageColonyCore
-	ImageColonyCoreFlying
+
+	ImageDroneSelector
+
+	ImageDenCore
+	ImageDenCoreFlying
+	ImageDenCoreSelector
+	ImageDenCoreAllianceColor
+
+	ImageArkCore
+	ImageArkCoreFlying
+	ImageArkCoreSelector
+	ImageArkCoreAllianceColor
+
+	ImageRelictFactoryHatch
 	ImageColonyCoreHatch
 	ImageColonyCoreDiode
-	ImageColonyCoreShadow
+	ImageArkShadow
+	ImageDenShadow
 	ImageTeleporter
 	ImageTeleporterLights
+	ImageRelictFactoryAgent
+	ImageRepulseTower
+	ImagePowerPlantAgent
 	ImageHarvesterAgent
 	ImageGunpointAgent
 	ImageBeamtowerAgent
@@ -454,6 +569,7 @@ const (
 	ImageScarabAgent
 	ImageDevourerAgent
 	ImageScoutAgent
+	ImageRelictAgent
 	ImageClonerAgent
 	ImageScavengerAgent
 	ImageCourierAgent
@@ -478,6 +594,7 @@ const (
 	ImageFreighterAgent
 	ImageCommanderAgent
 	ImageTargeterAgent
+	ImageBomberAgent
 	ImageEssenceRedCrystalSource
 	ImageEssenceCrystalSource
 	ImageEssenceGoldSource
@@ -488,7 +605,9 @@ const (
 	ImageEssenceSmallScrapCreepSource
 	ImageEssenceBigScrapCreepSource
 	ImageEssenceSource
+	ImageEssenceForestOil
 	ImageRedEssenceSource
+	ImageOrganicSource
 	ImageCrawlerCreep
 	ImageEliteCrawlerCreep
 	ImageHeavyCrawlerCreep
@@ -499,22 +618,34 @@ const (
 	ImageCreepTier1
 	ImageServantCreep
 	ImageCreepTier2
+	ImageCreepTemplar
 	ImageCreepTier3
 	ImageCreepDominator
 	ImageTurretCreep
+	ImageIonMortarCreep
+	ImageFortressCreep
 	ImageBuilderCreep
 	ImageCrawlerCreepBase
+	ImageWispLair
+	ImageWisp
 
 	ImageBackgroundTiles
+	ImageBackgroundForestTiles
 	ImageMountainSmall
 	ImageMountainMedium
 	ImageMountainBig
 	ImageMountainTall
 	ImageMountainWide
+	ImageForestMountainSmall
+	ImageForestMountainMedium
+	ImageForestMountainBig
+	ImageForestMountainTall
+	ImageForestMountainWide
 	ImageLandCrack
 	ImageLandCrack2
 	ImageLandCrack3
 	ImageLandCrack4
+	ImageTrees
 
 	ImageCommanderProjectile
 	ImageRoombaProjectile
@@ -541,10 +672,16 @@ const (
 	ImageHowitzerProjectile
 	ImageHowitzerLaserProjectile
 	ImageAbombMissile
+	ImageBomb
 	ImageAntiAirMissile
 	ImageMissile
+	ImageEnergySpear
+	ImageIonMortarProjectile
+	ImageSuperIonMortarProjectile
 
 	ImageBossLaserLine
+	ImageTempestLine
+	ImageRelictAgentLine
 	ImageFlamerLine
 	ImageTargeterLine
 	ImageStunnerLine
@@ -553,7 +690,11 @@ const (
 	ImageDefenderLine
 	ImageBeamtowerLine
 	ImageTetherLine
+	ImageCourierLine
+	ImageTemplarLine
 
+	ImageUIGamepadRadar
+	ImageUIGamepadRadarDot
 	ImageUIButtonIdle
 	ImageUIButtonHover
 	ImageUIButtonPressed

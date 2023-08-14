@@ -18,7 +18,7 @@ type Grid struct {
 	bytes []byte
 }
 
-func NewGrid(worldWidth, worldHeight float64) *Grid {
+func NewGrid(worldWidth, worldHeight float64, defaultTag uint8) *Grid {
 	g := &Grid{
 		worldWidth:  worldWidth,
 		worldHeight: worldHeight,
@@ -28,11 +28,29 @@ func NewGrid(worldWidth, worldHeight float64) *Grid {
 	g.numRows = uint(g.worldHeight / CellSize)
 
 	numCells := g.numCols * g.numRows
-	numBytes := numCells / 8
-	if numCells%8 != 0 {
+	numBytes := numCells / 4
+	if numCells%4 != 0 {
 		numBytes++
 	}
-	g.bytes = make([]byte, numBytes)
+	b := make([]byte, numBytes)
+
+	defaultTag &= 0b11
+	if defaultTag != 0 {
+		v := uint8(0)
+		switch defaultTag {
+		case 1:
+			v = 0b01010101
+		case 2:
+			v = 0b10101010
+		case 3:
+			v = 0b11111111
+		}
+		for i := range b {
+			b[i] = v
+		}
+	}
+
+	g.bytes = b
 
 	return g
 }
@@ -41,47 +59,34 @@ func (g *Grid) Size() (numCols, numRows int) {
 	return int(g.numCols), int(g.numRows)
 }
 
-func (g *Grid) SetCell(c GridCoord, v bool) {
-	if v {
-		g.MarkCell(c)
-	} else {
-		g.UnmarkCell(c)
-	}
-}
-
-func (g *Grid) UnmarkCell(c GridCoord) {
+func (g *Grid) SetCellTag(c GridCoord, tag uint8) {
 	i := uint(c.Y)*g.numCols + uint(c.X)
-	byteIndex := i / 8
+	byteIndex := i / 4
 	if byteIndex < uint(len(g.bytes)) {
-		bitIndex := i % 8
-		g.bytes[byteIndex] &^= 1 << bitIndex
+		shift := (i % 4) * 2
+		b := g.bytes[byteIndex]
+		b &^= 0b11 << shift        // Clear the two data bits
+		b |= (tag & 0b11) << shift // Mix it with provided bits
+		g.bytes[byteIndex] = b
 	}
 }
 
-func (g *Grid) MarkCell(c GridCoord) {
-	i := uint(c.Y)*g.numCols + uint(c.X)
-	byteIndex := i / 8
-	if byteIndex < uint(len(g.bytes)) {
-		bitIndex := i % 8
-		g.bytes[byteIndex] |= 1 << bitIndex
-	}
-}
-
-func (g *Grid) CellIsFree(c GridCoord) bool {
+func (g *Grid) GetCellValue(c GridCoord, l GridLayer) uint8 {
 	x := uint(c.X)
 	y := uint(c.Y)
 	if x >= g.numCols || y >= g.numRows {
-		return false
+		// Consider out of bound cells as blocked.
+		return 0
 	}
+	return g.getCellValue(x, y, l)
+}
 
+func (g *Grid) getCellValue(x, y uint, l GridLayer) uint8 {
 	i := y*g.numCols + x
-	byteIndex := i / 8
-	if byteIndex < uint(len(g.bytes)) {
-		bitIndex := i % 8
-		return (g.bytes[byteIndex] & (1 << bitIndex)) == 0
-	}
-	// Consider out of bound cells as marked.
-	return false
+	byteIndex := i / 4
+	shift := (i % 4) * 2
+	tag := ((readByte(g.bytes, byteIndex)) >> shift) & 0b11
+	return l.getFast(tag)
 }
 
 func (g *Grid) AlignPos(pos gmath.Vec) gmath.Vec {

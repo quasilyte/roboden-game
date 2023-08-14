@@ -1,5 +1,12 @@
 package pathing
 
+var neighborOffsets = [4]GridCoord{
+	{X: 1},
+	{Y: 1},
+	{X: -1},
+	{Y: -1},
+}
+
 type GreedyBFS struct {
 	pqueue     *priorityQueue[weightedGridCoord]
 	coordSlice []weightedGridCoord
@@ -19,7 +26,7 @@ func NewGreedyBFS(numCols, numRows int) *GreedyBFS {
 	}
 }
 
-func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
+func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildPathResult {
 	var result BuildPathResult
 	if from == to {
 		return result
@@ -69,16 +76,21 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord) BuildPathResult {
 			shortestDist = dist
 			fallbackCoord = current.Coord
 		}
-		for dir := DirRight; dir <= DirUp; dir++ {
-			next := current.Coord.Move(dir)
-			if !g.CellIsFree(next) {
+		for dir, offset := range &neighborOffsets {
+			next := current.Coord.Add(offset)
+			cx := uint(next.X)
+			cy := uint(next.Y)
+			if cx >= g.numCols || cy >= g.numRows {
+				continue
+			}
+			if g.getCellValue(cx, cy, l) == 0 {
 				continue
 			}
 			pathmapKey := pathmap.packCoord(next)
 			if pathmap.Get(pathmapKey) != DirNone {
 				continue
 			}
-			pathmap.Set(pathmapKey, dir)
+			pathmap.Set(pathmapKey, Direction(dir))
 			nextDist := goal.Dist(next)
 			nextWeighted := weightedGridCoord{
 				Coord:  next,
@@ -119,7 +131,7 @@ func (bfs *GreedyBFS) constructPath(from, to GridCoord, pathmap *coordMap) GridP
 			break
 		}
 		result.push(d)
-		pos = pos.Move(d.Reversed())
+		pos = pos.reversedMove(d)
 	}
 	return result
 }

@@ -17,6 +17,7 @@ type tetherNode struct {
 
 	shaderTime float64
 	lifespan   float64
+	mayDetach  bool
 }
 
 func newTetherNode(world *worldState, source *colonyAgentNode, target targetable) *tetherNode {
@@ -38,6 +39,10 @@ func (tether *tetherNode) Init(scene *ge.Scene) {
 		tether.line.Shader.SetFloatValue("Time", 0)
 	}
 	tether.world.stage.AddGraphics(tether.line)
+
+	if drone, ok := tether.target.(*colonyAgentNode); ok {
+		tether.mayDetach = drone.stats.Kind == gamedata.AgentKamikaze
+	}
 }
 
 func (tether *tetherNode) IsDisposed() bool {
@@ -66,23 +71,23 @@ func (tether *tetherNode) Update(delta float64) {
 			tether.dispose()
 			return
 		}
-		if drone, ok := tether.target.(*colonyAgentNode); ok && drone.stats.Kind == gamedata.AgentKamikaze {
-			if drone.mode == agentModeKamikazeAttack {
+		if tether.mayDetach {
+			if tether.target.(*colonyAgentNode).mode == agentModeKamikazeAttack {
+				tether.dispose()
+				return
+			}
+		}
+		if colony, ok := tether.target.(*colonyCoreNode); ok {
+			if colony.waypoint.IsZero() {
 				tether.dispose()
 				return
 			}
 		}
 	}
+
 	if tether.source != nil && tether.source.IsDisposed() {
 		tether.dispose()
 		return
-	}
-
-	if colony, ok := tether.target.(*colonyCoreNode); ok {
-		if !colony.IsFlying() {
-			tether.dispose()
-			return
-		}
 	}
 
 	tether.lifespan -= delta

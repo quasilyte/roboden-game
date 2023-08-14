@@ -2,31 +2,45 @@ package contentlock
 
 import (
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/session"
 )
 
 func GetDefaultData() session.PersistentData {
+	defaultGamepadSettings := session.GamepadSettings{
+		Layout:        int(gameinput.GamepadLayoutXbox),
+		DeadzoneLevel: 1,
+		CursorSpeed:   3,
+	}
 	return session.PersistentData{
 		// The default settings.
+		FirstLaunch: true,
 		Settings: session.GameSettings{
-			Player1InputMethod: int(session.InputMethodCombined),
-			Player2InputMethod: int(session.InputMethodGamepad2),
+			WheelScrollingMode: int(gameinput.WheelScrollDrag),
+			Player1InputMethod: int(gameinput.InputMethodCombined),
+			Player2InputMethod: int(gameinput.InputMethodGamepad2),
+			IntroSpeed:         1,
 			EffectsVolumeLevel: 2,
 			MusicVolumeLevel:   2,
 			ScrollingSpeed:     2,
 			EdgeScrollRange:    2,
+			HintMode:           2,
+			ScreenButtons:      true,
 			Demo:               true,
 			ShowFPS:            false,
 			Lang:               inferDefaultLang(),
 			Graphics: session.GraphicsSettings{
-				ShadowsEnabled:    true,
-				AllShadersEnabled: true,
-				FullscreenEnabled: true,
+				ShadowsEnabled:       true,
+				AllShadersEnabled:    true,
+				FullscreenEnabled:    true,
+				CameraShakingEnabled: true,
+				VSyncEnabled:         true,
 			},
 			GamepadSettings: [2]session.GamepadSettings{
-				{DeadzoneLevel: 1},
-				{DeadzoneLevel: 1},
+				defaultGamepadSettings,
+				defaultGamepadSettings,
 			},
 		},
 	}
@@ -51,14 +65,54 @@ func inferDefaultLang() string {
 }
 
 type Result struct {
+	CoresUnlocked   []string
 	DronesUnlocked  []gamedata.ColonyAgentKind
 	TurretsUnlocked []gamedata.ColonyAgentKind
+	OptionsUnlocked []string
+	ModesUnlocked   []string
 }
 
 func Update(state *session.State) *Result {
 	result := &Result{}
 
 	stats := &state.Persistent.PlayerStats
+
+	for id, info := range gamedata.GameModeInfoMap {
+		if stats.TotalScore < info.ScoreCost {
+			continue
+		}
+		if xslices.Contains(stats.ModesUnlocked, id) {
+			continue
+		}
+		result.ModesUnlocked = append(result.ModesUnlocked, id)
+		stats.ModesUnlocked = append(stats.ModesUnlocked, id)
+	}
+
+	for id, o := range gamedata.LobbyOptionMap {
+		if stats.TotalScore < o.ScoreCost {
+			continue
+		}
+		if xslices.Contains(stats.OptionsUnlocked, id) {
+			continue
+		}
+		result.OptionsUnlocked = append(result.OptionsUnlocked, id)
+		stats.OptionsUnlocked = append(stats.OptionsUnlocked, id)
+	}
+
+	coresUnlocked := map[string]struct{}{}
+	for _, name := range stats.CoresUnlocked {
+		coresUnlocked[name] = struct{}{}
+	}
+	for _, core := range gamedata.CoreStatsList {
+		if _, ok := coresUnlocked[core.Name]; ok {
+			continue
+		}
+		if core.ScoreCost > stats.TotalScore {
+			continue
+		}
+		result.CoresUnlocked = append(result.CoresUnlocked, core.Name)
+		stats.CoresUnlocked = append(stats.CoresUnlocked, core.Name)
+	}
 
 	alreadyUnlocked := map[gamedata.ColonyAgentKind]struct{}{}
 	for _, name := range stats.DronesUnlocked {

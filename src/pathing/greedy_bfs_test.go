@@ -10,6 +10,7 @@ import (
 )
 
 func BenchmarkGreedyBFS(b *testing.B) {
+	l := pathing.MakeGridLayer(1, 0, 1, 1)
 	for i := range bfsTests {
 		test := bfsTests[i]
 		if !test.bench {
@@ -22,13 +23,14 @@ func BenchmarkGreedyBFS(b *testing.B) {
 			bfs := pathing.NewGreedyBFS(parseResult.numCols, parseResult.numRows)
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
-				bfs.BuildPath(parseResult.grid, parseResult.start, parseResult.dest)
+				bfs.BuildPath(parseResult.grid, parseResult.start, parseResult.dest, l)
 			}
 		})
 	}
 }
 
 func TestGreedyBFS(t *testing.T) {
+	l := pathing.MakeGridLayer(1, 0, 1, 1)
 	for i := range bfsTests {
 		test := bfsTests[i]
 		t.Run(test.name, func(t *testing.T) {
@@ -38,7 +40,7 @@ func TestGreedyBFS(t *testing.T) {
 			bfs := pathing.NewGreedyBFS(parseResult.numCols, parseResult.numRows)
 			grid := parseResult.grid
 
-			result := bfs.BuildPath(grid, parseResult.start, parseResult.dest)
+			result := bfs.BuildPath(grid, parseResult.start, parseResult.dest, l)
 			path := result.Steps
 
 			pos := parseResult.start
@@ -66,6 +68,7 @@ func TestGreedyBFS(t *testing.T) {
 			want := strings.Join(test.path, "\n")
 
 			if have != want {
+				fmt.Println(path.Len())
 				t.Fatalf("paths mismatch\nmap:\n%s\nhave (l=%d):\n%s\nwant (l=%d):\n%s",
 					strings.Join(m, "\n"), pathLen, have, parseResult.pathLen, want)
 			}
@@ -95,7 +98,7 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 	numCols := len(m[0])
 	numRows := len(m)
 
-	grid := pathing.NewGrid(pathing.CellSize*float64(numCols), pathing.CellSize*float64(numRows))
+	grid := pathing.NewGrid(pathing.CellSize*float64(numCols), pathing.CellSize*float64(numRows), 0)
 
 	pathLen := 0
 	var startPos pathing.GridCoord
@@ -109,7 +112,7 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 			haveRows[row][col] = marker
 			switch marker {
 			case 'x':
-				grid.MarkCell(cell)
+				grid.SetCellTag(cell, 1)
 			case 'A':
 				startPos = cell
 			case 'B', '$':

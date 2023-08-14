@@ -93,6 +93,7 @@ You can change this decision later.
 
 ##menu.tier : tier
 ##menu.back : Back
+##menu.exit : Exit
 ##menu.lobby_back : Done
 
 ##menu.options.gameplay : Gameplay

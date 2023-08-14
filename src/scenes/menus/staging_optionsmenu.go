@@ -88,7 +88,7 @@ func (c *StagingOptionsMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSeparator(widget.RowLayoutData{Stretch: true}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.exit"), func() {
 		c.scene.Context().ChangeScene(NewMainMenuController(c.state))
 	}))
 

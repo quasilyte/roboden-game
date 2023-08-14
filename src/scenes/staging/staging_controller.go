@@ -348,7 +348,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		rootScene:            scene,
 		nodeRunner:           c.nodeRunner,
 		graphicsSettings:     c.state.Persistent.Settings.Graphics,
-		pathgrid:             pathing.NewGrid(viewportWorld.Width, viewportWorld.Height),
+		pathgrid:             pathing.NewGrid(viewportWorld.Width, viewportWorld.Height, 0),
 		config:               &c.config,
 		gameSettings:         &c.state.Persistent.Settings,
 		deviceInfo:           c.state.Device,
@@ -715,7 +715,7 @@ func (c *Controller) canBuildHere(pos gmath.Vec, turret bool) bool {
 			}
 		}
 	}
-	return !c.hasTeleportersAt(pos) && !c.world.HasTreesAt(pos, 40)
+	return !c.hasTeleportersAt(pos)
 }
 
 func (c *Controller) hasTeleportersAt(pos gmath.Vec) bool {
@@ -805,7 +805,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		coord := c.world.pathgrid.PosToCoord(selectedColony.pos)
 		freeCoord := randIterate(c.world.rand, colonyNearCellOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
-			return c.world.pathgrid.CellIsFree(probe) &&
+			return c.world.CellIsFree(probe, layerLandColony) &&
 				c.canBuildHere(c.world.pathgrid.CoordToPos(probe), true)
 		})
 		if !freeCoord.IsZero() {
@@ -823,7 +823,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		coord := p.PosToCoord(selectedColony.pos)
 		freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
-			return c.world.CellIsFree2x2(probe) &&
+			return c.world.CellIsFree2x2(probe, layerLandColony) &&
 				c.canBuildHere(p.CoordToPos(probe).Sub(gmath.Vec{X: 16, Y: 16}), false)
 		})
 		if !freeCoord.IsZero() {
@@ -1042,12 +1042,12 @@ func (c *Controller) launchAttack(selectedColony *colonyCoreNode) {
 	})
 }
 
-func (c *Controller) colonyCanMoveAt(core *colonyCoreNode, pos gmath.Vec) bool {
+func (c *Controller) colonyCanMoveAt(core *colonyCoreNode, coord pathing.GridCoord) bool {
 	switch core.stats {
 	case gamedata.ArkCoreStats:
-		return true
+		return c.world.CellIsFree(coord, layerNormal)
 	case gamedata.DenCoreStats:
-		return !c.world.HasTreesAt(pos.Sub(gmath.Vec{X: 16, Y: 16}), 40)
+		return c.world.CellIsFree2x2(coord, layerLandColony)
 	default:
 		return false
 	}
@@ -1055,7 +1055,7 @@ func (c *Controller) colonyCanMoveAt(core *colonyCoreNode, pos gmath.Vec) bool {
 
 func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gmath.Vec) bool {
 	coord := c.world.pathgrid.PosToCoord(dst)
-	if c.world.CellIsFree2x2(coord) && c.colonyCanMoveAt(core, dst) {
+	if c.colonyCanMoveAt(core, coord) {
 		pos := c.world.pathgrid.CoordToPos(coord).Sub(gmath.Vec{X: 16, Y: 16})
 		core.doRelocation(pos)
 		return true
@@ -1063,8 +1063,7 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gm
 
 	freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
 		probe := coord.Add(offset)
-		return c.world.CellIsFree2x2(probe) &&
-			c.colonyCanMoveAt(core, c.world.pathgrid.CoordToPos(probe).Sub(gmath.Vec{X: 16, Y: 16}))
+		return c.colonyCanMoveAt(core, probe)
 	})
 	if !freeCoord.IsZero() {
 		pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})

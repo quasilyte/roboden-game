@@ -131,6 +131,15 @@ func (g *levelGenerator) randomPos(sector gmath.Rect) gmath.Vec {
 	return randomSectorPos(&g.rng, sector)
 }
 
+func (g *levelGenerator) fillPathgridRect(rect gmath.Rect, tag uint8) {
+	for y := rect.Min.Y; y < rect.Max.Y; y += wallTileSize {
+		for x := rect.Min.X; x < rect.Max.X; x += wallTileSize {
+			pos := gmath.Vec{X: x, Y: y}
+			g.world.MarkPos(pos, tag)
+		}
+	}
+}
+
 func (g *levelGenerator) fillPathgrid() {
 	w := g.world
 
@@ -145,16 +154,11 @@ func (g *levelGenerator) fillPathgrid() {
 	// 2. Wall tiles have the same grid size as path grid cells.
 	for _, wall := range g.world.walls {
 		if wall.rectShape {
-			for y := wall.rect.Min.Y; y <= wall.rect.Max.Y; y += pathing.CellSize {
-				for x := wall.rect.Min.X; x <= wall.rect.Max.X; x += pathing.CellSize {
-					pos := gmath.Vec{X: x, Y: y}
-					w.MarkPos(pos)
-				}
-			}
+			g.fillPathgridRect(wall.rect, ptagBlocked)
 			continue
 		}
 		for _, pos := range wall.points {
-			w.MarkPos(pos)
+			w.MarkPos(pos, ptagBlocked)
 		}
 	}
 }
@@ -802,6 +806,11 @@ func (g *levelGenerator) placeForests() {
 			}
 
 			trees = append(trees, forest.init(g.scene)...)
+
+			// TODO: move it to fillPathgrid step or maybe get rid of that stage instead?
+			forest.walkRects(func(rect gmath.Rect) {
+				g.fillPathgridRect(rect, ptagForest)
+			})
 
 			g.world.forests = append(g.world.forests, forest)
 		}

@@ -135,6 +135,13 @@ func (f *forestClusterNode) init(scene *ge.Scene) []pendingImage {
 	return images
 }
 
+func (f *forestClusterNode) walkRects(visit func(rect gmath.Rect)) {
+	visit(f.innerRect)
+	for _, r := range f.rects {
+		visit(r)
+	}
+}
+
 func (f *forestClusterNode) CollidesWith(pos gmath.Vec, r float64) bool {
 	if r == 0 {
 		return f.ContainsPos(pos)

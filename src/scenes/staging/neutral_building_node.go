@@ -34,7 +34,7 @@ func (b *neutralBuildingNode) Init(scene *ge.Scene) {
 	b.sprite.Shader.SetFloatValue("HP", 0.001)
 	b.world.stage.AddSprite(b.sprite)
 
-	b.world.MarkPos(b.pos)
+	b.world.MarkPos(b.pos, ptagBlocked)
 }
 
 func (b *neutralBuildingNode) AssignAgent(a *colonyAgentNode) {

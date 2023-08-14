@@ -2047,7 +2047,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 		// Find a nearby closest cell.
 		freeOffset := randIterate(a.world().rand, resourceNearOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
-			return a.world().pathgrid.CellIsFree(probe)
+			return a.world().CellIsFree(probe, layerNormal)
 		})
 		if freeOffset.IsZero() {
 			return false
@@ -2085,7 +2085,7 @@ func (a *colonyAgentNode) updateRoombaWait(delta float64) {
 }
 
 func (a *colonyAgentNode) sendTo(pos gmath.Vec) {
-	p := a.world().BuildPath(a.pos, pos)
+	p := a.world().BuildPath(a.pos, pos, layerNormal)
 	a.path = p.Steps
 	a.setWaypoint(a.world().pathgrid.AlignPos(a.pos))
 }

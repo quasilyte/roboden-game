@@ -438,7 +438,7 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	if !turret.stats.IsNeutral {
 		c.numTurretsBuilt++
 	}
-	c.world.MarkPos(turret.pos)
+	c.world.MarkPos(turret.pos, ptagBlocked)
 	c.world.turrets = append(c.world.turrets, turret)
 	c.turrets = append(c.turrets, turret)
 	turret.colonyCore = c
@@ -816,8 +816,7 @@ func (c *colonyCoreNode) startLanding() {
 }
 
 func (c *colonyCoreNode) canLandAt(coord pathing.GridCoord) bool {
-	pos := c.world.pathgrid.CoordToPos(coord).Sub(gmath.Vec{X: 16, Y: 16})
-	return c.world.CellIsFree2x2(coord) && !c.world.HasTreesAt(pos, 40)
+	return c.world.CellIsFree2x2(coord, layerLandColony)
 }
 
 func (c *colonyCoreNode) updateRelocating(delta float64) {
@@ -1039,7 +1038,7 @@ func (c *colonyCoreNode) unmarkCells(pos gmath.Vec) {
 }
 
 func (c *colonyCoreNode) markCells(pos gmath.Vec) {
-	c.world.MarkPos2x2(pos)
+	c.world.MarkPos2x2(pos, ptagBlocked)
 }
 
 func (c *colonyCoreNode) createEvoBeam(to ge.Pos) {

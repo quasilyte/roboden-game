@@ -139,28 +139,44 @@ func (w *worldState) AdjustCellPos(pos gmath.Vec, offset float64) gmath.Vec {
 	return roundedPos(aligned.Add(w.rand.Offset(-offset, offset)))
 }
 
-func (w *worldState) MarkPos(pos gmath.Vec) {
-	w.MarkCell(w.pathgrid.PosToCoord(pos))
+func (w *worldState) MarkCell(coord pathing.GridCoord, tag uint8) {
+	key := w.pathgrid.CoordToIndex(coord)
+	if v := w.gridCounters[key]; v == 0 {
+		w.pathgrid.SetCellTag(coord, tag)
+	}
+	w.gridCounters[key]++
+}
+
+func (w *worldState) MarkPos(pos gmath.Vec, tag uint8) {
+	w.MarkCell(w.pathgrid.PosToCoord(pos), tag)
 }
 
 func (w *worldState) UnmarkPos(pos gmath.Vec) {
 	w.UnmarkCell(w.pathgrid.PosToCoord(pos))
 }
 
-func (w *worldState) CellIsFree2x2(cell pathing.GridCoord) bool {
-	p := w.pathgrid
-	return p.CellIsFree(cell) &&
-		p.CellIsFree(cell.Add(pathing.GridCoord{X: -1})) &&
-		p.CellIsFree(cell.Add(pathing.GridCoord{X: -1, Y: -1})) &&
-		p.CellIsFree(cell.Add(pathing.GridCoord{Y: -1}))
+func (w *worldState) PosIsFree(pos gmath.Vec, l pathing.GridLayer) bool {
+	return w.pathgrid.GetCellValue(w.pathgrid.PosToCoord(pos), l) != 0
 }
 
-func (w *worldState) MarkPos2x2(pos gmath.Vec) {
+func (w *worldState) CellIsFree(cell pathing.GridCoord, l pathing.GridLayer) bool {
+	return w.pathgrid.GetCellValue(cell, l) != 0
+}
+
+func (w *worldState) CellIsFree2x2(cell pathing.GridCoord, l pathing.GridLayer) bool {
+	p := w.pathgrid
+	return p.GetCellValue(cell, l) != 0 &&
+		p.GetCellValue(cell.Add(pathing.GridCoord{X: -1}), l) != 0 &&
+		p.GetCellValue(cell.Add(pathing.GridCoord{X: -1, Y: -1}), l) != 0 &&
+		p.GetCellValue(cell.Add(pathing.GridCoord{Y: -1}), l) != 0
+}
+
+func (w *worldState) MarkPos2x2(pos gmath.Vec, tag uint8) {
 	cell := w.pathgrid.PosToCoord(pos)
-	w.MarkCell(cell)
-	w.MarkCell(cell.Add(pathing.GridCoord{X: -1}))
-	w.MarkCell(cell.Add(pathing.GridCoord{X: -1, Y: -1}))
-	w.MarkCell(cell.Add(pathing.GridCoord{Y: -1}))
+	w.MarkCell(cell, tag)
+	w.MarkCell(cell.Add(pathing.GridCoord{X: -1}), tag)
+	w.MarkCell(cell.Add(pathing.GridCoord{X: -1, Y: -1}), tag)
+	w.MarkCell(cell.Add(pathing.GridCoord{Y: -1}), tag)
 }
 
 func (w *worldState) UnmarkPos2x2(pos gmath.Vec) {
@@ -171,18 +187,10 @@ func (w *worldState) UnmarkPos2x2(pos gmath.Vec) {
 	w.UnmarkCell(cell.Add(pathing.GridCoord{Y: -1}))
 }
 
-func (w *worldState) MarkCell(coord pathing.GridCoord) {
-	key := w.pathgrid.CoordToIndex(coord)
-	if v := w.gridCounters[key]; v == 0 {
-		w.pathgrid.MarkCell(coord)
-	}
-	w.gridCounters[key]++
-}
-
 func (w *worldState) UnmarkCell(coord pathing.GridCoord) {
 	key := w.pathgrid.CoordToIndex(coord)
 	if v := w.gridCounters[key]; v == 1 {
-		w.pathgrid.UnmarkCell(coord)
+		w.pathgrid.SetCellTag(coord, 0)
 		delete(w.gridCounters, key)
 	} else {
 		w.gridCounters[key]--
@@ -380,9 +388,9 @@ func (w *worldState) NewConstructionNode(p player, pos, spriteOffset gmath.Vec, 
 		w.constructions = xslices.Remove(w.constructions, x)
 	})
 	if stats == colonyCoreConstructionStats {
-		w.MarkPos2x2(pos)
+		w.MarkPos2x2(pos, ptagBlocked)
 	} else {
-		w.MarkPos(pos)
+		w.MarkPos(pos, ptagBlocked)
 	}
 	w.constructions = append(w.constructions, n)
 	return n
@@ -434,7 +442,7 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 		}
 	})
 	if stats.Building {
-		w.MarkPos(pos)
+		w.MarkPos(pos, ptagBlocked)
 	}
 	w.creeps = append(w.creeps, n)
 	if stats.Kind == gamedata.CreepCrawler {
@@ -466,7 +474,7 @@ func (w *worldState) NewEssenceSourceNode(stats *essenceSourceStats, pos gmath.V
 		w.essenceSources = xslices.Remove(w.essenceSources, x)
 	})
 	if !stats.passable {
-		w.MarkPos(pos)
+		w.MarkPos(pos, ptagBlocked)
 	}
 	w.essenceSources = append(w.essenceSources, n)
 	return n
@@ -513,8 +521,8 @@ func (w *worldState) findColonyAgent(agents []*colonyAgentNode, pos gmath.Vec, r
 	return nil
 }
 
-func (w *worldState) BuildPath(from, to gmath.Vec) pathing.BuildPathResult {
-	return w.bfs.BuildPath(w.pathgrid, w.pathgrid.PosToCoord(from), w.pathgrid.PosToCoord(to))
+func (w *worldState) BuildPath(from, to gmath.Vec, l pathing.GridLayer) pathing.BuildPathResult {
+	return w.bfs.BuildPath(w.pathgrid, w.pathgrid.PosToCoord(from), w.pathgrid.PosToCoord(to), l)
 }
 
 func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNode) bool) {

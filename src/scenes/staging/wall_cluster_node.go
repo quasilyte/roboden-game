@@ -259,6 +259,10 @@ func (w *wallClusterNode) initGeometryRect() {
 			break
 		}
 	}
+
+	originOffset := gmath.Vec{X: wallTileSize / 2, Y: wallTileSize / 2}
+	w.rect.Min = w.rect.Min.Sub(originOffset)
+	w.rect.Max = w.rect.Max.Add(originOffset)
 }
 
 func (w *wallClusterNode) initOriented(bg *ge.TiledBackground, scene *ge.Scene) {

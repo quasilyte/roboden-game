@@ -93,7 +93,7 @@ func (c *creepCoordinator) sendScout() {
 	scoutingDest := gmath.RadToVec(c.world.rand.Rad()).Mulf(scoutingDist).Add(scout.pos)
 	scout.specialModifier = crawlerMove
 	scout.waypoint = c.world.pathgrid.AlignPos(scout.pos)
-	p := c.world.BuildPath(scout.waypoint, scoutingDest)
+	p := c.world.BuildPath(scout.waypoint, scoutingDest, layerNormal)
 	scout.path = p.Steps
 }
 
@@ -121,7 +121,7 @@ func (c *creepCoordinator) tryLaunchingRelocation() {
 		creepTargetPos := correctedPos(c.world.rect, targetPos.Add(c.world.rand.Offset(-96, 96)), 32)
 
 		creep.specialModifier = crawlerMove
-		p := c.world.BuildPath(creep.pos, creepTargetPos)
+		p := c.world.BuildPath(creep.pos, creepTargetPos, layerNormal)
 		creep.path = p.Steps
 		creep.waypoint = c.world.pathgrid.AlignPos(creep.pos)
 	}

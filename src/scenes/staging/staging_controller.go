@@ -691,10 +691,6 @@ func (c *Controller) onVictoryTrigger(gsignal.Void) {
 }
 
 func (c *Controller) onMenuButtonClicked() {
-	for _, cam := range c.world.cameras {
-		cam.UI.Visible = true
-	}
-
 	c.nodeRunner.SetPaused(true)
 	c.leaveScene(c.backController)
 }
@@ -1380,10 +1376,9 @@ func (c *Controller) continueScene(scene *ge.Scene) {
 	c.scene.Audio().ContinueCurrentMusic()
 
 	for _, cam := range c.world.cameras {
-		c.nodeRunner.SetPaused(false)
-		cam.UI.Visible = false
 		scene.AddGraphics(cam)
 	}
+	c.nodeRunner.SetPaused(false)
 
 	*c.scene = *scene
 }

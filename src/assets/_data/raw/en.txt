@@ -101,6 +101,7 @@ You can change this decision later.
 ##menu.options.graphics : Graphics
 ##menu.options.extra : Extra
 ##menu.options.controls : Controls
+##menu.options.continue : Continue
 
 ##menu.terminal : Terminal
 ##menu.terminal.command_output_label : Command output

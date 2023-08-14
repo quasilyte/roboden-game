@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
+
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/descriptions"
@@ -257,7 +258,12 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		}
 
 		c.config.Finalize()
-		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
+
+		optController := NewStagingOptionsController(c.state)
+		stagingController := staging.NewController(c.state, c.config.Clone(), optController)
+		optController.WithBackController(stagingController)
+
+		c.scene.Context().ChangeScene(stagingController)
 	}))
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {

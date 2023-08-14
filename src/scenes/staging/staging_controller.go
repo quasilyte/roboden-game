@@ -1226,7 +1226,7 @@ func (c *Controller) updateDebug(delta float64) {
 func (c *Controller) IsDisposed() bool { return false }
 
 func (c *Controller) leaveScene(controller ge.SceneController) {
-	c.EventBeforeLeaveScene.Emit(gsignal.Void{})
+	// c.EventBeforeLeaveScene.Emit(gsignal.Void{})
 
 	c.scene.Audio().PauseCurrentMusic()
 	c.scene.Context().ChangeScene(controller)

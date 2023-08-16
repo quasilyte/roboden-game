@@ -63,6 +63,7 @@ func main() {
 
 	mux.HandleFunc("/version", server.NewHandler(h.HandleVersion))
 	mux.HandleFunc("/get-player-board", server.NewHandler(h.HandleGetPlayerBoard))
+	mux.HandleFunc("/get-board", server.NewHandler(h.HandleGetBoard))
 	mux.HandleFunc("/save-player-score", server.NewHandler(h.HandleSavePlayerScore))
 
 	l.Info("starting server, listenning to %s", args.listenAddr)

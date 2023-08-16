@@ -83,6 +83,32 @@ func (h *requestHandler) HandleGetPlayerBoard(r *http.Request) (any, error) {
 	return resp, nil
 }
 
+func (h *requestHandler) HandleGetBoard(r *http.Request) (any, error) {
+	h.server.metrics.IncReqGetBoard()
+
+	seasonParam := r.URL.Query().Get("season")
+	if seasonParam == "" {
+		return nil, errBadParams
+	}
+	modeParam := r.URL.Query().Get("mode")
+	switch modeParam {
+	case "classic", "arena", "inf_arena", "reverse":
+		// OK
+	default:
+		return nil, errBadParams
+	}
+	seasonNumber, err := strconv.Atoi(seasonParam)
+	if err != nil {
+		return nil, errBadParams
+	}
+	if seasonNumber != currentSeason {
+		return nil, errBadParams
+	}
+
+	board := h.server.getBoardForMode(modeParam)
+	return board.json, nil
+}
+
 func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 	h.server.metrics.IncReqSavePlayerScore()
 

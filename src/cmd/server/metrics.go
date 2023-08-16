@@ -16,6 +16,7 @@ type metricsData struct {
 	// Request counters.
 	NumReqErrors       int64
 	ReqGetPlayerBoard  int64
+	ReqGetBoard        int64
 	ReqSavePlayerScore int64
 	ReqVersion         int64
 
@@ -47,6 +48,10 @@ func (m *serverMetrics) IncNumReqErrors() {
 
 func (m *serverMetrics) IncReqGetPlayerBoard() {
 	atomic.AddInt64(&m.data.ReqGetPlayerBoard, 1)
+}
+
+func (m *serverMetrics) IncReqGetBoard() {
+	atomic.AddInt64(&m.data.ReqGetBoard, 1)
 }
 
 func (m *serverMetrics) IncReqSavePlayerScore() {

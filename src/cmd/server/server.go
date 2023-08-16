@@ -44,10 +44,16 @@ type apiServer struct {
 	metrics     *serverMetrics
 
 	leaderboardMu       sync.RWMutex
-	classicLeaderboard  []serverapi.LeaderboardEntry
-	arenaLeaderboard    []serverapi.LeaderboardEntry
-	infArenaLeaderboard []serverapi.LeaderboardEntry
-	reverseLeaderboard  []serverapi.LeaderboardEntry
+	classicLeaderboard  *leaderboardData
+	arenaLeaderboard    *leaderboardData
+	infArenaLeaderboard *leaderboardData
+	reverseLeaderboard  *leaderboardData
+}
+
+type leaderboardData struct {
+	mode    string
+	entries []serverapi.LeaderboardEntry
+	json    []byte
 }
 
 type serverConfig struct {
@@ -67,6 +73,11 @@ func newAPIServer(config serverConfig) *apiServer {
 		rand:         rand.New(rand.NewSource(time.Now().Unix())),
 		metrics:      &serverMetrics{},
 		metricsFile:  config.metricsFile,
+
+		classicLeaderboard:  &leaderboardData{mode: "classic"},
+		arenaLeaderboard:    &leaderboardData{mode: "arena"},
+		infArenaLeaderboard: &leaderboardData{mode: "inf_arena"},
+		reverseLeaderboard:  &leaderboardData{mode: "reverse"},
 	}
 	return s
 }
@@ -90,16 +101,16 @@ func (s *apiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *apiServer) Preload() error {
-	if err := s.reloadLeaderboard(&s.classicLeaderboard, "classic"); err != nil {
+	if err := s.reloadLeaderboard(s.classicLeaderboard); err != nil {
 		return err
 	}
-	if err := s.reloadLeaderboard(&s.arenaLeaderboard, "arena"); err != nil {
+	if err := s.reloadLeaderboard(s.arenaLeaderboard); err != nil {
 		return err
 	}
-	if err := s.reloadLeaderboard(&s.infArenaLeaderboard, "inf_arena"); err != nil {
+	if err := s.reloadLeaderboard(s.infArenaLeaderboard); err != nil {
 		return err
 	}
-	if err := s.reloadLeaderboard(&s.reverseLeaderboard, "reverse"); err != nil {
+	if err := s.reloadLeaderboard(s.reverseLeaderboard); err != nil {
 		return err
 	}
 	return nil
@@ -193,7 +204,7 @@ func (s *apiServer) BackgroundTask() {
 		untilClassicLeaderboardUpdate -= secondsSlept
 		if untilClassicLeaderboardUpdate <= 0 {
 			delayMultiplier := 1.0
-			if err := s.reloadLeaderboard(&s.classicLeaderboard, "classic"); err != nil {
+			if err := s.reloadLeaderboard(s.classicLeaderboard); err != nil {
 				s.logger.Error("classic leaderboard reload: %v", err)
 				delayMultiplier += floatRange(s.rand, 0.5, 1.5)
 			} else {
@@ -205,7 +216,7 @@ func (s *apiServer) BackgroundTask() {
 		untilArenaLeaderboardUpdate -= secondsSlept
 		if untilArenaLeaderboardUpdate <= 0 {
 			delayMultiplier := 1.0
-			if err := s.reloadLeaderboard(&s.arenaLeaderboard, "arena"); err != nil {
+			if err := s.reloadLeaderboard(s.arenaLeaderboard); err != nil {
 				s.logger.Error("arena leaderboard reload: %v", err)
 				delayMultiplier += floatRange(s.rand, 0.5, 1.5)
 			} else {
@@ -217,7 +228,7 @@ func (s *apiServer) BackgroundTask() {
 		untilInfArenaLeaderboardUpdate -= secondsSlept
 		if untilInfArenaLeaderboardUpdate <= 0 {
 			delayMultiplier := 1.0
-			if err := s.reloadLeaderboard(&s.infArenaLeaderboard, "inf_arena"); err != nil {
+			if err := s.reloadLeaderboard(s.infArenaLeaderboard); err != nil {
 				s.logger.Error("inf_arena leaderboard reload: %v", err)
 				delayMultiplier += floatRange(s.rand, 0.5, 1.5)
 			} else {
@@ -229,7 +240,7 @@ func (s *apiServer) BackgroundTask() {
 		untilReverseLeaderboardUpdate -= secondsSlept
 		if untilReverseLeaderboardUpdate <= 0 {
 			delayMultiplier := 1.0
-			if err := s.reloadLeaderboard(&s.reverseLeaderboard, "reverse"); err != nil {
+			if err := s.reloadLeaderboard(s.reverseLeaderboard); err != nil {
 				s.logger.Error("reverse leaderboard reload: %v", err)
 				delayMultiplier += floatRange(s.rand, 0.5, 1.5)
 			} else {
@@ -431,13 +442,13 @@ func (s *apiServer) doMetricsFlush() error {
 func (s *apiServer) Top10(mode string) []serverapi.LeaderboardEntry {
 	leaderboard := s.getBoardForMode(mode)
 	n := 10
-	if n >= len(leaderboard) {
-		n = len(leaderboard)
+	if n >= len(leaderboard.entries) {
+		n = len(leaderboard.entries)
 	}
-	return leaderboard[:n]
+	return leaderboard.entries[:n]
 }
 
-func (s *apiServer) getBoardForMode(mode string) []serverapi.LeaderboardEntry {
+func (s *apiServer) getBoardForMode(mode string) *leaderboardData {
 	switch mode {
 	case "classic":
 		return s.classicLeaderboard
@@ -452,29 +463,29 @@ func (s *apiServer) getBoardForMode(mode string) []serverapi.LeaderboardEntry {
 }
 
 func (s *apiServer) NumBoardPlayers(mode string) int {
-	return len(s.getBoardForMode(mode))
+	return len(s.getBoardForMode(mode).entries)
 }
 
 func (s *apiServer) PlayerBoard(mode, name string, score int) ([]serverapi.LeaderboardEntry, error) {
-	entries := s.getBoardForMode(mode)
-	if len(entries) == 0 {
+	board := s.getBoardForMode(mode)
+	if len(board.entries) == 0 {
 		return nil, nil
 	}
 
-	i := sort.Search(len(entries), func(i int) bool {
-		return entries[i].Score <= score
+	i := sort.Search(len(board.entries), func(i int) bool {
+		return board.entries[i].Score <= score
 	})
-	if i >= len(entries) || entries[i].Score != score {
+	if i >= len(board.entries) || board.entries[i].Score != score {
 		return nil, errNotFound
 	}
 
 	// Several players can have identical score.
 	playerIndex := -1
-	for i > 0 && entries[i-1].Score == score {
+	for i > 0 && board.entries[i-1].Score == score {
 		i--
 	}
-	for j := i; j < len(entries) && entries[j].Score == score; j++ {
-		if entries[j].PlayerName == name {
+	for j := i; j < len(board.entries) && board.entries[j].Score == score; j++ {
+		if board.entries[j].PlayerName == name {
 			playerIndex = j
 			break
 		}
@@ -486,12 +497,12 @@ func (s *apiServer) PlayerBoard(mode, name string, score int) ([]serverapi.Leade
 
 	var from int
 	var to int
-	if i == len(entries)-1 {
+	if i == len(board.entries)-1 {
 		from = i - 9
 		if from < 0 {
 			from = 0
 		}
-		to = len(entries)
+		to = len(board.entries)
 	} else {
 		from = i - 8
 		to = i + 2
@@ -499,19 +510,19 @@ func (s *apiServer) PlayerBoard(mode, name string, score int) ([]serverapi.Leade
 			to += -from
 			from = 0
 		}
-		if to > len(entries) {
-			to = len(entries)
+		if to > len(board.entries) {
+			to = len(board.entries)
 		}
 	}
 
-	return entries[from:to], nil
+	return board.entries[from:to], nil
 }
 
-func (s *apiServer) reloadLeaderboard(dst *[]serverapi.LeaderboardEntry, mode string) error {
+func (s *apiServer) reloadLeaderboard(leaderboard *leaderboardData) error {
 	s.leaderboardMu.Lock()
 	defer s.leaderboardMu.Unlock()
 
-	entries, err := s.getSeasonDB(currentSeason).AllScores(mode)
+	entries, err := s.getSeasonDB(currentSeason).AllScores(leaderboard.mode)
 	if err != nil {
 		return err
 	}
@@ -527,7 +538,14 @@ func (s *apiServer) reloadLeaderboard(dst *[]serverapi.LeaderboardEntry, mode st
 		e.Rank = rank
 	}
 
-	*dst = entries
+	data, err := json.Marshal(entries)
+	if err != nil {
+		return err
+	}
+
+	leaderboard.json = data
+	leaderboard.entries = entries
+
 	return nil
 }
 
@@ -593,11 +611,22 @@ func (s *apiServer) NewHandler(f func(*http.Request) (any, error)) func(http.Res
 }
 
 func (s *apiServer) corsAllowed(origin string) bool {
+	// If it stops working, try itch.zone
+	// See https://itch.io/t/2928588/cors-setting-for-a-webgl-game
 	const itchioWebGames = "https://v6p9d9t4.ssl.hwcdn.net"
 
 	switch origin {
-	case "http://localhost:8080", itchioWebGames:
+	case "https://roboden-game.github.io":
+		// Used for the online leaderboard.
 		return true
+
+	case "http://localhost:8080", "http://localhost:8000":
+		// The usual local debug servers.
+		return true
+
+	case itchioWebGames:
+		return true
+
 	default:
 		return false
 	}

@@ -69,7 +69,7 @@
 ##drone.ability.self_repair : Repairs itself over time
 ##drone.ability.extra_payload : Increased max payload
 ##drone.ability.aggro : Forces the target to attack this drone
-##drone.ability.disarm : May disable the target's weapons
+##drone.ability.disarm : May disable the target's weapon
 ##drone.ability.slow : Slows targets down
 ##drone.ability.cloak_hide : Cloaks itself when heavily damaged
 ##drone.ability.cloak_scavenge : Cloaks itself when harvesting scraps

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"sort"
+	"time"
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
@@ -54,24 +55,34 @@ func newLevelGenerator(scene *ge.Scene, bg *ge.TiledBackground, world *worldStat
 
 func (g *levelGenerator) Generate() {
 	g.playerSpawn = g.world.rect.Center()
-	resourceMultipliers := []float64{
-		0.35,
-		0.7,
-		1, // Default
-		1.25,
-		1.6,
-	}
-	g.placeForests()
-	g.placeTeleporters()
-	g.placeRelicts()
-	g.placePlayers()
-	g.placeWalls()
-	g.placeCreepBases()
-	g.placeCreeps()
-	g.placeResources(resourceMultipliers[g.world.config.Resources])
-	g.placeBoss()
 
-	g.fillPathgrid()
+	type genStep struct {
+		name string
+		fn   func()
+	}
+	var steps = []genStep{
+		{"place_forests", g.placeForests},
+		{"place_teleporters", g.placeTeleporters},
+		{"place_relicts", g.placeRelicts},
+		{"place_players", g.placePlayers},
+		{"place_walls", g.placeWalls},
+		{"place_creep_bases", g.placeCreepBases},
+		{"place_creeps", g.placeCreeps},
+		{"place_resources", g.placeResources},
+		{"place_boss", g.placeBoss},
+		{"fill_pathgrid", g.fillPathgrid},
+	}
+	for _, step := range steps {
+		start := time.Now()
+		step.fn()
+		elapsedSeconds := time.Since(start).Seconds()
+		if g.world.debugLogs {
+			g.world.sessionState.Logf("step %s: %.4fs", step.name, elapsedSeconds)
+		}
+		if elapsedSeconds > 0.15 {
+			g.world.sessionState.Logf("level generator step %s took %.4f seconds", step.name, elapsedSeconds)
+		}
+	}
 }
 
 func (g *levelGenerator) randomFreePosWithFallback(sector, fallback gmath.Rect, radius, pad float64) (gmath.Vec, gmath.Rect) {
@@ -365,7 +376,16 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 	return placed
 }
 
-func (g *levelGenerator) placeResources(resMultiplier float64) {
+func (g *levelGenerator) placeResources() {
+	resourceMultipliers := []float64{
+		0.35,
+		0.7,
+		1, // Default
+		1.25,
+		1.6,
+	}
+	resMultiplier := resourceMultipliers[g.world.config.Resources]
+
 	rand := &g.rng
 
 	worldSizeMultipliers := []float64{

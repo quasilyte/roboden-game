@@ -627,7 +627,7 @@ var GeneratorAgentStats = InitDroneStats(&AgentStats{
 	IsFlying:             true,
 	Image:                assets.ImageGeneratorAgent,
 	Size:                 SizeMedium,
-	DiodeOffset:          10,
+	DiodeOffset:          8,
 	Tier:                 2,
 	PointCost:            1,
 	Cost:                 16,

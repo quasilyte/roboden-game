@@ -2,7 +2,9 @@ package gamedata
 
 import (
 	"fmt"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/quasilyte/roboden-game/serverapi"
 )
@@ -165,4 +167,46 @@ func IsValidUsername(s string) bool {
 		}
 	}
 	return nonSpace != 0
+}
+
+func CleanUsername(s string) string {
+	if IsValidUsername(s) {
+		return s
+	}
+
+	replacements := []byte{
+		'-': '_',
+		':', '_',
+	}
+
+	needSpace := false
+	prevOK := false
+
+	result := make([]byte, 0, len(s))
+	for _, r := range s {
+		if r > utf8.RuneSelf {
+			needSpace = true
+			prevOK = false
+			continue
+		}
+		if needSpace && !prevOK {
+			needSpace = false
+			result = append(result, ' ')
+		}
+		prevOK = true
+		b := byte(r)
+		if int(b) < len(replacements) && replacements[b] != 0 {
+			b = replacements[b]
+		}
+		if !isValidChar(b) {
+			continue
+		}
+		result = append(result, b)
+	}
+
+	trimmed := strings.TrimSpace(string(result))
+
+	// Remove duplicated spaces.
+	parts := strings.Fields(trimmed)
+	return strings.Join(parts, " ")
 }

@@ -123,6 +123,7 @@ func (c *BootloadController) onFirstLaunch() {
 	if c.state.SteamInfo.Initialized {
 		// Infer the player's name from the Steam account info.
 		name := steamsdk.PlayerName()
+		name = gamedata.CleanUsername(name)
 		if gamedata.IsValidUsername(name) {
 			c.state.Persistent.PlayerName = name
 		}

@@ -64,7 +64,21 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 	if m.player.recipeTab != nil && m.player.recipeTab.Visible {
 		drone := m.player.recipeTab.GetDroneUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
 		if drone != nil {
-			m.createTooltip(pos, d.Get("drone", strings.ToLower(drone.Kind.String())))
+			count := 0
+			if m.player.state.selectedColony != nil {
+				flags := searchFighters
+				if !drone.CanPatrol {
+					flags = searchWorkers
+				}
+				m.player.state.selectedColony.agents.Find(flags, func(a *colonyAgentNode) bool {
+					if a.stats == drone {
+						count++
+					}
+					return false
+				})
+			}
+			hint := fmt.Sprintf("%s (%d)", d.Get("drone", strings.ToLower(drone.Kind.String())), count)
+			m.createTooltip(pos, hint)
 			m.EventHighlightDrones.Emit(drone)
 			return
 		}

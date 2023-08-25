@@ -360,6 +360,11 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 	initialPos := pos
 	for i := 0; i < maxSize; i++ {
 		pos = g.adjustResourcePos(pos)
+		if g.world.config.GameMode == gamedata.ModeTutorial {
+			if pos.DistanceTo(g.playerSpawn) < 220 {
+				break
+			}
+		}
 		if !posIsFree(g.world, nil, pos, 8) {
 			break
 		}

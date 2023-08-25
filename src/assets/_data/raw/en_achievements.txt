@@ -31,7 +31,7 @@ Achieve a victory without creating a single tier 3 drone.
 
 ##achievement.cheapbuild10 : Small Deck
 ##achievement.cheapbuild10.description
-Win while having a drone build that uses no more than 10 points allocated.
+Win while having a drone build that uses no more than 10 allocated points.
 
 ##achievement.hightension : High Tension
 ##achievement.hightension.description

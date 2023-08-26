@@ -11,6 +11,7 @@ func RegisterShaderResources(ctx *ge.Context, config *Config, progress *float64)
 	// Associate shader resources.
 	shaderResources := map[resource.ShaderID]resource.ShaderInfo{
 		ShaderDissolve:         {Path: "shader/dissolve.go"},
+		ShaderLavaPuddle:       {Path: "shader/lava_puddle.go"},
 		ShaderColonyBuild:      {Path: "shader/colony_build.go"},
 		ShaderTurretBuild:      {Path: "shader/turret_build.go"},
 		ShaderColonyDamage:     {Path: "shader/colony_damage.go"},
@@ -36,6 +37,7 @@ func RegisterShaderResources(ctx *ge.Context, config *Config, progress *float64)
 const (
 	ShaderNone resource.ShaderID = iota
 	ShaderDissolve
+	ShaderLavaPuddle
 	ShaderColonyBuild
 	ShaderTurretBuild
 	ShaderColonyDamage

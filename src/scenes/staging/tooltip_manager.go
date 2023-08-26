@@ -167,6 +167,13 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 	d := m.scene.Dict()
 
+	for _, g := range m.world.lavaGeysers {
+		if g.pos.DistanceSquaredTo(pos) > (26 * 26) {
+			continue
+		}
+		return d.Get("game.hint.lava_geyser")
+	}
+
 	for _, b := range m.world.neutralBuildings {
 		if b.pos.DistanceSquaredTo(pos) > (26 * 26) {
 			continue

@@ -381,6 +381,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		turretDesign: gamedata.FindTurretByName(c.config.TurretDesign),
 		coreDesign:   gamedata.FindCoreByName(c.config.CoreDesign),
 		hasForests:   gamedata.EnvironmentKind(c.config.Environment) == gamedata.EnvForest,
+		envKind:      gamedata.EnvironmentKind(c.config.Environment),
 	}
 	world.inputMode = c.state.GetInput(0).DetectInputMode()
 	world.creepCoordinator = newCreepCoordinator(world)
@@ -419,6 +420,9 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		case gamedata.EnvForest:
 			img = assets.ImageBackgroundForestTiles
 			tileset = assets.RawForestTilesJSON
+		case gamedata.EnvInferno:
+			img = assets.ImageBackgroundInfernoTiles
+			tileset = assets.RawInfernoTilesJSON
 		}
 		bg.LoadTilesetWithRand(scene.Context(), &localRand, viewportWorld.Width, viewportWorld.Height, img, tileset)
 	}

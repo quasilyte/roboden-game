@@ -628,6 +628,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 		b := c.newOptionButton(&c.config.Environment, "menu.lobby.environment", []string{
 			d.Get("menu.lobby.moon"),
 			d.Get("menu.lobby.forest"),
+			d.Get("menu.lobby.inferno"),
 		})
 		tab.AddChild(b)
 	}

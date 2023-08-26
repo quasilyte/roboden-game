@@ -27,6 +27,7 @@ const (
 	actionGenerateEvo
 	actionConvertEvo
 	actionMineEssence
+	actionMineSulfurEssence
 	actionSendCourier
 	actionCloneAgent
 	actionProduceAgent

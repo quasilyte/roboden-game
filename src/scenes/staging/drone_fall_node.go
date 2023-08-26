@@ -4,6 +4,7 @@ import (
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/roboden-game/assets"
 )
 
 type droneFallNode struct {
@@ -56,6 +57,16 @@ func (d *droneFallNode) Destroy() {
 	d.sprite.Dispose()
 	if d.shadow != nil {
 		d.shadow.Dispose()
+	}
+
+	if d.world.pathgrid.GetCellValue(d.world.pathgrid.PosToCoord(d.pos), layerFindLava) == 1 {
+		createEffect(d.world, effectConfig{
+			Pos:            d.pos,
+			Image:          assets.ImageFireBurst,
+			Layer:          normalEffectLayer,
+			AnimationSpeed: animationSpeedFast,
+		})
+		return
 	}
 
 	createAreaExplosion(d.world, spriteRect(d.pos, d.sprite), normalEffectLayer)

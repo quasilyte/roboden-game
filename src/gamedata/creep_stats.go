@@ -65,6 +65,23 @@ type CreepStats struct {
 	Building      bool
 }
 
+var MagmaHazardWeapon = InitWeaponStats(&WeaponStats{
+	MaxTargets:            1,
+	BurstSize:             1,
+	AttackRange:           250,
+	ImpactArea:            40,
+	ProjectileSpeed:       180,
+	AttackSound:           assets.AudioMagmaShot1,
+	ProjectileFireSound:   true,
+	ProjectileRotateSpeed: 2,
+	Damage:                DamageValue{Health: 15},
+	ProjectileImage:       assets.ImageMagmaBall,
+	ArcPower:              7,
+	TrailEffect:           ProjectileTrailMagma,
+	Explosion:             ProjectileExplosionMagma,
+	AlwaysExplodes:        true,
+})
+
 var AtomicBombWeapon = InitWeaponStats(&WeaponStats{
 	MaxTargets:          1,
 	BurstSize:           1,

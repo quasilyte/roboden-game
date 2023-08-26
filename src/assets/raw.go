@@ -9,8 +9,9 @@ import (
 
 func RegisterRawResources(ctx *ge.Context) {
 	rawResources := map[resource.RawID]resource.RawInfo{
-		RawTilesJSON:       {Path: "raw/tiles.json"},
-		RawForestTilesJSON: {Path: "raw/forest_tiles.json"},
+		RawTilesJSON:        {Path: "raw/tiles.json"},
+		RawForestTilesJSON:  {Path: "raw/forest_tiles.json"},
+		RawInfernoTilesJSON: {Path: "raw/inferno_tiles.json"},
 
 		RawDictEn:             {Path: "raw/en.txt"},
 		RawDictTutorialEn:     {Path: "raw/en_intro.txt"},
@@ -34,6 +35,7 @@ const (
 
 	RawTilesJSON
 	RawForestTilesJSON
+	RawInfernoTilesJSON
 
 	RawDictEn
 	RawDictTutorialEn

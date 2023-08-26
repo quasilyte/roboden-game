@@ -80,6 +80,17 @@ var crystalSource = &essenceSourceStats{
 	size:        16,
 }
 
+var sulfurSource = &essenceSourceStats{
+	name:        "sulfur",
+	image:       assets.ImageEssenceSulfurSource,
+	capacity:    gmath.MakeRange(65, 80),
+	regenDelay:  0,  // none
+	value:       11, // 704-880 total
+	spritesheet: true,
+	canDeplete:  true,
+	size:        16,
+}
+
 var ironSource = &essenceSourceStats{
 	name:        "iron",
 	image:       assets.ImageEssenceIronSource,
@@ -89,6 +100,18 @@ var ironSource = &essenceSourceStats{
 	spritesheet: true,
 	canDeplete:  true,
 	size:        20,
+}
+
+var magmaRockSource = &essenceSourceStats{
+	name:        "magmarock",
+	image:       assets.ImageEssenceMagmaRockSource,
+	capacity:    gmath.MakeRange(25, 30),
+	regenDelay:  0,   // none
+	value:       3.5, // 87-105 total
+	spritesheet: true,
+	canDeplete:  true,
+	passable:    true,
+	size:        16,
 }
 
 var organicSource = &essenceSourceStats{
@@ -197,7 +220,7 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	e.scene = scene
 
 	img := e.stats.image
-	switch gamedata.EnvironmentKind(e.world.config.Environment) {
+	switch e.world.envKind {
 	case gamedata.EnvForest:
 		if e.stats == oilSource {
 			img++
@@ -220,17 +243,36 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 		e.sprite.FlipHorizontal = scene.Rand().Bool()
 	}
 
-	e.capacity = scene.Rand().IntRange(e.stats.capacity.Min, e.stats.capacity.Max)
+	if e.stats == redCrystalSource {
+		e.capacity = 3
+	} else {
+		e.capacity = scene.Rand().IntRange(e.stats.capacity.Min, e.stats.capacity.Max)
+	}
 	if e.stats == ironSource && !e.world.config.GoldEnabled {
 		// If gold is disabled, iron has doubled capacity.
 		e.capacity *= 2
 	}
 	e.resource = e.capacity
+
 	if e.stats == organicSource {
 		e.resource = int(float64(e.resource) * scene.Rand().FloatRange(0.2, 0.5))
-		e.percengage = float64(e.resource) / float64(e.capacity)
+	}
+	if e.stats == redCrystalSource {
+		if e.world.envKind == gamedata.EnvInferno {
+			if scene.Rand().Bool() {
+				e.resource = 3
+			} else {
+				e.resource = 2
+			}
+		} else {
+			e.resource = 1
+		}
+	}
+
+	if e.resource == e.capacity {
+		e.percengage = 1
 	} else {
-		e.percengage = 1.0
+		e.percengage = float64(e.resource) / float64(e.capacity)
 	}
 	e.updateShader()
 }

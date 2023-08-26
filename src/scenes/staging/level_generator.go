@@ -61,7 +61,7 @@ func (g *levelGenerator) Generate() {
 		fn   func()
 	}
 	var steps = []genStep{
-		{"place_forests", g.placeForests},
+		{"place_landmarks", g.placeLandmarks},
 		{"place_teleporters", g.placeTeleporters},
 		{"place_relicts", g.placeRelicts},
 		{"place_players", g.placePlayers},
@@ -406,20 +406,7 @@ func (g *levelGenerator) placeResources() {
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
 	numOil := int(float64(rand.IntRange(4, 6)) * multiplier)
 	numOrganic := int(float64(rand.IntRange(16, 24)) * multiplier)
-
-	switch gamedata.EnvironmentKind(g.world.config.Environment) {
-	case gamedata.EnvMoon:
-		numOrganic = 0
-	case gamedata.EnvForest:
-		numIron = 0
-		numCrystals /= 2
-		numGold = int(float64(numGold) * 0.7)
-		numOil = int(float64(numOil) * 1.5)
-	}
-
-	if !g.world.config.GoldEnabled {
-		numGold = 0
-	}
+	numSulfur := int(float64(rand.IntRange(10, 14)) * multiplier)
 
 	numRedOil := 0
 	numRedCrystals := 0
@@ -429,6 +416,27 @@ func (g *levelGenerator) placeResources() {
 	}
 	if g.world.seedKind == gamedata.SeedLeet {
 		numRedCrystals *= 2
+	}
+
+	switch g.world.envKind {
+	case gamedata.EnvMoon:
+		numSulfur = 0
+		numOrganic = 0
+	case gamedata.EnvForest:
+		numSulfur = 0
+		numIron = 0
+		numCrystals /= 2
+		numGold = int(float64(numGold) * 0.7)
+		numOil = int(float64(numOil) * 1.5)
+	case gamedata.EnvInferno:
+		numOil = 0
+		numIron = 0
+		numOrganic = 0
+		numRedCrystals = int(float64(numRedCrystals) * 1.1)
+	}
+
+	if !g.world.config.GoldEnabled {
+		numGold = 0
 	}
 
 	g.world.numRedCrystals = numRedCrystals
@@ -465,10 +473,19 @@ func (g *levelGenerator) placeResources() {
 		numScrap -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numScrap), kind)
 	}
 	for numGold > 0 {
-		clusterSize := rand.IntRange(1, 3)
+		clusterSize := 1
+		if g.world.envKind != gamedata.EnvInferno {
+			clusterSize = rand.IntRange(1, 3)
+		}
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
 		numGold -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numGold), goldSource)
+	}
+	for numSulfur > 0 {
+		clusterSize := rand.IntRange(1, 2)
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numSulfur -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numSulfur), sulfurSource)
 	}
 	for numOil > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
@@ -487,7 +504,7 @@ func (g *levelGenerator) placeResources() {
 	}
 	for numCrystals > 0 {
 		clusterSize := 1
-		if rand.Chance(0.4) {
+		if g.world.envKind != gamedata.EnvInferno && rand.Chance(0.4) {
 			clusterSize = 2
 		}
 		sector := g.sectors[g.sectorSlider.Value()]
@@ -524,12 +541,15 @@ func (g *levelGenerator) deployStartingResources() {
 		if !hasResources {
 			resNum := 0
 			var res *essenceSourceStats
-			switch gamedata.EnvironmentKind(g.world.config.Environment) {
+			switch g.world.envKind {
 			case gamedata.EnvMoon:
 				res = ironSource
 				resNum = 2
 			case gamedata.EnvForest:
 				res = oilSource
+				resNum = 1
+			case gamedata.EnvInferno:
+				res = goldSource
 				resNum = 1
 			}
 			for i := 0; i < resNum; i++ {
@@ -667,7 +687,7 @@ func (g *levelGenerator) placeCreeps() {
 
 func (g *levelGenerator) placeCreepBases() {
 	numWispLairs := 0
-	if gamedata.EnvironmentKind(g.world.config.Environment) == gamedata.EnvForest {
+	if g.world.envKind == gamedata.EnvForest {
 		numWispLairs = 1
 	}
 	hasWispLair := numWispLairs > 0
@@ -777,8 +797,155 @@ func (g *levelGenerator) placeCreepBases() {
 	}
 }
 
+func (g *levelGenerator) placeLandmarks() {
+	switch g.world.envKind {
+	case gamedata.EnvForest:
+		g.placeForests()
+	case gamedata.EnvInferno:
+		g.placeLavaPuddles()
+		g.placeLavaGeysers()
+	}
+}
+
+func (g *levelGenerator) placeLavaPuddles() {
+	rand := g.world.rand
+
+	const (
+		// A simple 2x2 puddle.
+		shapeTiny int = iota
+		// A prolonged 2xN puddle, where N>2.
+		shapeLong
+		// A shorter version of shapeLong
+		shapeShort
+		// Like long, but 3xN, where N>3.
+		shapeLongWider
+		// A bigger square shape, NxN size, where N>2.
+		shapeSquare
+	)
+
+	shapePicker := gmath.NewRandPicker[int](rand)
+	shapePicker.AddOption(shapeTiny, 0.2)
+	shapePicker.AddOption(shapeLong, 0.1)
+	shapePicker.AddOption(shapeShort, 0.35)
+	shapePicker.AddOption(shapeLongWider, 0.25)
+	shapePicker.AddOption(shapeSquare, 0.25)
+
+	minPuddles := 5
+	maxPuddles := 8
+	switch g.world.config.WorldSize {
+	case 1:
+		minPuddles = 8
+		maxPuddles = 12
+	case 2:
+		minPuddles = 15
+		maxPuddles = 19
+	case 3:
+		minPuddles = 24
+		maxPuddles = 32
+	}
+	numPuddles := rand.IntRange(minPuddles, maxPuddles)
+
+	canPlacePuddle := func(pos gmath.Vec, width, height int) bool {
+		for offsetY := 0.0; offsetY < float64(height)*32; offsetY += 32 {
+			for offsetX := 0.0; offsetX < float64(width)*32; offsetX += 32 {
+				checkPos := pos.Add(gmath.Vec{X: offsetX, Y: offsetY})
+				if !posIsFree(g.world, nil, checkPos, 40) {
+					return false
+				}
+			}
+		}
+		return true
+	}
+
+	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
+	for i := 0; i < numPuddles; i++ {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		pos := g.randomFreePos(sector, 64, 196)
+		if pos.IsZero() {
+			continue
+		}
+		pos = g.world.pathgrid.AlignPos(pos)
+		var width int
+		var height int
+		switch shapePicker.Pick() {
+		case shapeShort:
+			width = rand.IntRange(3, 5)
+			height = 2
+			if rand.Bool() {
+				width, height = height, width
+			}
+		case shapeLong:
+			width = rand.IntRange(6, 9)
+			height = 2
+			if rand.Bool() {
+				width, height = height, width
+			}
+		case shapeLongWider:
+			width = rand.IntRange(4, 9)
+			height = 3
+			if rand.Bool() {
+				width, height = height, width
+			}
+		case shapeSquare:
+			width = rand.IntRange(3, 4)
+			height = width
+		default:
+			width = 2
+			height = 2
+		}
+		if !canPlacePuddle(pos, width, height) {
+			continue
+		}
+		rectOrigin := pos.Sub(gmath.Vec{X: 16, Y: 16})
+		rect := gmath.Rect{
+			Min: rectOrigin,
+			Max: rectOrigin.Add(gmath.Vec{X: float64(width) * 32, Y: float64(height) * 32}),
+		}
+		rect.Max.X = math.Ceil(rect.Max.X)
+		rect.Max.Y = math.Ceil(rect.Max.Y)
+		puddle := newLavaPuddleNode(g.world, rect)
+		g.world.nodeRunner.AddObject(puddle)
+		g.world.lavaPuddles = append(g.world.lavaPuddles, puddle)
+		g.fillPathgridRect(rect, ptagLava)
+	}
+}
+
+func (g *levelGenerator) placeLavaGeysers() {
+	rand := g.world.rand
+
+	minGeysers := 4
+	maxGeysers := 7
+	switch g.world.config.WorldSize {
+	case 1:
+		minGeysers = 6
+		maxGeysers = 9
+	case 2:
+		minGeysers = 11
+		maxGeysers = 14
+	case 3:
+		minGeysers = 17
+		maxGeysers = 22
+	}
+	numGeysers := rand.IntRange(minGeysers, maxGeysers)
+
+	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
+	for i := 0; i < numGeysers; i++ {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		pos := g.randomFreePos(sector, 64, 160)
+		if pos.IsZero() {
+			continue
+		}
+		adjustedPos := g.world.AdjustCellPos(pos, 6)
+		geyser := newLavaGeyserNode(g.world, adjustedPos)
+		g.world.nodeRunner.AddObject(geyser)
+		g.world.lavaGeysers = append(g.world.lavaGeysers, geyser)
+	}
+}
+
 func (g *levelGenerator) placeForests() {
-	if gamedata.EnvironmentKind(g.world.config.Environment) != gamedata.EnvForest {
+	if g.world.envKind != gamedata.EnvForest {
 		return
 	}
 
@@ -869,11 +1036,14 @@ func (g *levelGenerator) placeWalls() {
 	numWallClusters := int(float64(rand.IntRange(8, 10)) * multiplier)
 	numMountains := int(float64(rand.IntRange(5, 9)) * multiplier)
 
-	switch gamedata.EnvironmentKind(g.world.config.Environment) {
+	switch g.world.envKind {
 	case gamedata.EnvMoon:
 		// Nothing to do.
 	case gamedata.EnvForest:
 		numWallClusters = 0
+	case gamedata.EnvInferno:
+		numWallClusters = 0
+		numMountains = int(float64(numMountains) * 1.2)
 	}
 
 	const (
@@ -1132,6 +1302,9 @@ func (g *levelGenerator) placeWalls() {
 		currentPos := pos
 		mountainLength := g.rng.IntRange(3, 10)
 		widthModifier := g.rng.Float()
+		if g.world.envKind == gamedata.EnvInferno {
+			mountainLength += g.rng.IntRange(0, 6)
+		}
 		dir := chooseRandDirection()
 		chunks := make([]wallChunk, 0, mountainLength+4)
 		for j := 0; j < mountainLength; j++ {

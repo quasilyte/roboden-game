@@ -322,6 +322,7 @@ some special differences that will affect the gameplay.
 
 ##menu.lobby.moon : moon
 ##menu.lobby.forest : forest
+##menu.lobby.inferno : inferno
 
 ##menu.lobby.land_flat : flat
 ##menu.lobby.land_normal : balanced
@@ -476,14 +477,19 @@ Split-screen multiplayer: competitive (PvP).
 
 ##game.hint.teleporter : Teleporter
 ##game.hint.colony : Colony
+##game.hint.lava_geyser : Lava geyser
 ##game.hint.wisp_lair : Wisp lair
 ##game.hint.dreadnought : Dreadnought
+##game.hint.resource.magmarock : Volcanic resource
+##game.hint.resource.magmarock.value : Normal value
+##game.hint.resource.sulfur : Sulfur resource
+##game.hint.resource.sulfur.value : High value
 ##game.hint.resource.scrap : Scrap resource
 ##game.hint.resource.scrap.value : Very low value
 ##game.hint.resource.iron : Iron resource
+##game.hint.resource.iron.value : Low value
 ##game.hint.resource.organic : Organic resource
 ##game.hint.resource.organic.value : Normal value
-##game.hint.resource.iron.value : Low value
 ##game.hint.resource.gold : Gold resource
 ##game.hint.resource.gold.value : Normal value
 ##game.hint.resource.crystal : Crystal resource

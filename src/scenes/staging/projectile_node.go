@@ -5,6 +5,7 @@ import (
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
 )
@@ -31,6 +32,8 @@ type projectileNode struct {
 	guided   bool
 	disposed bool
 	sprite   *ge.Sprite
+
+	EventDetonated gsignal.Event[gmath.Vec]
 }
 
 type targetable interface {
@@ -237,6 +240,11 @@ func (p *projectileNode) updateTrail(delta float64) {
 		effect := newEffectNode(p.world, p.pos, slightlyAboveEffectLayer, assets.ImageEnergySpearTrail)
 		effect.rotation = p.rotation
 		p.world.nodeRunner.AddObject(effect)
+	case gamedata.ProjectileTrailMagma:
+		p.trailCounter = p.world.localRand.FloatRange(0.05, 0.09)
+		effect := newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageMagmaTrail)
+		effect.rotation = p.rotation
+		p.world.nodeRunner.AddObject(effect)
 	case gamedata.ProjectileTrailFire:
 		p.trailCounter = p.world.localRand.FloatRange(0.06, 0.1)
 		effect := newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageFireTrail)
@@ -263,7 +271,7 @@ func (p *projectileNode) createExplosion() {
 	}
 
 	layer := aboveEffectLayer
-	if !p.target.IsFlying() {
+	if p.target != nil && !p.target.IsFlying() {
 		target, ok := p.target.(*creepNode)
 		if !(ok && target.stats.Kind == gamedata.CreepUberBoss) {
 			layer = normalEffectLayer
@@ -286,6 +294,9 @@ func (p *projectileNode) createExplosion() {
 		createExplosion(p.world, layer, explosionPos)
 	case gamedata.ProjectileExplosionBigVertical:
 		createBigVerticalExplosion(p.world, explosionPos)
+	case gamedata.ProjectileExplosionMagma:
+		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageFireBurst, Layer: layer})
+		playSound(p.world, assets.AudioMagmaExplosion1, explosionPos)
 	case gamedata.ProjectileExplosionAbomb:
 		p.world.ShakeCamera(p.world.localRand.IntRange(45, 60), explosionPos)
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, slightlyAboveEffectLayer, assets.ImageNuclearExplosion))
@@ -327,8 +338,12 @@ func (p *projectileNode) createExplosion() {
 }
 
 func (p *projectileNode) detonate() {
+	if !p.EventDetonated.IsEmpty() {
+		p.EventDetonated.Emit(p.pos)
+	}
+
 	p.Dispose()
-	if p.target.IsDisposed() {
+	if p.target == nil || p.target.IsDisposed() {
 		if p.weapon.AlwaysExplodes {
 			p.createExplosion()
 		}

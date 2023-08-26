@@ -180,7 +180,7 @@ func calcScore(world *worldState) int {
 		return 500
 
 	case gamedata.ModeInfArena:
-		score := world.config.DifficultyScore * 7
+		score := world.config.DifficultyScore * 9
 		timePlayed := world.result.TimePlayed.Seconds()
 		if timePlayed < 5*60 {
 			return 0
@@ -272,6 +272,9 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 		multiplier += 0.35
 	} else if source.percengage <= 0.5 {
 		multiplier += 0.1
+	}
+	if source.stats == sulfurSource {
+		multiplier /= 2
 	}
 	return gmath.ClampMin(distScore*multiplier, 0.01)
 }

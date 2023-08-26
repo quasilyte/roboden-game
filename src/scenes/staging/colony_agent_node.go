@@ -53,6 +53,7 @@ const (
 	agentModePosing
 	agentModeForcedCharging
 	agentModeMineEssence
+	agentModeMineSulfurEssence
 	agentModeCourierFlight
 	agentModeScavenge
 	agentModeRepairBase
@@ -595,6 +596,29 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.target = target
 		return true
 
+	case agentModeMineSulfurEssence:
+		if !a.stats.CanGather {
+			return false
+		}
+		switch a.stats.Kind {
+		case gamedata.AgentCourier, gamedata.AgentTrucker:
+			return false
+		}
+		source := target.(*essenceSourceNode)
+		energyCost := (source.pos.DistanceTo(a.pos) * 0.3) + 20
+		if a.tether {
+			energyCost *= 0.5
+		}
+		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+			return false
+		}
+		a.dist = a.scene.Rand().FloatRange(20, 25) // time to harvest
+		a.energyBill += energyCost
+		a.mode = mode
+		a.setWaypoint(roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-10, 10))))
+		a.target = target
+		return true
+
 	case agentModeMineEssence:
 		if !a.stats.CanGather {
 			return false
@@ -794,6 +818,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateCloakHide(delta)
 	case agentModeMineEssence:
 		a.updateMineEssence(delta)
+	case agentModeMineSulfurEssence:
+		a.updateMineSulfurEssence(delta)
 	case agentModePickup:
 		a.updatePickup(delta)
 	case agentModeReturn:
@@ -1460,7 +1486,7 @@ func (a *colonyAgentNode) walkTetherTargets(colony *colonyCoreNode, num int, f f
 		}
 
 		switch x.mode {
-		case agentModeMineEssence, agentModeReturn, agentModeCourierFlight, agentModeForcedCharging:
+		case agentModeMineEssence, agentModeReturn, agentModeCourierFlight, agentModeForcedCharging, agentModeMineSulfurEssence:
 			// The best modes to be hastened.
 			processed++
 			f(x)
@@ -1795,7 +1821,7 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 				Base:   &a.colonyCore.pos,
 				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-18, 18)},
 			}
-			beam := newCloningBeamNode(a.world(), false, &a.pos, buildPos)
+			beam := newCloningBeamNode(a.world(), abeamCloning, &a.pos, buildPos)
 			a.cloningBeam = beam
 			a.world().nodeRunner.AddObject(beam)
 			return
@@ -2326,7 +2352,7 @@ func (a *colonyAgentNode) updateCaptureBuilding(delta float64) {
 				Base:   &target.pos,
 				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-10, 10)},
 			}
-			beam := newCloningBeamNode(a.world(), false, &a.pos, buildPos)
+			beam := newCloningBeamNode(a.world(), abeamCloning, &a.pos, buildPos)
 			a.cloningBeam = beam
 			a.world().nodeRunner.AddObject(beam)
 			return
@@ -2362,7 +2388,7 @@ func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 				Base:   &target.pos,
 				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-10, 10)},
 			}
-			beam := newCloningBeamNode(a.world(), false, &a.pos, buildPos)
+			beam := newCloningBeamNode(a.world(), abeamCloning, &a.pos, buildPos)
 			a.cloningBeam = beam
 			a.world().nodeRunner.AddObject(beam)
 			return
@@ -2395,7 +2421,7 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 			target.attention += 2
 			a.clearWaypoint()
 			buildPos := target.GetConstructPos()
-			beam := newCloningBeamNode(a.world(), false, &a.pos, buildPos)
+			beam := newCloningBeamNode(a.world(), abeamCloning, &a.pos, buildPos)
 			a.cloningBeam = beam
 			a.world().nodeRunner.AddObject(beam)
 			return
@@ -2457,7 +2483,7 @@ func (a *colonyAgentNode) updateMerging(delta float64) {
 		return
 	}
 	if a.cloningBeam == nil {
-		beam := newCloningBeamNode(a.world(), true, &a.pos, ge.Pos{Base: &target.pos})
+		beam := newCloningBeamNode(a.world(), abeamMerging, &a.pos, ge.Pos{Base: &target.pos})
 		a.cloningBeam = beam
 		a.world().nodeRunner.AddObject(beam)
 	}
@@ -2557,7 +2583,7 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 	if a.hasWaypoint() {
 		if a.moveTowards(delta) {
 			a.clearWaypoint()
-			beam := newCloningBeamNode(a.world(), false, &a.pos, ge.Pos{Base: &target.pos})
+			beam := newCloningBeamNode(a.world(), abeamCloning, &a.pos, ge.Pos{Base: &target.pos})
 			a.cloningBeam = beam
 			a.world().nodeRunner.AddObject(beam)
 			return
@@ -2751,6 +2777,39 @@ func (a *colonyAgentNode) updateForcedCharging(delta float64) {
 	if a.energy >= a.energyTarget {
 		a.energyTarget = 0
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+	}
+}
+
+func (a *colonyAgentNode) updateMineSulfurEssence(delta float64) {
+	if a.hasWaypoint() {
+		if a.moveTowards(delta) {
+			a.waypoint = gmath.Vec{}
+			if !a.world().simulation {
+				source := a.target.(*essenceSourceNode)
+				offset := a.world().localRand.Offset(-6, 6)
+				beam := newCloningBeamNode(a.world(), abeamSulfurMining, &a.pos, ge.Pos{Base: &source.pos, Offset: offset})
+				a.cloningBeam = beam
+				a.world().nodeRunner.AddObject(beam)
+			}
+		}
+		return
+	}
+
+	a.dist -= delta
+	if a.tether {
+		// The gather speed is doubled.
+		a.dist -= delta
+	}
+	if a.dist <= 0 {
+		source := a.target.(*essenceSourceNode)
+		harvested := source.Harvest(a.maxPayload())
+		a.payload = harvested
+		a.cargoValue = float64(harvested) * source.stats.value
+		if a.cloningBeam != nil {
+			a.cloningBeam.Dispose()
+			a.cloningBeam = nil
+		}
+		a.AssignMode(agentModeReturn, gmath.Vec{}, nil)
 	}
 }
 

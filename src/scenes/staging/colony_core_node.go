@@ -1051,6 +1051,15 @@ func (c *colonyCoreNode) createEvoBeam(to ge.Pos) {
 	c.world.nodeRunner.AddObject(beam)
 }
 
+func (c *colonyCoreNode) calcResourceDelay() float64 {
+	// 0.1 resource priority: 3.6 delay
+	// 0.2 resource priority: 3.2 delay
+	// 0.3 resource priority: 2.8 delay
+	// 0.5 resource priority: 2.0 delay
+	// 0.7 resource priority: 1.2 delay
+	return 4.0 - (c.GetResourcePriority() * 4)
+}
+
 func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	switch action.Kind {
 	case actionConvertEvo:
@@ -1115,6 +1124,35 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		}
 		return courier.AssignMode(agentModeCourierFlight, gmath.Vec{}, action.Value)
 
+	case actionMineSulfurEssence:
+		if c.agents.NumAvailableWorkers() == 0 {
+			return false
+		}
+		source := action.Value.(*essenceSourceNode)
+		toAssign := gmath.ClampMax(3, c.agents.NumAvailableWorkers())
+		numAssigned := 0
+		var miningNode *sulfurMiningNode
+		c.agents.Find(searchWorkers|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
+			if a.AssignMode(agentModeMineSulfurEssence, gmath.Vec{}, source) {
+				if miningNode == nil {
+					miningNode = newSulfurMiningNode(source)
+				}
+				toAssign--
+				numAssigned++
+				miningNode.miners = append(miningNode.miners, a)
+			}
+			return toAssign <= 0
+		})
+		if numAssigned == 0 && c.failedResource == nil {
+			c.failedResource = source
+			c.failedResourceTick = 0
+		}
+		if numAssigned != 0 {
+			c.resourceDelay = c.calcResourceDelay() * 0.75
+			c.world.nodeRunner.AddObject(miningNode)
+		}
+		return numAssigned != 0
+
 	case actionMineEssence:
 		if c.agents.NumAvailableWorkers() == 0 {
 			return false
@@ -1155,12 +1193,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 			c.failedResourceTick = 0
 		}
 		if numAssigned != 0 {
-			// 0.1 resource priority: 3.6 delay
-			// 0.2 resource priority: 3.2 delay
-			// 0.3 resource priority: 2.8 delay
-			// 0.5 resource priority: 2.0 delay
-			// 0.7 resource priority: 1.2 delay
-			c.resourceDelay += 4.0 - (resourcesPriority * 4)
+			c.resourceDelay = c.calcResourceDelay()
 		}
 		return numAssigned != 0
 

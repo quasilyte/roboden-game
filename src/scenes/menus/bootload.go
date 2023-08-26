@@ -176,40 +176,33 @@ func (c *BootloadController) loadUIResources(ctx *ge.Context, config *assets.Con
 
 func (c *BootloadController) loadExtra(ctx *ge.Context, config *assets.Config, progress *float64) {
 	steps := []struct {
-		agent   *gamedata.AgentStats
+		dst     **ge.Texture
 		imageID resource.ImageID
 		length  float64
 	}{
-		{gamedata.CourierAgentStats, assets.ImageCourierLine, 120},
-		{gamedata.RepairAgentStats, assets.ImageRepairLine, gamedata.RepairAgentStats.SupportRange * 1.4},
-		{gamedata.RechargerAgentStats, assets.ImageRechargerLine, gamedata.RepairAgentStats.SupportRange * 1.4},
-		{gamedata.DefenderAgentStats, assets.ImageDefenderLine, gamedata.DefenderAgentStats.Weapon.AttackRange * 1.05},
-		{gamedata.GuardianAgentStats, assets.ImageDefenderLine, gamedata.GuardianAgentStats.Weapon.AttackRange * 1.05},
-		{gamedata.BeamTowerAgentStats, assets.ImageBeamtowerLine, gamedata.BeamTowerAgentStats.Weapon.AttackRange * 1.1},
-		{gamedata.RepulseTowerAgentStats, assets.ImageTempestLine, gamedata.RepulseTowerAgentStats.Weapon.AttackRange * 1.1},
-		{gamedata.TetherBeaconAgentStats, assets.ImageTetherLine, gamedata.TetherBeaconAgentStats.SupportRange * 1.5},
-		{gamedata.TargeterAgentStats, assets.ImageTargeterLine, gamedata.TargeterAgentStats.Weapon.AttackRange * 1.15},
-		{gamedata.FirebugAgentStats, assets.ImageFlamerLine, gamedata.FirebugAgentStats.Weapon.AttackRange * 2},
-		{gamedata.RelictAgentStats, assets.ImageRelictAgentLine, gamedata.RelictAgentStats.Weapon.AttackRange * 1.5},
-	}
-	creepSteps := []struct {
-		creep   *gamedata.CreepStats
-		imageID resource.ImageID
-		length  float64
-	}{
-		{gamedata.StunnerCreepStats, assets.ImageStunnerLine, gamedata.StunnerCreepStats.Weapon.AttackRange * 1.1},
-		{gamedata.TemplarCreepStats, assets.ImageTemplarLine, gamedata.TemplarCreepStats.Weapon.AttackRange * 1.1},
-		{gamedata.UberBossCreepStats, assets.ImageBossLaserLine, gamedata.UberBossCreepStats.Weapon.AttackRange * 1.1},
+		{&gamedata.CourierAgentStats.BeamTexture, assets.ImageCourierLine, 120},
+		{&gamedata.RepairAgentStats.BeamTexture, assets.ImageRepairLine, gamedata.RepairAgentStats.SupportRange * 1.4},
+		{&gamedata.RechargerAgentStats.BeamTexture, assets.ImageRechargerLine, gamedata.RepairAgentStats.SupportRange * 1.4},
+		{&gamedata.DefenderAgentStats.BeamTexture, assets.ImageDefenderLine, gamedata.DefenderAgentStats.Weapon.AttackRange * 1.05},
+		{&gamedata.GuardianAgentStats.BeamTexture, assets.ImageDefenderLine, gamedata.GuardianAgentStats.Weapon.AttackRange * 1.05},
+		{&gamedata.BeamTowerAgentStats.BeamTexture, assets.ImageBeamtowerLine, gamedata.BeamTowerAgentStats.Weapon.AttackRange * 1.1},
+		{&gamedata.RepulseTowerAgentStats.BeamTexture, assets.ImageTempestLine, gamedata.RepulseTowerAgentStats.Weapon.AttackRange * 1.1},
+		{&gamedata.TetherBeaconAgentStats.BeamTexture, assets.ImageTetherLine, gamedata.TetherBeaconAgentStats.SupportRange * 1.5},
+		{&gamedata.TargeterAgentStats.BeamTexture, assets.ImageTargeterLine, gamedata.TargeterAgentStats.Weapon.AttackRange * 1.15},
+		{&gamedata.FirebugAgentStats.BeamTexture, assets.ImageFlamerLine, gamedata.FirebugAgentStats.Weapon.AttackRange * 2},
+		{&gamedata.RelictAgentStats.BeamTexture, assets.ImageRelictAgentLine, gamedata.RelictAgentStats.Weapon.AttackRange * 1.5},
+
+		{&gamedata.StunnerCreepStats.BeamTexture, assets.ImageStunnerLine, gamedata.StunnerCreepStats.Weapon.AttackRange * 1.1},
+		{&gamedata.TemplarCreepStats.BeamTexture, assets.ImageTemplarLine, gamedata.TemplarCreepStats.Weapon.AttackRange * 1.1},
+		{&gamedata.UberBossCreepStats.BeamTexture, assets.ImageBossLaserLine, gamedata.UberBossCreepStats.Weapon.AttackRange * 1.1},
+
+		{&gamedata.LavaGeyserBeamTexture, assets.ImageLavaGeyserLine, 80},
 	}
 
-	progressPerItem := 1.0 / float64(len(steps)+len(creepSteps))
+	progressPerItem := 1.0 / float64(len(steps))
 
 	for _, step := range steps {
-		step.agent.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(step.imageID), step.length)
-		*progress += progressPerItem
-	}
-	for _, step := range creepSteps {
-		step.creep.BeamTexture = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(step.imageID), step.length)
+		*step.dst = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(step.imageID), step.length)
 		*progress += progressPerItem
 	}
 }

@@ -64,6 +64,13 @@ func newTextureBeamNode(world *worldState, from, to ge.Pos, texture *ge.Texture,
 	}
 }
 
+func (b *beamNode) GetToPos() *ge.Pos {
+	if b.line != nil {
+		return &b.line.EndPos
+	}
+	return &b.texLine.EndPos
+}
+
 func (b *beamNode) Init(scene *ge.Scene) {
 	if b.texture == nil {
 		b.line = ge.NewLine(b.from, b.to)

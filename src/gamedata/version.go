@@ -319,4 +319,29 @@ const SeasonNumber = 1
 // * Steam Deck:
 //   - Showing the on-screen keyboard when appropriate
 //   - Added Steam Deck layout option
-const BuildNumber int = 15
+//
+// # Version 16 (Steam update 2)
+//
+// * New content:
+//   - Added Inferno environment:
+//     -- A new env-unique resource - Sulfur
+//     -- A new env-unique resource - Volcanic rocks
+//     -- A lava geyser trap
+//     -- A lava lake that shoots magma projectiles
+//
+// * UX:
+//   - Recipe tab tooltips now shows the T2 drone counters
+//
+// * Balance:
+//   - Difficulty % now affects Infinite Arena score more significantly
+//
+// * Visuals:
+//   - Added some new tiles to the Moon environment
+//   - Adjusted the Generator drone diode offset
+//
+// * Steam:
+//   - Better Steam username auto-fill
+//
+// * Tutorial:
+//   - Removed resources close to the base to improve the pacing
+const BuildNumber int = 16

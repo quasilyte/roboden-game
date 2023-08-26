@@ -43,6 +43,8 @@ type worldState struct {
 	forests          []*forestClusterNode
 	teleporters      []*teleporterNode
 	neutralBuildings []*neutralBuildingNode
+	lavaGeysers      []*lavaGeyserNode
+	lavaPuddles      []*lavaPuddleNode
 
 	boss              *creepNode
 	wispLair          *creepNode
@@ -84,6 +86,8 @@ type worldState struct {
 	oilRegenMultiplier    float64
 
 	superCreepChanceMultiplier float64
+
+	envKind gamedata.EnvironmentKind
 
 	numRedCrystals int
 	wispLimit      float64
@@ -452,7 +456,7 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 }
 
 func (w *worldState) CreateScrapsAt(stats *essenceSourceStats, pos gmath.Vec) {
-	if w.HasTreesAt(pos, 16) {
+	if w.HasTreesAt(pos, 20) {
 		return
 	}
 	scraps := w.NewEssenceSourceNode(stats, pos)

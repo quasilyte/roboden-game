@@ -200,6 +200,8 @@ func posIsFree(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, rad
 }
 
 func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath.Vec, radius float64, flags collisionFlags) bool {
+	// TODO: why we're not using a pathgrid here?
+
 	wallCheckRadius := radius + 24
 	for _, wall := range world.walls {
 		if wall.CollidesWith(pos, wallCheckRadius) {
@@ -207,8 +209,23 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 		}
 	}
 
+	radiusSqr := radius * radius
+
+	if world.envKind == gamedata.EnvInferno {
+		for _, g := range world.lavaGeysers {
+			if g.pos.DistanceSquaredTo(pos) < (radiusSqr + (40 * 40)) {
+				return false
+			}
+		}
+		for _, p := range world.lavaPuddles {
+			if p.CollidesWith(pos, radius) {
+				return false
+			}
+		}
+	}
+
 	for _, b := range world.neutralBuildings {
-		if b.pos.DistanceTo(pos) < (radius + 40) {
+		if b.pos.DistanceSquaredTo(pos) < (radiusSqr + (40 * 40)) {
 			return false
 		}
 	}
@@ -228,7 +245,7 @@ func posIsFreeWithFlags(world *worldState, skipColony *colonyCoreNode, pos gmath
 		}
 	}
 	for _, colony := range world.allColonies {
-		// TODO: flying colonies are not a problem.
+		// TODO: flying colonies are not a problem?
 		if colony == skipColony {
 			continue
 		}

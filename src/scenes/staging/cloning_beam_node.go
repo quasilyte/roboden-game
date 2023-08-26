@@ -6,11 +6,19 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 )
 
+type activeBeamKind int
+
+const (
+	abeamMerging activeBeamKind = iota
+	abeamCloning
+	abeamSulfurMining
+)
+
 type cloningBeamNode struct {
 	disposed bool
 
-	world   *worldState
-	merging bool
+	world *worldState
+	kind  activeBeamKind
 
 	from *gmath.Vec
 	to   ge.Pos
@@ -21,8 +29,8 @@ type cloningBeamNode struct {
 	lines [3]*ge.Line
 }
 
-func newCloningBeamNode(world *worldState, merging bool, from *gmath.Vec, to ge.Pos) *cloningBeamNode {
-	return &cloningBeamNode{world: world, merging: merging, from: from, to: to}
+func newCloningBeamNode(world *worldState, kind activeBeamKind, from *gmath.Vec, to ge.Pos) *cloningBeamNode {
+	return &cloningBeamNode{world: world, kind: kind, from: from, to: to}
 }
 
 func (b *cloningBeamNode) Init(scene *ge.Scene) {
@@ -32,10 +40,13 @@ func (b *cloningBeamNode) Init(scene *ge.Scene) {
 
 	for i := range b.lines {
 		b.world.stage.AddGraphicsAbove(b.lines[i])
-		if b.merging {
+		switch b.kind {
+		case abeamMerging:
 			b.lines[i].SetColorScaleRGBA(0xa2, 0x4c, 0xba, 255)
-		} else {
+		case abeamCloning:
 			b.lines[i].SetColorScaleRGBA(0x33, 0x80, 0xbb, 255)
+		case abeamSulfurMining:
+			b.lines[i].SetColorScaleRGBA(0xff, 0xd1, 0x82, 140)
 		}
 	}
 }
@@ -44,7 +55,11 @@ func (b *cloningBeamNode) Update(delta float64) {
 	b.delay -= delta
 	b.soundDelay -= delta
 	if b.delay <= 0 {
-		b.delay = 0.06
+		if b.kind == abeamSulfurMining {
+			b.delay = 0.085
+		} else {
+			b.delay = 0.06
+		}
 		offset1 := b.world.localRand.Offset(-6, 6)
 		offset2 := b.world.localRand.Offset(-6, 6)
 		b.lines[0].EndPos.Offset = b.to.Offset.Add(offset1)
@@ -54,7 +69,8 @@ func (b *cloningBeamNode) Update(delta float64) {
 	}
 
 	if b.soundDelay <= 0 {
-		if b.merging {
+		switch b.kind {
+		case abeamMerging:
 			if b.world.localRand.Bool() {
 				b.soundDelay = b.world.localRand.FloatRange(0.5, 0.75)
 				playSound(b.world, assets.AudioMerging1, *b.from)
@@ -62,7 +78,7 @@ func (b *cloningBeamNode) Update(delta float64) {
 				b.soundDelay = b.world.localRand.FloatRange(0.55, 0.9)
 				playSound(b.world, assets.AudioMerging2, *b.from)
 			}
-		} else {
+		case abeamCloning:
 			if b.world.localRand.Bool() {
 				b.soundDelay = b.world.localRand.FloatRange(0.3, 0.7)
 				playSound(b.world, assets.AudioCloning1, *b.from)

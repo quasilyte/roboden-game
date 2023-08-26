@@ -102,6 +102,9 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioStealthCrawlerShot:  {Path: "$sfx/stealth_crawler_shot.wav", Volume: -0.3},
 		AudioFortressAttack:      {Path: "$sfx/fortress_attack.wav", Volume: -0.3},
 		AudioTemplarAttack:       {Path: "$sfx/templar_attack.wav", Volume: -0.4},
+		AudioMagmaShot1:          {Path: "$sfx/magma_shot1.wav", Volume: -0.55},
+		AudioMagmaShot2:          {Path: "$sfx/magma_shot2.wav", Volume: -0.55},
+		AudioMagmaShot3:          {Path: "$sfx/magma_shot3.wav", Volume: -0.55},
 		AudioCloning1:            {Path: "$sfx/cloning1.wav", Volume: -0.3},
 		AudioCloning2:            {Path: "$sfx/cloning2.wav", Volume: -0.3},
 		AudioMerging1:            {Path: "$sfx/merging1.wav", Volume: -0.65},
@@ -122,6 +125,12 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioIonBlast2:           {Path: "$sfx/ion_blast2.wav", Volume: -0.45},
 		AudioIonBlast3:           {Path: "$sfx/ion_blast3.wav", Volume: -0.45},
 		AudioIonBlast4:           {Path: "$sfx/ion_blast4.wav", Volume: -0.45},
+		AudioLavaBurst1:          {Path: "$sfx/lava_geyser1.wav", Volume: -0.5},
+		AudioLavaBurst2:          {Path: "$sfx/lava_geyser2.wav", Volume: -0.5},
+		AudioLavaBurst3:          {Path: "$sfx/lava_geyser3.wav", Volume: -0.5},
+		AudioLavaBurst4:          {Path: "$sfx/lava_geyser4.wav", Volume: -0.5},
+		AudioMagmaExplosion1:     {Path: "$sfx/magma_explosion1.wav", Volume: -0.5},
+		AudioMagmaExplosion2:     {Path: "$sfx/magma_explosion2.wav", Volume: -0.6},
 		AudioTeleportCharge:      {Path: "$sfx/teleport_charge.wav", Volume: -0.2},
 		AudioTeleportDone:        {Path: "$sfx/teleport_done.wav", Volume: -0.2},
 		AudioOrganicRestored:     {Path: "$sfx/organic_restored.wav", Volume: -0.2},
@@ -150,6 +159,12 @@ func NumAudioSamples(id resource.AudioID) int {
 		return 5
 	case AudioIonBlast1:
 		return 4
+	case AudioLavaBurst1:
+		return 4
+	case AudioMagmaExplosion1:
+		return 2
+	case AudioMagmaShot1:
+		return 3
 	default:
 		return 1
 	}
@@ -220,12 +235,17 @@ const (
 	AudioAntiAirMissiles
 	AudioMissile
 	AudioRailgun
+	AudioMagmaShot1
+	AudioMagmaShot2
+	AudioMagmaShot3
 	AudioCloning1
 	AudioCloning2
 	AudioMerging1
 	AudioMerging2
 	AudioIonZap1
 	AudioIonZap2
+	AudioMagmaExplosion1
+	AudioMagmaExplosion2
 	AudioPurpleExplosion1
 	AudioPurpleExplosion2
 	AudioPurpleExplosion3
@@ -240,6 +260,10 @@ const (
 	AudioIonBlast2
 	AudioIonBlast3
 	AudioIonBlast4
+	AudioLavaBurst1
+	AudioLavaBurst2
+	AudioLavaBurst3
+	AudioLavaBurst4
 	AudioTeleportCharge
 	AudioTeleportDone
 	AudioOrganicRestored

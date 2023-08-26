@@ -322,6 +322,7 @@ x1.5 означает, что игра будет работать на 50% бы
 
 ##menu.lobby.moon : луна
 ##menu.lobby.forest : лес
+##menu.lobby.inferno : инферно
 
 ##menu.lobby.land_flat : плато
 ##menu.lobby.land_normal : сбалансированный
@@ -476,8 +477,13 @@ x1.5 означает, что игра будет работать на 50% бы
 
 ##game.hint.teleporter : Телепортер
 ##game.hint.colony : Колония
+##game.hint.lava_geyser : Лавовый гейзер
 ##game.hint.wisp_lair : Логово виспов
 ##game.hint.dreadnought : Дредноут
+##game.hint.resource.magmarock : Лавовый камень (ресурс)
+##game.hint.resource.magmarock.value : Средняя ценность
+##game.hint.resource.sulfur : Сера (ресурс)
+##game.hint.resource.sulfur.value : Высокая ценность
 ##game.hint.resource.scrap : Обломки (ресурс)
 ##game.hint.resource.scrap.value : Очень низкая ценность
 ##game.hint.resource.iron : Железо (ресурс)

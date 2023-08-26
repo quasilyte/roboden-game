@@ -1,0 +1,14 @@
+{ "columns":13,
+ "image":"..\/image\/landscape\/inferno\/lava.png",
+ "imageheight":32,
+ "imagewidth":416,
+ "margin":0,
+ "name":"lava",
+ "spacing":0,
+ "tilecount":13,
+ "tiledversion":"1.10.1",
+ "tileheight":32,
+ "tilewidth":32,
+ "type":"tileset",
+ "version":"1.10"
+}

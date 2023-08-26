@@ -47,8 +47,13 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())
 	config.ExecMode = gamedata.ExecuteDemo
 	config.PlayersMode = serverapi.PmodeSingleBot
-	if scene.Rand().Chance(0.4) {
+	switch envRoll := scene.Rand().Float(); {
+	case envRoll < 0.5:
+		config.Environment = int(gamedata.EnvMoon)
+	case envRoll < 0.8:
 		config.Environment = int(gamedata.EnvForest)
+	default:
+		config.Environment = int(gamedata.EnvInferno)
 	}
 	if scene.Rand().Chance(0.3) {
 		config.IonMortars = true

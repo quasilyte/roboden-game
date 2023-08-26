@@ -99,6 +99,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTeleportEffectBig:          {Path: "image/effects/teleport_effect_big.png", FrameWidth: 64},
 		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 24},
 		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 24},
+		ImageMagmaTrail:                 {Path: "image/effects/magma_trail.png", FrameWidth: 9},
 		ImageEnergySpearTrail:           {Path: "image/effects/energy_spear_trail.png", FrameWidth: 12},
 		ImageIonMortarTrail:             {Path: "image/effects/ion_mortar_trail.png", FrameWidth: 11},
 		ImageSuperIonMortarTrail:        {Path: "image/effects/super_ion_mortar_trail.png", FrameWidth: 11},
@@ -111,6 +112,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCommanderShotExplosion:     {Path: "image/effects/commander_shot_explosion.png", FrameWidth: 10},
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
 		ImageTargeterShotExplosion:      {Path: "image/effects/targeter_shot_explosion.png", FrameWidth: 15},
+		ImageFireBurst:                  {Path: "image/effects/fire_burst.png", FrameWidth: 32},
 		ImagePrismShotExplosion:         {Path: "image/effects/prism_shot_explosion.png", FrameWidth: 15},
 		ImageStunExplosion:              {Path: "image/effects/stun_explosion.png", FrameWidth: 24},
 		ImageScoutIonExplosion:          {Path: "image/effects/scout_ion_explosion.png", FrameWidth: 5},
@@ -225,9 +227,11 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTurretDamageMask4:     {Path: "image/shaders/turret_damage_mask4.png"},
 
 		ImageEssenceSourceDissolveMask:    {Path: "image/resources/essence_source_dissolve_mask.png"},
-		ImageEssenceRedCrystalSource:      {Path: "image/resources/red_crystal.png"},
+		ImageEssenceRedCrystalSource:      {Path: "image/resources/red_crystal.png", FrameWidth: 16},
 		ImageEssenceCrystalSource:         {Path: "image/resources/crystal_source.png", FrameWidth: 16},
 		ImageEssenceGoldSource:            {Path: "image/resources/gold_source.png", FrameWidth: 28},
+		ImageEssenceSulfurSource:          {Path: "image/resources/sulfur_source.png", FrameWidth: 28},
+		ImageEssenceMagmaRockSource:       {Path: "image/resources/magma_rock_source.png", FrameWidth: 16},
 		ImageEssenceIronSource:            {Path: "image/resources/iron_source.png", FrameWidth: 32},
 		ImageEssenceScrapSource:           {Path: "image/resources/scrap_source.png"},
 		ImageEssenceSmallScrapSource:      {Path: "image/resources/small_scrap_source.png"},
@@ -263,27 +267,41 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageWispLair:            {Path: "image/creeps/wisp_lair.png"},
 		ImageWisp:                {Path: "image/creeps/wisp.png", FrameWidth: 22},
 
-		ImageBackgroundTiles:       {Path: "image/landscape/moon/tiles.png"},
-		ImageBackgroundForestTiles: {Path: "image/landscape/forest/tiles.png"},
+		ImageBackgroundTiles:        {Path: "image/landscape/moon/tiles.png"},
+		ImageBackgroundForestTiles:  {Path: "image/landscape/forest/tiles.png"},
+		ImageBackgroundInfernoTiles: {Path: "image/landscape/inferno/tiles.png"},
 
-		ImageMountainSmall:        {Path: "image/landscape/moon/mountain_small.png", FrameWidth: 32},
-		ImageMountainMedium:       {Path: "image/landscape/moon/mountain_medium.png", FrameWidth: 48},
-		ImageMountainBig:          {Path: "image/landscape/moon/mountain_big.png", FrameWidth: 64},
-		ImageMountainWide:         {Path: "image/landscape/moon/mountain_wide.png", FrameWidth: 64},
-		ImageMountainTall:         {Path: "image/landscape/moon/mountain_tall.png", FrameWidth: 48},
-		ImageForestMountainSmall:  {Path: "image/landscape/forest/mountain_small.png", FrameWidth: 32},
-		ImageForestMountainMedium: {Path: "image/landscape/forest/mountain_medium.png", FrameWidth: 48},
-		ImageForestMountainBig:    {Path: "image/landscape/forest/mountain_big.png", FrameWidth: 64},
-		ImageForestMountainWide:   {Path: "image/landscape/forest/mountain_wide.png", FrameWidth: 64},
-		ImageForestMountainTall:   {Path: "image/landscape/forest/mountain_tall.png", FrameWidth: 48},
+		ImageMountainSmall:         {Path: "image/landscape/moon/mountain_small.png", FrameWidth: 32},
+		ImageMountainMedium:        {Path: "image/landscape/moon/mountain_medium.png", FrameWidth: 48},
+		ImageMountainBig:           {Path: "image/landscape/moon/mountain_big.png", FrameWidth: 64},
+		ImageMountainWide:          {Path: "image/landscape/moon/mountain_wide.png", FrameWidth: 64},
+		ImageMountainTall:          {Path: "image/landscape/moon/mountain_tall.png", FrameWidth: 48},
+		ImageForestMountainSmall:   {Path: "image/landscape/forest/mountain_small.png", FrameWidth: 32},
+		ImageForestMountainMedium:  {Path: "image/landscape/forest/mountain_medium.png", FrameWidth: 48},
+		ImageForestMountainBig:     {Path: "image/landscape/forest/mountain_big.png", FrameWidth: 64},
+		ImageForestMountainWide:    {Path: "image/landscape/forest/mountain_wide.png", FrameWidth: 64},
+		ImageForestMountainTall:    {Path: "image/landscape/forest/mountain_tall.png", FrameWidth: 48},
+		ImageInfernoMountainSmall:  {Path: "image/landscape/inferno/mountain_small.png", FrameWidth: 32},
+		ImageInfernoMountainMedium: {Path: "image/landscape/inferno/mountain_medium.png", FrameWidth: 48},
+		ImageInfernoMountainBig:    {Path: "image/landscape/inferno/mountain_big.png", FrameWidth: 64},
+		ImageInfernoMountainWide:   {Path: "image/landscape/inferno/mountain_wide.png", FrameWidth: 64},
+		ImageInfernoMountainTall:   {Path: "image/landscape/inferno/mountain_tall.png", FrameWidth: 48},
 
 		ImageLandCrack:  {Path: "image/landscape/landcrack.png", FrameWidth: 32},
 		ImageLandCrack2: {Path: "image/landscape/landcrack2.png", FrameWidth: 32},
 		ImageLandCrack3: {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
 		ImageLandCrack4: {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
 
+		ImageLavaPuddle:  {Path: "image/landscape/inferno/lava.png", FrameWidth: 32},
+		ImageLavaPuddle2: {Path: "image/landscape/inferno/lava2.png", FrameWidth: 32},
+		ImageLavaPuddle3: {Path: "image/landscape/inferno/lava3.png", FrameWidth: 32},
+		ImageLavaPuddle4: {Path: "image/landscape/inferno/lava4.png", FrameWidth: 32},
+
 		ImageTrees: {Path: "image/landscape/forest/trees.png", FrameWidth: 32},
 
+		ImageLavaGeyser: {Path: "image/landscape/inferno/geyser.png"},
+
+		ImageMagmaBall:                {Path: "image/projectile/magma_ball.png"},
 		ImageCommanderProjectile:      {Path: "image/projectile/commander_projectile.png"},
 		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
 		ImageScarabProjectile:         {Path: "image/projectile/scarab_projectile.png"},
@@ -329,6 +347,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTetherLine:      {Path: "image/lines/tether_line.png"},
 		ImageCourierLine:     {Path: "image/lines/courier_line.png"},
 		ImageTemplarLine:     {Path: "image/lines/templar_line.png"},
+		ImageLavaGeyserLine:  {Path: "image/lines/lava_geyser_line.png"},
 
 		ImageUIGamepadRadar:    {Path: "image/ui/gamepad_radar.png"},
 		ImageUIGamepadRadarDot: {Path: "image/ui/gamepad_radar_dot.png"},
@@ -435,6 +454,7 @@ const (
 	ImagePriorityBar
 	ImagePriorityIcons
 
+	ImageMagmaTrail
 	ImageIonMortarTrail
 	ImageSuperIonMortarTrail
 	ImageEnergySpearTrail
@@ -445,6 +465,7 @@ const (
 	ImageTeleportEffectSmall
 	ImageMergingComplete
 	ImageCloningComplete
+	ImageFireBurst
 	ImagePrismShotExplosion
 	ImageStunExplosion
 	ImageCommanderShotExplosion
@@ -598,6 +619,8 @@ const (
 	ImageEssenceRedCrystalSource
 	ImageEssenceCrystalSource
 	ImageEssenceGoldSource
+	ImageEssenceSulfurSource
+	ImageEssenceMagmaRockSource
 	ImageEssenceIronSource
 	ImageEssenceScrapSource
 	ImageEssenceSmallScrapSource
@@ -631,6 +654,7 @@ const (
 
 	ImageBackgroundTiles
 	ImageBackgroundForestTiles
+	ImageBackgroundInfernoTiles
 	ImageMountainSmall
 	ImageMountainMedium
 	ImageMountainBig
@@ -641,12 +665,23 @@ const (
 	ImageForestMountainBig
 	ImageForestMountainTall
 	ImageForestMountainWide
+	ImageInfernoMountainSmall
+	ImageInfernoMountainMedium
+	ImageInfernoMountainBig
+	ImageInfernoMountainTall
+	ImageInfernoMountainWide
 	ImageLandCrack
 	ImageLandCrack2
 	ImageLandCrack3
 	ImageLandCrack4
+	ImageLavaPuddle
+	ImageLavaPuddle2
+	ImageLavaPuddle3
+	ImageLavaPuddle4
 	ImageTrees
+	ImageLavaGeyser
 
+	ImageMagmaBall
 	ImageCommanderProjectile
 	ImageRoombaProjectile
 	ImageScarabProjectile
@@ -692,6 +727,7 @@ const (
 	ImageTetherLine
 	ImageCourierLine
 	ImageTemplarLine
+	ImageLavaGeyserLine
 
 	ImageUIGamepadRadar
 	ImageUIGamepadRadarDot

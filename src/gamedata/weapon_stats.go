@@ -63,6 +63,7 @@ const (
 	ProjectileTrailEnergySpear
 	ProjectileTrailIonMortar
 	ProjectileTrailSuperIonMortar
+	ProjectileTrailMagma
 )
 
 type ProjectileExplosionKind int
@@ -73,6 +74,7 @@ const (
 	ProjectileExplosionIonBlast
 	ProjectileExplosionSuperIonBlast
 	ProjectileExplosionAbomb
+	ProjectileExplosionMagma
 	ProjectileExplosionBigVertical
 	ProjectileExplosionPurple
 	ProjectileExplosionHeavyCrawlerLaser

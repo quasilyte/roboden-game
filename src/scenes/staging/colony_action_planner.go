@@ -241,6 +241,13 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	}
 
 	if bestSource != nil {
+		if bestSource.stats == sulfurSource {
+			return colonyAction{
+				Kind:     actionMineSulfurEssence,
+				Value:    bestSource,
+				TimeCost: 0.3,
+			}
+		}
 		return colonyAction{
 			Kind:     actionMineEssence,
 			Value:    bestSource,

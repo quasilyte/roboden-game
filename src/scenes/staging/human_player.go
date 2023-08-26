@@ -299,6 +299,12 @@ func (p *humanPlayer) HandleInput() {
 
 	handledClick := false
 	clickPos, hasClick := p.cursor.ClickPos(controls.ActionClick)
+	if hasClick {
+		globalClickPos := p.state.camera.AbsClickPos(clickPos)
+		if !p.world.PosIsFree(globalClickPos, layerNormal) {
+			p.scene.Audio().PlaySound(assets.AudioError)
+		}
+	}
 	if len(p.state.colonies) > 1 {
 		if hasClick {
 			globalClickPos := p.state.camera.AbsClickPos(clickPos)

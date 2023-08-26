@@ -334,6 +334,7 @@ const SeasonNumber = 1
 //
 // * Balance:
 //   - Difficulty % now affects Infinite Arena score more significantly
+//   - Some resources are now less likely to be grouped together (like oil resource)
 //
 // * Visuals:
 //   - Added some new tiles to the Moon environment

@@ -27,6 +27,8 @@ type levelGenerator struct {
 	sectorSlider gmath.Slider
 	bg           *ge.TiledBackground
 
+	resourcesByStats map[*essenceSourceStats][]*essenceSourceNode
+
 	pendingResources []*essenceSourceNode
 }
 
@@ -38,9 +40,10 @@ type creepPlacingConfig struct {
 
 func newLevelGenerator(scene *ge.Scene, bg *ge.TiledBackground, world *worldState) *levelGenerator {
 	g := &levelGenerator{
-		scene: scene,
-		world: world,
-		bg:    bg,
+		scene:            scene,
+		world:            world,
+		bg:               bg,
+		resourcesByStats: make(map[*essenceSourceStats][]*essenceSourceNode, 16),
 	}
 	g.rng.SetSeed(world.config.Seed)
 	g.sectors = []gmath.Rect{
@@ -353,11 +356,27 @@ func (g *levelGenerator) adjustResourcePos(pos gmath.Vec) gmath.Vec {
 	return g.world.AdjustCellPos(pos, 10)
 }
 
-func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, kind *essenceSourceStats) int {
+func (g *levelGenerator) checkResourceMinDist(pos gmath.Vec, minDistSqr float64, kind *essenceSourceStats) bool {
+	if minDistSqr == 0 {
+		return true
+	}
+	otherSpots := g.resourcesByStats[kind]
+	for _, res := range otherSpots {
+		if res.pos.DistanceSquaredTo(pos) < minDistSqr {
+			fmt.Println("too close")
+			return false
+		}
+	}
+	return true
+}
+
+func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, minDist float64, kind *essenceSourceStats) int {
 	rand := &g.rng
 	placed := 0
 	pos := correctedPos(sector, g.randomPos(sector), 96)
 	initialPos := pos
+	minDistSqr := minDist * minDist
+	addedSpots := make([]*essenceSourceNode, 0, 6)
 	for i := 0; i < maxSize; i++ {
 		pos = g.adjustResourcePos(pos)
 		if g.world.config.GameMode == gamedata.ModeTutorial {
@@ -365,11 +384,11 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 				break
 			}
 		}
-		if !posIsFree(g.world, nil, pos, 8) {
+		if !posIsFree(g.world, nil, pos, 8) || !g.checkResourceMinDist(pos, minDistSqr, kind) {
 			break
 		}
 		source := g.world.NewEssenceSourceNode(kind, pos)
-		g.pendingResources = append(g.pendingResources, source)
+		addedSpots = append(addedSpots, source)
 		direction := gmath.RadToVec(rand.Rad()).Mulf(32)
 		if rand.Bool() {
 			pos = initialPos.Add(direction)
@@ -378,6 +397,10 @@ func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, ki
 		}
 		placed++
 	}
+
+	g.pendingResources = append(g.pendingResources, addedSpots...)
+	g.resourcesByStats[kind] = append(g.resourcesByStats[kind], addedSpots...)
+
 	return placed
 }
 
@@ -418,6 +441,15 @@ func (g *levelGenerator) placeResources() {
 		numRedCrystals *= 2
 	}
 
+	if g.world.config.WorldSize == 0 {
+		switch g.world.envKind {
+		case gamedata.EnvForest:
+			numOil = gmath.ClampMin(numOil-2, 1)
+		case gamedata.EnvInferno:
+			numSulfur = gmath.ClampMin(numSulfur-1, 1)
+		}
+	}
+
 	switch g.world.envKind {
 	case gamedata.EnvMoon:
 		numSulfur = 0
@@ -447,14 +479,14 @@ func (g *levelGenerator) placeResources() {
 		clusterSize := rand.IntRange(1, 2)
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numOrganic -= g.placeResourceCluster(sector, clusterSize, organicSource)
+		numOrganic -= g.placeResourceCluster(sector, clusterSize, 64, organicSource)
 	}
 
 	for numIron > 0 {
 		clusterSize := rand.IntRange(2, 6)
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numIron -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numIron), ironSource)
+		numIron -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numIron), 0, ironSource)
 	}
 	for numScrap > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
@@ -470,37 +502,39 @@ func (g *levelGenerator) placeResources() {
 		} else if roll > 0.4 {
 			kind = scrapSource
 		}
-		numScrap -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numScrap), kind)
+		numScrap -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numScrap), 0, kind)
 	}
 	for numGold > 0 {
+		minGoldDist := 0.0
 		clusterSize := 1
 		if g.world.envKind != gamedata.EnvInferno {
 			clusterSize = rand.IntRange(1, 3)
+			minGoldDist = 150
 		}
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numGold -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numGold), goldSource)
+		numGold -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numGold), minGoldDist, goldSource)
 	}
 	for numSulfur > 0 {
 		clusterSize := rand.IntRange(1, 2)
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numSulfur -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numSulfur), sulfurSource)
+		numSulfur -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numSulfur), 160, sulfurSource)
 	}
 	for numOil > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numOil -= g.placeResourceCluster(sector, 1, oilSource)
+		numOil -= g.placeResourceCluster(sector, 1, 250, oilSource)
 	}
 	for numRedOil > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numRedOil -= g.placeResourceCluster(sector, 1, redOilSource)
+		numRedOil -= g.placeResourceCluster(sector, 1, 350, redOilSource)
 	}
 	for numRedCrystals > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numRedCrystals -= g.placeResourceCluster(sector, 1, redCrystalSource)
+		numRedCrystals -= g.placeResourceCluster(sector, 1, 0, redCrystalSource)
 	}
 	for numCrystals > 0 {
 		clusterSize := 1
@@ -509,7 +543,7 @@ func (g *levelGenerator) placeResources() {
 		}
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numCrystals -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numCrystals), crystalSource)
+		numCrystals -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numCrystals), 140, crystalSource)
 	}
 
 	if g.world.config.GameMode != gamedata.ModeTutorial {

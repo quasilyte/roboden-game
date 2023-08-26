@@ -12,6 +12,7 @@ todo engine:
 - add LoadGameDataRaw
 - gmath DirectionTo works in counter-intuitive way
 - an ability to "load" a transformed image (like original image + rotated hue)
+- gmath rect: resizing to smaller/larger rect by adding pad
 
 new achievements:
 * iron will - win 3 matches in a row without quitting

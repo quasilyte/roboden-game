@@ -342,6 +342,10 @@ const SeasonNumber = 1
 // * Steam:
 //   - Better Steam username auto-fill
 //
+// * Misc:
+//   - Make Forest environment the default
+//
 // * Tutorial:
+//   - Change the environment to Inferno
 //   - Removed resources close to the base to improve the pacing
 const BuildNumber int = 16

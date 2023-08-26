@@ -3,7 +3,7 @@ package gamedata
 type EnvironmentKind int
 
 const (
-	EnvMoon EnvironmentKind = iota
-	EnvForest
+	EnvForest EnvironmentKind = iota
 	EnvInferno
+	EnvMoon
 )

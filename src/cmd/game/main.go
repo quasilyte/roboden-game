@@ -288,6 +288,7 @@ func getDefaultSessionState() *session.State {
 		config.CreepDifficulty = 0
 		config.BossDifficulty = 0
 		config.NumCreepBases = 0
+		config.Environment = int(gamedata.EnvInferno)
 
 		config.ExtraDrones = []*gamedata.AgentStats{}
 		for i := 0; i < 2; i++ {

@@ -63,7 +63,7 @@ func newRewardsController(state *session.State, rewards gameRewards, backControl
 func (c *rewardsController) Init(scene *ge.Scene) {
 	c.scene = scene
 	c.initUI()
-	c.showDelay = 1
+	c.showDelay = 1.5
 }
 
 func (c *rewardsController) Update(delta float64) {

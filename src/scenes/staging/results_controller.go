@@ -85,13 +85,12 @@ type battleResults struct {
 	Tier3Drones []gamedata.ColonyAgentKind
 }
 
-func newResultsController(state *session.State, config *gamedata.LevelConfig, backController ge.SceneController, results battleResults, rewards *gameRewards) *resultsController {
+func newResultsController(state *session.State, config *gamedata.LevelConfig, backController ge.SceneController, results battleResults) *resultsController {
 	return &resultsController{
 		state:          state,
 		backController: backController,
 		results:        results,
 		config:         config,
-		rewards:        rewards,
 	}
 }
 
@@ -104,14 +103,10 @@ func (c *resultsController) Init(scene *ge.Scene) {
 		c.hasPlayers = true
 	}
 
-	firstTime := false
-	if c.rewards == nil {
-		firstTime = true
-		c.rewards = &gameRewards{}
-	}
+	c.rewards = &gameRewards{}
 
 	victory := c.results.Victory || c.config.GameMode == gamedata.ModeInfArena
-	if victory && firstTime {
+	if victory {
 		c.updateProgress()
 		c.scene.Context().SaveGameData("save", c.state.Persistent)
 	}
@@ -437,18 +432,17 @@ func (c *resultsController) initUI() {
 	}
 	if gamedata.IsSendableReplay(replay) {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.publish_score"), func() {
-			if c.state.Persistent.PlayerName == "" {
-				backController := newResultsController(c.state, c.config, c.backController, c.results, c.rewards)
-				userNameScene := c.state.SceneRegistry.UserNameMenu(backController)
-				c.scene.Context().ChangeScene(userNameScene)
-				return
-			}
 			nextController := c.backController
 			if !c.rewards.IsEmpty() {
 				nextController = newRewardsController(c.state, *c.rewards, c.backController)
 			}
 			submitController := c.state.SceneRegistry.SubmitScreen(nextController, []serverapi.GameReplay{replay})
-			c.scene.Context().ChangeScene(submitController)
+			if c.state.Persistent.PlayerName == "" {
+				userNameScene := c.state.SceneRegistry.UserNameMenu(submitController)
+				c.scene.Context().ChangeScene(userNameScene)
+			} else {
+				c.scene.Context().ChangeScene(submitController)
+			}
 		}))
 	}
 

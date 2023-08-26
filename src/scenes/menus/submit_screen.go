@@ -34,9 +34,14 @@ func NewSubmitScreenController(state *session.State, backController ge.SceneCont
 
 func (c *submitScreenController) Init(scene *ge.Scene) {
 	c.scene = scene
-	c.initUI()
-	c.spawnTask()
-	c.spinnerFrames = []string{`\`, `|`, `/`, `--`}
+
+	if c.state.Persistent.PlayerName != "" {
+		c.initUI()
+		c.spawnTask()
+		c.spinnerFrames = []string{`\`, `|`, `/`, `--`}
+	} else {
+		c.scene.Context().ChangeScene(c.backController)
+	}
 }
 
 func (c *submitScreenController) spawnTask() {
@@ -79,6 +84,10 @@ func (c *submitScreenController) initUI() {
 }
 
 func (c *submitScreenController) Update(delta float64) {
+	if c.state.Persistent.PlayerName == "" {
+		return
+	}
+
 	c.t += 10 * delta
 	c.spinner.Label = c.spinnerFrames[int(c.t)%len(c.spinnerFrames)]
 }

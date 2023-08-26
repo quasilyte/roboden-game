@@ -1120,7 +1120,7 @@ func (c *Controller) defeat() {
 		c.gameFinished = true
 		switch c.config.ExecMode {
 		case gamedata.ExecuteNormal:
-			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result, nil))
+			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 		case gamedata.ExecuteDemo, gamedata.ExecuteReplay:
 			c.leaveScene(c.backController)
 		}
@@ -1153,7 +1153,7 @@ func (c *Controller) victory() {
 			for k := range t3set {
 				c.world.result.Tier3Drones = append(c.world.result.Tier3Drones, k)
 			}
-			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result, nil))
+			c.leaveScene(newResultsController(c.state, &c.config, c.backController, c.world.result))
 		case gamedata.ExecuteDemo, gamedata.ExecuteReplay:
 			c.leaveScene(c.backController)
 		}

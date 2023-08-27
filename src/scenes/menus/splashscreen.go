@@ -48,12 +48,12 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	config.ExecMode = gamedata.ExecuteDemo
 	config.PlayersMode = serverapi.PmodeSingleBot
 	switch envRoll := scene.Rand().Float(); {
-	case envRoll < 0.5:
-		config.Environment = int(gamedata.EnvMoon)
-	case envRoll < 0.8:
+	case envRoll < 0.4:
 		config.Environment = int(gamedata.EnvForest)
-	default:
+	case envRoll < 0.75:
 		config.Environment = int(gamedata.EnvInferno)
+	default:
+		config.Environment = int(gamedata.EnvMoon)
 	}
 	if scene.Rand().Chance(0.3) {
 		config.IonMortars = true

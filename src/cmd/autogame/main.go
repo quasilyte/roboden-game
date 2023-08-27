@@ -138,7 +138,7 @@ func runSimulation(rstate *runnerState, mode string) (serverapi.GameResults, gam
 	config.Finalize()
 
 	controller := staging.NewController(rstate.session, config, nil)
-	simResult, err := runsim.Run(rstate.session, 20, controller)
+	simResult, err := runsim.Run(rstate.session, 35, controller)
 	if err != nil {
 		panic(err)
 	}

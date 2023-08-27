@@ -25,6 +25,8 @@ func main() {
 		panic(err)
 	}
 
+	victories := 0
+	numSamples := 0
 	statsByDrone := map[string]*droneStats{}
 	statsByBuild := map[string]*buildStats{}
 	for _, f := range files {
@@ -36,6 +38,7 @@ func main() {
 		if err := json.Unmarshal(data, &results); err != nil {
 			panic(err)
 		}
+		numSamples++
 		keyParts := make([]string, 0, len(results.Drones))
 		for _, drone := range results.Drones {
 			keyParts = append(keyParts, drone)
@@ -60,6 +63,7 @@ func main() {
 		}
 		stats.picks++
 		if results.Victory {
+			victories++
 			stats.wins++
 		}
 	}
@@ -83,6 +87,9 @@ func main() {
 		return buildStatsList[i].winRate > buildStatsList[j].winRate
 	})
 
+	totalWinRate := 100 * float64(victories) / float64(numSamples)
+	fmt.Printf("win rate: %.2f\n", totalWinRate)
+	fmt.Println("----")
 	for _, stats := range droneStatsList {
 		fmt.Printf("%s => %d%%\n", stats.name, int(math.Round(100*stats.winRate)))
 	}

@@ -77,6 +77,7 @@ type worldState struct {
 	height     float64
 	rect       gmath.Rect
 	innerRect  gmath.Rect
+	innerRect2 gmath.Rect // A couple of tiles further than innerRect
 	spawnAreas []gmath.Rect
 
 	droneHealthMultiplier float64

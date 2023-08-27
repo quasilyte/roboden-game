@@ -59,7 +59,7 @@ func (lava *lavaPuddleNode) Init(scene *ge.Scene) {
 
 	lava.fireDelay = lava.world.rand.FloatRange(30, 200)
 
-	lava.maxResourceSpawns = lava.world.rand.IntRange(1, 3)
+	lava.maxResourceSpawns = lava.world.rand.IntRange(0, 3)
 
 	if lava.world.graphicsSettings.AllShadersEnabled {
 		lava.sprite.Shader = scene.NewShader(assets.ShaderLavaPuddle)

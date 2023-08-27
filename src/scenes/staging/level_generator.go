@@ -528,7 +528,7 @@ func (g *levelGenerator) placeResources() {
 	for numRedOil > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numRedOil -= g.placeResourceCluster(sector, 1, 350, redOilSource)
+		numRedOil -= g.placeResourceCluster(sector, 1, 380, redOilSource)
 	}
 	for numRedCrystals > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
@@ -863,18 +863,18 @@ func (g *levelGenerator) placeLavaPuddles() {
 	shapePicker.AddOption(shapeLongWider, 0.25)
 	shapePicker.AddOption(shapeSquare, 0.25)
 
-	minPuddles := 5
-	maxPuddles := 8
+	minPuddles := 7
+	maxPuddles := 9
 	switch g.world.config.WorldSize {
 	case 1:
-		minPuddles = 8
-		maxPuddles = 12
+		minPuddles = 10
+		maxPuddles = 14
 	case 2:
-		minPuddles = 15
-		maxPuddles = 19
+		minPuddles = 19
+		maxPuddles = 26
 	case 3:
-		minPuddles = 24
-		maxPuddles = 32
+		minPuddles = 29
+		maxPuddles = 35
 	}
 	numPuddles := rand.IntRange(minPuddles, maxPuddles)
 

@@ -1669,7 +1669,7 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		beam := newBeamNode(a.world(), ge.Pos{Base: pos}, ge.Pos{Base: target.GetPos()}, prismBeamColors[numReflections])
 		beam.width = width
 		a.world().nodeRunner.AddObject(beam)
-		damage.Health *= damageMultiplier(target, a.stats.Weapon)
+		damage.Health *= damageMultiplier(target.GetTargetInfo(), a.stats.Weapon)
 		target.OnDamage(damage, a)
 		createEffect(a.world(), effectConfig{
 			Pos:   target.GetPos().Add(a.world().localRand.Offset(-6, 6)),

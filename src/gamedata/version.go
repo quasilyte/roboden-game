@@ -349,4 +349,11 @@ const SeasonNumber = 1
 // * Tutorial:
 //   - Change the environment to Inferno
 //   - Removed resources close to the base to improve the pacing
+//
+// * Computer player (colony bots):
+//   - Less often moves away from the building that is being constructed
+//   - Does less short moves when using a Den colony design
+//   - Learned a few tricks about the Inferno environment (will avoid geysers when possible)
+//   - Has increased interest in scraps if Scavengers/Marauders are available
+//   - A better colony power calculation system
 const BuildNumber int = 16

@@ -377,6 +377,13 @@ func (c *Controller) doInit(scene *ge.Scene) {
 				Y: viewportWorld.Height - 180,
 			},
 		},
+		innerRect2: gmath.Rect{
+			Min: gmath.Vec{X: 260, Y: 260},
+			Max: gmath.Vec{
+				X: viewportWorld.Width - 260,
+				Y: viewportWorld.Height - 260,
+			},
+		},
 		tier2recipes: tier2recipes,
 		turretDesign: gamedata.FindTurretByName(c.config.TurretDesign),
 		coreDesign:   gamedata.FindCoreByName(c.config.CoreDesign),

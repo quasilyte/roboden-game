@@ -363,7 +363,7 @@ func (p *projectileNode) detonate() {
 
 	dmg := p.weapon.Damage
 	if dmg.Health != 0 {
-		dmg.Health *= damageMultiplier(p.target, p.weapon)
+		dmg.Health *= damageMultiplier(p.target.GetTargetInfo(), p.weapon)
 	}
 	p.target.OnDamage(dmg, p.attacker)
 	p.createExplosion()

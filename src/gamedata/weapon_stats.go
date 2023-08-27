@@ -97,6 +97,8 @@ const (
 	TargetGround
 )
 
+const TargetAny = TargetFlying | TargetGround
+
 func InitDroneStats(stats *AgentStats) *AgentStats {
 	stats.SupportRangeSqr = stats.SupportRange * stats.SupportRange
 	return stats

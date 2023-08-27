@@ -91,13 +91,12 @@ func calcPosDanger(world *worldState, pstate *playerState, pos gmath.Vec, r floa
 func multipliedDamage(target targetable, weapon *gamedata.WeaponStats) gamedata.DamageValue {
 	damage := weapon.Damage
 	if damage.Health != 0 {
-		damage.Health *= damageMultiplier(target, weapon)
+		damage.Health *= damageMultiplier(target.GetTargetInfo(), weapon)
 	}
 	return damage
 }
 
-func damageMultiplier(target targetable, weapon *gamedata.WeaponStats) float64 {
-	info := target.GetTargetInfo()
+func damageMultiplier(info targetInfo, weapon *gamedata.WeaponStats) float64 {
 	var m float64
 	if info.flying {
 		m = weapon.FlyingTargetDamageMult

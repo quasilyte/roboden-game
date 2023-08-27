@@ -363,7 +363,6 @@ func (g *levelGenerator) checkResourceMinDist(pos gmath.Vec, minDistSqr float64,
 	otherSpots := g.resourcesByStats[kind]
 	for _, res := range otherSpots {
 		if res.pos.DistanceSquaredTo(pos) < minDistSqr {
-			fmt.Println("too close")
 			return false
 		}
 	}

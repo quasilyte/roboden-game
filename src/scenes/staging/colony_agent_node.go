@@ -2463,10 +2463,8 @@ func (a *colonyAgentNode) updateRecycleLanding(delta float64) {
 func (a *colonyAgentNode) updateMerging(delta float64) {
 	target := a.target.(*colonyAgentNode)
 	if target.IsDisposed() || target.mode != a.mode {
-		if a.cloningBeam != nil {
-			a.cloningBeam.Dispose()
-		}
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		target.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		return
 	}
 	if !a.hasWaypoint() {

@@ -66,6 +66,7 @@ func (d *droneFallNode) Destroy() {
 			Layer:          normalEffectLayer,
 			AnimationSpeed: animationSpeedFast,
 		})
+		playSound(d.world, assets.AudioMagmaExplosion1, d.pos)
 		return
 	}
 

@@ -495,6 +495,9 @@ func retreatPos(rand *gmath.Rand, dist float64, objectPos, threatPos gmath.Vec) 
 }
 
 func playSound(world *worldState, id resource.AudioID, pos gmath.Vec) {
+	if world.simulation {
+		return
+	}
 	for _, cam := range world.cameras {
 		if cam.ContainsPos(pos) {
 			numSamples := assets.NumAudioSamples(id)

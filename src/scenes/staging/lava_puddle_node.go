@@ -201,6 +201,19 @@ func (lava *lavaPuddleNode) Update(delta float64) {
 			attackPos = snipePos(weapon.ProjectileSpeed, spawnPos, a.pos, a.GetVelocity())
 			return true
 		})
+		if target == nil {
+			lava.world.WalkCreeps(spawnPos, weapon.AttackRange, func(creep *creepNode) bool {
+				if creep.stats.Kind != gamedata.CreepCrawler {
+					return false
+				}
+				if creep.pos.DistanceSquaredTo(spawnPos) > weapon.AttackRangeSqr {
+					return false
+				}
+				target = creep
+				attackPos = snipePos(weapon.ProjectileSpeed, spawnPos, creep.pos, creep.GetVelocity())
+				return true
+			})
+		}
 	}
 	if target == nil {
 		dist := lava.world.rand.FloatRange(80, weapon.AttackRange)

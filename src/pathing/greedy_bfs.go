@@ -60,6 +60,7 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 
 		if current.Coord == goal {
 			result.Steps = bfs.constructPath(start, goal, pathmap)
+			result.Finish = current.Coord
 			foundPath = true
 			break
 		}

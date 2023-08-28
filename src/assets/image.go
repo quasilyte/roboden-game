@@ -169,9 +169,10 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageArkCoreSelector:      {Path: "image/colonies/ark_core_selector.png"},
 		ImageArkCoreAllianceColor: {Path: "image/colonies/ark_core_alliance_color.png"},
 
-		ImageTankCore:         {Path: "image/colonies/tank_core.png"},
-		ImageTankCoreFlying:   {Path: "image/colonies/tank_core_flying.png"},
-		ImageTankCoreSelector: {Path: "image/colonies/tank_core_selector.png"},
+		ImageTankCore:              {Path: "image/colonies/tank_core.png"},
+		ImageTankCoreFlying:        {Path: "image/colonies/tank_core_flying.png"},
+		ImageTankCoreSelector:      {Path: "image/colonies/tank_core_selector.png"},
+		ImageTankCoreAllianceColor: {Path: "image/colonies/tank_core_alliance_color.png"},
 
 		ImageColonyResourceBar1: {Path: "image/colonies/colony_resource_bar1.png"},
 		ImageColonyResourceBar2: {Path: "image/colonies/colony_resource_bar2.png"},
@@ -580,6 +581,7 @@ const (
 	ImageTankCore
 	ImageTankCoreFlying
 	ImageTankCoreSelector
+	ImageTankCoreAllianceColor
 
 	ImageRelictFactoryHatch
 	ImageColonyCoreHatch

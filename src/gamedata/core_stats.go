@@ -139,7 +139,7 @@ var TankCoreStats = &ColonyCoreStats{
 	Image:               assets.ImageTankCore,
 	HatchOffsetY:        -11,
 	DiodeOffset:         gmath.Vec{X: -8, Y: -20},
-	AllianceColorOffset: gmath.Vec{X: 7, Y: 30},
+	AllianceColorOffset: gmath.Vec{X: 17, Y: 36},
 	ScoreCost:           TankCoreCost,
 
 	DefaultHeight: 0,

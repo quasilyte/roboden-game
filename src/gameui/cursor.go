@@ -93,10 +93,10 @@ func (c *CursorNode) Update(delta float64) {
 		if dist < 1 {
 			if !c.hoverTriggered {
 				c.stillTime += delta
-				if c.hoverPos.IsZero() && c.stillTime > 0.3 {
+				if c.hoverPos.IsZero() && c.stillTime > 0.15 {
 					c.hoverPos = pos
 				}
-				if c.stillTime > 0.6 {
+				if c.stillTime > 0.3 {
 					c.hoverTriggered = true
 					c.EventHover.Emit(c.hoverPos)
 				}

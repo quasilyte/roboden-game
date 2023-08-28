@@ -13,6 +13,50 @@ import (
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
+func isValidCreepTarget(pos gmath.Vec, creep *creepNode, weapon *gamedata.WeaponStats) bool {
+	if !creep.CanBeTargeted() {
+		return false
+	}
+	if weapon.TargetFlags&creep.TargetKind() == 0 {
+		return false
+	}
+	attackRangeSqr := weapon.AttackRangeSqr
+	if creep.marked > 0 {
+		attackRangeSqr *= weapon.AttackRangeMarkMultiplier
+	}
+	if creep.pos.DistanceSquaredTo(pos) > attackRangeSqr {
+		return false
+	}
+	return true
+}
+
+func attackWithProjectile(world *worldState, weapon *gamedata.WeaponStats, attacker, target targetable, burstSize int, guided bool) {
+	toPos := snipePos(weapon.ProjectileSpeed, *attacker.GetPos(), *target.GetPos(), target.GetVelocity())
+	j := 0
+	attacksPerBurst := weapon.AttacksPerBurst
+	for i := 0; i < burstSize; i += attacksPerBurst {
+		if i+attacksPerBurst > burstSize {
+			// This happens only once for the last burst wave
+			// if attacks-per-burst are not aligned with burstSize (like with Devourer).
+			attacksPerBurst = burstSize - i
+		}
+		for i := 0; i < attacksPerBurst; i++ {
+			fireDelay := float64(j) * weapon.BurstDelay
+			p := world.newProjectileNode(projectileConfig{
+				World:     world,
+				Weapon:    weapon,
+				Attacker:  attacker,
+				ToPos:     toPos,
+				Target:    target,
+				FireDelay: fireDelay,
+				Guided:    guided,
+			})
+			world.nodeRunner.AddProjectile(p)
+		}
+		j++
+	}
+}
+
 type forestCheckResult int
 
 const (
@@ -81,6 +125,27 @@ var resourceNearOffsets = []pathing.GridCoord{
 	{X: 0, Y: 1},
 	{X: -1, Y: 1},
 	{X: -1, Y: 0},
+}
+
+// >     ?
+// >   ? ? ?
+// > ? ? o ? ?
+// >   ? ? ?
+// >     ?
+var smallColonyNearCellOffsets = []pathing.GridCoord{
+	{X: -1, Y: -1},
+	{X: 0, Y: -1},
+	{X: 1, Y: -1},
+	{X: -1, Y: 0},
+	{X: 1, Y: 0},
+	{X: -1, Y: 1},
+	{X: 0, Y: 1},
+	{X: 1, Y: 1},
+
+	{X: 0, Y: -2},
+	{X: -2, Y: 0},
+	{X: 2, Y: 0},
+	{X: 0, Y: 2},
 }
 
 // ? ? ? ?

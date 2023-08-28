@@ -89,6 +89,9 @@ func CoreText(d *langs.Dictionary, core *gamedata.ColonyCoreStats) string {
 	case gamedata.ArkCoreStats:
 		traits = append(traits, d.Get("core.ability.flying"))
 		traits = append(traits, d.Get("core.ability.no_teleporters"))
+	case gamedata.TankCoreStats:
+		traits = append(traits, d.Get("core.ability.cant_fly"))
+		traits = append(traits, d.Get("core.ability.weapons"))
 	}
 	if len(traits) != 0 {
 		textLines = append(textLines, "")

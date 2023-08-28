@@ -328,6 +328,7 @@ const SeasonNumber = 1
 //     -- A new env-unique resource - Volcanic rocks
 //     -- A lava geyser trap
 //     -- A lava lake that shoots magma projectiles
+//   - A new tank-like ground colony
 //
 // * UX:
 //   - Recipe tab tooltips now shows the T2 drone counters

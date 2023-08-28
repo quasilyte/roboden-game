@@ -10,7 +10,8 @@ const (
 	FortressOptionCost    int = 7000
 	IonMortarOptionCost   int = 10000
 
-	ArkCoreCost int = 3000
+	ArkCoreCost  int = 3000
+	TankCoreCost int = 8000
 
 	RoombaDroneCost        int = 1000
 	MortarDroneCost        int = 1500

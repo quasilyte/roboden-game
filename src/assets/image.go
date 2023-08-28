@@ -106,6 +106,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageFireTrail:                  {Path: "image/effects/fire_trail.png", FrameWidth: 7},
 		ImageRoombaLaserTrail:           {Path: "image/effects/roomba_shot_trail.png", FrameWidth: 7},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
+		ImageTankColonyWeapon1Explosion: {Path: "image/effects/tank_colony_weapon1_impact.png", FrameWidth: 32},
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
 		ImageRoombaShotExplosion:        {Path: "image/effects/roomba_shot_explosion.png", FrameWidth: 11},
 		ImageScarabShotExplosion:        {Path: "image/effects/scarab_projectile_explosion.png", FrameWidth: 11},
@@ -168,9 +169,14 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageArkCoreSelector:      {Path: "image/colonies/ark_core_selector.png"},
 		ImageArkCoreAllianceColor: {Path: "image/colonies/ark_core_alliance_color.png"},
 
+		ImageTankCore:         {Path: "image/colonies/tank_core.png"},
+		ImageTankCoreFlying:   {Path: "image/colonies/tank_core_flying.png"},
+		ImageTankCoreSelector: {Path: "image/colonies/tank_core_selector.png"},
+
 		ImageColonyResourceBar1: {Path: "image/colonies/colony_resource_bar1.png"},
 		ImageColonyResourceBar2: {Path: "image/colonies/colony_resource_bar2.png"},
 		ImageColonyResourceBar3: {Path: "image/colonies/colony_resource_bar3.png"},
+		ImageTankResourceBar:    {Path: "image/colonies/tank_resource_bar.png"},
 		ImageColonyCoreHatch:    {Path: "image/colonies/colony_core_hatch.png"},
 		ImageColonyCoreDiode:    {Path: "image/colonies/colony_core_diode.png", FrameWidth: 4},
 
@@ -302,6 +308,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageLavaGeyser: {Path: "image/landscape/inferno/geyser.png"},
 
 		ImageMagmaBall:                {Path: "image/projectile/magma_ball.png"},
+		ImageTankColonyProjectile1:    {Path: "image/projectile/tank_colony_projectile1.png"},
 		ImageCommanderProjectile:      {Path: "image/projectile/commander_projectile.png"},
 		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
 		ImageScarabProjectile:         {Path: "image/projectile/scarab_projectile.png"},
@@ -470,6 +477,7 @@ const (
 	ImageStunExplosion
 	ImageCommanderShotExplosion
 	ImageTargeterShotExplosion
+	ImageTankColonyWeapon1Explosion
 	ImageStealthLaserExplosion
 	ImageRoombaShotExplosion
 	ImageScarabShotExplosion
@@ -555,6 +563,7 @@ const (
 	ImageColonyResourceBar1
 	ImageColonyResourceBar2
 	ImageColonyResourceBar3
+	ImageTankResourceBar
 
 	ImageDroneSelector
 
@@ -567,6 +576,10 @@ const (
 	ImageArkCoreFlying
 	ImageArkCoreSelector
 	ImageArkCoreAllianceColor
+
+	ImageTankCore
+	ImageTankCoreFlying
+	ImageTankCoreSelector
 
 	ImageRelictFactoryHatch
 	ImageColonyCoreHatch
@@ -682,6 +695,7 @@ const (
 	ImageLavaGeyser
 
 	ImageMagmaBall
+	ImageTankColonyProjectile1
 	ImageCommanderProjectile
 	ImageRoombaProjectile
 	ImageScarabProjectile

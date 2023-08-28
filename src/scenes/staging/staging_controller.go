@@ -742,24 +742,6 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 	pstate := choice.Player.GetState()
 	selectedColony := pstate.selectedColony
 
-	if c.config.ExecMode == gamedata.ExecuteNormal {
-		kind := serverapi.PlayerActionKind(choice.Index + 1)
-		if choice.Option.special == specialChoiceMoveColony {
-			kind = serverapi.ActionMove
-		}
-		colonyIndex := -1
-		if selectedColony != nil {
-			colonyIndex = c.world.GetColonyIndex(selectedColony)
-		}
-		a := serverapi.PlayerAction{
-			Kind:           kind,
-			Pos:            [2]float64{choice.Pos.X, choice.Pos.Y},
-			SelectedColony: colonyIndex,
-			Tick:           c.nodeRunner.ticks,
-		}
-		pstate.replay = append(pstate.replay, a)
-	}
-
 	if choice.Option.special == specialChoiceNone {
 		switch choice.Faction {
 		case gamedata.YellowFactionTag:
@@ -814,7 +796,11 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 			stats = harvesterConstructionStats
 		}
 		coord := c.world.pathgrid.PosToCoord(selectedColony.pos)
-		freeCoord := randIterate(c.world.rand, colonyNearCellOffsets, func(offset pathing.GridCoord) bool {
+		nearOffsets := colonyNearCellOffsets
+		if c.world.coreDesign == gamedata.TankCoreStats {
+			nearOffsets = smallColonyNearCellOffsets
+		}
+		freeCoord := randIterate(c.world.rand, nearOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
 			return c.world.CellIsFree(probe, layerLandColony) &&
 				c.canBuildHere(c.world.pathgrid.CoordToPos(probe), true)
@@ -832,13 +818,24 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		p := c.world.pathgrid
 		stats := colonyCoreConstructionStats
 		coord := p.PosToCoord(selectedColony.pos)
-		freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
-			probe := coord.Add(offset)
-			return c.world.CellIsFree2x2(probe, layerLandColony) &&
-				c.canBuildHere(p.CoordToPos(probe).Sub(gmath.Vec{X: 16, Y: 16}), false)
-		})
+		var freeCoord pathing.GridCoord
+		offset := gmath.Vec{X: 16, Y: 16}
+		if c.world.coreDesign == gamedata.TankCoreStats {
+			offset = gmath.Vec{}
+			freeCoord = randIterate(c.world.rand, smallColonyNearCellOffsets, func(offset pathing.GridCoord) bool {
+				probe := coord.Add(offset)
+				return c.world.CellIsFree(probe, layerLandColony) &&
+					c.canBuildHere(p.CoordToPos(probe), false)
+			})
+		} else {
+			freeCoord = randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
+				probe := coord.Add(offset)
+				return c.world.CellIsFree2x2(probe, layerLandColony) &&
+					c.canBuildHere(p.CoordToPos(probe).Sub(gmath.Vec{X: 16, Y: 16}), false)
+			})
+		}
 		if !freeCoord.IsZero() {
-			pos := p.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})
+			pos := p.CoordToPos(coord.Add(freeCoord)).Sub(offset)
 			construction := c.world.NewConstructionNode(choice.Player, pos, gmath.Vec{}, stats)
 			c.nodeRunner.AddObject(construction)
 			return true
@@ -965,12 +962,38 @@ func (c *Controller) playPlayerSound(p player, sound resource.AudioID) {
 	}
 }
 
+func (c *Controller) saveExecutedAction(choice selectedChoice) {
+	pstate := choice.Player.GetState()
+	selectedColony := pstate.selectedColony
+	kind := serverapi.PlayerActionKind(choice.Index + 1)
+	if choice.Option.special == specialChoiceMoveColony {
+		kind = serverapi.ActionMove
+	}
+	colonyIndex := -1
+	if selectedColony != nil {
+		colonyIndex = c.world.GetColonyIndex(selectedColony)
+	}
+	a := serverapi.PlayerAction{
+		Kind:           kind,
+		Pos:            [2]float64{choice.Pos.X, choice.Pos.Y},
+		SelectedColony: colonyIndex,
+		Tick:           c.nodeRunner.ticks,
+	}
+	pstate.replay = append(pstate.replay, a)
+}
+
 func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	if c.tutorialManager != nil {
 		c.tutorialManager.OnChoice(choice)
 	}
 
-	if c.executeAction(choice) {
+	ok := c.executeAction(choice)
+	if c.config.ExecMode == gamedata.ExecuteNormal {
+		if ok || choice.Option.special != specialChoiceMoveColony {
+			c.saveExecutedAction(choice)
+		}
+	}
+	if ok {
 		c.playPlayerSound(choice.Player, assets.AudioChoiceMade)
 	} else {
 		c.playPlayerSound(choice.Player, assets.AudioError)
@@ -1059,17 +1082,17 @@ func (c *Controller) colonyCanMoveAt(core *colonyCoreNode, coord pathing.GridCoo
 		return c.world.CellIsFree(coord, layerNormal)
 	case gamedata.DenCoreStats:
 		return c.world.CellIsFree2x2(coord, layerLandColony)
+	case gamedata.TankCoreStats:
+		return c.world.CellIsFree(coord, layerLandColony)
 	default:
 		return false
 	}
 }
 
-func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gmath.Vec) bool {
+func (c *Controller) findRelocationPoint(core *colonyCoreNode, dist float64, dst gmath.Vec) gmath.Vec {
 	coord := c.world.pathgrid.PosToCoord(dst)
 	if c.colonyCanMoveAt(core, coord) {
-		pos := c.world.pathgrid.CoordToPos(coord).Sub(gmath.Vec{X: 16, Y: 16})
-		core.doRelocation(pos)
-		return true
+		return c.world.pathgrid.CoordToPos(coord).Sub(gmath.Vec{X: 16, Y: 16})
 	}
 
 	freeCoord := randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
@@ -1077,16 +1100,22 @@ func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gm
 		return c.colonyCanMoveAt(core, probe)
 	})
 	if !freeCoord.IsZero() {
-		pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})
-		core.doRelocation(pos)
-		return true
+		return c.world.pathgrid.CoordToPos(coord.Add(freeCoord)).Sub(gmath.Vec{X: 16, Y: 16})
 	}
 
 	if dist > 160 {
 		nextDst := dst.MoveTowards(core.pos, 64)
-		return c.launchRelocation(core, dist-64, nextDst)
+		return c.findRelocationPoint(core, dist-64, nextDst)
 	}
 
+	return gmath.Vec{}
+}
+
+func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gmath.Vec) bool {
+	pos := c.findRelocationPoint(core, dist, dst)
+	if !pos.IsZero() && pos.DistanceTo(core.pos) > 16 {
+		return core.doRelocation(pos)
+	}
 	return false
 }
 

@@ -13,6 +13,7 @@ func RegisterShaderResources(ctx *ge.Context, config *Config, progress *float64)
 		ShaderDissolve:         {Path: "shader/dissolve.go"},
 		ShaderLavaPuddle:       {Path: "shader/lava_puddle.go"},
 		ShaderColonyBuild:      {Path: "shader/colony_build.go"},
+		ShaderSmallColonyBuild: {Path: "shader/small_colony_build.go"},
 		ShaderTurretBuild:      {Path: "shader/turret_build.go"},
 		ShaderColonyDamage:     {Path: "shader/colony_damage.go"},
 		ShaderCreepTurretBuild: {Path: "shader/creep_turret_build.go"},
@@ -39,6 +40,7 @@ const (
 	ShaderDissolve
 	ShaderLavaPuddle
 	ShaderColonyBuild
+	ShaderSmallColonyBuild
 	ShaderTurretBuild
 	ShaderColonyDamage
 	ShaderCreepTurretBuild

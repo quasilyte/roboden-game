@@ -1525,47 +1525,11 @@ func (a *colonyAgentNode) findAttackTargets() []targetable {
 }
 
 func (a *colonyAgentNode) isValidTarget(creep *creepNode) bool {
-	if !creep.CanBeTargeted() {
-		return false
-	}
-	if !a.CanAttack(creep.TargetKind()) {
-		return false
-	}
-	attackRangeSqr := a.stats.Weapon.AttackRangeSqr
-	if creep.marked > 0 {
-		attackRangeSqr *= a.stats.Weapon.AttackRangeMarkMultiplier
-	}
-	if creep.pos.DistanceSquaredTo(a.pos) > attackRangeSqr {
-		return false
-	}
-	return true
+	return isValidCreepTarget(a.pos, creep, a.stats.Weapon)
 }
 
 func (a *colonyAgentNode) attackWithProjectile(target targetable, burstSize int) {
-	toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
-	j := 0
-	attacksPerBurst := a.stats.Weapon.AttacksPerBurst
-	for i := 0; i < burstSize; i += attacksPerBurst {
-		if i+attacksPerBurst > burstSize {
-			// This happens only once for the last burst wave
-			// if attacks-per-burst are not aligned with burstSize (like with Devourer).
-			attacksPerBurst = burstSize - i
-		}
-		for i := 0; i < attacksPerBurst; i++ {
-			fireDelay := float64(j) * a.stats.Weapon.BurstDelay
-			p := a.world().newProjectileNode(projectileConfig{
-				World:     a.world(),
-				Weapon:    a.stats.Weapon,
-				Attacker:  a,
-				ToPos:     toPos,
-				Target:    target,
-				FireDelay: fireDelay,
-				Guided:    a.mode == agentModeFollowCommander,
-			})
-			a.world().nodeRunner.AddProjectile(p)
-		}
-		j++
-	}
+	attackWithProjectile(a.world(), a.stats.Weapon, a, target, burstSize, a.mode == agentModeFollowCommander)
 }
 
 func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {

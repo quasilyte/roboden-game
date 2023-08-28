@@ -386,14 +386,22 @@ func (w *worldState) NewConstructionNode(p player, pos, spriteOffset gmath.Vec, 
 	n := newConstructionNode(w, p, pos, spriteOffset, stats)
 	n.EventDestroyed.Connect(nil, func(x *constructionNode) {
 		if stats == colonyCoreConstructionStats {
-			w.UnmarkPos2x2(x.pos)
+			if w.coreDesign == gamedata.TankCoreStats {
+				w.UnmarkPos(x.pos)
+			} else {
+				w.UnmarkPos2x2(x.pos)
+			}
 		} else {
 			w.UnmarkPos(x.pos)
 		}
 		w.constructions = xslices.Remove(w.constructions, x)
 	})
 	if stats == colonyCoreConstructionStats {
-		w.MarkPos2x2(pos, ptagBlocked)
+		if w.coreDesign == gamedata.TankCoreStats {
+			w.MarkPos(pos, ptagBlocked)
+		} else {
+			w.MarkPos2x2(pos, ptagBlocked)
+		}
 	} else {
 		w.MarkPos(pos, ptagBlocked)
 	}

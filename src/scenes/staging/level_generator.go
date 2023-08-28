@@ -246,19 +246,24 @@ func (g *levelGenerator) placeRelicts() {
 }
 
 func (g *levelGenerator) placePlayers() {
+	extraOffset := gmath.Vec{}
+	if g.world.coreDesign == gamedata.TankCoreStats {
+		extraOffset = gmath.Vec{X: -16, Y: -16}
+	}
+
 	if g.world.config.GameMode == gamedata.ModeReverse {
 		// In reverse mode, there is always only 1 player controlling the colony.
-		g.createBase(g.world.players[1], g.playerSpawn, true)
+		g.createBase(g.world.players[1], g.playerSpawn.Add(extraOffset), true)
 		return
 	}
 
 	switch len(g.world.config.Players) {
 	case 1:
-		g.createBase(g.world.players[0], g.playerSpawn, true)
+		g.createBase(g.world.players[0], g.playerSpawn.Add(extraOffset), true)
 	case 2:
 		playerOffset := gmath.Vec{X: 64, Y: 64}
-		g.createBase(g.world.players[0], g.playerSpawn.Sub(playerOffset), true)
-		g.createBase(g.world.players[1], g.playerSpawn.Add(playerOffset), true)
+		g.createBase(g.world.players[0], g.playerSpawn.Sub(playerOffset).Add(extraOffset), true)
+		g.createBase(g.world.players[1], g.playerSpawn.Add(playerOffset).Add(extraOffset), true)
 	default:
 		panic(fmt.Sprintf("invalid number of players: %d", len(g.world.config.Players)))
 	}

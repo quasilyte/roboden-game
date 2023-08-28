@@ -78,6 +78,8 @@ type colonyCoreNode struct {
 	waypoint        gmath.Vec
 	relocationPoint gmath.Vec
 
+	path pathing.GridPath
+
 	resourceShortage int
 	resources        float64
 	eliteResources   float64
@@ -100,6 +102,8 @@ type colonyCoreNode struct {
 	cloningDelay  float64
 	resourceDelay float64
 	captureDelay  float64
+
+	attackDelay float64
 
 	actionDelay float64
 	priorities  *weightContainer[colonyPriority]
@@ -186,7 +190,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.otherShader = scene.NewShader(assets.ShaderColonyTeleport)
 	}
 
-	if c.world.graphicsSettings.ShadowsEnabled {
+	if c.world.graphicsSettings.ShadowsEnabled && c.stats.Shadow != assets.ImageNone {
 		c.shadowComponent.Init(c.world, c.stats.Shadow)
 		c.shadowComponent.offset = c.stats.ShadowOffsetY
 	}
@@ -210,7 +214,11 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.flyingSprite.Shader = c.sprite.Shader
 	}
-	c.world.stage.AddSortableGraphicsSlightlyAbove(c.flyingSprite, &c.drawOrder)
+	if c.stats.Shadow != assets.ImageNone {
+		c.world.stage.AddSortableGraphicsSlightlyAbove(c.flyingSprite, &c.drawOrder)
+	} else {
+		c.world.stage.AddSprite(c.flyingSprite)
+	}
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
 	c.hatch.Pos.Base = &c.pos
@@ -226,33 +234,47 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 
 	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
 	c.evoDiode.Pos.Base = &c.pos
-	c.evoDiode.Pos.Offset = gmath.Vec{X: -16, Y: -29}
+	c.evoDiode.Pos.Offset = c.stats.DiodeOffset
 	if c.stats == gamedata.ArkCoreStats {
 		c.world.stage.AddSortableGraphicsSlightlyAbove(c.evoDiode, &c.drawOrder)
 	} else {
 		c.world.stage.AddSprite(c.evoDiode)
 	}
 
-	c.resourceRects = make([]*ge.Sprite, 3)
-	c.flyingResourceRects = make([]*ge.Sprite, 3)
-	makeResourceRects := func(rects []*ge.Sprite, above bool) {
-		for i := range rects {
-			rect := scene.NewSprite(assets.ImageColonyResourceBar1 + resource.ImageID(i))
-			rect.Centered = false
-			rect.Visible = false
-			rect.Pos.Base = &c.pos
-			rect.Pos.Offset.X -= 3
-			rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
-			rects[i] = rect
-			if above {
-				c.world.stage.AddSortableGraphicsSlightlyAbove(rect, &c.drawOrder)
-			} else {
-				c.world.stage.AddSprite(rect)
+	if c.stats != gamedata.TankCoreStats {
+		// Den, Ark cores.
+		c.resourceRects = make([]*ge.Sprite, 3)
+		c.flyingResourceRects = make([]*ge.Sprite, 3)
+		makeResourceRects := func(rects []*ge.Sprite, above bool) {
+			for i := range rects {
+				rect := scene.NewSprite(assets.ImageColonyResourceBar1 + resource.ImageID(i))
+				rect.Centered = false
+				rect.Visible = false
+				rect.Pos.Base = &c.pos
+				rect.Pos.Offset.X -= 3
+				rect.Pos.Offset.Y = colonyResourceRectOffsets[i]
+				rects[i] = rect
+				if above {
+					c.world.stage.AddSortableGraphicsSlightlyAbove(rect, &c.drawOrder)
+				} else {
+					c.world.stage.AddSprite(rect)
+				}
 			}
 		}
+		makeResourceRects(c.resourceRects, false)
+		makeResourceRects(c.flyingResourceRects, true)
+	} else {
+		// Tank core.
+		c.resourceRects = make([]*ge.Sprite, 1)
+		rect := scene.NewSprite(assets.ImageTankResourceBar)
+		rect.Centered = false
+		rect.Visible = false
+		rect.Pos.Base = &c.pos
+		rect.Pos.Offset.X -= 5
+		rect.Pos.Offset.Y = 9
+		c.resourceRects[0] = rect
+		c.world.stage.AddSprite(rect)
 	}
-	makeResourceRects(c.resourceRects, false)
-	makeResourceRects(c.flyingResourceRects, true)
 
 	c.markCells(c.pos)
 
@@ -272,6 +294,9 @@ func (c *colonyCoreNode) GetTargetInfo() targetInfo {
 func (c *colonyCoreNode) IsFlying() bool {
 	if c.stats == gamedata.ArkCoreStats {
 		return true
+	}
+	if c.stats == gamedata.TankCoreStats {
+		return false
 	}
 	switch c.mode {
 	case colonyModeNormal, colonyModeTeleporting:
@@ -596,11 +621,29 @@ func (c *colonyCoreNode) updateEvoDiode() {
 }
 
 func (c *colonyCoreNode) maxVisualResources() float64 {
-	return c.stats.ResourcesLimit - 100
+	return c.stats.ResourcesLimit * 0.75
+}
+
+func (c *colonyCoreNode) updateTankResourceRect() {
+	maxResources := c.maxVisualResources()
+	percentage := 1.0
+	if c.resources < maxResources {
+		percentage = c.resources / maxResources
+	}
+	rect := c.resourceRects[0]
+	pixels := rect.ImageWidth()
+	width := math.Round(percentage * pixels)
+	rect.FrameWidth = width
+	rect.Visible = percentage != 0
 }
 
 func (c *colonyCoreNode) updateResourceRects() {
 	if c.mode == colonyModeTeleporting {
+		return
+	}
+
+	if c.stats == gamedata.TankCoreStats {
+		c.updateTankResourceRect()
 		return
 	}
 
@@ -635,14 +678,15 @@ func (c *colonyCoreNode) calcUnitLimit() int {
 	// 128 => 10
 	// 256 => 61
 	// 400 => 118
-	calculated := (gmath.ClampMin(c.realRadius-128, 0) * 0.4) + 10
+	calculated := (gmath.ClampMin(c.realRadius-128, 0) * 0.4) + float64(c.stats.StartingDrones)
 	growth := c.GetGrowthPriority()
 	if growth > 0.1 {
 		// 50% growth priority gives 24 extra units to the limit.
 		// 80% => 42 extra units
 		calculated += (growth - 0.1) * 60
 	}
-	return gmath.Clamp(int(calculated), 10, c.stats.DroneLimit)
+	calculated *= c.stats.DroneLimitScaling
+	return gmath.Clamp(int(calculated), c.stats.StartingDrones, c.stats.DroneLimit)
 }
 
 func (c *colonyCoreNode) calcUpkeed() (float64, int) {
@@ -733,21 +777,23 @@ func (c *colonyCoreNode) processUpkeep(delta float64) {
 	}
 }
 
-func (c *colonyCoreNode) switchSprite(flying bool) {
-	for _, rect := range c.flyingResourceRects {
-		rect.Visible = flying
-	}
-	for _, rect := range c.resourceRects {
-		rect.Visible = !flying
+func (c *colonyCoreNode) switchSprite(moving bool) {
+	if c.stats != gamedata.TankCoreStats {
+		for _, rect := range c.flyingResourceRects {
+			rect.Visible = moving
+		}
+		for _, rect := range c.resourceRects {
+			rect.Visible = !moving
+		}
 	}
 
-	c.flyingSprite.Visible = flying
-	c.sprite.Visible = !flying
-	c.hatch.Visible = !flying
-	c.evoDiode.Visible = !flying
+	c.flyingSprite.Visible = moving
+	c.sprite.Visible = !moving
+	c.hatch.Visible = !moving
+	c.evoDiode.Visible = !moving
 	c.openHatchTime = 0
 
-	if flying {
+	if moving {
 		c.flashComponent.ChangeSprite(c.flyingSprite)
 	} else {
 		c.flashComponent.ChangeSprite(c.sprite)
@@ -762,7 +808,7 @@ func (c *colonyCoreNode) enterTakeoffMode() {
 	c.waypoint = c.pos.Sub(gmath.Vec{Y: c.stats.FlightHeight})
 }
 
-func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
+func (c *colonyCoreNode) doRelocation(pos gmath.Vec) bool {
 	c.relocationPoint = pos
 
 	c.agents.Each(func(a *colonyAgentNode) {
@@ -782,13 +828,30 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) {
 		c.unmarkCells(c.pos)
 		c.shadowComponent.SetVisibility(true)
 		c.enterTakeoffMode()
+		return true
 
 	case gamedata.ArkCoreStats:
 		c.mode = colonyModeRelocating
 		c.waypoint = c.relocationPoint
 		c.switchSprite(true)
+		return true
+
+	case gamedata.TankCoreStats:
+		p := c.world.BuildPath(c.pos, pos, layerLandColony)
+		if p.Partial && !p.Steps.HasNext() {
+			c.relocationPoint = gmath.Vec{}
+			return false
+		}
+		c.unmarkCells(c.pos)
+		c.mode = colonyModeRelocating
+		c.relocationPoint = c.world.pathgrid.CoordToPos(p.Finish)
+		c.path = p.Steps
+		c.waypoint = c.world.pathgrid.AlignPos(c.pos)
+		c.switchSprite(true)
+		return true
 	}
 
+	return false
 }
 
 func (c *colonyCoreNode) updateTakeoff(delta float64) {
@@ -845,9 +908,20 @@ func (c *colonyCoreNode) updateRelocating(delta float64) {
 				c.relocationPoint = newSpot
 				c.waypoint = newSpot
 			}
-		}
 
+		case gamedata.TankCoreStats:
+			if c.path.HasNext() {
+				d := c.path.Next()
+				aligned := c.world.pathgrid.AlignPos(c.pos)
+				nextPos := posMove(aligned, d)
+				c.waypoint = nextPos.Add(c.world.rand.Offset(-3, 3))
+			} else {
+				c.enterNormalMode()
+				c.markCells(c.pos)
+			}
+		}
 	}
+
 	c.shadowComponent.UpdatePos(c.pos)
 	c.drawOrder = c.pos.Y
 }
@@ -1006,10 +1080,33 @@ func (c *colonyCoreNode) createLandingSmokeEffect() {
 	}
 }
 
+func (c *colonyCoreNode) attackWithWeapon(weapon *gamedata.WeaponStats) {
+	var target targetable
+	c.world.WalkCreeps(c.pos, weapon.AttackRange, func(creep *creepNode) bool {
+		if isValidCreepTarget(c.pos, creep, weapon) {
+			target = creep
+			return true
+		}
+		return false
+	})
+	if target != nil {
+		c.attackDelay = weapon.Reload * c.world.rand.FloatRange(0.9, 1.1)
+		attackWithProjectile(c.world, weapon, c, target, weapon.BurstSize, false)
+		return
+	}
+	c.attackDelay = c.world.rand.FloatRange(0.4, 0.9)
+}
+
 func (c *colonyCoreNode) updateNormal(delta float64) {
 	c.actionDelay = gmath.ClampMin(c.actionDelay-delta, 0)
 	if c.actionDelay == 0 {
 		c.doAction()
+	}
+	if c.stats == gamedata.TankCoreStats {
+		c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
+		if c.attackDelay == 0 {
+			c.attackWithWeapon(gamedata.TankCoreWeapon1)
+		}
 	}
 	c.openHatchTime = gmath.ClampMin(c.openHatchTime-delta, 0)
 	c.hatch.Visible = c.openHatchTime == 0
@@ -1034,11 +1131,19 @@ func (c *colonyCoreNode) doAction() {
 }
 
 func (c *colonyCoreNode) unmarkCells(pos gmath.Vec) {
-	c.world.UnmarkPos2x2(pos)
+	if c.stats == gamedata.TankCoreStats {
+		c.world.UnmarkPos(pos)
+	} else {
+		c.world.UnmarkPos2x2(pos)
+	}
 }
 
 func (c *colonyCoreNode) markCells(pos gmath.Vec) {
-	c.world.MarkPos2x2(pos, ptagBlocked)
+	if c.stats == gamedata.TankCoreStats {
+		c.world.MarkPos(pos, ptagBlocked)
+	} else {
+		c.world.MarkPos2x2(pos, ptagBlocked)
+	}
 }
 
 func (c *colonyCoreNode) createEvoBeam(to ge.Pos) {

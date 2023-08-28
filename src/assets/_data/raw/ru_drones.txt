@@ -15,6 +15,8 @@
 ##core.ability.crush : Может разрушать наземных юнитов при посадке
 ##core.ability.flying : Воздушная колония
 ##core.ability.no_teleporters : Не может использовать телепортеры
+##core.ability.cant_fly : Не может летать
+##core.ability.weapons : Атакует воздушные цели
 
 ##drone.kind.worker : рабочий
 ##drone.kind.military : военный

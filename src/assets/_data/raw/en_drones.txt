@@ -15,6 +15,8 @@
 ##core.ability.crush : Crushes small ground units upon landing
 ##core.ability.flying : Airborne
 ##core.ability.no_teleporters : Can't activate teleporters
+##core.ability.cant_fly : Can't fly during the movement
+##core.ability.weapons : Can attack flying targets
 
 ##drone.kind.worker : worker
 ##drone.kind.military : combat

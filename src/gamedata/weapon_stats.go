@@ -88,6 +88,7 @@ const (
 	ProjectileExplosionRoombaShot
 	ProjectileExplosionScarab
 	ProjectileExplosionServant
+	ProjectileExplosionTankColonyBlaster
 )
 
 type TargetKind int

@@ -283,6 +283,9 @@ func (p *projectileNode) createExplosion() {
 	case gamedata.ProjectileExplosionIonBlast:
 		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageIonBlast, Layer: layer})
 		playSound(p.world, assets.AudioIonBlast1, explosionPos)
+	case gamedata.ProjectileExplosionTankColonyBlaster:
+		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageTankColonyWeapon1Explosion, Layer: layer})
+		playSound(p.world, assets.AudioTankColonyBlasterExplosion, explosionPos)
 	case gamedata.ProjectileExplosionSuperIonBlast:
 		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageSuperIonBlast, Layer: layer})
 		playSound(p.world, assets.AudioIonBlast1, explosionPos)

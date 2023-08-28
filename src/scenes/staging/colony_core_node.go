@@ -271,7 +271,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		rect.Visible = false
 		rect.Pos.Base = &c.pos
 		rect.Pos.Offset.X -= 5
-		rect.Pos.Offset.Y = 9
+		rect.Pos.Offset.Y = 8
 		c.resourceRects[0] = rect
 		c.world.stage.AddSprite(rect)
 	}

@@ -71,7 +71,7 @@ var DenCoreStats = &ColonyCoreStats{
 	Shadow:              assets.ImageDenShadow,
 	ShadowOffsetY:       10,
 	HatchOffsetY:        -22,
-	DiodeOffset:         gmath.Vec{X: -16, Y: -29},
+	DiodeOffset:         gmath.Vec{X: -16, Y: -27},
 	AllianceColorOffset: gmath.Vec{Y: 27},
 
 	FlightHeight:  50,

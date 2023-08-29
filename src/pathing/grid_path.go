@@ -34,22 +34,6 @@ func (p GridPath) String() string {
 	return "{" + strings.Join(parts, ",") + "}"
 }
 
-func (p GridPath) Truncated(l int) GridPath {
-	lb := byte(l)
-	if lb >= p.len {
-		return p
-	}
-
-	// TODO: this can be optimized.
-	var dst GridPath
-	src := p
-	src.Rewind()
-	for i := 0; i < l; i++ {
-		dst.push(src.Next())
-	}
-	return dst
-}
-
 func (p *GridPath) Len() int {
 	return int(p.len)
 }

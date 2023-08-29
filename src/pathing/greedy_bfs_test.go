@@ -43,10 +43,6 @@ func TestGreedyBFS(t *testing.T) {
 			result := bfs.BuildPath(grid, parseResult.start, parseResult.dest, l)
 			path := result.Steps
 
-			if test.truncate != 0 {
-				path = path.Truncated(test.truncate)
-			}
-
 			pos := parseResult.start
 			pathLen := 0
 			for path.HasNext() {
@@ -144,11 +140,10 @@ func testParseGrid(tb testing.TB, m []string) testGrid {
 }
 
 type bfsTestCase struct {
-	name     string
-	path     []string
-	partial  bool
-	bench    bool
-	truncate int
+	name    string
+	path    []string
+	partial bool
+	bench   bool
 }
 
 var bfsTests = []bfsTestCase{
@@ -564,37 +559,6 @@ var bfsTests = []bfsTestCase{
 		},
 		bench: true,
 	},
-	{
-		name: "tricky1_truncate4",
-		path: []string{
-			"...............B",
-			"..xxxxxxxxxxxx..",
-			".............x..",
-			" ............x..",
-			" ............x..",
-			" ............x..",
-			" ............x..",
-			"A..xxxxxxxxxxx..",
-			"................",
-		},
-		truncate: 4,
-	},
-	{
-		name: "tricky1_truncate40",
-		path: []string{
-			"               $",
-			" .xxxxxxxxxxxx..",
-			" ............x..",
-			" ............x..",
-			" ............x..",
-			" ............x..",
-			" ............x..",
-			"A..xxxxxxxxxxx..",
-			"................",
-		},
-		truncate: 40,
-	},
-
 	{
 		name: "tricky2",
 		path: []string{

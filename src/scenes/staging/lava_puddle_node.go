@@ -248,7 +248,7 @@ func (lava *lavaPuddleNode) Update(delta float64) {
 }
 
 func (lava *lavaPuddleNode) CollidesWith(pos gmath.Vec, r float64) bool {
-	offset := gmath.Vec{X: r * 0.5, Y: r * 0.5}
+	offset := gmath.Vec{X: r*0.5 + 12, Y: r*0.5 + 12}
 	objectRect := gmath.Rect{
 		Min: pos.Sub(offset),
 		Max: pos.Add(offset),

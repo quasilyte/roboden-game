@@ -17,7 +17,8 @@ type computerPlayer struct {
 	choiceGen       *choiceGenerator
 	choiceSelection choiceSelection
 
-	colonies []*computerColony
+	colonies    []*computerColony
+	attackGroup []*computerColony
 
 	resourceCards  []int
 	growthCards    []int
@@ -28,6 +29,8 @@ type computerPlayer struct {
 	actionDelay      float64
 	buildColonyDelay float64
 	buildTurretDelay float64
+
+	minRadiusBeforeColony float64
 
 	colonyTargetRadius float64
 	maxColonies        int
@@ -73,31 +76,37 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 		buildColonyDelay: world.rand.FloatRange(60, 3*60),
 	}
 
-	switch roll := world.rand.Float(); {
-	case roll < 0.05: // 5%
-		p.maxColonies = 1
-	case roll < 0.25: // 20%
-		p.maxColonies = 2
-	case roll < 0.80: // 55%
-		p.maxColonies = 3
-	default: // 20%
-		p.maxColonies = 4
-	}
-	if world.coreDesign == gamedata.ArkCoreStats {
-		// This effectively means that min number of Ark colonies for the bot is 2.
-		// Since their drone limit is ~2 times smaller, it's required to have
-		// more Ark colonies to handle the late game properly.
-		p.maxColonies++
-	}
-
+	numColoniesPicker := gmath.NewRandPicker[int](world.rand)
 	switch world.coreDesign {
 	case gamedata.DenCoreStats:
-		p.colonyTargetRadius = 360
+		p.colonyTargetRadius = 370
+		p.minRadiusBeforeColony = 180
+		numColoniesPicker.AddOption(1, 0.05)
+		numColoniesPicker.AddOption(2, 0.2)
+		numColoniesPicker.AddOption(3, 0.55)
+		numColoniesPicker.AddOption(4, 0.2)
 	case gamedata.ArkCoreStats:
 		p.colonyTargetRadius = 260
+		p.minRadiusBeforeColony = 160
+		p.buildColonyDelay *= 0.85
+		numColoniesPicker.AddOption(2, 0.05)
+		numColoniesPicker.AddOption(3, 0.2)
+		numColoniesPicker.AddOption(4, 0.55)
+		numColoniesPicker.AddOption(5, 0.2)
+	case gamedata.TankCoreStats:
+		p.colonyTargetRadius = 210
+		p.minRadiusBeforeColony = 140
+		p.buildColonyDelay *= 0.3
+		numColoniesPicker.AddOption(4, 0.1)
+		numColoniesPicker.AddOption(5, 0.4)
+		numColoniesPicker.AddOption(6, 0.3)
+		numColoniesPicker.AddOption(7, 0.2)
 	default:
 		panic("bot can't play on this core design")
 	}
+	p.maxColonies = numColoniesPicker.Pick()
+
+	p.attackGroup = make([]*computerColony, 0, p.maxColonies)
 
 	if p.world.debugLogs {
 		p.world.sessionState.Logf("max colonies: %d", p.maxColonies)
@@ -226,10 +235,19 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 
 	// If bot is attacking the dreadnought with this colony,
 	// this strategy takes the priority.
-	if colony.attacking != 0 {
+	if colony.attacking != 0 && p.world.boss != nil {
 		colony.attacking--
 		if p.maybeDoAttacking(colony) {
 			return true
+		}
+		if colony.attacking == 0 || colony.node.pos.DistanceTo(p.world.boss.pos) <= 200 {
+			colony.attacking = 0
+			if p.maybeStayForAttack() {
+				delay := p.world.rand.FloatRange(9, 16)
+				colony.moveDelay = delay
+				colony.defendDelay = delay
+				return true
+			}
 		}
 	}
 
@@ -250,7 +268,11 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 
 	if colony.moveDelay == 0 {
 		if delay := p.maybeMoveColony(colony); delay != 0 {
-			colony.moveDelay = delay * p.world.rand.FloatRange(0.8, 1.4)
+			if colony.node.stats == gamedata.TankCoreStats {
+				colony.moveDelay = delay * p.world.rand.FloatRange(0.6, 1.1)
+			} else {
+				colony.moveDelay = delay * p.world.rand.FloatRange(0.8, 1.4)
+			}
 			return true
 		}
 		colony.moveDelay = p.world.rand.FloatRange(5, 10)
@@ -330,8 +352,8 @@ func (p *computerPlayer) shouldWait(colony *colonyCoreNode) float64 {
 		}
 	})
 
-	if sulfurMiningMinTime <= 6 && colony.resources < 80 {
-		return sulfurMiningMinTime + 2
+	if sulfurMiningMinTime <= 7 && colony.resources < 80 {
+		return sulfurMiningMinTime + 5
 	}
 	if numSulfulMining >= 5 && colony.resources < 140 {
 		return 6
@@ -371,8 +393,28 @@ func (p *computerPlayer) maybeDoAction() bool {
 }
 
 func (p *computerPlayer) colonyCantRecover(colony *colonyCoreNode) bool {
+	if colony.stats == gamedata.TankCoreStats {
+		return false
+	}
 	return colony.resources < gamedata.WorkerAgentStats.Cost &&
 		len(colony.agents.workers) == 0
+}
+
+func (p *computerPlayer) bossTargetKind() gamedata.TargetKind {
+	targetKind := gamedata.TargetFlying
+	if !p.world.boss.IsFlying() {
+		targetKind = gamedata.TargetGround
+	}
+	return targetKind
+}
+
+func (p *computerPlayer) maybeStayForAttack() bool {
+	dist := p.world.boss.pos.DistanceTo(p.state.selectedColony.pos)
+	if dist > 275 {
+		return false
+	}
+	power := p.maybeAddTankPower(p.state.selectedColony, p.selectedColonyPower(p.bossTargetKind()))
+	return power >= 140
 }
 
 func (p *computerPlayer) maybeDoAttacking(colony *computerColony) bool {
@@ -385,7 +427,7 @@ func (p *computerPlayer) maybeDoAttacking(colony *computerColony) bool {
 	if !p.world.boss.IsFlying() {
 		targetKind = gamedata.TargetGround
 	}
-	if p.selectedColonyPower(targetKind) < 90 {
+	if p.maybeAddTankPower(p.state.selectedColony, p.selectedColonyPower(targetKind)) < 90 {
 		return false
 	}
 
@@ -405,6 +447,13 @@ func (p *computerPlayer) maybeDoAttacking(colony *computerColony) bool {
 	return false
 }
 
+func (p *computerPlayer) maybeAddTankPower(colony *colonyCoreNode, power int) int {
+	if p.world.coreDesign == gamedata.TankCoreStats {
+		power += 30 + (2 * colony.NumAgents())
+	}
+	return power
+}
+
 func (p *computerPlayer) maybeStartAttackingDreadnought(colony *computerColony) bool {
 	if p.world.boss == nil {
 		return false
@@ -416,26 +465,39 @@ func (p *computerPlayer) maybeStartAttackingDreadnought(colony *computerColony) 
 	}
 	numJumps := distSqr / jumpDistSqr
 
-	colonyPower := p.selectedColonyPower(gamedata.TargetAny)
+	totalPower := p.maybeAddTankPower(colony.node, p.selectedColonyPower(gamedata.TargetAny))
+	group := p.attackGroup[:0]
+	group = append(group, colony)
+	for _, otherColony := range p.colonies {
+		if otherColony.node == colony.node || otherColony.attacking != 0 {
+			continue
+		}
+		addToGroup := (otherColony.node.stats == gamedata.TankCoreStats && otherColony.node.pos.DistanceTo(colony.node.pos) <= 200) ||
+			otherColony.node.pos.DistanceSquaredTo(p.world.boss.pos) <= 1.55*otherColony.node.MaxFlyDistanceSqr()
+		if !addToGroup {
+			continue
+		}
+		colonyPower := p.maybeAddTankPower(otherColony.node, p.calcColonyPower(otherColony.node, gamedata.TargetAny))
+		if colonyPower < 90 {
+			continue
+		}
+		totalPower += colonyPower
+		group = append(group, otherColony)
+	}
+
 	bossDanger, _ := p.calcPosDanger(p.world.boss.pos, 200)
-	bossDanger = int(float64(bossDanger) * p.world.rand.FloatRange(1.05, 1.5))
-	if colonyPower < bossDanger {
+	bossDanger = int(float64(bossDanger) * p.world.rand.FloatRange(1.1, 1.55))
+	if totalPower < bossDanger {
 		return false
 	}
 
 	colony.attacking = int(math.Ceil(numJumps))
-	for _, otherColony := range p.colonies {
-		if otherColony.node == colony.node {
-			continue
+	for _, otherColony := range group[1:] {
+		if otherColony.node.stats == gamedata.TankCoreStats {
+			otherColony.attacking = colony.attacking
+		} else {
+			otherColony.attacking = 1
 		}
-		if otherColony.node.pos.DistanceSquaredTo(p.world.boss.pos) > 1.55*otherColony.node.MaxFlyDistanceSqr() {
-			continue
-		}
-		colonyPower := p.calcColonyPower(otherColony.node, gamedata.TargetAny)
-		if colonyPower < 120 {
-			continue
-		}
-		otherColony.attacking = 1
 	}
 	return true
 }
@@ -548,12 +610,13 @@ func (p *computerPlayer) maybeHandleHowitzerThreat(colony *computerColony) bool 
 	danger, _ := p.calcPosDanger(howitzer.pos, 250)
 	requiredPower := int(float64(danger) * p.world.rand.FloatRange(0.9, 1.3))
 
-	colonyPower := p.selectedColonyPower(gamedata.TargetGround)
+	colonyPower := p.maybeAddTankPower(colony.node, p.selectedColonyPower(gamedata.TargetGround))
 	var colonyForAttack *colonyCoreNode
 	if colonyPower < requiredPower {
 		// Can we find another colony that can take care of it?
-		otherColony := randIterate(p.world.rand, p.state.colonies, func(c *colonyCoreNode) bool {
-			if c == colony.node {
+		otherColony := randIterate(p.world.rand, p.colonies, func(cc *computerColony) bool {
+			c := cc.node
+			if c == colony.node || cc.attacking != 0 {
 				return false
 			}
 			otherColonyPower := p.calcColonyPower(c, gamedata.TargetGround)
@@ -563,7 +626,7 @@ func (p *computerPlayer) maybeHandleHowitzerThreat(colony *computerColony) bool 
 				(c.pos.DistanceSquaredTo(howitzer.pos) < c.MaxFlyDistanceSqr()*1.1)
 		})
 		if otherColony != nil && p.world.rand.Chance(0.95) {
-			colonyForAttack = otherColony
+			colonyForAttack = otherColony.node
 		}
 	} else {
 		// Have enough power to destroy the howitzer.
@@ -688,7 +751,7 @@ func (p *computerPlayer) maybeBuildColony(colony *computerColony) bool {
 		return false
 	}
 
-	if colony.node.NumAgents() < 20 || colony.node.realRadius < 180 {
+	if colony.node.NumAgents() < 20 || colony.node.realRadius < p.minRadiusBeforeColony {
 		return false
 	}
 
@@ -705,6 +768,7 @@ func (p *computerPlayer) maybeBuildColony(colony *computerColony) bool {
 	currentResourcesScore, _ := p.calcPosResources(colony.node, colony.node.pos, colony.node.realRadius*0.7)
 	canBuild := (float64(currentResourcesScore) >= 200 && (colony.node.resources*p.world.rand.FloatRange(0.8, 1.2)) > 170) ||
 		((float64(currentResourcesScore) * p.world.rand.FloatRange(0.8, 1.2)) >= 400) ||
+		(colony.node.stats == gamedata.TankCoreStats && len(p.state.colonies) < 3 && (colony.node.resources >= colony.node.maxVisualResources()*0.85) && colony.node.agents.NumAvailableWorkers() >= 15) ||
 		(colony.node.resources > 100 && colony.node.agents.NumAvailableWorkers() >= 30 && p.world.rand.Chance(0.1))
 	if !canBuild {
 		return false

@@ -798,7 +798,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		coord := c.world.pathgrid.PosToCoord(selectedColony.pos)
 		nearOffsets := colonyNearCellOffsets
 		if c.world.coreDesign == gamedata.TankCoreStats {
-			nearOffsets = smallColonyNearCellOffsets
+			nearOffsets = smallColonyBuildOffsets
 		}
 		freeCoord := randIterate(c.world.rand, nearOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
@@ -822,7 +822,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		offset := gmath.Vec{X: 16, Y: 16}
 		if c.world.coreDesign == gamedata.TankCoreStats {
 			offset = gmath.Vec{}
-			freeCoord = randIterate(c.world.rand, smallColonyNearCellOffsets, func(offset pathing.GridCoord) bool {
+			freeCoord = randIterate(c.world.rand, smallColonyBuildOffsets, func(offset pathing.GridCoord) bool {
 				probe := coord.Add(offset)
 				return c.world.CellIsFree(probe, layerLandColony) &&
 					c.canBuildHere(p.CoordToPos(probe), false)

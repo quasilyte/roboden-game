@@ -26,25 +26,29 @@ var resourceNearOffsets = []pathing.GridCoord{
 	{X: -1, Y: 0},
 }
 
-// >     ?
 // >   ? ? ?
-// > ? ? x ? ?
+// > ? ? . ? ?
+// > ? . x . ?
+// > ? ? . ? ?
 // >   ? ? ?
-// >     ?
-var smallColonyNearCellOffsets = []pathing.GridCoord{
+var smallColonyBuildOffsets = []pathing.GridCoord{
 	{X: -1, Y: -1},
-	{X: 0, Y: -1},
 	{X: 1, Y: -1},
-	{X: -1, Y: 0},
-	{X: 1, Y: 0},
-	{X: -1, Y: 1},
-	{X: 0, Y: 1},
 	{X: 1, Y: 1},
+	{X: -1, Y: 1},
 
+	{X: -1, Y: -2},
 	{X: 0, Y: -2},
-	{X: -2, Y: 0},
+	{X: 1, Y: -2},
+	{X: 2, Y: -1},
 	{X: 2, Y: 0},
+	{X: 2, Y: 1},
+	{X: 1, Y: 2},
 	{X: 0, Y: 2},
+	{X: -1, Y: 2},
+	{X: -2, Y: 1},
+	{X: -2, Y: 0},
+	{X: -2, Y: -1},
 }
 
 // ? ? ? ?

@@ -131,6 +131,7 @@ var TankCoreWeapon1 = InitWeaponStats(&WeaponStats{
 	MaxTargets:                1,
 	BurstSize:                 1,
 	TargetFlags:               TargetFlying,
+	TrailEffect:               ProjectileTrailTankColonyWeapon1,
 	ProjectileFireSound:       true,
 })
 

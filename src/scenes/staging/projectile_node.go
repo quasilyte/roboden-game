@@ -227,6 +227,11 @@ func (p *projectileNode) updateTrail(delta float64) {
 			img = assets.ImageSuperIonMortarTrail
 		}
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, img))
+	case gamedata.ProjectileTrailTankColonyWeapon1:
+		p.trailCounter = p.world.localRand.FloatRange(0.09, 0.15)
+		effect := newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageTankColonyWeapon1Trail)
+		effect.rotation = p.world.localRand.Rad()
+		p.world.nodeRunner.AddObject(effect)
 	case gamedata.ProjectileTrailSmoke:
 		p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageProjectileSmoke))

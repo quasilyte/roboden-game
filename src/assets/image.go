@@ -100,6 +100,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 24},
 		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 24},
 		ImageMagmaTrail:                 {Path: "image/effects/magma_trail.png", FrameWidth: 9},
+		ImageTankColonyWeapon1Trail:     {Path: "image/effects/tank_colony_weapon1_trail.png", FrameWidth: 11},
 		ImageEnergySpearTrail:           {Path: "image/effects/energy_spear_trail.png", FrameWidth: 12},
 		ImageIonMortarTrail:             {Path: "image/effects/ion_mortar_trail.png", FrameWidth: 11},
 		ImageSuperIonMortarTrail:        {Path: "image/effects/super_ion_mortar_trail.png", FrameWidth: 11},
@@ -463,6 +464,7 @@ const (
 	ImagePriorityIcons
 
 	ImageMagmaTrail
+	ImageTankColonyWeapon1Trail
 	ImageIonMortarTrail
 	ImageSuperIonMortarTrail
 	ImageEnergySpearTrail

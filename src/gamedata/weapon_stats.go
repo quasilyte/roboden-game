@@ -63,6 +63,7 @@ const (
 	ProjectileTrailEnergySpear
 	ProjectileTrailIonMortar
 	ProjectileTrailSuperIonMortar
+	ProjectileTrailTankColonyWeapon1
 	ProjectileTrailMagma
 )
 

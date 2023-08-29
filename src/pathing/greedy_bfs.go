@@ -65,8 +65,8 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 			break
 		}
 		if current.Weight >= gridPathMaxLen {
-			result.Steps = bfs.constructPath(start, current.Coord, pathmap)
-			result.Finish = current.Coord
+			result.Steps = bfs.constructPath(start, fallbackCoord, pathmap)
+			result.Finish = fallbackCoord
 			result.Partial = true
 			foundPath = true
 			break

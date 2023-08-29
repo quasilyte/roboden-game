@@ -528,12 +528,12 @@ func (g *levelGenerator) placeResources() {
 	for numOil > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numOil -= g.placeResourceCluster(sector, 1, 250, oilSource)
+		numOil -= g.placeResourceCluster(sector, 1, 300, oilSource)
 	}
 	for numRedOil > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		numRedOil -= g.placeResourceCluster(sector, 1, 380, redOilSource)
+		numRedOil -= g.placeResourceCluster(sector, 1, 420, redOilSource)
 	}
 	for numRedCrystals > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]

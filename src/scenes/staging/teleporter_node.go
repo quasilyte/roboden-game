@@ -6,6 +6,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/gamedata"
 )
 
 var teleportOffset = gmath.Vec{Y: -8}
@@ -36,6 +37,9 @@ func (t *teleporterNode) IsDisposed() bool { return false }
 func (t *teleporterNode) Update(delta float64) {}
 
 func (t *teleporterNode) CanBeUsedBy(user *colonyCoreNode) bool {
+	if t.world.coreDesign == gamedata.TankCoreStats {
+		return true
+	}
 	target := t.other
 	for _, c := range t.world.allColonies {
 		if c != user {

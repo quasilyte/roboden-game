@@ -556,22 +556,38 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 	c.sprite.Shader.SetFloatValue("Time", 20-(c.teleportDelay*10))
 
 	if c.teleportDelay <= 0 {
+		relocationPoint := c.relocationPoint
+		c.relocationPoint = gmath.Vec{}
+
 		if !c.activatedTeleport.CanBeUsedBy(c) {
 			c.mode = colonyModeNormal
 			c.stopTeleportationEffect()
 			return
 		}
 
+		needToMove := false
+		if c.stats == gamedata.TankCoreStats {
+			relocationPoint = c.world.pathgrid.AlignPos(c.pos.Sub(c.activatedTeleport.pos).Add(relocationPoint))
+			needToMove = !c.world.PosIsFree(relocationPoint, layerLandColony)
+		}
+
 		playSound(c.world, assets.AudioTeleportDone, c.pos)
-		playSound(c.world, assets.AudioTeleportDone, c.relocationPoint)
+		playSound(c.world, assets.AudioTeleportDone, relocationPoint)
 
 		c.agents.Each(func(a *colonyAgentNode) {
 			switch a.mode {
 			case agentModeKamikazeAttack, agentModeBomberAttack:
 				return
 			}
-			a.pos = c.relocationPoint.Add(c.world.rand.Offset(-38, 38))
+			// Create effect at the source pos.
+			createEffect(c.world, effectConfig{
+				Pos:   a.pos,
+				Layer: aboveEffectLayer,
+				Image: assets.ImageTeleportEffectSmall,
+			})
+			a.pos = relocationPoint.Add(c.world.rand.Offset(-38, 38))
 			a.shadowComponent.UpdatePos(a.pos)
+			// Create effect at the destination pos.
 			createEffect(c.world, effectConfig{
 				Pos:   a.pos,
 				Layer: aboveEffectLayer,
@@ -580,9 +596,15 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 			a.AssignMode(agentModePosing, gmath.Vec{X: c.world.rand.FloatRange(0.5, 2.5)}, nil)
 		})
 
+		createEffect(c.world, effectConfig{
+			Pos:   c.pos,
+			Layer: normalEffectLayer,
+			Image: assets.ImageTeleportEffectBig,
+		})
+
 		c.mode = colonyModeNormal
 		c.unmarkCells(c.pos)
-		c.pos = c.relocationPoint
+		c.pos = relocationPoint
 		c.drawOrder = c.pos.Y
 		c.markCells(c.pos)
 		c.stopTeleportationEffect()
@@ -594,6 +616,11 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		})
 
 		c.EventTeleported.Emit(c)
+
+		if needToMove {
+			wp := gmath.RandElem(c.world.rand, tankColonyTeleportOffsets).Add(c.pos)
+			c.doRelocation(wp)
+		}
 	}
 }
 
@@ -918,6 +945,7 @@ func (c *colonyCoreNode) updateRelocating(delta float64) {
 			} else {
 				c.enterNormalMode()
 				c.markCells(c.pos)
+				c.maybeTeleport()
 			}
 		}
 	}

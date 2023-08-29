@@ -1,0 +1,129 @@
+
+##drone.undiscovered : 未発見のドローン
+##drone.locked : 選択したドローン
+##turret.locked : 選択したタレット
+##core.locked : 選択したコロニー
+##drone.score_required : 必要なスコア
+
+##core.den : デン
+##core.ark : アーク
+
+##core.mobility_rating : スピード
+##core.unit_limit_rating : ドローンの制限
+##core.capacity_rating : リソース容量
+
+##core.ability.crush : 着陸時に小型地上ユニットを押し潰します
+##core.ability.flying : 飛行
+##core.ability.no_teleporters : テレポーターを使用できません
+##core.ability.cant_fly : 地上
+##core.ability.weapons : 飛行ユニットを攻撃できます
+
+##drone.kind.worker : 労働
+##drone.kind.military : 戦闘
+##drone.kind.universal : 万能
+
+##drone.target : ターゲット
+##drone.target.ground : 地上
+##drone.target.flying : 飛行
+
+##drone.worker : ワーカー
+##drone.scout : スカウト
+##drone.scavenger : スカベンジャー
+##drone.courier : クーリエ
+##drone.cloner : クローナー
+##drone.freighter : フレイター
+##drone.redminer : タンカー
+##drone.crippler : ハンター
+##drone.disintegrator : ディスインテグレーター
+##drone.fighter : ファイター
+##drone.defender : ディフェンダー
+##drone.prism : プリズム
+##drone.servo : サーボボット
+##drone.repeller : ショッカー
+##drone.repair : リペアボット
+##drone.recharger : リチャージャー
+##drone.generator : ジェネレーター
+##drone.mortar : モルタル
+##drone.antiair : ミサイルボット
+##drone.commander : コマンダー
+##drone.targeter : ポインタ
+##drone.firebug : ファイアバグ
+##drone.trucker : トラック
+##drone.stormbringer : ストームブリンガー
+##drone.destroyer : デストロイヤー
+##drone.marauder : マローダー
+##drone.guardian : ガーディアン
+##drone.kamikaze : カミカゼ
+##drone.skirmisher : スカーミッシャー
+##drone.roomba : シーカー
+##drone.scarab : スカラベ
+##drone.devourer : デヴァウアー
+##drone.bomber : ボンバー
+
+##drone.attack_rating_multi : 各ターゲット
+##drone.ability.num_targets_f : 最大%dつのターゲットに攻撃します
+
+##drone.dps_rating : Damage
+##drone.attack_range_rating : Attack range
+##drone.defense_rating : Defense
+##drone.upkeep_cost : Payment
+
+##drone.ability.self_repair : HP Regen
+##drone.ability.extra_payload : リソースペイロードの増加
+##drone.ability.aggro : 敵をこのドローンに攻撃させます
+##drone.ability.disarm : 敵の武器を無効化する
+##drone.ability.slow : 敵の動きを遅くする
+##drone.ability.cloak_hide : HPが低い時に透明化します
+##drone.ability.cloak_scavenge : リソース収集中に透明化します
+
+##drone.ability.cloning : ドローンをクローン化します
+##drone.ability.repair : ドローンをリペアします
+##drone.ability.recharge : ドローンのエネルギーをリストアします
+##drone.ability.red_oil_scavenge : 赤いオイルリソースを収集できます
+##drone.ability.colony_speed : コロニーの速度を増加させます
+##drone.ability.colony_jump : コロニーの最大ジャンプ距離を増加させます
+##drone.ability.scrap_scavenge : スクラップを収集できます
+##drone.ability.courier : リソースをコロニー間で分配します
+##drone.ability.zero_upkeep : ペイメントゼロ
+##drone.ability.upkeep_decrease : ドローンのサラリーを減少させます
+##drone.ability.ground : 地上
+##drone.ability.map_patrol : マップを巡回します
+##drone.ability.discharged_after_attack : 発射後に放電します
+##drone.ability.group_command : 複数の戦闘ドローンを指揮します
+##drone.ability.group_buff : ドローンの射撃精度を向上させます
+##drone.ability.target_marking : ドローンの射程距離を向上させます
+##drone.ability.kamikaze : HPが低い時に敵に爆発します
+##drone.ability.prism_reflect : 近くのプリズムと攻撃を組み合わせます
+##drone.ability.scarab_potential : より強力になることができます
+##drone.ability.consume_for_heal : ワーカーを消費して自己リペアします
+##drone.ability.consume_for_power : ドローンを消費することでパワーを得ます
+##drone.ability.bomb_attack : 命令されたときだけ攻撃します
+##drone.ability.bomb_aoe : AoE damage
+##drone.ability.more_building_damage_f : 建物に対して%d%%の追加ダメージ
+##drone.ability.less_building_damage_f : 建物に対して%d%%の減少ダメージ
+
+##turret.harvester : ハーベスター
+##turret.harvester.description
+リソースを収集する装甲トラック。鉱物だけを
+収集できますが、オイルやスクラップのリソースは
+収集できません。武器はありません。
+
+##turret.gunpoint : バンカー
+##turret.gunpoint.description
+速くて安価に建設できる頑丈な防御。
+これらのいくつかは、敵の地上部隊を
+止めることができます。
+ただし、敵の飛行ユニットには脆弱です。
+
+##turret.beamtower : ビームタワー
+##turret.beamtower.description
+非常に破壊力のある長距離エネルギー兵器プラットフォーム。
+これはバンカーよりも耐久性が低く、建設が難しいです。
+連続して攻撃すると発射速度が低下します。
+敵の地上部隊に対して脆弱です。
+
+##turret.tetherbeacon : ナビゲーションビーコン
+##turret.tetherbeacon.description
+攻撃しない建造物。ビーコンは近くのユニットとコロニーの
+速度を向上させます。この建物はサーボボットのボーナスを
+置き換えます。

@@ -77,7 +77,7 @@ var DenCoreStats = &ColonyCoreStats{
 	FlightHeight:  50,
 	DefaultHeight: 0,
 
-	Speed:             18,
+	Speed:             22,
 	JumpDist:          350,
 	DroneLimit:        160,
 	DroneLimitScaling: 1.1,
@@ -104,7 +104,7 @@ var ArkCoreStats = &ColonyCoreStats{
 	FlightHeight:  30,
 	DefaultHeight: 30,
 
-	Speed:             26,
+	Speed:             32,
 	JumpDist:          600,
 	DroneLimit:        80,
 	DroneLimitScaling: 1.0,
@@ -145,7 +145,7 @@ var TankCoreStats = &ColonyCoreStats{
 
 	DefaultHeight: 0,
 
-	Speed:             24,
+	Speed:             28,
 	JumpDist:          500,
 	DroneLimit:        40,
 	DroneLimitScaling: 0.7,

@@ -93,6 +93,8 @@ type colonyCoreNode struct {
 
 	planner *colonyActionPlanner
 
+	acceleration float64
+
 	openHatchTime float64
 
 	realRadius    float64
@@ -631,7 +633,7 @@ func (c *colonyCoreNode) movementSpeed() float64 {
 		return gmath.ClampMax(speed, c.maxSpeed)
 	case colonyModeRelocating:
 		speed := c.stats.Speed + float64(c.agents.servoNum*3) + float64(c.tether*15)
-		return gmath.ClampMax(speed, c.maxSpeed)
+		return gmath.ClampMax(speed, c.maxSpeed) * c.acceleration
 	default:
 		return 0
 	}
@@ -852,18 +854,21 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) bool {
 
 	switch c.stats {
 	case gamedata.DenCoreStats:
+		c.acceleration = 0.5
 		c.unmarkCells(c.pos)
 		c.shadowComponent.SetVisibility(true)
 		c.enterTakeoffMode()
 		return true
 
 	case gamedata.ArkCoreStats:
+		c.acceleration = 0.35
 		c.mode = colonyModeRelocating
 		c.waypoint = c.relocationPoint
 		c.switchSprite(true)
 		return true
 
 	case gamedata.TankCoreStats:
+		c.acceleration = 0.1
 		c.sendTo(pos)
 		c.unmarkCells(c.pos)
 		c.mode = colonyModeRelocating
@@ -921,6 +926,7 @@ func (c *colonyCoreNode) sendTo(pos gmath.Vec) {
 }
 
 func (c *colonyCoreNode) updateRelocating(delta float64) {
+	c.acceleration = gmath.ClampMax(c.acceleration+(delta*0.3), 1)
 	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
 		switch c.stats {
 		case gamedata.DenCoreStats:

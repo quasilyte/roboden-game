@@ -336,6 +336,7 @@ const SeasonNumber = 1
 // * Balance:
 //   - Difficulty % now affects Infinite Arena score more significantly
 //   - Some resources are now less likely to be grouped together (like oil resource)
+//   - Added some movement acceleration for the colonies; increased base max speed to compensate a bit
 //
 // * Visuals:
 //   - Added some new tiles to the Moon environment

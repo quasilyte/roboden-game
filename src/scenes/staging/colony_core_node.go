@@ -629,7 +629,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 func (c *colonyCoreNode) movementSpeed() float64 {
 	switch c.mode {
 	case colonyModeTakeoff, colonyModeLanding:
-		speed := 12 + float64(c.agents.servoNum) + float64(c.tether*5)
+		speed := 13 + float64(c.agents.servoNum) + float64(c.tether*5)
 		return gmath.ClampMax(speed, c.maxSpeed)
 	case colonyModeRelocating:
 		speed := c.stats.Speed + float64(c.agents.servoNum*3) + float64(c.tether*15)
@@ -926,6 +926,8 @@ func (c *colonyCoreNode) sendTo(pos gmath.Vec) {
 }
 
 func (c *colonyCoreNode) updateRelocating(delta float64) {
+	c.processAttack(delta * 0.25)
+
 	c.acceleration = gmath.ClampMax(c.acceleration+(delta*0.3), 1)
 	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
 		switch c.stats {
@@ -1134,6 +1136,15 @@ func (c *colonyCoreNode) createLandingSmokeEffect() {
 	}
 }
 
+func (c *colonyCoreNode) processAttack(delta float64) {
+	if c.stats == gamedata.TankCoreStats {
+		c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
+		if c.attackDelay == 0 {
+			c.attackWithWeapon(gamedata.TankCoreWeapon1)
+		}
+	}
+}
+
 func (c *colonyCoreNode) attackWithWeapon(weapon *gamedata.WeaponStats) {
 	var target targetable
 	c.world.WalkCreeps(c.pos, weapon.AttackRange, func(creep *creepNode) bool {
@@ -1156,12 +1167,7 @@ func (c *colonyCoreNode) updateNormal(delta float64) {
 	if c.actionDelay == 0 {
 		c.doAction()
 	}
-	if c.stats == gamedata.TankCoreStats {
-		c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
-		if c.attackDelay == 0 {
-			c.attackWithWeapon(gamedata.TankCoreWeapon1)
-		}
-	}
+	c.processAttack(delta)
 	c.openHatchTime = gmath.ClampMin(c.openHatchTime-delta, 0)
 	c.hatch.Visible = c.openHatchTime == 0
 }

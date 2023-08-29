@@ -13,6 +13,12 @@ type GreedyBFS struct {
 	coordMap   *coordMap
 }
 
+type BuildPathResult struct {
+	Steps   GridPath
+	Finish  GridCoord
+	Partial bool
+}
+
 type weightedGridCoord struct {
 	Coord  GridCoord
 	Weight int
@@ -64,11 +70,7 @@ func (bfs *GreedyBFS) BuildPath(g *Grid, from, to GridCoord, l GridLayer) BuildP
 			foundPath = true
 			break
 		}
-		if current.Weight >= gridPathMaxLen {
-			result.Steps = bfs.constructPath(start, fallbackCoord, pathmap)
-			result.Finish = fallbackCoord
-			result.Partial = true
-			foundPath = true
+		if current.Weight > gridPathMaxLen {
 			break
 		}
 

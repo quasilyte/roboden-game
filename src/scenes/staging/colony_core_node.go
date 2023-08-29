@@ -864,16 +864,9 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) bool {
 		return true
 
 	case gamedata.TankCoreStats:
-		p := c.world.BuildPath(c.pos, pos, layerLandColony)
-		if p.Partial && !p.Steps.HasNext() {
-			c.relocationPoint = gmath.Vec{}
-			return false
-		}
+		c.sendTo(pos)
 		c.unmarkCells(c.pos)
 		c.mode = colonyModeRelocating
-		c.relocationPoint = c.world.pathgrid.CoordToPos(p.Finish)
-		c.path = p.Steps
-		c.waypoint = c.world.pathgrid.AlignPos(c.pos)
 		c.switchSprite(true)
 		return true
 	}

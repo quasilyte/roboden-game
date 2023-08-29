@@ -619,7 +619,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 
 		if needToMove {
 			wp := gmath.RandElem(c.world.rand, tankColonyTeleportOffsets).Add(c.pos)
-			c.doRelocation(wp)
+			c.sendTo(wp)
 		}
 	}
 }
@@ -909,6 +909,24 @@ func (c *colonyCoreNode) canLandAt(coord pathing.GridCoord) bool {
 	return c.world.CellIsFree2x2(coord, layerLandColony)
 }
 
+func (c *colonyCoreNode) sendTo(pos gmath.Vec) {
+	switch c.stats {
+	case gamedata.DenCoreStats:
+		c.relocationPoint = pos
+		c.waypoint = pos.Sub(gmath.Vec{Y: c.stats.FlightHeight})
+
+	case gamedata.ArkCoreStats:
+		c.relocationPoint = pos
+		c.waypoint = pos
+
+	case gamedata.TankCoreStats:
+		p := c.world.BuildPath(c.pos, pos, layerLandColony)
+		c.relocationPoint = c.world.pathgrid.CoordToPos(p.Finish)
+		c.path = p.Steps
+		c.waypoint = c.world.pathgrid.AlignPos(c.pos)
+	}
+}
+
 func (c *colonyCoreNode) updateRelocating(delta float64) {
 	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
 		switch c.stats {
@@ -921,8 +939,7 @@ func (c *colonyCoreNode) updateRelocating(delta float64) {
 			}
 			newSpot := c.findLandingSpot(coord, 3)
 			if !newSpot.IsZero() {
-				c.relocationPoint = newSpot
-				c.waypoint = newSpot.Sub(gmath.Vec{Y: c.stats.FlightHeight})
+				c.sendTo(newSpot)
 			} else {
 				c.startLanding()
 			}
@@ -932,8 +949,7 @@ func (c *colonyCoreNode) updateRelocating(delta float64) {
 			if c.pos == newSpot {
 				c.enterNormalMode()
 			} else {
-				c.relocationPoint = newSpot
-				c.waypoint = newSpot
+				c.sendTo(newSpot)
 			}
 
 		case gamedata.TankCoreStats:
@@ -942,11 +958,22 @@ func (c *colonyCoreNode) updateRelocating(delta float64) {
 				aligned := c.world.pathgrid.AlignPos(c.pos)
 				nextPos := posMove(aligned, d)
 				c.waypoint = nextPos.Add(c.world.rand.Offset(-3, 3))
-			} else {
-				c.enterNormalMode()
-				c.markCells(c.pos)
-				c.maybeTeleport()
+				break
 			}
+			if !c.world.PosIsFree(c.pos, layerLandColony) {
+				coord := c.world.pathgrid.PosToCoord(c.pos)
+				freeOffset := randIterate(c.world.rand, resourceNearOffsets, func(offset pathing.GridCoord) bool {
+					probe := coord.Add(offset)
+					return c.world.CellIsFree(probe, layerLandColony)
+				})
+				if !freeOffset.IsZero() {
+					c.sendTo(c.world.pathgrid.CoordToPos(coord.Add(freeOffset)))
+					break
+				}
+			}
+			c.enterNormalMode()
+			c.markCells(c.pos)
+			c.maybeTeleport()
 		}
 	}
 

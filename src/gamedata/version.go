@@ -358,4 +358,7 @@ const SeasonNumber = 1
 //   - Learned a few tricks about the Inferno environment (will avoid geysers when possible)
 //   - Has increased interest in scraps if Scavengers/Marauders are available
 //   - A better colony power calculation system
+//
+// * Optimization:
+//   - Don't play a single sound more than once inside a single frame
 const BuildNumber int = 16

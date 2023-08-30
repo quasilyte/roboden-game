@@ -30,6 +30,8 @@ github.com/quasilyte/ebitenui v0.0.0-20230726093423-e2a7a066d711 h1:jYfAMq+T8Sbk
 github.com/quasilyte/ebitenui v0.0.0-20230726093423-e2a7a066d711/go.mod h1:6Ty4FIhkLzzwO5kOpRQq+Ja4yP2eTE0ASg6y0eo5cvA=
 github.com/quasilyte/ge v0.0.0-20230720204729-09c6db995adc h1:RugvUtuqZGa52mTEiopf//AN4/i03ZyD0VnW1WiilTs=
 github.com/quasilyte/ge v0.0.0-20230720204729-09c6db995adc/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
+github.com/quasilyte/ge v0.0.0-20230829223437-47dece14b6aa h1:iJURlCvYvIF/jbTxCSymFMSIBdo0AMUU5A4N7Q6bWjk=
+github.com/quasilyte/ge v0.0.0-20230829223437-47dece14b6aa/go.mod h1:GSOXFTKMmLyRleAqa7d3syNCsOfKG7dSultrYb0UhBc=
 github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef h1:ylROAnCA+a6Ry6M9pkRXzL+bhPIT5ctHND5kcdxbwe4=
 github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gsignal v0.0.0-20230130114532-ff67b4bb9e15 h1:7JgEJ6KA+VQtt+Bbx2MpV4LttBOJTLH4ehB/R3DfijM=

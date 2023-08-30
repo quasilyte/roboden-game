@@ -1,8 +1,6 @@
 package staging
 
 import (
-	"math"
-
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
@@ -27,7 +25,8 @@ func (t *teleporterNode) Init(scene *ge.Scene) {
 	lights.Pos.Offset = t.pos
 	switch t.id {
 	case 1:
-		lights.SetHue(-math.Pi)
+		cs := ge.ColorScale{R: 0.5, G: 1.6, B: 0.6, A: 1}
+		lights.SetColorScale(cs)
 	}
 	t.world.stage.AddSpriteBelow(lights)
 }

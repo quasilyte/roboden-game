@@ -69,7 +69,7 @@ func (b *bombNode) explode() {
 			} else if creep.stats.Building {
 				baseDamage = bombMaxBuildingDamage
 			}
-			creep.OnDamage(gamedata.DamageValue{Health: baseDamage * damageMultiplier}, b.owner)
+			creep.OnDamage(gamedata.DamageValue{Health: baseDamage * damageMultiplier, Flags: gamedata.DmgflagNoFlash}, b.owner)
 		}
 		return false
 	})

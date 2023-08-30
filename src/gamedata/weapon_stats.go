@@ -5,6 +5,12 @@ import (
 	"github.com/quasilyte/gmath"
 )
 
+type DamageFlags uint64
+
+const (
+	DmgflagNoFlash DamageFlags = 1 << iota
+)
+
 type DamageValue struct {
 	Health float64
 	Morale float64
@@ -14,6 +20,11 @@ type DamageValue struct {
 	Aggro  float64
 	Mark   float64
 	Stun   float64
+	Flags  DamageFlags
+}
+
+func (dmg DamageValue) HasFlag(mask DamageFlags) bool {
+	return dmg.Flags&mask != 0
 }
 
 type WeaponStats struct {

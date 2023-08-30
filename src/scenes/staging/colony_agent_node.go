@@ -1081,7 +1081,9 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 	a.slow = gmath.ClampMax(a.slow+damage.Slow, 5)
 
 	if damage.Health != 0 {
-		a.flashComponent.flash = 0.2
+		if !damage.HasFlag(gamedata.DmgflagNoFlash) {
+			a.flashComponent.SetFlash(a.world().localRand.FloatRange(0.07, 0.14))
+		}
 		if a.IsTurret() {
 			a.updateHealthShader()
 		}
@@ -2295,7 +2297,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 			Rotation: a.pos.AngleToPoint(creep.pos) - math.Pi/2,
 		})
 		playSound(a.world(), assets.AudioExplosion1, a.pos)
-		creep.OnDamage(gamedata.DamageValue{Health: explosionDamage}, a)
+		creep.OnDamage(gamedata.DamageValue{Health: explosionDamage, Flags: gamedata.DmgflagNoFlash}, a)
 		for _, otherCreep := range a.world().creeps {
 			if !otherCreep.IsFlying() || otherCreep == creep {
 				continue
@@ -2304,7 +2306,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 			if distSqr > explosionRangeSqr {
 				continue
 			}
-			otherCreep.OnDamage(gamedata.DamageValue{Health: explosionDamage * 0.5}, a)
+			otherCreep.OnDamage(gamedata.DamageValue{Health: explosionDamage * 0.5, Flags: gamedata.DmgflagNoFlash}, a)
 		}
 		a.Destroy()
 		return

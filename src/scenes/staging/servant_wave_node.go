@@ -47,10 +47,11 @@ func (e *servantWaveNode) Dispose() {
 
 func (e *servantWaveNode) dealDamage() {
 	// TODO: more efficient way to grab all units around the pos.
-	maxRangeSqr := 96.0 * 96.0
+	maxRangeSqr := 84.0 * 84.0
 	damage := gamedata.DamageValue{Health: 4, Slow: 2}
+	damage.Flags |= gamedata.DmgflagNoFlash
 	if e.owner.super {
-		maxRangeSqr = 128.0 * 128.0
+		maxRangeSqr = 112.0 * 112.0
 		damage.Slow++
 	}
 	for _, colony := range e.owner.world.allColonies {

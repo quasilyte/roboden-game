@@ -361,4 +361,5 @@ const SeasonNumber = 1
 //
 // * Optimization:
 //   - Don't play a single sound more than once inside a single frame
+//   - Changed the damage flashing; it was causing major performance issues on some machines
 const BuildNumber int = 16

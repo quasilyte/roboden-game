@@ -387,8 +387,8 @@ func (c *creepNode) explode() {
 }
 
 func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
-	if damage.Health != 0 {
-		c.flashComponent.flash = 0.2
+	if damage.Health != 0 && !damage.HasFlag(gamedata.DmgflagNoFlash) {
+		c.flashComponent.SetFlash(c.world.localRand.FloatRange(0.07, 0.14))
 	}
 
 	c.health -= damage.Health

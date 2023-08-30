@@ -360,8 +360,10 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable
 	}
 
 	if damage.Health != 0 {
-		c.flashComponent.flash = 0.2
-		c.hatchFlashComponent.flash = 0.2
+		if !damage.HasFlag(gamedata.DmgflagNoFlash) {
+			c.flashComponent.SetFlash(0.1)
+			c.hatchFlashComponent.SetFlash(0.1)
+		}
 		if c.heavyDamageWarningCooldown == 0 && c.health <= c.maxHealth*0.75 {
 			c.heavyDamageWarningCooldown = 45
 			c.EventUnderAttack.Emit(c)

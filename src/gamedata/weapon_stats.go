@@ -9,6 +9,9 @@ type DamageFlags uint64
 
 const (
 	DmgflagNoFlash DamageFlags = 1 << iota
+	DmgflagStun
+	DmgflagAggro
+	DmgflagMark
 )
 
 type DamageValue struct {
@@ -17,9 +20,6 @@ type DamageValue struct {
 	Disarm float64
 	Energy float64
 	Slow   float64
-	Aggro  float64
-	Mark   float64
-	Stun   float64
 	Flags  DamageFlags
 }
 

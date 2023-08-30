@@ -398,15 +398,15 @@ func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
 		return
 	}
 
-	if damage.Aggro != 0 {
-		if c.scene.Rand().Chance(damage.Aggro) {
+	if damage.HasFlag(gamedata.DmgflagAggro) {
+		if c.scene.Rand().Chance(0.85) {
 			c.aggroTarget = source
 			c.aggro = 3.0
 		}
 	}
 
-	if damage.Mark != 0 {
-		c.marked = gmath.ClampMax(c.marked+damage.Mark, 12)
+	if damage.HasFlag(gamedata.DmgflagMark) {
+		c.marked = gmath.ClampMax(c.marked+5.0, 12)
 	}
 
 	if damage.Slow != 0 {

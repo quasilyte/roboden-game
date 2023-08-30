@@ -603,7 +603,7 @@ var TemplarCreepStats = &CreepStats{
 		BurstSize:   1,
 		AttackSound: assets.AudioTemplarAttack,
 		AttackRange: 300,
-		Damage:      DamageValue{Health: 1, Stun: 0.9},
+		Damage:      DamageValue{Health: 1, Flags: DmgflagStun},
 		Reload:      2.6,
 		TargetFlags: TargetFlying,
 	}),

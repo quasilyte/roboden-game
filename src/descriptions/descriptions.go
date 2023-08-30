@@ -271,7 +271,7 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier, global
 		if drone.Weapon.MaxTargets > 1 {
 			traits = append(traits, fmt.Sprintf(d.Get("drone.ability.num_targets_f"), drone.Weapon.MaxTargets))
 		}
-		if drone.Weapon.Damage.Aggro > 0 {
+		if drone.Weapon.Damage.HasFlag(gamedata.DmgflagAggro) {
 			traits = append(traits, d.Get("drone.ability.aggro"))
 		}
 		if drone.Weapon.Damage.Disarm > 0 {

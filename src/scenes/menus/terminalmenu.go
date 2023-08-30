@@ -483,7 +483,9 @@ func (c *TerminalMenu) calcDroneScore(drone *gamedata.AgentStats) droneScore {
 		}
 		projectileScore += 2.5 * healthDamage
 		projectileScore += 0.5 * drone.Weapon.Damage.Disarm
-		projectileScore += 5.0 * drone.Weapon.Damage.Aggro
+		if drone.Weapon.Damage.HasFlag(gamedata.DmgflagAggro) {
+			projectileScore += 4.5
+		}
 		projectileScore += 0.25 * drone.Weapon.Damage.Morale
 		projectileScore += 0.5 * drone.Weapon.Damage.Energy
 		projectileScore += 0.75 * drone.Weapon.Damage.Slow

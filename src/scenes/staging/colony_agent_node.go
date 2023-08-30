@@ -1115,8 +1115,8 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 		return
 	}
 
-	if damage.Stun != 0 && a.energy < a.maxEnergy*0.95 {
-		if stunnableModes[a.mode] && a.scene.Rand().Chance(damage.Stun) {
+	if damage.HasFlag(gamedata.DmgflagStun) && a.energy < a.maxEnergy*0.95 {
+		if stunnableModes[a.mode] && a.scene.Rand().Chance(0.9) {
 			a.clearCargo()
 			a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
 			a.energyTarget = gmath.ClampMax(a.energy+a.scene.Rand().FloatRange(4, 8), a.maxEnergy-0.01)

@@ -938,7 +938,12 @@ func (a *colonyAgentNode) explode() {
 		return
 	}
 
-	playSound(a.world(), assets.AudioAgentDestroyed, a.pos)
+	explosionRoll := a.scene.Rand().Float()
+	explodesCompletely := explosionRoll < 0.3
+
+	if !explodesCompletely {
+		playSound(a.world(), assets.AudioAgentDestroyed, a.pos)
+	}
 
 	if a.colonyCore.GetSecurityPriority() < 0.4 {
 		a.colonyCore.AddPriority(prioritySecurity, 0.04)
@@ -947,13 +952,12 @@ func (a *colonyAgentNode) explode() {
 		a.colonyCore.AddPriority(priorityGrowth, 0.01)
 	}
 
-	roll := a.scene.Rand().Float()
-	if roll < 0.3 {
+	if explodesCompletely {
 		createExplosion(a.world(), aboveEffectLayer, a.pos)
 	} else {
 		var scraps *essenceSourceStats
 		if !a.stats.IsNeutral {
-			if roll > 0.6 {
+			if explosionRoll > 0.6 {
 				scraps = smallScrapSource
 				if a.stats.Size != gamedata.SizeSmall {
 					scraps = scrapSource

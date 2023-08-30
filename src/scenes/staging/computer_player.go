@@ -240,7 +240,7 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 		if p.maybeDoAttacking(colony) {
 			return true
 		}
-		if colony.attacking == 0 || colony.node.pos.DistanceTo(p.world.boss.pos) <= 200 {
+		if colony.attacking == 0 || colony.node.pos.DistanceTo(p.world.boss.pos) <= 250 {
 			colony.attacking = 0
 			if p.maybeStayForAttack() {
 				delay := p.world.rand.FloatRange(9, 16)

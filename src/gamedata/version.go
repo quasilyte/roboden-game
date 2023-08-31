@@ -349,6 +349,7 @@ const SeasonNumber = 1
 //
 // * Misc:
 //   - Make Forest environment the default
+//   - Howitzer creeps can no longer deploy near the map boundary
 //
 // * Tutorial:
 //   - Change the environment to Inferno

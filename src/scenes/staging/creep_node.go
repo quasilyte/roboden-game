@@ -1027,7 +1027,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 	}
 
 	if c.specialModifier == howitzerIdle {
-		if !c.insideForest && c.specialDelay == 0 && (c.findHowitzerTarget(1.1) != nil || c.world.rand.Chance(0.25)) {
+		if !c.insideForest && c.specialDelay == 0 && c.world.innerRect.Contains(c.pos) && (c.findHowitzerTarget(1.1) != nil || c.world.rand.Chance(0.25)) {
 			c.specialModifier = howitzerPreparing
 			c.setAnimSprite(c.altSprite, -1)
 			c.anim.Rewind()

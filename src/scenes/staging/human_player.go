@@ -127,10 +127,16 @@ func (p *humanPlayer) ForceSpecialChoice(kind specialChoiceKind) {
 }
 
 func (p *humanPlayer) Init() {
-	p.colonyDestination = ge.NewLine(ge.Pos{}, ge.Pos{})
-	p.colonyDestination.Visible = false
-	p.colonyDestination.SetColorScaleRGBA(0x6e, 0x8e, 0xbd, 160)
-	p.state.camera.Private.AddGraphics(p.colonyDestination)
+	if p.creepsState == nil {
+		p.colonyDestination = ge.NewLine(ge.Pos{}, ge.Pos{})
+		p.colonyDestination.Visible = false
+		p.colonyDestination.SetColorScaleRGBA(0x6e, 0x8e, 0xbd, 160)
+		if p.world.coreDesign == gamedata.TankCoreStats {
+			p.state.camera.Private.AddGraphicsBelow(p.colonyDestination)
+		} else {
+			p.state.camera.Private.AddGraphics(p.colonyDestination)
+		}
+	}
 
 	p.state.Init(p.world)
 

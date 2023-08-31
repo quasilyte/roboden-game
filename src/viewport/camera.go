@@ -84,6 +84,13 @@ func (c *LayerContainer) AddSpriteBelow(s *ge.Sprite) {
 	c.belowObjects.AddSprite(s)
 }
 
+func (c *LayerContainer) AddGraphicsBelow(o cameraObject) {
+	if c.headless {
+		return
+	}
+	c.belowObjects.Add(o)
+}
+
 func (c *LayerContainer) AddSortableGraphicsSlightlyAbove(o cameraObject, order *float64) {
 	if c.headless {
 		return

@@ -606,6 +606,11 @@ func (m *tutorialManager) findResourceStash(minDist float64) ge.Pos {
 			continue
 		}
 		if dist < closestDist {
+			for _, lava := range m.world.lavaPuddles {
+				if lava.CollidesWith(res.pos, 64) {
+					continue
+				}
+			}
 			closestDist = dist
 			pos = res.pos
 		}

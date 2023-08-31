@@ -382,8 +382,8 @@ func (w *worldState) NewColonyCoreNode(config colonyConfig) *colonyCoreNode {
 	return n
 }
 
-func (w *worldState) NewConstructionNode(p player, pos, spriteOffset gmath.Vec, stats *constructionStats) *constructionNode {
-	n := newConstructionNode(w, p, pos, spriteOffset, stats)
+func (w *worldState) NewConstructionNode(p player, pos gmath.Vec, stats *constructionStats) *constructionNode {
+	n := newConstructionNode(w, p, pos, stats)
 	n.EventDestroyed.Connect(nil, func(x *constructionNode) {
 		if stats == colonyCoreConstructionStats {
 			if w.coreDesign == gamedata.TankCoreStats {
@@ -538,12 +538,7 @@ func (w *worldState) BuildPath(from, to gmath.Vec, l pathing.GridLayer) pathing.
 	return w.bfs.BuildPath(w.pathgrid, w.pathgrid.PosToCoord(from), w.pathgrid.PosToCoord(to), l)
 }
 
-func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNode) bool) {
-	creeps := w.creeps
-	if len(creeps) == 0 {
-		return
-	}
-
+func (w *worldState) findSearchClusters(pos gmath.Vec, r float64) (startX, startY, endX, endY int) {
 	// Find a sector that contains this pos.
 	cellX, cellY := w.GetPosCell(pos)
 	cellRect := w.GetCellRect(cellX, cellY)
@@ -551,34 +546,44 @@ func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNod
 	// Determine how many sectors we need to consider.
 	// In the simplest case, it's a single sector,
 	// but sometimes we need to check the adjacent sectors too.
-	startX := cellX
-	startY := cellY
-	endX := cellX
-	endY := cellY
+	startX = cellX
+	startY = cellY
+	endX = cellX
+	endY = cellY
 	searchRange := r
 	leftmostPos := gmath.Vec{X: pos.X - searchRange, Y: pos.Y - searchRange}
 	rightmostPos := gmath.Vec{X: pos.X + searchRange, Y: pos.Y + searchRange}
 	if leftmostPos.X < cellRect.Min.X {
 		delta := cellRect.Min.X - leftmostPos.X
-		startX -= int(math.Ceil((searchRange - delta) * w.creepClusterMultiplier))
+		startX -= int(math.Ceil(delta * w.creepClusterMultiplier))
 	}
 	if rightmostPos.X > cellRect.Max.X {
 		delta := rightmostPos.X - cellRect.Max.X
-		endX += int(math.Ceil((searchRange - delta) * w.creepClusterMultiplier))
+		endX += int(math.Ceil(delta * w.creepClusterMultiplier))
 	}
 	if leftmostPos.Y < cellRect.Min.Y {
 		delta := cellRect.Min.Y - leftmostPos.Y
-		startY -= int(math.Ceil((searchRange - delta) * w.creepClusterMultiplier))
+		startY -= int(math.Ceil(delta * w.creepClusterMultiplier))
 	}
 	if rightmostPos.Y > cellRect.Max.Y {
 		delta := rightmostPos.Y - cellRect.Max.Y
-		endY += int(math.Ceil((searchRange - delta) * w.creepClusterMultiplier))
+		endY += int(math.Ceil(delta * w.creepClusterMultiplier))
 	}
 
 	startX = gmath.Clamp(startX, 0, 7)
 	startY = gmath.Clamp(startY, 0, 7)
 	endX = gmath.Clamp(endX, 0, 7)
 	endY = gmath.Clamp(endY, 0, 7)
+	return startX, startY, endX, endY
+}
+
+func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNode) bool) {
+	creeps := w.creeps
+	if len(creeps) == 0 {
+		return
+	}
+
+	startX, startY, endX, endY := w.findSearchClusters(pos, r)
 	numStepsX := endX - startX + 1
 	numStepsY := endY - startY + 1
 

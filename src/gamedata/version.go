@@ -363,4 +363,8 @@ const SeasonNumber = 1
 // * Optimization:
 //   - Don't play a single sound more than once inside a single frame
 //   - Changed the damage flashing; it was causing major performance issues on some machines
+//   - Changed the color scaling method; now it's much more efficient
+//
+// * Bug fixes:
+//   - Fixed a bug in long-range drones target seeking algorithm
 const BuildNumber int = 16

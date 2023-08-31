@@ -5,7 +5,6 @@
 
 ##tutorial.greeting
 Enemies are planning to capture this sector.
-Prepare and repel the attack.
 
 To build an appropriate fleet, the colony
 will need a lot of resources.

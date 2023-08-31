@@ -229,10 +229,8 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.flyingSprite.Shader = c.sprite.Shader
 	}
 	switch c.stats {
-	case gamedata.ArkCoreStats:
+	case gamedata.ArkCoreStats, gamedata.DenCoreStats:
 		c.world.stage.AddSortableGraphicsSlightlyAbove(c.flyingSprite, &c.drawOrder)
-	case gamedata.DenCoreStats:
-		c.world.stage.AddSprite(c.flyingSprite)
 	case gamedata.TankCoreStats:
 		c.world.stage.AddSortableGraphics(c.flyingSprite, &c.drawOrder)
 	}

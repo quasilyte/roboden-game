@@ -307,6 +307,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageLavaPuddle2: {Path: "image/landscape/inferno/lava2.png", FrameWidth: 32},
 		ImageLavaPuddle3: {Path: "image/landscape/inferno/lava3.png", FrameWidth: 32},
 		ImageLavaPuddle4: {Path: "image/landscape/inferno/lava4.png", FrameWidth: 32},
+		ImageLavaPuddle5: {Path: "image/landscape/inferno/lava5.png", FrameWidth: 32},
 
 		ImageTrees: {Path: "image/landscape/forest/trees.png", FrameWidth: 32},
 
@@ -702,6 +703,7 @@ const (
 	ImageLavaPuddle2
 	ImageLavaPuddle3
 	ImageLavaPuddle4
+	ImageLavaPuddle5
 	ImageTrees
 	ImageLavaGeyser
 

@@ -50,6 +50,7 @@ var (
 		{texture: assets.ImageLavaPuddle2, weight: 0.3},
 		{texture: assets.ImageLavaPuddle3, weight: 0.1},
 		{texture: assets.ImageLavaPuddle4, weight: 0.2},
+		{texture: assets.ImageLavaPuddle5, weight: 0.15},
 	}
 )
 

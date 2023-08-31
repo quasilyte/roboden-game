@@ -1,16 +1,17 @@
 
 ##drone.undiscovered : 未発見のドローン
-##drone.locked : 選択したドローン
-##turret.locked : 選択したタレット
-##core.locked : 選択したコロニー
+##drone.locked : 利用できないドローン
+##turret.locked : 利用できないタレット
+##core.locked : 利用できないコロニー
 ##drone.score_required : 必要なスコア
 
 ##core.den : デン
 ##core.ark : アーク
+##core.tank : バスティオン
 
-##core.mobility_rating : スピード
-##core.unit_limit_rating : ドローンの制限
-##core.capacity_rating : リソース容量
+##core.mobility_rating : Speed rating
+##core.unit_limit_rating : Drone count rating
+##core.capacity_rating : Resources capacity rating
 
 ##core.ability.crush : 着陸時に小型地上ユニットを押し潰します
 ##core.ability.flying : 飛行
@@ -70,7 +71,7 @@
 
 ##drone.ability.self_repair : HP Regen
 ##drone.ability.extra_payload : リソースペイロードの増加
-##drone.ability.aggro : 敵をこのドローンに攻撃させます
+##drone.ability.aggro : 対象をこのユニットに怒らせる
 ##drone.ability.disarm : 敵の武器を無効化する
 ##drone.ability.slow : 敵の動きを遅くする
 ##drone.ability.cloak_hide : HPが低い時に透明化します
@@ -85,7 +86,7 @@
 ##drone.ability.scrap_scavenge : スクラップを収集できます
 ##drone.ability.courier : リソースをコロニー間で分配します
 ##drone.ability.zero_upkeep : ペイメントゼロ
-##drone.ability.upkeep_decrease : ドローンのサラリーを減少させます
+##drone.ability.upkeep_decrease : ドローン支払い減少
 ##drone.ability.ground : 地上
 ##drone.ability.map_patrol : マップを巡回します
 ##drone.ability.discharged_after_attack : 発射後に放電します

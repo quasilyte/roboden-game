@@ -567,14 +567,31 @@ func (g *levelGenerator) placeResources() {
 func (g *levelGenerator) deployStartingResources() {
 	rand := &g.rng
 
+	minResourceDist := func(res *essenceSourceStats) float64 {
+		if g.world.envKind == gamedata.EnvMoon {
+			return 130
+		}
+		switch res {
+		case oilSource:
+			return 225
+		case redOilSource:
+			return 260
+		case sulfurSource:
+			return 175
+		}
+		return 140
+	}
+
 	// If there are no resources near the colony spawn pos,
 	// place something in there.
 	for _, core := range g.world.allColonies {
 		hasResources := xslices.ContainsWhere(g.world.essenceSources, func(source *essenceSourceNode) bool {
 			// We don't count scraps as some viable starting resource.
-			return source.pos.DistanceTo(core.pos) <= core.realRadius &&
+			return source.pos.DistanceTo(core.pos) <= minResourceDist(source.stats) &&
 				source.stats != scrapSource &&
-				source.stats != smallScrapSource
+				source.stats != smallScrapSource &&
+				source.stats != redCrystalSource &&
+				source.stats != organicSource
 		})
 		if !hasResources {
 			resNum := 0

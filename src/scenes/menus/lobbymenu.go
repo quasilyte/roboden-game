@@ -969,10 +969,11 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
 			if available {
 				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, false, false)
+				c.helpRecipe.SetImages(c.recipeIcons[recipe.Drone1], c.recipeIcons[recipe.Drone2])
 			} else {
 				c.helpLabel.Label = descriptions.LockedDroneText(c.scene.Dict(), &c.state.Persistent.PlayerStats, drone)
+				c.helpRecipe.SetImages(nil, nil)
 			}
-			c.helpRecipe.SetImages(c.recipeIcons[recipe.Drone1], c.recipeIcons[recipe.Drone2])
 			c.helpPanel.RequestRelayout()
 		})
 	}

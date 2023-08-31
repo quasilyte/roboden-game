@@ -369,4 +369,5 @@ const SeasonNumber = 1
 //
 // * Bug fixes:
 //   - Fixed a bug in long-range drones target seeking algorithm
+//   - Don't show merge recipe for the locked drones
 const BuildNumber int = 16

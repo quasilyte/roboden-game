@@ -27,16 +27,14 @@ Locate a resource stash by following a marker.
 
 ##tutorial.move.keyboard
 The right mouse click sends the selected colony
-to the destination. The colony will fly toward
-the spot, but its max jump distance is limited.
+to the destination.
 
 Move the colony closer to the resources.
 
 ##tutorial.move.gamepad
 The right joystick controls the virtual cursor.
 Right joystick click sends the selected colony
-to the destination. The colony will fly toward
-the spot, but its max jump distance is limited.
+to the destination.
 
 Move the colony closer to the resources.
 
@@ -182,8 +180,7 @@ and combine the right drones via evolution.
 
 ##tutorial.context.resource_bar
 This bar indicator in the middle of the colony
-is its resource pool. It's full if
-all three segments are filled.
+is its resource pool.
 
 ##tutorial.context.attack_action
 The attack action makes most colony combat

@@ -876,6 +876,8 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) bool {
 		c.sendTo(pos)
 		c.unmarkCells(c.pos)
 		c.mode = colonyModeRelocating
+		createEffect(c.world, effectConfig{Pos: c.pos.Add(gmath.Vec{X: 12, Y: -18}), Image: assets.ImageRoombaSmoke})
+		createEffect(c.world, effectConfig{Pos: c.pos.Add(gmath.Vec{X: -12, Y: -18}), Image: assets.ImageRoombaSmoke})
 		c.switchSprite(true)
 		return true
 	}

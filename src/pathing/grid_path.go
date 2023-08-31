@@ -46,14 +46,26 @@ func (p *GridPath) Rewind() {
 	p.pos = p.len
 }
 
-func (p *GridPath) Current() Direction {
+func (p *GridPath) Peek() Direction {
 	return p.get(p.pos - 1)
 }
 
 func (p *GridPath) Next() Direction {
-	d := p.Current()
+	d := p.Peek()
 	p.pos--
 	return d
+}
+
+func (p *GridPath) Skip(n byte) {
+	p.pos -= n
+}
+
+func (p *GridPath) Peek2() (Direction, Direction) {
+	// If p.pos is 1, p.pos-2 overflows to 255.
+	// byteIndex will not be inside len(p.bytes), so
+	// p.get(p.pos-2) will return DirNone as it should.
+	// No need to check for that condition here explicitely.
+	return p.get(p.pos - 1), p.get(p.pos - 2)
 }
 
 func (p *GridPath) push(dir Direction) {

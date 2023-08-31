@@ -954,9 +954,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 				}
 			}
 			if c.path.HasNext() {
-				d := c.path.Next()
-				aligned := c.world.pathgrid.AlignPos(c.pos)
-				nextPos := posMove(aligned, d)
+				nextPos := nextPathWaypoint(c.world, c.pos, &c.path, layerNormal)
 				c.handleForestTransition(nextPos)
 				c.waypoint = nextPos.Add(c.world.rand.Offset(-4, 4))
 				return
@@ -1093,9 +1091,7 @@ func (c *creepNode) updateCrawler(delta float64) {
 				}
 			}
 			if c.path.HasNext() {
-				d := c.path.Next()
-				aligned := c.world.pathgrid.AlignPos(c.pos)
-				nextPos := posMove(aligned, d)
+				nextPos := nextPathWaypoint(c.world, c.pos, &c.path, layerNormal)
 				c.handleForestTransition(nextPos)
 				c.waypoint = nextPos.Add(c.world.rand.Offset(-4, 4))
 				return

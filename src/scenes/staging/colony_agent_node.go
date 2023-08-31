@@ -2040,9 +2040,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 		if a.moveTowards(delta) {
 			if a.path.HasNext() {
 				// TODO: remove code duplication with crawlers and roombas.
-				d := a.path.Next()
-				aligned := a.world().pathgrid.AlignPos(a.pos)
-				nextPos := posMove(aligned, d)
+				nextPos := nextPathWaypoint(a.world(), a.pos, &a.path, layerNormal)
 				a.handleForestTransition(nextPos)
 				a.setWaypoint(nextPos.Add(a.world().rand.Offset(-4, 4)))
 				return
@@ -2215,9 +2213,7 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 					return
 				}
 				// TODO: remove code duplication with crawlers.
-				d := a.path.Next()
-				aligned := a.world().pathgrid.AlignPos(a.pos)
-				nextPos := posMove(aligned, d)
+				nextPos := nextPathWaypoint(a.world(), a.pos, &a.path, layerNormal)
 				a.handleForestTransition(nextPos)
 				a.setWaypoint(nextPos.Add(a.world().rand.Offset(-4, 4)))
 				return

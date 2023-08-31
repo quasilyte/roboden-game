@@ -238,10 +238,13 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
 	c.hatch.Pos.Base = &c.pos
 	c.hatch.Pos.Offset.Y = c.stats.HatchOffsetY + 2
-	if c.stats == gamedata.ArkCoreStats {
+	switch c.stats {
+	case gamedata.ArkCoreStats:
 		c.world.stage.AddSortableGraphicsSlightlyAbove(c.hatch, &c.drawOrder)
-	} else {
+	case gamedata.DenCoreStats:
 		c.world.stage.AddSprite(c.hatch)
+	case gamedata.TankCoreStats:
+		c.world.stage.AddSortableGraphics(c.hatch, &c.drawOrder)
 	}
 
 	c.flashComponent.sprite = c.sprite
@@ -972,9 +975,7 @@ func (c *colonyCoreNode) updateRelocating(delta float64) {
 
 		case gamedata.TankCoreStats:
 			if c.path.HasNext() {
-				d := c.path.Next()
-				aligned := c.world.pathgrid.AlignPos(c.pos)
-				nextPos := posMove(aligned, d)
+				nextPos := nextPathWaypoint(c.world, c.pos, &c.path, layerLandColony)
 				c.waypoint = nextPos.Add(c.world.rand.Offset(-3, 3))
 				break
 			}

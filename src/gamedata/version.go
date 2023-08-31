@@ -350,6 +350,7 @@ const SeasonNumber = 1
 // * Misc:
 //   - Make Forest environment the default
 //   - Howitzer creeps can no longer deploy near the map boundary
+//   - Most ground units can now perform "diagonal moves"
 //
 // * Tutorial:
 //   - Change the environment to Inferno

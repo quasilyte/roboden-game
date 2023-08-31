@@ -522,9 +522,7 @@ func (c *colonyCoreNode) updateHealthShader() {
 
 func (c *colonyCoreNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
-	if c.hatch.Visible {
-		c.hatchFlashComponent.Update(delta)
-	}
+	c.hatchFlashComponent.Update(delta)
 
 	c.updateResourceRects()
 

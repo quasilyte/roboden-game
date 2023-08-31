@@ -214,7 +214,11 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 	var bestRedOilSource *essenceSourceNode
 	bestScore := 0.0
 	bestRedOilScore := 0.0
+	colonyRect := p.colony.BoundsRect()
 	for _, source := range p.world.essenceSources {
+		if colonyRect.Contains(source.pos) {
+			continue
+		}
 		score := resourceScore(p.colony, source) * p.world.rand.FloatRange(0.65, 1.5)
 		if source.stats == redOilSource {
 			if !p.colony.agents.hasRedMiner {

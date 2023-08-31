@@ -177,6 +177,13 @@ func (c *colonyCoreNode) spriteWithAlliance(imageID resource.ImageID) *ge.Sprite
 	return c.scene.NewSprite(imageID)
 }
 
+func (c *colonyCoreNode) BoundsRect() gmath.Rect {
+	if c.stats == gamedata.TankCoreStats {
+		return resizedRect(c.sprite.BoundsRect(), -10)
+	}
+	return resizedRect(c.sprite.BoundsRect(), -8)
+}
+
 func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.scene = scene
 

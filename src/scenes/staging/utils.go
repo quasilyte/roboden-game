@@ -13,6 +13,15 @@ import (
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
+func resizedRect(rect gmath.Rect, delta float64) gmath.Rect {
+	delta = -delta // Negative value should make the rect smaller
+	offset := gmath.Vec{X: delta, Y: delta}
+	return gmath.Rect{
+		Min: rect.Min.Add(offset),
+		Max: rect.Max.Sub(offset),
+	}
+}
+
 func isValidCreepTarget(pos gmath.Vec, creep *creepNode, weapon *gamedata.WeaponStats) bool {
 	if !creep.CanBeTargeted() {
 		return false

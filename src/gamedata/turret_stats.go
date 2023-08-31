@@ -10,7 +10,41 @@ var TurretStatsList = []*AgentStats{
 	TetherBeaconAgentStats,
 	BeamTowerAgentStats,
 	HarvesterAgentStats,
+	SiegeAgentStats,
 }
+
+var SiegeAgentWeapon = InitWeaponStats(&WeaponStats{
+	AttackRange:               750,
+	Reload:                    10,
+	AttackSound:               assets.AudioSiegeRocket1,
+	ProjectileImage:           assets.ImageSiegeRocket,
+	TrailEffect:               ProjectileTrailSmoke,
+	Explosion:                 ProjectileExplosionLarge,
+	ImpactArea:                26,
+	ProjectileSpeed:           300,
+	Damage:                    DamageValue{Health: 16},
+	BuildingDamageBonus:       0.25,
+	AttackRangeMarkMultiplier: 1.5,
+	MaxTargets:                1,
+	TargetFlags:               TargetGround,
+	ArcPower:                  2.2,
+	Accuracy:                  0.9,
+	AlwaysExplodes:            true,
+	ProjectileFireSound:       true,
+})
+
+var SiegeAgentStats = InitDroneStats(&AgentStats{
+	ScoreCost:    SiegeTurretCost,
+	Kind:         AgentSiege,
+	IsFlying:     false,
+	IsTurret:     true,
+	IsBuilding:   true,
+	Image:        assets.ImageSiegeAgent,
+	PreviewImage: assets.ImageSiegeAgentIcon,
+	Size:         SizeLarge,
+	Upkeep:       15,
+	MaxHealth:    65,
+})
 
 var GunpointAgentStats = InitDroneStats(&AgentStats{
 	Kind:       AgentGunpoint,
@@ -58,7 +92,7 @@ var BeamTowerAgentStats = InitDroneStats(&AgentStats{
 	IsBuilding: true,
 	Image:      assets.ImageBeamtowerAgent,
 	Size:       SizeLarge,
-	Upkeep:     14,
+	Upkeep:     18,
 	MaxHealth:  50,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange: 380,

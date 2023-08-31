@@ -58,11 +58,12 @@ type CreepStats struct {
 	BeamTexture    *ge.Texture
 	BeamExplosion  resource.ImageID
 
-	TargetKind    TargetKind
-	Disarmable    bool
-	CanBeRepelled bool
-	Flying        bool
-	Building      bool
+	TargetKind      TargetKind
+	Disarmable      bool
+	CanBeRepelled   bool
+	Flying          bool
+	Building        bool
+	SiegeTargetable bool
 }
 
 var MagmaHazardWeapon = InitWeaponStats(&WeaponStats{
@@ -145,11 +146,12 @@ var IonMortarCreepStats = &CreepStats{
 		Accuracy:            0.4,
 		RoundProjectile:     true,
 	}),
-	Size:          28,
-	CanBeRepelled: false,
-	Disarmable:    false,
-	Building:      true,
-	TargetKind:    TargetGround,
+	Size:            28,
+	CanBeRepelled:   false,
+	Disarmable:      false,
+	Building:        true,
+	SiegeTargetable: true,
+	TargetKind:      TargetGround,
 }
 
 var TurretCreepStats = &CreepStats{
@@ -172,11 +174,12 @@ var TurretCreepStats = &CreepStats{
 		FireOffset:      gmath.Vec{Y: -8},
 		TargetFlags:     TargetFlying | TargetGround,
 	}),
-	Size:          40,
-	CanBeRepelled: false,
-	Disarmable:    false,
-	Building:      true,
-	TargetKind:    TargetGround,
+	Size:            40,
+	CanBeRepelled:   false,
+	Disarmable:      false,
+	Building:        true,
+	SiegeTargetable: true,
+	TargetKind:      TargetGround,
 }
 
 var FortressCreepStats = &CreepStats{
@@ -202,71 +205,77 @@ var FortressCreepStats = &CreepStats{
 		ArcPower:        0.4,
 		RandArc:         true,
 	}),
-	Size:          64,
-	CanBeRepelled: false,
-	Disarmable:    false,
-	Building:      true,
-	TargetKind:    TargetGround,
+	Size:            64,
+	CanBeRepelled:   false,
+	Disarmable:      false,
+	Building:        true,
+	SiegeTargetable: true,
+	TargetKind:      TargetGround,
 }
 
 var BaseCreepStats = &CreepStats{
-	Kind:          CreepBase,
-	Image:         assets.ImageCreepBase,
-	Speed:         0,
-	MaxHealth:     170,
-	Size:          60,
-	Disarmable:    false,
-	CanBeRepelled: false,
-	Building:      true,
-	TargetKind:    TargetGround,
+	Kind:            CreepBase,
+	Image:           assets.ImageCreepBase,
+	Speed:           0,
+	MaxHealth:       170,
+	Size:            60,
+	Disarmable:      false,
+	CanBeRepelled:   false,
+	Building:        true,
+	SiegeTargetable: true,
+	TargetKind:      TargetGround,
 }
 
 var CrawlerBaseCreepStats = &CreepStats{
-	Kind:          CreepCrawlerBase,
-	Image:         assets.ImageCrawlerCreepBase,
-	Speed:         0,
-	MaxHealth:     140,
-	Size:          60,
-	Disarmable:    false,
-	CanBeRepelled: false,
-	Building:      true,
-	TargetKind:    TargetGround,
+	Kind:            CreepCrawlerBase,
+	Image:           assets.ImageCrawlerCreepBase,
+	Speed:           0,
+	MaxHealth:       140,
+	Size:            60,
+	Disarmable:      false,
+	CanBeRepelled:   false,
+	Building:        true,
+	SiegeTargetable: true,
+	TargetKind:      TargetGround,
 }
 
 var CrawlerBaseConstructionCreepStats = &CreepStats{
-	Kind:          CreepCrawlerBaseConstruction,
-	Image:         assets.ImageCrawlerCreepBase,
-	Speed:         0,
-	MaxHealth:     35,
-	Size:          40,
-	Disarmable:    false,
-	CanBeRepelled: false,
-	Building:      true,
-	TargetKind:    TargetGround,
+	Kind:            CreepCrawlerBaseConstruction,
+	Image:           assets.ImageCrawlerCreepBase,
+	Speed:           0,
+	MaxHealth:       35,
+	Size:            40,
+	Disarmable:      false,
+	CanBeRepelled:   false,
+	Building:        true,
+	SiegeTargetable: true,
+	TargetKind:      TargetGround,
 }
 
 var TurretConstructionCreepStats = &CreepStats{
-	Kind:          CreepTurretConstruction,
-	Image:         assets.ImageTurretCreep,
-	Speed:         0,
-	MaxHealth:     35,
-	Size:          40,
-	Disarmable:    false,
-	CanBeRepelled: false,
-	Building:      true,
-	TargetKind:    TargetGround,
+	Kind:            CreepTurretConstruction,
+	Image:           assets.ImageTurretCreep,
+	Speed:           0,
+	MaxHealth:       35,
+	Size:            40,
+	Disarmable:      false,
+	CanBeRepelled:   false,
+	Building:        true,
+	SiegeTargetable: true,
+	TargetKind:      TargetGround,
 }
 
 var IonMortarConstructionCreepStats = &CreepStats{
-	Kind:          CreepTurretConstruction,
-	Image:         assets.ImageIonMortarCreep,
-	Speed:         0,
-	MaxHealth:     35,
-	Size:          40,
-	Disarmable:    false,
-	CanBeRepelled: false,
-	Building:      true,
-	TargetKind:    TargetGround,
+	Kind:            CreepTurretConstruction,
+	Image:           assets.ImageIonMortarCreep,
+	Speed:           0,
+	MaxHealth:       35,
+	Size:            40,
+	Disarmable:      false,
+	CanBeRepelled:   false,
+	Building:        true,
+	SiegeTargetable: true,
+	TargetKind:      TargetGround,
 }
 
 var WandererCreepStats = &CreepStats{
@@ -455,7 +464,7 @@ var HowitzerCreepStats = &CreepStats{
 		MaxTargets:          1,
 		BurstSize:           1,
 		AttackSound:         assets.AudioHowitzerShot,
-		AttackRange:         800,
+		AttackRange:         850,
 		ImpactArea:          26,
 		ProjectileSpeed:     150,
 		Damage:              DamageValue{Health: 20},
@@ -469,10 +478,11 @@ var HowitzerCreepStats = &CreepStats{
 		Accuracy:            0.4,
 		ProjectileFireSound: true,
 	}),
-	Size:          32,
-	Disarmable:    false,
-	CanBeRepelled: false,
-	TargetKind:    TargetGround,
+	Size:            32,
+	Disarmable:      false,
+	CanBeRepelled:   false,
+	SiegeTargetable: true,
+	TargetKind:      TargetGround,
 }
 
 var StealthCrawlerCreepStats = &CreepStats{

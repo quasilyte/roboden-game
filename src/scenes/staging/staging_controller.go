@@ -794,6 +794,8 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 			stats = tetherBeaconConstructionStats
 		case gamedata.HarvesterAgentStats:
 			stats = harvesterConstructionStats
+		case gamedata.SiegeAgentStats:
+			stats = siegeConstructionStats
 		}
 		coord := c.world.pathgrid.PosToCoord(selectedColony.pos)
 		nearOffsets := colonyNearCellOffsets
@@ -806,9 +808,8 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 				c.canBuildHere(c.world.pathgrid.CoordToPos(probe), true)
 		})
 		if !freeCoord.IsZero() {
-			pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord))
-			spriteOffset := roundedPos(c.world.rand.Offset(-3, 3))
-			construction := c.world.NewConstructionNode(choice.Player, pos, spriteOffset, stats)
+			pos := c.world.pathgrid.CoordToPos(coord.Add(freeCoord)).Add(c.world.rand.Offset(-3, 3))
+			construction := c.world.NewConstructionNode(choice.Player, pos, stats)
 			c.nodeRunner.AddObject(construction)
 			return true
 		}
@@ -836,7 +837,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		}
 		if !freeCoord.IsZero() {
 			pos := p.CoordToPos(coord.Add(freeCoord)).Sub(offset)
-			construction := c.world.NewConstructionNode(choice.Player, pos, gmath.Vec{}, stats)
+			construction := c.world.NewConstructionNode(choice.Player, pos, stats)
 			c.nodeRunner.AddObject(construction)
 			return true
 		}

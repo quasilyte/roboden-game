@@ -329,6 +329,7 @@ const SeasonNumber = 1
 //     -- A lava geyser trap
 //     -- A lava lake that shoots magma projectiles
 //   - A new tank-like ground colony
+//   - A new siege turret
 //
 // * UX:
 //   - Recipe tab tooltips now shows the T2 drone counters

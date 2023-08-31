@@ -25,10 +25,11 @@ type computerPlayer struct {
 	evolutionCards []int
 	securityCards  []int
 
-	captureDelay     float64
-	actionDelay      float64
-	buildColonyDelay float64
-	buildTurretDelay float64
+	captureDelay         float64
+	actionDelay          float64
+	buildColonyDelay     float64
+	buildTurretDelay     float64
+	turretCostMultiplier float64
 
 	minRadiusBeforeColony float64
 
@@ -74,6 +75,19 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 		securityCards:  make([]int, 0, 4),
 
 		buildColonyDelay: world.rand.FloatRange(60, 3*60),
+	}
+
+	switch p.world.turretDesign {
+	case gamedata.GunpointAgentStats:
+		p.turretCostMultiplier = 0.8
+	case gamedata.BeamTowerAgentStats:
+		p.turretCostMultiplier = 1.2
+	case gamedata.TetherBeaconAgentStats:
+		p.turretCostMultiplier = 1.1
+	case gamedata.HarvesterAgentStats:
+		p.turretCostMultiplier = 0.9
+	case gamedata.SiegeAgentStats:
+		p.turretCostMultiplier = 0.75
 	}
 
 	numColoniesPicker := gmath.NewRandPicker[int](world.rand)
@@ -163,6 +177,8 @@ func (p *computerPlayer) maxTurretsForColony() int {
 	case gamedata.TetherBeaconAgentStats:
 		return p.world.rand.IntRange(0, 2)
 	case gamedata.HarvesterAgentStats:
+		return p.world.rand.IntRange(1, 2)
+	case gamedata.SiegeAgentStats:
 		return p.world.rand.IntRange(1, 2)
 	default:
 		return 0
@@ -783,7 +799,7 @@ func (p *computerPlayer) maybeBuildColony(colony *computerColony) bool {
 
 func (p *computerPlayer) maybeBuildTurret(colony *computerColony) bool {
 	currentResourcesScore, _ := p.calcPosResources(colony.node, colony.node.pos, colony.node.realRadius*0.7)
-	canBuild := (float64(currentResourcesScore) >= 100 && (colony.node.resources*p.world.rand.FloatRange(0.8, 1.2)) > 140) ||
+	canBuild := (float64(currentResourcesScore) >= 100 && (colony.node.resources*p.world.rand.FloatRange(0.8, 1.2)) > (140*p.turretCostMultiplier)) ||
 		((float64(currentResourcesScore) * p.world.rand.FloatRange(0.8, 1.2)) >= 250) ||
 		(colony.node.resources > 80 && colony.node.agents.NumAvailableWorkers() > 30 && p.world.rand.Chance(0.15))
 	if !canBuild {

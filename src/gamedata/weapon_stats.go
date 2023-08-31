@@ -83,6 +83,7 @@ type ProjectileExplosionKind int
 const (
 	ProjectileExplosionNone ProjectileExplosionKind = iota
 	ProjectileExplosionNormal
+	ProjectileExplosionLarge
 	ProjectileExplosionIonBlast
 	ProjectileExplosionSuperIonBlast
 	ProjectileExplosionAbomb

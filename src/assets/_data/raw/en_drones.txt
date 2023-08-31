@@ -7,6 +7,7 @@
 
 ##core.den : Den
 ##core.ark : Ark
+##core.tank : Bastion
 
 ##core.mobility_rating : Mobility rating
 ##core.unit_limit_rating : Drone limit rating
@@ -107,6 +108,12 @@
 An armored truck that drives around and gathers resources.
 It can only harvest minerals, not oil-like or scrap resources.
 It doesn't have any weapons.
+
+##turret.siege : Firestorm
+##turret.siege.description
+A siege missile launcher.
+Can only attack large ground targets.
+After a few attacks, it needs a long time to reload.
 
 ##turret.gunpoint : Pillbox
 ##turret.gunpoint.description

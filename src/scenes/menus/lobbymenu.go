@@ -879,7 +879,11 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 		available := xslices.Contains(c.state.Persistent.PlayerStats.TurretsUnlocked, turret.Kind.String())
 		var img *ebiten.Image
 		if available {
-			img = c.scene.LoadImage(turret.Image).Data
+			imageID := turret.Image
+			if turret.PreviewImage != assets.ImageNone {
+				imageID = turret.PreviewImage
+			}
+			img = c.scene.LoadImage(imageID).Data
 		} else {
 			img = c.scene.LoadImage(assets.ImageLock).Data
 		}

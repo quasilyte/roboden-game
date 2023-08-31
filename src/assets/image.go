@@ -190,6 +190,9 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
+		ImageSiegeAgentIcon:     {Path: "image/drones/siege_agent_icon.png"},
+		ImageSiegeAgent:         {Path: "image/drones/siege_agent.png"},
+		ImageSiegeAgentTurret:   {Path: "image/drones/siege_agent_turret.png", FrameWidth: 27},
 		ImageBeamtowerAgent:     {Path: "image/drones/beamtower_agent.png"},
 		ImageTetherBeaconAgent:  {Path: "image/drones/tether_beacon_agent.png"},
 		ImageRoombaAgent:        {Path: "image/drones/roomba_agent.png", FrameWidth: 17, FrameHeight: 14},
@@ -310,6 +313,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageLavaGeyser: {Path: "image/landscape/inferno/geyser.png"},
 
 		ImageMagmaBall:                {Path: "image/projectile/magma_ball.png"},
+		ImageSiegeRocket:              {Path: "image/projectile/siege_rocket.png"},
 		ImageTankColonyProjectile1:    {Path: "image/projectile/tank_colony_projectile1.png"},
 		ImageCommanderProjectile:      {Path: "image/projectile/commander_projectile.png"},
 		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
@@ -597,6 +601,9 @@ const (
 	ImagePowerPlantAgent
 	ImageHarvesterAgent
 	ImageGunpointAgent
+	ImageSiegeAgentIcon
+	ImageSiegeAgent
+	ImageSiegeAgentTurret
 	ImageBeamtowerAgent
 	ImageTetherBeaconAgent
 	ImageRoombaAgent
@@ -699,6 +706,7 @@ const (
 	ImageLavaGeyser
 
 	ImageMagmaBall
+	ImageSiegeRocket
 	ImageTankColonyProjectile1
 	ImageCommanderProjectile
 	ImageRoombaProjectile

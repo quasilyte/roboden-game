@@ -478,6 +478,8 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 		turret.mode = agentModeHarvester
 	case gamedata.AgentDroneFactory:
 		turret.mode = agentModeRelictDroneFactory
+	case gamedata.AgentSiege:
+		turret.mode = agentModeSiegeGuard
 	default:
 		turret.mode = agentModeGuardForever
 	}
@@ -870,7 +872,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) bool {
 		return true
 
 	case gamedata.TankCoreStats:
-		c.acceleration = 0.1
+		c.acceleration = 0.05
 		c.sendTo(pos)
 		c.unmarkCells(c.pos)
 		c.mode = colonyModeRelocating

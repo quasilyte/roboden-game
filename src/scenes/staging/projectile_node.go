@@ -300,6 +300,9 @@ func (p *projectileNode) createExplosion() {
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionNormal:
 		createExplosion(p.world, layer, explosionPos)
+	case gamedata.ProjectileExplosionLarge:
+		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageBigExplosion, Layer: layer})
+		playSound(p.world, assets.AudioExplosion1, explosionPos)
 	case gamedata.ProjectileExplosionBigVertical:
 		createBigVerticalExplosion(p.world, explosionPos)
 	case gamedata.ProjectileExplosionMagma:

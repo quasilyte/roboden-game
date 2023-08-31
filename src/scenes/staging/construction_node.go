@@ -46,6 +46,14 @@ var gunpointConstructionStats = &constructionStats{
 	Image:             assets.ImageGunpointAgent,
 }
 
+var siegeConstructionStats = &constructionStats{
+	ConstructionSpeed: 0.03,
+	DamageModifier:    0.03,
+	Kind:              constructTurret,
+	TurretStats:       gamedata.SiegeAgentStats,
+	Image:             assets.ImageSiegeAgentIcon,
+}
+
 var beamTowerConstructionStats = &constructionStats{
 	ConstructionSpeed: 0.025,
 	DamageModifier:    0.04,
@@ -64,7 +72,6 @@ var tetherBeaconConstructionStats = &constructionStats{
 
 type constructionNode struct {
 	pos              gmath.Vec
-	spriteOffset     gmath.Vec
 	constructPosBase gmath.Vec
 
 	stats *constructionStats
@@ -85,13 +92,12 @@ type constructionNode struct {
 	EventDestroyed gsignal.Event[*constructionNode]
 }
 
-func newConstructionNode(world *worldState, p player, pos, spriteOffset gmath.Vec, stats *constructionStats) *constructionNode {
+func newConstructionNode(world *worldState, p player, pos gmath.Vec, stats *constructionStats) *constructionNode {
 	return &constructionNode{
-		world:        world,
-		pos:          pos,
-		spriteOffset: spriteOffset,
-		player:       p,
-		stats:        stats,
+		world:  world,
+		pos:    pos,
+		player: p,
+		stats:  stats,
 	}
 }
 
@@ -102,7 +108,6 @@ func (c *constructionNode) Init(scene *ge.Scene) {
 	}
 	c.sprite = scene.NewSprite(imageID)
 	c.sprite.Pos.Base = &c.pos
-	c.sprite.Pos.Offset = c.spriteOffset
 	c.maxBuildHeight = c.sprite.ImageHeight() * 0.9
 	c.initialBuildHeight = c.sprite.ImageHeight() * 0.45
 	if !c.world.simulation {
@@ -200,7 +205,6 @@ func (c *constructionNode) done(builder *colonyCoreNode) {
 		turret := newColonyAgentNode(builder, c.stats.TurretStats, c.pos)
 		builder.AcceptTurret(turret)
 		c.world.nodeRunner.AddObject(turret)
-		turret.sprite.Pos.Offset = c.spriteOffset
 
 	case constructBase:
 		c.world.result.ColoniesBuilt++

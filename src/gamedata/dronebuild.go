@@ -12,16 +12,13 @@ func PickColonyDesign(designsUnlocked []string, rng *gmath.Rand) string {
 }
 
 func PickTurretDesign(rng *gmath.Rand) string {
-	switch turretRoll := rng.Float(); {
-	case turretRoll < 0.35:
-		return "BeamTower" // 35%
-	case turretRoll < 0.60:
-		return "Gunpoint" // 25%
-	case turretRoll < 0.75:
-		return "Harvester" // 15%
-	default:
-		return "TetherBeacon" // 25%
-	}
+	picker := gmath.NewRandPicker[string](rng)
+	picker.AddOption("BeamTower", 0.35)
+	picker.AddOption("Gunpoint", 0.25)
+	picker.AddOption("Harvester", 0.15)
+	picker.AddOption("TetherBeacon", 0.2)
+	picker.AddOption("Siege", 0.2)
+	return picker.Pick()
 }
 
 func CreateDroneBuild(rng *gmath.Rand) []string {

@@ -56,6 +56,8 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioAgentRecycled:              {Path: "$sfx/agent_recycled.wav", Volume: -0.3},
 		AudioAgentConsumed:              {Path: "$sfx/drone_consumed.wav", Volume: -0.25},
 		AudioAgentDestroyed:             {Path: "$sfx/agent_destroyed.wav", Volume: -0.25},
+		AudioSiegeRocket1:               {Path: "$sfx/siege_rocket1.wav", Volume: +0.05},
+		AudioSiegeRocket2:               {Path: "$sfx/siege_rocket2.wav", Volume: +0.05},
 		AudioFighterBeam:                {Path: "$sfx/fighter_beam.wav", Volume: -0.35},
 		AudioTankColonyBlasterShot:      {Path: "$sfx/tank_colony_blaster.wav", Volume: -0.15},
 		AudioRelictAgentShot:            {Path: "$sfx/relict_agent_shot.wav", Volume: -0.35},
@@ -165,6 +167,8 @@ func NumAudioSamples(id resource.AudioID) int {
 		return 4
 	case AudioMagmaExplosion1:
 		return 2
+	case AudioSiegeRocket1:
+		return 2
 	case AudioMagmaShot1:
 		return 3
 	default:
@@ -193,6 +197,8 @@ const (
 	AudioAgentDestroyed
 	AudioWandererBeam
 	AudioStunBeam
+	AudioSiegeRocket1
+	AudioSiegeRocket2
 	AudioServantShot
 	AudioServantWave
 	AudioRechargerBeam

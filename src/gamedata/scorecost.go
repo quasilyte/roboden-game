@@ -28,4 +28,5 @@ const (
 
 	BeamTowerTurretCost int = 3000
 	HarvesterTurretCost int = 6000
+	SiegeTurretCost     int = 13000
 )

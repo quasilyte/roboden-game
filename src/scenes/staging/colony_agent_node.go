@@ -77,6 +77,7 @@ const (
 	agentModeMergingRoomba
 	agentModeBuildBuilding
 	agentModeGuardForever
+	agentModeSiegeGuard
 	agentModeHarvester
 	agentModeRoombaGuard
 	agentModeRoombaAttack
@@ -377,15 +378,22 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		a.world().nodeRunner.AddObject(l)
 	}
 
-	if a.stats.IsNeutral {
-		a.initNeutral()
-	}
+	a.initExtra()
 
 	a.SetHeight(agentFlightHeight)
 }
 
-func (a *colonyAgentNode) initNeutral() {
+func (a *colonyAgentNode) initExtra() {
 	switch a.stats {
+	case gamedata.SiegeAgentStats:
+		turret := newSiegeTurretNode(a.world(), a.pos)
+		turret.Init(a.scene)
+		a.EventDestroyed.Connect(nil, func(*colonyAgentNode) {
+			turret.Dispose()
+		})
+		a.target = turret
+		a.specialDelay = a.world().rand.FloatRange(3, 6)
+
 	case gamedata.DroneFactoryAgentStats:
 		hatch := a.scene.NewSprite(assets.ImageRelictFactoryHatch)
 		hatch.Pos.Base = &a.pos
@@ -876,6 +884,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRelictTakeoff(delta)
 	case agentModeRelictPatrol:
 		a.updateRelictPatrol(delta)
+	case agentModeSiegeGuard:
+		a.updateSiegeGuard(delta)
 	case agentModeGuardForever:
 		// Just chill.
 	}
@@ -1861,6 +1871,70 @@ func (a *colonyAgentNode) updateRelictTakeoff(delta float64) {
 		a.mode = agentModeRelictPatrol
 		a.shadowComponent.SetVisibility(true)
 	}
+}
+
+func (a *colonyAgentNode) updateSiegeGuard(delta float64) {
+	if a.specialDelay != 0 {
+		return
+	}
+
+	turret := a.target.(*siegeTurretNode)
+	if turret.ammo == 0 {
+		a.specialDelay = a.world().rand.FloatRange(60, 70)
+		turret.ammo = siegeTurretAmmo
+		return
+	}
+	if turret.target != nil && turret.target.IsDisposed() {
+		turret.target = nil
+		a.specialDelay = a.world().rand.FloatRange(5, 7)
+		return
+	}
+	if turret.target == nil {
+		targetCandidates := &a.world().tmpTargetSlice
+		*targetCandidates = (*targetCandidates)[:0]
+		a.world().WalkCreeps(a.pos, gamedata.SiegeAgentWeapon.AttackRange, func(creep *creepNode) bool {
+			// Check for CanBeTargeted because a Howitzer may be crossing a forest.
+			if !creep.stats.SiegeTargetable || !creep.CanBeTargeted() {
+				return false
+			}
+			if creep.pos.DistanceSquaredTo(a.pos) > gamedata.SiegeAgentWeapon.AttackRangeSqr {
+				return false
+			}
+			*targetCandidates = append(*targetCandidates, creep)
+			return false
+		})
+		if len(*targetCandidates) != 0 {
+			turret.target = gmath.RandElem(a.world().rand, *targetCandidates).(*creepNode)
+		}
+		if turret.target == nil {
+			// Can't find a target.
+			a.specialDelay = a.world().rand.FloatRange(5, 8)
+			if turret.ammo < siegeTurretAmmo {
+				turret.ammo++
+				a.specialDelay *= 2
+			}
+			return
+		}
+	}
+
+	if turret.ammo%2 == 0 {
+		a.specialDelay = 0.7
+	} else {
+		a.specialDelay = gamedata.SiegeAgentWeapon.Reload * a.world().rand.FloatRange(0.9, 1.1)
+	}
+	turret.ammo--
+
+	fireOffset := turret.SetRotation(a.pos.AngleToPoint(turret.target.pos).Normalized())
+	toPos := snipePos(gamedata.SiegeAgentWeapon.ProjectileSpeed, a.pos, turret.target.pos, turret.target.GetVelocity())
+	p := a.world().newProjectileNode(projectileConfig{
+		World:      a.world(),
+		Weapon:     gamedata.SiegeAgentWeapon,
+		Attacker:   a,
+		ToPos:      toPos,
+		Target:     turret.target,
+		FireOffset: fireOffset,
+	})
+	a.world().nodeRunner.AddProjectile(p)
 }
 
 func (a *colonyAgentNode) updateRelictPatrol(delta float64) {

@@ -70,6 +70,7 @@ const (
 	AgentTetherBeacon
 	AgentBeamTower
 	AgentHarvester
+	AgentSiege
 
 	// Neutral buildings
 	AgentDroneFactory
@@ -221,13 +222,14 @@ func FindTurretByName(turretName string) *AgentStats {
 }
 
 type AgentStats struct {
-	Kind      ColonyAgentKind
-	Image     resource.ImageID
-	AnimSpeed float64
-	Tier      int
-	PointCost int
-	ScoreCost int
-	Upkeep    int
+	Kind         ColonyAgentKind
+	Image        resource.ImageID
+	PreviewImage resource.ImageID
+	AnimSpeed    float64
+	Tier         int
+	PointCost    int
+	ScoreCost    int
+	Upkeep       int
 
 	Cost       float64
 	PowerScore float64

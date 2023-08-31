@@ -948,7 +948,7 @@ func (c *creepNode) updateHowitzer(delta float64) {
 	if !c.waypoint.IsZero() {
 		c.anim.Tick(delta)
 		if c.moveTowards(delta, c.waypoint) {
-			if c.specialDelay == 0 && c.path.HasNext() && !c.insideForest {
+			if c.specialDelay == 0 && c.path.HasNext() && !c.insideForest && c.world.innerRect.Contains(c.pos) {
 				if c.isNearEnemyBase(c.stats.SpecialWeapon.AttackRange * 0.8) {
 					c.path = pathing.GridPath{}
 				}

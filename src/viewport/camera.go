@@ -91,6 +91,13 @@ func (c *LayerContainer) AddGraphicsBelow(o cameraObject) {
 	c.belowObjects.Add(o)
 }
 
+func (c *LayerContainer) AddSortableGraphics(o cameraObject, order *float64) {
+	if c.headless {
+		return
+	}
+	c.objects.AddSortableObject(o, order)
+}
+
 func (c *LayerContainer) AddSortableGraphicsSlightlyAbove(o cameraObject, order *float64) {
 	if c.headless {
 		return

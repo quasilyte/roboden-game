@@ -211,10 +211,15 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.sprite.Shader.SetFloatValue("HP", 1.0)
 		c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
 	}
-	if c.stats == gamedata.ArkCoreStats {
+	switch c.stats {
+	case gamedata.ArkCoreStats:
 		c.world.stage.AddSortableGraphicsSlightlyAbove(c.sprite, &c.drawOrder)
-	} else {
+	case gamedata.DenCoreStats:
 		c.world.stage.AddSprite(c.sprite)
+	case gamedata.TankCoreStats:
+		c.world.stage.AddSortableGraphics(c.sprite, &c.drawOrder)
+	default:
+		panic("unexpected core design")
 	}
 
 	c.flyingSprite = c.spriteWithAlliance(c.stats.FlyingImageID())
@@ -223,10 +228,13 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	if c.world.graphicsSettings.AllShadersEnabled {
 		c.flyingSprite.Shader = c.sprite.Shader
 	}
-	if c.stats.Shadow != assets.ImageNone {
+	switch c.stats {
+	case gamedata.ArkCoreStats:
 		c.world.stage.AddSortableGraphicsSlightlyAbove(c.flyingSprite, &c.drawOrder)
-	} else {
+	case gamedata.DenCoreStats:
 		c.world.stage.AddSprite(c.flyingSprite)
+	case gamedata.TankCoreStats:
+		c.world.stage.AddSortableGraphics(c.flyingSprite, &c.drawOrder)
 	}
 
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)

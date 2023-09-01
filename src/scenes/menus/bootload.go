@@ -135,13 +135,15 @@ func (c *BootloadController) onFirstLaunch() bool {
 		// If it's a Steam Deck, set an appropriate gamepad layout.
 		if c.state.SteamInfo.SteamDeck {
 			c.state.Persistent.Settings.GamepadSettings[0].Layout = int(gameinput.GamepadLayoutSteamDeck)
+			c.state.CombinedInput.SetGamepadLayout(gameinput.GamepadLayoutSteamDeck)
+			c.state.FirstGamepadInput.SetGamepadLayout(gameinput.GamepadLayoutSteamDeck)
 		}
 	}
 
 	c.state.Persistent.FirstLaunch = false
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
 
-	if !steamDeck {
+	if steamDeck {
 		// Do not redirect to a controls prompt.
 		// We know the layout perfectly well.
 		return false

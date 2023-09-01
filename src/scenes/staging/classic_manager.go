@@ -31,10 +31,10 @@ func newClassicManager(world *worldState) *classicManager {
 func (m *classicManager) Init(scene *ge.Scene) {
 	m.scene = scene
 
-	m.spawnDelayMultiplier = 0.75 + (0.25 * float64(m.world.config.CreepSpawnRate))
+	m.spawnDelayMultiplier = 1.0 / (0.75 + (0.25 * float64(m.world.config.CreepSpawnRate)))
 
-	// 1.15, 1.0, 0.85, 0.7
-	firstSpawnDelayMultiplier := 1.15 - (0.15 * float64(m.world.config.CreepSpawnRate))
+	// 1.1, 1.0, 0.9, 0.8, 0.7, 0.6
+	firstSpawnDelayMultiplier := 1.1 - (0.1 * float64(m.world.config.CreepSpawnRate))
 
 	// Start launching tier3 creeps after ~15 minutes.
 	m.tier3spawnDelay = m.world.rand.FloatRange(15*60.0, 18*60.0) * firstSpawnDelayMultiplier

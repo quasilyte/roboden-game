@@ -418,6 +418,8 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"250%",
 			"275%",
 			"300%",
+			"325%",
+			"350%",
 		})
 		tab.AddChild(b)
 	}
@@ -431,12 +433,14 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"160%",
 			"180%",
 			"200%",
+			"220%",
 		})
 		tab.AddChild(b)
 	}
 
 	if c.mode == gamedata.ModeReverse {
 		tab.AddChild(c.newOptionButton(&c.config.TechProgressRate, "menu.lobby.tech_progress_rate", []string{
+			"40%",
 			"50%",
 			"60%",
 			"70%",
@@ -471,6 +475,8 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"100%",
 			"125%",
 			"150%",
+			"175%",
+			"200%",
 		}))
 
 		superCreeps := c.newUnlockableBoolOptionButton(&c.config.SuperCreeps, "super_creeps", "menu.lobby.super_creeps", []string{

@@ -15,7 +15,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score += (config.DronesPower - 1) * 15
 		score += config.StartingResources * 15
 		score -= (config.InitialCreeps - 1) * 10
-		score -= (config.TechProgressRate - 5) * 5
+		score -= (config.TechProgressRate - 6) * 5
 		score += (config.OilRegenRate - 2) * 5
 		score += (config.Resources - 2) * 20
 		score -= (config.ReverseSuperCreepRate - 3) * 15

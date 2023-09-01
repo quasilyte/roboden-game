@@ -838,6 +838,10 @@ func (g *levelGenerator) placeCreepBases() {
 			}
 		}
 
+		// Placing the turret before the base to avoid the "can't deploy" issue.
+		// It may lead to some weird setups, but oh well.
+		// A better solution would be to re-adjust the base pos afterwards or whatever.
+		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 24, NoScraps: true})
 		base := g.world.NewCreepNode(basePos, gamedata.BaseCreepStats)
 		base.super = super
 		if i == 1 || i == 3 {
@@ -848,7 +852,6 @@ func (g *levelGenerator) placeCreepBases() {
 			base.attackDelay = g.rng.FloatRange(40, 50)
 		}
 		g.world.nodeRunner.AddObject(base)
-		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 24, NoScraps: true})
 	}
 }
 

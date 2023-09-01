@@ -12,6 +12,7 @@ import (
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/gtask"
 	"github.com/quasilyte/roboden-game/session"
@@ -126,6 +127,11 @@ func (c *BootloadController) onFirstLaunch() {
 		name = gamedata.CleanUsername(name)
 		if gamedata.IsValidUsername(name) {
 			c.state.Persistent.PlayerName = name
+		}
+
+		// If it's a Steam Deck, set an appropriate gamepad layout.
+		if c.state.SteamInfo.SteamDeck {
+			c.state.Persistent.Settings.GamepadSettings[0].Layout = int(gameinput.GamepadLayoutSteamDeck)
 		}
 	}
 

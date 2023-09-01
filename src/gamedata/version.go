@@ -372,4 +372,7 @@ const SeasonNumber = 1
 //   - Fixed a bug in long-range drones target seeking algorithm
 //   - Don't show merge recipe for the locked drones
 //   - Fixed the "creep spawn rate" difficulty option
+//
+// * Steam Deck:
+//   - Set the default gamepad layout to Steam Deck when running a game there
 const BuildNumber int = 16

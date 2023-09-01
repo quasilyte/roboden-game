@@ -1,7 +1,7 @@
 ##game.title : Roboden
 
 ##game.splash.presskey.keyboard : Press ENTER to continue
-##game.splash.presskey.gamepad : Press START to continue
+##game.splash.presskey.gamepad : Press $gamepad_start to continue
 
 ##game.onboard.welcome : Welcome to Roboden!
 ##game.onboard.select_input_method

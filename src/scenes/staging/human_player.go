@@ -309,7 +309,7 @@ func (p *humanPlayer) HandleInput() {
 		if hasClick {
 			globalClickPos := p.state.camera.AbsClickPos(clickPos)
 			selectDist := 40.0
-			if p.world.deviceInfo.IsMobile {
+			if p.world.deviceInfo.IsMobile() {
 				selectDist = 80.0
 			}
 			var closestColony *colonyCoreNode

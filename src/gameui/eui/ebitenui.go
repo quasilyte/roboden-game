@@ -703,7 +703,7 @@ func WidgetRect(w *widget.Widget) gmath.Rect {
 
 func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 	result := &Resources{
-		mobile: device.IsMobile,
+		mobile: device.IsMobile(),
 	}
 
 	{

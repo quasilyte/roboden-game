@@ -168,7 +168,7 @@ func (c *TerminalMenu) initUI() {
 		},
 	}
 
-	textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.SteamInfo.SteamDeck},
+	textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.Device.IsSteamDeck()},
 		widget.TextInputOpts.Placeholder(d.Get("menu.terminal.placeholder")),
 		widget.TextInputOpts.SubmitHandler(func(args *widget.TextInputChangedEventArgs) {
 			if args.InputText == "" {

@@ -284,7 +284,7 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		if c.config.RawGameMode == "reverse" {
 			disabled = append(disabled, 1, 2, 4) // These combinations are not supported for this mode
 		}
-		if c.state.Device.IsMobile {
+		if c.state.Device.IsMobile() {
 			disabled = append(disabled, 3) // Two players are not available on mobiles
 		}
 		key := "menu.lobby.players"
@@ -763,7 +763,7 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 		)
 
 		const maxSeedLen = 18
-		textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.SteamInfo.SteamDeck},
+		textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.Device.IsSteamDeck()},
 			widget.TextInputOpts.WidgetOpts(
 				widget.WidgetOpts.CursorEnterHandler(func(args *widget.WidgetCursorEnterEventArgs) {
 					c.setHelpText(c.optionDescriptionText("menu.lobby.game_seed"))

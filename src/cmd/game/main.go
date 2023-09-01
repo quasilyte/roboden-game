@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -24,25 +25,6 @@ import (
 
 func main() {
 	state := getDefaultSessionState()
-
-	{
-		steamInfo, err := userdevice.GetSteamInfo(userdevice.SteamAppConfig{
-			SteamAppID: 2416030,
-		})
-		switch {
-		case err != nil:
-			state.Logf("failed to get Steam info: %v", err)
-		case !steamInfo.Enabled:
-			state.Logf("running a non-Steam build")
-		default:
-			steamDeckSuffix := ""
-			if steamInfo.SteamDeck {
-				steamDeckSuffix = " (Steam Deck)"
-			}
-			state.Logf("Steam SDK initialized successfully" + steamDeckSuffix)
-		}
-		state.SteamInfo = steamInfo
-	}
 
 	var gameDataFolder string
 	var serverAddress string
@@ -152,7 +134,7 @@ func main() {
 	registerScenes(state)
 	state.Context = ctx
 
-	state.Logf("is mobile? %v", state.Device.IsMobile)
+	state.Logf("is mobile? %v", state.Device.IsMobile())
 	state.Logf("game commit version: %v", CommitHash)
 
 	ctx.NewPanicController = func(panicInfo *ge.PanicInfo) ge.SceneController {
@@ -253,7 +235,6 @@ func getDefaultSessionState() *session.State {
 			},
 		}),
 		Persistent: contentlock.GetDefaultData(),
-		Device:     userdevice.GetInfo(),
 	}
 
 	{
@@ -324,6 +305,26 @@ func getDefaultSessionState() *session.State {
 			continue
 		}
 		state.Persistent.PlayerStats.TurretsUnlocked = append(state.Persistent.PlayerStats.TurretsUnlocked, turret.Kind.String())
+	}
+
+	{
+		deviceInfo, err := userdevice.GetInfo()
+		switch {
+		case err != nil:
+			if deviceInfo.Steam.Enabled {
+				state.Logf("failed to get Steam info: %v", err)
+			} else {
+				panic(fmt.Sprintf("unexpected error: %v", err))
+			}
+		case !deviceInfo.Steam.Enabled:
+			state.Logf("running a non-Steam build")
+		default:
+			steamDeckSuffix := ""
+			if deviceInfo.IsSteamDeck() {
+				steamDeckSuffix = " (Steam Deck)"
+			}
+			state.Logf("Steam SDK initialized successfully" + steamDeckSuffix)
+		}
 	}
 
 	return state

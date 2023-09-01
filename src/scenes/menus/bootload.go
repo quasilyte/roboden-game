@@ -122,8 +122,6 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 }
 
 func (c *BootloadController) onFirstLaunch() bool {
-	steamDeck := c.state.SteamInfo.Initialized && c.state.SteamInfo.SteamDeck
-
 	if c.state.SteamInfo.Initialized {
 		// Infer the player's name from the Steam account info.
 		name := steamsdk.PlayerName()
@@ -133,7 +131,7 @@ func (c *BootloadController) onFirstLaunch() bool {
 		}
 
 		// If it's a Steam Deck, set an appropriate gamepad layout.
-		if c.state.SteamInfo.SteamDeck {
+		if c.state.Device.IsSteamDeck() {
 			c.state.Persistent.Settings.GamepadSettings[0].Layout = int(gameinput.GamepadLayoutSteamDeck)
 			c.state.CombinedInput.SetGamepadLayout(gameinput.GamepadLayoutSteamDeck)
 			c.state.FirstGamepadInput.SetGamepadLayout(gameinput.GamepadLayoutSteamDeck)
@@ -143,7 +141,7 @@ func (c *BootloadController) onFirstLaunch() bool {
 	c.state.Persistent.FirstLaunch = false
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
 
-	if steamDeck {
+	if c.state.Device.IsSteamDeck() {
 		// Do not redirect to a controls prompt.
 		// We know the layout perfectly well.
 		return false

@@ -62,7 +62,7 @@ func (c *ControlsMenuController) initUI() {
 	// touchButton.GetWidget().Disabled = true
 	// rowContainer.AddChild(touchButton)
 
-	if !c.state.Device.IsMobile {
+	if !c.state.Device.IsMobile() {
 		inputMethods := []string{
 			d.Get("menu.controls.method_combined"),
 			d.Get("menu.controls.method_keyboard"),

@@ -1,19 +1,28 @@
 package userdevice
 
 type Info struct {
-	IsMobile bool
+	Kind DeviceKind
+
+	Steam SteamInfo
 }
+
+func (info Info) IsDesktop() bool { return info.Kind == DeviceDesktop }
+
+func (info Info) IsMobile() bool { return info.Kind == DeviceMobile }
+
+func (info Info) IsSteamDeck() bool { return info.Kind == DeviceSteamDeck }
+
+type DeviceKind int
+
+const (
+	DeviceDesktop DeviceKind = iota
+	DeviceMobile
+	DeviceSteamDeck
+)
 
 type SteamInfo struct {
 	Initialized bool
 
 	// Whether this game is built with -steam tag.
 	Enabled bool
-
-	// Whether this game is running under a Steam Deck device.
-	SteamDeck bool
-}
-
-type SteamAppConfig struct {
-	SteamAppID int
 }

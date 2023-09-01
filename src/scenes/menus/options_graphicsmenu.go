@@ -103,7 +103,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		}))
 	}
 
-	{
+	if c.state.Device.IsDesktop() {
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
 			Scene:     c.scene,
 			Resources: uiResources,
@@ -119,7 +119,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		}))
 	}
 
-	{
+	if c.state.Device.IsDesktop() {
 		b := eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:     c.scene,
 			Resources: uiResources,

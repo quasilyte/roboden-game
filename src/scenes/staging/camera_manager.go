@@ -101,7 +101,7 @@ func (m *cameraManager) HandleInput() {
 		return
 	}
 
-	if !m.world.deviceInfo.IsMobile {
+	if !m.world.deviceInfo.IsMobile() {
 		// Camera panning only makes sense on non-mobile devices
 		// where we have a keyboard/gamepad or a cursor.
 		var cameraPan gmath.Vec

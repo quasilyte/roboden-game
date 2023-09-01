@@ -8,26 +8,19 @@ import (
 	"github.com/hajimehoshi/go-steamworks"
 )
 
-func GetInfo() Info {
-	return Info{
-		IsMobile: false,
-	}
-}
+func GetInfo() (Info, error) {
+	var info Info
 
-func GetSteamInfo(config SteamAppConfig) (SteamInfo, error) {
-	info := SteamInfo{}
-
-	if config.SteamAppID == 0 {
-		return info, nil
-	}
-
+	info.Steam.Enabled = true
 	if !steamworks.Init() {
 		return info, errors.New("steamworks.Init() failed")
 	}
+	info.Steam.Initialized = true
 
-	info.Enabled = true
-	info.Initialized = true
-	info.SteamDeck = steamworks.SteamUtils().IsSteamRunningOnSteamDeck()
+	info.Kind = DeviceDesktop
+	if steamworks.SteamUtils().IsSteamRunningOnSteamDeck() {
+		info.Kind = DeviceSteamDeck
+	}
 
 	return info, nil
 }

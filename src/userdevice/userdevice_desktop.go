@@ -2,12 +2,13 @@
 
 package userdevice
 
-func GetInfo() Info {
-	return Info{
-		IsMobile: false,
+func GetInfo() (Info, error) {
+	info := Info{
+		Kind: DeviceDesktop,
+		Steam: SteamInfo{
+			Initialized: false,
+			Enabled:     false,
+		},
 	}
-}
-
-func GetSteamInfo(config SteamAppConfig) (SteamInfo, error) {
-	return SteamInfo{}, nil
+	return info, nil
 }

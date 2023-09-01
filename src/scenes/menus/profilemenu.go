@@ -65,7 +65,7 @@ func (c *ProfileMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	if !c.state.Device.IsMobile {
+	if !c.state.Device.IsMobile() {
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.set_user_name"), func() {
 			c.scene.Context().ChangeScene(NewUserNameMenuController(c.state, c))
 		}))

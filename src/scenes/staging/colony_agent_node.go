@@ -1985,9 +1985,9 @@ func (a *colonyAgentNode) updateRelictDroneFactory(delta float64) {
 	const maxUnits = 3
 	if a.specialDelay == 0 {
 		if a.extraLevel >= maxUnits {
-			a.specialDelay = a.scene.Rand().FloatRange(5, 10)
+			a.specialDelay = a.scene.Rand().FloatRange(4, 8)
 		} else {
-			a.specialDelay = a.scene.Rand().FloatRange(20, 30)
+			a.specialDelay = a.scene.Rand().FloatRange(10, 15)
 			a.extraLevel++
 			spawnPos := a.pos.Sub(gmath.Vec{Y: 12})
 			unit := newColonyAgentNode(a.colonyCore, gamedata.RelictAgentStats, spawnPos)
@@ -2003,7 +2003,7 @@ func (a *colonyAgentNode) updateRelictDroneFactory(delta float64) {
 			unit.shadowComponent.SetVisibility(false)
 			unit.EventDestroyed.Connect(nil, func(*colonyAgentNode) {
 				a.extraLevel--
-				a.specialDelay += 10
+				a.specialDelay += 5
 				world.mercs = xslices.Remove(world.mercs, unit)
 			})
 			hatch := a.target.(*ge.Sprite)

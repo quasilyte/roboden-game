@@ -948,9 +948,9 @@ var ScarabAgentStats = InitDroneStats(&AgentStats{
 })
 
 const (
-	// +1 burst size per level (+6)
-	// +5 max hp per level (+30)
-	DevourerMaxLevel = 6
+	// +1 burst size per level (+7)
+	// +5 max hp per level (+35)
+	DevourerMaxLevel = 7
 )
 
 var DevourerAgentStats = InitDroneStats(&AgentStats{

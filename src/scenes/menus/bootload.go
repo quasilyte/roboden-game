@@ -101,8 +101,9 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		c.state.AdjustVolumeLevels()
 
 		if c.state.Persistent.FirstLaunch {
-			c.onFirstLaunch()
-			return
+			if c.onFirstLaunch() {
+				return
+			}
 		}
 
 		if c.state.Persistent.Settings.Demo {
@@ -120,7 +121,9 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 	c.scene.AddObject(uiObject)
 }
 
-func (c *BootloadController) onFirstLaunch() {
+func (c *BootloadController) onFirstLaunch() bool {
+	steamDeck := c.state.SteamInfo.Initialized && c.state.SteamInfo.SteamDeck
+
 	if c.state.SteamInfo.Initialized {
 		// Infer the player's name from the Steam account info.
 		name := steamsdk.PlayerName()
@@ -138,7 +141,15 @@ func (c *BootloadController) onFirstLaunch() {
 	c.state.Persistent.FirstLaunch = false
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
 
-	c.scene.Context().ChangeScene(NewControlsPromptController(c.state))
+	if !steamDeck {
+		// Do not redirect to a controls prompt.
+		// We know the layout perfectly well.
+		return false
+	} else {
+		// PC platforms.
+		c.scene.Context().ChangeScene(NewControlsPromptController(c.state))
+		return true
+	}
 }
 
 func (c *BootloadController) prepareBackground() {

@@ -1882,6 +1882,7 @@ func (a *colonyAgentNode) updateSiegeGuard(delta float64) {
 	if turret.ammo == 0 {
 		a.specialDelay = a.world().rand.FloatRange(60, 70)
 		turret.ammo = siegeTurretAmmo
+		turret.target = nil
 		return
 	}
 	if turret.target != nil && turret.target.IsDisposed() {
@@ -1913,6 +1914,15 @@ func (a *colonyAgentNode) updateSiegeGuard(delta float64) {
 				turret.ammo++
 				a.specialDelay *= 2
 			}
+			return
+		}
+	}
+
+	if !turret.target.stats.Building {
+		// If it can move, check whether it's too far or not.
+		if turret.target.pos.DistanceSquaredTo(a.pos) > 1.1*gamedata.SiegeAgentWeapon.AttackRangeSqr {
+			turret.target = nil
+			a.specialDelay = a.world().rand.FloatRange(2, 4)
 			return
 		}
 	}

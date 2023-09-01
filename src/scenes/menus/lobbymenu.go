@@ -94,7 +94,7 @@ func (c *LobbyMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *LobbyMenuController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.back()
 		return
 	}

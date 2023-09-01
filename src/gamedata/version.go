@@ -333,6 +333,7 @@ const SeasonNumber = 1
 //
 // * UX:
 //   - Recipe tab tooltips now shows the T2 drone counters
+//   - In the menu, pressing [B] on xbox and [O] on ps controllers now act as "back" buttons too
 //
 // * Balance:
 //   - Difficulty % now affects Infinite Arena score more significantly
@@ -375,4 +376,5 @@ const SeasonNumber = 1
 //
 // * Steam Deck:
 //   - Set the default gamepad layout to Steam Deck when running a game there
+//   - Like with other gamepads, [B] now goes back in the menus too
 const BuildNumber int = 16

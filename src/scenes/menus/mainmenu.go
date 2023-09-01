@@ -43,7 +43,7 @@ func (c *MainMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *MainMenuController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionBack) {
+	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.scene.Audio().PauseCurrentMusic()
 		c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
 		return

@@ -284,7 +284,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		rect.Pos.Offset.X -= 5
 		rect.Pos.Offset.Y = 8
 		c.resourceRects[0] = rect
-		c.world.stage.AddSprite(rect)
+		c.world.stage.AddSortableGraphics(rect, &c.drawOrder)
 	}
 
 	c.markCells(c.pos)

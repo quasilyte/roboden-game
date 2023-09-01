@@ -532,7 +532,7 @@ var AssaultCreepStats = &CreepStats{
 		ProjectileImage:     assets.ImageAssaultProjectile,
 		Reload:              0.7,
 		TargetFlags:         TargetFlying | TargetGround,
-		BuildingDamageBonus: 0.4,
+		BuildingDamageBonus: 0.6,
 	}),
 	Disarmable:    true,
 	CanBeRepelled: true,

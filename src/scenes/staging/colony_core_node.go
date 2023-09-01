@@ -184,6 +184,19 @@ func (c *colonyCoreNode) BoundsRect() gmath.Rect {
 	return resizedRect(c.sprite.BoundsRect(), -8)
 }
 
+func (c *colonyCoreNode) addSpriteToStage(s *ge.Sprite) {
+	switch c.stats {
+	case gamedata.ArkCoreStats:
+		c.world.stage.AddSortableGraphicsSlightlyAbove(s, &c.drawOrder)
+	case gamedata.DenCoreStats:
+		c.world.stage.AddSprite(s)
+	case gamedata.TankCoreStats:
+		c.world.stage.AddSortableGraphics(s, &c.drawOrder)
+	default:
+		panic("unexpected core design")
+	}
+}
+
 func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.scene = scene
 
@@ -211,16 +224,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.sprite.Shader.SetFloatValue("HP", 1.0)
 		c.sprite.Shader.Texture1 = scene.LoadImage(assets.ImageColonyDamageMask)
 	}
-	switch c.stats {
-	case gamedata.ArkCoreStats:
-		c.world.stage.AddSortableGraphicsSlightlyAbove(c.sprite, &c.drawOrder)
-	case gamedata.DenCoreStats:
-		c.world.stage.AddSprite(c.sprite)
-	case gamedata.TankCoreStats:
-		c.world.stage.AddSortableGraphics(c.sprite, &c.drawOrder)
-	default:
-		panic("unexpected core design")
-	}
+	c.addSpriteToStage(c.sprite)
 
 	c.flyingSprite = c.spriteWithAlliance(c.stats.FlyingImageID())
 	c.flyingSprite.Pos.Base = &c.pos
@@ -238,14 +242,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.hatch = scene.NewSprite(assets.ImageColonyCoreHatch)
 	c.hatch.Pos.Base = &c.pos
 	c.hatch.Pos.Offset.Y = c.stats.HatchOffsetY + 2
-	switch c.stats {
-	case gamedata.ArkCoreStats:
-		c.world.stage.AddSortableGraphicsSlightlyAbove(c.hatch, &c.drawOrder)
-	case gamedata.DenCoreStats:
-		c.world.stage.AddSprite(c.hatch)
-	case gamedata.TankCoreStats:
-		c.world.stage.AddSortableGraphics(c.hatch, &c.drawOrder)
-	}
+	c.addSpriteToStage(c.hatch)
 
 	c.flashComponent.sprite = c.sprite
 	c.hatchFlashComponent.sprite = c.hatch
@@ -253,11 +250,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.evoDiode = scene.NewSprite(assets.ImageColonyCoreDiode)
 	c.evoDiode.Pos.Base = &c.pos
 	c.evoDiode.Pos.Offset = c.stats.DiodeOffset
-	if c.stats == gamedata.ArkCoreStats {
-		c.world.stage.AddSortableGraphicsSlightlyAbove(c.evoDiode, &c.drawOrder)
-	} else {
-		c.world.stage.AddSprite(c.evoDiode)
-	}
+	c.addSpriteToStage(c.evoDiode)
 
 	if c.stats != gamedata.TankCoreStats {
 		// Den, Ark cores.

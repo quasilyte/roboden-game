@@ -47,7 +47,7 @@ var gunpointConstructionStats = &constructionStats{
 }
 
 var siegeConstructionStats = &constructionStats{
-	ConstructionSpeed: 0.03,
+	ConstructionSpeed: 0.04,
 	DamageModifier:    0.03,
 	Kind:              constructTurret,
 	TurretStats:       gamedata.SiegeAgentStats,

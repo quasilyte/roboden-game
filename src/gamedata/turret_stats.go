@@ -22,7 +22,7 @@ var SiegeAgentWeapon = InitWeaponStats(&WeaponStats{
 	Explosion:                 ProjectileExplosionLarge,
 	ImpactArea:                26,
 	ProjectileSpeed:           300,
-	Damage:                    DamageValue{Health: 16},
+	Damage:                    DamageValue{Health: 17},
 	BuildingDamageBonus:       0.25,
 	AttackRangeMarkMultiplier: 1.5,
 	MaxTargets:                1,

@@ -838,7 +838,6 @@ func (g *levelGenerator) placeCreepBases() {
 			}
 		}
 
-		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 24, NoScraps: true})
 		base := g.world.NewCreepNode(basePos, gamedata.BaseCreepStats)
 		base.super = super
 		if i == 1 || i == 3 {
@@ -849,6 +848,7 @@ func (g *levelGenerator) placeCreepBases() {
 			base.attackDelay = g.rng.FloatRange(40, 50)
 		}
 		g.world.nodeRunner.AddObject(base)
+		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 24, NoScraps: true})
 	}
 }
 

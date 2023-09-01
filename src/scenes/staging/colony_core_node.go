@@ -1300,10 +1300,11 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	case actionSendCourier:
 		courier := action.Value2.(*colonyAgentNode)
 		target := action.Value.(*colonyCoreNode)
-		if target.resources*1.2 < c.resources && c.resources > 60 {
-			courier.payload = courier.maxPayload()
-			courier.cargoValue = float64(courier.payload) * 12
-			c.resources -= courier.cargoValue
+		if target.resources*1.3 < c.resources && c.resources > 60 {
+			const resPerUnit float64 = 14
+			courier.payload = gmath.ClampMax(courier.maxPayload(), int(c.resources/resPerUnit))
+			courier.cargoValue = float64(courier.payload) * resPerUnit
+			c.resources = courier.cargoValue
 		}
 		return courier.AssignMode(agentModeCourierFlight, gmath.Vec{}, action.Value)
 

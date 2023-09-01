@@ -150,9 +150,9 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 }
 
 func (c *creepCoordinator) Rally(pos gmath.Vec) {
-	group := c.collectGroup(pos, 400, cap(c.groupSlice))
+	group := c.collectGroup(pos, 500, cap(c.groupSlice))
 
-	maxAttackDistSqr := 1500.0 * 1500.0
+	maxAttackDistSqr := 1600.0 * 1600.0
 	var closestTarget *colonyCoreNode
 	var closestDistSqr float64
 	for _, colony := range c.world.allColonies {

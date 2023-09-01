@@ -144,25 +144,25 @@ type creepOptionInfo struct {
 var creepOptionInfoList = func() []creepOptionInfo {
 	list := []creepOptionInfo{
 		{
-			maxUnits:     13,
+			maxUnits:     15,
 			special:      specialBuyCrawlers,
 			minTechLevel: 0,
 			stats:        gamedata.CrawlerCreepStats,
 		},
 		{
-			maxUnits:     9,
+			maxUnits:     11,
 			special:      specialBuyWanderers,
 			minTechLevel: 0,
 			stats:        gamedata.WandererCreepStats,
 		},
 		{
-			maxUnits:     10,
+			maxUnits:     11,
 			special:      specialBuyEliteCrawlers,
 			minTechLevel: 0.1,
 			stats:        gamedata.EliteCrawlerCreepStats,
 		},
 		{
-			maxUnits:     6,
+			maxUnits:     7,
 			special:      specialBuyStunners,
 			minTechLevel: 0.2,
 			stats:        gamedata.StunnerCreepStats,
@@ -182,7 +182,7 @@ var creepOptionInfoList = func() []creepOptionInfo {
 		{
 			maxUnits:     3,
 			special:      specialBuyBuilders,
-			minTechLevel: 0.5,
+			minTechLevel: 0.4,
 			stats:        gamedata.BuilderCreepStats,
 		},
 		{

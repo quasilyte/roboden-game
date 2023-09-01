@@ -475,7 +475,7 @@ func playIonExplosionSound(world *worldState, pos gmath.Vec) {
 	playSound(world, explosionSound, pos)
 }
 
-func createBigVerticalExplosion(world *worldState, pos gmath.Vec) {
+func createBigVerticalExplosion(world *worldState, pos gmath.Vec, layer effectLayer) {
 	if world.simulation {
 		return
 	}
@@ -484,7 +484,7 @@ func createBigVerticalExplosion(world *worldState, pos gmath.Vec) {
 	if world.localRand.Bool() {
 		img = assets.ImageBigVerticalExplosion2
 	}
-	world.nodeRunner.AddObject(newEffectNode(world, pos, normalEffectLayer, img))
+	world.nodeRunner.AddObject(newEffectNode(world, pos, layer, img))
 	playSound(world, assets.AudioExplosion1, pos)
 }
 

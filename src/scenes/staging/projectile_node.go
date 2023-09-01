@@ -265,6 +265,19 @@ func (p *projectileNode) Dispose() {
 	p.disposed = true
 }
 
+func (p *projectileNode) needsAboveEffectLayer() bool {
+	if p.target == nil || p.target.IsFlying() {
+		return true
+	}
+	if creep, ok := p.target.(*creepNode); ok && creep.stats.Kind == gamedata.CreepUberBoss {
+		return true
+	}
+	if colony, ok := p.target.(*colonyCoreNode); ok && colony.stats == gamedata.TankCoreStats {
+		return true
+	}
+	return false
+}
+
 func (p *projectileNode) createExplosion() {
 	if p.world.simulation {
 		return
@@ -275,12 +288,9 @@ func (p *projectileNode) createExplosion() {
 		return
 	}
 
-	layer := aboveEffectLayer
-	if p.target != nil && !p.target.IsFlying() {
-		target, ok := p.target.(*creepNode)
-		if !(ok && target.stats.Kind == gamedata.CreepUberBoss) {
-			layer = normalEffectLayer
-		}
+	layer := normalEffectLayer
+	if p.needsAboveEffectLayer() {
+		layer = aboveEffectLayer
 	}
 
 	explosionPos := p.pos.Add(p.world.localRand.Offset(-4, 4))
@@ -304,7 +314,7 @@ func (p *projectileNode) createExplosion() {
 		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageBigExplosion, Layer: layer})
 		playSound(p.world, assets.AudioExplosion1, explosionPos)
 	case gamedata.ProjectileExplosionBigVertical:
-		createBigVerticalExplosion(p.world, explosionPos)
+		createBigVerticalExplosion(p.world, explosionPos, layer)
 	case gamedata.ProjectileExplosionMagma:
 		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageFireBurst, Layer: layer})
 		playSound(p.world, assets.AudioMagmaExplosion1, explosionPos)

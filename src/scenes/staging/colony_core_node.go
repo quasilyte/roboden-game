@@ -1241,8 +1241,8 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	case actionConvertEvo:
 		target := action.Value.(*neutralBuildingNode)
 		c.createEvoBeam(ge.Pos{Base: &target.pos, Offset: gmath.Vec{Y: 13}})
-		c.resources += 15
-		target.agent.specialDelay = 1.25
+		c.resources += 20
+		target.agent.specialDelay = 1.5
 		return true
 
 	case actionGenerateEvo:

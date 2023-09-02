@@ -26,6 +26,27 @@ import (
 func main() {
 	state := getDefaultSessionState()
 
+	{
+		deviceInfo, err := userdevice.GetInfo()
+		switch {
+		case err != nil:
+			if deviceInfo.Steam.Enabled {
+				state.Logf("failed to get Steam info: %v", err)
+			} else {
+				panic(fmt.Sprintf("unexpected error: %v", err))
+			}
+		case !deviceInfo.Steam.Enabled:
+			state.Logf("running a non-Steam build")
+		default:
+			steamDeckSuffix := ""
+			if deviceInfo.IsSteamDeck() {
+				steamDeckSuffix = " (Steam Deck)"
+			}
+			state.Logf("Steam SDK initialized successfully" + steamDeckSuffix)
+		}
+		state.Device = deviceInfo
+	}
+
 	var gameDataFolder string
 	var serverAddress string
 	flag.StringVar(&state.MemProfile, "memprofile", "", "collect app heap allocations profile")
@@ -305,26 +326,6 @@ func getDefaultSessionState() *session.State {
 			continue
 		}
 		state.Persistent.PlayerStats.TurretsUnlocked = append(state.Persistent.PlayerStats.TurretsUnlocked, turret.Kind.String())
-	}
-
-	{
-		deviceInfo, err := userdevice.GetInfo()
-		switch {
-		case err != nil:
-			if deviceInfo.Steam.Enabled {
-				state.Logf("failed to get Steam info: %v", err)
-			} else {
-				panic(fmt.Sprintf("unexpected error: %v", err))
-			}
-		case !deviceInfo.Steam.Enabled:
-			state.Logf("running a non-Steam build")
-		default:
-			steamDeckSuffix := ""
-			if deviceInfo.IsSteamDeck() {
-				steamDeckSuffix = " (Steam Deck)"
-			}
-			state.Logf("Steam SDK initialized successfully" + steamDeckSuffix)
-		}
 	}
 
 	return state

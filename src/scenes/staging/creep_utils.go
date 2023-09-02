@@ -11,19 +11,28 @@ func sendCreeps(world *worldState, g arenaWaveGroup) gmath.Vec {
 	spawnPos := randomSectorPos(world.rand, sector)
 	targetPos := correctedPos(world.rect, randomSectorPos(world.rand, sector), 520)
 
+	spawnRect := gmath.Rect{
+		Min: spawnPos.Sub(gmath.Vec{X: 96, Y: 96}),
+		Max: spawnPos.Add(gmath.Vec{X: 96, Y: 96}),
+	}
+	spawnRect.Min.X = gmath.ClampMin(spawnRect.Min.X, sector.Min.X)
+	spawnRect.Min.Y = gmath.ClampMin(spawnRect.Min.Y, sector.Min.Y)
+	spawnRect.Max.X = gmath.ClampMax(spawnRect.Max.X, sector.Max.X)
+	spawnRect.Max.Y = gmath.ClampMax(spawnRect.Max.Y, sector.Max.Y)
+
 	for _, u := range g.units {
-		creepPos := spawnPos
+		var creepPos gmath.Vec
 		spawnDelay := 0.0
 		if u.stats.ShadowImage == assets.ImageNone {
-			creepPos, spawnDelay = groundCreepSpawnPos(world, creepPos, u.stats)
+			creepPos, spawnDelay = groundCreepSpawnPos(world, spawnRect, u.stats)
 			if creepPos.IsZero() {
 				continue
 			}
 		} else {
-			creepPos = creepPos.Add(world.rand.Offset(-60, 60))
+			creepPos = spawnPos.Add(world.rand.Offset(-60, 60))
 		}
 
-		creepTargetPos := targetPos.Add(world.rand.Offset(-60, 60))
+		creepTargetPos := targetPos.Add(world.rand.Offset(-64, 64))
 		if spawnDelay > 0 {
 			spawner := newCreepSpawnerNode(world, spawnDelay, creepPos, creepTargetPos, u.stats)
 			spawner.super = u.super
@@ -41,30 +50,31 @@ func sendCreeps(world *worldState, g arenaWaveGroup) gmath.Vec {
 	return spawnPos
 }
 
-func groundCreepSpawnPos(world *worldState, pos gmath.Vec, stats *gamedata.CreepStats) (gmath.Vec, float64) {
-	creepPos := pos
-	spawnDelay := 0.0
-	attemptPos := creepPos.Add(world.rand.Offset(-60, 60))
-	for i := 0; i < 4; i++ {
+func groundCreepSpawnPos(world *worldState, spawnRect gmath.Rect, stats *gamedata.CreepStats) (gmath.Vec, float64) {
+	for i := 0; i < 6; i++ {
+		spawnDelay := 0.0
+		attemptPos := randomSectorPos(world.rand, spawnRect)
 		if attemptPos.X <= 0 {
-			spawnDelay = (-attemptPos.X) / stats.Speed
+			spawnDelay += (-attemptPos.X) / stats.Speed
 			attemptPos.X = 1
 		} else if attemptPos.X >= world.width {
-			spawnDelay = (attemptPos.X - world.width) / stats.Speed
+			spawnDelay += (attemptPos.X - world.width) / stats.Speed
 			attemptPos.X = world.width - 1
 		}
 		if attemptPos.Y <= 0 {
-			spawnDelay = (-attemptPos.Y) / stats.Speed
+			spawnDelay += (-attemptPos.Y) / stats.Speed
 			attemptPos.Y = 1
 		} else if attemptPos.Y >= world.height {
-			spawnDelay = (attemptPos.Y - world.height) / stats.Speed
+			spawnDelay += (attemptPos.Y - world.height) / stats.Speed
 			attemptPos.Y = world.height - 1
 		}
 		coord := world.pathgrid.PosToCoord(attemptPos)
-		if world.CellIsFree(coord, layerNormal) {
-			creepPos = attemptPos
-			break
+		if !world.CellIsFree(coord, layerNormal) {
+			continue
 		}
+
+		return attemptPos, spawnDelay
 	}
-	return creepPos, spawnDelay
+
+	return gmath.Vec{}, 0
 }

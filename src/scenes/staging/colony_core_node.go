@@ -179,9 +179,9 @@ func (c *colonyCoreNode) spriteWithAlliance(imageID resource.ImageID) *ge.Sprite
 
 func (c *colonyCoreNode) BoundsRect() gmath.Rect {
 	if c.stats == gamedata.TankCoreStats {
-		return resizedRect(c.sprite.BoundsRect(), -10)
+		return resizedRect(c.sprite.BoundsRect(), -12)
 	}
-	return resizedRect(c.sprite.BoundsRect(), -8)
+	return resizedRect(c.sprite.BoundsRect(), -10)
 }
 
 func (c *colonyCoreNode) addSpriteToStage(s *ge.Sprite) {

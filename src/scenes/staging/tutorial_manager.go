@@ -54,6 +54,9 @@ type tutorialManager struct {
 	alreadyMoved   bool
 	nearReasources bool
 
+	waitingForEnterKey bool
+	enterKeyTimer      float64
+
 	hint *messageNode
 
 	updateDelay float64
@@ -83,8 +86,15 @@ func (m *tutorialManager) IsDisposed() bool {
 	return false
 }
 
+func (m *tutorialManager) waitForEnter() {
+	m.nextPressed = false
+	m.waitingForEnterKey = true
+	m.enterKeyTimer = 0
+}
+
 func (m *tutorialManager) OnNextPressed() {
 	m.nextPressed = true
+	m.waitingForEnterKey = false
 	m.runUpdateFunc()
 }
 
@@ -95,6 +105,8 @@ func (m *tutorialManager) Update(delta float64) {
 	if m.creep != nil && m.creep.IsDisposed() {
 		m.creep = nil
 	}
+
+	m.enterKeyTimer += delta
 
 	m.attackCountdown = gmath.ClampMin(m.attackCountdown-delta, 0)
 	if m.attackCountdown == 0 {
@@ -146,6 +158,13 @@ func (m *tutorialManager) runUpdateFunc() {
 	if len(m.world.allColonies) == 0 {
 		return
 	}
+
+	if m.waitingForEnterKey && m.hint != nil && !m.hint.highlight {
+		if m.enterKeyTimer > (30 * 1.2) {
+			m.hint.Highlight()
+		}
+	}
+
 	hintOpen := m.hint != nil
 	if m.maybeCompleteStep() {
 		m.tutorialStep++
@@ -284,7 +303,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 	switch m.tutorialStep {
 	case 0:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.greeting"))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 	case 1:
 		return m.nextPressed
@@ -292,7 +311,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 	case 2:
 		m.targetPos = m.findResourceStash(300)
 		m.addHintNode(m.targetPos, d.Get("tutorial.camera", m.world.inputMode))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 
 	case 3:
@@ -323,7 +342,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 7:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.resources"))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 	case 8:
 		return m.nextPressed
@@ -336,28 +355,28 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 11:
 		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 0), Y: 516}, d.Get("tutorial.resources_priority"))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 	case 12:
 		return m.nextPressed
 
 	case 13:
 		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 1), Y: 516}, d.Get("tutorial.growth_priority"))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 	case 14:
 		return m.nextPressed
 
 	case 15:
 		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 2), Y: 516}, d.Get("tutorial.evolution_priority"))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 	case 16:
 		return m.nextPressed
 
 	case 17:
 		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 3), Y: 516}, d.Get("tutorial.security_priority"))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 	case 18:
 		return m.nextPressed
@@ -405,7 +424,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 27:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.factions2", m.world.inputMode))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 	case 28:
 		return m.nextPressed
@@ -493,7 +512,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 41:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.base_leveling"))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 	case 42:
 		return m.nextPressed
@@ -560,7 +579,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 54:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_message"))
-		m.nextPressed = false
+		m.waitForEnter()
 		return true
 	case 55:
 		return m.nextPressed

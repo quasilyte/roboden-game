@@ -15,6 +15,11 @@ type messageNode struct {
 	targetLine2 *ge.Line
 	camera      *viewport.Camera
 
+	highlightRect  *ge.Rect
+	highlightStep  float64
+	highlightValue float64
+	highlight      bool
+
 	trackedObject ge.SceneObject
 
 	pos       gmath.Vec
@@ -69,6 +74,14 @@ func (m *messageNode) Init(scene *ge.Scene) {
 	m.rect.Centered = false
 	m.rect.Pos.Offset = m.pos
 
+	m.highlightRect = ge.NewRect(scene.Context(), m.width+2, m.height+2)
+	m.highlightRect.OutlineColorScale.SetColor(ge.RGB(0xe7c34b))
+	m.highlightRect.FillColorScale.SetRGBA(0, 0, 0, 0)
+	m.highlightRect.OutlineWidth = 2
+	m.highlightRect.Centered = false
+	m.highlightRect.Pos.Offset = m.pos.Sub(gmath.Vec{X: 1, Y: 1})
+	m.highlightRect.Visible = false
+
 	m.label = ge.NewLabel(assets.BitmapFont1)
 	m.label.AlignHorizontal = ge.AlignHorizontalCenter
 	m.label.AlignVertical = ge.AlignVerticalCenter
@@ -93,6 +106,7 @@ func (m *messageNode) Init(scene *ge.Scene) {
 	}
 
 	m.camera.UI.AddGraphicsAbove(m.rect)
+	m.camera.UI.AddGraphicsAbove(m.highlightRect)
 	m.camera.UI.AddGraphicsAbove(m.label)
 }
 
@@ -102,6 +116,16 @@ func (m *messageNode) UpdateText(s string) {
 }
 
 func (m *messageNode) Update(delta float64) {
+	if m.highlight {
+		m.highlightValue = gmath.Clamp(m.highlightValue+(delta*m.highlightStep), 0, 1)
+		if m.highlightValue == 0 {
+			m.highlightStep = +1
+		} else if m.highlightValue == 1 {
+			m.highlightStep = -1
+		}
+		m.highlightRect.OutlineColorScale.A = float32(m.highlightValue)
+	}
+
 	if m.targetLine != nil {
 		m.targetLine.Visible = m.camera.UI.Visible
 		m.targetLine2.Visible = m.camera.UI.Visible
@@ -134,6 +158,13 @@ func (m *messageNode) Update(delta float64) {
 	}
 }
 
+func (m *messageNode) Highlight() {
+	m.highlight = true
+	m.highlightRect.OutlineColorScale.A = 0
+	m.highlightRect.Visible = true
+	m.highlightStep = 1
+}
+
 func (m *messageNode) HideLines() {
 	if m.targetLine != nil {
 		m.targetLine.Visible = false
@@ -146,6 +177,7 @@ func (m *messageNode) IsDisposed() bool {
 }
 
 func (m *messageNode) Dispose() {
+	m.highlightRect.Dispose()
 	m.rect.Dispose()
 	m.label.Dispose()
 

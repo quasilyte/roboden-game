@@ -1213,9 +1213,6 @@ func (a *colonyAgentNode) doConsumeDrone() {
 		return
 	}
 
-	if a.colonyCore.resources < 100 {
-		return
-	}
 	if a.colonyCore.agents.NumAvailableWorkers() < 5 || a.colonyCore.agents.NumAvailableFighters() < 5 {
 		return
 	}
@@ -1225,9 +1222,15 @@ func (a *colonyAgentNode) doConsumeDrone() {
 		if a.health >= (a.maxHealth * 0.6) {
 			return
 		}
+		if a.colonyCore.resources < 30 {
+			return
+		}
 	} else {
 		// A developing devourer may consume even on full health, sometimes.
 		if a.health >= a.maxHealth && a.scene.Rand().Chance(0.65) {
+			return
+		}
+		if a.colonyCore.resources < 50 {
 			return
 		}
 	}

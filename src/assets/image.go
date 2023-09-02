@@ -143,7 +143,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
 		ImageGreenZap:                   {Path: "image/effects/green_zap.png", FrameWidth: 14},
 		ImageCloakWave:                  {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
-		ImageDroneConsumed:              {Path: "image/effects/drone_consumed.png", FrameWidth: 28},
+		ImageDroneConsumed:              {Path: "image/effects/drone_consumed.png", FrameWidth: 32},
 		ImageServantWave:                {Path: "image/effects/servant_wave.png", FrameWidth: 64},
 		ImageSuperServantWave:           {Path: "image/effects/super_servant_wave.png", FrameWidth: 96},
 		ImageSmokeDown:                  {Path: "image/effects/smoke_down.png", FrameWidth: 8},

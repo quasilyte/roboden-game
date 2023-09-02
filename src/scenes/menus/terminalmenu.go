@@ -271,7 +271,7 @@ func (c *TerminalMenu) achievementNames() []string {
 }
 
 func (c *TerminalMenu) onSteamListAchievements(ctx *terminalCommandContext) (string, error) {
-	if !c.state.SteamInfo.Enabled {
+	if !c.state.Device.Steam.Enabled {
 		return "", errors.New("steam is not enabled")
 	}
 	var allUnlocked []string
@@ -302,7 +302,7 @@ func (c *TerminalMenu) onSteamClearAchievements(ctx *terminalCommandContext) (st
 		}
 		return strings.Join(lines, "\n"), nil
 	}
-	if !c.state.SteamInfo.Enabled {
+	if !c.state.Device.Steam.Enabled {
 		return "", errors.New("steam is not enabled")
 	}
 	steamsdk.ClearAchievements(c.achievementNames())

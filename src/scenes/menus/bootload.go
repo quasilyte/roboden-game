@@ -71,7 +71,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 			{name: "load_ui", f: c.loadUIResources},
 			{name: "load_extra", f: c.loadExtra},
 		}
-		if c.state.SteamInfo.Enabled {
+		if c.state.Device.Steam.Enabled {
 			steps = append(steps, initializationStep{
 				name: "steam_sync",
 				f:    c.steamSync,
@@ -122,7 +122,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 }
 
 func (c *BootloadController) onFirstLaunch() bool {
-	if c.state.SteamInfo.Initialized {
+	if c.state.Device.Steam.Initialized {
 		// Infer the player's name from the Steam account info.
 		name := steamsdk.PlayerName()
 		name = gamedata.CleanUsername(name)
@@ -163,7 +163,7 @@ func (c *BootloadController) prepareBackground() {
 }
 
 func (c *BootloadController) steamSync(ctx *ge.Context, config *assets.Config, progress *float64) {
-	if !c.state.SteamInfo.Enabled {
+	if !c.state.Device.Steam.Enabled {
 		return
 	}
 

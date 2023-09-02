@@ -33,8 +33,7 @@ type State struct {
 	ServerHost     string
 	ServerPath     string
 
-	Device    userdevice.Info
-	SteamInfo userdevice.SteamInfo
+	Device userdevice.Info
 
 	CombinedInput      gameinput.Handler
 	KeyboardInput      gameinput.Handler
@@ -220,7 +219,7 @@ func (state *State) UnlockAchievement(a Achievement) bool {
 		stats.Achievements = append(stats.Achievements, a)
 	}
 
-	if state.SteamInfo.Initialized {
+	if state.Device.Steam.Initialized {
 		result := steamsdk.UnlockAchievement(a.Name)
 		state.Logf("setting %q steam achievement: %v", a.Name, result)
 	}

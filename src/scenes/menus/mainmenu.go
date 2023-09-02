@@ -95,7 +95,7 @@ func (c *MainMenuController) initUI() {
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	buildLabel := fmt.Sprintf("%s %d", d.Get("menu.main.build"), gamedata.BuildNumber)
-	if c.state.SteamInfo.Enabled {
+	if c.state.Device.Steam.Enabled {
 		buildLabel += " [Steam]"
 	}
 

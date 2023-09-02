@@ -192,6 +192,11 @@ func (c *creepNode) Init(scene *ge.Scene) {
 	}
 
 	c.health = c.maxHealth
+
+	switch c.stats.Kind {
+	case gamedata.CreepCrawler, gamedata.CreepHowitzer:
+		c.handleForestTransition(c.pos)
+	}
 }
 
 func (c *creepNode) updateHealthShader() {

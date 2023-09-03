@@ -93,6 +93,7 @@
 
 ##menu.tier : тир
 ##menu.back : Назад
+##menu.exit : Выйти
 ##menu.lobby_back : Назад в Меню
 
 ##menu.options.gameplay : Геймплей
@@ -100,6 +101,7 @@
 ##menu.options.graphics : Графика
 ##menu.options.extra : Дополнительно
 ##menu.options.controls : Управление
+##menu.options.continue : Продолжить
 
 ##menu.terminal : Терминал
 ##menu.terminal.command_output_label : Вывод команды

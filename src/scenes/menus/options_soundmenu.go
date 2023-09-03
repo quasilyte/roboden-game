@@ -13,10 +13,17 @@ type OptionsSoundMenuController struct {
 	state *session.State
 
 	scene *ge.Scene
+
+	backController ge.SceneController
 }
 
 func NewOptionsSoundMenuController(state *session.State) *OptionsSoundMenuController {
 	return &OptionsSoundMenuController{state: state}
+}
+
+func (c *OptionsSoundMenuController) WithBackController(controller ge.SceneController) *OptionsSoundMenuController {
+	c.backController = controller
+	return c
 }
 
 func (c *OptionsSoundMenuController) Init(scene *ge.Scene) {
@@ -93,5 +100,10 @@ func (c *OptionsSoundMenuController) initUI() {
 
 func (c *OptionsSoundMenuController) back() {
 	c.scene.Context().SaveGameData("save", c.state.Persistent)
+
+	if c.backController != nil {
+		c.scene.Context().ChangeScene(c.backController)
+		return
+	}
 	c.scene.Context().ChangeScene(NewOptionsController(c.state))
 }

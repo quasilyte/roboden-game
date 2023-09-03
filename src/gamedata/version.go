@@ -377,4 +377,9 @@ const SeasonNumber = 1
 // * Steam Deck:
 //   - Set the default gamepad layout to Steam Deck when running a game there
 //   - Like with other gamepads, [B] now goes back in the menus too
+//
+// # Version 17 (Steam update 3)
+//
+// * Balance:
+//   - Re-balance some creeps and costs in Reverse mode
 const BuildNumber int = 16

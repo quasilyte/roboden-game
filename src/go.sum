@@ -1,3 +1,5 @@
+github.com/cespare/subcmd v1.1.0 h1:r60BAqAKOGcBjxHmV9/WYvq5Qbp3xW9ByB+fRjtty9U=
+github.com/cespare/subcmd v1.1.0/go.mod h1:wnVjukiuhSlhZSgGHUilbkHykG7Oglb0sJXpUQ+MoUw=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/ebitengine/purego v0.3.2 h1:+pV+tskAkn/bxEcUzGtDfw2VAe3bRQ26kdzFjPPrCww=
 github.com/ebitengine/purego v0.3.2/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=

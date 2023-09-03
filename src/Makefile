@@ -1,6 +1,6 @@
 COMMIT_HASH=`git rev-parse HEAD`
 
-.PHONY: server runsim wasm itchio-wasm steam-release
+.PHONY: server serverutil runsim wasm itchio-wasm steam-release
 
 steam-release:
 	rm -rf ../steam_dist
@@ -20,6 +20,9 @@ steam-release:
 
 server:
 	go build -ldflags="-s -w -X 'main.CommitHash=$(COMMIT_HASH)'" -trimpath -o server ./cmd/server
+
+serverutil:
+	go build -ldflags="-s -w -X 'main.CommitHash=$(COMMIT_HASH)'" -trimpath -o serverutil ./cmd/serverutil
 
 runsim:
 	go build -ldflags="-s -w -X 'main.CommitHash=$(COMMIT_HASH)'" -trimpath -o runsim_x ./cmd/runsim

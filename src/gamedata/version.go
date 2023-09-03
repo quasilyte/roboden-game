@@ -380,6 +380,9 @@ const SeasonNumber = 1
 //
 // # Version 17 (Steam update 3)
 //
+// * Gameplay:
+//   - Colonies without workers can now create a free worker in some cases
+//
 // * Balance:
 //   - Re-balance some creeps and costs in Reverse mode
 //

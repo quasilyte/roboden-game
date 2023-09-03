@@ -100,10 +100,11 @@ type colonyCoreNode struct {
 	realRadius    float64
 	realRadiusSqr float64
 
-	upkeepDelay   float64
-	cloningDelay  float64
-	resourceDelay float64
-	captureDelay  float64
+	freeWorkerDelay float64
+	upkeepDelay     float64
+	cloningDelay    float64
+	resourceDelay   float64
+	captureDelay    float64
 
 	attackDelay float64
 
@@ -199,6 +200,8 @@ func (c *colonyCoreNode) addSpriteToStage(s *ge.Sprite) {
 
 func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.scene = scene
+
+	c.freeWorkerDelay = 10
 
 	c.agents = newColonyAgentContainer(scene.Rand())
 
@@ -537,6 +540,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 
 	c.captureDelay = gmath.ClampMin(c.captureDelay-delta, 0)
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
+	c.freeWorkerDelay = gmath.ClampMin(c.freeWorkerDelay-delta, 0)
 	c.resourceDelay = gmath.ClampMin(c.resourceDelay-delta, 0)
 	c.heavyDamageWarningCooldown = gmath.ClampMin(c.heavyDamageWarningCooldown-delta, 0)
 

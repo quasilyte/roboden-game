@@ -372,6 +372,15 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 }
 
 func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
+	if !p.colony.agents.hasGatherer && p.colony.resources < 10 && p.colony.freeWorkerDelay == 0 {
+		p.colony.freeWorkerDelay = 30
+		return colonyAction{
+			Kind:     actionProduceAgent,
+			Value:    gamedata.WorkerAgentStats,
+			TimeCost: 1.2,
+		}
+	}
+
 	if p.colony.captureDelay == 0 && p.colony.GetGrowthPriority() > 0.2 && p.colony.resources > 60 {
 		p.colony.captureDelay = p.world.rand.FloatRange(10, 20)
 		b := randIterate(p.world.rand, p.world.neutralBuildings, func(b *neutralBuildingNode) bool {

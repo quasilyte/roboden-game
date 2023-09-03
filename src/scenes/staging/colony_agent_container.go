@@ -61,6 +61,7 @@ type colonyAgentContainer struct {
 
 	sortTmp [3][]*colonyAgentNode
 
+	hasGatherer bool
 	hasRedMiner bool
 	hasCloner   bool
 	hasCourier  bool
@@ -84,6 +85,7 @@ func newColonyAgentContainer(rand *gmath.Rand) *colonyAgentContainer {
 func (c *colonyAgentContainer) Update() {
 	c.hasRedMiner = false
 	c.hasCloner = false
+	c.hasGatherer = false
 	c.servoNum = 0
 	c.tier2Num = 0
 	c.tier3Num = 0
@@ -92,6 +94,9 @@ func (c *colonyAgentContainer) Update() {
 	c.availableUniversal = c.availableUniversal[:0]
 
 	for _, a := range c.workers {
+		if a.stats.CanGather {
+			c.hasGatherer = true
+		}
 		if a.stats.Kind == gamedata.AgentServo {
 			c.servoNum++
 		}

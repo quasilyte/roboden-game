@@ -131,6 +131,7 @@ You can change this decision later.
 ##menu.option.very_hard : very hard
 ##menu.option.impossible : impossible
 ##menu.difficulty_score_despair : despair
+##menu.difficulty_score_ultimate_despair : ultimate despair
 
 ##menu.option.very_small : very small
 ##menu.option.small : small

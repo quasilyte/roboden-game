@@ -382,4 +382,7 @@ const SeasonNumber = 1
 //
 // * Balance:
 //   - Re-balance some creeps and costs in Reverse mode
+//
+// * Misc:
+//   - Mark 450%+ difficulty as Ultimate Despair
 const BuildNumber int = 16

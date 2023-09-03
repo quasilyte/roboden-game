@@ -700,8 +700,10 @@ func (c *LobbyMenuController) updateDifficultyScore(score int) {
 		tag = d.Get("menu.option.very_hard")
 	case score < 350:
 		tag = d.Get("menu.option.impossible")
-	default:
+	case score < 450:
 		tag = d.Get("menu.difficulty_score_despair")
+	default:
+		tag = d.Get("menu.difficulty_score_ultimate_despair")
 	}
 	c.difficultyLabel.Label = fmt.Sprintf("%s: %d%% (%s)", c.scene.Dict().Get("menu.lobby.tab.difficulty"), score, tag)
 }

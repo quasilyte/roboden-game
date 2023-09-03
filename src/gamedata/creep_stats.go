@@ -367,7 +367,7 @@ var CrawlerCreepStats = &CreepStats{
 		BurstSize:           2,
 		BurstDelay:          0.12,
 		AttackSound:         assets.AudioTankShot,
-		AttackRange:         170,
+		AttackRange:         160,
 		ImpactArea:          14,
 		ProjectileSpeed:     350,
 		Damage:              DamageValue{Health: 2},
@@ -631,7 +631,7 @@ var StunnerCreepStats = &CreepStats{
 	Image:       assets.ImageCreepTier2,
 	ShadowImage: assets.ImageMediumShadow,
 	Tier:        2,
-	Speed:       55,
+	Speed:       65,
 	MaxHealth:   35,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:  3,

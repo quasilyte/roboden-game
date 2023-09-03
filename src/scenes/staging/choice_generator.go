@@ -150,7 +150,7 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			stats:        gamedata.CrawlerCreepStats,
 		},
 		{
-			maxUnits:     11,
+			maxUnits:     12,
 			special:      specialBuyWanderers,
 			minTechLevel: 0,
 			stats:        gamedata.WandererCreepStats,
@@ -162,13 +162,13 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			stats:        gamedata.EliteCrawlerCreepStats,
 		},
 		{
-			maxUnits:     7,
+			maxUnits:     8,
 			special:      specialBuyStunners,
 			minTechLevel: 0.2,
 			stats:        gamedata.StunnerCreepStats,
 		},
 		{
-			maxUnits:     9,
+			maxUnits:     10,
 			special:      specialBuyStealthCrawlers,
 			minTechLevel: 0.3,
 			stats:        gamedata.StealthCrawlerCreepStats,
@@ -186,13 +186,13 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			stats:        gamedata.BuilderCreepStats,
 		},
 		{
-			maxUnits:     4,
+			maxUnits:     5,
 			special:      specialBuyTemplars,
 			minTechLevel: 0.5,
 			stats:        gamedata.TemplarCreepStats,
 		},
 		{
-			maxUnits:     4,
+			maxUnits:     5,
 			special:      specialBuyAssaults,
 			minTechLevel: 0.6,
 			stats:        gamedata.AssaultCreepStats,

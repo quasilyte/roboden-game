@@ -18,6 +18,7 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/quasilyte/roboden-game/serverapi"
+	"github.com/quasilyte/roboden-game/sqliteutil"
 )
 
 // apiServer is something that lives detached from the HTTP request serving
@@ -117,19 +118,8 @@ func (s *apiServer) Preload() error {
 }
 
 func (s *apiServer) InitDatabases() error {
-	sqliteConnect := func(dbPath string) (*sql.DB, error) {
-		conn, err := sql.Open("sqlite3", dbPath)
-		if err != nil {
-			return nil, fmt.Errorf("open %q: %w", dbPath, err)
-		}
-		if err := conn.Ping(); err != nil {
-			return nil, fmt.Errorf("ping %q: %w", dbPath, err)
-		}
-		return conn, nil
-	}
-
 	queueDBPath := filepath.Join(s.dataFolder, "queue.db")
-	queueConn, err := sqliteConnect(queueDBPath)
+	queueConn, err := sqliteutil.Connect(queueDBPath)
 	if err != nil {
 		return err
 	}
@@ -141,7 +131,7 @@ func (s *apiServer) InitDatabases() error {
 	for i := 0; i <= currentSeason; i++ {
 		dbFilename := fmt.Sprintf("season%d.db", i)
 		dbPath := filepath.Join(s.dataFolder, dbFilename)
-		conn, err := sqliteConnect(dbPath)
+		conn, err := sqliteutil.Connect(dbPath)
 		if err != nil {
 			return fmt.Errorf("season%d: %w", i, err)
 		}

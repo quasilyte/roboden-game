@@ -380,6 +380,9 @@ const SeasonNumber = 1
 //
 // # Version 17 (Steam update 3)
 //
+// * UX:
+//   - Show "game paused" message when the game is paused
+//
 // * Gameplay:
 //   - Colonies without workers can now create a free worker in some cases
 //

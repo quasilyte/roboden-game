@@ -510,12 +510,18 @@ A colony is under attack!
 ##game.notice.base_destroyed
 A colony has been destroyed!
 
-##game.exit.notice.keyboard
-Press the button again to quit.
-To resume the game, press SPACE.
+##game.pause.notice.keyboard
+Game paused
+[to resume the game, press SPACE]
+##game.pause.notice.gamepad
+Game paused
+[to resume the game, press $gamepad_start]
+##game.exit.notice.keyboar
+Press the button again to quit
+[to resume the game, press SPACE]
 ##game.exit.notice.gamepad
-Press the button again to quit.
-To resume the game, press START.
+Press the button again to quit
+[to resume the game, press $gamepad_start]
 
 ##game.wave : Wave
 ##game.wave_last : Survive to win

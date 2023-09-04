@@ -388,6 +388,7 @@ const SeasonNumber = 1
 //
 // * Balance:
 //   - Re-balance some creeps and costs in Reverse mode
+//   - Commander patrol radius is now lower, so its minions are not overshooting it
 //
 // * Misc:
 //   - Mark 450%+ difficulty as Ultimate Despair

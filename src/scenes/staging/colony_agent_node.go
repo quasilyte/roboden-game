@@ -444,6 +444,13 @@ func (a *colonyAgentNode) applyRankBonuses() {
 	}
 }
 
+func (a *colonyAgentNode) updatePatrolRadius() {
+	a.dist = a.colonyCore.PatrolRadius()
+	if a.stats == gamedata.CommanderAgentStats {
+		a.dist = gmath.ClampMin(a.dist-35, 50)
+	}
+}
+
 func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target any) bool {
 	if a.IsTurret() {
 		panic("assigning a mode to a turret")
@@ -458,7 +465,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModePatrol:
 		a.mode = mode
-		a.dist = a.colonyCore.PatrolRadius()
+		a.updatePatrolRadius()
 		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
 		a.waypointsLeft = a.scene.Rand().IntRange(40, 70)
 		return true
@@ -1764,7 +1771,7 @@ func (a *colonyAgentNode) updatePatrol(delta float64) {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
-		a.dist = a.colonyCore.PatrolRadius()
+		a.updatePatrolRadius()
 		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
 	}
 }

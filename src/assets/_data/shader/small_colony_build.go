@@ -22,10 +22,10 @@ func gridPattern(v, colorMult vec4, hash int, p, pixSize, originTexPos vec2) vec
 	return imageSrc0At(p/pixSize+originTexPos) * colorMult
 }
 
-func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
+func Fragment(position vec4, texCoord vec2, clr vec4) vec4 {
 	v := imageSrc0UnsafeAt(texCoord)
 	if v.a == 0 {
-		return v
+		return v * clr
 	}
 
 	pixSize := imageSrcTextureSize()
@@ -38,21 +38,21 @@ func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 
 	dist := distance(actualPixPos, vec2(32, initialY-offsetY))
 	if dist > (50.0 * (1.4 - Time)) {
-		return v
+		return v * clr
 	}
 	if dist > (44.0 * (1.4 - Time)) {
-		return gridPattern(v, vec4(1, 1.1, 1.3, 1.0), 15, actualPixPos, pixSize, originTexPos)
+		return gridPattern(v, vec4(1, 1.1, 1.3, 1.0), 15, actualPixPos, pixSize, originTexPos) * clr
 	}
 	if dist > (38.0 * (1.4 - Time)) {
-		return gridPattern(v, vec4(0.9, 1.2, 1.6, 1.0), 12, actualPixPos, pixSize, originTexPos)
+		return gridPattern(v, vec4(0.9, 1.2, 1.6, 1.0), 12, actualPixPos, pixSize, originTexPos) * clr
 	}
 	if dist > (32.0 * (1.4 - Time)) {
-		return gridPattern(v, vec4(0.8, 1.4, 2.0, 1.0), 8, actualPixPos, pixSize, originTexPos)
+		return gridPattern(v, vec4(0.8, 1.4, 2.0, 1.0), 8, actualPixPos, pixSize, originTexPos) * clr
 	}
 	if dist > (30.0 * (1.4 - Time)) {
 		v = gridPattern(v, vec4(0.7, 0.7, 0.7, 1.0), 7, actualPixPos, pixSize, originTexPos)
 		v.xyz *= 0.4
-		return v
+		return v * clr
 	}
 
 	return vec4(0, 0, 0, 0)

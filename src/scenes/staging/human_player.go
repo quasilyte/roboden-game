@@ -260,12 +260,6 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 		p.radar.Update(delta)
 	}
 
-	if p.inputHandled {
-		return
-	}
-	p.inputHandled = true
-	p.handleInput()
-
 	if p.state.selectedColony != nil {
 		flying := p.state.selectedColony.IsFlying()
 		p.colonySelector.Visible = !flying
@@ -273,6 +267,12 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 		p.colonyDestination.Visible = !p.state.selectedColony.relocationPoint.IsZero() &&
 			p.state.selectedColony.mode != colonyModeTeleporting
 	}
+
+	if p.inputHandled {
+		return
+	}
+	p.inputHandled = true
+	p.handleInput()
 }
 
 func (p *humanPlayer) handleInput() {

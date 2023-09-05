@@ -32,6 +32,7 @@ type worldState struct {
 
 	visionCircle *ebiten.Image
 
+	humanPlayers     []*humanPlayer
 	players          []player
 	allColonies      []*colonyCoreNode
 	essenceSources   []*essenceSourceNode

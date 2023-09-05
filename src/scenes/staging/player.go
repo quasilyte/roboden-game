@@ -10,7 +10,6 @@ import (
 type player interface {
 	Init()
 	Update(computedDelta, delta float64)
-	HandleInput()
 	GetState() *playerState
 }
 

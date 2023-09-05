@@ -30,11 +30,7 @@ func (p *replayPlayer) Init() {
 	}
 }
 
-func (p *replayPlayer) Update(computedDelta, delta float64) {}
-
-func (p *replayPlayer) GetState() *playerState { return p.state }
-
-func (p *replayPlayer) HandleInput() {
+func (p *replayPlayer) Update(computedDelta, delta float64) {
 	if p.world.nodeRunner.IsPaused() {
 		return
 	}
@@ -70,3 +66,5 @@ func (p *replayPlayer) HandleInput() {
 		}
 	}
 }
+
+func (p *replayPlayer) GetState() *playerState { return p.state }

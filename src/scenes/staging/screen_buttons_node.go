@@ -14,19 +14,22 @@ const (
 	screenButtonUnknown screenButtonKind = iota
 	screenButtonExit
 	screenButtonToggle
+	screenButtonFastForward
 )
 
 type screenButtonsNode struct {
-	toggleButtonRect gmath.Rect
-	exitButtonRect   gmath.Rect
+	toggleButtonRect      gmath.Rect
+	exitButtonRect        gmath.Rect
+	fastForwardButtonRect gmath.Rect
 
 	cam *viewport.Camera
 	pos gmath.Vec
 
 	dark bool
 
-	EventToggleButtonPressed gsignal.Event[gsignal.Void]
-	EventExitButtonPressed   gsignal.Event[gsignal.Void]
+	EventToggleButtonPressed      gsignal.Event[gsignal.Void]
+	EventExitButtonPressed        gsignal.Event[gsignal.Void]
+	EventFastForwardButtonPressed gsignal.Event[gsignal.Void]
 }
 
 func newScreenButtonsNode(cam *viewport.Camera, pos gmath.Vec, dark bool) *screenButtonsNode {
@@ -43,8 +46,11 @@ func (n *screenButtonsNode) Init(scene *ge.Scene) {
 	toggleButtonOffset := n.pos.Add(gmath.Vec{X: 12, Y: 24})
 	n.toggleButtonRect = gmath.Rect{Min: toggleButtonOffset, Max: toggleButtonOffset.Add(buttonSize)}
 
-	exitButtonOffset := n.pos.Add(gmath.Vec{X: 68, Y: 28})
+	exitButtonOffset := n.pos.Add(gmath.Vec{X: 68, Y: 24})
 	n.exitButtonRect = gmath.Rect{Min: exitButtonOffset, Max: exitButtonOffset.Add(buttonSize)}
+
+	fastForwardButtonOffset := n.pos.Add(gmath.Vec{X: 124, Y: 24})
+	n.fastForwardButtonRect = gmath.Rect{Min: fastForwardButtonOffset, Max: fastForwardButtonOffset.Add(buttonSize)}
 
 	img := assets.ImageRadarlessButtons
 	if n.dark {
@@ -63,6 +69,9 @@ func (n *screenButtonsNode) GetChoiceUnderCursor(pos gmath.Vec) screenButtonKind
 	if n.toggleButtonRect.Contains(pos) {
 		return screenButtonToggle
 	}
+	if n.fastForwardButtonRect.Contains(pos) {
+		return screenButtonFastForward
+	}
 	return screenButtonUnknown
 }
 
@@ -73,6 +82,10 @@ func (n *screenButtonsNode) HandleInput(clickPos gmath.Vec) bool {
 	}
 	if n.toggleButtonRect.Contains(clickPos) {
 		n.EventToggleButtonPressed.Emit(gsignal.Void{})
+		return true
+	}
+	if n.fastForwardButtonRect.Contains(clickPos) {
+		n.EventFastForwardButtonPressed.Emit(gsignal.Void{})
 		return true
 	}
 	return false

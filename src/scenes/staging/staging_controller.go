@@ -646,6 +646,7 @@ func (c *Controller) createPlayers() {
 					choiceGen:   choiceGen,
 					creepsState: creepsState,
 				})
+				c.world.humanPlayers = append(c.world.humanPlayers, human)
 
 				if i == 0 {
 					human.EventRecipesToggled.Connect(c, func(visible bool) {
@@ -660,6 +661,9 @@ func (c *Controller) createPlayers() {
 				})
 				human.EventExitPressed.Connect(c, func(gsignal.Void) {
 					c.onExitButtonClicked()
+				})
+				human.EventFastForwardPressed.Connect(c, func(gsignal.Void) {
+					c.onFastForwardPressed()
 				})
 				if human.CanPing() {
 					human.EventPing.Connect(c, func(pingPos gmath.Vec) {
@@ -696,6 +700,10 @@ func (c *Controller) createPlayers() {
 
 func (c *Controller) onVictoryTrigger(gsignal.Void) {
 	c.victory()
+}
+
+func (c *Controller) onFastForwardPressed() {
+	c.nodeRunner.ToggleFastForward()
 }
 
 func (c *Controller) onExitButtonClicked() {
@@ -1211,18 +1219,6 @@ func (c *Controller) victory() {
 	})
 }
 
-func (c *Controller) handleDemoInput() {
-	for _, p := range c.world.players {
-		p.HandleInput()
-	}
-}
-
-func (c *Controller) handleReplayActions() {
-	for _, p := range c.world.players {
-		p.HandleInput()
-	}
-}
-
 func (c *Controller) sharedActionIsJustPressed(a input.Action) bool {
 	if c.state.GetInput(0).ActionIsJustPressed(a) {
 		return true
@@ -1237,18 +1233,19 @@ func (c *Controller) sharedActionIsJustPressed(a input.Action) bool {
 
 func (c *Controller) handleInput() {
 	switch c.config.ExecMode {
-	case gamedata.ExecuteSimulation:
-		c.handleReplayActions()
-		return
-	case gamedata.ExecuteDemo:
-		c.handleDemoInput()
+	case gamedata.ExecuteSimulation, gamedata.ExecuteDemo:
 		return
 	case gamedata.ExecuteReplay:
-		c.handleReplayActions()
-		// And then do a some more common stuff and return from the function.
+		// It does some common stuff and returns from the function.
+	}
+
+	if c.sharedActionIsJustPressed(controls.ActionToggleFastForward) {
+		c.onFastForwardPressed()
+		return
 	}
 
 	if c.sharedActionIsJustPressed(controls.ActionPause) {
+		c.nodeRunner.SetFastForward(false)
 		c.onPausePressed()
 		return
 	}
@@ -1265,10 +1262,6 @@ func (c *Controller) handleInput() {
 
 	if c.config.ExecMode == gamedata.ExecuteReplay {
 		return
-	}
-
-	for _, p := range c.world.players {
-		p.HandleInput()
 	}
 
 	if c.tutorialManager != nil {
@@ -1392,8 +1385,6 @@ func (c *Controller) GetSessionState() *session.State {
 }
 
 func (c *Controller) Update(delta float64) {
-	computedDelta := c.nodeRunner.ComputeDelta(delta)
-
 	c.world.stage.Update()
 	c.camera.Update(delta)
 	if c.secondCamera != nil {
@@ -1403,7 +1394,6 @@ func (c *Controller) Update(delta float64) {
 		mm.Update(delta)
 	}
 	c.musicPlayer.Update(delta)
-	c.nodeRunner.Update(delta)
 
 	if !c.nodeRunner.IsPaused() {
 		if c.fogOfWar != nil {
@@ -1414,7 +1404,28 @@ func (c *Controller) Update(delta float64) {
 				c.updateFogOfWar(colony.pos)
 			}
 		}
+	}
 
+	c.handleInput()
+
+	for _, p := range c.world.humanPlayers {
+		p.BeforeUpdateStep()
+	}
+
+	computedDelta := c.nodeRunner.ComputeDelta(delta)
+	for i := 0; i < c.nodeRunner.NumSteps(); i++ {
+		c.runUpdateStep(computedDelta, delta)
+	}
+
+	if c.debugInfo != nil {
+		c.updateDebug(delta)
+	}
+}
+
+func (c *Controller) runUpdateStep(computedDelta, delta float64) {
+	c.nodeRunner.Update(delta)
+
+	if !c.nodeRunner.IsPaused() {
 		if !c.transitionQueued {
 			c.victoryCheckDelay = gmath.ClampMin(c.victoryCheckDelay-delta, 0)
 			if c.victoryCheckDelay == 0 {
@@ -1424,14 +1435,8 @@ func (c *Controller) Update(delta float64) {
 		}
 	}
 
-	c.handleInput()
-
 	for _, p := range c.world.players {
 		p.Update(computedDelta, delta)
-	}
-
-	if c.debugInfo != nil {
-		c.updateDebug(delta)
 	}
 }
 

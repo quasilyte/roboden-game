@@ -218,12 +218,11 @@ func (p *computerPlayer) Update(computedDelta, delta float64) {
 		c.factionDelay = gmath.ClampMin(c.factionDelay-computedDelta, 0)
 		c.specialDelay = gmath.ClampMin(c.specialDelay-computedDelta, 0)
 	}
+
+	p.handleInput()
 }
 
-func (p *computerPlayer) HandleInput() {
-	if p.world.nodeRunner.IsPaused() || len(p.state.colonies) == 0 {
-		return
-	}
+func (p *computerPlayer) handleInput() {
 	if p.actionDelay != 0 {
 		return
 	}
@@ -502,7 +501,7 @@ func (p *computerPlayer) maybeStartAttackingDreadnought(colony *computerColony) 
 	}
 
 	bossDanger, _ := p.calcPosDanger(p.world.boss.pos, 200)
-	bossDanger = int(float64(bossDanger) * p.world.rand.FloatRange(1.1, 1.55))
+	bossDanger = int(float64(bossDanger) * p.world.rand.FloatRange(1.15, 1.55))
 	if totalPower < bossDanger {
 		return false
 	}

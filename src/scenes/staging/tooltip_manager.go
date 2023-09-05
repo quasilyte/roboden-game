@@ -92,6 +92,8 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 			hint = d.Get("game.hint.screen_button.toggle")
 		case screenButtonExit:
 			hint = d.Get("game.hint.screen_button.exit")
+		case screenButtonFastForward:
+			hint = d.Get("game.hint.screen_button.fast_forward")
 		}
 		if hint != "" {
 			m.createTooltip(pos, hint)

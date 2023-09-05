@@ -16,6 +16,8 @@ type nodeRunner struct {
 	timePlayed float64
 	ticks      int
 
+	numSteps int
+
 	creepCoordinator *creepCoordinator
 
 	projectiles      []*projectileNode
@@ -31,6 +33,7 @@ func newNodeRunner(speedMultiplier float64) *nodeRunner {
 		objects:          make([]ge.SceneObject, 0, 512),
 		addedObjects:     make([]ge.SceneObject, 0, 32),
 		speedMultiplier:  speedMultiplier,
+		numSteps:         1,
 	}
 }
 
@@ -43,6 +46,22 @@ func (r *nodeRunner) SetPaused(paused bool) {
 		r.world.result.Paused = true
 	}
 	r.paused = paused
+}
+
+func (r *nodeRunner) ToggleFastForward() {
+	if r.numSteps == 1 {
+		r.numSteps = 2
+	} else {
+		r.numSteps = 1
+	}
+}
+
+func (r *nodeRunner) SetFastForward(ff bool) {
+	if ff {
+		r.numSteps = 2
+	} else {
+		r.numSteps = 1
+	}
 }
 
 func (r *nodeRunner) IsPaused() bool {
@@ -94,6 +113,10 @@ func (r *nodeRunner) runTick(computedDelta float64) {
 	r.objects = liveObjects
 	r.objects = append(r.objects, r.addedObjects...)
 	r.addedObjects = r.addedObjects[:0]
+}
+
+func (r *nodeRunner) NumSteps() int {
+	return r.numSteps
 }
 
 func (r *nodeRunner) Update(delta float64) {

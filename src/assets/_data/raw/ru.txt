@@ -455,6 +455,7 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.hint.building_status.functioning : Функционирует
 ##game.hint.screen_button.toggle : Переключить вид
 ##game.hint.screen_button.exit : Выйти
+##game.hint.screen_button.fast_forward : Переключить скорость
 ##game.hint.rpanel.garrison : Юниты в гарнизонах
 ##game.hint.rpanel.tech_progress_f : Технологический прогресс: %d%%
 ##game.hint.rpanel.priority_resources : Приоритет ресурсов

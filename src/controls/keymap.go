@@ -28,13 +28,13 @@ const (
 
 	ActionPause
 
-	ActionToggleColony
-
 	ActionPing
 
 	ActionShowRecipes
 
+	ActionToggleColony
 	ActionToggleInterface
+	ActionToggleFastForward
 
 	ActionClick
 
@@ -115,6 +115,8 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 		ActionPanDrag:  {input.KeyTouchDrag},
 
 		ActionToggleColony: {input.KeyTab},
+
+		ActionToggleFastForward: {input.KeyF},
 
 		ActionPing: {input.KeyWithModifier(input.KeyMouseLeft, input.ModControl)},
 

@@ -388,9 +388,10 @@ Move colony | RMB click on the destination
 Select colony | LMB click on the colony
 Toggle colony | TAB
 Action disk select | LMB click on the card, 1-5
-Pause | SPACE
+Pause | SPACE (also disables fast forward)
 Toggle evolution sheet | ALT
 Toggle user interface | F11
+Toggle fast forward | F
 Ping (Coop only) | CTRL + LMB click
 Exit/Back | ESC
 
@@ -400,7 +401,7 @@ Move colony | Right stick click on the destination
 Select colony | Right stick click on the colony
 Toggle colony | L1
 Action disk select | Right stick click on the disk, $gamepad_y $gamepad_b $gamepad_a $gamepad_x R1
-Pause | $gamepad_start
+Pause | $gamepad_start (also disables fast forward)
 Toggle evolution sheet | R2 button
 Toggle user interface | L2 button
 Ping (Coop only) | Left stick click
@@ -454,6 +455,7 @@ Split-screen multiplayer: competitive (PvP).
 ##game.hint.building_status.functioning : Functioning
 ##game.hint.screen_button.toggle : Toggle view
 ##game.hint.screen_button.exit : Exit
+##game.hint.screen_button.fast_forward : Toggle x2 speed
 ##game.hint.rpanel.garrison : Units in garrison
 ##game.hint.rpanel.tech_progress_f : Tech progress: %d%%
 ##game.hint.rpanel.priority_resources : Resources priority
@@ -516,7 +518,7 @@ Game paused
 ##game.pause.notice.gamepad
 Game paused
 [to resume the game, press $gamepad_start]
-##game.exit.notice.keyboar
+##game.exit.notice.keyboard
 Press the button again to quit
 [to resume the game, press SPACE]
 ##game.exit.notice.gamepad

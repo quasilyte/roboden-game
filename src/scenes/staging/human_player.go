@@ -42,13 +42,16 @@ type humanPlayer struct {
 
 	creepsState *creepsPlayerState
 
+	inputHandled bool
+
 	canPing   bool
 	pingDelay float64
 
-	EventRecipesToggled gsignal.Event[bool]
-	EventPauseRequest   gsignal.Event[gsignal.Void]
-	EventExitPressed    gsignal.Event[gsignal.Void]
-	EventPing           gsignal.Event[gmath.Vec]
+	EventRecipesToggled     gsignal.Event[bool]
+	EventPauseRequest       gsignal.Event[gsignal.Void]
+	EventExitPressed        gsignal.Event[gsignal.Void]
+	EventFastForwardPressed gsignal.Event[gsignal.Void]
+	EventPing               gsignal.Event[gmath.Vec]
 }
 
 type humanPlayerConfig struct {
@@ -188,6 +191,7 @@ func (p *humanPlayer) Init() {
 		p.screenButtons.Init(p.world.rootScene)
 		p.screenButtons.EventToggleButtonPressed.Connect(p, p.onToggleButtonClicked)
 		p.screenButtons.EventExitButtonPressed.Connect(p, p.onExitButtonClicked)
+		p.screenButtons.EventFastForwardButtonPressed.Connect(p, p.onFastForwardButtonClicked)
 	}
 
 	if p.creepsState != nil {
@@ -238,6 +242,10 @@ func (p *humanPlayer) IsDisposed() bool { return false }
 
 func (p *humanPlayer) GetState() *playerState { return p.state }
 
+func (p *humanPlayer) BeforeUpdateStep() {
+	p.inputHandled = false
+}
+
 func (p *humanPlayer) Update(computedDelta, delta float64) {
 	if p.choiceWindow != nil {
 		p.choiceWindow.Enabled = p.state.selectedColony != nil &&
@@ -248,6 +256,16 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 		p.pingDelay = gmath.ClampMin(p.pingDelay-delta, 0)
 	}
 
+	if p.radar != nil {
+		p.radar.Update(delta)
+	}
+
+	if p.inputHandled {
+		return
+	}
+	p.inputHandled = true
+	p.handleInput()
+
 	if p.state.selectedColony != nil {
 		flying := p.state.selectedColony.IsFlying()
 		p.colonySelector.Visible = !flying
@@ -255,13 +273,9 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 		p.colonyDestination.Visible = !p.state.selectedColony.relocationPoint.IsZero() &&
 			p.state.selectedColony.mode != colonyModeTeleporting
 	}
-
-	if p.radar != nil {
-		p.radar.Update(delta)
-	}
 }
 
-func (p *humanPlayer) HandleInput() {
+func (p *humanPlayer) handleInput() {
 	selectedColony := p.state.selectedColony
 
 	p.input.Update()
@@ -466,6 +480,10 @@ func (p *humanPlayer) makeDroneSelector() *ge.Sprite {
 	p.droneSelectors = append(p.droneSelectors, s)
 	p.state.camera.Private.AddGraphicsSlightlyAbove(s)
 	return s
+}
+
+func (p *humanPlayer) onFastForwardButtonClicked(gsignal.Void) {
+	p.EventFastForwardPressed.Emit(gsignal.Void{})
 }
 
 func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {

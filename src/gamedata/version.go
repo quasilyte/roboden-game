@@ -380,6 +380,9 @@ const SeasonNumber = 1
 //
 // # Version 17 (Steam update 3)
 //
+// * New features:
+//   - Added in-game "fast forward" option
+//
 // * UX:
 //   - Show "game paused" message when the game is paused
 //

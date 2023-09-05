@@ -6,7 +6,7 @@ func seasonByBuild(version int) int {
 	switch {
 	case version <= 13:
 		return 0
-	case version <= 16:
+	case version <= 17:
 		return 1
 	}
 

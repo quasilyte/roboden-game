@@ -395,4 +395,4 @@ const SeasonNumber = 1
 //
 // * Misc:
 //   - Mark 450%+ difficulty as Ultimate Despair
-const BuildNumber int = 16
+const BuildNumber int = 17

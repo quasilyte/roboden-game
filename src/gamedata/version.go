@@ -385,6 +385,7 @@ const SeasonNumber = 1
 //
 // * UX:
 //   - Show "game paused" message when the game is paused
+//   - Show screen button hotkeys in their tooltip
 //
 // * Gameplay:
 //   - Colonies without workers can now create a free worker in some cases

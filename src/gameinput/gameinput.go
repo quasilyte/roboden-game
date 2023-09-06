@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/quasilyte/ge/input"
+	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
 )
@@ -43,6 +44,39 @@ type Handler struct {
 	InputMethod PlayerInputMethod
 
 	EventGamepadDisconnected gsignal.Event[gsignal.Void]
+}
+
+func (h *Handler) PrettyActionName(d *langs.Dictionary, a input.Action) string {
+	var mask input.DeviceKind
+	switch h.InputMethod {
+	case InputMethodCombined:
+		if h.GamepadConnected() {
+			mask = input.GamepadDevice
+		} else {
+			mask = input.KeyboardDevice
+		}
+	case InputMethodKeyboard:
+		mask = input.KeyboardDevice
+	case InputMethodGamepad1, InputMethodGamepad2:
+		mask = input.GamepadDevice
+	}
+	names := h.ActionKeyNames(a, mask)
+	if len(names) == 0 {
+		return ""
+	}
+
+	n := names[0]
+	if pretty := getKeyName(h.layout, n); pretty != "" && pretty != n {
+		// A button with a well-known name or symbol (e.g. START, ESC).
+		// No extra translation is needed.
+		return pretty
+	}
+	if mask == input.KeyboardDevice {
+		// Most of the keyboard buttons can be spelled as is.
+		return strings.ToUpper(n)
+	}
+
+	return ""
 }
 
 func (h *Handler) ReplaceKeyNames(s string) string {

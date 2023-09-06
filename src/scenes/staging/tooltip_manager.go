@@ -7,8 +7,10 @@ import (
 	"strings"
 
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/ge/input"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
@@ -87,15 +89,23 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 	if m.player.screenButtons != nil {
 		button := m.player.screenButtons.GetChoiceUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
 		var hint string
+		var buttonAction input.Action
 		switch button {
 		case screenButtonToggle:
 			hint = d.Get("game.hint.screen_button.toggle")
+			buttonAction = controls.ActionToggleColony
 		case screenButtonExit:
 			hint = d.Get("game.hint.screen_button.exit")
+			buttonAction = controls.ActionBack
 		case screenButtonFastForward:
 			hint = d.Get("game.hint.screen_button.fast_forward")
+			buttonAction = controls.ActionToggleFastForward
 		}
 		if hint != "" {
+			keyHint := m.player.input.PrettyActionName(d, buttonAction)
+			if keyHint != "" {
+				hint += " [" + keyHint + "]"
+			}
 			m.createTooltip(pos, hint)
 			return
 		}

@@ -32,6 +32,13 @@ func getKeyName(layout GamepadLayoutKind, key string) string {
 		return gamepadStart[layout]
 	case "gamepad_back":
 		return gamepadBack[layout]
+
+	case "gamepad_l1":
+		return "L1"
+
+	case "escape":
+		return "ESC"
 	}
+
 	return ""
 }

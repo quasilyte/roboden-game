@@ -12,11 +12,10 @@ import (
 )
 
 type CursorNode struct {
-	sprite  *ge.Sprite
-	input   *gameinput.Handler
-	prevPos gmath.Vec
-	pos     gmath.Vec
-	rect    gmath.Rect
+	sprite *ge.Sprite
+	input  *gameinput.Handler
+	pos    gmath.Vec
+	rect   gmath.Rect
 
 	gamepad        bool
 	hoverTriggered bool
@@ -89,8 +88,11 @@ func (c *CursorNode) Update(delta float64) {
 		if !c.gamepad {
 			pos = c.input.CursorPos()
 		}
-		dist := pos.DistanceSquaredTo(c.prevPos)
-		if dist < 1 {
+		if c.hoverPos.IsZero() {
+			c.hoverPos = pos
+		}
+		dist := pos.DistanceSquaredTo(c.hoverPos)
+		if dist < (6 * 6) {
 			if !c.hoverTriggered {
 				c.stillTime += delta
 				if c.hoverPos.IsZero() && c.stillTime > 0.15 {
@@ -109,7 +111,6 @@ func (c *CursorNode) Update(delta float64) {
 			c.stillTime = 0
 			c.hoverPos = gmath.Vec{}
 		}
-		c.prevPos = pos
 	}
 
 	if c.gamepad {

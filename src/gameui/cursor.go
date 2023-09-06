@@ -55,6 +55,10 @@ func (c *CursorNode) ClickPos(action input.Action) (gmath.Vec, bool) {
 	return info.Pos, true
 }
 
+func (c *CursorNode) VirtualCursorIsVisible() bool {
+	return c.sprite.Visible
+}
+
 func (c *CursorNode) setPreferGamepad(gamepad bool) {
 	if c.input.CanHideMousePointer() {
 		c.gamepad = gamepad
@@ -85,14 +89,16 @@ func (c *CursorNode) Update(delta float64) {
 
 	if !c.EventHover.IsEmpty() {
 		pos := c.pos
+		maxDistSqr := 8.0 * 8.0
 		if !c.gamepad {
 			pos = c.input.CursorPos()
+			maxDistSqr = 6 * 6
 		}
 		if c.hoverPos.IsZero() {
 			c.hoverPos = pos
 		}
-		dist := pos.DistanceSquaredTo(c.hoverPos)
-		if dist < (6 * 6) {
+		distSqr := pos.DistanceSquaredTo(c.hoverPos)
+		if distSqr < maxDistSqr {
 			if !c.hoverTriggered {
 				c.stillTime += delta
 				if c.hoverPos.IsZero() && c.stillTime > 0.15 {

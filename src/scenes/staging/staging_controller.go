@@ -719,14 +719,15 @@ func (c *Controller) onExitButtonClicked() {
 
 	d := c.scene.Dict()
 	for _, p := range c.world.players {
-		if _, ok := p.(*humanPlayer); !ok {
+		human, ok := p.(*humanPlayer)
+		if !ok {
 			continue
 		}
 		pstate := p.GetState()
 		cam := pstate.camera
 		cam.UI.Visible = true
 		c.nodeRunner.SetPaused(true)
-		msg := cam.input.ReplaceKeyNames(d.Get("game.exit.notice", c.world.inputMode))
+		msg := cam.input.ReplaceKeyNames(d.Get("game.exit.notice", human.input.DetectInputMode()))
 		exitNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg)
 		c.exitNotices = append(c.exitNotices, exitNotice)
 		c.scene.AddObject(exitNotice)
@@ -1361,13 +1362,14 @@ func (c *Controller) onPausePressed() {
 	if paused {
 		d := c.scene.Dict()
 		for _, p := range c.world.players {
-			if _, ok := p.(*humanPlayer); !ok {
+			human, ok := p.(*humanPlayer)
+			if !ok {
 				continue
 			}
 			pstate := p.GetState()
 			cam := pstate.camera
 			cam.UI.Visible = true
-			msg := cam.input.ReplaceKeyNames(d.Get("game.pause.notice", c.world.inputMode))
+			msg := cam.input.ReplaceKeyNames(d.Get("game.pause.notice", human.input.DetectInputMode()))
 			pauseNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg)
 			c.pauseNotices = append(c.pauseNotices, pauseNotice)
 			c.scene.AddObject(pauseNotice)

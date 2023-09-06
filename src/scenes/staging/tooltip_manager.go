@@ -176,18 +176,27 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 	}
 }
 
+func (m *tooltipManager) inHoverRange(hoverPos, objectPos gmath.Vec, objectSize float64) bool {
+	multiplier := 1.0
+	if m.player.cursor.VirtualCursorIsVisible() {
+		multiplier = 1.2
+	}
+	maxDistSqr := (objectSize * objectSize) * multiplier
+	return objectPos.DistanceSquaredTo(hoverPos) < maxDistSqr
+}
+
 func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 	d := m.scene.Dict()
 
 	for _, g := range m.world.lavaGeysers {
-		if g.pos.DistanceSquaredTo(pos) > (26 * 26) {
+		if !m.inHoverRange(pos, g.pos, 26) {
 			continue
 		}
 		return d.Get("game.hint.lava_geyser")
 	}
 
 	for _, b := range m.world.neutralBuildings {
-		if b.pos.DistanceSquaredTo(pos) > (26 * 26) {
+		if !m.inHoverRange(pos, b.pos, 26) {
 			continue
 		}
 		status := "needs_repair"
@@ -207,7 +216,7 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 	}
 
 	for _, tp := range m.world.teleporters {
-		if tp.pos.DistanceSquaredTo(pos) > (26 * 26) {
+		if !m.inHoverRange(pos, tp.pos, 26) {
 			continue
 		}
 		label := "A"
@@ -218,24 +227,24 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 	}
 
 	for _, c := range m.player.state.colonies {
-		if c.pos.DistanceSquaredTo(pos) > (26 * 26) {
+		if !m.inHoverRange(pos, c.pos, 26) {
 			continue
 		}
 		return d.Get("game.hint.colony") + " " + strconv.Itoa(c.id)
 	}
 
-	if m.world.boss != nil && m.world.boss.pos.DistanceSquaredTo(pos) < (22*22) {
+	if m.world.boss != nil && m.inHoverRange(pos, m.world.boss.pos, 22) {
 		boss := m.world.boss
 		hpPercentage := boss.health / boss.maxHealth
 		return fmt.Sprintf("%s (%d%%)", d.Get("game.hint.dreadnought"), int(math.Round(100*hpPercentage)))
 	}
 
-	if m.world.wispLair != nil && m.world.wispLair.pos.DistanceSquaredTo(pos) < (22*22) {
+	if m.world.wispLair != nil && m.inHoverRange(pos, m.world.wispLair.pos, 22) {
 		return d.Get("game.hint.wisp_lair")
 	}
 
 	for _, res := range m.world.essenceSources {
-		if res.pos.DistanceSquaredTo(pos) > (16 * 16) {
+		if !m.inHoverRange(pos, res.pos, 18) {
 			continue
 		}
 		return d.Get("game.hint.resource", res.stats.name) + "\n" + d.Get("game.hint.resource", res.stats.name, "value")

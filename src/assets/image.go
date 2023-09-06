@@ -50,7 +50,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageDenShadow:      {Path: "image/shadows/den_shadow.png"},
 		ImageArkShadow:      {Path: "image/shadows/ark_shadow.png"},
 
-		ImageCursor: {Path: "image/cursor.png"},
+		ImageCursor:         {Path: "image/cursor.png"},
+		ImageCapturedCursor: {Path: "image/captured_cursor.png"},
 
 		ImageRadarlessButtons:     {Path: "image/ui/radarless_buttons.png"},
 		ImageDarkRadarlessButtons: {Path: "image/ui/dark_radarless_buttons.png"},
@@ -451,6 +452,7 @@ const (
 	ImageBigShadow
 
 	ImageCursor
+	ImageCapturedCursor
 
 	ImageRadarlessButtons
 	ImageDarkRadarlessButtons

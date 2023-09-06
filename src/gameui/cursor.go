@@ -40,6 +40,11 @@ func (c *CursorNode) Init(scene *ge.Scene) {
 	c.sprite.Pos.Base = &c.pos
 	c.sprite.Visible = false
 	scene.AddGraphicsAbove(c.sprite, 1)
+
+	switch c.input.InputMethod {
+	case gameinput.InputMethodGamepad1, gameinput.InputMethodGamepad2:
+		c.gamepad = true
+	}
 }
 
 func (c *CursorNode) IsDisposed() bool { return false }
@@ -60,25 +65,20 @@ func (c *CursorNode) VirtualCursorIsVisible() bool {
 }
 
 func (c *CursorNode) setPreferGamepad(gamepad bool) {
-	if c.input.CanHideMousePointer() {
-		c.gamepad = gamepad
-		c.sprite.Visible = gamepad
-		if gamepad {
-			ebiten.SetCursorMode(ebiten.CursorModeHidden)
-			c.prevMousePos = c.input.CursorPos()
-			c.pos = c.prevMousePos
-		} else {
-			ebiten.SetCursorMode(ebiten.CursorModeVisible)
-		}
+	c.gamepad = gamepad
+	c.sprite.Visible = gamepad
+	if gamepad {
+		ebiten.SetCursorMode(ebiten.CursorModeHidden)
+		c.prevMousePos = c.input.CursorPos()
+		c.pos = c.prevMousePos
 	} else {
-		c.gamepad = gamepad
-		c.sprite.Visible = true
+		ebiten.SetCursorMode(ebiten.CursorModeVisible)
 	}
 }
 
 func (c *CursorNode) Update(delta float64) {
 	if info, ok := c.input.PressedActionInfo(controls.ActionMoveCursor); ok {
-		if !c.gamepad {
+		if !c.gamepad && c.input.CanHideMousePointer() {
 			c.setPreferGamepad(true)
 		}
 		c.sprite.Visible = true
@@ -119,7 +119,7 @@ func (c *CursorNode) Update(delta float64) {
 		}
 	}
 
-	if c.gamepad {
+	if c.gamepad && c.input.CanHideMousePointer() {
 		if c.input.CursorPos().DistanceSquaredTo(c.prevMousePos) > 10 {
 			c.setPreferGamepad(false)
 		}

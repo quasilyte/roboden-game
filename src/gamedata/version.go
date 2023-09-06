@@ -397,4 +397,7 @@ const SeasonNumber = 1
 //
 // * Misc:
 //   - Mark 450%+ difficulty as Ultimate Despair
+//
+// * Bug fixes:
+//   - Fix conflicting gamepad & mouse tooltips when playing in a split-screen mode
 const BuildNumber int = 17

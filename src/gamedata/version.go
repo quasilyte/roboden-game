@@ -395,6 +395,9 @@ const SeasonNumber = 1
 //   - Re-balance some creeps and costs in Reverse mode
 //   - Commander patrol radius is now lower, so its minions are not overshooting it
 //
+// * Visuals:
+//   - Reworker Disintegrator projectile sprite a bit
+//
 // * Misc:
 //   - Mark 450%+ difficulty as Ultimate Despair
 //

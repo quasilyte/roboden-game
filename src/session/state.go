@@ -278,11 +278,13 @@ func (state *State) FindNextReplayIndex() int {
 			return i
 		}
 		var r SavedReplay
-		if err := state.Context.LoadGameData(k, &r); err != nil {
-			if minIndex == 0 || r.Date.Before(minDate) {
-				minDate = r.Date
-				minIndex = i
-			}
+		err := state.Context.LoadGameData(k, &r)
+		if err != nil {
+			return i
+		}
+		if minIndex == 0 || r.Date.Before(minDate) {
+			minDate = r.Date
+			minIndex = i
 		}
 	}
 	if minIndex != 0 {

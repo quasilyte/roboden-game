@@ -398,6 +398,9 @@ const SeasonNumber = 1
 // * Misc:
 //   - Mark 450%+ difficulty as Ultimate Despair
 //
+// * Replays:
+//   - Improved the replay save slot auto-selection
+//
 // * Bug fixes:
 //   - Fix conflicting gamepad & mouse tooltips when playing in a split-screen mode
 const BuildNumber int = 17

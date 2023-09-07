@@ -31,10 +31,6 @@ func (p *replayPlayer) Init() {
 }
 
 func (p *replayPlayer) Update(computedDelta, delta float64) {
-	if p.world.nodeRunner.IsPaused() {
-		return
-	}
-
 	for len(p.state.replay) > 0 {
 		a := p.state.replay[0]
 		if p.world.nodeRunner.ticks > a.Tick {
@@ -56,9 +52,9 @@ func (p *replayPlayer) Update(computedDelta, delta float64) {
 
 		ok := false
 		if a.Kind == serverapi.ActionMove {
-			ok = p.choiceGen.TryExecute(-1, gmath.Vec{X: a.Pos[0], Y: a.Pos[1]})
+			ok = p.choiceGen.TryExecute(p.state.selectedColony, -1, gmath.Vec{X: a.Pos[0], Y: a.Pos[1]})
 		} else {
-			ok = p.choiceGen.TryExecute(int(a.Kind)-1, gmath.Vec{})
+			ok = p.choiceGen.TryExecute(p.state.selectedColony, int(a.Kind)-1, gmath.Vec{})
 		}
 		if !ok {
 			fmt.Println("fail at", a.Tick, time.Second*time.Duration(p.world.nodeRunner.timePlayed), "player=", p.state.id)

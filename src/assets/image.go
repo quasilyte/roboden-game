@@ -82,6 +82,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageFloppyGrayFlip:   {Path: "image/ui/floppy_gray_flip.png", FrameWidth: 86},
 		ImageFloppyDarkFlip:   {Path: "image/ui/floppy_dark_flip.png", FrameWidth: 86},
 
+		ImageFloppyHighlight: {Path: "image/ui/floppy_highlight.png"},
+
 		ImageAttackDirections: {Path: "image/ui/attack_directions.png", FrameWidth: 30},
 
 		ImageActionBuildColony:    {Path: "image/ui/action_build_colony.png"},
@@ -550,6 +552,8 @@ const (
 	ImageFloppyBlueFlip
 	ImageFloppyGrayFlip
 	ImageFloppyDarkFlip
+
+	ImageFloppyHighlight
 
 	ImageAttackDirections
 

@@ -282,9 +282,16 @@ func (w *choiceWindowNode) GetChoiceUnderCursor(pos gmath.Vec) *choiceOptionSlot
 	return nil
 }
 
-func (w *choiceWindowNode) HandleInput() int {
+func (w *choiceWindowNode) rectOffset(rect gmath.Rect) gmath.Vec {
+	return gmath.Vec{
+		X: rect.Width() * 0.5,
+		Y: rect.Height() * 0.5,
+	}
+}
+
+func (w *choiceWindowNode) HandleInput() (int, ge.Pos) {
 	if w.charging {
-		return -1
+		return -1, ge.Pos{}
 	}
 
 	if pos, ok := w.cursor.ClickPos(controls.ActionClick); ok {
@@ -294,7 +301,7 @@ func (w *choiceWindowNode) HandleInput() int {
 				continue
 			}
 			if choice.rect.Contains(pos) {
-				return i
+				return i, ge.Pos{Base: &choice.rect.Min, Offset: w.rectOffset(choice.rect)}
 			}
 		}
 	}
@@ -311,9 +318,9 @@ func (w *choiceWindowNode) HandleInput() int {
 			continue
 		}
 		if w.input.ActionIsJustPressed(a) {
-			return i
+			return i, ge.Pos{Base: &w.choices[i].rect.Min, Offset: w.rectOffset(w.choices[i].rect)}
 		}
 	}
 
-	return -1
+	return -1, ge.Pos{}
 }

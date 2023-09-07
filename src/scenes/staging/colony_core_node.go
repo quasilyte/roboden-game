@@ -75,8 +75,9 @@ type colonyCoreNode struct {
 
 	mode colonyCoreMode
 
-	waypoint        gmath.Vec
-	relocationPoint gmath.Vec
+	waypoint               gmath.Vec
+	relocationPoint        gmath.Vec
+	plannedRelocationPoint gmath.Vec
 
 	path pathing.GridPath
 

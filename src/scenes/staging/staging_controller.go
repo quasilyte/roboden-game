@@ -758,8 +758,7 @@ func (c *Controller) hasTeleportersAt(pos gmath.Vec) bool {
 }
 
 func (c *Controller) executeAction(choice selectedChoice) bool {
-	pstate := choice.Player.GetState()
-	selectedColony := pstate.selectedColony
+	selectedColony := choice.Colony
 
 	if choice.Option.special == specialChoiceNone {
 		switch choice.Faction {
@@ -984,7 +983,7 @@ func (c *Controller) playPlayerSound(p player, sound resource.AudioID) {
 
 func (c *Controller) saveExecutedAction(choice selectedChoice) {
 	pstate := choice.Player.GetState()
-	selectedColony := pstate.selectedColony
+	selectedColony := choice.Colony
 	kind := serverapi.PlayerActionKind(choice.Index + 1)
 	if choice.Option.special == specialChoiceMoveColony {
 		kind = serverapi.ActionMove
@@ -1400,7 +1399,7 @@ func (c *Controller) Update(delta float64) {
 	if !c.nodeRunner.IsPaused() {
 		if c.fogOfWar != nil {
 			for _, colony := range c.world.allColonies {
-				if !colony.IsFlying() {
+				if colony.mode != colonyModeRelocating {
 					continue
 				}
 				c.updateFogOfWar(colony.pos)
@@ -1411,12 +1410,16 @@ func (c *Controller) Update(delta float64) {
 	c.handleInput()
 
 	for _, p := range c.world.humanPlayers {
-		p.BeforeUpdateStep()
+		p.BeforeUpdateStep(delta)
 	}
-
-	computedDelta := c.nodeRunner.ComputeDelta(delta)
-	for i := 0; i < c.nodeRunner.NumSteps(); i++ {
-		c.runUpdateStep(computedDelta, delta)
+	if !c.nodeRunner.IsPaused() {
+		computedDelta := c.nodeRunner.ComputeDelta(delta)
+		for i := 0; i < c.nodeRunner.NumSteps(); i++ {
+			c.runUpdateStep(computedDelta, delta)
+		}
+	}
+	for _, p := range c.world.humanPlayers {
+		p.AfterUpdateStep()
 	}
 
 	if c.debugInfo != nil {
@@ -1427,13 +1430,11 @@ func (c *Controller) Update(delta float64) {
 func (c *Controller) runUpdateStep(computedDelta, delta float64) {
 	c.nodeRunner.Update(delta)
 
-	if !c.nodeRunner.IsPaused() {
-		if !c.transitionQueued {
-			c.victoryCheckDelay = gmath.ClampMin(c.victoryCheckDelay-delta, 0)
-			if c.victoryCheckDelay == 0 {
-				c.victoryCheckDelay = c.scene.Rand().FloatRange(2.0, 3.5)
-				c.checkVictory()
-			}
+	if !c.transitionQueued {
+		c.victoryCheckDelay = gmath.ClampMin(c.victoryCheckDelay-delta, 0)
+		if c.victoryCheckDelay == 0 {
+			c.victoryCheckDelay = c.scene.Rand().FloatRange(2.0, 3.5)
+			c.checkVictory()
 		}
 	}
 

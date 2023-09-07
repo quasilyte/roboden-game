@@ -40,9 +40,11 @@ type humanPlayer struct {
 	droneSelectorsUsed int
 	droneSelectors     []*ge.Sprite
 
-	creepsState *creepsPlayerState
+	choiceCardColony   *colonyCoreNode
+	choiceCardIndex    int
+	choiceCardHighligh *ge.Sprite
 
-	inputHandled bool
+	creepsState *creepsPlayerState
 
 	canPing   bool
 	pingDelay float64
@@ -68,14 +70,15 @@ func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
 		config.world.config.PlayersMode == serverapi.PmodeTwoPlayers &&
 		config.world.config.ExecMode == gamedata.ExecuteNormal
 	p := &humanPlayer{
-		world:       config.world,
-		state:       config.state,
-		scene:       config.world.rootScene,
-		choiceGen:   config.choiceGen,
-		input:       config.input,
-		cursor:      config.cursor,
-		creepsState: config.creepsState,
-		canPing:     canPing,
+		world:           config.world,
+		state:           config.state,
+		scene:           config.world.rootScene,
+		choiceGen:       config.choiceGen,
+		input:           config.input,
+		cursor:          config.cursor,
+		creepsState:     config.creepsState,
+		canPing:         canPing,
+		choiceCardIndex: -1,
 	}
 	return p
 }
@@ -139,6 +142,13 @@ func (p *humanPlayer) Init() {
 		} else {
 			p.state.camera.Private.AddGraphics(p.colonyDestination)
 		}
+	}
+
+	{
+		choiceCardHighligh := p.scene.NewSprite(assets.ImageFloppyHighlight)
+		choiceCardHighligh.Visible = false
+		p.choiceCardHighligh = choiceCardHighligh
+		p.state.camera.UI.AddGraphics(choiceCardHighligh)
 	}
 
 	p.state.Init(p.world)
@@ -242,8 +252,37 @@ func (p *humanPlayer) IsDisposed() bool { return false }
 
 func (p *humanPlayer) GetState() *playerState { return p.state }
 
-func (p *humanPlayer) BeforeUpdateStep() {
-	p.inputHandled = false
+func (p *humanPlayer) AfterUpdateStep() {
+	if p.state.selectedColony != nil {
+		flying := p.state.selectedColony.IsFlying()
+		p.colonySelector.Visible = !flying
+		p.flyingColonySelector.Visible = flying
+		p.updateWaypointLine()
+	}
+}
+
+func (p *humanPlayer) BeforeUpdateStep(delta float64) {
+	// This method is called even if the game is paused.
+	//
+	// When input is being handled here, the player doesn't directly execute the actions
+	// right away; instead, they're recorded until the non-paused Update() frame comes.
+	//
+	// It allows the player to queue actions while on pause.
+	// It also allows the game to execute the actions inside the Update() loop as
+	// opposed to an out-of-place execution right during the pause.
+
+	if p.world.nodeRunner.IsPaused() {
+		p.choiceCardHighligh.Visible = p.choiceCardColony == p.state.selectedColony &&
+			p.choiceCardIndex != -1
+	} else {
+		p.choiceCardHighligh.Visible = false
+	}
+
+	if p.canPing {
+		p.pingDelay = gmath.ClampMin(p.pingDelay-delta, 0)
+	}
+
+	p.handleInput()
 }
 
 func (p *humanPlayer) Update(computedDelta, delta float64) {
@@ -252,31 +291,45 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 			p.state.selectedColony.mode == colonyModeNormal
 	}
 
-	if p.canPing {
-		p.pingDelay = gmath.ClampMin(p.pingDelay-delta, 0)
-	}
-
 	if p.radar != nil {
 		p.radar.Update(delta)
 	}
 
-	if p.state.selectedColony != nil {
-		flying := p.state.selectedColony.IsFlying()
-		p.colonySelector.Visible = !flying
-		p.flyingColonySelector.Visible = flying
-		p.updateWaypointLine()
+	if p.choiceCardIndex != -1 {
+		if !p.choiceGen.TryExecute(p.choiceCardColony, p.choiceCardIndex, gmath.Vec{}) {
+			p.scene.Audio().PlaySound(assets.AudioError)
+		}
+		p.choiceCardIndex = -1
+		p.choiceCardColony = nil
 	}
 
-	if p.inputHandled {
-		return
+	for _, colony := range p.state.colonies {
+		if colony.plannedRelocationPoint.IsZero() {
+			continue
+		}
+		pos := colony.plannedRelocationPoint
+		colony.plannedRelocationPoint = gmath.Vec{}
+		if !p.choiceGen.TryExecute(colony, -1, pos) {
+			p.scene.Audio().PlaySound(assets.AudioError)
+		}
 	}
-	p.inputHandled = true
-	p.handleInput()
 }
 
 func (p *humanPlayer) updateWaypointLine() {
-	p.colonyDestination.Visible = !p.state.selectedColony.relocationPoint.IsZero() &&
-		p.state.selectedColony.mode != colonyModeTeleporting
+	colony := p.state.selectedColony
+	if p.world.nodeRunner.IsPaused() {
+		dstPos := &colony.relocationPoint
+		if dstPos.IsZero() {
+			dstPos = &colony.plannedRelocationPoint
+		}
+		p.colonyDestination.EndPos.Base = dstPos
+		p.colonyDestination.Visible = !dstPos.IsZero() &&
+			colony.mode != colonyModeTeleporting
+	} else {
+		p.colonyDestination.EndPos.Base = &colony.relocationPoint
+		p.colonyDestination.Visible = !colony.relocationPoint.IsZero() &&
+			colony.mode != colonyModeTeleporting
+	}
 }
 
 func (p *humanPlayer) handleInput() {
@@ -284,6 +337,7 @@ func (p *humanPlayer) handleInput() {
 
 	p.input.Update()
 
+	// Pinging is OK even during the pause.
 	if p.canPing && p.pingDelay == 0 {
 		if clickPos, ok := p.cursor.ClickPos(controls.ActionPing); ok {
 			p.pingDelay = 5.0
@@ -293,6 +347,7 @@ func (p *humanPlayer) handleInput() {
 		}
 	}
 
+	// Recipe tab toggle is OK during the pause.
 	if p.recipeTab != nil {
 		if p.input.ActionIsJustPressed(controls.ActionShowRecipes) {
 			p.recipeTab.Visible = !p.recipeTab.Visible
@@ -300,11 +355,13 @@ func (p *humanPlayer) handleInput() {
 		}
 	}
 
+	// Colony view toggle is OK during the pause.
 	if p.input.ActionIsJustPressed(controls.ActionToggleColony) {
 		p.onToggleButtonClicked(gsignal.Void{})
 		return
 	}
 
+	// Interface on/off toggle is OK during the pause.
 	if p.input.ActionIsJustPressed(controls.ActionToggleInterface) {
 		p.state.camera.UI.Visible = !p.state.camera.UI.Visible
 		if p.screenSeparator != nil {
@@ -312,15 +369,23 @@ func (p *humanPlayer) handleInput() {
 		}
 	}
 
+	// Card choice is not executed right away. We just remember the index that was selected.
 	if (selectedColony != nil || p.creepsState != nil) && p.choiceWindow != nil && p.state.camera.UI.Visible {
-		if cardIndex := p.choiceWindow.HandleInput(); cardIndex != -1 {
-			if !p.choiceGen.TryExecute(cardIndex, gmath.Vec{}) {
-				p.scene.Audio().PlaySound(assets.AudioError)
+		cardIndex, cardPos := p.choiceWindow.HandleInput()
+		if cardIndex != -1 {
+			if p.choiceCardIndex != cardIndex || selectedColony != p.choiceCardColony {
+				p.choiceCardIndex = cardIndex
+				p.choiceCardColony = selectedColony
+				p.choiceCardHighligh.Pos = cardPos
+			} else {
+				p.choiceCardIndex = -1
+				p.choiceCardColony = nil
 			}
 			return
 		}
 	}
 
+	// Selecting a colony by clicking on it is OK during the pause.
 	handledClick := false
 	clickPos, hasClick := p.cursor.ClickPos(controls.ActionClick)
 	if len(p.state.colonies) > 1 {
@@ -355,6 +420,7 @@ func (p *humanPlayer) handleInput() {
 		return
 	}
 
+	// Centering the camera on some spot is OK during the pause.
 	if p.radar != nil {
 		requestedCameraPos, ok := p.radar.ResolveClick(clickPos)
 		if ok {
@@ -363,21 +429,22 @@ func (p *humanPlayer) handleInput() {
 		}
 	}
 
+	// Screen buttons (toggle view, exit, fast forward) are OK during the pause.
 	if p.screenButtons != nil && p.state.camera.UI.Visible {
 		if p.screenButtons.HandleInput(clickPos) {
 			return
 		}
 	}
 
-	if selectedColony != nil && p.world.movementEnabled {
+	if selectedColony != nil && selectedColony.relocationPoint.IsZero() && selectedColony.mode == colonyModeNormal {
 		if pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice); ok {
 			globalClickPos := p.state.camera.AbsClickPos(pos)
 			if globalClickPos.DistanceTo(selectedColony.pos) > 28 {
-				if !p.choiceGen.TryExecute(-1, globalClickPos) {
-					p.scene.Audio().PlaySound(assets.AudioError)
-				}
-				return
+				selectedColony.plannedRelocationPoint = globalClickPos
+			} else {
+				selectedColony.plannedRelocationPoint = gmath.Vec{}
 			}
+			return
 		}
 	}
 }
@@ -447,7 +514,6 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	p.colonySelector.Pos.Base = &p.state.selectedColony.pos
 	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.pos
 	p.colonyDestination.BeginPos.Base = &p.state.selectedColony.pos
-	p.colonyDestination.EndPos.Base = &p.state.selectedColony.relocationPoint
 	p.updateWaypointLine()
 }
 

@@ -198,7 +198,7 @@ func (p *computerPlayer) GetState() *playerState { return p.state }
 func (p *computerPlayer) IsDisposed() bool { return false }
 
 func (p *computerPlayer) Update(computedDelta, delta float64) {
-	if p.world.nodeRunner.IsPaused() || len(p.state.colonies) == 0 {
+	if len(p.state.colonies) == 0 {
 		return
 	}
 
@@ -1233,11 +1233,7 @@ func (p *computerPlayer) executeMoveAction(colony *colonyCoreNode, pos gmath.Vec
 }
 
 func (p *computerPlayer) tryExecuteAction(colony *colonyCoreNode, cardIndex int, pos gmath.Vec) bool {
-	prevSelected := p.state.selectedColony
-	p.state.selectedColony = colony
-	result := p.choiceGen.TryExecute(cardIndex, pos)
-	p.state.selectedColony = prevSelected
-	return result
+	return p.choiceGen.TryExecute(colony, cardIndex, pos)
 }
 
 func (p *computerPlayer) calcPosDangerWithHazards(pos gmath.Vec, r float64) (int, gmath.Vec) {

@@ -52,6 +52,7 @@ type selectedChoice struct {
 	Option   choiceOption
 	Pos      gmath.Vec
 	Player   player
+	Colony   *colonyCoreNode
 }
 
 type choiceOption struct {
@@ -379,22 +380,23 @@ func (g *choiceGenerator) Update(delta float64) {
 	}
 }
 
-func (g *choiceGenerator) TryExecute(cardIndex int, pos gmath.Vec) bool {
+func (g *choiceGenerator) TryExecute(colony *colonyCoreNode, cardIndex int, pos gmath.Vec) bool {
 	if g.creepsState != nil {
-		return g.activateChoice(cardIndex)
+		return g.activateChoice(colony, cardIndex)
 	}
 
-	if g.player.GetState().selectedColony.mode != colonyModeNormal {
+	if colony.mode != colonyModeNormal {
 		return false
 	}
 	if cardIndex != -1 {
-		return g.activateChoice(cardIndex)
+		return g.activateChoice(colony, cardIndex)
 	}
-	return g.activateMoveChoice(pos)
+	return g.activateMoveChoice(colony, pos)
 }
 
-func (g *choiceGenerator) activateMoveChoice(pos gmath.Vec) bool {
+func (g *choiceGenerator) activateMoveChoice(colony *colonyCoreNode, pos gmath.Vec) bool {
 	g.EventChoiceSelected.Emit(selectedChoice{
+		Colony: colony,
 		Index:  -1,
 		Option: choiceOption{special: specialChoiceMoveColony},
 		Pos:    pos,
@@ -403,12 +405,13 @@ func (g *choiceGenerator) activateMoveChoice(pos gmath.Vec) bool {
 	return true
 }
 
-func (g *choiceGenerator) activateChoice(i int) bool {
+func (g *choiceGenerator) activateChoice(colony *colonyCoreNode, i int) bool {
 	if g.state != choiceReady {
 		return false
 	}
 
 	choice := selectedChoice{
+		Colony:  colony,
 		Faction: gamedata.FactionTag(i + 1),
 		Index:   i,
 		Player:  g.player,

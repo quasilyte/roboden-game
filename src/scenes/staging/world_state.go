@@ -67,8 +67,6 @@ type worldState struct {
 	hasForests           bool
 	droneLabels          bool
 	debugLogs            bool
-	evolutionEnabled     bool
-	movementEnabled      bool
 	cameraShakingEnabled bool
 	screenButtonsEnabled bool
 
@@ -231,8 +229,6 @@ func (w *worldState) Init() {
 	}
 
 	w.projectilePool = make([]*projectileNode, 0, 128)
-	w.evolutionEnabled = true
-	w.movementEnabled = true
 	w.simulation = w.config.ExecMode == gamedata.ExecuteSimulation
 
 	factions := []gamedata.FactionTag{

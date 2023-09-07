@@ -264,8 +264,7 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 		flying := p.state.selectedColony.IsFlying()
 		p.colonySelector.Visible = !flying
 		p.flyingColonySelector.Visible = flying
-		p.colonyDestination.Visible = !p.state.selectedColony.relocationPoint.IsZero() &&
-			p.state.selectedColony.mode != colonyModeTeleporting
+		p.updateWaypointLine()
 	}
 
 	if p.inputHandled {
@@ -273,6 +272,11 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 	}
 	p.inputHandled = true
 	p.handleInput()
+}
+
+func (p *humanPlayer) updateWaypointLine() {
+	p.colonyDestination.Visible = !p.state.selectedColony.relocationPoint.IsZero() &&
+		p.state.selectedColony.mode != colonyModeTeleporting
 }
 
 func (p *humanPlayer) handleInput() {
@@ -444,6 +448,7 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.pos
 	p.colonyDestination.BeginPos.Base = &p.state.selectedColony.pos
 	p.colonyDestination.EndPos.Base = &p.state.selectedColony.relocationPoint
+	p.updateWaypointLine()
 }
 
 func (p *humanPlayer) highlightDrones(droneStats *gamedata.AgentStats) {

@@ -408,4 +408,5 @@ const SeasonNumber = 1
 // * Bug fixes:
 //   - Fix conflicting gamepad & mouse tooltips when playing in a split-screen mode
 //   - Fixed fog of war with Bastion bases
+//   - Harvester no longer collects sulfur
 const BuildNumber int = 17

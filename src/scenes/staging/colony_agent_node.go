@@ -2128,7 +2128,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 	var closestSpot gmath.Vec
 	closestDistSqr := math.MaxFloat64
 	randIterate(a.world().rand, a.world().essenceSources, func(e *essenceSourceNode) bool {
-		if e.stats.scrap || !e.stats.canDeplete || e.stats == redCrystalSource || e.beingHarvested {
+		if !e.stats.harvesterTarget || e.beingHarvested {
 			return false
 		}
 		coord := a.world().pathgrid.PosToCoord(e.pos)

@@ -1524,6 +1524,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 			if c.specialModifier > 0 {
 				spawnPos := c.crawlerSpawnPos()
 				var crawlerStats *gamedata.CreepStats
+				superChance := c.world.SuperCrawlerChance()
 				if c.world.seedKind == gamedata.SeedLeet {
 					crawlerStats = gamedata.StealthCrawlerCreepStats
 				} else {
@@ -1538,7 +1539,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 					}
 				}
 				crawler := c.world.NewCreepNode(spawnPos, crawlerStats)
-				crawler.super = c.super && c.world.rand.Chance(0.5)
+				crawler.super = superChance != 0 && c.world.rand.Chance(superChance)
 				crawler.path = crawlerSpawnPositions[int(c.specialModifier-1)]
 				crawler.waypoint = crawler.pos
 				c.world.nodeRunner.AddObject(crawler)

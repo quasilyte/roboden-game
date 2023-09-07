@@ -489,7 +489,7 @@ var StealthCrawlerCreepStats = &CreepStats{
 	Kind:      CreepCrawler,
 	Image:     assets.ImageStealthCrawlerCreep,
 	AnimSpeed: 0.09,
-	Speed:     50,
+	Speed:     70,
 	MaxHealth: 25,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          1,

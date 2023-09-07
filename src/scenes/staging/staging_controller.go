@@ -954,7 +954,7 @@ func (c *Controller) doBossAttack() bool {
 		return false
 	}
 	dir := closestColony.pos.Add(c.world.rand.Offset(-60, 60)).DirectionTo(c.world.boss.pos)
-	targetPos := dir.Mulf(c.world.rand.FloatRange(300, 500)).Add(c.world.boss.pos)
+	targetPos := dir.Mulf(c.world.rand.FloatRange(340, 520)).Add(c.world.boss.pos)
 	c.world.boss.waypoint = targetPos
 	return true
 }

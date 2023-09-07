@@ -406,6 +406,16 @@ func (w *worldState) NewConstructionNode(p player, pos gmath.Vec, stats *constru
 	return n
 }
 
+func (w *worldState) SuperCrawlerChance() float64 {
+	if w.creepsPlayerState != nil {
+		return gmath.Clamp(w.creepsPlayerState.techLevel-0.2, 0, 1)
+	}
+	if w.boss != nil && w.boss.super {
+		return 0.5
+	}
+	return 0
+}
+
 func (w *worldState) EliteCrawlerChance() float64 {
 	if w.creepsPlayerState != nil {
 		return gmath.ClampMax(w.creepsPlayerState.techLevel+0.2, 1.0)

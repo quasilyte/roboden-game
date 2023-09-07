@@ -46,10 +46,10 @@ func (n *screenButtonsNode) Init(scene *ge.Scene) {
 	toggleButtonOffset := n.pos.Add(gmath.Vec{X: 12, Y: 24})
 	n.toggleButtonRect = gmath.Rect{Min: toggleButtonOffset, Max: toggleButtonOffset.Add(buttonSize)}
 
-	exitButtonOffset := n.pos.Add(gmath.Vec{X: 68, Y: 24})
+	exitButtonOffset := n.pos.Add(gmath.Vec{X: 124, Y: 24})
 	n.exitButtonRect = gmath.Rect{Min: exitButtonOffset, Max: exitButtonOffset.Add(buttonSize)}
 
-	fastForwardButtonOffset := n.pos.Add(gmath.Vec{X: 124, Y: 24})
+	fastForwardButtonOffset := n.pos.Add(gmath.Vec{X: 68, Y: 24})
 	n.fastForwardButtonRect = gmath.Rect{Min: fastForwardButtonOffset, Max: fastForwardButtonOffset.Add(buttonSize)}
 
 	img := assets.ImageRadarlessButtons

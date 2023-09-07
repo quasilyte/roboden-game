@@ -400,10 +400,12 @@ const SeasonNumber = 1
 //
 // * Misc:
 //   - Mark 450%+ difficulty as Ultimate Despair
+//   - Reworked on-pause orders
 //
 // * Replays:
 //   - Improved the replay save slot auto-selection
 //
 // * Bug fixes:
 //   - Fix conflicting gamepad & mouse tooltips when playing in a split-screen mode
+//   - Fixed fog of war with Bastion bases
 const BuildNumber int = 17

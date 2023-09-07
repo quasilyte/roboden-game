@@ -145,7 +145,7 @@ var TankCoreStats = &ColonyCoreStats{
 
 	DefaultHeight: 0,
 
-	Speed:             28,
+	Speed:             32,
 	JumpDist:          550,
 	DroneLimit:        40,
 	DroneLimitScaling: 0.7,

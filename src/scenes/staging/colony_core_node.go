@@ -620,11 +620,9 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 			Image: assets.ImageTeleportEffectBig,
 		})
 
-		c.mode = colonyModeNormal
 		c.unmarkCells(c.pos)
 		c.pos = relocationPoint
 		c.drawOrder = c.pos.Y
-		c.markCells(c.pos)
 		c.stopTeleportationEffect()
 
 		createEffect(c.world, effectConfig{
@@ -638,6 +636,10 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 		if needToMove {
 			wp := gmath.RandElem(c.world.rand, tankColonyTeleportOffsets).Add(c.pos)
 			c.sendTo(wp)
+			c.mode = colonyModeRelocating
+		} else {
+			c.markCells(c.pos)
+			c.mode = colonyModeNormal
 		}
 	}
 }

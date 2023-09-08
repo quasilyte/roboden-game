@@ -583,6 +583,7 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 		}
 		targetVelocity := target.GetVelocity()
 		j := 0
+		seq := uint8(0)
 		attacksPerBurst := weapon.AttacksPerBurst
 		for i := 0; i < burstSize; i += attacksPerBurst {
 			if i+attacksPerBurst > burstSize {
@@ -598,6 +599,7 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 				toPos := snipePos(weapon.ProjectileSpeed, c.pos, burstCorrectedPos, targetVelocity)
 				fireDelay := float64(j) * burstDelay
 				p := c.world.newProjectileNode(projectileConfig{
+					Seq:       seq,
 					World:     c.world,
 					Weapon:    weapon,
 					Attacker:  c,
@@ -606,6 +608,7 @@ func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
 					FireDelay: fireDelay,
 				})
 				c.world.nodeRunner.AddProjectile(p)
+				seq++
 			}
 			j++
 		}

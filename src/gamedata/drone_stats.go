@@ -1025,7 +1025,7 @@ var AntiAirAgentStats = InitDroneStats(&AgentStats{
 		ArcPower:                  2,
 		Accuracy:                  0.9,
 		TargetFlags:               TargetFlying,
-		FireOffset:                gmath.Vec{Y: -8},
+		FireOffsets:               []gmath.Vec{{Y: -8}},
 	}),
 })
 

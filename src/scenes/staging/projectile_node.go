@@ -29,6 +29,7 @@ type projectileNode struct {
 	arcFrom               gmath.Vec
 	arcTo                 gmath.Vec
 
+	seq      uint8
 	guided   bool
 	disposed bool
 	sprite   *ge.Sprite
@@ -58,6 +59,7 @@ type projectileConfig struct {
 	Target     targetable
 	FireDelay  float64
 	FireOffset gmath.Vec
+	Seq        uint8
 	Guided     bool
 }
 
@@ -65,12 +67,24 @@ func initProjectileNode(p *projectileNode, config projectileConfig) {
 	*p = projectileNode{
 		weapon:    config.Weapon,
 		attacker:  config.Attacker,
-		pos:       config.Attacker.GetPos().Add(config.Weapon.FireOffset).Add(config.FireOffset),
 		toPos:     config.ToPos,
 		target:    config.Target,
 		fireDelay: config.FireDelay,
 		world:     config.World,
 		guided:    config.Guided,
+		seq:       config.Seq,
+	}
+	p.pos = config.Attacker.GetPos().Add(p.calcOffset()).Add(config.FireOffset)
+}
+
+func (p *projectileNode) calcOffset() gmath.Vec {
+	switch len(p.weapon.FireOffsets) {
+	case 0:
+		return gmath.Vec{}
+	case 1:
+		return p.weapon.FireOffsets[0]
+	default:
+		return p.weapon.FireOffsets[int(p.seq)%len(p.weapon.FireOffsets)]
 	}
 }
 
@@ -171,7 +185,7 @@ func (p *projectileNode) Update(delta float64) {
 		p.fireDelay -= delta
 		if p.fireDelay <= 0 {
 			p.setSpriteVisibility(true)
-			p.pos = p.attacker.GetPos().Add(p.weapon.FireOffset)
+			p.pos = p.attacker.GetPos().Add(p.calcOffset())
 			p.arcStart = p.pos
 			if p.weapon.ProjectileFireSound {
 				p.playFireSound()
@@ -328,6 +342,10 @@ func (p *projectileNode) createExplosion() {
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionGreenZap:
 		effect := newEffectNode(p.world, explosionPos, layer, assets.ImageGreenZap)
+		p.world.nodeRunner.AddObject(effect)
+		effect.anim.SetSecondsPerFrame(0.035)
+	case gamedata.ProjectileExplosionPurpleZap:
+		effect := newEffectNode(p.world, explosionPos, layer, assets.ImagePurpleZap)
 		p.world.nodeRunner.AddObject(effect)
 		effect.anim.SetSecondsPerFrame(0.035)
 	case gamedata.ProjectileExplosionScoutIon:

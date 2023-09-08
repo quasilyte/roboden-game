@@ -49,7 +49,7 @@ type WeaponStats struct {
 	Reload                    float64
 	EnergyCost                float64
 	AttackSound               resource.AudioID
-	FireOffset                gmath.Vec
+	FireOffsets               []gmath.Vec
 	ArcPower                  float64
 	Accuracy                  float64
 	TargetFlags               TargetKind
@@ -99,6 +99,7 @@ const (
 	ProjectileExplosionCripplerBlaster
 	ProjectileExplosionStealthLaser
 	ProjectileExplosionGreenZap
+	ProjectileExplosionPurpleZap
 	ProjectileExplosionRoombaShot
 	ProjectileExplosionScarab
 	ProjectileExplosionServant

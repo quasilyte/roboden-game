@@ -67,7 +67,7 @@ var GunpointAgentStats = InitDroneStats(&AgentStats{
 		BurstSize:       3,
 		BurstDelay:      0.1,
 		TargetFlags:     TargetGround,
-		FireOffset:      gmath.Vec{Y: 6},
+		FireOffsets:     []gmath.Vec{{Y: 6}},
 	}),
 })
 

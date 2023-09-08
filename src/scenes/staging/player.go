@@ -29,6 +29,8 @@ type playerState struct {
 
 	replay []serverapi.PlayerAction
 
+	messageManager *messageManager
+
 	camera *cameraManager
 
 	hasRoombas bool

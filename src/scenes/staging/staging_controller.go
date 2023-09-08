@@ -52,7 +52,6 @@ type Controller struct {
 	secondCamera *cameraManager
 
 	tutorialManager *tutorialManager
-	messageManagers []*messageManager
 
 	arenaManager *arenaManager
 	nodeRunner   *nodeRunner
@@ -61,8 +60,6 @@ type Controller struct {
 	debugUpdateDelay float64
 
 	replayActions [][]serverapi.PlayerAction
-
-	// rects []*ge.Rect
 
 	EventBeforeLeaveScene gsignal.Event[gsignal.Void]
 }
@@ -73,12 +70,11 @@ func NewController(state *session.State, config gamedata.LevelConfig, back ge.Sc
 		numScreens = 2
 	}
 	return &Controller{
-		state:           state,
-		backController:  back,
-		config:          config,
-		exitNotices:     make([]*messageNode, 0, numScreens),
-		pauseNotices:    make([]*messageNode, 0, numScreens),
-		messageManagers: make([]*messageManager, 0, numScreens),
+		state:          state,
+		backController: back,
+		config:         config,
+		exitNotices:    make([]*messageNode, 0, numScreens),
+		pauseNotices:   make([]*messageNode, 0, numScreens),
 	}
 }
 
@@ -464,7 +460,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 				if center.DistanceTo(colony.pos) < 300 {
 					return
 				}
-				c.messageManagers[colony.player.GetState().id].AddMessage(queuedMessageInfo{
+				colony.player.GetState().messageManager.AddMessage(queuedMessageInfo{
 					text:          scene.Dict().Get("game.notice.base_destroyed"),
 					timer:         8,
 					targetPos:     ge.Pos{Offset: *colony.GetPos()},
@@ -477,7 +473,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 				if center.DistanceTo(colony.pos) < 250 {
 					return
 				}
-				c.messageManagers[colony.player.GetState().id].AddMessage(queuedMessageInfo{
+				colony.player.GetState().messageManager.AddMessage(queuedMessageInfo{
 					text:          scene.Dict().Get("game.notice.base_under_attack"),
 					trackedObject: colony,
 					timer:         8,
@@ -500,10 +496,6 @@ func (c *Controller) doInit(scene *ge.Scene) {
 
 	c.createPlayers()
 
-	for _, cam := range c.world.cameras {
-		c.messageManagers = append(c.messageManagers, newMessageManager(c.world, cam))
-	}
-
 	{
 		g := newLevelGenerator(scene, bg, c.world)
 		g.Generate()
@@ -518,17 +510,18 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	}
 
 	if c.world.config.GameMode == gamedata.ModeTutorial {
-		c.tutorialManager = newTutorialManager(c.state.GetInput(0), c.world, c.messageManagers[0])
+		p := c.world.players[0].(*humanPlayer)
+		c.tutorialManager = newTutorialManager(c.state.GetInput(0), c.world, p.GetState().messageManager)
 		c.nodeRunner.AddObject(c.tutorialManager)
 		c.tutorialManager.EventTriggerVictory.Connect(c, c.onVictoryTrigger)
 		c.tutorialManager.EventEnableChoices.Connect(c, func(gsignal.Void) {
-			c.world.players[0].(*humanPlayer).CreateChoiceWindow(true)
+			p.CreateChoiceWindow(true)
 		})
 		c.tutorialManager.EventEnableSpecialChoices.Connect(c, func(gsignal.Void) {
-			c.world.players[0].(*humanPlayer).EnableSpecialChoices()
+			p.EnableSpecialChoices()
 		})
 		c.tutorialManager.EventForceSpecialChoice.Connect(c, func(kind specialChoiceKind) {
-			c.world.players[0].(*humanPlayer).ForceSpecialChoice(kind)
+			p.ForceSpecialChoice(kind)
 		})
 	}
 
@@ -634,6 +627,7 @@ func (c *Controller) createPlayers() {
 					c.secondCamera = c.createCameraManager(c.camera.World, false, playerInput)
 					pstate.camera = c.secondCamera
 				}
+				pstate.messageManager = newMessageManager(c.world, pstate.camera.Camera)
 				cursorRect := pstate.camera.Rect
 				cursorRect.Min = cursorRect.Min.Add(pstate.camera.ScreenPos)
 				cursorRect.Max = cursorRect.Max.Add(pstate.camera.ScreenPos)
@@ -669,7 +663,7 @@ func (c *Controller) createPlayers() {
 					human.EventPing.Connect(c, func(pingPos gmath.Vec) {
 						c.scene.Audio().PlaySound(assets.AudioPing)
 						dst := c.world.GetPingDst(human)
-						c.messageManagers[dst.GetState().id].AddMessage(queuedMessageInfo{
+						dst.GetState().messageManager.AddMessage(queuedMessageInfo{
 							text:          c.scene.Dict().Get("game.notice.ping"),
 							timer:         5,
 							targetPos:     ge.Pos{Offset: pingPos},
@@ -1390,9 +1384,6 @@ func (c *Controller) Update(delta float64) {
 	c.camera.Update(delta)
 	if c.secondCamera != nil {
 		c.secondCamera.Update(delta)
-	}
-	for _, mm := range c.messageManagers {
-		mm.Update(delta)
 	}
 	c.musicPlayer.Update(delta)
 

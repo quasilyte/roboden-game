@@ -271,6 +271,8 @@ func (p *humanPlayer) BeforeUpdateStep(delta float64) {
 	// It also allows the game to execute the actions inside the Update() loop as
 	// opposed to an out-of-place execution right during the pause.
 
+	p.state.messageManager.Update(delta)
+
 	if p.world.nodeRunner.IsPaused() {
 		p.choiceCardHighligh.Visible = p.choiceCardColony == p.state.selectedColony &&
 			p.choiceCardIndex != -1

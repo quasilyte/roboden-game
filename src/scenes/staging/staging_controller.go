@@ -925,7 +925,7 @@ func (c *Controller) doRally() bool {
 		return false
 	}
 	c.scene.Audio().PlaySound(assets.AudioWaveStart)
-	c.world.creepCoordinator.Rally(c.world.boss.pos)
+	c.world.creepCoordinator.Rally(c.world.boss.pos, 500)
 	return true
 }
 

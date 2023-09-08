@@ -194,9 +194,9 @@ func (p *humanPlayer) Init() {
 		}
 		if p.creepsState != nil {
 			p.world.EventCenturionCreated.Connect(p, func(centurion *creepNode) {
-				p.radar.AddCenturion(&centurion.pos)
+				p.radar.AddCenturion(centurion)
 				centurion.EventDestroyed.Connect(p, func(centurion *creepNode) {
-					p.radar.RemoveCenturion(&centurion.pos)
+					p.radar.RemoveCenturion(centurion)
 				})
 			})
 		}

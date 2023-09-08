@@ -14,16 +14,6 @@ type radarSpot struct {
 	sprite *ge.Sprite
 }
 
-type radarColonySpot struct {
-	colony *colonyCoreNode
-	spot   *ge.Sprite
-}
-
-type radarTurretSpot struct {
-	turret *colonyAgentNode
-	spot   *ge.Sprite
-}
-
 type radarNode struct {
 	sprite *ge.Sprite
 	wave   *ge.Sprite
@@ -43,8 +33,8 @@ type radarNode struct {
 	bossPath *ge.Line
 
 	cameraRect     *ge.Rect
-	colonies       []radarColonySpot
-	turrets        []radarTurretSpot
+	colonies       []radarSpot
+	turrets        []radarSpot
 	centurionSpots []radarSpot
 
 	minimapRect gmath.Rect
@@ -64,50 +54,38 @@ func newRadarNode(world *worldState, p *humanPlayer, dark bool) *radarNode {
 	}
 }
 
-func (r *radarNode) RemoveCenturion(pos *gmath.Vec) {
-	index := xslices.IndexWhere(r.centurionSpots, func(elem radarSpot) bool {
+func (r *radarNode) removeSpot(slice *[]radarSpot, pos *gmath.Vec) {
+	index := xslices.IndexWhere(*slice, func(elem radarSpot) bool {
 		return elem.pos == pos
 	})
 	if index == -1 {
 		return
 	}
-	spot := r.centurionSpots[index]
+	spot := (*slice)[index]
 	spot.sprite.Dispose()
-	r.centurionSpots = xslices.RemoveAt(r.centurionSpots, index)
+	(*slice) = xslices.RemoveAt(*slice, index)
+}
+
+func (r *radarNode) RemoveCenturion(creep *creepNode) {
+	r.removeSpot(&r.centurionSpots, &creep.pos)
 }
 
 func (r *radarNode) RemoveColony(colony *colonyCoreNode) {
-	index := xslices.IndexWhere(r.colonies, func(elem radarColonySpot) bool {
-		return elem.colony == colony
-	})
-	if index == -1 {
-		return
-	}
-	c := r.colonies[index]
-	c.spot.Dispose()
-	r.colonies = xslices.RemoveAt(r.colonies, index)
+	r.removeSpot(&r.colonies, &colony.pos)
 }
 
 func (r *radarNode) RemoveTurret(turret *colonyAgentNode) {
-	index := xslices.IndexWhere(r.turrets, func(elem radarTurretSpot) bool {
-		return elem.turret == turret
-	})
-	if index == -1 {
-		return
-	}
-	t := r.turrets[index]
-	t.spot.Dispose()
-	r.turrets = xslices.RemoveAt(r.turrets, index)
+	r.removeSpot(&r.turrets, &turret.pos)
 }
 
-func (r *radarNode) AddCenturion(pos *gmath.Vec) {
+func (r *radarNode) AddCenturion(creep *creepNode) {
 	sprite := r.scene.NewSprite(assets.ImageRadarMiniAlliedSpot)
 	sprite.Pos.Base = &r.pos
 	r.updateDarkCenturions()
 	r.player.state.camera.UI.AddGraphics(sprite)
 
 	r.centurionSpots = append(r.centurionSpots, radarSpot{
-		pos:    pos,
+		pos:    &creep.pos,
 		sprite: sprite,
 	})
 }
@@ -118,9 +96,9 @@ func (r *radarNode) AddTurret(turret *colonyAgentNode) {
 	r.updateDarkTurrets()
 	r.player.state.camera.UI.AddGraphics(spot)
 
-	r.turrets = append(r.turrets, radarTurretSpot{
-		turret: turret,
-		spot:   spot,
+	r.turrets = append(r.turrets, radarSpot{
+		pos:    &turret.pos,
+		sprite: spot,
 	})
 }
 
@@ -130,9 +108,9 @@ func (r *radarNode) AddColony(colony *colonyCoreNode) {
 	r.updateDarkColonies()
 	r.player.state.camera.UI.AddGraphics(spot)
 
-	r.colonies = append(r.colonies, radarColonySpot{
-		colony: colony,
-		spot:   spot,
+	r.colonies = append(r.colonies, radarSpot{
+		pos:    &colony.pos,
+		sprite: spot,
 	})
 }
 
@@ -252,14 +230,14 @@ func (r *radarNode) translatePosToOffset(pos gmath.Vec) gmath.Vec {
 }
 
 func (r *radarNode) updateDarkColonies() {
-	for _, c := range r.colonies {
-		c.spot.Pos.Offset = r.translatePosToOffset(c.colony.pos)
+	for _, spot := range r.colonies {
+		spot.sprite.Pos.Offset = r.translatePosToOffset(*spot.pos)
 	}
 }
 
 func (r *radarNode) updateDarkTurrets() {
-	for _, t := range r.turrets {
-		t.spot.Pos.Offset = r.translatePosToOffset(t.turret.pos)
+	for _, spot := range r.turrets {
+		spot.sprite.Pos.Offset = r.translatePosToOffset(*spot.pos)
 	}
 }
 

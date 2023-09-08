@@ -233,10 +233,15 @@ func (r *radarNode) updateDarkTurrets() {
 	}
 }
 
-func (r *radarNode) updateDark() {
+func (r *radarNode) UpdateCamera() {
+	if !r.dark {
+		return
+	}
 	cameraOffset := r.player.state.camera.CenterPos()
 	r.cameraRect.Pos.Offset = r.translatePosToOffset(cameraOffset)
+}
 
+func (r *radarNode) updateDark() {
 	if r.world.boss != nil {
 		r.bossSpot.Pos.Offset = r.translatePosToOffset(r.world.boss.pos)
 	} else {

@@ -9,6 +9,11 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 )
 
+type radarSpot struct {
+	pos    *gmath.Vec
+	sprite *ge.Sprite
+}
+
 type radarColonySpot struct {
 	colony *colonyCoreNode
 	spot   *ge.Sprite
@@ -37,9 +42,10 @@ type radarNode struct {
 	bossSpot *ge.Sprite
 	bossPath *ge.Line
 
-	cameraRect *ge.Rect
-	colonies   []radarColonySpot
-	turrets    []radarTurretSpot
+	cameraRect     *ge.Rect
+	colonies       []radarColonySpot
+	turrets        []radarTurretSpot
+	centurionSpots []radarSpot
 
 	minimapRect gmath.Rect
 	pos         gmath.Vec
@@ -56,6 +62,18 @@ func newRadarNode(world *worldState, p *humanPlayer, dark bool) *radarNode {
 		player:   p,
 		dark:     dark,
 	}
+}
+
+func (r *radarNode) RemoveCenturion(pos *gmath.Vec) {
+	index := xslices.IndexWhere(r.centurionSpots, func(elem radarSpot) bool {
+		return elem.pos == pos
+	})
+	if index == -1 {
+		return
+	}
+	spot := r.centurionSpots[index]
+	spot.sprite.Dispose()
+	r.centurionSpots = xslices.RemoveAt(r.centurionSpots, index)
 }
 
 func (r *radarNode) RemoveColony(colony *colonyCoreNode) {
@@ -80,6 +98,18 @@ func (r *radarNode) RemoveTurret(turret *colonyAgentNode) {
 	t := r.turrets[index]
 	t.spot.Dispose()
 	r.turrets = xslices.RemoveAt(r.turrets, index)
+}
+
+func (r *radarNode) AddCenturion(pos *gmath.Vec) {
+	sprite := r.scene.NewSprite(assets.ImageRadarMiniAlliedSpot)
+	sprite.Pos.Base = &r.pos
+	r.updateDarkCenturions()
+	r.player.state.camera.UI.AddGraphics(sprite)
+
+	r.centurionSpots = append(r.centurionSpots, radarSpot{
+		pos:    pos,
+		sprite: sprite,
+	})
 }
 
 func (r *radarNode) AddTurret(turret *colonyAgentNode) {
@@ -233,6 +263,14 @@ func (r *radarNode) updateDarkTurrets() {
 	}
 }
 
+func (r *radarNode) updateDarkCenturions() {
+	for _, spot := range r.centurionSpots {
+		pos := *spot.pos
+		spot.sprite.Pos.Offset = r.translatePosToOffset(pos)
+		spot.sprite.Visible = r.world.rect.Contains(pos)
+	}
+}
+
 func (r *radarNode) UpdateCamera() {
 	if !r.dark {
 		return
@@ -250,9 +288,7 @@ func (r *radarNode) updateDark() {
 
 	r.updateDarkColonies()
 	r.updateDarkTurrets()
-	for _, t := range r.turrets {
-		t.spot.Pos.Offset = r.translatePosToOffset(t.turret.pos)
-	}
+	r.updateDarkCenturions()
 }
 
 func (r *radarNode) update(delta float64) {

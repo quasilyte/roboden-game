@@ -167,6 +167,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 			c.sprite.Shader.SetFloatValue("HP", 1.0)
 			c.sprite.Shader.Enabled = false
 		}
+		c.world.centurionRallyPointPtr = &c.pos
 	case gamedata.CreepFortress:
 		c.specialDelay = c.scene.Rand().FloatRange(3.5*60, 4.5*60)
 	case gamedata.CreepWispLair:
@@ -292,6 +293,8 @@ func (c *creepNode) Update(delta float64) {
 		c.updateFortress(delta)
 	case gamedata.CreepTemplar:
 		c.updateTemplar(delta)
+	case gamedata.CreepCenturion:
+		c.updateCenturion(delta)
 	default:
 		panic("unexpected creep kind in update()")
 	}
@@ -1332,6 +1335,40 @@ func (c *creepNode) updateTemplar(delta float64) {
 			c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
 		} else {
 			c.specialDelay = c.world.rand.FloatRange(3, 10)
+		}
+	}
+}
+
+func (c *creepNode) updateCenturion(delta float64) {
+	if c.anim != nil {
+		c.anim.Tick(delta)
+	}
+
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
+	// It regenerates 1 health over 5 seconds (*0.2).
+	// 12 hp over minute.
+	c.health = gmath.ClampMax(c.health+(delta*0.2), c.maxHealth)
+
+	if c.world.boss == nil {
+		c.wandererMovement(delta)
+		return
+	}
+
+	if c.specialDelay != 0 {
+		return
+	}
+
+	if c.waypoint.IsZero() {
+		dist := c.world.rand.FloatRange(160, 196)
+		c.setWaypoint(orbitingWaypoint(c.world, c.pos, *c.world.centurionRallyPointPtr, dist, true))
+	}
+
+	if c.moveTowards(delta, c.waypoint) {
+		c.waypoint = gmath.Vec{}
+		c.specialModifier = 0
+		if c.world.rand.Chance(0.1) {
+			c.specialDelay = c.world.rand.FloatRange(1, 3.5)
 		}
 	}
 }

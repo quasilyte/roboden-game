@@ -31,6 +31,7 @@ const (
 	CreepWispLair
 	CreepFortress
 	CreepTemplar
+	CreepCenturion
 )
 
 type CreepStats struct {
@@ -624,6 +625,37 @@ var TemplarCreepStats = &CreepStats{
 	CanBeRepelled:  true,
 	Flying:         true,
 	TargetKind:     TargetFlying,
+}
+
+var CenturionCreepStats = &CreepStats{
+	Kind:        CreepCenturion,
+	Image:       assets.ImageCreepCenturion,
+	ShadowImage: assets.ImageMediumShadow,
+	AnimSpeed:   0.1,
+	Tier:        2,
+	Speed:       50,
+	MaxHealth:   50,
+	Weapon: InitWeaponStats(&WeaponStats{
+		MaxTargets:          1,
+		BurstSize:           2,
+		AttacksPerBurst:     1,
+		BurstDelay:          0.10,
+		ProjectileFireSound: true,
+		AttackSound:         assets.AudioCenturionShot,
+		AttackRange:         220,
+		ImpactArea:          10,
+		ProjectileSpeed:     425,
+		Explosion:           ProjectileExplosionPurpleZap,
+		Damage:              DamageValue{Health: 3},
+		ProjectileImage:     assets.ImageCenturionProjectile,
+		Reload:              2.45,
+		TargetFlags:         TargetFlying | TargetGround,
+		FireOffsets:         []gmath.Vec{{X: -10}, {X: 10}},
+	}),
+	Disarmable:    true,
+	CanBeRepelled: false,
+	Flying:        true,
+	TargetKind:    TargetFlying,
 }
 
 var StunnerCreepStats = &CreepStats{

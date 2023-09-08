@@ -233,6 +233,20 @@ func posMove(pos gmath.Vec, d pathing.Direction) gmath.Vec {
 	}
 }
 
+func orbitingWaypoint(world *worldState, pos, center gmath.Vec, dist float64, clockwise bool) gmath.Vec {
+	var direction gmath.Vec
+	if pos == center {
+		direction = gmath.RadToVec(world.rand.Rad())
+	} else {
+		direction = pos.DirectionTo(center)
+	}
+	angle := gmath.Rad(0.4)
+	if !clockwise {
+		angle = -0.4
+	}
+	return direction.Rotated(angle).Mulf(dist).Add(center)
+}
+
 type collisionFlags int
 
 const (

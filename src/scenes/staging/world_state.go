@@ -37,6 +37,7 @@ type worldState struct {
 	allColonies      []*colonyCoreNode
 	essenceSources   []*essenceSourceNode
 	creeps           []*creepNode
+	centurions       []*creepNode
 	mercs            []*colonyAgentNode
 	turrets          []*colonyAgentNode
 	constructions    []*constructionNode
@@ -52,6 +53,9 @@ type worldState struct {
 	fortress          *creepNode
 	creepCoordinator  *creepCoordinator
 	creepsPlayerState *creepsPlayerState
+
+	centurionRallyPoint    gmath.Vec
+	centurionRallyPointPtr *gmath.Vec
 
 	creepClusterSize       float64
 	creepClusterMultiplier float64
@@ -114,6 +118,7 @@ type worldState struct {
 
 	EventCheckDefeatState gsignal.Event[gsignal.Void]
 	EventColonyCreated    gsignal.Event[*colonyCoreNode]
+	EventCenturionCreated gsignal.Event[*creepNode]
 
 	EventCameraShake gsignal.Event[CameraShakeData]
 }
@@ -446,6 +451,7 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 		w.result.CreepFragScore += x.fragScore
 		switch x.stats.Kind {
 		case gamedata.CreepBase:
+			// TODO: not used anywhere?
 			w.result.CreepBasesDestroyed++
 		case gamedata.CreepWispLair:
 			w.wispLair = nil
@@ -457,6 +463,9 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 			}
 			w.boss = nil
 			w.EventCheckDefeatState.Emit(gsignal.Void{})
+		case gamedata.CreepCenturion:
+			w.centurions = xslices.Remove(w.centurions, x)
+			w.result.CreepsDefeated++
 		default:
 			w.result.CreepsDefeated++
 		}
@@ -467,6 +476,10 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 	w.creeps = append(w.creeps, n)
 	if stats.Kind == gamedata.CreepCrawler {
 		w.creepCoordinator.crawlers = append(w.creepCoordinator.crawlers, n)
+	}
+	if stats.Kind == gamedata.CreepCenturion {
+		w.centurions = append(w.centurions, n)
+		w.EventCenturionCreated.Emit(n)
 	}
 	return n
 }

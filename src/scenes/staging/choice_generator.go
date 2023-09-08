@@ -28,6 +28,7 @@ const (
 	specialBossAttack
 	specialIncreaseTech
 	specialAtomicBomb
+	specialSendCenturions
 
 	// These are also for the creeps.
 	_creepCardFirst
@@ -38,6 +39,7 @@ const (
 	specialBuyStealthCrawlers
 	specialBuyHeavyCrawlers
 	specialBuyBuilders
+	specialBuyCenturions
 	specialBuyTemplars
 	specialBuyAssaults
 	specialBuyDominator
@@ -187,6 +189,12 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			stats:        gamedata.BuilderCreepStats,
 		},
 		{
+			maxUnits:     2,
+			special:      specialBuyCenturions,
+			minTechLevel: 0.4,
+			stats:        gamedata.CenturionCreepStats,
+		},
+		{
 			maxUnits:     5,
 			special:      specialBuyTemplars,
 			minTechLevel: 0.5,
@@ -216,6 +224,8 @@ var creepOptionInfoList = func() []creepOptionInfo {
 		e := &list[i]
 		cooldown := float64(creepCost(e.stats, false)) * (float64(e.maxUnits) * 0.4) * 0.75
 		switch {
+		case e.stats.Kind == gamedata.CreepCenturion:
+			cooldown *= 3.0
 		case e.stats.Kind == gamedata.CreepHowitzer:
 			cooldown *= 1.5
 		case e.stats.Kind == gamedata.CreepDominator:

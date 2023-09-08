@@ -2375,6 +2375,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 
 	const explosionRangeSqr float64 = 40 * 40
 	const explosionDamage float64 = 35.0
+	const damageFlags = gamedata.DmgflagNoFlash | gamedata.DmgflagUnblockable
 	if a.moveTowards(delta) {
 		if a.pos.DistanceSquaredTo(creep.pos) > (explosionRangeSqr + 8) {
 			a.clearWaypoint()
@@ -2387,7 +2388,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 			Rotation: a.pos.AngleToPoint(creep.pos) - math.Pi/2,
 		})
 		playSound(a.world(), assets.AudioExplosion1, a.pos)
-		creep.OnDamage(gamedata.DamageValue{Health: explosionDamage, Flags: gamedata.DmgflagNoFlash}, a)
+		creep.OnDamage(gamedata.DamageValue{Health: explosionDamage, Flags: damageFlags}, a)
 		for _, otherCreep := range a.world().creeps {
 			if !otherCreep.IsFlying() || otherCreep == creep {
 				continue
@@ -2396,7 +2397,7 @@ func (a *colonyAgentNode) updateKamikazeAttack(delta float64) {
 			if distSqr > explosionRangeSqr {
 				continue
 			}
-			otherCreep.OnDamage(gamedata.DamageValue{Health: explosionDamage * 0.5, Flags: gamedata.DmgflagNoFlash}, a)
+			otherCreep.OnDamage(gamedata.DamageValue{Health: explosionDamage * 0.5, Flags: damageFlags}, a)
 		}
 		a.Destroy()
 		return

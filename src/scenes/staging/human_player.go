@@ -282,6 +282,10 @@ func (p *humanPlayer) BeforeUpdateStep(delta float64) {
 		p.pingDelay = gmath.ClampMin(p.pingDelay-delta, 0)
 	}
 
+	if p.radar != nil {
+		p.radar.UpdateCamera()
+	}
+
 	p.handleInput()
 }
 

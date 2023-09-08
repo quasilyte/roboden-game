@@ -213,7 +213,7 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier, global
 		if drone.Kind == gamedata.AgentBomber {
 			textLines = append(textLines, fmt.Sprintf("%s: %s", d.Get("drone.target"), d.Get("drone.target.ground")))
 		} else {
-			textLines = append(textLines, fmt.Sprintf("%s: %s", d.Get("drone.target"), d.Get("menu.option.none")))
+			textLines = append(textLines, fmt.Sprintf("%s: %s", d.Get("drone.target"), d.Get("drone.target.none")))
 		}
 	}
 

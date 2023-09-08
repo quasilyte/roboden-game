@@ -12,6 +12,7 @@ const (
 	DmgflagStun
 	DmgflagAggro
 	DmgflagMark
+	DmgflagUnblockable
 )
 
 type DamageValue struct {

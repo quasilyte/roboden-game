@@ -26,6 +26,7 @@
 ##drone.target : Targets
 ##drone.target.ground : ground
 ##drone.target.flying : flying
+##drone.target.none : doesn't attack
 
 ##drone.worker : Worker
 ##drone.scout : Scout

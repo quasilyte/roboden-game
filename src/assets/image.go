@@ -101,6 +101,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 
 		ImageTeleportEffectSmall:        {Path: "image/effects/teleport_effect_small.png", FrameWidth: 32},
 		ImageTeleportEffectBig:          {Path: "image/effects/teleport_effect_big.png", FrameWidth: 64},
+		ImageAssaultShield:              {Path: "image/effects/assault_shield.png"},
 		ImageMergingComplete:            {Path: "image/effects/merging_complete.png", FrameWidth: 24},
 		ImageCloningComplete:            {Path: "image/effects/cloning_complete.png", FrameWidth: 24},
 		ImageMagmaTrail:                 {Path: "image/effects/magma_trail.png", FrameWidth: 9},
@@ -487,6 +488,7 @@ const (
 	ImageProjectileSmoke
 	ImageTeleportEffectBig
 	ImageTeleportEffectSmall
+	ImageAssaultShield
 	ImageMergingComplete
 	ImageCloningComplete
 	ImageFireBurst

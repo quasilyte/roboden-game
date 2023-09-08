@@ -57,6 +57,8 @@ type creepNode struct {
 	maxHealth float64
 	marked    float64
 
+	shield float64 // Shield time (in seconds)
+
 	attackDelay float64
 
 	bossStage int
@@ -189,6 +191,8 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.world.nodeRunner.AddObject(trunk)
 		trunk.SetVisibility(false)
 		c.specialDelay = c.scene.Rand().FloatRange(20, 30)
+	case gamedata.CreepAssault:
+		c.specialModifier = 1 // Damage shield is available
 	}
 
 	c.health = c.maxHealth
@@ -234,6 +238,7 @@ func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
 func (c *creepNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
 
+	c.shield = gmath.ClampMin(c.shield-delta, 0)
 	c.marked = gmath.ClampMin(c.marked-delta, 0)
 	c.slow = gmath.ClampMin(c.slow-delta, 0)
 	c.aggro = gmath.ClampMin(c.aggro-delta, 0)
@@ -391,15 +396,49 @@ func (c *creepNode) explode() {
 	}
 }
 
-func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
-	if damage.Health != 0 && !damage.HasFlag(gamedata.DmgflagNoFlash) {
+func (c *creepNode) onHealthDamage(damage gamedata.DamageValue) bool {
+	healthDamage := damage.Health
+	if healthDamage <= 0 {
+		return false
+	}
+
+	if c.shield > 0 {
+		if !damage.HasFlag(gamedata.DmgflagUnblockable) {
+			return false
+		}
+	}
+
+	if !damage.HasFlag(gamedata.DmgflagNoFlash) {
 		c.flashComponent.SetFlash(c.world.localRand.FloatRange(0.07, 0.14))
 	}
 
-	c.health -= damage.Health
+	c.health -= healthDamage
 	if c.health < 0 {
 		c.explode()
 		c.Destroy()
+		return true
+	}
+
+	if c.stats == gamedata.AssaultCreepStats {
+		if c.health <= c.maxHealth*0.2 && c.specialModifier > 0 && c.world.rand.Chance(0.9) {
+			c.specialModifier = 0
+			c.shield = c.world.rand.FloatRange(3.0, 4.0)
+			if c.super {
+				c.shield *= 2
+			}
+			playSound(c.world, assets.AudioAssaultShield, c.pos)
+			if !c.world.simulation {
+				effect := newAttachedSpriteNode(c.world, c, c.shield, ge.Pos{Base: &c.pos}, true, assets.ImageAssaultShield)
+				c.world.nodeRunner.AddObject(effect)
+			}
+		}
+	}
+
+	return false
+}
+
+func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
+	if c.onHealthDamage(damage) {
 		return
 	}
 

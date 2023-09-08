@@ -395,6 +395,7 @@ const SeasonNumber = 1
 //   - Re-balance some creeps and costs in Reverse mode
 //   - Commander patrol radius is now lower, so its minions are not overshooting it
 //   - Stealth crawlers: increased movement speed, increased burst damage at the cost of DPS
+//   - Assault T3 creeps get a one-time damage shield
 //
 // * Visuals:
 //   - Reworker Disintegrator projectile sprite a bit

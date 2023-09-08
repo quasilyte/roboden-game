@@ -26,6 +26,7 @@
 ##drone.target : Цели
 ##drone.target.ground : наземные
 ##drone.target.flying : воздушные
+##drone.target.none : не атакует
 
 ##drone.worker : Рабочий
 ##drone.scout : Скаут

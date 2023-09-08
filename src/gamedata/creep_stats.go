@@ -520,7 +520,7 @@ var AssaultCreepStats = &CreepStats{
 	ShadowImage: assets.ImageBigShadow,
 	Tier:        3,
 	Speed:       30,
-	MaxHealth:   95,
+	MaxHealth:   100,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          1,
 		BurstSize:           1,

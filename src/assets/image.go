@@ -59,6 +59,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageRadar:                {Path: "image/ui/radar.png"},
 		ImageRadarWave:            {Path: "image/ui/radar_wave.png"},
 		ImageRadarAlliedSpot:      {Path: "image/ui/radar_allied_spot.png"},
+		ImageRadarMiniAlliedSpot:  {Path: "image/ui/radar_mini_allied_spot.png"},
 		ImageRadarBossFar:         {Path: "image/ui/radar_boss_far.png"},
 		ImageRadarBossNear:        {Path: "image/ui/radar_boss_near.png"},
 		ImageRightPanelLayer1:     {Path: "image/ui/right_panel_layer1.png"},
@@ -145,6 +146,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageIonZap:                     {Path: "image/effects/ion_zap.png", FrameWidth: 28},
 		ImagePurpleIonZap:               {Path: "image/effects/purple_ion_zap.png", FrameWidth: 28},
 		ImageGreenZap:                   {Path: "image/effects/green_zap.png", FrameWidth: 14},
+		ImagePurpleZap:                  {Path: "image/effects/purple_zap.png", FrameWidth: 14},
 		ImageCloakWave:                  {Path: "image/effects/cloak_wave.png", FrameWidth: 28},
 		ImageDroneConsumed:              {Path: "image/effects/drone_consumed.png", FrameWidth: 32},
 		ImageServantWave:                {Path: "image/effects/servant_wave.png", FrameWidth: 64},
@@ -268,6 +270,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageServantCreep:        {Path: "image/creeps/servant_creep.png", FrameWidth: 15, FrameHeight: 13},
 		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png", FrameHeight: 16},
 		ImageCreepTemplar:        {Path: "image/creeps/templar_creep.png", FrameWidth: 19, FrameHeight: 14},
+		ImageCreepCenturion:      {Path: "image/creeps/centurion_creep.png", FrameWidth: 21, FrameHeight: 20},
 		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25, FrameHeight: 22},
 		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23, FrameHeight: 24},
 		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png", FrameHeight: 25},
@@ -318,6 +321,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 
 		ImageMagmaBall:                {Path: "image/projectile/magma_ball.png"},
 		ImageSiegeRocket:              {Path: "image/projectile/siege_rocket.png"},
+		ImageCenturionProjectile:      {Path: "image/projectile/centurion_projectile.png"},
 		ImageTankColonyProjectile1:    {Path: "image/projectile/tank_colony_projectile1.png"},
 		ImageCommanderProjectile:      {Path: "image/projectile/commander_projectile.png"},
 		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
@@ -463,6 +467,7 @@ const (
 	ImageRadarBossFar
 	ImageRadarBossNear
 	ImageRadarAlliedSpot
+	ImageRadarMiniAlliedSpot
 	ImageDarkRadar
 	ImageDarkDPad
 	ImageRightPanelLayer1
@@ -519,6 +524,7 @@ const (
 	ImageIonZap
 	ImagePurpleIonZap
 	ImageGreenZap
+	ImagePurpleZap
 	ImageCloakWave
 	ImageDroneConsumed
 	ImageServantWave
@@ -673,6 +679,7 @@ const (
 	ImageServantCreep
 	ImageCreepTier2
 	ImageCreepTemplar
+	ImageCreepCenturion
 	ImageCreepTier3
 	ImageCreepDominator
 	ImageTurretCreep
@@ -715,6 +722,7 @@ const (
 
 	ImageMagmaBall
 	ImageSiegeRocket
+	ImageCenturionProjectile
 	ImageTankColonyProjectile1
 	ImageCommanderProjectile
 	ImageRoombaProjectile

@@ -394,6 +394,7 @@ const SeasonNumber = 1
 // * Balance:
 //   - Re-balance some creeps and costs in Reverse mode
 //   - Commander patrol radius is now lower, so its minions are not overshooting it
+//   - Stealth crawlers: increased movement speed, increased burst damage at the cost of DPS
 //
 // * Visuals:
 //   - Reworker Disintegrator projectile sprite a bit

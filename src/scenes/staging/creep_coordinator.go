@@ -140,9 +140,12 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 		return
 	}
 
-	if c.world.config.GameMode == gamedata.ModeArena {
+	switch c.world.config.GameMode {
+	case gamedata.ModeArena:
 		c.scatterDelay = c.world.rand.FloatRange(55, 85)
-	} else {
+	case gamedata.ModeReverse:
+		c.scatterDelay = c.world.rand.FloatRange(90, 150)
+	default:
 		c.scatterDelay = c.world.rand.FloatRange(70, 90)
 	}
 
@@ -233,10 +236,13 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 
 	// Launch the attack.
 
-	if c.world.config.GameMode == gamedata.ModeArena {
+	// The next action will be much later.
+	switch c.world.config.GameMode {
+	case gamedata.ModeArena:
 		c.attackDelay = c.world.rand.FloatRange(25.0, 55.0)
-	} else {
-		// The next action will be much later.
+	case gamedata.ModeReverse:
+		c.attackDelay = c.world.rand.FloatRange(65.0, 130.0)
+	default:
 		c.attackDelay = c.world.rand.FloatRange(30.0, 70.0)
 	}
 

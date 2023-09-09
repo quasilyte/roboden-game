@@ -62,6 +62,8 @@ func (e *effectNode) Init(scene *ge.Scene) {
 		e.world.stage.AddSpriteAbove(sprite)
 	case slightlyAboveEffectLayer:
 		e.world.stage.AddSpriteSlightlyAbove(sprite)
+	case customEffectLayer:
+		// Will be added to a layer later.
 	default:
 		e.world.stage.AddSprite(sprite)
 	}

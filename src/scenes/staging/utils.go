@@ -349,6 +349,7 @@ const (
 	normalEffectLayer effectLayer = iota
 	slightlyAboveEffectLayer
 	aboveEffectLayer
+	customEffectLayer
 )
 
 func effectLayerFromBool(above bool) effectLayer {

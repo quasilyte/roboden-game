@@ -226,6 +226,7 @@ func getDefaultSessionState() *session.State {
 				DronesPower:           1,
 				InitialCreeps:         1,
 				BossDifficulty:        2,
+				AtomicBomb:            true,
 			},
 		}),
 		ArenaLevelConfig: newLevelConfig(&gamedata.LevelConfig{

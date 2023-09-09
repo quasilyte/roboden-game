@@ -40,9 +40,10 @@ type humanPlayer struct {
 	droneSelectorsUsed int
 	droneSelectors     []*ge.Sprite
 
-	choiceCardColony   *colonyCoreNode
-	choiceCardIndex    int
-	choiceCardHighligh *ge.Sprite
+	choiceCardColony     *colonyCoreNode
+	choiceCardIndex      int
+	choiceCardHighligh   *ge.Sprite
+	choiceCenturionPoint gmath.Vec
 
 	creepsState *creepsPlayerState
 
@@ -81,6 +82,13 @@ func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
 		choiceCardIndex: -1,
 	}
 	return p
+}
+
+func (p *humanPlayer) addCenturionToCreepsRadar(creep *creepNode) {
+	p.radar.AddCenturion(creep)
+	creep.EventDestroyed.Connect(p, func(centurion *creepNode) {
+		p.radar.RemoveCenturion(centurion)
+	})
 }
 
 func (p *humanPlayer) addColonyToCreepsRadar(colony *colonyCoreNode) {
@@ -191,14 +199,13 @@ func (p *humanPlayer) Init() {
 				p.addColonyToCreepsRadar(c)
 			}
 			p.world.EventColonyCreated.Connect(p, p.addColonyToCreepsRadar)
-		}
-		if p.creepsState != nil {
-			p.world.EventCenturionCreated.Connect(p, func(centurion *creepNode) {
-				p.radar.AddCenturion(centurion)
-				centurion.EventDestroyed.Connect(p, func(centurion *creepNode) {
-					p.radar.RemoveCenturion(centurion)
-				})
-			})
+
+			for _, c := range p.world.creeps {
+				if c.stats == gamedata.CenturionCreepStats {
+					p.addCenturionToCreepsRadar(c)
+				}
+			}
+			p.world.EventCenturionCreated.Connect(p, p.addCenturionToCreepsRadar)
 		}
 	} else {
 		buttonsPos = gmath.Vec{X: 8, Y: 470}
@@ -326,6 +333,13 @@ func (p *humanPlayer) Update(computedDelta, delta float64) {
 		if !p.choiceGen.TryExecute(colony, -1, pos) {
 			p.scene.Audio().PlaySound(assets.AudioError)
 		}
+	}
+
+	if !p.choiceCenturionPoint.IsZero() {
+		if !p.choiceGen.TryExecute(nil, -1, p.choiceCenturionPoint) {
+			p.scene.Audio().PlaySound(assets.AudioError)
+		}
+		p.choiceCenturionPoint = gmath.Vec{}
 	}
 }
 
@@ -459,6 +473,14 @@ func (p *humanPlayer) handleInput() {
 				selectedColony.plannedRelocationPoint = gmath.Vec{}
 			}
 			return
+		}
+	}
+
+	if p.creepsState != nil {
+		pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice)
+		if ok && p.world.AllCenturionsReady() {
+			globalClickPos := p.state.camera.AbsClickPos(pos)
+			p.choiceCenturionPoint = globalClickPos
 		}
 	}
 }

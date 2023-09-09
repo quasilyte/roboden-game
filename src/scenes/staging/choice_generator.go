@@ -189,7 +189,7 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			stats:        gamedata.BuilderCreepStats,
 		},
 		{
-			maxUnits:     2,
+			maxUnits:     3,
 			special:      specialBuyCenturions,
 			minTechLevel: 0.4,
 			stats:        gamedata.CenturionCreepStats,
@@ -392,6 +392,9 @@ func (g *choiceGenerator) Update(delta float64) {
 
 func (g *choiceGenerator) TryExecute(colony *colonyCoreNode, cardIndex int, pos gmath.Vec) bool {
 	if g.creepsState != nil {
+		if cardIndex == -1 {
+			return g.activateCenturionsMoveChoice(pos)
+		}
 		return g.activateChoice(colony, cardIndex)
 	}
 
@@ -402,6 +405,19 @@ func (g *choiceGenerator) TryExecute(colony *colonyCoreNode, cardIndex int, pos 
 		return g.activateChoice(colony, cardIndex)
 	}
 	return g.activateMoveChoice(colony, pos)
+}
+
+func (g *choiceGenerator) activateCenturionsMoveChoice(pos gmath.Vec) bool {
+	if !g.world.AllCenturionsReady() || g.world.boss == nil {
+		return false
+	}
+	g.EventChoiceSelected.Emit(selectedChoice{
+		Index:  -1,
+		Option: choiceOption{special: specialSendCenturions},
+		Pos:    pos,
+		Player: g.player,
+	})
+	return true
 }
 
 func (g *choiceGenerator) activateMoveChoice(colony *colonyCoreNode, pos gmath.Vec) bool {
@@ -535,7 +551,7 @@ func (g *choiceGenerator) prepareChoiceOptions() {
 	switch specialOptionKind {
 	case specialRally:
 		if g.spawnCrawlers {
-			if g.creepsState.techLevel >= 1.5 {
+			if g.creepsState.techLevel >= 1.5 && g.world.config.AtomicBomb {
 				specialOptionKind = specialAtomicBomb
 			} else {
 				specialOptionKind = specialSpawnCrawlers

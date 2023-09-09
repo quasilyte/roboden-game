@@ -859,6 +859,9 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		c.doSendCreeps()
 		return true
 
+	case specialSendCenturions:
+		return c.doSendCenturions(choice)
+
 	case specialSpawnCrawlers:
 		return c.doSpawnCrawlers()
 
@@ -919,8 +922,59 @@ func (c *Controller) doRally() bool {
 		return false
 	}
 	c.scene.Audio().PlaySound(assets.AudioWaveStart)
+
 	c.world.creepCoordinator.Rally(c.world.boss.pos, 500)
+
+	centurionRally := false
+	for _, creep := range c.world.centurions {
+		if !creep.centurionReady {
+			continue
+		}
+		if creep.pos.DistanceSquaredTo(*c.world.centurionRallyPointPtr) < (210 * 210) {
+			centurionRally = true
+			break
+		}
+	}
+	if centurionRally {
+		c.world.creepCoordinator.Rally(*c.world.centurionRallyPointPtr, 400)
+	}
+
 	return true
+}
+
+func (c *Controller) doSendCenturions(choice selectedChoice) bool {
+	if c.world.boss == nil {
+		return false
+	}
+
+	if choice.Pos.DistanceTo(c.world.boss.pos) < 128 {
+		// Recall.
+		c.world.centurionRallyPointPtr = &c.world.boss.pos
+	} else {
+		// Send.
+		c.world.centurionRallyPoint = choice.Pos
+		c.world.centurionRallyPointPtr = &c.world.centurionRallyPoint
+	}
+
+	for _, creep := range c.world.centurions {
+		creep.centurionReady = false
+		creep.SendCenturion(choice.Pos, 200)
+	}
+
+	c.createMoveConfirmEffect(*c.world.centurionRallyPointPtr, choice.Player)
+
+	return true
+}
+
+func (c *Controller) createMoveConfirmEffect(pos gmath.Vec, p player) {
+	if c.world.simulation || !isHumanPlayer(p) {
+		return
+	}
+	e := newEffectNode(c.world, pos, customEffectLayer, assets.ImageMoveConfirm)
+	e.noFlip = true
+	c.scene.AddObject(e)
+	p.GetState().camera.Private.AddSpriteAbove(e.anim.Sprite())
+	e.anim.SetAnimationSpan(0.3)
 }
 
 func (c *Controller) doSpawnCrawlers() bool {
@@ -979,7 +1033,8 @@ func (c *Controller) saveExecutedAction(choice selectedChoice) {
 	pstate := choice.Player.GetState()
 	selectedColony := choice.Colony
 	kind := serverapi.PlayerActionKind(choice.Index + 1)
-	if choice.Option.special == specialChoiceMoveColony {
+	switch choice.Option.special {
+	case specialChoiceMoveColony, specialSendCenturions:
 		kind = serverapi.ActionMove
 	}
 	colonyIndex := -1
@@ -1127,6 +1182,7 @@ func (c *Controller) findRelocationPoint(core *colonyCoreNode, dist float64, dst
 func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gmath.Vec) bool {
 	pos := c.findRelocationPoint(core, dist, dst)
 	if !pos.IsZero() && pos.DistanceTo(core.pos) > 16 {
+		c.createMoveConfirmEffect(pos, core.player)
 		return core.doRelocation(pos)
 	}
 	return false

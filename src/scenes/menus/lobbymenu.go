@@ -388,8 +388,16 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		tab.AddChild(b)
 	}
 
-	{
+	if c.mode != gamedata.ModeReverse {
 		b := c.newUnlockableBoolOptionButton(&c.config.CreepFortress, "creep_fortress", "menu.lobby.creep_fortress", []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		})
+		tab.AddChild(b)
+	}
+
+	if c.mode == gamedata.ModeReverse {
+		b := c.newBoolOptionButton(&c.config.AtomicBomb, "menu.lobby.atom_weapon", []string{
 			d.Get("menu.option.off"),
 			d.Get("menu.option.on"),
 		})

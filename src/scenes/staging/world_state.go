@@ -637,6 +637,15 @@ func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNod
 	return nil
 }
 
+func (w *worldState) AllCenturionsReady() bool {
+	for _, c := range w.centurions {
+		if !c.centurionReady {
+			return false
+		}
+	}
+	return true
+}
+
 func (w *worldState) FindTargetableAgents(pos gmath.Vec, skipGround bool, r float64, f func(a *colonyAgentNode) bool) {
 	// TODO: use an agent container for turrets too?
 	// Also, this "find" function is used to collect N units, not a single unit (see its usage).

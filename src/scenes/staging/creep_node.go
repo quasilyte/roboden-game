@@ -44,6 +44,7 @@ type creepNode struct {
 	cloaking        bool
 	insideForest    bool
 	super           bool
+	centurionReady  bool
 
 	path            pathing.GridPath
 	specialTarget   any
@@ -200,6 +201,7 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.specialModifier = 1 // Damage shield is available
 	case gamedata.CreepCenturion:
 		c.specialModifier = c.scene.Rand().FloatRange(10, 20)
+		c.centurionReady = true
 	}
 
 	c.health = c.maxHealth
@@ -1366,10 +1368,23 @@ func (c *creepNode) updateTemplar(delta float64) {
 	}
 }
 
+func (c *creepNode) SendCenturion(dst gmath.Vec, dist float64) {
+	c.setWaypoint(orbitingWaypoint(c.world, c.pos, dst, dist, true))
+}
+
 func (c *creepNode) updateCenturion(delta float64) {
 	if c.anim != nil {
 		c.anim.Tick(delta)
 	}
+
+	// It regenerates 1 health over 5 seconds (*0.2).
+	// 12 hp over minute.
+	// The regen is 3 times more potent when it's flying arond the Dreadnought.
+	hpRegen := delta * 0.2
+	if c.world.boss != nil && c.world.centurionRallyPointPtr == &c.world.boss.pos {
+		hpRegen *= 3
+	}
+	c.health = gmath.ClampMax(c.health+hpRegen, c.maxHealth)
 
 	if c.specialTarget != nil {
 		target := c.specialTarget.(*creepNode)
@@ -1415,10 +1430,6 @@ func (c *creepNode) updateCenturion(delta float64) {
 
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 
-	// It regenerates 1 health over 5 seconds (*0.2).
-	// 12 hp over minute.
-	c.health = gmath.ClampMax(c.health+(delta*0.2), c.maxHealth)
-
 	if c.world.boss == nil {
 		c.wandererMovement(delta)
 		return
@@ -1429,11 +1440,11 @@ func (c *creepNode) updateCenturion(delta float64) {
 	}
 
 	if c.waypoint.IsZero() {
-		dist := c.world.rand.FloatRange(160, 196)
-		c.setWaypoint(orbitingWaypoint(c.world, c.pos, *c.world.centurionRallyPointPtr, dist, true))
+		c.SendCenturion(*c.world.centurionRallyPointPtr, c.world.rand.FloatRange(160, 196))
 	}
 
 	if c.moveTowards(delta, c.waypoint) {
+		c.centurionReady = true
 		c.waypoint = gmath.Vec{}
 		if c.world.rand.Chance(0.1) {
 			c.specialDelay = c.world.rand.FloatRange(1, 3.5)

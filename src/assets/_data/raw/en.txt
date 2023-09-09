@@ -284,6 +284,10 @@ The fortress makes it hard to explore the region it's located in.
 It produces unique sentinel drones to patrol the area.
 It does not attack the colonies if they're out of its range.
 
+##menu.lobby.atom_weapon : Atomic weapon
+##menu.lobby.atom_weapon.description
+Whether Dreadnought can use atom bombs when 150% tech progress is reached.
+
 ##menu.lobby.ion_mortars : Ion mortars
 ##menu.lobby.ion_mortars.description
 Whether creeps have ion mortar pits available.

@@ -52,6 +52,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 
 		ImageCursor:         {Path: "image/cursor.png"},
 		ImageCapturedCursor: {Path: "image/captured_cursor.png"},
+		ImageMoveConfirm:    {Path: "image/move_confirm.png", FrameWidth: 20},
 
 		ImageRadarlessButtons:     {Path: "image/ui/radarless_buttons.png"},
 		ImageDarkRadarlessButtons: {Path: "image/ui/dark_radarless_buttons.png"},
@@ -460,6 +461,7 @@ const (
 
 	ImageCursor
 	ImageCapturedCursor
+	ImageMoveConfirm
 
 	ImageRadarlessButtons
 	ImageDarkRadarlessButtons

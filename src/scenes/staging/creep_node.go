@@ -373,6 +373,8 @@ func (c *creepNode) explode() {
 		if c.world.rand.Chance(0.3) {
 			c.world.CreateScrapsAt(smallScrapCreepSource, c.pos.Add(gmath.Vec{Y: 2}))
 		}
+	case gamedata.CreepCenturion:
+		createExplosion(c.world, aboveEffectLayer, c.pos)
 	default:
 		roll := c.scene.Rand().Float()
 		if roll < 0.3 {

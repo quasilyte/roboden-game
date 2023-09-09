@@ -1414,6 +1414,9 @@ func (c *creepNode) updateCenturion(delta float64) {
 				if other.stats != gamedata.CrawlerCreepStats || other.super || other.specialModifier == crawlerMove {
 					return false
 				}
+				if other.insideForest {
+					return false
+				}
 				if other.pos.DistanceSquaredTo(c.pos) > (160 * 160) {
 					return false
 				}

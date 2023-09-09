@@ -31,7 +31,7 @@ func newCreepCoordinator(world *worldState) *creepCoordinator {
 	return &creepCoordinator{
 		world:         world,
 		crawlers:      make([]*creepNode, 0, 16),
-		groupSlice:    make([]*creepNode, 0, 40),
+		groupSlice:    make([]*creepNode, 0, 48),
 		attackDelay:   world.rand.FloatRange(10, 30),
 		scatterDelay:  world.rand.FloatRange(2*60, 3*60),
 		relocateDelay: world.rand.FloatRange(1*60, 3*60),
@@ -104,7 +104,7 @@ func (c *creepCoordinator) tryLaunchingRelocation() {
 		return
 	}
 
-	group := c.collectGroup(leader.pos, 300, 20)
+	group := c.collectGroup(leader.pos, 300, 10, 20)
 	if len(group) < 2 {
 		c.relocateDelay = c.world.rand.FloatRange(4, 10)
 		return
@@ -134,7 +134,7 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 		return
 	}
 
-	group := c.collectGroup(leader.pos, 300, 10)
+	group := c.collectGroup(leader.pos, 300, 2, 10)
 	if len(group) < 2 {
 		c.scatterDelay = c.world.rand.FloatRange(8, 14)
 		return
@@ -153,9 +153,9 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 }
 
 func (c *creepCoordinator) Rally(pos gmath.Vec, maxRange float64) {
-	group := c.collectGroup(pos, maxRange, cap(c.groupSlice))
+	group := c.collectGroup(pos, maxRange, cap(c.groupSlice)-10, cap(c.groupSlice))
 
-	maxAttackDistSqr := 1600.0 * 1600.0
+	maxAttackDistSqr := 1700.0 * 1700.0
 	var closestTarget *colonyCoreNode
 	var closestDistSqr float64
 	for _, colony := range c.world.allColonies {
@@ -200,7 +200,7 @@ func (c *creepCoordinator) tryAttackingRuins() {
 		return
 	}
 
-	group := c.collectGroup(leader.pos, 250, 5)
+	group := c.collectGroup(leader.pos, 250, 2, 5)
 	if len(group) < 2 {
 		c.attackRuinsDelay = c.world.rand.FloatRange(10, 20)
 		return
@@ -219,7 +219,7 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 		return
 	}
 
-	group := c.collectGroup(leader.pos, 300, cap(c.groupSlice))
+	group := c.collectGroup(leader.pos, 300, 2, cap(c.groupSlice))
 
 	maxAttackRange := 1024.0 * c.world.rand.FloatRange(0.8, 1.2)
 	if c.world.config.GameMode == gamedata.ModeArena {
@@ -272,14 +272,13 @@ func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, targetPos gmat
 	}
 }
 
-func (c *creepCoordinator) collectGroup(pos gmath.Vec, r float64, maxGroupSize int) []*creepNode {
+func (c *creepCoordinator) collectGroup(pos gmath.Vec, r float64, minGroupSize, maxGroupSize int) []*creepNode {
 	rSqr := r * r
 
 	if maxGroupSize > cap(c.groupSlice) {
 		maxGroupSize = cap(c.groupSlice)
 	}
-	// Try to build a group of at least 2 units.
-	groupSize := c.world.rand.IntRange(2, maxGroupSize)
+	groupSize := c.world.rand.IntRange(minGroupSize, maxGroupSize)
 	group := c.groupSlice[:0]
 	for _, creep := range c.crawlers {
 		if len(group) >= groupSize {

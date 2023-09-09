@@ -923,7 +923,7 @@ func (c *Controller) doRally() bool {
 	}
 	c.scene.Audio().PlaySound(assets.AudioWaveStart)
 
-	c.world.creepCoordinator.Rally(c.world.boss.pos, 500)
+	c.world.creepCoordinator.Rally(c.world.boss.pos, 450)
 
 	centurionRally := false
 	for _, creep := range c.world.centurions {
@@ -936,7 +936,7 @@ func (c *Controller) doRally() bool {
 		}
 	}
 	if centurionRally {
-		c.world.creepCoordinator.Rally(*c.world.centurionRallyPointPtr, 400)
+		c.world.creepCoordinator.Rally(*c.world.centurionRallyPointPtr, 350)
 	}
 
 	return true

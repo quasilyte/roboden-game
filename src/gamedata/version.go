@@ -404,6 +404,7 @@ const SeasonNumber = 1
 // * Misc:
 //   - Mark 450%+ difficulty as Ultimate Despair
 //   - Reworked on-pause orders
+//   - Stunner (ex. Templar) gets a unique super version bonus
 //
 // * Replays:
 //   - Improved the replay save slot auto-selection

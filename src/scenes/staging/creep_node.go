@@ -89,17 +89,21 @@ func newCreepNode(world *worldState, stats *gamedata.CreepStats, pos gmath.Vec) 
 	}
 }
 
+func (c *creepNode) scaleSuperHP() {
+	if c.stats.Kind == gamedata.CreepUberBoss {
+		// Boss only gets a bit of extra health.
+		c.maxHealth *= 1.3
+	} else {
+		c.maxHealth = (c.maxHealth * 2) + 10
+	}
+}
+
 func (c *creepNode) Init(scene *ge.Scene) {
 	c.scene = scene
 
 	c.maxHealth = c.stats.MaxHealth
 	if c.super {
-		if c.stats.Kind == gamedata.CreepUberBoss {
-			// Boss only gets a bit of extra health.
-			c.maxHealth *= 1.3
-		} else {
-			c.maxHealth = (c.maxHealth * 2) + 10
-		}
+		c.scaleSuperHP()
 	}
 
 	if c.stats.ShadowImage != assets.ImageNone {
@@ -194,6 +198,8 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.specialDelay = c.scene.Rand().FloatRange(20, 30)
 	case gamedata.CreepAssault:
 		c.specialModifier = 1 // Damage shield is available
+	case gamedata.CreepCenturion:
+		c.specialModifier = c.scene.Rand().FloatRange(10, 20)
 	}
 
 	c.health = c.maxHealth
@@ -752,6 +758,25 @@ func (c *creepNode) findTargets() []targetable {
 	})
 
 	return targets
+}
+
+func (c *creepNode) MakeSuper() {
+	if c.super {
+		return
+	}
+
+	hpPercent := 1.0
+	if c.health < c.maxHealth {
+		hpPercent = c.health / c.maxHealth
+	}
+
+	c.super = true
+	if c.anim != nil {
+		c.anim.SetOffsetY(c.sprite.FrameHeight)
+		c.anim.Tick(0.01)
+	}
+	c.scaleSuperHP()
+	c.health = c.maxHealth * hpPercent
 }
 
 func (c *creepNode) wandererMovement(delta float64) {
@@ -1346,6 +1371,48 @@ func (c *creepNode) updateCenturion(delta float64) {
 		c.anim.Tick(delta)
 	}
 
+	if c.specialTarget != nil {
+		target := c.specialTarget.(*creepNode)
+		if target.IsDisposed() {
+			c.specialTarget = nil
+			return
+		}
+		if c.moveTowards(delta, c.waypoint) {
+			c.specialTarget = nil
+			pos := c.pos.Add(gmath.Vec{Y: agentFlightHeight})
+			if pos.DistanceTo(target.pos) < 32 && !target.super {
+				target.MakeSuper()
+				playSound(c.world, assets.AudioCreepPromoted, target.pos)
+				createEffect(c.world, effectConfig{Pos: target.pos, Image: assets.ImageDroneConsumed})
+				c.specialModifier = c.scene.Rand().FloatRange(20, 35)
+			} else {
+				c.specialModifier = c.scene.Rand().FloatRange(3, 6)
+			}
+		}
+		return
+	}
+
+	if c.super && c.specialTarget == nil {
+		c.specialModifier = gmath.ClampMin(c.specialModifier-delta, 0)
+		if c.specialModifier == 0 {
+			candidate := c.world.WalkCreeps(c.pos, 160, func(other *creepNode) bool {
+				if other.stats != gamedata.CrawlerCreepStats || other.super || other.specialModifier == crawlerMove {
+					return false
+				}
+				if other.pos.DistanceSquaredTo(c.pos) > (160 * 160) {
+					return false
+				}
+				return true
+			})
+			if candidate != nil {
+				c.specialTarget = candidate
+				c.setWaypoint(candidate.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
+				return
+			}
+			c.specialModifier = c.scene.Rand().FloatRange(5, 10)
+		}
+	}
+
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 
 	// It regenerates 1 health over 5 seconds (*0.2).
@@ -1368,7 +1435,6 @@ func (c *creepNode) updateCenturion(delta float64) {
 
 	if c.moveTowards(delta, c.waypoint) {
 		c.waypoint = gmath.Vec{}
-		c.specialModifier = 0
 		if c.world.rand.Chance(0.1) {
 			c.specialDelay = c.world.rand.FloatRange(1, 3.5)
 		}

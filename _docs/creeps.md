@@ -15,9 +15,11 @@ In addition to that, there are creep-specific bonuses.
 | Turret | +30% attack range |
 | Ion Mortar | +2 projectiles in a burst (2 -> 4) |
 | Tier 1 Drone | +1 attack target (1 -> 2) |
-| Tier 2 Drone | Attacks also apply slow condition, burn more energy |
+| Discharger | Attacks also apply slow condition, burn more energy |
 | Tier 3 Drone | +1 attack target (1 -> 2) |
 | Colony Servants | Improved AoE wave attack (higher radius, +1 slow score) |
 | Dominator | +1 attack target (1 -> 2) |
 | Builder | Builds super buildings sometimes (40%) |
 | Drone Base | Spawns super drones sometimes (40%) |
+| Stunner | Can stun even when target's energy is full, faster fire rate |
+| Coordinator | Can turn normal crawlers into super crawlers |

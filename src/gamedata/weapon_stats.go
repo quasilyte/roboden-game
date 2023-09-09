@@ -10,6 +10,7 @@ type DamageFlags uint64
 const (
 	DmgflagNoFlash DamageFlags = 1 << iota
 	DmgflagStun
+	DmgflagStunImproved
 	DmgflagAggro
 	DmgflagMark
 	DmgflagUnblockable

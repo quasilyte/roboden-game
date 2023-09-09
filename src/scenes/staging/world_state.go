@@ -597,10 +597,10 @@ func (w *worldState) findSearchClusters(pos gmath.Vec, r float64) (startX, start
 	return startX, startY, endX, endY
 }
 
-func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNode) bool) {
+func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNode) bool) *creepNode {
 	creeps := w.creeps
 	if len(creeps) == 0 {
-		return
+		return nil
 	}
 
 	startX, startY, endX, endY := w.findSearchClusters(pos, r)
@@ -623,8 +623,8 @@ func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNod
 	for i, y := 0, startY; i < numStepsY; i, y = i+1, y+dy {
 		for j, x := 0, startX; j < numStepsX; j, x = j+1, x+dx {
 			clusterCreeps := w.creepClusters[y][x]
-			if randIterate(w.rand, clusterCreeps, f) != nil {
-				return
+			if creep := randIterate(w.rand, clusterCreeps, f); creep != nil {
+				return creep
 			}
 		}
 	}
@@ -632,8 +632,9 @@ func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNod
 	// New creeps are created outside of the map, so they end up
 	// in the fallback cluster that includes everything that is out of bounds.
 	if len(w.fallbackCreepCluster) != 0 {
-		randIterate(w.rand, w.fallbackCreepCluster, f)
+		return randIterate(w.rand, w.fallbackCreepCluster, f)
 	}
+	return nil
 }
 
 func (w *worldState) FindTargetableAgents(pos gmath.Vec, skipGround bool, r float64, f func(a *colonyAgentNode) bool) {

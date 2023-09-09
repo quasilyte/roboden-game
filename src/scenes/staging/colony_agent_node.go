@@ -1122,14 +1122,22 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 		return
 	}
 
-	if damage.HasFlag(gamedata.DmgflagStun) && a.energy < a.maxEnergy*0.95 {
-		if stunnableModes[a.mode] && a.scene.Rand().Chance(0.9) {
-			a.clearCargo()
-			a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
-			a.energyTarget = gmath.ClampMax(a.energy+a.scene.Rand().FloatRange(4, 8), a.maxEnergy-0.01)
-			return
-		} else {
-			a.energy = gmath.ClampMin(a.energy-10, 0)
+	if damage.HasFlag(gamedata.DmgflagStun) {
+		maxEnergy := 0.8
+		energyDamage := 8.0
+		if damage.HasFlag(gamedata.DmgflagStunImproved) {
+			maxEnergy = 0.95
+			energyDamage = 12.0
+		}
+		if a.energy < a.maxEnergy*maxEnergy {
+			if stunnableModes[a.mode] && a.scene.Rand().Chance(0.9) {
+				a.clearCargo()
+				a.AssignMode(agentModeForcedCharging, gmath.Vec{}, nil)
+				a.energyTarget = gmath.ClampMax(a.energy+a.scene.Rand().FloatRange(4, 8), a.maxEnergy-0.01)
+				return
+			} else {
+				a.energy = gmath.ClampMin(a.energy-energyDamage, 0)
+			}
 		}
 	}
 

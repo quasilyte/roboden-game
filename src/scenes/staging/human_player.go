@@ -476,7 +476,7 @@ func (p *humanPlayer) handleInput() {
 		}
 	}
 
-	if p.creepsState != nil {
+	if p.creepsState != nil && len(p.world.centurions) != 0 {
 		pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice)
 		if ok && p.world.AllCenturionsReady() {
 			globalClickPos := p.state.camera.AbsClickPos(pos)

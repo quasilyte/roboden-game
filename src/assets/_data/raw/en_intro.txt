@@ -166,7 +166,7 @@ Enemy howitzer spotted!
 This mission will be completed when this
 enemy is defeated.
 
-It will take more than 15 combat drones
+It will take more than 10 combat drones
 to destroy it, so be careful.
 
 ##tutorial.final_message

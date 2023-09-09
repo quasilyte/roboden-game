@@ -293,6 +293,13 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 		g.world.nodeRunner.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
+	if g.world.config.GameMode == gamedata.ModeReverse {
+		for i := 0; i < 5; i++ {
+			a := core.NewColonyAgentNode(gamedata.ScoutAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
+			g.world.nodeRunner.AddObject(a)
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		}
+	}
 	if mainBase {
 		for _, stats := range g.world.config.ExtraDrones {
 			a := core.NewColonyAgentNode(stats, core.pos.Add(g.scene.Rand().Offset(-20, 20)))
@@ -642,6 +649,11 @@ func (g *levelGenerator) placeBoss() {
 	}
 	boss.super = g.world.config.SuperCreeps
 	g.world.nodeRunner.AddObject(boss)
+
+	if g.world.config.GameMode == gamedata.ModeReverse {
+		coordinator := g.world.NewCreepNode(pos.Add(g.rng.Offset(-32, 32)), gamedata.CenturionCreepStats)
+		g.world.nodeRunner.AddObject(coordinator)
+	}
 
 	g.world.boss = boss
 }

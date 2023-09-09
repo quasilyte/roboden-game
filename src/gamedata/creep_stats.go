@@ -65,6 +65,8 @@ type CreepStats struct {
 	Flying          bool
 	Building        bool
 	SiegeTargetable bool
+
+	NameTag string
 }
 
 var MagmaHazardWeapon = InitWeaponStats(&WeaponStats{
@@ -280,6 +282,7 @@ var IonMortarConstructionCreepStats = &CreepStats{
 }
 
 var WandererCreepStats = &CreepStats{
+	NameTag:     "rogue",
 	Kind:        CreepPrimitiveWanderer,
 	Image:       assets.ImageCreepTier1,
 	ShadowImage: assets.ImageSmallShadow,
@@ -358,6 +361,7 @@ var ServantCreepStats = &CreepStats{
 }
 
 var CrawlerCreepStats = &CreepStats{
+	NameTag:   "crawler",
 	Kind:      CreepCrawler,
 	Image:     assets.ImageCrawlerCreep,
 	AnimSpeed: 0.09,
@@ -385,6 +389,7 @@ var CrawlerCreepStats = &CreepStats{
 }
 
 var EliteCrawlerCreepStats = &CreepStats{
+	NameTag:   "sprayer",
 	Kind:      CreepCrawler,
 	Image:     assets.ImageEliteCrawlerCreep,
 	AnimSpeed: 0.09,
@@ -410,6 +415,7 @@ var EliteCrawlerCreepStats = &CreepStats{
 }
 
 var HeavyCrawlerCreepStats = &CreepStats{
+	NameTag:   "assault_crawler",
 	Kind:      CreepCrawler,
 	Image:     assets.ImageHeavyCrawlerCreep,
 	AnimSpeed: 0.16,
@@ -440,6 +446,7 @@ var HeavyCrawlerCreepStats = &CreepStats{
 }
 
 var HowitzerCreepStats = &CreepStats{
+	NameTag:   "howitzer",
 	Kind:      CreepHowitzer,
 	Image:     assets.ImageHowitzerCreep,
 	AnimSpeed: 0.2,
@@ -487,6 +494,7 @@ var HowitzerCreepStats = &CreepStats{
 }
 
 var StealthCrawlerCreepStats = &CreepStats{
+	NameTag:   "stealth_crawler",
 	Kind:      CreepCrawler,
 	Image:     assets.ImageStealthCrawlerCreep,
 	AnimSpeed: 0.09,
@@ -515,6 +523,7 @@ var StealthCrawlerCreepStats = &CreepStats{
 }
 
 var AssaultCreepStats = &CreepStats{
+	NameTag:     "vanguard",
 	Kind:        CreepAssault,
 	Image:       assets.ImageCreepTier3,
 	AnimSpeed:   0.2,
@@ -542,6 +551,7 @@ var AssaultCreepStats = &CreepStats{
 }
 
 var DominatorCreepStats = &CreepStats{
+	NameTag:     "dominator",
 	Kind:        CreepDominator,
 	Image:       assets.ImageCreepDominator,
 	ShadowImage: assets.ImageBigShadow,
@@ -567,6 +577,7 @@ var DominatorCreepStats = &CreepStats{
 }
 
 var BuilderCreepStats = &CreepStats{
+	NameTag:       "builder",
 	Kind:          CreepBuilder,
 	Image:         assets.ImageBuilderCreep,
 	AnimSpeed:     0.1,
@@ -603,6 +614,7 @@ var UberBossCreepStats = &CreepStats{
 }
 
 var TemplarCreepStats = &CreepStats{
+	NameTag:     "stunner",
 	Kind:        CreepTemplar,
 	Image:       assets.ImageCreepTemplar,
 	ShadowImage: assets.ImageMediumShadow,
@@ -628,6 +640,7 @@ var TemplarCreepStats = &CreepStats{
 }
 
 var CenturionCreepStats = &CreepStats{
+	NameTag:     "coordinator",
 	Kind:        CreepCenturion,
 	Image:       assets.ImageCreepCenturion,
 	ShadowImage: assets.ImageMediumShadow,
@@ -659,6 +672,7 @@ var CenturionCreepStats = &CreepStats{
 }
 
 var StunnerCreepStats = &CreepStats{
+	NameTag:     "discharger",
 	Kind:        CreepStunner,
 	Image:       assets.ImageCreepTier2,
 	ShadowImage: assets.ImageMediumShadow,

@@ -1,4 +1,3 @@
-
 ##drone.undiscovered : Undiscovered drone
 ##drone.locked : Locked drone
 ##turret.locked : Locked rurret

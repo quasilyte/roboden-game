@@ -143,7 +143,9 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 			if choice.option.special != specialChoiceNone {
 				if choice.option.special > _creepCardFirst && choice.option.special < _creepCardLast {
 					side := d.Get(sideName(choice.option.direction))
-					hint = fmt.Sprintf(d.Get("game.hint.action.garrison_f"), side)
+					info := creepOptionInfoList[creepCardID(choice.option.special)]
+					hint = fmt.Sprintf(d.Get("game.hint.action.garrison_f"), side) + "\n" +
+						fmt.Sprintf("x%d %s", numCreepsPerCard(m.player.creepsState, info), d.Get("creep", info.stats.NameTag))
 				} else {
 					key := strings.ToLower(choice.option.special.String())
 					hint = d.Get("game.hint.action", key)

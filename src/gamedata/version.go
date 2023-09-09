@@ -387,6 +387,7 @@ const SeasonNumber = 1
 //   - Show "game paused" message when the game is paused
 //   - Show screen button hotkeys in their tooltip
 //   - Tooltips are not disappearing as easily now
+//   - Make Reverse mode tooltips more informative
 //
 // * Gameplay:
 //   - Colonies without workers can now create a free worker in some cases

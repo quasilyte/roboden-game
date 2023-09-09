@@ -143,6 +143,7 @@ func (state *creepsPlayerState) addUnit(side int, stats *gamedata.CreepStats, su
 		return false
 	}
 
+	// This is not a bug. Super creeps do not count towards the cost in the Reverse mode.
 	cost := creepCost(stats, false)
 	dst.totalCost += cost
 	cg.totalCost += cost

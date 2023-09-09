@@ -555,6 +555,19 @@ Press the button again to quit
 ##game.choice.increase_radius : Increase radius
 ##game.choice.decrease_radius : Decrease radius
 
+##creep.rogue : Rogue
+##creep.discharger : Discharger
+##creep.vanguard : Vanguard
+##creep.stunner : Stunner
+##creep.coordinator : Coordinator
+##creep.dominator : Dominator
+##creep.builder : Builder
+##creep.crawler : Crawler
+##creep.sprayer : Sprayer
+##creep.assault_crawler : Assault Crawler
+##creep.stealth_crawler : Stealth Crawler
+##creep.howitzer : Howitzer
+
 ##menu.special_text
 Congratulations! You found a secret letter!
 

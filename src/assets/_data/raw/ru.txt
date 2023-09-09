@@ -555,6 +555,19 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.choice.increase_radius : Увеличить радиус
 ##game.choice.decrease_radius : Уменьшить радиус
 
+##creep.rogue : Разбойник
+##creep.discharger : Разряжатель
+##creep.vanguard : Штурмовик
+##creep.stunner : Парализатор
+##creep.coordinator : Координатор
+##creep.dominator : Доминатор
+##creep.builder : Строитель
+##creep.crawler : Шагатель
+##creep.sprayer : Распылитель
+##creep.assault_crawler : Осадный Шагатель
+##creep.stealth_crawler : Скрытный Шагатель
+##creep.howitzer : Гаубица
+
 ##menu.special_text
 Мои поздравления! Вы нашли письмо разработчиков!
 

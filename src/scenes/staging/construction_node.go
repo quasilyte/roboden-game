@@ -110,13 +110,15 @@ func (c *constructionNode) Init(scene *ge.Scene) {
 	c.sprite.Pos.Base = &c.pos
 	c.maxBuildHeight = c.sprite.ImageHeight() * 0.9
 	c.initialBuildHeight = c.sprite.ImageHeight() * 0.45
+	if c.stats.Kind == constructBase && c.world.coreDesign == gamedata.TankCoreStats {
+		c.maxBuildHeight *= 0.55
+		c.initialBuildHeight *= 0.7
+	}
 	if !c.world.simulation {
 		switch c.stats.Kind {
 		case constructBase:
 			if c.world.coreDesign == gamedata.TankCoreStats {
 				c.sprite.Shader = scene.NewShader(assets.ShaderSmallColonyBuild)
-				c.maxBuildHeight *= 0.55
-				c.initialBuildHeight *= 0.7
 			} else {
 				c.sprite.Shader = scene.NewShader(assets.ShaderColonyBuild)
 			}

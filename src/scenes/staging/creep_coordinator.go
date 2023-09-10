@@ -260,7 +260,13 @@ func (c *creepCoordinator) scatterCreeps(group []*creepNode) {
 
 func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, targetPos gmath.Vec) {
 	for _, creep := range group {
-		dist := c.world.rand.FloatRange(creep.stats.Weapon.AttackRange*0.5, creep.stats.Weapon.AttackRange*0.8)
+		minDist := 0.5
+		maxDist := 0.8
+		if creep.stats == gamedata.HeavyCrawlerCreepStats {
+			minDist = 0.8
+			maxDist = 1.05
+		}
+		dist := c.world.rand.FloatRange(creep.stats.Weapon.AttackRange*minDist, creep.stats.Weapon.AttackRange*maxDist)
 		dir := gmath.RadToVec(c.world.rand.Rad()).Mulf(dist)
 		waypoint := dir.Add(targetPos)
 		if c.world.HasTreesAt(waypoint, 0) {

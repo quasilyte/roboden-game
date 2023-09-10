@@ -57,7 +57,7 @@ func (p *replayPlayer) Update(computedDelta, delta float64) {
 			ok = p.choiceGen.TryExecute(p.state.selectedColony, int(a.Kind)-1, gmath.Vec{})
 		}
 		if !ok {
-			fmt.Println("fail at", a.Tick, time.Second*time.Duration(p.world.nodeRunner.timePlayed), "player=", p.state.id)
+			fmt.Println("fail at", a.Tick, time.Second*time.Duration(p.world.nodeRunner.timePlayed), "player=", p.state.id, "action=", a.Kind)
 			panic(errIllegalAction)
 		}
 	}

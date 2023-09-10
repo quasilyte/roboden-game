@@ -116,9 +116,10 @@ type worldState struct {
 
 	inputMode string
 
-	EventCheckDefeatState gsignal.Event[gsignal.Void]
-	EventColonyCreated    gsignal.Event[*colonyCoreNode]
-	EventCenturionCreated gsignal.Event[*creepNode]
+	EventCheckDefeatState      gsignal.Event[gsignal.Void]
+	EventColonyCreated         gsignal.Event[*colonyCoreNode]
+	EventCenturionCreated      gsignal.Event[*creepNode]
+	EventCrawlerFactoryCreated gsignal.Event[*creepNode]
 
 	EventCameraShake gsignal.Event[CameraShakeData]
 }
@@ -450,9 +451,13 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 		}
 		w.result.CreepFragScore += x.fragScore
 		switch x.stats.Kind {
+		case gamedata.CreepWisp:
+			// Not counted as a creep kill.
 		case gamedata.CreepBase:
 			// TODO: not used anywhere?
 			w.result.CreepBasesDestroyed++
+		case gamedata.CreepCrawlerBase:
+			w.EventCrawlerFactoryCreated.Emit(x)
 		case gamedata.CreepWispLair:
 			w.wispLair = nil
 		case gamedata.CreepFortress:
@@ -474,12 +479,14 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 		w.MarkPos(pos, ptagBlocked)
 	}
 	w.creeps = append(w.creeps, n)
-	if stats.Kind == gamedata.CreepCrawler {
+	switch stats.Kind {
+	case gamedata.CreepCrawler:
 		w.creepCoordinator.crawlers = append(w.creepCoordinator.crawlers, n)
-	}
-	if stats.Kind == gamedata.CreepCenturion {
+	case gamedata.CreepCenturion:
 		w.centurions = append(w.centurions, n)
 		w.EventCenturionCreated.Emit(n)
+	case gamedata.CreepCrawlerBase:
+		w.EventCrawlerFactoryCreated.Emit(n)
 	}
 	return n
 }

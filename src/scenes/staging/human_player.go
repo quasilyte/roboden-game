@@ -84,6 +84,13 @@ func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
 	return p
 }
 
+func (p *humanPlayer) addCrawlerFactoryToCreepsRadar(creep *creepNode) {
+	p.radar.AddFactory(creep)
+	creep.EventDestroyed.Connect(p, func(factory *creepNode) {
+		p.radar.RemoveFactory(factory)
+	})
+}
+
 func (p *humanPlayer) addCenturionToCreepsRadar(creep *creepNode) {
 	p.radar.AddCenturion(creep)
 	creep.EventDestroyed.Connect(p, func(centurion *creepNode) {
@@ -204,8 +211,12 @@ func (p *humanPlayer) Init() {
 				if c.stats == gamedata.CenturionCreepStats {
 					p.addCenturionToCreepsRadar(c)
 				}
+				if c.stats == gamedata.CrawlerBaseCreepStats {
+					p.addCrawlerFactoryToCreepsRadar(c)
+				}
 			}
 			p.world.EventCenturionCreated.Connect(p, p.addCenturionToCreepsRadar)
+			p.world.EventCrawlerFactoryCreated.Connect(p, p.addCrawlerFactoryToCreepsRadar)
 		}
 	} else {
 		buttonsPos = gmath.Vec{X: 8, Y: 470}

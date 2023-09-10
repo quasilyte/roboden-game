@@ -36,6 +36,7 @@ type radarNode struct {
 	colonies       []radarSpot
 	turrets        []radarSpot
 	centurionSpots []radarSpot
+	factorySpots   []radarSpot
 
 	minimapRect gmath.Rect
 	pos         gmath.Vec
@@ -66,6 +67,10 @@ func (r *radarNode) removeSpot(slice *[]radarSpot, pos *gmath.Vec) {
 	(*slice) = xslices.RemoveAt(*slice, index)
 }
 
+func (r *radarNode) RemoveFactory(creep *creepNode) {
+	r.removeSpot(&r.factorySpots, &creep.pos)
+}
+
 func (r *radarNode) RemoveCenturion(creep *creepNode) {
 	r.removeSpot(&r.centurionSpots, &creep.pos)
 }
@@ -76,6 +81,18 @@ func (r *radarNode) RemoveColony(colony *colonyCoreNode) {
 
 func (r *radarNode) RemoveTurret(turret *colonyAgentNode) {
 	r.removeSpot(&r.turrets, &turret.pos)
+}
+
+func (r *radarNode) AddFactory(creep *creepNode) {
+	sprite := r.scene.NewSprite(assets.ImageRadarAlliedCross)
+	sprite.Pos.Base = &r.pos
+	r.updateDarkFactories()
+	r.player.state.camera.UI.AddGraphics(sprite)
+
+	r.factorySpots = append(r.factorySpots, radarSpot{
+		pos:    &creep.pos,
+		sprite: sprite,
+	})
 }
 
 func (r *radarNode) AddCenturion(creep *creepNode) {
@@ -241,6 +258,12 @@ func (r *radarNode) updateDarkTurrets() {
 	}
 }
 
+func (r *radarNode) updateDarkFactories() {
+	for _, spot := range r.factorySpots {
+		spot.sprite.Pos.Offset = r.translatePosToOffset(*spot.pos)
+	}
+}
+
 func (r *radarNode) updateDarkCenturions() {
 	for _, spot := range r.centurionSpots {
 		pos := *spot.pos
@@ -267,6 +290,7 @@ func (r *radarNode) updateDark() {
 	r.updateDarkColonies()
 	r.updateDarkTurrets()
 	r.updateDarkCenturions()
+	r.updateDarkFactories()
 }
 
 func (r *radarNode) update(delta float64) {

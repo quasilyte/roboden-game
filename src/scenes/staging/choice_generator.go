@@ -27,6 +27,7 @@ const (
 	specialSpawnCrawlers
 	specialBossAttack
 	specialIncreaseTech
+	specialIncreaseTechX2
 	specialAtomicBomb
 	specialSendCenturions
 
@@ -126,8 +127,13 @@ var specialChoicesTable = [...]choiceOption{
 	},
 	specialIncreaseTech: {
 		special: specialIncreaseTech,
-		cost:    20,
+		cost:    15,
 		icon:    assets.ImageActionIncreaseTech,
+	},
+	specialIncreaseTechX2: {
+		special: specialIncreaseTechX2,
+		cost:    20,
+		icon:    assets.ImageActionIncreaseTechX2,
 	},
 	specialAtomicBomb: {
 		special: specialAtomicBomb,
@@ -331,6 +337,7 @@ type choiceGenerator struct {
 	buildTurret          bool
 	increaseRadius       bool
 	spawnCrawlers        bool
+	doubleTech           bool
 	specialChoiceKinds   []specialChoiceKind
 
 	forcedSpecialChoice specialChoiceKind
@@ -448,9 +455,9 @@ func (g *choiceGenerator) activateChoice(colony *colonyCoreNode, i int) bool {
 		g.forcedSpecialChoice = specialChoiceNone
 		choice.Option = specialChoicesTable[g.specialOptionIndex]
 		cooldown = choice.Option.cost
-		if choice.Option.special == specialIncreaseTech {
+		if choice.Option.special == specialIncreaseTech || choice.Option.special == specialIncreaseTechX2 {
 			div := 0.6 + (0.1 * float64(g.world.config.TechProgressRate))
-			cooldown *= (1.0 + 1.75*g.world.creepsPlayerState.techLevel)
+			cooldown *= (1.0 + 1.85*g.world.creepsPlayerState.techLevel)
 			cooldown /= div
 		}
 	} else {
@@ -535,6 +542,7 @@ func (g *choiceGenerator) prepareChoiceOptions() {
 
 	if g.beforeSpecialShuffle == 0 {
 		g.spawnCrawlers = !g.spawnCrawlers
+		g.doubleTech = !g.doubleTech
 		g.buildTurret = !g.buildTurret
 		g.increaseRadius = !g.increaseRadius
 		gmath.Shuffle(g.world.rand, g.specialChoiceKinds)
@@ -549,13 +557,17 @@ func (g *choiceGenerator) prepareChoiceOptions() {
 	}
 	specialOptionKind := g.specialChoiceKinds[specialIndex]
 	switch specialOptionKind {
-	case specialRally:
+	case specialBossAttack:
 		if g.spawnCrawlers {
 			if g.creepsState.techLevel >= 1.5 && g.world.config.AtomicBomb {
 				specialOptionKind = specialAtomicBomb
 			} else {
 				specialOptionKind = specialSpawnCrawlers
 			}
+		}
+	case specialIncreaseTech:
+		if g.doubleTech {
+			specialOptionKind = specialIncreaseTechX2
 		}
 	case specialBuildColony:
 		if g.buildTurret {

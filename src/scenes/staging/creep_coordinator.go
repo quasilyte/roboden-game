@@ -104,7 +104,7 @@ func (c *creepCoordinator) tryLaunchingRelocation() {
 		return
 	}
 
-	group := c.collectGroup(leader.pos, 300, 10, 20)
+	group := c.collectGroup(leader.pos, false, 300, 10, 20)
 	if len(group) < 2 {
 		c.relocateDelay = c.world.rand.FloatRange(4, 10)
 		return
@@ -134,7 +134,7 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 		return
 	}
 
-	group := c.collectGroup(leader.pos, 300, 2, 10)
+	group := c.collectGroup(leader.pos, false, 300, 2, 10)
 	if len(group) < 2 {
 		c.scatterDelay = c.world.rand.FloatRange(8, 14)
 		return
@@ -153,7 +153,7 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 }
 
 func (c *creepCoordinator) Rally(pos gmath.Vec, maxRange float64) {
-	group := c.collectGroup(pos, maxRange, cap(c.groupSlice)-10, cap(c.groupSlice))
+	group := c.collectGroup(pos, true, maxRange, cap(c.groupSlice)-10, cap(c.groupSlice))
 
 	maxAttackDistSqr := 1700.0 * 1700.0
 	var closestTarget *colonyCoreNode
@@ -200,7 +200,7 @@ func (c *creepCoordinator) tryAttackingRuins() {
 		return
 	}
 
-	group := c.collectGroup(leader.pos, 250, 2, 5)
+	group := c.collectGroup(leader.pos, false, 250, 2, 5)
 	if len(group) < 2 {
 		c.attackRuinsDelay = c.world.rand.FloatRange(10, 20)
 		return
@@ -219,7 +219,7 @@ func (c *creepCoordinator) tryLaunchingAttack() {
 		return
 	}
 
-	group := c.collectGroup(leader.pos, 300, 2, cap(c.groupSlice))
+	group := c.collectGroup(leader.pos, false, 300, 2, cap(c.groupSlice))
 
 	maxAttackRange := 1024.0 * c.world.rand.FloatRange(0.8, 1.2)
 	if c.world.config.GameMode == gamedata.ModeArena {
@@ -272,7 +272,7 @@ func (c *creepCoordinator) sendCreepsToAttack(group []*creepNode, targetPos gmat
 	}
 }
 
-func (c *creepCoordinator) collectGroup(pos gmath.Vec, r float64, minGroupSize, maxGroupSize int) []*creepNode {
+func (c *creepCoordinator) collectGroup(pos gmath.Vec, guards bool, r float64, minGroupSize, maxGroupSize int) []*creepNode {
 	rSqr := r * r
 
 	if maxGroupSize > cap(c.groupSlice) {
@@ -284,7 +284,14 @@ func (c *creepCoordinator) collectGroup(pos gmath.Vec, r float64, minGroupSize, 
 		if len(group) >= groupSize {
 			break
 		}
-		if creep.specialModifier != crawlerIdle {
+		switch creep.specialModifier {
+		case crawlerIdle:
+			// OK
+		case crawlerGuard:
+			if !guards {
+				continue
+			}
+		default:
 			continue
 		}
 		if creep.pos.DistanceSquaredTo(pos) > rSqr {

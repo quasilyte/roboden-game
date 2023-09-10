@@ -871,8 +871,12 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 	case specialAtomicBomb:
 		return c.launchAbomb()
 
-	case specialIncreaseTech:
+	case specialIncreaseTechX2:
 		c.world.creepsPlayerState.techLevel = gmath.ClampMax(c.world.creepsPlayerState.techLevel+0.1, 2.0)
+		return true
+
+	case specialIncreaseTech:
+		c.world.creepsPlayerState.techLevel = gmath.ClampMax(c.world.creepsPlayerState.techLevel+0.05, 2.0)
 		return true
 
 	case specialBossAttack:

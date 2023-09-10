@@ -98,6 +98,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageActionRally:          {Path: "image/ui/action_rally.png"},
 		ImageActionBossAttack:     {Path: "image/ui/action_boss_attack.png"},
 		ImageActionIncreaseTech:   {Path: "image/ui/action_increase_tech.png"},
+		ImageActionIncreaseTechX2: {Path: "image/ui/action_increase_tech_x2.png"},
 		ImageActionAbomb:          {Path: "image/ui/action_abomb.png"},
 
 		ImageTeleportEffectSmall:        {Path: "image/effects/teleport_effect_small.png", FrameWidth: 32},
@@ -577,6 +578,7 @@ const (
 	ImageActionRally
 	ImageActionBossAttack
 	ImageActionIncreaseTech
+	ImageActionIncreaseTechX2
 	ImageActionAbomb
 
 	ImageFactionDiode

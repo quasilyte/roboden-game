@@ -479,7 +479,8 @@ Split-screen multiplayer: competitive (PvP).
 ##game.hint.action.rally : Rally nearby units
 ##game.hint.action.spawncrawlers : Dispatch units from Dreadnought
 ##game.hint.action.bossattack : Attack with Dreadnought
-##game.hint.action.increasetech : Increase the tech level
+##game.hint.action.increasetech : Increase the tech level (+5%)
+##game.hint.action.increasetechx2 : Increase the tech level (+10%)
 ##game.hint.action.atomicbomb : Launch an atomic bomb
 
 ##game.hint.teleporter : Teleporter

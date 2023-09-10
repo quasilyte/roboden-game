@@ -727,11 +727,15 @@ func (g *levelGenerator) placeCreeps() {
 	}
 
 	numCrawlers := int(math.Round(float64(rand.IntRange(8, 12)) * multiplier))
+	heavyChance := 0.4
+	if g.world.config.GameMode == gamedata.ModeReverse {
+		heavyChance = 0.6
+	}
 	for numCrawlers > 0 {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
 		stats := gamedata.CrawlerCreepStats
-		if g.rng.Chance(0.4) {
+		if g.rng.Chance(heavyChance) {
 			stats = gamedata.HeavyCrawlerCreepStats
 		}
 		numCrawlers -= g.placeCreepsCluster(sector, 1, stats, creepPlacingConfig{Pad: 128})

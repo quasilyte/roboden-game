@@ -25,6 +25,7 @@ type computerPlayer struct {
 	evolutionCards []int
 	securityCards  []int
 
+	comebackDelay        float64
 	captureDelay         float64
 	actionDelay          float64
 	buildColonyDelay     float64
@@ -55,9 +56,12 @@ type computerColony struct {
 	node         *colonyCoreNode
 	maxTurrets   int
 
+	dangerLevel int
+
 	attacking int
 
 	retreatPos gmath.Vec
+	nextPos    gmath.Vec
 
 	howitzerAttacker *creepNode
 }
@@ -204,6 +208,7 @@ func (p *computerPlayer) Update(computedDelta, delta float64) {
 
 	p.state.selectedColony = p.state.colonies[0]
 
+	p.comebackDelay = gmath.ClampMin(p.comebackDelay-delta, 0)
 	p.captureDelay = gmath.ClampMin(p.captureDelay-delta, 0)
 	p.actionDelay = gmath.ClampMin(p.actionDelay-computedDelta, 0)
 	p.buildColonyDelay = gmath.ClampMin(p.buildColonyDelay-computedDelta, 0)
@@ -227,6 +232,14 @@ func (p *computerPlayer) handleInput() {
 		return
 	}
 
+	if p.comebackDelay == 0 {
+		if p.maybeDoComeback() {
+			p.comebackDelay = p.world.rand.FloatRange(140, 200)
+			return
+		}
+		p.comebackDelay = p.world.rand.FloatRange(10, 20)
+	}
+
 	p.calculatedColonyPower = false
 	if p.maybeDoAction() {
 		p.actionDelay = p.world.rand.FloatRange(1.5, 4)
@@ -235,8 +248,106 @@ func (p *computerPlayer) handleInput() {
 	}
 }
 
+func (p *computerPlayer) findGoodComebackSpot(leaderColony *computerColony, colonyPower int, dist float64) (gmath.Vec, int) {
+	var bestPos gmath.Vec
+	var bestScore int
+	probePos := leaderColony.node.pos.MoveTowards(p.world.rect.Center(), dist)
+	randIterate(p.world.rand, comebackProbeOffsets, func(offset gmath.Vec) bool {
+		pos := probePos.Add(offset)
+		resourceScore, _ := p.calcPosResources(leaderColony.node, pos, 200)
+		dangerScore, _ := p.calcPosDangerWithHazards(pos, 250)
+		multiplier := float64(colonyPower) / float64(dangerScore)
+		score := int(float64(resourceScore) * multiplier)
+		if score > bestScore {
+			bestScore = score
+			bestPos = pos
+		}
+		return false
+	})
+	return bestPos, bestScore
+}
+
+func (p *computerPlayer) maybeDoComeback() bool {
+	// Find a colony group that is on the edge of the map, too afraid
+	// to do anything due to the danger levels.
+	// Try to show them a chance of breaking out.
+
+	leaderColony := randIterate(p.world.rand, p.colonies, func(c *computerColony) bool {
+		if !p.world.innerRect2.Contains(c.node.pos) {
+			return false
+		}
+		if c.dangerLevel < 4 {
+			return false
+		}
+		if c.node.resources > c.node.maxVisualResources()*0.6 {
+			return false
+		}
+		if c.node.mode != colonyModeNormal {
+			return false
+		}
+		resourceScore, _ := p.calcPosResources(c.node, c.node.pos, c.node.realRadius*0.8)
+		if resourceScore >= 100 {
+			return false
+		}
+		return true
+	})
+	if leaderColony == nil {
+		return false
+	}
+
+	power := p.calcColonyPower(leaderColony.node, gamedata.TargetAny) + 10
+
+	// Try to find a place that worths a shot.
+	candidatePos1, candidateScore1 := p.findGoodComebackSpot(leaderColony, power, 1.2*leaderColony.node.MaxFlyDistance())
+	candidatePos2, candidateScore2 := p.findGoodComebackSpot(leaderColony, power, 2.3*leaderColony.node.MaxFlyDistance())
+	var nextPos gmath.Vec
+	bestPos := candidatePos1
+	bestScore := candidateScore1
+	if candidateScore2 > candidateScore1 {
+		bestPos = candidatePos2
+		bestScore = candidateScore2
+		nextPos = bestPos
+	}
+	if bestScore < 15 {
+		return false
+	}
+
+	group := p.attackGroup[:0]
+	group = append(group, leaderColony)
+	for _, c := range p.colonies {
+		if c == leaderColony || c.dangerLevel == 0 {
+			continue
+		}
+		if c.node.pos.DistanceTo(leaderColony.node.pos) < 240 {
+			group = append(group, c)
+		}
+	}
+
+	for i, c := range group {
+		c.retreatPos = c.node.pos
+		c.dangerLevel = 0
+		c.moveDelay *= 2
+		pos := bestPos
+		if i != 0 {
+			pos = bestPos.Add(p.world.rand.Offset(-80, 80))
+		}
+		c.nextPos = nextPos
+		p.executeMoveAction(c.node, pos)
+	}
+
+	return true
+}
+
 func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 	p.state.selectedColony = colony.node
+
+	if !colony.nextPos.IsZero() {
+		colony.nextPos = gmath.Vec{}
+		if colony.node.pos.DistanceTo(colony.nextPos) > 64 {
+			p.executeMoveAction(colony.node, colony.nextPos)
+			return true
+		}
+	}
 
 	// This is not a real "action", the bot just decides whether they're
 	// going to send their colonies into combat.
@@ -1205,6 +1316,11 @@ func (p *computerPlayer) moveColonyToResources(currentResourcesScore int, colony
 	bestScorePos := p.findBestResourcesSpot(colony, colonyPower/2, currentSpotScore+150, resourcesReach)
 	if bestScorePos.IsZero() {
 		bestScorePos = p.findBestResourcesSpot(colony, int(float64(colonyPower)*0.7), p.world.rand.IntRange(0, 100), 2*resourcesReach)
+		if bestScorePos.IsZero() {
+			// findBestResourcesSpot() failed twice, and it only does so
+			// in case of the danger.
+			colony.dangerLevel++
+		}
 		if currentResourcesScore < 80 && bestScorePos.IsZero() {
 			// Try to find at least some new resources spot if we can't find a best spot around us.
 			bestScorePos = p.findRandomResourcesSpot(colony)
@@ -1214,8 +1330,19 @@ func (p *computerPlayer) moveColonyToResources(currentResourcesScore int, colony
 		return 0
 	}
 
+	colony.dangerLevel = 0
+
 	bestScorePos = correctedPos(p.world.innerRect2, bestScorePos, 0)
-	if colony.node.stats == gamedata.DenCoreStats && bestScorePos.DistanceTo(colony.node.pos) < 180 {
+	var minDist float64
+	switch colony.node.stats {
+	case gamedata.DenCoreStats:
+		minDist = 180
+	case gamedata.TankCoreStats:
+		minDist = 100
+	case gamedata.ArkCoreStats:
+		minDist = 70
+	}
+	if minDist != 0 && bestScorePos.DistanceTo(colony.node.pos) < minDist {
 		return 0
 	}
 

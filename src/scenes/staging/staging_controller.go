@@ -927,7 +927,7 @@ func (c *Controller) doRally() bool {
 	}
 	c.scene.Audio().PlaySound(assets.AudioWaveStart)
 
-	c.world.creepCoordinator.Rally(c.world.boss.pos, 425)
+	c.world.creepCoordinator.Rally(c.world.boss.pos, 375)
 
 	if c.world.centurionRallyPointPtr.DistanceTo(c.world.boss.pos) > 300 {
 		centurionRally := false
@@ -941,7 +941,7 @@ func (c *Controller) doRally() bool {
 			}
 		}
 		if centurionRally {
-			groupSize := c.world.creepCoordinator.Rally(*c.world.centurionRallyPointPtr, 325)
+			groupSize := c.world.creepCoordinator.Rally(*c.world.centurionRallyPointPtr, 275)
 			if groupSize >= 5 {
 				c.world.result.CoordinatorRallyUsed = true
 			}

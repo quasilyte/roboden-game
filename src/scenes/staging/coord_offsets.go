@@ -5,6 +5,18 @@ import (
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
+var comebackProbeOffsets = []gmath.Vec{
+	{X: -196, Y: -196},
+	{X: 0, Y: -196},
+	{X: 196, Y: -196},
+	{X: -196, Y: 0},
+	{}, // The pos itself
+	{X: 196, Y: 0},
+	{X: -196, Y: 196},
+	{X: 0, Y: 196},
+	{X: 196, Y: 196},
+}
+
 var tankColonyTeleportOffsets = []gmath.Vec{
 	{X: -70},
 	{Y: -70},

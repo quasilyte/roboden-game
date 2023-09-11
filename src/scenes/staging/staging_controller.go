@@ -368,26 +368,14 @@ func (c *Controller) doInit(scene *ge.Scene) {
 				Y: viewportWorld.Height,
 			},
 		},
-		innerRect: gmath.Rect{
-			Min: gmath.Vec{X: 180, Y: 180},
-			Max: gmath.Vec{
-				X: viewportWorld.Width - 180,
-				Y: viewportWorld.Height - 180,
-			},
-		},
-		innerRect2: gmath.Rect{
-			Min: gmath.Vec{X: 260, Y: 260},
-			Max: gmath.Vec{
-				X: viewportWorld.Width - 260,
-				Y: viewportWorld.Height - 260,
-			},
-		},
 		tier2recipes: tier2recipes,
 		turretDesign: gamedata.FindTurretByName(c.config.TurretDesign),
 		coreDesign:   gamedata.FindCoreByName(c.config.CoreDesign),
 		hasForests:   gamedata.EnvironmentKind(c.config.Environment) == gamedata.EnvForest,
 		envKind:      gamedata.EnvironmentKind(c.config.Environment),
 	}
+	world.innerRect = resizedRect(world.rect, -180)
+	world.innerRect2 = resizedRect(world.rect, -260)
 	world.inputMode = c.state.GetInput(0).DetectInputMode()
 	world.creepCoordinator = newCreepCoordinator(world)
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())

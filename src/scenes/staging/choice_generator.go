@@ -39,8 +39,8 @@ const (
 	specialBuyStunners
 	specialBuyStealthCrawlers
 	specialBuyHeavyCrawlers
-	specialBuyBuilders
 	specialBuyCenturions
+	specialBuyBuilders
 	specialBuyTemplars
 	specialBuyAssaults
 	specialBuyDominator
@@ -190,15 +190,15 @@ var creepOptionInfoList = func() []creepOptionInfo {
 		},
 		{
 			maxUnits:     3,
-			special:      specialBuyBuilders,
-			minTechLevel: 0.4,
-			stats:        gamedata.BuilderCreepStats,
-		},
-		{
-			maxUnits:     3,
 			special:      specialBuyCenturions,
 			minTechLevel: 0.4,
 			stats:        gamedata.CenturionCreepStats,
+		},
+		{
+			maxUnits:     2,
+			special:      specialBuyBuilders,
+			minTechLevel: 0.5,
+			stats:        gamedata.BuilderCreepStats,
 		},
 		{
 			maxUnits:     5,
@@ -236,8 +236,6 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			cooldown *= 1.5
 		case e.stats.Kind == gamedata.CreepDominator:
 			cooldown *= 1.2
-		case e.stats.Kind == gamedata.CreepBuilder:
-			cooldown *= 0.85
 		case e.stats.Kind == gamedata.CreepStunner:
 			cooldown *= 0.9
 		case !e.stats.Flying:

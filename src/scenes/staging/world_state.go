@@ -451,13 +451,11 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 		}
 		w.result.CreepFragScore += x.fragScore
 		switch x.stats.Kind {
-		case gamedata.CreepWisp:
+		case gamedata.CreepWisp, gamedata.CreepCrawlerBase:
 			// Not counted as a creep kill.
 		case gamedata.CreepBase:
 			// TODO: not used anywhere?
 			w.result.CreepBasesDestroyed++
-		case gamedata.CreepCrawlerBase:
-			w.EventCrawlerFactoryCreated.Emit(x)
 		case gamedata.CreepWispLair:
 			w.wispLair = nil
 		case gamedata.CreepFortress:

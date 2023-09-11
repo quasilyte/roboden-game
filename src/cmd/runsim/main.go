@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -18,6 +19,8 @@ import (
 
 func main() {
 	timeoutFlag := flag.Int("timeout", 30, "simulation timeout in seconds")
+	debugFlag := flag.Bool("debug", false, "whether to enable debug logs")
+	trustFlag := flag.Bool("trust", false, "whether to allow 0 levelgen checksums")
 	flag.Parse()
 
 	replayDataBytes, err := io.ReadAll(os.Stdin)
@@ -27,6 +30,10 @@ func main() {
 	var replayData serverapi.GameReplay
 	if err := json.Unmarshal(replayDataBytes, &replayData); err != nil {
 		panic(err)
+	}
+
+	if replayData.LevelGenChecksum == 0 && !*trustFlag {
+		panic(errors.New("replay has a zero levelgen checksum"))
 	}
 
 	config := gamedata.MakeLevelConfig(gamedata.ExecuteSimulation, replayData.Config)
@@ -40,12 +47,13 @@ func main() {
 	runsim.PrepareAssets(ctx)
 
 	state := runsim.NewState(ctx)
+	state.Persistent.Settings.DebugLogs = *debugFlag
 
 	config.Finalize()
 
 	controller := staging.NewController(state, config, nil)
 	controller.SetReplayActions(replayData.Actions)
-	simResult, err := runsim.Run(state, *timeoutFlag, controller)
+	simResult, err := runsim.Run(state, replayData.LevelGenChecksum, *timeoutFlag, controller)
 	if err != nil {
 		panic(err)
 	}

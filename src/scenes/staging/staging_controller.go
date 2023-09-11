@@ -548,6 +548,10 @@ func (c *Controller) Init(scene *ge.Scene) {
 	runtime.GC()
 }
 
+func (c *Controller) GetLevelGenChecksum() int {
+	return c.world.levelGenChecksum
+}
+
 func (c *Controller) onCameraShake(cameraShake CameraShakeData) {
 	for _, cam := range c.world.cameras {
 		if !cam.ContainsPos(cameraShake.Pos) {
@@ -1199,6 +1203,8 @@ func (c *Controller) prepareBattleResults() {
 			c.world.result.Replay[i] = p.GetState().replay
 		}
 	}
+
+	c.world.result.LevelGenChecksum = c.world.levelGenChecksum
 
 	c.world.result.BossDefeated = c.world.boss == nil
 	c.world.result.SeedKind = c.world.seedKind

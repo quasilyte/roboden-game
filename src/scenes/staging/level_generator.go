@@ -75,16 +75,25 @@ func (g *levelGenerator) Generate() {
 		{"place_boss", g.placeBoss},
 		{"fill_pathgrid", g.fillPathgrid},
 	}
+	var timeTotal float64
 	for _, step := range steps {
 		start := time.Now()
 		step.fn()
 		elapsedSeconds := time.Since(start).Seconds()
+		timeTotal += elapsedSeconds
 		if g.world.debugLogs {
 			g.world.sessionState.Logf("step %s: %.4fs", step.name, elapsedSeconds)
 		}
 		if elapsedSeconds > 0.15 {
 			g.world.sessionState.Logf("level generator step %s took %.4f seconds", step.name, elapsedSeconds)
 		}
+	}
+
+	checksum := g.world.rand.PositiveInt()
+	g.world.levelGenChecksum = checksum
+	if g.world.debugLogs {
+		g.world.sessionState.Logf("level generation took %.4fs seconds", timeTotal)
+		g.world.sessionState.Logf("level generation checksum: %d", checksum)
 	}
 }
 

@@ -116,6 +116,8 @@ type worldState struct {
 
 	inputMode string
 
+	levelGenChecksum int
+
 	EventCheckDefeatState      gsignal.Event[gsignal.Void]
 	EventColonyCreated         gsignal.Event[*colonyCoreNode]
 	EventCenturionCreated      gsignal.Event[*creepNode]

@@ -12,6 +12,8 @@ type LeaderboardEntry struct {
 type GameReplay struct {
 	GameVersion int `json:"game_version"`
 
+	LevelGenChecksum int `json:"level_gen_checksum"`
+
 	Results GameResults `json:"results"`
 
 	Config ReplayLevelConfig `json:"config"`

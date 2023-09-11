@@ -410,6 +410,7 @@ const SeasonNumber = 1
 //   - Mark 450%+ difficulty as Ultimate Despair
 //   - Reworked on-pause orders
 //   - Stunner (ex. Templar) gets a unique super version bonus
+//   - Level generator now saves the level checksum to make verification easier
 //
 // * Replays:
 //   - Improved the replay save slot auto-selection

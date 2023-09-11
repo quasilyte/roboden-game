@@ -75,6 +75,7 @@ type battleResults struct {
 	Score                int
 	DifficultyScore      int
 	DronePointsAllocated int
+	LevelGenChecksum     int
 
 	SeedKind gamedata.SeedKind
 
@@ -117,6 +118,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 func (c *resultsController) makeGameReplay() serverapi.GameReplay {
 	var replay serverapi.GameReplay
 	replay.GameVersion = gamedata.BuildNumber
+	replay.LevelGenChecksum = c.results.LevelGenChecksum
 	replay.Config = c.config.ReplayLevelConfig
 	replay.Actions = c.results.Replay
 	replay.Results.Score = c.results.Score

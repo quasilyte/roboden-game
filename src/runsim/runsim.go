@@ -47,13 +47,20 @@ func PrepareAssets(ctx *ge.Context) {
 	assets.RegisterShaderResources(ctx, assetsConfig, &progress)
 }
 
-func Run(state *session.State, timeoutSeconds int, controller *staging.Controller) (serverapi.GameResults, error) {
+func Run(state *session.State, levelGenChecksum, timeoutSeconds int, controller *staging.Controller) (serverapi.GameResults, error) {
+	var simResult serverapi.GameResults
+
 	runner, scene := ge.NewSimulatedScene(state.Context, controller)
 	controller.Init(scene)
 
+	if levelGenChecksum != 0 {
+		if controller.GetLevelGenChecksum() != levelGenChecksum {
+			return simResult, errors.New("levelgen checksum mismatch")
+		}
+	}
+
 	timeout := (time.Duration(timeoutSeconds) * time.Second)
 
-	var simResult serverapi.GameResults
 	start := time.Now()
 OuterLoop:
 	for {

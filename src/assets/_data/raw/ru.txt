@@ -480,7 +480,7 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.hint.action.spawncrawlers : Высадить юнитов из Дредноута
 ##game.hint.action.bossattack : Послать Дредноут в атаку
 ##game.hint.action.increasetech : Увеличить технологический уровень (+5%)
-##game.hint.action.increasetech : Увеличить технологический уровень (+10%)
+##game.hint.action.increasetechx2 : Увеличить технологический уровень (+10%)
 ##game.hint.action.atomicbomb : Запустить атомную бомбу
 
 ##game.hint.teleporter : Телепортер

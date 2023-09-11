@@ -386,6 +386,7 @@ const SeasonNumber = 1
 //
 // * New content:
 //   - New Coordinator creep
+//   - New Master Tactician achievement
 //
 // * UX:
 //   - Show "game paused" message when the game is paused

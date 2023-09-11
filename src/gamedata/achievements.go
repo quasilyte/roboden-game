@@ -171,6 +171,11 @@ var AchievementList = []*Achievement{
 		Mode: ModeReverse,
 		Icon: assets.ImageAchievementAtomicFinisher,
 	},
+	{
+		Name: "coordinator",
+		Mode: ModeReverse,
+		Icon: assets.ImageAchievementCoordinator,
+	},
 
 	// Other achievements.
 	{

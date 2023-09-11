@@ -933,18 +933,23 @@ func (c *Controller) doRally() bool {
 
 	c.world.creepCoordinator.Rally(c.world.boss.pos, 425)
 
-	centurionRally := false
-	for _, creep := range c.world.centurions {
-		if !creep.centurionReady {
-			continue
+	if c.world.centurionRallyPointPtr.DistanceTo(c.world.boss.pos) > 300 {
+		centurionRally := false
+		for _, creep := range c.world.centurions {
+			if !creep.centurionReady {
+				continue
+			}
+			if creep.pos.DistanceSquaredTo(*c.world.centurionRallyPointPtr) < (210 * 210) {
+				centurionRally = true
+				break
+			}
 		}
-		if creep.pos.DistanceSquaredTo(*c.world.centurionRallyPointPtr) < (210 * 210) {
-			centurionRally = true
-			break
+		if centurionRally {
+			groupSize := c.world.creepCoordinator.Rally(*c.world.centurionRallyPointPtr, 325)
+			if groupSize >= 5 {
+				c.world.result.CoordinatorRallyUsed = true
+			}
 		}
-	}
-	if centurionRally {
-		c.world.creepCoordinator.Rally(*c.world.centurionRallyPointPtr, 325)
 	}
 
 	return true

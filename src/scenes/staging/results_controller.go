@@ -62,12 +62,13 @@ type battleResults struct {
 	EnemyColonyDamage            float64
 	EnemyColonyDamageFromTurrets float64
 
-	YellowFactionUsed  bool
-	RedFactionUsed     bool
-	GreenFactionUsed   bool
-	BlueFactionUsed    bool
-	OpenedEvolutionTab bool
-	Paused             bool
+	YellowFactionUsed    bool
+	RedFactionUsed       bool
+	GreenFactionUsed     bool
+	BlueFactionUsed      bool
+	OpenedEvolutionTab   bool
+	Paused               bool
+	CoordinatorRallyUsed bool
 
 	RedCrystalsCollected int
 
@@ -296,6 +297,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = c.results.GroundControl
 		case "atomicfinisher":
 			unlocked = c.results.AtomicBombVictory
+		case "coordinator":
+			unlocked = c.results.CoordinatorRallyUsed
 		}
 
 		if !unlocked {

@@ -152,7 +152,7 @@ func (c *creepCoordinator) tryLaunchingScatter() {
 	c.scatterCreeps(group)
 }
 
-func (c *creepCoordinator) Rally(pos gmath.Vec, maxRange float64) {
+func (c *creepCoordinator) Rally(pos gmath.Vec, maxRange float64) int {
 	group := c.collectGroup(pos, true, maxRange, cap(c.groupSlice)-10, cap(c.groupSlice))
 
 	maxAttackDistSqr := 1700.0 * 1700.0
@@ -170,9 +170,10 @@ func (c *creepCoordinator) Rally(pos gmath.Vec, maxRange float64) {
 	}
 	if closestTarget != nil {
 		c.sendCreepsToAttack(group, closestTarget.pos)
-		return
+	} else {
+		c.scatterCreeps(group)
 	}
-	c.scatterCreeps(group)
+	return len(group)
 }
 
 func (c *creepCoordinator) findColonyToAttack(pos gmath.Vec, r float64) *colonyCoreNode {

@@ -715,23 +715,31 @@ func (c *Controller) onExitButtonClicked() {
 		return
 	}
 
-	d := c.scene.Dict()
-	for _, p := range c.world.players {
-		human, ok := p.(*humanPlayer)
-		if !ok {
-			continue
-		}
-		pstate := p.GetState()
-		cam := pstate.camera
+	createNotification := func(cam *cameraManager, input *gameinput.Handler) {
+		d := c.scene.Dict()
 		cam.UI.Visible = true
 		c.nodeRunner.SetPaused(true)
-		msg := cam.input.ReplaceKeyNames(d.Get("game.exit.notice", human.input.DetectInputMode()))
+		msg := cam.input.ReplaceKeyNames(d.Get("game.exit.notice", input.DetectInputMode()))
 		exitNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg)
 		c.exitNotices = append(c.exitNotices, exitNotice)
 		c.scene.AddObject(exitNotice)
 		noticeSize := gmath.Vec{X: exitNotice.width, Y: exitNotice.height}
 		noticeCenterPos := cam.Rect.Center().Sub(noticeSize.Mulf(0.5))
 		exitNotice.SetPos(noticeCenterPos)
+	}
+
+	foundPlayer := false
+
+	for _, p := range c.world.players {
+		human, ok := p.(*humanPlayer)
+		if !ok {
+			continue
+		}
+		foundPlayer = true
+		createNotification(p.GetState().camera, human.input)
+	}
+	if !foundPlayer {
+		createNotification(c.camera, c.state.GetInput(0))
 	}
 }
 
@@ -1423,23 +1431,30 @@ func (c *Controller) onPausePressed() {
 
 	paused := !c.nodeRunner.IsPaused()
 
-	if paused {
+	createNotification := func(cam *cameraManager, input *gameinput.Handler) {
 		d := c.scene.Dict()
+		cam.UI.Visible = true
+		msg := cam.input.ReplaceKeyNames(d.Get("game.pause.notice", input.DetectInputMode()))
+		pauseNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg)
+		c.pauseNotices = append(c.pauseNotices, pauseNotice)
+		c.scene.AddObject(pauseNotice)
+		noticeSize := gmath.Vec{X: pauseNotice.width, Y: pauseNotice.height}
+		noticeCenterPos := cam.Rect.Center().Sub(noticeSize.Mulf(0.5))
+		pauseNotice.SetPos(noticeCenterPos)
+	}
+
+	if paused {
+		foundPlayer := false
 		for _, p := range c.world.players {
 			human, ok := p.(*humanPlayer)
 			if !ok {
 				continue
 			}
-			pstate := p.GetState()
-			cam := pstate.camera
-			cam.UI.Visible = true
-			msg := cam.input.ReplaceKeyNames(d.Get("game.pause.notice", human.input.DetectInputMode()))
-			pauseNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg)
-			c.pauseNotices = append(c.pauseNotices, pauseNotice)
-			c.scene.AddObject(pauseNotice)
-			noticeSize := gmath.Vec{X: pauseNotice.width, Y: pauseNotice.height}
-			noticeCenterPos := cam.Rect.Center().Sub(noticeSize.Mulf(0.5))
-			pauseNotice.SetPos(noticeCenterPos)
+			foundPlayer = true
+			createNotification(p.GetState().camera, human.input)
+		}
+		if !foundPlayer {
+			createNotification(c.camera, c.state.GetInput(0))
 		}
 	}
 

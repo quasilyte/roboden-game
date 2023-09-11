@@ -447,7 +447,7 @@ func (a *colonyAgentNode) applyRankBonuses() {
 func (a *colonyAgentNode) updatePatrolRadius() {
 	a.dist = a.colonyCore.PatrolRadius()
 	if a.stats == gamedata.CommanderAgentStats {
-		a.dist = gmath.ClampMin(a.dist-35, 50)
+		a.dist = gmath.ClampMin(a.dist-40, 50)
 	}
 }
 

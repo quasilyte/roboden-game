@@ -382,6 +382,10 @@ const SeasonNumber = 1
 //
 // * New features:
 //   - Added in-game "fast forward" option
+//   - Controllable Coordinators in Reverse mode
+//
+// * New content:
+//   - New Coordinator creep
 //
 // * UX:
 //   - Show "game paused" message when the game is paused
@@ -397,6 +401,7 @@ const SeasonNumber = 1
 //   - Commander patrol radius is now lower, so its minions are not overshooting it
 //   - Stealth crawlers: increased movement speed, increased burst damage at the cost of DPS
 //   - Assault T3 creeps get a one-time damage shield
+//   - Reworker multiple Reverse mode aspects
 //
 // * Visuals:
 //   - Reworker Disintegrator projectile sprite a bit

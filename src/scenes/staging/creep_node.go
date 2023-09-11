@@ -127,6 +127,8 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.world.stage.AddSpriteSlightlyAbove(c.sprite)
 	} else if c.stats.ShadowImage != assets.ImageNone {
 		c.world.stage.AddSpriteAbove(c.sprite)
+	} else if c.stats.Kind == gamedata.CreepCrawler {
+		c.world.stage.AddSpriteSlightlyBelow(c.sprite)
 	} else {
 		c.world.stage.AddSprite(c.sprite)
 	}

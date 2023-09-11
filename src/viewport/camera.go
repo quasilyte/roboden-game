@@ -28,6 +28,7 @@ type sortableCameraObject struct {
 
 type LayerContainer struct {
 	belowObjects         layer
+	slightlyBelowObjects layer
 	objects              layer
 	slightlyAboveObjects layer
 	aboveObjects         layer
@@ -84,6 +85,13 @@ func (c *LayerContainer) AddSpriteBelow(s *ge.Sprite) {
 	c.belowObjects.AddSprite(s)
 }
 
+func (c *LayerContainer) AddSpriteSlightlyBelow(s *ge.Sprite) {
+	if c.headless {
+		return
+	}
+	c.slightlyBelowObjects.AddSprite(s)
+}
+
 func (c *LayerContainer) AddGraphicsBelow(o cameraObject) {
 	if c.headless {
 		return
@@ -118,6 +126,7 @@ func (c *CameraStage) Update() {
 	}
 
 	c.belowObjects.filter()
+	c.slightlyBelowObjects.filter()
 	c.objects.filter()
 	c.slightlyAboveObjects.filter()
 	c.aboveObjects.filter()
@@ -342,6 +351,7 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 	c.globalRect.Max = c.globalRect.Max.Add(c.Offset)
 
 	c.Private.belowObjects.filter()
+	c.Private.slightlyBelowObjects.filter()
 	c.Private.objects.filter()
 	c.Private.slightlyAboveObjects.filter()
 	c.Private.aboveObjects.filter()
@@ -373,6 +383,8 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 	c.stage.bg.DrawPartialWithOffset(c.screen, c.globalRect, drawOffset)
 	c.drawLayer(c.screen, &c.stage.belowObjects, drawOffset)
 	c.drawLayer(c.screen, &c.Private.belowObjects, drawOffset)
+	c.drawLayer(c.screen, &c.stage.slightlyBelowObjects, drawOffset)
+	c.drawLayer(c.screen, &c.Private.slightlyBelowObjects, drawOffset)
 	c.drawLayer(c.screen, &c.stage.objects, drawOffset)
 	c.drawLayer(c.screen, &c.Private.objects, drawOffset)
 	c.drawLayer(c.screen, &c.stage.slightlyAboveObjects, drawOffset)

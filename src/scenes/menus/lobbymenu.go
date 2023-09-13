@@ -509,9 +509,8 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
-		b := c.newOptionButton(&c.config.StartingResources, "menu.lobby.starting_resources", []string{
+		b := c.newBoolOptionButton(&c.config.StartingResources, "menu.lobby.starting_resources", []string{
 			d.Get("menu.option.none"),
-			d.Get("menu.option.some"),
 			d.Get("menu.option.lots"),
 		})
 		tab.AddChild(b)

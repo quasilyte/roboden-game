@@ -268,7 +268,7 @@ func getDefaultSessionState() *session.State {
 		config.BossDifficulty = 0
 		config.NumCreepBases = 1
 		config.FogOfWar = false
-		config.StartingResources = 2
+		config.StartingResources = true
 		config.InitialCreeps = 2
 		config.Teleporters = 2
 
@@ -282,7 +282,7 @@ func getDefaultSessionState() *session.State {
 		config.WorldSize = 0
 		config.Resources = 1
 		config.Relicts = false
-		config.StartingResources = 0
+		config.StartingResources = false
 		config.Teleporters = 1
 		config.InterfaceMode = 2
 		config.InitialCreeps = 0

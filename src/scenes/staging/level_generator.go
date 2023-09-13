@@ -290,10 +290,7 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 	core.priorities.SetWeight(prioritySecurity, 0.1)
 	g.world.nodeRunner.AddObject(core)
 
-	switch g.world.config.StartingResources {
-	case 1:
-		core.resources = core.maxVisualResources() / 3
-	case 2:
+	if g.world.config.StartingResources {
 		core.resources = core.maxVisualResources()
 	}
 

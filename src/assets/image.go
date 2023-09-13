@@ -279,8 +279,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25, FrameHeight: 22},
 		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23, FrameHeight: 24},
 		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png", FrameHeight: 25},
-		ImageIonMortarCreep:      {Path: "image/creeps/ion_mortar_creep.png", FrameHeight: 25},
-		ImageFortressCreep:       {Path: "image/creeps/fortress_creep.png", FrameWidth: 43},
+		ImageIonMortarCreep:      {Path: "image/creeps/ion_mortar_creep.png", FrameWidth: 25, FrameHeight: 25},
+		ImageFortressCreep:       {Path: "image/creeps/fortress_creep.png", FrameWidth: 43, FrameHeight: 40},
 		ImageUberBoss:            {Path: "image/creeps/uber_boss.png", FrameWidth: 40, FrameHeight: 40},
 		ImageUberBossDoor:        {Path: "image/creeps/uber_boss_door.png"},
 		ImageCreepBase:           {Path: "image/creeps/creep_base.png", FrameWidth: 32, FrameHeight: 32},
@@ -374,6 +374,11 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCourierLine:     {Path: "image/lines/courier_line.png"},
 		ImageTemplarLine:     {Path: "image/lines/templar_line.png"},
 		ImageLavaGeyserLine:  {Path: "image/lines/lava_geyser_line.png"},
+
+		ImageItemStartingResources: {Path: "image/ui/items/starting_resources.png"},
+		ImageItemSuperCreeps:       {Path: "image/ui/items/super_creeps.png"},
+		ImageItemFortress:          {Path: "image/ui/items/fortress.png"},
+		ImageItemAtomWeapon:        {Path: "image/ui/items/atom_weapon.png"},
 
 		ImageUIGamepadRadar:    {Path: "image/ui/gamepad_radar.png"},
 		ImageUIGamepadRadarDot: {Path: "image/ui/gamepad_radar_dot.png"},
@@ -780,6 +785,11 @@ const (
 	ImageCourierLine
 	ImageTemplarLine
 	ImageLavaGeyserLine
+
+	ImageItemStartingResources
+	ImageItemSuperCreeps
+	ImageItemFortress
+	ImageItemAtomWeapon
 
 	ImageUIGamepadRadar
 	ImageUIGamepadRadarDot

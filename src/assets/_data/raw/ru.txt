@@ -107,6 +107,7 @@
 
 ##menu.option.on : вкл
 ##menu.option.off : выкл
+##menu.option.locked : Закрытая опция
 
 ##menu.option.very_low : очень мало
 ##menu.option.low : мало

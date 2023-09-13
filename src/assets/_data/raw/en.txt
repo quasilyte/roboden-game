@@ -107,6 +107,7 @@ You can change this decision later.
 
 ##menu.option.on : on
 ##menu.option.off : off
+##menu.option.locked : Locked option
 
 ##menu.option.very_low : very low
 ##menu.option.low : low

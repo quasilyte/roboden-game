@@ -413,6 +413,7 @@ const SeasonNumber = 1
 //   - Stunner (ex. Templar) gets a unique super version bonus
 //   - Level generator now saves the level checksum to make verification easier
 //   - Keep only two levels of starting resources: none and full
+//   - Changed lobby menu toggles design
 //
 // * Replays:
 //   - Improved the replay save slot auto-selection

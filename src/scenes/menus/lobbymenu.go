@@ -9,6 +9,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/roboden-game/assets"
@@ -327,14 +328,6 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		tab.AddChild(b)
 	}
 
-	{
-		b := c.newBoolOptionButton(&c.config.Relicts, "menu.lobby.relicts", []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		})
-		tab.AddChild(b)
-	}
-
 	if c.config.RawGameMode != "reverse" {
 		b := c.newBoolOptionButton(&c.config.FogOfWar, "menu.lobby.fog_of_war", []string{
 			d.Get("menu.option.off"),
@@ -352,6 +345,30 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		})
 		tab.AddChild(b)
 	}
+
+	panel := eui.NewPanel(uiResources, 0, 0)
+
+	grid := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			StretchHorizontal: true,
+			StretchVertical:   true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(8),
+			widget.GridLayoutOpts.Spacing(4, 4))))
+
+	var toggleButtons []widget.PreferredSizeLocateableWidget
+
+	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.Relicts, "relicts", assets.ImageRepulseTower))
+
+	for _, b := range toggleButtons {
+		grid.AddChild(b)
+	}
+
+	panel.AddChild(grid)
+
+	tab.AddChild(panel)
 
 	return tab
 }
@@ -384,30 +401,6 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			d.Get("menu.option.none"),
 			d.Get("menu.option.some"),
 			d.Get("menu.option.lots"),
-		})
-		tab.AddChild(b)
-	}
-
-	if c.mode != gamedata.ModeReverse {
-		b := c.newUnlockableBoolOptionButton(&c.config.CreepFortress, "creep_fortress", "menu.lobby.creep_fortress", []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		})
-		tab.AddChild(b)
-	}
-
-	if c.mode == gamedata.ModeReverse {
-		b := c.newBoolOptionButton(&c.config.AtomicBomb, "menu.lobby.atom_weapon", []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		})
-		tab.AddChild(b)
-	}
-
-	{
-		b := c.newUnlockableBoolOptionButton(&c.config.IonMortars, "ion_mortars", "menu.lobby.ion_mortars", []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
 		})
 		tab.AddChild(b)
 	}
@@ -486,12 +479,6 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"175%",
 			"200%",
 		}))
-
-		superCreeps := c.newUnlockableBoolOptionButton(&c.config.SuperCreeps, "super_creeps", "menu.lobby.super_creeps", []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		})
-		tab.AddChild(superCreeps)
 	}
 
 	if c.mode == gamedata.ModeArena || c.mode == gamedata.ModeInfArena {
@@ -508,13 +495,37 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		tab.AddChild(b)
 	}
 
-	{
-		b := c.newBoolOptionButton(&c.config.StartingResources, "menu.lobby.starting_resources", []string{
-			d.Get("menu.option.none"),
-			d.Get("menu.option.lots"),
-		})
-		tab.AddChild(b)
+	panel := eui.NewPanel(uiResources, 0, 0)
+
+	grid := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			StretchHorizontal: true,
+			StretchVertical:   true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(8),
+			widget.GridLayoutOpts.Spacing(4, 4))))
+
+	var toggleButtons []widget.PreferredSizeLocateableWidget
+
+	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.StartingResources, "starting_resources", assets.ImageItemStartingResources))
+	if c.mode == gamedata.ModeReverse {
+		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.AtomicBomb, "atom_weapon", assets.ImageItemAtomWeapon))
 	}
+	if c.mode == gamedata.ModeClassic {
+		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.SuperCreeps, "super_creeps", assets.ImageItemSuperCreeps))
+	}
+	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.CreepFortress, "creep_fortress", assets.ImageItemFortress))
+	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.IonMortars, "ion_mortars", assets.ImageIonMortarCreep))
+
+	for _, b := range toggleButtons {
+		grid.AddChild(b)
+	}
+
+	panel.AddChild(grid)
+
+	tab.AddChild(panel)
 
 	return tab
 }
@@ -526,6 +537,44 @@ func (c *LobbyMenuController) optionDescriptionText(key string) string {
 
 func (c *LobbyMenuController) newBoolOptionButton(value *bool, langKey string, valueNames []string) widget.PreferredSizeLocateableWidget {
 	return c.newUnlockableBoolOptionButton(value, "", langKey, valueNames)
+}
+
+func (c *LobbyMenuController) newToggleItemButton(value *bool, key string, icon resource.ImageID) widget.PreferredSizeLocateableWidget {
+	var b *eui.ItemButton
+
+	info := gamedata.LobbyOptionMap[key]
+	playerStats := c.state.Persistent.PlayerStats
+	unlocked := playerStats.TotalScore >= info.ScoreCost
+
+	var img *ebiten.Image
+	if unlocked {
+		img = createSubImage(c.scene.LoadImage(icon))
+	} else {
+		img = c.scene.LoadImage(assets.ImageLock).Data
+	}
+	b = eui.NewItemButton(c.state.Resources.UI, img, nil, "", 0, func() {
+		*value = !*value
+		b.Toggle()
+		c.updateDifficultyScore(c.calcDifficultyScore())
+	})
+	b.Widget.GetWidget().Disabled = !unlocked
+
+	d := c.scene.Dict()
+	b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+		var s string
+		if unlocked {
+			s = c.optionDescriptionText("menu.lobby." + key)
+		} else {
+			s = fmt.Sprintf("%s\n\n%s: %d/%d", d.Get("menu.option.locked"), d.Get("drone.score_required"), playerStats.TotalScore, info.ScoreCost)
+		}
+		c.setHelpText(s)
+	})
+
+	if *value {
+		b.Toggle()
+	}
+
+	return b.Widget
 }
 
 func (c *LobbyMenuController) newUnlockableBoolOptionButton(value *bool, id, langKey string, valueNames []string) widget.PreferredSizeLocateableWidget {
@@ -601,14 +650,6 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 	}
 
 	{
-		b := c.newBoolOptionButton(&c.config.GoldEnabled, "menu.lobby.gold_enabled", []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		})
-		tab.AddChild(b)
-	}
-
-	{
 		b := c.newOptionButton(&c.config.WorldSize, "menu.lobby.world_size", []string{
 			d.Get("menu.option.very_small"),
 			d.Get("menu.option.small"),
@@ -645,6 +686,30 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 		})
 		tab.AddChild(b)
 	}
+
+	panel := eui.NewPanel(uiResources, 0, 0)
+
+	grid := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+			StretchHorizontal: true,
+			StretchVertical:   true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(8),
+			widget.GridLayoutOpts.Spacing(4, 4))))
+
+	var toggleButtons []widget.PreferredSizeLocateableWidget
+
+	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.GoldEnabled, "gold_enabled", assets.ImageEssenceGoldSource))
+
+	for _, b := range toggleButtons {
+		grid.AddChild(b)
+	}
+
+	panel.AddChild(grid)
+
+	tab.AddChild(panel)
 
 	c.worldTab = tab
 

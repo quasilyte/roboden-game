@@ -1351,6 +1351,13 @@ func (p *computerPlayer) moveColonyToResources(currentResourcesScore int, colony
 		nextMoveDelay = 5
 	}
 
+	if p.world.coreDesign == gamedata.ArkCoreStats {
+		offset := gmath.Vec{X: 64, Y: 24}
+		if p.world.rand.Bool() {
+			offset.X = -offset.X
+		}
+		bestScorePos = bestScorePos.Add(offset)
+	}
 	p.executeMoveAction(colony.node, bestScorePos)
 	return nextMoveDelay
 }

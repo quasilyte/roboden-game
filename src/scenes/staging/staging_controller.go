@@ -1191,8 +1191,11 @@ func (c *Controller) findRelocationPoint(core *colonyCoreNode, dist float64, dst
 func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gmath.Vec) bool {
 	pos := c.findRelocationPoint(core, dist, dst)
 	if !pos.IsZero() && pos.DistanceTo(core.pos) > 16 {
-		c.createMoveConfirmEffect(pos, core.player)
-		return core.doRelocation(pos)
+		ok := core.doRelocation(pos)
+		if ok {
+			c.createMoveConfirmEffect(core.relocationPoint, core.player)
+		}
+		return ok
 	}
 	return false
 }

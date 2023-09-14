@@ -48,13 +48,14 @@ type computerPlayer struct {
 }
 
 type computerColony struct {
-	attackDelay  float64
-	moveDelay    float64
-	factionDelay float64
-	specialDelay float64
-	defendDelay  float64
-	node         *colonyCoreNode
-	maxTurrets   int
+	attackDelay     float64
+	attackBaseDelay float64
+	moveDelay       float64
+	factionDelay    float64
+	specialDelay    float64
+	defendDelay     float64
+	node            *colonyCoreNode
+	maxTurrets      int
 
 	dangerLevel int
 
@@ -219,6 +220,7 @@ func (p *computerPlayer) Update(computedDelta, delta float64) {
 			c.moveDelay = gmath.ClampMin(c.moveDelay-computedDelta, 0)
 		}
 		c.attackDelay = gmath.ClampMin(c.attackDelay-computedDelta, 0)
+		c.attackBaseDelay = gmath.ClampMin(c.attackBaseDelay-computedDelta, 0)
 		c.defendDelay = gmath.ClampMin(c.defendDelay-computedDelta, 0)
 		c.factionDelay = gmath.ClampMin(c.factionDelay-computedDelta, 0)
 		c.specialDelay = gmath.ClampMin(c.specialDelay-computedDelta, 0)
@@ -356,6 +358,14 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 			colony.attackDelay = p.world.rand.FloatRange(50, 110)
 		} else {
 			colony.attackDelay = p.world.rand.FloatRange(15, 30)
+		}
+	}
+
+	if colony.attackBaseDelay == 0 {
+		if p.maybeAttackCreepBase(colony) {
+			colony.attackBaseDelay = p.world.rand.FloatRange(80, 120)
+		} else {
+			colony.attackBaseDelay = p.world.rand.FloatRange(20, 35)
 		}
 	}
 
@@ -578,6 +588,63 @@ func (p *computerPlayer) maybeAddTankPower(colony *colonyCoreNode, power int) in
 		power += 30 + (2 * colony.NumAgents())
 	}
 	return power
+}
+
+func (p *computerPlayer) maybeAttackCreepBase(colony *computerColony) bool {
+	if colony.node.agents.TotalNum() < 30 {
+		return false
+	}
+	if colony.node.agents.TotalNum() < 45 {
+		if colony.node.resources < 0.4*colony.node.maxVisualResources() {
+			return false
+		}
+	}
+
+	// Be less agressive when having only one colony.
+	if len(p.colonies) == 1 && p.world.rand.Chance(0.65) {
+		return false
+	}
+
+	power := p.selectedColonyPower(gamedata.TargetAny)
+	if power < 60 {
+		return false
+	}
+
+	searchRadius := colony.node.MaxFlyDistance() + colony.node.realRadius
+	searchRadiusSqr := searchRadius * searchRadius
+	enemyBase := p.world.WalkCreeps(colony.node.pos, searchRadius, func(creep *creepNode) bool {
+		switch creep.stats.Kind {
+		case gamedata.CreepBase, gamedata.CreepCrawlerBase:
+			// OK
+		default:
+			return false
+		}
+		// Crawler bases are less interesting, so there is a chance to ignore them.
+		if creep.stats.Kind == gamedata.CreepCrawlerBase {
+			if p.world.rand.Chance(0.4) {
+				return false
+			}
+		}
+		distSqr := creep.pos.DistanceSquaredTo(colony.node.pos)
+		if distSqr < colony.node.realRadiusSqr {
+			return false
+		}
+		if distSqr > searchRadiusSqr {
+			return false
+		}
+		danger, _ := p.calcPosDanger(creep.pos, 250)
+		if int(float64(danger)*1.6) > power {
+			return false
+		}
+		return true
+	})
+	if enemyBase == nil {
+		return false
+	}
+
+	p.executeMoveAction(colony.node, enemyBase.pos.Add(p.world.rand.Offset(-160, 160)))
+
+	return true
 }
 
 func (p *computerPlayer) maybeStartAttackingDreadnought(colony *computerColony) bool {

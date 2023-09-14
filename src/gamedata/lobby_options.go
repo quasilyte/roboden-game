@@ -6,7 +6,8 @@ type LobbyOption struct {
 }
 
 var LobbyOptionMap = map[string]LobbyOption{
-	"super_creeps":   {ScoreCost: SuperCreepsOptionCost, Category: "difficulty"},
-	"creep_fortress": {ScoreCost: FortressOptionCost, Category: "difficulty"},
-	"ion_mortars":    {ScoreCost: IonMortarOptionCost, Category: "difficulty"},
+	"super_creeps":       {ScoreCost: SuperCreepsOptionCost, Category: "difficulty"},
+	"creep_fortress":     {ScoreCost: FortressOptionCost, Category: "difficulty"},
+	"ion_mortars":        {ScoreCost: IonMortarOptionCost, Category: "difficulty"},
+	"coordinator_creeps": {ScoreCost: CoordinatorCreepsOptionCost, Category: "difficulty"},
 }

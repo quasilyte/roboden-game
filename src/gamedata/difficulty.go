@@ -38,6 +38,9 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 
 	case "classic":
+		if config.CoordinatorCreeps {
+			score += 10 * config.NumCreepBases
+		}
 		if config.CreepFortress {
 			score += 25
 		}

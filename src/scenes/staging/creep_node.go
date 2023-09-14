@@ -1454,6 +1454,11 @@ func (c *creepNode) updateCenturion(delta float64) {
 		if c.world.rand.Chance(0.1) {
 			c.specialDelay = c.world.rand.FloatRange(1, 3.5)
 		}
+		if c.spawnedFromBase {
+			c.spawnedFromBase = false
+			c.shadowComponent.SetVisibility(true)
+			c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
+		}
 	}
 }
 
@@ -1574,20 +1579,36 @@ func (c *creepNode) updateCreepBase(delta float64) {
 		{X: -1, Y: -28},
 	}
 	tier2chance := 0.0
+	coordinatorChance := 0.0
 	if level >= 4 {
 		tier2chance = 0.3
+		coordinatorChance = 0.3
 	} else if level >= 7 {
 		tier2chance = 0.45
+		coordinatorChance = 0.35
 	} else if level >= 10 {
 		tier2chance = 0.6
+		coordinatorChance = 0.45
 	}
+
+	const maxCoordinators = 20
+	coordinatorIndex := -1
+	if c.world.config.CoordinatorCreeps && coordinatorChance > 0 && len(c.world.centurions) < maxCoordinators && c.world.rand.Chance(coordinatorChance) {
+		coordinatorIndex = 0
+		if numSpawned != 1 {
+			coordinatorIndex = c.world.rand.IntRange(0, numSpawned-1)
+		}
+	}
+
 	for i := 0; i < numSpawned; i++ {
 		spawnPos := spawnPoints[i]
 		waypoint := c.pos.Add(waypointOffsets[i])
 
 		stats := gamedata.WandererCreepStats
 
-		if tier2chance != 0 && c.scene.Rand().Chance(tier2chance) {
+		if i == coordinatorIndex {
+			stats = gamedata.CenturionCreepStats
+		} else if tier2chance != 0 && c.scene.Rand().Chance(tier2chance) {
 			stats = gamedata.StunnerCreepStats
 		}
 

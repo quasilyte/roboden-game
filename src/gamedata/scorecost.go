@@ -6,9 +6,10 @@ const (
 	InfArenaModeCost int = 4000
 	ReverseModeCost  int = 7500
 
-	SuperCreepsOptionCost int = 5000
-	FortressOptionCost    int = 7000
-	IonMortarOptionCost   int = 10000
+	SuperCreepsOptionCost       int = 5000
+	FortressOptionCost          int = 7000
+	IonMortarOptionCost         int = 10000
+	CoordinatorCreepsOptionCost int = 14000
 
 	ArkCoreCost  int = 3000
 	TankCoreCost int = 8000

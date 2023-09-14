@@ -513,6 +513,9 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.CreepFortress, "creep_fortress", assets.ImageItemFortress))
 	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.IonMortars, "ion_mortars", assets.ImageIonMortarCreep))
+	if c.mode == gamedata.ModeClassic {
+		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.CoordinatorCreeps, "coordinator_creeps", assets.ImageCreepCenturion))
+	}
 
 	for _, b := range toggleButtons {
 		grid.AddChild(b)

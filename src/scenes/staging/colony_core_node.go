@@ -473,14 +473,18 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 		if !x.stats.IsNeutral {
 			c.numTurretsBuilt--
 		}
-		c.world.UnmarkPos(x.pos)
+		if turret.stats.Kind != gamedata.AgentHarvester {
+			c.world.UnmarkPos(x.pos)
+		}
 		c.world.turrets = xslices.Remove(c.world.turrets, x)
 		c.turrets = xslices.Remove(c.turrets, x)
 	})
 	if !turret.stats.IsNeutral {
 		c.numTurretsBuilt++
 	}
-	c.world.MarkPos(turret.pos, ptagBlocked)
+	if turret.stats.Kind != gamedata.AgentHarvester {
+		c.world.MarkPos(turret.pos, ptagBlocked)
+	}
 	c.world.turrets = append(c.world.turrets, turret)
 	c.turrets = append(c.turrets, turret)
 	turret.colonyCore = c

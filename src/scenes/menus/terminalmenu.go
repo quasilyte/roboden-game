@@ -274,6 +274,9 @@ func (c *TerminalMenu) onSteamListAchievements(ctx *terminalCommandContext) (str
 	if !c.state.Device.Steam.Enabled {
 		return "", errors.New("steam is not enabled")
 	}
+	if !c.state.Device.Steam.Initialized {
+		return "", errors.New("steam lib failed to initialize")
+	}
 	var allUnlocked []string
 	for _, name := range c.achievementNames() {
 		unlocked, err := steamsdk.IsAchievementUnlocked(name)
@@ -304,6 +307,9 @@ func (c *TerminalMenu) onSteamClearAchievements(ctx *terminalCommandContext) (st
 	}
 	if !c.state.Device.Steam.Enabled {
 		return "", errors.New("steam is not enabled")
+	}
+	if !c.state.Device.Steam.Initialized {
+		return "", errors.New("steam is not initialized")
 	}
 	steamsdk.ClearAchievements(c.achievementNames())
 	return "The Steam achievements are cleared.", nil

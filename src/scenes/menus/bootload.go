@@ -71,7 +71,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 			{name: "load_ui", f: c.loadUIResources},
 			{name: "load_extra", f: c.loadExtra},
 		}
-		if c.state.Device.Steam.Enabled {
+		if c.state.Device.Steam.Initialized {
 			steps = append(steps, initializationStep{
 				name: "steam_sync",
 				f:    c.steamSync,
@@ -163,7 +163,7 @@ func (c *BootloadController) prepareBackground() {
 }
 
 func (c *BootloadController) steamSync(ctx *ge.Context, config *assets.Config, progress *float64) {
-	if !c.state.Device.Steam.Enabled {
+	if !c.state.Device.Steam.Initialized {
 		return
 	}
 

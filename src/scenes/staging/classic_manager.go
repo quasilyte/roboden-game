@@ -18,6 +18,8 @@ type classicManager struct {
 
 	crawlersDelay float64
 
+	coordinatorsDelay float64
+
 	attackGroup arenaWaveGroup
 }
 
@@ -41,6 +43,8 @@ func (m *classicManager) Init(scene *ge.Scene) {
 
 	// Extra crawlers show up around the 10th minute.
 	m.crawlersDelay = m.world.rand.FloatRange(10*60.0, 14*60.0) * firstSpawnDelayMultiplier
+
+	m.coordinatorsDelay = m.world.rand.FloatRange(5, 20)
 }
 
 func (m *classicManager) IsDisposed() bool {
@@ -56,6 +60,63 @@ func (m *classicManager) Update(delta float64) {
 	if m.crawlersDelay == 0 {
 		m.spawnCrawlers()
 	}
+	m.coordinatorsDelay = gmath.ClampMin(m.coordinatorsDelay-delta, 0)
+	if m.coordinatorsDelay == 0 {
+		m.maybeSendCoordinators()
+	}
+}
+
+func (m *classicManager) maybeSendCoordinators() {
+	if m.world.boss == nil {
+		m.coordinatorsDelay = 999999 // ~never
+		return
+	}
+
+	if !m.world.AllCenturionsReady() {
+		m.coordinatorsDelay = 5
+		return
+	}
+
+	stationed := m.world.centurionRallyPointPtr == &m.world.boss.pos
+	if stationed {
+		if len(m.world.centurions) == 0 {
+			m.coordinatorsDelay = m.world.rand.FloatRange(30, 60)
+			return
+		}
+		if len(m.world.centurions) < 3 {
+			m.coordinatorsDelay = m.world.rand.FloatRange(20, 40)
+			return
+		}
+	} else {
+		if len(m.world.centurions) < 3 {
+			m.world.centurionRallyPointPtr = &m.world.boss.pos
+			m.coordinatorsDelay = m.world.rand.FloatRange(60, 100)
+			return
+		}
+	}
+
+	bossHealthPercentage := m.world.boss.health / m.world.boss.maxHealth
+	if stationed {
+		// Keep Coordinators around if it's wounded.
+		if bossHealthPercentage < 0.8 {
+			m.coordinatorsDelay = m.world.rand.FloatRange(10, 15)
+			return
+		}
+		if m.world.rand.Chance(0.4) {
+			// Send Coordinators out for some time.
+			m.coordinatorsDelay = m.world.rand.FloatRange(30, 50)
+			m.world.centurionRallyPoint = correctedPos(m.world.rect, m.world.boss.pos.Add(m.world.rand.Offset(-300, 300)), 64)
+			m.world.centurionRallyPointPtr = &m.world.centurionRallyPoint
+			return
+		}
+		// Keep them around for a bit longer
+		m.coordinatorsDelay = m.world.rand.FloatRange(20, 30)
+		return
+	}
+
+	// Send them back.
+	m.world.centurionRallyPointPtr = &m.world.boss.pos
+	m.coordinatorsDelay = m.world.rand.FloatRange(50, 80)
 }
 
 func (m *classicManager) spawnCrawlers() {

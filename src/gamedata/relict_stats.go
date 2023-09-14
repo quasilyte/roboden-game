@@ -80,5 +80,5 @@ var RelictAgentStats = InitDroneStats(&AgentStats{
 		BuildingDamageBonus:       -0.25,
 	}),
 	BeamOpaqueTime: 0.15,
-	BeamSlideSpeed: 4.6,
+	BeamSlideSpeed: 4.2,
 })

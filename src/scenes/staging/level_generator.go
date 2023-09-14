@@ -656,7 +656,7 @@ func (g *levelGenerator) placeBoss() {
 	boss.super = g.world.config.SuperCreeps
 	g.world.nodeRunner.AddObject(boss)
 
-	if g.world.config.GameMode == gamedata.ModeReverse {
+	if g.world.config.GameMode == gamedata.ModeReverse || g.world.config.CoordinatorCreeps {
 		coordinator := g.world.NewCreepNode(pos.Add(g.rng.Offset(-32, 32)), gamedata.CenturionCreepStats)
 		g.world.nodeRunner.AddObject(coordinator)
 	}

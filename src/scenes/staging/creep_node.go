@@ -1582,16 +1582,16 @@ func (c *creepNode) updateCreepBase(delta float64) {
 	coordinatorChance := 0.0
 	if level >= 4 {
 		tier2chance = 0.3
-		coordinatorChance = 0.3
+		coordinatorChance = 0.25
 	} else if level >= 7 {
 		tier2chance = 0.45
-		coordinatorChance = 0.35
+		coordinatorChance = 0.30
 	} else if level >= 10 {
 		tier2chance = 0.6
-		coordinatorChance = 0.45
+		coordinatorChance = 0.40
 	}
 
-	const maxCoordinators = 20
+	const maxCoordinators = 15
 	coordinatorIndex := -1
 	if c.world.config.CoordinatorCreeps && coordinatorChance > 0 && len(c.world.centurions) < maxCoordinators && c.world.rand.Chance(coordinatorChance) {
 		coordinatorIndex = 0

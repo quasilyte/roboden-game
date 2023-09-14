@@ -42,6 +42,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 		config.InitialCreeps = 0
 		config.CreepFortress = true
 	}
+	config.CoordinatorCreeps = scene.Rand().Chance(0.7)
 	config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, scene.Rand())
 	config.TurretDesign = gamedata.PickTurretDesign(scene.Rand())
 	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())

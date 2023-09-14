@@ -383,6 +383,7 @@ const SeasonNumber = 1
 // * New features:
 //   - Added in-game "fast forward" option
 //   - Controllable Coordinators in Reverse mode
+//   - Coordinators in Classic mode
 //
 // * New content:
 //   - New Coordinator creep

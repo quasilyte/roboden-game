@@ -163,6 +163,7 @@ type colonyAgentNode struct {
 	insideForest bool
 	tether       bool
 	resting      bool
+	disposed     bool
 	speed        float64
 
 	dist          float64
@@ -413,7 +414,7 @@ func (a *colonyAgentNode) SetHeight(h float64) {
 	a.shadowComponent.UpdateHeight(a.pos, h, agentFlightHeight)
 }
 
-func (a *colonyAgentNode) IsDisposed() bool { return a.sprite.IsDisposed() }
+func (a *colonyAgentNode) IsDisposed() bool { return a.disposed }
 
 func (a *colonyAgentNode) IsTurret() bool {
 	return a.stats.IsTurret
@@ -889,6 +890,7 @@ func (a *colonyAgentNode) Update(delta float64) {
 }
 
 func (a *colonyAgentNode) dispose() {
+	a.disposed = true
 	a.sprite.Dispose()
 	a.shadowComponent.Dispose()
 	if a.diode != nil {
@@ -1070,6 +1072,10 @@ func (a *colonyAgentNode) onLowHealthDamage(source targetable) {
 }
 
 func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetable) {
+	if a.disposed {
+		return
+	}
+
 	a.health -= damage.Health
 
 	if a.health < 0 {

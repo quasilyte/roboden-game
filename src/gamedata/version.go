@@ -424,6 +424,7 @@ const SeasonNumber = 1
 //   - Fix fog of war with Bastion bases
 //   - Harvester no longer collects sulfur
 //   - Fix Bastion colonies unstuck behavior
+//   - Fix Harvester cell unmark on destruction
 //
 // * Computer player (colony bots):
 //   - Added a new "comeback" move to bots

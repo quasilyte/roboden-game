@@ -45,6 +45,7 @@ type creepNode struct {
 	insideForest    bool
 	super           bool
 	centurionReady  bool
+	disposed        bool
 
 	path            pathing.GridPath
 	specialTarget   any
@@ -224,6 +225,7 @@ func (c *creepNode) updateHealthShader() {
 }
 
 func (c *creepNode) dispose() {
+	c.disposed = true
 	c.sprite.Dispose()
 	c.shadowComponent.Dispose()
 	if c.altSprite != nil {
@@ -244,7 +246,7 @@ func (c *creepNode) Destroy() {
 	c.dispose()
 }
 
-func (c *creepNode) IsDisposed() bool { return c.sprite.IsDisposed() }
+func (c *creepNode) IsDisposed() bool { return c.disposed }
 
 func (c *creepNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
@@ -453,6 +455,10 @@ func (c *creepNode) onHealthDamage(damage gamedata.DamageValue) bool {
 }
 
 func (c *creepNode) OnDamage(damage gamedata.DamageValue, source targetable) {
+	if c.disposed {
+		return
+	}
+
 	if c.onHealthDamage(damage) {
 		return
 	}

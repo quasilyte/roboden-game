@@ -375,6 +375,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTemplarLine:     {Path: "image/lines/templar_line.png"},
 		ImageLavaGeyserLine:  {Path: "image/lines/lava_geyser_line.png"},
 
+		ImageItemFogOfWar:          {Path: "image/ui/items/fog_of_war.png"},
 		ImageItemStartingResources: {Path: "image/ui/items/starting_resources.png"},
 		ImageItemSuperCreeps:       {Path: "image/ui/items/super_creeps.png"},
 		ImageItemFortress:          {Path: "image/ui/items/fortress.png"},
@@ -786,6 +787,7 @@ const (
 	ImageTemplarLine
 	ImageLavaGeyserLine
 
+	ImageItemFogOfWar
 	ImageItemStartingResources
 	ImageItemSuperCreeps
 	ImageItemFortress

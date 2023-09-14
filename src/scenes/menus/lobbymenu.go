@@ -328,14 +328,6 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		tab.AddChild(b)
 	}
 
-	if c.config.RawGameMode != "reverse" {
-		b := c.newBoolOptionButton(&c.config.FogOfWar, "menu.lobby.fog_of_war", []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		})
-		tab.AddChild(b)
-	}
-
 	{
 		b := c.newOptionButton(&c.config.GameSpeed, "menu.lobby.game_speed", []string{
 			"x1.0",
@@ -361,6 +353,9 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 	var toggleButtons []widget.PreferredSizeLocateableWidget
 
 	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.Relicts, "relicts", assets.ImageRepulseTower))
+	if c.config.RawGameMode != "reverse" {
+		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.FogOfWar, "fog_of_war", assets.ImageItemFogOfWar))
+	}
 
 	for _, b := range toggleButtons {
 		grid.AddChild(b)

@@ -429,4 +429,6 @@ const SeasonNumber = 1
 // * Computer player (colony bots):
 //   - Added a new "comeback" move to bots
 //   - Attack creep ground bases
-const BuildNumber int = 17
+//
+// # Version 18 - couriers hotfix
+const BuildNumber int = 18

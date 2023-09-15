@@ -29,7 +29,7 @@ If you're playing a browser version of the game, please use Chrome or some other
 ## How to Run
 
 ```bash
-git clone https://github.com/quasilyte/roboden-game.git
+git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/quasilyte/roboden-game.git
 cd roboden-game/src
 go run ./cmd/game --data ../roboden_data
 ```

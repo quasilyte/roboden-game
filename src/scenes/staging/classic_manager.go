@@ -105,7 +105,7 @@ func (m *classicManager) maybeSendCoordinators() {
 		if m.world.rand.Chance(0.4) {
 			// Send Coordinators out for some time.
 			m.coordinatorsDelay = m.world.rand.FloatRange(30, 50)
-			m.world.centurionRallyPoint = correctedPos(m.world.rect, m.world.boss.pos.Add(m.world.rand.Offset(-300, 300)), 64)
+			m.world.centurionRallyPoint = correctedPos(m.world.rect, m.world.boss.pos.Add(m.world.rand.Offset(-300, 300)), 128)
 			m.world.centurionRallyPointPtr = &m.world.centurionRallyPoint
 			return
 		}

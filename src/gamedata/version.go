@@ -437,4 +437,5 @@ const SeasonNumber = 1
 // - Fix a bug where difficulty option is pressable even if it's locked
 // - Updated Ebitengine version
 // - Update ge package version
+// - Add a pos correction for coordinator waypoints on the map boundary
 const BuildNumber int = 19

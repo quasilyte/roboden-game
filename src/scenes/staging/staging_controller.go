@@ -966,7 +966,7 @@ func (c *Controller) doSendCenturions(choice selectedChoice) bool {
 		c.world.centurionRallyPointPtr = &c.world.boss.pos
 	} else {
 		// Send.
-		c.world.centurionRallyPoint = choice.Pos
+		c.world.centurionRallyPoint = correctedPos(c.world.rect, choice.Pos, 128)
 		c.world.centurionRallyPointPtr = &c.world.centurionRallyPoint
 	}
 

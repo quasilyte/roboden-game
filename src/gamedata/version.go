@@ -434,4 +434,5 @@ const SeasonNumber = 1
 //
 // # Version 19
 // - Storing more info inside a replay (should make the debugging easier)
+// - Fix a bug where difficulty option is pressable even if it's locked
 const BuildNumber int = 19

@@ -555,7 +555,7 @@ func (c *LobbyMenuController) newToggleItemButton(value *bool, key string, icon 
 		b.Toggle()
 		c.updateDifficultyScore(c.calcDifficultyScore())
 	})
-	b.Widget.GetWidget().Disabled = !unlocked
+	b.SetDisabled(!unlocked)
 
 	d := c.scene.Dict()
 	b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {

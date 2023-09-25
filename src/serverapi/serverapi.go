@@ -30,6 +30,9 @@ type ReplayDebugInfo struct {
 	NumPauses      int `json:"num_pauses"`
 	NumFastForward int `json:"num_fastforward"`
 
+	GOARCH string `json:"goarch"`
+	GOOS   string `json:"goos"`
+
 	Checkpoints []int `json:"checkpoints"`
 }
 

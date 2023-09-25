@@ -3,6 +3,7 @@ package staging
 import (
 	"fmt"
 	"math"
+	"runtime"
 	"strconv"
 	"time"
 
@@ -135,6 +136,8 @@ func (c *resultsController) makeGameReplay() serverapi.GameReplay {
 	replay.Debug.PlayerName = c.state.Persistent.PlayerName
 	replay.Debug.NumPauses = c.results.NumPauses
 	replay.Debug.NumFastForward = c.results.NumFastForwards
+	replay.Debug.GOARCH = runtime.GOARCH
+	replay.Debug.GOOS = runtime.GOOS
 
 	replay.Debug.Checkpoints = make([]int, len(c.results.DebugCheckpoints))
 	copy(replay.Debug.Checkpoints, c.results.DebugCheckpoints)

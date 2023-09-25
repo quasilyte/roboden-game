@@ -1506,8 +1506,7 @@ func (c *Controller) runUpdateStep(computedDelta, delta float64) {
 	checkpoint := false
 	if len(c.world.result.DebugCheckpoints) < 32 {
 		if c.controllerTick%1000 == 0 {
-			// 562949953421311 is a JS max safe int value, we take something that is slightly lower than that.
-			control := c.world.rand.IntRange(0, 552949953421310)
+			control := c.world.rand.IntRange(0, math.MaxInt32-1)
 			c.world.result.DebugCheckpoints = append(c.world.result.DebugCheckpoints, control)
 			checkpoint = true
 			if c.world.debugLogs {

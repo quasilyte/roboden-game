@@ -12,7 +12,7 @@ require (
 	github.com/hajimehoshi/go-steamworks v0.0.0-20230809071343-ee1a81910acc
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e
-	github.com/quasilyte/ge v0.0.0-20230902180743-5f9ee1f4f21c
+	github.com/quasilyte/ge v0.0.0-20230925153958-e5b2a565e636
 	github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef
 	github.com/quasilyte/gsignal v0.0.0-20230130114532-ff67b4bb9e15
 	golang.org/x/image v0.12.0

@@ -8,7 +8,7 @@ require (
 	github.com/cespare/subcmd v1.1.0
 	github.com/ebitenui/ebitenui v0.5.5-0.20230624233435-1e70bd0b3fb0
 	github.com/hajimehoshi/bitmapfont/v3 v3.0.0
-	github.com/hajimehoshi/ebiten/v2 v2.6.0-rc.2
+	github.com/hajimehoshi/ebiten/v2 v2.6.0
 	github.com/hajimehoshi/go-steamworks v0.0.0-20230809071343-ee1a81910acc
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e
@@ -19,8 +19,8 @@ require (
 )
 
 require (
-	github.com/ebitengine/oto/v3 v3.1.0-rc.2 // indirect
-	github.com/ebitengine/purego v0.5.0-rc.2 // indirect
+	github.com/ebitengine/oto/v3 v3.1.0 // indirect
+	github.com/ebitengine/purego v0.5.0 // indirect
 	github.com/jezek/xgb v1.1.0 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect

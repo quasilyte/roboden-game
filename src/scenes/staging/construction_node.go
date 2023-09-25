@@ -144,7 +144,8 @@ func (c *constructionNode) Update(delta float64) {
 func (c *constructionNode) GetConstructPos() ge.Pos {
 	xdelta := c.sprite.ImageWidth() * 0.3
 	return ge.Pos{
-		Base:   &c.constructPosBase,
+		Base: &c.constructPosBase,
+		// TODO: use local rand?
 		Offset: gmath.Vec{X: c.world.rand.FloatRange(-xdelta, xdelta)},
 	}
 }
@@ -172,6 +173,7 @@ func (c *constructionNode) OnDamage(damage gamedata.DamageValue, source targetab
 		c.Destroy()
 		return
 	}
+	// TODO: use local rand?
 	explosionOffset := c.world.rand.FloatRange(-xdelta, xdelta)
 	explosionPos := c.constructPosBase.Add(gmath.Vec{X: explosionOffset, Y: c.world.rand.FloatRange(0, 4)})
 	createExplosion(c.world, normalEffectLayer, explosionPos)

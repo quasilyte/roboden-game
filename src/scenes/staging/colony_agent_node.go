@@ -1811,6 +1811,7 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 	if a.hasWaypoint() {
 		if a.moveTowards(delta) {
 			a.clearWaypoint()
+			// TODO: use local rand and do not create this beam in simulation?
 			buildPos := ge.Pos{
 				Base:   &a.colonyCore.pos,
 				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-18, 18)},
@@ -2413,6 +2414,7 @@ func (a *colonyAgentNode) updateCaptureBuilding(delta float64) {
 		target := a.target.(*neutralBuildingNode)
 		if a.moveTowards(delta) {
 			a.clearWaypoint()
+			// TODO: use local rand and do not create this beam in simulation?
 			buildPos := ge.Pos{
 				Base:   &target.pos,
 				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-10, 10)},
@@ -2448,6 +2450,7 @@ func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 	}
 	if a.hasWaypoint() {
 		if a.moveTowards(delta) {
+			// TODO: use local rand and do not create this beam in simulation?
 			a.clearWaypoint()
 			buildPos := ge.Pos{
 				Base:   &target.pos,

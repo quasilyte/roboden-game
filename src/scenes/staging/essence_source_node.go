@@ -17,7 +17,6 @@ type essenceSourceStats struct {
 	value           float64 // Resource score per unit
 	eliteValue      float64 // Elite resource score per unit
 	spritesheet     bool
-	canRotate       bool
 	passable        bool
 	scrap           bool
 	canDeplete      bool
@@ -252,11 +251,8 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	}
 	e.world.stage.AddSpriteBelow(e.sprite)
 
-	if e.stats.canRotate {
-		e.rotation = scene.Rand().Rad()
-	} else {
-		e.sprite.FlipHorizontal = scene.Rand().Bool()
-	}
+	// TODO: use local rand here?
+	e.sprite.FlipHorizontal = scene.Rand().Bool()
 
 	if e.stats == redCrystalSource {
 		e.capacity = 3

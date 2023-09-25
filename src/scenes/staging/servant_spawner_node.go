@@ -34,6 +34,7 @@ func (n *servantSpawnerNode) IsDisposed() bool {
 }
 
 func (n *servantSpawnerNode) Init(scene *ge.Scene) {
+	// TODO: use local rand?
 	n.rotateClockwise = scene.Rand().Bool()
 
 	n.sprite = scene.NewSprite(assets.ImageServantCreep)

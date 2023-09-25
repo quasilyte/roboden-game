@@ -1523,7 +1523,7 @@ func (c *Controller) runUpdateStep(computedDelta, delta float64) {
 			panic(errBadCheckpoint)
 		}
 		if c.world.debugLogs {
-			c.world.sessionState.Logf("checkpoint#%d: OK", i+1)
+			c.world.sessionState.Logf("checkpoint#%d: verified", i+1)
 		}
 	}
 

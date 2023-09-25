@@ -61,6 +61,8 @@ type State struct {
 
 	SentHighscores bool
 
+	GameCommitHash string
+
 	StdoutLogs []string
 }
 

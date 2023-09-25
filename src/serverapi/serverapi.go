@@ -10,7 +10,8 @@ type LeaderboardEntry struct {
 }
 
 type GameReplay struct {
-	GameVersion int `json:"game_version"`
+	GameVersion int    `json:"game_version"`
+	GameCommit  string `json:"game_commit"`
 
 	LevelGenChecksum int `json:"level_gen_checksum"`
 
@@ -18,7 +19,18 @@ type GameReplay struct {
 
 	Config ReplayLevelConfig `json:"config"`
 
+	Debug ReplayDebugInfo `json:"debug"`
+
 	Actions [][]PlayerAction `json:"actions"`
+}
+
+type ReplayDebugInfo struct {
+	PlayerName string `json:"player_name"`
+
+	NumPauses      int `json:"num_pauses"`
+	NumFastForward int `json:"num_fastforward"`
+
+	Checkpoints []int `json:"checkpoints"`
 }
 
 type GameResults struct {

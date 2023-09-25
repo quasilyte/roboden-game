@@ -52,7 +52,7 @@ func main() {
 	config.Finalize()
 
 	controller := staging.NewController(state, config, nil)
-	controller.SetReplayActions(replayData.Actions)
+	controller.SetReplayActions(replayData)
 	simResult, err := runsim.Run(state, replayData.LevelGenChecksum, *timeoutFlag, controller)
 	if err != nil {
 		panic(err)

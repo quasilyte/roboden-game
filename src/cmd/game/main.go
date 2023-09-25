@@ -154,6 +154,7 @@ func main() {
 
 	registerScenes(state)
 	state.Context = ctx
+	state.GameCommitHash = CommitHash
 
 	state.Logf("is mobile? %v", state.Device.IsMobile())
 	state.Logf("game commit version: %v", CommitHash)

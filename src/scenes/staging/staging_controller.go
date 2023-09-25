@@ -59,7 +59,9 @@ type Controller struct {
 	debugInfo        *ge.Label
 	debugUpdateDelay float64
 
-	replayActions [][]serverapi.PlayerAction
+	controllerTick    int
+	replayActions     [][]serverapi.PlayerAction
+	replayCheckpoints []int
 
 	EventBeforeLeaveScene gsignal.Event[gsignal.Void]
 }
@@ -78,8 +80,9 @@ func NewController(state *session.State, config gamedata.LevelConfig, back ge.Sc
 	}
 }
 
-func (c *Controller) SetReplayActions(actions [][]serverapi.PlayerAction) {
-	c.replayActions = actions
+func (c *Controller) SetReplayActions(replay serverapi.GameReplay) {
+	c.replayActions = replay.Actions
+	c.replayCheckpoints = replay.Debug.Checkpoints
 }
 
 func (c *Controller) CenterDemoCamera(pos gmath.Vec) {
@@ -689,7 +692,9 @@ func (c *Controller) onVictoryTrigger(gsignal.Void) {
 }
 
 func (c *Controller) onFastForwardPressed() {
-	c.nodeRunner.ToggleFastForward()
+	if c.nodeRunner.ToggleFastForward() {
+		c.world.result.NumFastForwards++
+	}
 }
 
 func (c *Controller) onExitButtonClicked() {
@@ -1497,6 +1502,32 @@ func (c *Controller) Update(delta float64) {
 
 func (c *Controller) runUpdateStep(computedDelta, delta float64) {
 	c.nodeRunner.Update(delta)
+
+	checkpoint := false
+	if len(c.world.result.DebugCheckpoints) < 32 {
+		if c.controllerTick%1000 == 0 {
+			// 562949953421311 is a JS max safe int value, we take something that is slightly lower than that.
+			control := c.world.rand.IntRange(0, 552949953421310)
+			c.world.result.DebugCheckpoints = append(c.world.result.DebugCheckpoints, control)
+			checkpoint = true
+			if c.world.debugLogs {
+				id := len(c.world.result.DebugCheckpoints)
+				c.world.sessionState.Logf("checkpoint#%d=%d", id, control)
+			}
+		}
+	}
+	if c.world.simulation && checkpoint {
+		i := len(c.world.result.DebugCheckpoints) - 1
+		if c.replayCheckpoints[i] != c.world.result.DebugCheckpoints[i] {
+			fmt.Printf("invalid checkpoint: %d vs %d\n", c.replayCheckpoints[i], c.world.result.DebugCheckpoints[i])
+			panic(errBadCheckpoint)
+		}
+		if c.world.debugLogs {
+			c.world.sessionState.Logf("checkpoint#%d: OK", i+1)
+		}
+	}
+
+	c.controllerTick++
 
 	if !c.transitionQueued {
 		c.victoryCheckDelay = gmath.ClampMin(c.victoryCheckDelay-delta, 0)

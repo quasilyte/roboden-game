@@ -42,18 +42,23 @@ func (r *nodeRunner) Init(scene *ge.Scene) {
 }
 
 func (r *nodeRunner) SetPaused(paused bool) {
+	if !r.paused && paused {
+		r.world.result.NumPauses++
+	}
+
 	if paused {
 		r.world.result.Paused = true
 	}
 	r.paused = paused
 }
 
-func (r *nodeRunner) ToggleFastForward() {
+func (r *nodeRunner) ToggleFastForward() bool {
 	if r.numSteps == 1 {
 		r.numSteps = 2
-	} else {
-		r.numSteps = 1
+		return true
 	}
+	r.numSteps = 1
+	return false
 }
 
 func (r *nodeRunner) SetFastForward(ff bool) {

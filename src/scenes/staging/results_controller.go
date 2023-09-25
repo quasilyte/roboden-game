@@ -85,6 +85,10 @@ type battleResults struct {
 	Replay [][]serverapi.PlayerAction
 
 	Tier3Drones []gamedata.ColonyAgentKind
+
+	NumPauses        int
+	NumFastForwards  int
+	DebugCheckpoints []int
 }
 
 func newResultsController(state *session.State, config *gamedata.LevelConfig, backController ge.SceneController, results battleResults) *resultsController {
@@ -119,6 +123,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 func (c *resultsController) makeGameReplay() serverapi.GameReplay {
 	var replay serverapi.GameReplay
 	replay.GameVersion = gamedata.BuildNumber
+	replay.GameCommit = c.state.GameCommitHash
 	replay.LevelGenChecksum = c.results.LevelGenChecksum
 	replay.Config = c.config.ReplayLevelConfig
 	replay.Actions = c.results.Replay
@@ -126,6 +131,14 @@ func (c *resultsController) makeGameReplay() serverapi.GameReplay {
 	replay.Results.Victory = c.results.Victory
 	replay.Results.Time = int(math.Floor(c.results.TimePlayed.Seconds()))
 	replay.Results.Ticks = c.results.Ticks
+
+	replay.Debug.PlayerName = c.state.Persistent.PlayerName
+	replay.Debug.NumPauses = c.results.NumPauses
+	replay.Debug.NumFastForward = c.results.NumFastForwards
+
+	replay.Debug.Checkpoints = make([]int, len(c.results.DebugCheckpoints))
+	copy(replay.Debug.Checkpoints, c.results.DebugCheckpoints)
+
 	return replay
 }
 

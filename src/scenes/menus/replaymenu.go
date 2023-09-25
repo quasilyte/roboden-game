@@ -90,7 +90,7 @@ func (c *ReplayMenuController) initUI() {
 			config := gamedata.MakeLevelConfig(gamedata.ExecuteReplay, r.Replay.Config)
 			config.Finalize()
 			controller := staging.NewController(c.state, config, NewReplayMenuController(c.state))
-			controller.SetReplayActions(r.Replay.Actions)
+			controller.SetReplayActions(r.Replay)
 			c.scene.Context().ChangeScene(controller)
 		})
 		if replayExists {

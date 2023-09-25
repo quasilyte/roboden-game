@@ -431,4 +431,7 @@ const SeasonNumber = 1
 //   - Attack creep ground bases
 //
 // # Version 18 - couriers hotfix
-const BuildNumber int = 18
+//
+// # Version 19
+// - Storing more info inside a replay (should make the debugging easier)
+const BuildNumber int = 19

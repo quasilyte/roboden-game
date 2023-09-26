@@ -1505,7 +1505,7 @@ func (c *Controller) runUpdateStep(computedDelta, delta float64) {
 	c.nodeRunner.Update(delta)
 
 	checkpoint := false
-	if len(c.world.result.DebugCheckpoints) < 40 {
+	if len(c.world.result.DebugCheckpoints) < 48 {
 		if c.controllerTick%500 == 0 {
 			control := c.world.rand.IntRange(0, math.MaxInt32-1)
 			c.world.result.DebugCheckpoints = append(c.world.result.DebugCheckpoints, control)

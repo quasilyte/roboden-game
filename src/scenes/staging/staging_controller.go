@@ -692,6 +692,10 @@ func (c *Controller) onVictoryTrigger(gsignal.Void) {
 }
 
 func (c *Controller) onFastForwardPressed() {
+	if !c.world.canFastForward {
+		return
+	}
+
 	if c.nodeRunner.ToggleFastForward() {
 		c.world.result.NumFastForwards++
 	}
@@ -1309,9 +1313,17 @@ func (c *Controller) handleInput() {
 		// It does some common stuff and returns from the function.
 	}
 
-	if c.sharedActionIsJustPressed(controls.ActionToggleFastForward) {
-		c.onFastForwardPressed()
-		return
+	if c.world.canFastForward {
+		if c.sharedActionIsJustPressed(controls.ActionToggleFastForward) {
+			c.onFastForwardPressed()
+			return
+		}
+		if c.config.GameMode != gamedata.ModeTutorial {
+			if c.sharedActionIsJustPressed(controls.ActionToggleFastForwardAlt) {
+				c.onFastForwardPressed()
+				return
+			}
+		}
 	}
 
 	if c.sharedActionIsJustPressed(controls.ActionPause) {

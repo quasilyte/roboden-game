@@ -402,8 +402,8 @@ Action disk select | LMB click on the card, 1-5
 Pause | SPACE (also disables fast forward)
 Toggle evolution sheet | ALT
 Toggle user interface | F11
-Toggle fast forward | F
-Ping (Coop only) | CTRL + LMB click
+Toggle fast forward (single player only) | F
+Ping (coop only) | CTRL + LMB click
 Exit/Back | ESC
 
 ##menu.controls.gamepad.text
@@ -415,7 +415,8 @@ Action disk select | Right stick click on the disk, $gamepad_y $gamepad_b $gamep
 Pause | $gamepad_start (also disables fast forward)
 Toggle evolution sheet | R2 button
 Toggle user interface | L2 button
-Ping (Coop only) | Left stick click
+Toggle fast forward (single player only) | Left stick click
+Ping (coop only) | Left stick click
 Exit/Back | $gamepad_back
 
 ##menu.overview.intro_mission

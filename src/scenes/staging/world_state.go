@@ -114,6 +114,8 @@ type worldState struct {
 	tmpTargetSlice2 []targetable
 	tmpColonySlice  []*colonyCoreNode
 
+	canFastForward bool
+
 	inputMode string
 
 	levelGenChecksum int
@@ -211,6 +213,8 @@ func (w *worldState) UnmarkCell(coord pathing.GridCoord) {
 
 func (w *worldState) Init() {
 	w.gridCounters = make(map[int]uint8)
+
+	w.canFastForward = w.config.PlayersMode != serverapi.PmodeTwoPlayers
 
 	{
 		pad := 160.0

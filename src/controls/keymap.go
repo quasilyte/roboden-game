@@ -35,6 +35,7 @@ const (
 	ActionToggleColony
 	ActionToggleInterface
 	ActionToggleFastForward
+	ActionToggleFastForwardAlt
 
 	ActionClick
 
@@ -74,7 +75,8 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 
 		ActionToggleColony: {input.KeyGamepadL1},
 
-		ActionPing: {input.KeyGamepadLStick},
+		ActionPing:                 {input.KeyGamepadLStick},
+		ActionToggleFastForwardAlt: {input.KeyGamepadLStick},
 
 		ActionShowRecipes: {input.KeyGamepadR2},
 

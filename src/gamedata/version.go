@@ -445,4 +445,6 @@ const SeasonNumber = 1
 // - Boost Discharger creep (speed up, hp up, attack range up)
 // - Boost Coordinator creep (hp up)
 // - Reduce the time needed to buy Stunners and Dischargers in reverse mode
+// - Allow fast forward toggling via gamepad (LStick click)
+// - Forbid fast forward in a multiplayer game
 const BuildNumber int = 20

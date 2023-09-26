@@ -81,7 +81,11 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 		score += (config.CreepSpawnRate - 1) * 10
 		score += (config.InitialCreeps - 1) * 10
-		score += 20 - (config.OilRegenRate * 10)
+		if config.Environment == int(EnvInferno) {
+			score += 10 - (config.OilRegenRate * 5)
+		} else {
+			score += 20 - (config.OilRegenRate * 10)
+		}
 		score += 40 - (2 * pointsAllocated)
 		if config.StartingResources {
 			score -= 10
@@ -115,7 +119,11 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 			score += config.InitialCreeps * 10
 		}
 		score += (config.CreepDifficulty - 3) * 20
-		score += 10 - (config.OilRegenRate * 5)
+		if config.Environment == int(EnvInferno) {
+			score += 10 - (config.OilRegenRate * 5)
+		} else {
+			score += 30 - (config.OilRegenRate * 15)
+		}
 		score += 40 - (2 * pointsAllocated)
 		if config.StartingResources {
 			score -= 5

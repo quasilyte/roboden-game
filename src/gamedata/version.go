@@ -440,4 +440,7 @@ const SeasonNumber = 1
 // - Add a pos correction for coordinator waypoints on the map boundary
 // - Exit prompt now does disable the fastforward too
 // - Make oil regen rate worth of 10 difficulty points
+// - Boost Discharger creep (speed up, hp up, attack range up)
+// - Boost Coordinator creep (hp up)
+// - Reduce the time needed to buy Stunners and Dischargers in reverse mode
 const BuildNumber int = 19

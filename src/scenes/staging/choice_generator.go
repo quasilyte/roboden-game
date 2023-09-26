@@ -153,7 +153,7 @@ type creepOptionInfo struct {
 var creepOptionInfoList = func() []creepOptionInfo {
 	list := []creepOptionInfo{
 		{
-			maxUnits:     15,
+			maxUnits:     16,
 			special:      specialBuyCrawlers,
 			minTechLevel: 0,
 			stats:        gamedata.CrawlerCreepStats,
@@ -237,7 +237,10 @@ var creepOptionInfoList = func() []creepOptionInfo {
 		case e.stats.Kind == gamedata.CreepDominator:
 			cooldown *= 1.2
 		case e.stats.Kind == gamedata.CreepStunner:
-			cooldown *= 0.9
+			cooldown *= 0.85
+		case e.stats.Kind == gamedata.CreepTemplar:
+			cooldown *= 0.8
+
 		case !e.stats.Flying:
 			cooldown *= 0.75
 		}

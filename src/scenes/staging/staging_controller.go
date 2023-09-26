@@ -698,6 +698,7 @@ func (c *Controller) onFastForwardPressed() {
 }
 
 func (c *Controller) onExitButtonClicked() {
+	c.nodeRunner.SetFastForward(false)
 	c.removePauseNotices()
 
 	if len(c.exitNotices) != 0 {
@@ -1314,7 +1315,6 @@ func (c *Controller) handleInput() {
 	}
 
 	if c.sharedActionIsJustPressed(controls.ActionPause) {
-		c.nodeRunner.SetFastForward(false)
 		c.onPausePressed()
 		return
 	}
@@ -1423,6 +1423,7 @@ func (c *Controller) onPausePressed() {
 		return
 	}
 
+	c.nodeRunner.SetFastForward(false)
 	c.removePauseNotices()
 
 	paused := !c.nodeRunner.IsPaused()

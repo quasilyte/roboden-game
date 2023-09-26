@@ -71,6 +71,9 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 	if replay.GameVersion < 0 {
 		return false
 	}
+	if len(replay.Debug.Checkpoints) > 40 {
+		return false
+	}
 	if len(replay.Actions) > 6000 {
 		return false
 	}

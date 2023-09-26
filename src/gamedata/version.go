@@ -439,4 +439,5 @@ const SeasonNumber = 1
 // - Update ge package version
 // - Add a pos correction for coordinator waypoints on the map boundary
 // - Exit prompt now does disable the fastforward too
+// - Make oil regen rate worth of 10 difficulty points
 const BuildNumber int = 19

@@ -59,7 +59,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if config.NumCreepBases != 0 {
 			score += (config.CreepDifficulty - 3) * 15
 			if config.SuperCreeps {
-				score += 45
+				score += 50
 			}
 		} else {
 			score += (config.CreepDifficulty - 3) * 10
@@ -69,7 +69,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 		score -= (config.Resources - 2) * 15
 		score += (config.NumCreepBases - 2) * 15
-		score += (config.BossDifficulty - 1) * 20
+		score += (config.BossDifficulty - 1) * 25
 		if config.BossDifficulty == 0 {
 			// Extra penalty for the weakest boss.
 			score -= 15
@@ -81,7 +81,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 		score += (config.CreepSpawnRate - 1) * 10
 		score += (config.InitialCreeps - 1) * 10
-		score += 10 - (config.OilRegenRate * 5)
+		score += 20 - (config.OilRegenRate * 10)
 		score += 40 - (2 * pointsAllocated)
 		if config.StartingResources {
 			score -= 10

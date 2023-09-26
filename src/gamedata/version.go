@@ -438,7 +438,7 @@ const SeasonNumber = 1
 // - Updated Ebitengine version
 // - Update ge package version
 // - Add a pos correction for coordinator waypoints on the map boundary
-
+//
 // # Version
 // - Exit prompt now does disable the fastforward too
 // - Make oil regen rate worth of 10 difficulty points

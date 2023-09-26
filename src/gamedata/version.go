@@ -438,9 +438,11 @@ const SeasonNumber = 1
 // - Updated Ebitengine version
 // - Update ge package version
 // - Add a pos correction for coordinator waypoints on the map boundary
+
+// # Version
 // - Exit prompt now does disable the fastforward too
 // - Make oil regen rate worth of 10 difficulty points
 // - Boost Discharger creep (speed up, hp up, attack range up)
 // - Boost Coordinator creep (hp up)
 // - Reduce the time needed to buy Stunners and Dischargers in reverse mode
-const BuildNumber int = 19
+const BuildNumber int = 20

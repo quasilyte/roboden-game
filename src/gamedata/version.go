@@ -452,4 +452,5 @@ const SeasonNumber = 1
 // - New horizontal landscape mode
 // - Try not to place a teleporter too close to the base starting pos
 // - Improve creeps count scaling in the Reverse mode
+// - Increase the max attack range when doing a Rally action in Reverse mode
 const BuildNumber int = 21

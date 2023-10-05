@@ -203,7 +203,7 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			stats:        gamedata.BuilderCreepStats,
 		},
 		{
-			maxUnits:     5,
+			maxUnits:     6,
 			special:      specialBuyTemplars,
 			minTechLevel: 0.5,
 			extraUnits:   1,

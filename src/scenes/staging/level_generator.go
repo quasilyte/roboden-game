@@ -164,9 +164,17 @@ func (g *levelGenerator) Generate() {
 	}
 }
 
-func (g *levelGenerator) randomFreePosWithFallback(sector, fallback gmath.Rect, radius, pad float64) (gmath.Vec, gmath.Rect) {
-	pos := g.randomFreePos(sector, radius, pad)
-	selectedSector := sector
+func (g *levelGenerator) randomFreePosWithFallback(sector, fallback gmath.Rect, radius, pad float64, avoidSpawnPos bool) (gmath.Vec, gmath.Rect) {
+	var pos gmath.Vec
+	var selectedSector gmath.Rect
+	for i := 0; i < 3; i++ {
+		pos = g.randomFreePos(sector, radius, pad)
+		selectedSector = sector
+		if avoidSpawnPos && pos.DistanceTo(g.playerSpawn) < 196 {
+			continue
+		}
+		break
+	}
 	if pos.IsZero() {
 		pos = g.randomFreePos(fallback, radius, pad)
 		selectedSector = fallback
@@ -263,7 +271,7 @@ func (g *levelGenerator) nextSector(sectorIndex int, sectors []gmath.Rect) gmath
 func (g *levelGenerator) placeTeleporters() {
 	for i := 0; i < g.world.config.Teleporters; i++ {
 		tp1sectorIndex := gmath.RandIndex(g.world.rand, g.sectors)
-		tp1pos, tp1sector := g.randomFreePosWithFallback(g.sectors[tp1sectorIndex], g.nextSector(tp1sectorIndex, g.sectors), 96, 196)
+		tp1pos, tp1sector := g.randomFreePosWithFallback(g.sectors[tp1sectorIndex], g.nextSector(tp1sectorIndex, g.sectors), 96, 196, true)
 		tp1 := &teleporterNode{id: i, pos: g.world.Adjust2x2CellPos(tp1pos, 0).Sub(teleportOffset), world: g.world}
 
 		var tp2 *teleporterNode
@@ -273,7 +281,7 @@ func (g *levelGenerator) placeTeleporters() {
 			if tp2sector == tp1sector {
 				continue
 			}
-			tp2pos, _ := g.randomFreePosWithFallback(tp2sector, g.nextSector(tp2sectorIndex, g.sectors), 96, 196)
+			tp2pos, _ := g.randomFreePosWithFallback(tp2sector, g.nextSector(tp2sectorIndex, g.sectors), 96, 196, true)
 			tp2 = &teleporterNode{id: i, pos: g.world.Adjust2x2CellPos(tp2pos, 0).Sub(teleportOffset), world: g.world}
 			break
 		}

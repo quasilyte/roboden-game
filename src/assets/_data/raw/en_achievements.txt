@@ -128,3 +128,7 @@ Watch a splash screen simulation until the end. Enjoy the cinematic camera while
 ##achievement.gladiator : Gladiator
 ##achievement.gladiator.description
 Submit your results and enter the global leadership table!
+
+##achievement.darkness : Into the Darkness
+##achievement.darkness.description
+Win on a map with a non-square shape and fog of war enabled.

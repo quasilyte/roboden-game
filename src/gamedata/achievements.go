@@ -67,6 +67,11 @@ var AchievementList = []*Achievement{
 		Mode: ModeAny,
 		Icon: assets.ImageAchievementNonstop,
 	},
+	{
+		Name: "darkness",
+		Mode: ModeAny,
+		Icon: assets.ImageAchievementDarkness,
+	},
 
 	// Classic mode achievements.
 	{

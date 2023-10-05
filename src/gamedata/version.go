@@ -453,4 +453,5 @@ const SeasonNumber = 1
 // - Try not to place a teleporter too close to the base starting pos
 // - Improve creeps count scaling in the Reverse mode
 // - Increase the max attack range when doing a Rally action in Reverse mode
+// - Added "Into the Darkness" achievement
 const BuildNumber int = 21

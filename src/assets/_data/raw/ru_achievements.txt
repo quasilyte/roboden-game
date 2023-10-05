@@ -128,3 +128,7 @@
 ##achievement.gladiator : Гладиатор
 ##achievement.gladiator.description
 Отправьте свои результаты и станьте участником глобальной таблицы лидеров.
+
+##achievement.darkness : Корридор Тьмы
+##achievement.darkness.description
+Добейтесь победы со включенным туманом войны на карте любой формы, кроме квадратной.

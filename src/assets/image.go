@@ -41,6 +41,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageAchievementTerminal:       {Path: "image/achievement/terminal.png"},
 		ImageAchievementSpectator:      {Path: "image/achievement/spectator.png"},
 		ImageAchievementGladiator:      {Path: "image/achievement/gladiator.png"},
+		ImageAchievementDarkness:       {Path: "image/achievement/darkness.png"},
 
 		ImageLock: {Path: "image/ui/lock.png"},
 
@@ -464,6 +465,7 @@ const (
 	ImageAchievementTerminal
 	ImageAchievementSpectator
 	ImageAchievementGladiator
+	ImageAchievementDarkness
 
 	ImageLock
 

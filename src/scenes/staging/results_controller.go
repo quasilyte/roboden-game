@@ -269,6 +269,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = !c.results.OpenedEvolutionTab && c.config.GameMode != gamedata.ModeReverse
 		case "nonstop":
 			unlocked = !c.results.Paused && c.config.GameMode != gamedata.ModeReverse
+		case "darkness":
+			unlocked = c.config.WorldShape != int(gamedata.WorldSquare) && c.config.FogOfWar
 
 		case "impossible":
 			unlocked = c.results.DifficultyScore > 200

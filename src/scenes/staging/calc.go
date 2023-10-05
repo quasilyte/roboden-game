@@ -17,9 +17,9 @@ func numCreepsPerCard(state *creepsPlayerState, info creepOptionInfo) int {
 	}
 	extraTech := gmath.Clamp(techLevel-info.minTechLevel, 0, 1.0)
 	if extraTech == 0 {
-		return 1
+		return 1 + info.extraUnits
 	}
-	numUnits := gmath.Clamp(1+int(float64(info.maxUnits)*extraTech), 1, info.maxUnits)
+	numUnits := gmath.Clamp((1+info.extraUnits)+int(math.Round(float64(info.maxUnits)*extraTech)), 1, info.maxUnits)
 	return numUnits
 }
 

@@ -147,6 +147,7 @@ type creepOptionInfo struct {
 	stats        *gamedata.CreepStats
 	minTechLevel float64
 	maxUnits     int
+	extraUnits   int
 	cooldown     float64
 }
 
@@ -174,6 +175,7 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			maxUnits:     8,
 			special:      specialBuyStunners,
 			minTechLevel: 0.2,
+			extraUnits:   1,
 			stats:        gamedata.StunnerCreepStats,
 		},
 		{
@@ -204,6 +206,7 @@ var creepOptionInfoList = func() []creepOptionInfo {
 			maxUnits:     5,
 			special:      specialBuyTemplars,
 			minTechLevel: 0.5,
+			extraUnits:   1,
 			stats:        gamedata.TemplarCreepStats,
 		},
 		{

@@ -58,6 +58,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageRadarlessButtons:     {Path: "image/ui/radarless_buttons.png"},
 		ImageDarkRadarlessButtons: {Path: "image/ui/dark_radarless_buttons.png"},
 		ImageDarkRadar:            {Path: "image/ui/dark_radar.png"},
+		ImageDarkRadarHorizontal:  {Path: "image/ui/dark_radar_horizontal.png"},
+		ImageDarkRadarVertical:    {Path: "image/ui/dark_radar_vertical.png"},
 		ImageRadar:                {Path: "image/ui/radar.png"},
 		ImageRadarWave:            {Path: "image/ui/radar_wave.png"},
 		ImageRadarAlliedSpot:      {Path: "image/ui/radar_allied_spot.png"},
@@ -483,6 +485,8 @@ const (
 	ImageRadarMiniAlliedSpot
 	ImageRadarAlliedCross
 	ImageDarkRadar
+	ImageDarkRadarHorizontal
+	ImageDarkRadarVertical
 	ImageDarkDPad
 	ImageRightPanelLayer1
 	ImageRightPanelLayer2

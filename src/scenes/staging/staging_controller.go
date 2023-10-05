@@ -304,21 +304,30 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		c.state.MemProfileWriter = f
 	}
 
-	var worldSize float64
+	var worldWidth float64
+	var worldHeight float64
 	switch c.config.WorldSize {
 	case 0:
-		worldSize = 1856
+		worldWidth = 1856
 	case 1:
-		worldSize = 2368
+		worldWidth = 2368
 	case 2:
-		worldSize = 2880
+		worldWidth = 2880
 	case 3:
-		worldSize = 3392
+		worldWidth = 3392
 	}
-
+	worldHeight = worldWidth
+	switch gamedata.WorldShape(c.config.WorldShape) {
+	case gamedata.WorldHorizontal:
+		worldWidth += float64(512 * (c.config.WorldSize + 1))
+		worldHeight = 1088
+	case gamedata.WorldVertical:
+		worldWidth = 1088
+		worldHeight += float64(512 * (c.config.WorldSize + 1))
+	}
 	viewportWorld := &viewport.World{
-		Width:  worldSize,
-		Height: worldSize,
+		Width:  worldWidth,
+		Height: worldHeight,
 	}
 
 	var localRand gmath.Rand
@@ -376,9 +385,29 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		coreDesign:   gamedata.FindCoreByName(c.config.CoreDesign),
 		hasForests:   gamedata.EnvironmentKind(c.config.Environment) == gamedata.EnvForest,
 		envKind:      gamedata.EnvironmentKind(c.config.Environment),
+		mapShape:     gamedata.WorldShape(c.config.WorldShape),
 	}
-	world.innerRect = resizedRect(world.rect, -180)
-	world.innerRect2 = resizedRect(world.rect, -260)
+
+	switch world.mapShape {
+	case gamedata.WorldSquare:
+		world.innerRect = resizedRect(world.rect, -180)
+		world.innerRect2 = resizedRect(world.rect, -260)
+	case gamedata.WorldHorizontal:
+		world.innerRect = resizedRect(world.rect, -140)
+		offset := gmath.Vec{X: 340, Y: 260}
+		world.innerRect2 = gmath.Rect{
+			Min: world.rect.Min.Add(offset),
+			Max: world.rect.Max.Sub(offset),
+		}
+	case gamedata.WorldVertical:
+		world.innerRect = resizedRect(world.rect, -140)
+		offset := gmath.Vec{X: 260, Y: 340}
+		world.innerRect2 = gmath.Rect{
+			Min: world.rect.Min.Add(offset),
+			Max: world.rect.Max.Sub(offset),
+		}
+	}
+
 	world.inputMode = c.state.GetInput(0).DetectInputMode()
 	world.creepCoordinator = newCreepCoordinator(world)
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
@@ -425,13 +454,6 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	c.world.stage.SetBackground(bg)
 
 	c.camera = c.createCameraManager(viewportWorld, true, c.state.GetInput(0))
-
-	forceCenter := c.config.ExecMode == gamedata.ExecuteReplay ||
-		c.config.PlayersMode == serverapi.PmodeTwoBots ||
-		c.config.PlayersMode == serverapi.PmodeSingleBot
-	if forceCenter {
-		c.camera.CenterOn(c.world.rect.Center())
-	}
 
 	c.nodeRunner.world = world
 
@@ -490,6 +512,13 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	{
 		g := newLevelGenerator(scene, bg, c.world)
 		g.Generate()
+	}
+
+	forceCenter := c.config.ExecMode == gamedata.ExecuteReplay ||
+		c.config.PlayersMode == serverapi.PmodeTwoBots ||
+		c.config.PlayersMode == serverapi.PmodeSingleBot
+	if forceCenter {
+		c.camera.CenterOn(c.world.spawnPos)
 	}
 
 	for _, p := range c.world.players {

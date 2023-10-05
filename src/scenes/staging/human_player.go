@@ -218,6 +218,11 @@ func (p *humanPlayer) Init() {
 			p.world.EventCenturionCreated.Connect(p, p.addCenturionToCreepsRadar)
 			p.world.EventCrawlerFactoryCreated.Connect(p, p.addCrawlerFactoryToCreepsRadar)
 		}
+		if p.creepsState != nil {
+			if p.world.mapShape == gamedata.WorldHorizontal {
+				buttonsPos.X += 28 * 2
+			}
+		}
 	} else {
 		buttonsPos = gmath.Vec{X: 8, Y: 470}
 	}

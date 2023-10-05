@@ -19,13 +19,15 @@ const (
 )
 
 type levelGenerator struct {
-	scene        *ge.Scene
-	rng          gmath.Rand
-	world        *worldState
-	playerSpawn  gmath.Vec
-	sectors      []gmath.Rect
-	sectorSlider gmath.Slider
-	bg           *ge.TiledBackground
+	scene              *ge.Scene
+	rng                gmath.Rand
+	world              *worldState
+	playerSpawn        gmath.Vec
+	sectors            []gmath.Rect
+	sectorSlider       gmath.Slider
+	activeSectors      []gmath.Rect
+	activeSectorSlider gmath.Slider
+	bg                 *ge.TiledBackground
 
 	resourcesByStats map[*essenceSourceStats][]*essenceSourceNode
 
@@ -46,18 +48,83 @@ func newLevelGenerator(scene *ge.Scene, bg *ge.TiledBackground, world *worldStat
 		resourcesByStats: make(map[*essenceSourceStats][]*essenceSourceNode, 16),
 	}
 	g.rng.SetSeed(world.config.Seed)
-	g.sectors = []gmath.Rect{
-		{Min: gmath.Vec{X: 0, Y: 0}, Max: gmath.Vec{X: g.world.width / 2, Y: g.world.height / 2}},
-		{Min: gmath.Vec{X: g.world.width / 2, Y: 0}, Max: gmath.Vec{X: g.world.width, Y: g.world.height / 2}},
-		{Min: gmath.Vec{X: 0, Y: g.world.height / 2}, Max: gmath.Vec{X: g.world.width / 2, Y: g.world.height}},
-		{Min: gmath.Vec{X: g.world.width / 2, Y: g.world.height / 2}, Max: gmath.Vec{X: g.world.width, Y: g.world.height}},
+
+	numSectors := func(worldSize int) int {
+		switch worldSize {
+		case 0:
+			return 4
+		case 1, 2:
+			return 6
+		default:
+			return 8
+		}
 	}
+
+	switch g.world.mapShape {
+	case gamedata.WorldSquare:
+		g.sectors = []gmath.Rect{
+			{Min: gmath.Vec{X: 0, Y: 0}, Max: gmath.Vec{X: g.world.width / 2, Y: g.world.height / 2}},
+			{Min: gmath.Vec{X: g.world.width / 2, Y: 0}, Max: gmath.Vec{X: g.world.width, Y: g.world.height / 2}},
+			{Min: gmath.Vec{X: 0, Y: g.world.height / 2}, Max: gmath.Vec{X: g.world.width / 2, Y: g.world.height}},
+			{Min: gmath.Vec{X: g.world.width / 2, Y: g.world.height / 2}, Max: gmath.Vec{X: g.world.width, Y: g.world.height}},
+		}
+	case gamedata.WorldHorizontal:
+		numSectors := numSectors(g.world.config.WorldSize)
+		g.sectors = make([]gmath.Rect, numSectors)
+		sectorWidth := int(g.world.width) / len(g.sectors)
+		for i := range g.sectors {
+			offsetX := float64(i * sectorWidth)
+			rect := gmath.Rect{
+				Min: gmath.Vec{X: offsetX, Y: 0},
+				Max: gmath.Vec{X: offsetX + float64(sectorWidth), Y: g.world.height},
+			}
+			g.sectors[i] = rect
+		}
+	case gamedata.WorldVertical:
+		numSectors := numSectors(g.world.config.WorldSize)
+		g.sectors = make([]gmath.Rect, numSectors)
+		sectorHeight := int(g.world.height) / len(g.sectors)
+		for i := range g.sectors {
+			offsetY := float64(i * sectorHeight)
+			rect := gmath.Rect{
+				Min: gmath.Vec{X: 0, Y: offsetY},
+				Max: gmath.Vec{X: g.world.width, Y: offsetY + float64(sectorHeight)},
+			}
+			g.sectors[i] = rect
+		}
+	default:
+		panic(fmt.Sprintf("unexpected world shape: %d", g.world.mapShape))
+	}
+
 	g.sectorSlider.SetBounds(0, len(g.sectors)-1)
 	return g
 }
 
 func (g *levelGenerator) Generate() {
 	g.playerSpawn = g.world.rect.Center()
+
+	if g.world.mapShape == gamedata.WorldSquare {
+		g.activeSectors = g.sectors
+	} else {
+		if g.rng.Bool() {
+			if g.world.mapShape == gamedata.WorldHorizontal {
+				g.playerSpawn.X = 320
+			} else {
+				g.playerSpawn.Y = 320
+			}
+			g.activeSectors = g.sectors[1:]
+		} else {
+			if g.world.mapShape == gamedata.WorldHorizontal {
+				g.playerSpawn.X = g.world.width - 320
+			} else {
+				g.playerSpawn.Y = g.world.height - 320
+			}
+			g.activeSectors = g.sectors[:len(g.sectors)-1]
+		}
+	}
+	g.activeSectorSlider.SetBounds(0, len(g.activeSectors)-1)
+
+	g.world.spawnPos = g.playerSpawn
 
 	type genStep struct {
 		name string
@@ -241,7 +308,8 @@ func (g *levelGenerator) placeRelicts() {
 		for attempt := 0; attempt < 10; attempt++ {
 			sector := g.sectors[g.sectorSlider.Value()]
 			g.sectorSlider.Dec()
-			pos := g.randomFreePos(sector, 48, 168)
+			pad := float64(g.world.rand.IntRange(128, 200))
+			pos := g.randomFreePos(sector, 48, pad)
 			if pos.IsZero() {
 				continue
 			}
@@ -390,7 +458,14 @@ func (g *levelGenerator) checkResourceMinDist(pos gmath.Vec, minDistSqr float64,
 func (g *levelGenerator) placeResourceCluster(sector gmath.Rect, maxSize int, minDist float64, kind *essenceSourceStats) int {
 	rand := &g.rng
 	placed := 0
-	pos := correctedPos(sector, g.randomPos(sector), 96)
+
+	pad := float64(g.rng.IntRange(64, 128))
+	switch kind {
+	case redCrystalSource, redOilSource, oilSource, sulfurSource:
+		pad += 64
+	}
+	pos := correctedPos(sector, g.randomPos(sector), pad)
+
 	initialPos := pos
 	minDistSqr := minDist * minDist
 	addedSpots := make([]*essenceSourceNode, 0, 6)
@@ -640,13 +715,32 @@ func (g *levelGenerator) placeBoss() {
 		return
 	}
 
-	spawnLocations := []gmath.Vec{
-		{X: 196, Y: 196},
-		{X: g.world.width - 196, Y: 196},
-		{X: 196, Y: g.world.height - 196},
-		{X: g.world.width - 196, Y: g.world.height - 196},
+	var pos gmath.Vec
+	if g.world.mapShape == gamedata.WorldSquare {
+		spawnLocations := []gmath.Vec{
+			{X: 196, Y: 196},
+			{X: g.world.width - 196, Y: 196},
+			{X: 196, Y: g.world.height - 196},
+			{X: g.world.width - 196, Y: g.world.height - 196},
+		}
+		pos = gmath.RandElem(&g.rng, spawnLocations)
+	} else {
+		pos = g.world.rect.Center()
+		if g.world.mapShape == gamedata.WorldHorizontal {
+			if g.playerSpawn.X < g.world.rect.Center().X {
+				pos.X = g.world.width - 320
+			} else {
+				pos.X = 320
+			}
+		} else {
+			if g.playerSpawn.Y < g.world.rect.Center().Y {
+				pos.Y = g.world.height - 320
+			} else {
+				pos.Y = 320
+			}
+		}
 	}
-	pos := gmath.RandElem(&g.rng, spawnLocations)
+
 	boss := g.world.NewCreepNode(pos, gamedata.UberBossCreepStats)
 	if g.world.config.GameMode == gamedata.ModeReverse {
 		boss.specialDelay = 60 * 60 * 60 // ~never
@@ -723,12 +817,12 @@ func (g *levelGenerator) placeCreeps() {
 		return
 	}
 
-	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
+	g.activeSectorSlider.TrySetValue(rand.IntRange(0, len(g.activeSectors)-1))
 
 	numTurrets := int(math.Round(float64(rand.IntRange(4, 5)) * multiplier))
 	for numTurrets > 0 {
-		sector := g.sectors[g.sectorSlider.Value()]
-		g.sectorSlider.Inc()
+		sector := g.activeSectors[g.activeSectorSlider.Value()]
+		g.activeSectorSlider.Inc()
 		numTurrets -= g.placeCreepsCluster(sector, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 140})
 	}
 
@@ -738,8 +832,8 @@ func (g *levelGenerator) placeCreeps() {
 		heavyChance = 0.6
 	}
 	for numCrawlers > 0 {
-		sector := g.sectors[g.sectorSlider.Value()]
-		g.sectorSlider.Inc()
+		sector := g.activeSectors[g.activeSectorSlider.Value()]
+		g.activeSectorSlider.Inc()
 		stats := gamedata.CrawlerCreepStats
 		if g.rng.Chance(heavyChance) {
 			stats = gamedata.HeavyCrawlerCreepStats
@@ -756,8 +850,8 @@ func (g *levelGenerator) placeCreeps() {
 		}
 	}
 	for numSpecial > 0 {
-		sector := g.sectors[g.sectorSlider.Value()]
-		g.sectorSlider.Inc()
+		sector := g.activeSectors[g.activeSectorSlider.Value()]
+		g.activeSectorSlider.Inc()
 		numSpecial -= g.placeCreepsCluster(sector, 1, specialStats, creepPlacingConfig{Pad: 196, NoScraps: true})
 	}
 }
@@ -813,68 +907,83 @@ func (g *levelGenerator) placeCreepBases() {
 	if g.world.config.NumCreepBases == 0 {
 		return // Zero bases
 	}
-	// The bases are always located somewhere on the map boundary.
-	// Bases can't be on the same border.
-	pad := 128.0
-	borderWidth := 440.0
-	borders := []gmath.Rect{
-		// top border
-		{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: borderWidth + pad}},
-		// right border
-		{Min: gmath.Vec{X: g.world.width - borderWidth - pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
-		// left border
-		{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: borderWidth + pad, Y: g.world.height - pad}},
-		// bottom border
-		{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
-	}
-	gmath.Shuffle(&g.rng, borders)
-	var borderSlider gmath.Slider
-	borderSlider.SetBounds(0, len(borders)-1)
-	numBases := g.world.config.NumCreepBases
-	for i := 0; i < numBases; i++ {
-		border := borders[borderSlider.Value()]
-		borderSlider.Inc()
-		basePos := g.randomFreePos(border, 48, 32)
-		basePos = g.world.AdjustCellPos(basePos, 6)
-		if g.world.debugLogs {
-			g.world.sessionState.Logf("deployed a creep base %d at %v distance is %f", i+1, basePos, basePos.DistanceTo(g.playerSpawn))
-		}
-		baseRegion := gmath.Rect{
-			Min: basePos.Sub(gmath.Vec{X: 148, Y: 148}),
-			Max: basePos.Add(gmath.Vec{X: 148, Y: 148}),
-		}
-		super := i == 0 && g.world.config.SuperCreeps
 
-		if g.world.seedKind == gamedata.SeedLeet {
-			for attempt := 0; attempt < 3; attempt++ {
-				crawlersFactory := g.placeCreep(baseRegion, gamedata.CrawlerBaseCreepStats, creepPlacingConfig{
-					CreepInit: func(creep *creepNode) {
-						creep.super = super
-					},
-					NoScraps: true,
-					Pad:      8,
-				})
-				if crawlersFactory != nil {
-					break
-				}
+	if g.world.mapShape != gamedata.WorldSquare {
+		g.activeSectorSlider.TrySetValue(g.rng.IntRange(0, len(g.activeSectors)-1))
+		for i := 0; i < g.world.config.NumCreepBases; i++ {
+			sector := g.activeSectors[g.activeSectorSlider.Value()]
+			g.activeSectorSlider.Inc()
+			basePos := g.randomFreePos(sector, 48, 140)
+			basePos = g.world.AdjustCellPos(basePos, 6)
+			g.createCreepBase(i, basePos)
+		}
+	} else {
+		// The bases are always located somewhere on the map boundary.
+		// Bases can't be on the same border.
+		pad := 128.0
+		borderWidth := 440.0
+		borders := []gmath.Rect{
+			// top border
+			{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: borderWidth + pad}},
+			// right border
+			{Min: gmath.Vec{X: g.world.width - borderWidth - pad, Y: pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
+			// left border
+			{Min: gmath.Vec{X: pad, Y: pad}, Max: gmath.Vec{X: borderWidth + pad, Y: g.world.height - pad}},
+			// bottom border
+			{Min: gmath.Vec{X: pad, Y: g.world.height - borderWidth - pad}, Max: gmath.Vec{X: g.world.width - pad, Y: g.world.height - pad}},
+		}
+		gmath.Shuffle(&g.rng, borders)
+		var borderSlider gmath.Slider
+		borderSlider.SetBounds(0, len(borders)-1)
+		for i := 0; i < g.world.config.NumCreepBases; i++ {
+			border := borders[borderSlider.Value()]
+			borderSlider.Inc()
+			basePos := g.randomFreePos(border, 48, 32)
+			basePos = g.world.AdjustCellPos(basePos, 6)
+			g.createCreepBase(i, basePos)
+		}
+	}
+}
+
+func (g *levelGenerator) createCreepBase(i int, basePos gmath.Vec) {
+	if g.world.debugLogs {
+		g.world.sessionState.Logf("deployed a creep base %d at %v distance is %f", i+1, basePos, basePos.DistanceTo(g.playerSpawn))
+	}
+	baseRegion := gmath.Rect{
+		Min: basePos.Sub(gmath.Vec{X: 148, Y: 148}),
+		Max: basePos.Add(gmath.Vec{X: 148, Y: 148}),
+	}
+	super := i == 0 && g.world.config.SuperCreeps
+
+	if g.world.seedKind == gamedata.SeedLeet {
+		for attempt := 0; attempt < 3; attempt++ {
+			crawlersFactory := g.placeCreep(baseRegion, gamedata.CrawlerBaseCreepStats, creepPlacingConfig{
+				CreepInit: func(creep *creepNode) {
+					creep.super = super
+				},
+				NoScraps: true,
+				Pad:      8,
+			})
+			if crawlersFactory != nil {
+				break
 			}
 		}
-
-		// Placing the turret before the base to avoid the "can't deploy" issue.
-		// It may lead to some weird setups, but oh well.
-		// A better solution would be to re-adjust the base pos afterwards or whatever.
-		g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 24, NoScraps: true})
-		base := g.world.NewCreepNode(basePos, gamedata.BaseCreepStats)
-		base.super = super
-		if i == 1 || i == 3 {
-			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
-		} else {
-			base.specialModifier = 1.0 // Initial base level
-			base.specialDelay = g.rng.FloatRange(60, 120)
-			base.attackDelay = g.rng.FloatRange(40, 50)
-		}
-		g.world.nodeRunner.AddObject(base)
 	}
+
+	// Placing the turret before the base to avoid the "can't deploy" issue.
+	// It may lead to some weird setups, but oh well.
+	// A better solution would be to re-adjust the base pos afterwards or whatever.
+	g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 24, NoScraps: true})
+	base := g.world.NewCreepNode(basePos, gamedata.BaseCreepStats)
+	base.super = super
+	if i == 1 || i == 3 {
+		base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
+	} else {
+		base.specialModifier = 1.0 // Initial base level
+		base.specialDelay = g.rng.FloatRange(60, 120)
+		base.attackDelay = g.rng.FloatRange(40, 50)
+	}
+	g.world.nodeRunner.AddObject(base)
 }
 
 func (g *levelGenerator) placeLandmarks() {
@@ -1013,7 +1122,7 @@ func (g *levelGenerator) placeLavaGeysers() {
 	for i := 0; i < numGeysers; i++ {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		pos := g.randomFreePos(sector, 64, 160)
+		pos := g.randomFreePos(sector, 64, 96)
 		if pos.IsZero() {
 			continue
 		}
@@ -1036,9 +1145,16 @@ func (g *levelGenerator) placeForests() {
 		Max: g.playerSpawn.Add(gmath.Vec{X: 96, Y: 96}),
 	}
 
-	maxForests := g.world.config.WorldSize + 2
-	if g.world.config.WorldSize == 3 {
-		maxForests++
+	var maxForests int
+	switch g.world.config.WorldSize {
+	case 0:
+		maxForests = 1
+	case 1:
+		maxForests = 3
+	case 2:
+		maxForests = 4
+	case 3:
+		maxForests = 6
 	}
 	switch g.world.config.Terrain {
 	case 0: // flat
@@ -1046,8 +1162,18 @@ func (g *levelGenerator) placeForests() {
 	case 2: // less flat
 		maxForests++
 	}
+	if g.world.config.WorldShape != int(gamedata.WorldSquare) {
+		maxForests--
+	}
+	maxForests = gmath.ClampMin(maxForests, 1)
 
 	var trees []pendingImage
+
+	minForestSize := 6
+	maxForestSize := 16
+	if g.world.mapShape != gamedata.WorldSquare {
+		maxForestSize = 11
+	}
 
 	for _, sector := range g.sectors {
 		numForests := rand.IntRange(1, maxForests)
@@ -1056,8 +1182,8 @@ func (g *levelGenerator) placeForests() {
 				X: pathing.CellSize * 0.5,
 				Y: pathing.CellSize * 0.5,
 			})
-			width := g.world.rand.IntRange(6, 16)
-			height := g.world.rand.IntRange(6, 16)
+			width := g.world.rand.IntRange(minForestSize, maxForestSize)
+			height := g.world.rand.IntRange(minForestSize, maxForestSize)
 
 			xOverflow := (pos.X + float64(width)*32) - (g.world.width - 32.0)
 			yOverflow := (pos.Y + float64(height)*32) - (g.world.height - 32.0)
@@ -1210,8 +1336,9 @@ func (g *levelGenerator) placeWalls() {
 
 		var pos gmath.Vec
 		for i := 0; i < 10; i++ {
-			pos = correctedPos(sector, g.randomPos(sector), 96)
-			if posIsFree(g.world, nil, pos, 48) {
+			probe := correctedPos(sector, g.randomPos(sector), 96)
+			if posIsFree(g.world, nil, probe, 48) {
+				pos = probe
 				break
 			}
 		}
@@ -1367,8 +1494,9 @@ func (g *levelGenerator) placeWalls() {
 
 		var pos gmath.Vec
 		for i := 0; i < 10; i++ {
-			pos = correctedPos(sector, g.randomPos(sector), 196)
-			if posIsFree(g.world, nil, pos, 80) {
+			probe := correctedPos(sector, g.randomPos(sector), 196)
+			if posIsFree(g.world, nil, probe, 80) {
+				pos = probe
 				break
 			}
 		}

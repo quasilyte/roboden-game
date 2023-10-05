@@ -128,6 +128,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 		{cfg.GameSpeed, 0, 3},
 		{cfg.Teleporters, 0, 2},
 		{cfg.WorldSize, 0, 3},
+		{cfg.WorldShape, 0, 2},
 		{cfg.Resources, 0, 4},
 		{cfg.OilRegenRate, 0, 3},
 		{cfg.Terrain, 0, 2},

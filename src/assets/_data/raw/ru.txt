@@ -161,6 +161,10 @@
 ##menu.credits.special_thanks : благодарности
 ##menu.credits.thank_player : И тебе спасибо, дорогой игрок <3
 
+##menu.lobby.world_shape.square : квадратная
+##menu.lobby.world_shape.horizontal : горизонтальная
+##menu.lobby.world_shape.vertical : вертикальная
+
 ##menu.lobby.points_allocated : Кредитов использовано
 
 ##menu.lobby.game_seed : Сид игры
@@ -226,6 +230,12 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.lobby.world_size.description
 Размер генерируемого мира.
 Как правило, играть на более мелких картах сложнее.
+
+##menu.lobby.world_shape : Форма мира
+##menu.lobby.world_shape.description
+Формат генерируемой карты.
+Карта может быть квадратной или прямоугольной формы.
+Прямоугольные карты бывают горизонтальными и вертикальными.
 
 ##menu.lobby.gold_enabled : Золото
 ##menu.lobby.gold_enabled.description

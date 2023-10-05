@@ -160,6 +160,10 @@ You can change this decision later.
 ##menu.credits.special_thanks : special thanks
 ##menu.credits.thank_player : And thank you, dear player <3
 
+##menu.lobby.world_shape.square : square
+##menu.lobby.world_shape.horizontal : horizontal
+##menu.lobby.world_shape.vertical : vertical
+
 ##menu.lobby.points_allocated : Points allocated
 
 ##menu.lobby.game_seed : Game seed
@@ -231,6 +235,12 @@ On moon environment, disabling gold doubles the iron resources capacity.
 ##menu.lobby.world_size.description
 The generated world size.
 It's usually harder to play on a smaller map.
+
+##menu.lobby.world_shape : World shape
+##menu.lobby.world_shape.description
+The generated world map shape.
+It can be a square map or a rectangle-shaped map.
+A rectangle-shaped map is either horizontal or vertical.
 
 ##menu.lobby.oil_regen_rate : Oil regeneration rate
 ##menu.lobby.oil_regen_rate.description

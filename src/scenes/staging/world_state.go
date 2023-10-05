@@ -57,10 +57,12 @@ type worldState struct {
 	centurionRallyPoint    gmath.Vec
 	centurionRallyPointPtr *gmath.Vec
 
-	creepClusterSize       float64
-	creepClusterMultiplier float64
-	creepClusters          [8][8][]*creepNode
-	fallbackCreepCluster   []*creepNode
+	creepClusterWidth       float64
+	creepClusterHeight      float64
+	creepClusterMultiplierX float64
+	creepClusterMultiplierY float64
+	creepClusters           [8][8][]*creepNode
+	fallbackCreepCluster    []*creepNode
 
 	graphicsSettings session.GraphicsSettings
 	tier2recipes     []gamedata.AgentMergeRecipe
@@ -119,6 +121,9 @@ type worldState struct {
 	inputMode string
 
 	levelGenChecksum int
+
+	mapShape gamedata.WorldShape
+	spawnPos gmath.Vec
 
 	EventCheckDefeatState      gsignal.Event[gsignal.Void]
 	EventColonyCreated         gsignal.Event[*colonyCoreNode]
@@ -231,8 +236,10 @@ func (w *worldState) Init() {
 		}
 	}
 
-	w.creepClusterSize = w.width * 0.125
-	w.creepClusterMultiplier = 1.0 / w.creepClusterSize
+	w.creepClusterWidth = w.width / 8
+	w.creepClusterHeight = w.height / 8
+	w.creepClusterMultiplierX = 1.0 / w.creepClusterWidth
+	w.creepClusterMultiplierY = 1.0 / w.creepClusterHeight
 	w.fallbackCreepCluster = make([]*creepNode, 0, 32)
 	for y := range w.creepClusters {
 		for x := range w.creepClusters {
@@ -320,17 +327,23 @@ func (w *worldState) newProjectileNode(config projectileConfig) *projectileNode 
 }
 
 func (w *worldState) GetCellRect(x, y int) gmath.Rect {
-	min := gmath.Vec{X: float64(x) * w.creepClusterSize, Y: float64(y) * w.creepClusterSize}
+	min := gmath.Vec{X: float64(x) * w.creepClusterWidth, Y: float64(y) * w.creepClusterHeight}
 	return gmath.Rect{
 		Min: min,
-		Max: min.Add(gmath.Vec{X: w.creepClusterSize, Y: w.creepClusterSize}),
+		Max: min.Add(gmath.Vec{X: w.creepClusterWidth, Y: w.creepClusterHeight}),
 	}
 }
 
-func (w *worldState) GetPosCell(pos gmath.Vec) (x int, y int) {
-	cellX := int(pos.X * w.creepClusterMultiplier)
-	cellY := int(pos.Y * w.creepClusterMultiplier)
-	return cellX, cellY
+func (w *worldState) GetPosCell(pos gmath.Vec) (x int, y int, ok bool) {
+	if pos.X < 0 || pos.X > w.width {
+		return 0, 0, false
+	}
+	if pos.Y < 0 || pos.Y > w.height {
+		return 0, 0, false
+	}
+	cellX := int(pos.X * w.creepClusterMultiplierX)
+	cellY := int(pos.Y * w.creepClusterMultiplierY)
+	return cellX, cellY, true
 }
 
 func (w *worldState) GetPingDst(src *humanPlayer) *humanPlayer {
@@ -353,8 +366,8 @@ func (w *worldState) Update() {
 
 	for _, creep := range w.creeps {
 		if creep.marked == 0 {
-			x, y := w.GetPosCell(creep.pos)
-			if y < len(w.creepClusters) {
+			x, y, ok := w.GetPosCell(creep.pos)
+			if ok && y < len(w.creepClusters) {
 				if x < len(w.creepClusters[y]) {
 					w.creepClusters[y][x] = append(w.creepClusters[y][x], creep)
 					continue
@@ -571,7 +584,10 @@ func (w *worldState) BuildPath(from, to gmath.Vec, l pathing.GridLayer) pathing.
 
 func (w *worldState) findSearchClusters(pos gmath.Vec, r float64) (startX, startY, endX, endY int) {
 	// Find a sector that contains this pos.
-	cellX, cellY := w.GetPosCell(pos)
+	cellX, cellY, ok := w.GetPosCell(pos)
+	if !ok {
+		return 0, 0, 0, 0
+	}
 	cellRect := w.GetCellRect(cellX, cellY)
 
 	// Determine how many sectors we need to consider.
@@ -586,19 +602,19 @@ func (w *worldState) findSearchClusters(pos gmath.Vec, r float64) (startX, start
 	rightmostPos := gmath.Vec{X: pos.X + searchRange, Y: pos.Y + searchRange}
 	if leftmostPos.X < cellRect.Min.X {
 		delta := cellRect.Min.X - leftmostPos.X
-		startX -= int(math.Ceil(delta * w.creepClusterMultiplier))
+		startX -= int(math.Ceil(delta * w.creepClusterMultiplierX))
 	}
 	if rightmostPos.X > cellRect.Max.X {
 		delta := rightmostPos.X - cellRect.Max.X
-		endX += int(math.Ceil(delta * w.creepClusterMultiplier))
+		endX += int(math.Ceil(delta * w.creepClusterMultiplierX))
 	}
 	if leftmostPos.Y < cellRect.Min.Y {
 		delta := cellRect.Min.Y - leftmostPos.Y
-		startY -= int(math.Ceil(delta * w.creepClusterMultiplier))
+		startY -= int(math.Ceil(delta * w.creepClusterMultiplierY))
 	}
 	if rightmostPos.Y > cellRect.Max.Y {
 		delta := rightmostPos.Y - cellRect.Max.Y
-		endY += int(math.Ceil(delta * w.creepClusterMultiplier))
+		endY += int(math.Ceil(delta * w.creepClusterMultiplierY))
 	}
 
 	startX = gmath.Clamp(startX, 0, 7)

@@ -50,9 +50,13 @@ func TestFindSearchClusters(t *testing.T) {
 
 	for i, test := range tests {
 		world := &worldState{
-			creepClusterSize: test.clusterSize,
+			creepClusterWidth:  test.clusterSize,
+			creepClusterHeight: test.clusterSize,
+			width:              2000,
+			height:             2000,
 		}
-		world.creepClusterMultiplier = 1.0 / world.creepClusterSize
+		world.creepClusterMultiplierX = 1.0 / world.creepClusterWidth
+		world.creepClusterMultiplierY = 1.0 / world.creepClusterHeight
 		startX, startY, endX, endY := world.findSearchClusters(test.pos, test.r)
 		have := [4]int{startX, startY, endX, endY}
 		if test.want != have {

@@ -677,6 +677,15 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 	}
 
 	{
+		b := c.newOptionButton(&c.config.WorldShape, "menu.lobby.world_shape", []string{
+			d.Get("menu.lobby.world_shape.square"),
+			d.Get("menu.lobby.world_shape.horizontal"),
+			d.Get("menu.lobby.world_shape.vertical"),
+		})
+		tab.AddChild(b)
+	}
+
+	{
 		b := c.newOptionButton(&c.config.Environment, "menu.lobby.environment", []string{
 			d.Get("menu.lobby.forest"),
 			d.Get("menu.lobby.inferno"),

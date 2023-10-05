@@ -439,7 +439,7 @@ const SeasonNumber = 1
 // - Update ge package version
 // - Add a pos correction for coordinator waypoints on the map boundary
 //
-// # Version
+// # Version 20
 // - Exit prompt now does disable the fastforward too
 // - Make oil regen rate worth of 10 difficulty points
 // - Boost Discharger creep (speed up, hp up, attack range up)
@@ -447,4 +447,7 @@ const SeasonNumber = 1
 // - Reduce the time needed to buy Stunners and Dischargers in reverse mode
 // - Allow fast forward toggling via gamepad (LStick click)
 // - Forbid fast forward in a multiplayer game
-const BuildNumber int = 20
+//
+// # Version 21
+// - New horizontal landscape mode
+const BuildNumber int = 21

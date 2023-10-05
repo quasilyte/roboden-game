@@ -6,6 +6,27 @@ import (
 	"github.com/quasilyte/roboden-game/serverapi"
 )
 
+type WorldShape int
+
+const (
+	WorldSquare WorldShape = iota
+	WorldHorizontal
+	WorldVertical
+)
+
+func (s WorldShape) String() string {
+	switch s {
+	case WorldSquare:
+		return "square"
+	case WorldHorizontal:
+		return "horizontal"
+	case WorldVertical:
+		return "vertical"
+	default:
+		return "unknown"
+	}
+}
+
 type ExecutionMode int
 
 const (

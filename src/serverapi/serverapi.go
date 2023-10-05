@@ -103,6 +103,7 @@ type ReplayLevelConfig struct {
 
 	Seed int64 `json:"seed"`
 
+	WorldShape   int `json:"world_shape"`
 	WorldSize    int `json:"world_size"`
 	OilRegenRate int `json:"oil_regen_rage"`
 	Terrain      int `json:"terrain"`

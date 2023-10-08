@@ -595,6 +595,7 @@ func (c *creepNode) spawnServants(n int, colony *colonyCoreNode) {
 }
 
 func (c *creepNode) doAttack(target targetable, weapon *gamedata.WeaponStats) {
+	// TODO: use attackWithProjectile here?
 	if weapon.ProjectileImage != assets.ImageNone {
 		burstSize := weapon.BurstSize
 		burstDelay := weapon.BurstDelay

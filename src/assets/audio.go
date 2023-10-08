@@ -80,6 +80,9 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioMortarShot:                 {Path: "$sfx/mortar_shot.wav", Volume: -0.3},
 		AudioCommanderShot:              {Path: "$sfx/commander_shot.wav", Volume: +0.2},
 		AudioRoombaShot:                 {Path: "$sfx/roomba_shot.wav", Volume: 0.2},
+		AudioMegaRoombaShot1:            {Path: "$sfx/megaroomba_laser1.wav", Volume: -0.2},
+		AudioMegaRoombaShot2:            {Path: "$sfx/megaroomba_laser2.wav", Volume: -0.2},
+		AudioMegaRoombaShot3:            {Path: "$sfx/megaroomba_laser3.wav", Volume: -0.2},
 		AudioAssaultShot:                {Path: "$sfx/assault_shot.wav", Volume: -0.5},
 		AudioCreepPromoted:              {Path: "$sfx/creep_promoted.wav", Volume: -0.15},
 		AudioDominatorShot:              {Path: "$sfx/dominator_shot.wav", Volume: -0.25},
@@ -174,6 +177,8 @@ func NumAudioSamples(id resource.AudioID) int {
 		return 2
 	case AudioMagmaShot1:
 		return 3
+	case AudioMegaRoombaShot1:
+		return 3
 	default:
 		return 1
 	}
@@ -210,6 +215,9 @@ const (
 	AudioRechargerBeam
 	AudioRepairBeam
 	AudioRoombaShot
+	AudioMegaRoombaShot1
+	AudioMegaRoombaShot2
+	AudioMegaRoombaShot3
 	AudioMortarShot
 	AudioCommanderShot
 	AudioCripplerShot

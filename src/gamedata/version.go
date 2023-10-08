@@ -454,4 +454,5 @@ const SeasonNumber = 1
 // - Improve creeps count scaling in the Reverse mode
 // - Increase the max attack range when doing a Rally action in Reverse mode
 // - Added "Into the Darkness" achievement
+// - Added Megaroomba relict
 const BuildNumber int = 21

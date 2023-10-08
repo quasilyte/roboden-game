@@ -79,6 +79,7 @@ const (
 
 	// Other units
 	AgentRelict
+	AgentMegaRoomba
 
 	agentLast
 )

@@ -198,7 +198,7 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 	}
 
 	for _, b := range m.world.neutralBuildings {
-		if !m.inHoverRange(pos, b.pos, 26) {
+		if !m.inHoverRange(pos, b.CurrentPos(), 26) {
 			continue
 		}
 		status := "needs_repair"
@@ -213,6 +213,8 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 			tag = "power_plant"
 		case gamedata.RepulseTowerAgentStats:
 			tag = "tower"
+		case gamedata.MegaRoombaAgentStats:
+			tag = "megaroomba"
 		}
 		return d.Get("game.hint.building", tag) + "\n" + d.Get("game.hint.building_status", status)
 	}

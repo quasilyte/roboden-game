@@ -31,6 +31,8 @@ func getTurretPower(stats *gamedata.AgentStats) int {
 		return 45
 	case gamedata.RepulseTowerAgentStats, gamedata.DroneFactoryAgentStats:
 		return 50
+	case gamedata.MegaRoombaAgentStats:
+		return 55
 	default:
 		return 0
 	}

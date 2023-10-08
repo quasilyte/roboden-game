@@ -92,6 +92,7 @@ const (
 	agentModeRelictDroneFactory
 	agentModeRelictPatrol
 	agentModeRelictTakeoff
+	agentModeRelictRoomba
 )
 
 type agentTraitBits uint64
@@ -882,6 +883,8 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRelictTakeoff(delta)
 	case agentModeRelictPatrol:
 		a.updateRelictPatrol(delta)
+	case agentModeRelictRoomba:
+		a.updateRelictRoomba(delta)
 	case agentModeSiegeGuard:
 		a.updateSiegeGuard(delta)
 	case agentModeGuardForever:
@@ -1023,7 +1026,7 @@ func (a *colonyAgentNode) onLowHealthDamage(source targetable) {
 
 	if a.mode == agentModeRoombaCombatWait && a.scene.Rand().Chance(0.4) {
 		a.mode = agentModeRoombaGuard
-		a.sendTo(a.colonyCore.pos.Add(a.scene.Rand().Offset(-180, 180)))
+		a.sendTo(a.colonyCore.pos.Add(a.scene.Rand().Offset(-180, 180)), layerNormal)
 		if a.specialDelay == 0 {
 			a.energy = gmath.ClampMax(a.energy+50, a.maxEnergy)
 			a.specialDelay = 20
@@ -1113,7 +1116,7 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 				if source != a.target && source.GetPos().DistanceSquaredTo(a.pos) > a.stats.Weapon.AttackRangeSqr && a.scene.Rand().Chance(0.45) {
 					a.mode = agentModeRoombaAttack
 					a.target = source
-					a.sendTo(midpoint(a.pos, *source.GetPos()))
+					a.sendTo(midpoint(a.pos, *source.GetPos()), layerNormal)
 					return
 				}
 			}
@@ -1962,6 +1965,35 @@ func (a *colonyAgentNode) updateSiegeGuard(delta float64) {
 	a.world().nodeRunner.AddProjectile(p)
 }
 
+func (a *colonyAgentNode) updateRelictRoomba(delta float64) {
+	if a.hasWaypoint() {
+		if a.attackDelay < 1 && a.moveTowards(delta) {
+			if a.path.HasNext() {
+				// TODO: remove code duplication with crawlers.
+				nextPos := nextPathWaypoint(a.world(), a.pos, &a.path, layerLandColony)
+				a.setWaypoint(nextPos.Add(a.world().rand.Offset(-2, 2)))
+				return
+			}
+			a.clearWaypoint()
+			a.specialDelay = a.world().rand.FloatRange(2, 6)
+		}
+		return
+	}
+
+	if a.specialDelay > 0 {
+		return
+	}
+	owner := a.target.(*colonyCoreNode)
+	if a.pos.DistanceTo(owner.pos) <= 220 {
+		a.specialDelay = a.world().rand.FloatRange(0.8, 4)
+		return
+	}
+
+	dist := a.world().rand.FloatRange(40, 128)
+	dst := owner.pos.Add(gmath.RadToVec(a.world().rand.Rad()).Mulf(dist))
+	a.sendTo(a.pos.MoveTowards(dst, 350), layerLandColony)
+}
+
 func (a *colonyAgentNode) updateRelictPatrol(delta float64) {
 	factory := a.target.(*colonyAgentNode)
 	if factory.IsDisposed() {
@@ -2160,7 +2192,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 
 	a.specialDelay = 5
 	a.target = closestTarget
-	a.sendTo(closestSpot)
+	a.sendTo(closestSpot, layerNormal)
 	closestTarget.beingHarvested = true
 }
 
@@ -2177,8 +2209,8 @@ func (a *colonyAgentNode) updateRoombaWait(delta float64) {
 	}
 }
 
-func (a *colonyAgentNode) sendTo(pos gmath.Vec) {
-	p := a.world().BuildPath(a.pos, pos, layerNormal)
+func (a *colonyAgentNode) sendTo(pos gmath.Vec, l pathing.GridLayer) {
+	p := a.world().BuildPath(a.pos, pos, l)
 	a.path = p.Steps
 	a.setWaypoint(a.world().pathgrid.AlignPos(a.pos))
 }
@@ -2253,7 +2285,7 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 		if target.IsDisposed() {
 			a.target = nil
 		} else {
-			a.sendTo(target.pos.Add(a.scene.Rand().Offset(-80, 80)))
+			a.sendTo(target.pos.Add(a.scene.Rand().Offset(-80, 80)), layerNormal)
 			return
 		}
 	}
@@ -2271,7 +2303,7 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 
 	if len(a.world().turrets) != 0 && a.scene.Rand().Chance(0.15) {
 		turret := gmath.RandElem(a.scene.Rand(), a.world().turrets)
-		a.sendTo(turret.pos.Add(a.scene.Rand().Offset(-80, 80)))
+		a.sendTo(turret.pos.Add(a.scene.Rand().Offset(-80, 80)), layerNormal)
 		a.mode = agentModeRoombaGuard
 		return
 	}
@@ -2294,11 +2326,11 @@ func (a *colonyAgentNode) updateRoombaPatrol(delta float64) {
 		if a.world().HasTreesAt(targetPos, 0) {
 			targetPos = newTarget.pos.Add(a.scene.Rand().Offset(-120, 120))
 		}
-		a.sendTo(targetPos)
+		a.sendTo(targetPos, layerNormal)
 	} else {
 		if a.scene.Rand().Chance(0.4) {
 			targetPos := correctedPos(a.world().rect, randomSectorPos(a.scene.Rand(), a.world().rect), 480)
-			a.sendTo(targetPos)
+			a.sendTo(targetPos, layerNormal)
 		} else {
 			a.mode = agentModeRoombaWait
 			a.dist = a.scene.Rand().FloatRange(2, 5)

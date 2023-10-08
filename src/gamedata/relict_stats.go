@@ -1,6 +1,7 @@
 package gamedata
 
 import (
+	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 )
 
@@ -8,7 +9,38 @@ var ArtifactsList = []*AgentStats{
 	DroneFactoryAgentStats,
 	PowerPlantAgentStats,
 	RepulseTowerAgentStats,
+	MegaRoombaAgentStats,
 }
+
+var MegaRoombaAgentStats = InitDroneStats(&AgentStats{
+	Kind:      AgentMegaRoomba,
+	IsFlying:  false,
+	IsTurret:  true,
+	IsNeutral: true,
+	Image:     assets.ImageMegaRoombaAgent,
+	Size:      SizeMedium,
+	Tier:      3,
+	Speed:     25,
+	MaxHealth: 170,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange:         250,
+		Reload:              4.6,
+		AttackSound:         assets.AudioMegaRoombaShot1,
+		ProjectileImage:     assets.ImageMegaRoombaProjectile,
+		ImpactArea:          14,
+		ProjectileSpeed:     370,
+		Damage:              DamageValue{Health: 8, Slow: 2.5},
+		FireOffsets:         []gmath.Vec{{X: -8, Y: -1}, {X: 8, Y: -1}, {Y: 1}},
+		MaxTargets:          1,
+		BurstSize:           3,
+		AttacksPerBurst:     2,
+		BurstDelay:          0.6,
+		Accuracy:            0.85,
+		TargetFlags:         TargetFlying | TargetGround,
+		GroundDamageBonus:   -0.5,
+		ProjectileFireSound: true,
+	}),
+})
 
 var RepulseTowerAgentStats = InitDroneStats(&AgentStats{
 	Kind:       AgentRepulseTower,
@@ -19,7 +51,7 @@ var RepulseTowerAgentStats = InitDroneStats(&AgentStats{
 	Image:      assets.ImageRepulseTower,
 	Size:       SizeLarge,
 	Upkeep:     0,
-	MaxHealth:  130,
+	MaxHealth:  140,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange: 440,
 		Reload:      3.6,
@@ -55,7 +87,7 @@ var DroneFactoryAgentStats = InitDroneStats(&AgentStats{
 	Image:      assets.ImageRelictFactoryAgent,
 	Size:       SizeLarge,
 	Upkeep:     0,
-	MaxHealth:  170,
+	MaxHealth:  200,
 })
 
 var RelictAgentStats = InitDroneStats(&AgentStats{

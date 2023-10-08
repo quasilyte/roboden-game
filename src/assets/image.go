@@ -200,6 +200,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImagePowerPlantAgent:    {Path: "image/relicts/power_plant_agent.png"},
 		ImageRepulseTower:       {Path: "image/relicts/tower_artifact.png"},
 		ImageRelictAgent:        {Path: "image/relicts/relict_agent.png", FrameWidth: 13, FrameHeight: 12},
+		ImageMegaRoombaAgent:    {Path: "image/relicts/megaroomba_agent.png", FrameWidth: 39, FrameHeight: 40},
 
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
@@ -333,6 +334,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTankColonyProjectile1:    {Path: "image/projectile/tank_colony_projectile1.png"},
 		ImageCommanderProjectile:      {Path: "image/projectile/commander_projectile.png"},
 		ImageRoombaProjectile:         {Path: "image/projectile/roomba_projectile.png"},
+		ImageMegaRoombaProjectile:     {Path: "image/projectile/megaroomba_projectile.png"},
 		ImageScarabProjectile:         {Path: "image/projectile/scarab_projectile.png"},
 		ImageSkirmisherProjectile:     {Path: "image/projectile/skirmisher_projectile.png"},
 		ImageHeavyCrawlerProjectile:   {Path: "image/projectile/heavy_crawler_projectile.png"},
@@ -642,6 +644,7 @@ const (
 	ImageBeamtowerAgent
 	ImageTetherBeaconAgent
 	ImageRoombaAgent
+	ImageMegaRoombaAgent
 	ImageWorkerAgent
 	ImageGeneratorAgent
 	ImageSkirmisherAgent
@@ -748,6 +751,7 @@ const (
 	ImageTankColonyProjectile1
 	ImageCommanderProjectile
 	ImageRoombaProjectile
+	ImageMegaRoombaProjectile
 	ImageScarabProjectile
 	ImageSkirmisherProjectile
 	ImageHeavyCrawlerProjectile

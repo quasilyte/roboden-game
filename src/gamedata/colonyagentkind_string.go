@@ -52,12 +52,13 @@ func _() {
 	_ = x[AgentPowerPlant-41]
 	_ = x[AgentRepulseTower-42]
 	_ = x[AgentRelict-43]
-	_ = x[agentLast-44]
+	_ = x[AgentMegaRoomba-44]
+	_ = x[agentLast-45]
 }
 
-const _ColonyAgentKind_name = "agentFirstWorkerScoutFreighterRedminerCripplerFighterScavengerCourierPrismServoRepellerDisintegratorRepairClonerRechargerGeneratorMortarAntiAirDefenderKamikazeSkirmisherScarabRoombaCommanderTargeterFirebugGuardianStormbringerDestroyerBomberMarauderTruckerDevourerKindNumGunpointTetherBeaconBeamTowerHarvesterSiegeDroneFactoryPowerPlantRepulseTowerRelictagentLast"
+const _ColonyAgentKind_name = "agentFirstWorkerScoutFreighterRedminerCripplerFighterScavengerCourierPrismServoRepellerDisintegratorRepairClonerRechargerGeneratorMortarAntiAirDefenderKamikazeSkirmisherScarabRoombaCommanderTargeterFirebugGuardianStormbringerDestroyerBomberMarauderTruckerDevourerKindNumGunpointTetherBeaconBeamTowerHarvesterSiegeDroneFactoryPowerPlantRepulseTowerRelictMegaRoombaagentLast"
 
-var _ColonyAgentKind_index = [...]uint16{0, 10, 16, 21, 30, 38, 46, 53, 62, 69, 74, 79, 87, 100, 106, 112, 121, 130, 136, 143, 151, 159, 169, 175, 181, 190, 198, 205, 213, 225, 234, 240, 248, 255, 263, 270, 278, 290, 299, 308, 313, 325, 335, 347, 353, 362}
+var _ColonyAgentKind_index = [...]uint16{0, 10, 16, 21, 30, 38, 46, 53, 62, 69, 74, 79, 87, 100, 106, 112, 121, 130, 136, 143, 151, 159, 169, 175, 181, 190, 198, 205, 213, 225, 234, 240, 248, 255, 263, 270, 278, 290, 299, 308, 313, 325, 335, 347, 353, 363, 372}
 
 func (i ColonyAgentKind) String() string {
 	if i >= ColonyAgentKind(len(_ColonyAgentKind_index)-1) {

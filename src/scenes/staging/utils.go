@@ -93,6 +93,7 @@ func attackWithProjectile(world *worldState, weapon *gamedata.WeaponStats, attac
 	toPos := snipePos(weapon.ProjectileSpeed, *attacker.GetPos(), *target.GetPos(), target.GetVelocity())
 	j := 0
 	attacksPerBurst := weapon.AttacksPerBurst
+	seq := uint8(0)
 	for i := 0; i < burstSize; i += attacksPerBurst {
 		if i+attacksPerBurst > burstSize {
 			// This happens only once for the last burst wave
@@ -102,6 +103,7 @@ func attackWithProjectile(world *worldState, weapon *gamedata.WeaponStats, attac
 		for i := 0; i < attacksPerBurst; i++ {
 			fireDelay := float64(j) * weapon.BurstDelay
 			p := world.newProjectileNode(projectileConfig{
+				Seq:       seq,
 				World:     world,
 				Weapon:    weapon,
 				Attacker:  attacker,
@@ -111,6 +113,7 @@ func attackWithProjectile(world *worldState, weapon *gamedata.WeaponStats, attac
 				Guided:    guided,
 			})
 			world.nodeRunner.AddProjectile(p)
+			seq++
 		}
 		j++
 	}

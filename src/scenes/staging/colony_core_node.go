@@ -497,6 +497,9 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 		turret.mode = agentModeRelictDroneFactory
 	case gamedata.AgentSiege:
 		turret.mode = agentModeSiegeGuard
+	case gamedata.AgentMegaRoomba:
+		turret.mode = agentModeRelictRoomba
+		turret.target = c
 	default:
 		turret.mode = agentModeGuardForever
 	}

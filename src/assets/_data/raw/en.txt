@@ -470,6 +470,7 @@ Win by destroying all colonies.
 
 Split-screen multiplayer: competitive (PvP).
 
+##game.hint.building.megaroomba : Battle platform
 ##game.hint.building.tower : Repulse tower
 ##game.hint.building.power_plant : Power plant
 ##game.hint.building.drone_factory : Drone factory

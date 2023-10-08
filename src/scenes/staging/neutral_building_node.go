@@ -8,9 +8,10 @@ import (
 )
 
 type neutralBuildingNode struct {
-	world *worldState
-	pos   gmath.Vec
-	stats *gamedata.AgentStats
+	world  *worldState
+	pos    gmath.Vec
+	posPtr *gmath.Vec
+	stats  *gamedata.AgentStats
 
 	sprite *ge.Sprite
 
@@ -25,6 +26,10 @@ func newNeutralBuildingNode(world *worldState, stats *gamedata.AgentStats, pos g
 	}
 }
 
+func (b *neutralBuildingNode) CurrentPos() gmath.Vec {
+	return *b.posPtr
+}
+
 func (b *neutralBuildingNode) Init(scene *ge.Scene) {
 	b.sprite = scene.NewSprite(b.stats.Image)
 	b.sprite.Pos.Base = &b.pos
@@ -34,15 +39,29 @@ func (b *neutralBuildingNode) Init(scene *ge.Scene) {
 	b.sprite.Shader.SetFloatValue("HP", 0.001)
 	b.world.stage.AddSprite(b.sprite)
 
+	b.posPtr = &b.pos
+
 	b.world.MarkPos(b.pos, ptagBlocked)
 }
 
 func (b *neutralBuildingNode) AssignAgent(a *colonyAgentNode) {
 	b.sprite.Visible = a == nil
 	b.agent = a
+	if b.stats == gamedata.MegaRoombaAgentStats {
+		if a == nil {
+			b.posPtr = &b.pos
+			b.world.MarkPos(b.pos, ptagBlocked)
+		} else {
+			b.posPtr = &a.pos
+			b.world.UnmarkPos(b.pos)
+		}
+	}
 
 	if a != nil {
-		a.EventDestroyed.Connect(nil, func(*colonyAgentNode) {
+		a.EventDestroyed.Connect(nil, func(a *colonyAgentNode) {
+			if b.stats == gamedata.MegaRoombaAgentStats {
+				b.pos = a.pos
+			}
 			b.AssignAgent(nil)
 		})
 	}

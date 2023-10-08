@@ -130,7 +130,7 @@ func (p *projectileNode) Init(scene *ge.Scene) {
 			p.arcTo = p.toPos.Add(power)
 		}
 		p.arcStart = p.pos
-	} else if p.weapon.ProjectileRotateSpeed == 0 {
+	} else if p.weapon.ProjectileRotateSpeed == 0 && p.fireDelay == 0 {
 		p.rotation = p.pos.AngleToPoint(p.toPos)
 	} else {
 		p.rotation = scene.Rand().Rad()
@@ -186,6 +186,9 @@ func (p *projectileNode) Update(delta float64) {
 		if p.fireDelay <= 0 {
 			p.setSpriteVisibility(true)
 			p.pos = p.attacker.GetPos().Add(p.calcOffset())
+			if p.weapon.ProjectileRotateSpeed == 0 {
+				p.rotation = p.pos.AngleToPoint(p.toPos)
+			}
 			p.arcStart = p.pos
 			if p.weapon.ProjectileFireSound {
 				p.playFireSound()

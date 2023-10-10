@@ -455,4 +455,5 @@ const SeasonNumber = 1
 // - Increase the max attack range when doing a Rally action in Reverse mode
 // - Added "Into the Darkness" achievement
 // - Added Megaroomba relict
+// - Fixed a memory leak issue (solves a performance problem)
 const BuildNumber int = 21

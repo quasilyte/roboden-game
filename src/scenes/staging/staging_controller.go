@@ -1610,6 +1610,14 @@ func (c *Controller) leaveScene(controller ge.SceneController) {
 		ebiten.SetCursorMode(ebiten.CursorModeVisible)
 	}
 
+	for _, p := range c.world.players {
+		h, ok := p.(*humanPlayer)
+		if !ok {
+			continue
+		}
+		h.input.EventGamepadDisconnected.Reset()
+	}
+
 	c.scene.Audio().PauseCurrentMusic()
 	c.scene.Context().ChangeScene(controller)
 }

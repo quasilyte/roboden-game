@@ -465,13 +465,13 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		angle := float32(0)
 		switch filter {
 		case session.ScreenFilterHueMinusMinor:
-			angle = float32(gmath.DegToRad(-20))
+			angle = float32(gmath.DegToRad(-15))
 		case session.ScreenFilterHueMinusMajor:
-			angle = float32(gmath.DegToRad(-80))
+			angle = float32(gmath.DegToRad(-50))
 		case session.ScreenFilterHuePlusMinor:
-			angle = float32(gmath.DegToRad(20))
+			angle = float32(gmath.DegToRad(15))
 		case session.ScreenFilterHuePlusMajor:
-			angle = float32(gmath.DegToRad(80))
+			angle = float32(gmath.DegToRad(50))
 		}
 		shader := scene.Context().Loader.LoadShader(assets.ShaderHueRotate).Data
 		c.world.stage.SetShader(shader, map[string]any{"HueAngle": angle})

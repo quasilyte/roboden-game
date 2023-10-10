@@ -8,7 +8,6 @@ var HueAngle float
 func Fragment(position vec4, texCoord vec2, color vec4) vec4 {
 	clr := imageSrc0UnsafeAt(texCoord)
 	clr = vec4(hueRotate(clr.rgb, HueAngle), clr.a)
-	clr *= 0.9
 	return clr
 }
 

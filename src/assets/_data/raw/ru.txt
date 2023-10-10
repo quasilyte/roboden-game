@@ -160,10 +160,10 @@
 ##menu.options.screen_filter.normal : отключен
 ##menu.options.screen_filter.sharpen : sharpen
 ##menu.options.screen_filter.heavy_sharpen : sharpen x2
-##menu.options.screen_filter.hue_minus30 : оттенок -20°
-##menu.options.screen_filter.hue_minus60 : оттенок -80°
-##menu.options.screen_filter.hue_plus30 : оттенок +20°
-##menu.options.screen_filter.hue_plus60 : оттенок +80°
+##menu.options.screen_filter.hue_minus30 : оттенок -15°
+##menu.options.screen_filter.hue_minus60 : оттенок -50°
+##menu.options.screen_filter.hue_plus30 : оттенок +15°
+##menu.options.screen_filter.hue_plus60 : оттенок +50°
 
 ##menu.credits.crew : команда
 ##menu.credits.assets : ассеты

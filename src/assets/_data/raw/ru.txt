@@ -479,6 +479,7 @@ x1.5 означает, что игра будет работать на 50% бы
 
 Мультиплеер с разделённым экраном: соревновательный (PvP).
 
+##game.hint.building.megaroomba : Боевая платформа
 ##game.hint.building.tower : Башня подавления
 ##game.hint.building.power_plant : Электростанция
 ##game.hint.building.drone_factory : Фабрика дронов

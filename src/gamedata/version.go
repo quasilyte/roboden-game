@@ -456,4 +456,5 @@ const SeasonNumber = 1
 // - Added "Into the Darkness" achievement
 // - Added Megaroomba relict
 // - Fixed a memory leak issue (solves a performance problem)
+// - Added screen filters
 const BuildNumber int = 21

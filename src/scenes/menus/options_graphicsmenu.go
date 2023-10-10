@@ -103,6 +103,25 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		}))
 	}
 
+	{
+		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+			Input:     c.state.CombinedInput,
+			Scene:     c.scene,
+			Resources: uiResources,
+			Value:     &options.Graphics.ScreenFilter,
+			Label:     d.Get("menu.options.graphics.screen_filter"),
+			ValueNames: []string{
+				d.Get("menu.options.screen_filter.normal"),
+				d.Get("menu.options.screen_filter.sharpen"),
+				d.Get("menu.options.screen_filter.heavy_sharpen"),
+				d.Get("menu.options.screen_filter.hue_minus30"),
+				d.Get("menu.options.screen_filter.hue_minus60"),
+				d.Get("menu.options.screen_filter.hue_plus30"),
+				d.Get("menu.options.screen_filter.hue_plus60"),
+			},
+		}))
+	}
+
 	if c.state.Device.IsDesktop() {
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
 			Scene:     c.scene,

@@ -153,8 +153,17 @@
 ##menu.options.graphics.vsync : VSync
 ##menu.options.graphics.camera_shaking : Тряска камеры
 ##menu.options.graphics.shaders : Шейдеры
+##menu.options.graphics.screen_filter : Фильтр
 ##menu.options.graphics.fullscreen : Полноэкранный режим
 ##menu.options.graphics.aspect_ratio : Соотношение сторон
+
+##menu.options.screen_filter.normal : отключен
+##menu.options.screen_filter.sharpen : sharpen
+##menu.options.screen_filter.heavy_sharpen : sharpen x2
+##menu.options.screen_filter.hue_minus30 : оттенок -20°
+##menu.options.screen_filter.hue_minus60 : оттенок -80°
+##menu.options.screen_filter.hue_plus30 : оттенок +20°
+##menu.options.screen_filter.hue_plus60 : оттенок +80°
 
 ##menu.credits.crew : команда
 ##menu.credits.assets : ассеты

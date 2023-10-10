@@ -178,9 +178,20 @@ type GraphicsSettings struct {
 	VSyncEnabled         bool
 	CameraShakingEnabled bool
 	AllShadersEnabled    bool
+	ScreenFilter         int
 	FullscreenEnabled    bool
 	AspectRation         int
 }
+
+const (
+	ScreenFilterNone = iota
+	ScreenFilterSharpenMinor
+	ScreenFilterSharpenMajor
+	ScreenFilterHueMinusMinor
+	ScreenFilterHueMinusMajor
+	ScreenFilterHuePlusMinor
+	ScreenFilterHuePlusMajor
+)
 
 type SavedReplay struct {
 	Date      time.Time

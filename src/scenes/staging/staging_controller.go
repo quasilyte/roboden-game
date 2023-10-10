@@ -453,6 +453,30 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	}
 	c.world.stage.SetBackground(bg)
 
+	switch filter := c.state.Persistent.Settings.Graphics.ScreenFilter; filter {
+	case session.ScreenFilterSharpenMinor, session.ScreenFilterSharpenMajor:
+		amount := float32(0.1)
+		if filter == session.ScreenFilterSharpenMajor {
+			amount = 0.2
+		}
+		shader := scene.Context().Loader.LoadShader(assets.ShaderSharpen).Data
+		c.world.stage.SetShader(shader, map[string]any{"Amount": amount})
+	case session.ScreenFilterHueMinusMinor, session.ScreenFilterHueMinusMajor, session.ScreenFilterHuePlusMinor, session.ScreenFilterHuePlusMajor:
+		angle := float32(0)
+		switch filter {
+		case session.ScreenFilterHueMinusMinor:
+			angle = float32(gmath.DegToRad(-20))
+		case session.ScreenFilterHueMinusMajor:
+			angle = float32(gmath.DegToRad(-80))
+		case session.ScreenFilterHuePlusMinor:
+			angle = float32(gmath.DegToRad(20))
+		case session.ScreenFilterHuePlusMajor:
+			angle = float32(gmath.DegToRad(80))
+		}
+		shader := scene.Context().Loader.LoadShader(assets.ShaderHueRotate).Data
+		c.world.stage.SetShader(shader, map[string]any{"HueAngle": angle})
+	}
+
 	c.camera = c.createCameraManager(viewportWorld, true, c.state.GetInput(0))
 
 	c.nodeRunner.world = world

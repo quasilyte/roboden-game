@@ -152,8 +152,17 @@ You can change this decision later.
 ##menu.options.graphics.vsync : VSync
 ##menu.options.graphics.camera_shaking : Camera shaking
 ##menu.options.graphics.shaders : Shaders
+##menu.options.graphics.screen_filter : Screen filter
 ##menu.options.graphics.fullscreen : Fullscreen
 ##menu.options.graphics.aspect_ratio : Aspect ratio
+
+##menu.options.screen_filter.normal : none (default)
+##menu.options.screen_filter.sharpen : sharpen
+##menu.options.screen_filter.heavy_sharpen : sharpen x2
+##menu.options.screen_filter.hue_minus30 : hue rotate -20°
+##menu.options.screen_filter.hue_minus60 : hue rotate -80°
+##menu.options.screen_filter.hue_plus30 : hue rotate +20°
+##menu.options.screen_filter.hue_plus60 : hue rotate +80°
 
 ##menu.credits.crew : crew
 ##menu.credits.assets : assets

@@ -118,6 +118,9 @@ type CameraStage struct {
 
 	bg       *ge.TiledBackground
 	fogOfWar *ebiten.Image
+
+	shader       *ebiten.Shader
+	shaderParams map[string]any
 }
 
 func (c *CameraStage) Update() {
@@ -134,6 +137,11 @@ func (c *CameraStage) Update() {
 
 func (c *CameraStage) SetFogOfWar(img *ebiten.Image) {
 	c.fogOfWar = img
+}
+
+func (c *CameraStage) SetShader(shader *ebiten.Shader, params map[string]any) {
+	c.shader = shader
+	c.shaderParams = params
 }
 
 func (c *CameraStage) SetBackground(bg *ge.TiledBackground) {
@@ -404,14 +412,24 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 
 	var options ebiten.DrawImageOptions
 	options.GeoM.Translate(c.ScreenPos.X, c.ScreenPos.Y)
+	width := c.screen.Bounds().Dx()
+	height := c.screen.Bounds().Dy()
 	if rotation != 0 {
-		width := float64(c.screen.Bounds().Dx())
-		height := float64(c.screen.Bounds().Dy())
-		options.GeoM.Translate(-width*0.5, -height*0.5)
+		options.GeoM.Translate(-float64(width)*0.5, -float64(height)*0.5)
 		options.GeoM.Rotate(rotation)
-		options.GeoM.Translate(width*0.5, height*0.5)
+		options.GeoM.Translate(float64(width)*0.5, float64(height)*0.5)
 	}
-	screen.DrawImage(c.screen, &options)
+
+	if c.stage.shader == nil {
+		screen.DrawImage(c.screen, &options)
+		return
+	}
+
+	var options2 ebiten.DrawRectShaderOptions
+	options2.GeoM = options.GeoM
+	options2.Images[0] = c.screen
+	options2.Uniforms = c.stage.shaderParams
+	screen.DrawRectShader(width, height, c.stage.shader, &options2)
 }
 
 type layer struct {

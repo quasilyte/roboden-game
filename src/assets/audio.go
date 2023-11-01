@@ -1,26 +1,53 @@
 package assets
 
 import (
+	"fmt"
+	"io"
 	"runtime"
+	"strings"
 
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/xm"
+	"github.com/quasilyte/xm/xmfile"
 
 	_ "image/png"
 )
 
 func RegisterMusicResource(ctx *ge.Context, config *Config, progress *float64) {
-	audioResources := map[resource.AudioID]resource.AudioInfo{
-		AudioMusicTrack1: {Path: "$music/deadly_windmills.ogg", Volume: -0.3, Group: SoundGroupMusic},
-		AudioMusicTrack2: {Path: "$music/war_path.ogg", Volume: -0.3, Group: SoundGroupMusic},
-		AudioMusicTrack3: {Path: "$music/crush.ogg", Volume: -0.3, Group: SoundGroupMusic},
-	}
-
-	if config.ExtraMusic {
-		audioResources[AudioMusicTrack4] = resource.AudioInfo{
-			Path:   "$music/track4.ogg",
-			Volume: -0.3,
-			Group:  SoundGroupMusic,
+	var audioResources map[resource.AudioID]resource.AudioInfo
+	if !config.XM {
+		audioResources = map[resource.AudioID]resource.AudioInfo{
+			AudioMusicTrack1: {Path: "$music/deadly_windmills.ogg", Volume: -0.3, Group: SoundGroupMusic},
+			AudioMusicTrack2: {Path: "$music/war_path.ogg", Volume: -0.3, Group: SoundGroupMusic, StreamDecorator: resource.LoopOGG},
+			AudioMusicTrack3: {Path: "$music/crush.ogg", Volume: -0.3, Group: SoundGroupMusic, StreamDecorator: resource.LoopOGG},
+			AudioMusicTrack4: {Path: "$music/track4.ogg", Volume: -0.3, Group: SoundGroupMusic},
+		}
+	} else {
+		audioResources = map[resource.AudioID]resource.AudioInfo{
+			AudioMusicTrack1: {Path: "$music/deadly_windmills.xm", Volume: -0.1, Group: SoundGroupMusic},
+			AudioMusicTrack2: {Path: "$music/war_path.xm", Volume: -0.1, Group: SoundGroupMusic},
+			AudioMusicTrack3: {Path: "$music/crush.xm", Volume: -0.1, Group: SoundGroupMusic},
+			AudioMusicTrack4: {Path: "$music/track4.xm", Volume: -0.1, Group: SoundGroupMusic},
+		}
+		xmParser := xmfile.NewParser(xmfile.ParserConfig{})
+		ctx.Loader.CustomAudioLoader = func(r io.Reader, info resource.AudioInfo) io.ReadSeeker {
+			if !strings.HasSuffix(info.Path, ".xm") {
+				return nil
+			}
+			m, err := xmParser.Parse(r)
+			if err != nil {
+				panic(fmt.Sprintf("parse %q module: %v", info.Path, err))
+			}
+			s := xm.NewStream()
+			s.SetLooping(true)
+			config := xm.LoadModuleConfig{
+				LinearInterpolation: true,
+			}
+			if err := s.LoadModule(m, config); err != nil {
+				panic(fmt.Sprintf("load %q module: %v", info.Path, err))
+			}
+			return s
 		}
 	}
 
@@ -36,6 +63,10 @@ func RegisterMusicResource(ctx *ge.Context, config *Config, progress *float64) {
 			runtime.Gosched()
 		}
 	}
+
+	// The custom music is still available via LoadAudio,
+	// but the XM parser should be garbage collected after we set this field to nil.
+	ctx.Loader.CustomAudioLoader = nil
 }
 
 func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {

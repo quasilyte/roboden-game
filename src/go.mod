@@ -12,7 +12,7 @@ require (
 	github.com/hajimehoshi/go-steamworks v0.0.0-20230809071343-ee1a81910acc
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e
-	github.com/quasilyte/ge v0.0.0-20230925153958-e5b2a565e636
+	github.com/quasilyte/ge v0.0.0-20231101095822-da2497518aca
 	github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef
 	github.com/quasilyte/gsignal v0.0.0-20231010082051-3c00e9ebb4e5
 	golang.org/x/image v0.12.0
@@ -24,6 +24,7 @@ require (
 	github.com/jezek/xgb v1.1.0 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
+	github.com/quasilyte/xm v0.0.0-20231101102547-462698b5183e // indirect
 	golang.org/x/exp v0.0.0-20221023144134-a1e5550cf13e // indirect
 	golang.org/x/exp/shiny v0.0.0-20230817173708-d852ddb80c63 // indirect
 	golang.org/x/mobile v0.0.0-20230922142353-e2f452493d57 // indirect

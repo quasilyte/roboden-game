@@ -27,8 +27,6 @@ type State struct {
 	MemProfile       string
 	MemProfileWriter io.WriteCloser
 
-	ExtraMusic bool
-
 	ServerProtocol string
 	ServerHost     string
 	ServerPath     string
@@ -159,6 +157,7 @@ type GameSettings struct {
 	EdgeScrollRange    int
 	HintMode           int
 	WheelScrollingMode int
+	XM                 bool
 	ShowFPS            bool
 	ShowTimer          bool
 	DebugLogs          bool

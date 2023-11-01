@@ -60,9 +60,17 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 			name string
 			f    func(*ge.Context, *assets.Config, *float64)
 		}
+
 		config := &assets.Config{
-			ExtraMusic: c.state.ExtraMusic,
+			XM: c.state.Persistent.Settings.XM,
 		}
+
+		if c.state.Persistent.Settings.XM {
+			c.state.Logf("loading XM music")
+		} else {
+			c.state.Logf("loading OGG music")
+		}
+
 		steps := []initializationStep{
 			{name: "load_images", f: assets.RegisterImageResources},
 			{name: "load_audio", f: assets.RegisterAudioResource},

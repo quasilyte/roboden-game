@@ -15,10 +15,10 @@ type musicTrack struct {
 }
 
 var musicTrackList = []musicTrack{
-	{audio: assets.AudioMusicTrack1, length: 5*time.Minute + 12*time.Second},
-	{audio: assets.AudioMusicTrack2, length: 2*time.Minute + 44*time.Second},
-	{audio: assets.AudioMusicTrack3, length: 2*time.Minute + 3*time.Second},
-	{audio: assets.AudioMusicTrack4, length: 2*time.Minute + 37*time.Second},
+	{audio: assets.AudioMusicTrack1, length: 5*time.Minute + 13*time.Second},
+	{audio: assets.AudioMusicTrack2, length: 2*time.Minute + 45*time.Second},
+	{audio: assets.AudioMusicTrack3, length: 2*time.Minute + 5*time.Second},
+	{audio: assets.AudioMusicTrack4, length: 2*time.Minute + 38*time.Second},
 }
 
 type musicPlayer struct {
@@ -31,13 +31,10 @@ type musicPlayer struct {
 	timeCheckDelay float64
 }
 
-func newMusicPlayer(scene *ge.Scene, extraTrack bool) *musicPlayer {
+func newMusicPlayer(scene *ge.Scene) *musicPlayer {
 	p := &musicPlayer{scene: scene}
 
 	numTracks := len(musicTrackList) - 1
-	if !extraTrack {
-		numTracks--
-	}
 	p.musicTrackSlider.SetBounds(0, numTracks)
 
 	return p

@@ -101,6 +101,10 @@
 ##menu.options.extra : Дополнительно
 ##menu.options.controls : Управление
 
+##menu.options.music_player : Формат музыки
+##menu.option.music_player.xm : XM
+##menu.option.music_player.ogg : OGG
+
 ##menu.terminal : Терминал
 ##menu.terminal.command_output_label : Вывод команды
 ##menu.terminal.placeholder : введите команду

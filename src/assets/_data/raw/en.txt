@@ -101,6 +101,10 @@ You can change this decision later.
 ##menu.options.extra : Extra
 ##menu.options.controls : Controls
 
+##menu.options.music_player : Music player
+##menu.option.music_player.xm : XM
+##menu.option.music_player.ogg : OGG
+
 ##menu.terminal : Terminal
 ##menu.terminal.command_output_label : Command output
 ##menu.terminal.placeholder : type commands in here

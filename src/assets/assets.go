@@ -10,7 +10,7 @@ import (
 )
 
 type Config struct {
-	ExtraMusic bool
+	XM bool
 }
 
 const (

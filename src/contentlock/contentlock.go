@@ -1,6 +1,8 @@
 package contentlock
 
 import (
+	"runtime"
+
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -18,6 +20,9 @@ func GetDefaultData() session.PersistentData {
 		// The default settings.
 		FirstLaunch: true,
 		Settings: session.GameSettings{
+			// Web platforms have XM music set as default.
+			XM: runtime.GOARCH == "wasm",
+
 			WheelScrollingMode: int(gameinput.WheelScrollDrag),
 			Player1InputMethod: int(gameinput.InputMethodCombined),
 			Player2InputMethod: int(gameinput.InputMethodGamepad2),

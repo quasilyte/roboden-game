@@ -78,6 +78,9 @@ func main() {
 		state.ServerProtocol = "https"
 		state.ServerHost = "quasilyte.tech"
 		state.ServerPath = "/roboden/api"
+		// Also, force XM tracks when running a web build.
+		// We don't bundle OGG tracks for it.
+		state.Persistent.Settings.XM = true
 	}
 
 	ctx := ge.NewContext(ge.ContextConfig{
@@ -217,7 +220,6 @@ func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
 
 func getDefaultSessionState() *session.State {
 	state := &session.State{
-		ExtraMusic: runtime.GOARCH != "wasm",
 		ReverseLevelConfig: newLevelConfig(&gamedata.LevelConfig{
 			ReplayLevelConfig: serverapi.ReplayLevelConfig{
 				Teleporters:           1,

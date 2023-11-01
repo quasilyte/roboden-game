@@ -1,6 +1,8 @@
 package menus
 
 import (
+	"runtime"
+
 	"github.com/quasilyte/ge"
 
 	"github.com/quasilyte/roboden-game/assets"
@@ -78,6 +80,22 @@ func (c *OptionsSoundMenuController) initUI() {
 				}
 			},
 		}))
+	}
+
+	{
+		b := eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Scene:     c.scene,
+			Resources: uiResources,
+			Value:     &options.XM,
+			Label:     d.Get("menu.options.music_player"),
+			ValueNames: []string{
+				d.Get("menu.option.music_player.ogg"),
+				d.Get("menu.option.music_player.xm"),
+			},
+		})
+		rowContainer.AddChild(b)
+		// Don't allow web platforms to change the music player.
+		b.GetWidget().Disabled = runtime.GOARCH == "wasm"
 	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())

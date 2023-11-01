@@ -457,4 +457,7 @@ const SeasonNumber = 1
 // - Added Megaroomba relict
 // - Fixed a memory leak issue (solves a performance problem)
 // - Added screen filters
-const BuildNumber int = 21
+//
+// # Version 22
+// - Added XM music support (optional for desktops, mandatory for wasm builds)
+const BuildNumber int = 22

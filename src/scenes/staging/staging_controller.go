@@ -285,7 +285,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	scene.Context().Rand.SetSeed((c.config.Seed + 42) * 21917)
 	c.scene = scene
 
-	c.musicPlayer = newMusicPlayer(scene, c.state.ExtraMusic)
+	c.musicPlayer = newMusicPlayer(scene)
 	c.musicPlayer.Start()
 
 	if c.state.CPUProfile != "" {

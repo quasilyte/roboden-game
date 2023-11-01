@@ -39,7 +39,7 @@ func NewState(ctx *ge.Context) *session.State {
 
 func PrepareAssets(ctx *ge.Context) {
 	assetsConfig := &assets.Config{
-		ExtraMusic: false,
+		XM: true,
 	}
 	var progress float64
 	assets.RegisterImageResources(ctx, assetsConfig, &progress)

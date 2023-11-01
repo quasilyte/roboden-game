@@ -460,4 +460,8 @@ const SeasonNumber = 1
 //
 // # Version 22
 // - Added XM music support (optional for desktops, mandatory for wasm builds)
+// - Anti Air bot point cost: 2 -> 3
+// - Servo bot point cost: 3 -> 2
+// - Fighter point cost: 3 -> 4
+// - Destroyer gets DPS boost, but its attack energy cost is not higher as well
 const BuildNumber int = 22

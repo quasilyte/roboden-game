@@ -28,6 +28,8 @@ github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8/go.mod h1:HKlIX3XHQyzL
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e h1:P56RXrUSBSZY0OvMTu9yxIGjlZSo6O87H+Hm29Hvb/M=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20230412072401-66c02806357e/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
+github.com/quasilyte/ebitengine-resource v0.5.1-0.20231101125830-f1fc00a87be0 h1:WeuhhT4z8gWxoCmeHVvIITcWmAwDpKPc9I4J/rkzbR4=
+github.com/quasilyte/ebitengine-resource v0.5.1-0.20231101125830-f1fc00a87be0/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
 github.com/quasilyte/ebitenui v0.0.0-20230726093423-e2a7a066d711 h1:jYfAMq+T8SbkdspoD/wi7M4Y/Hm3rmR+N5mNx75tuMU=
 github.com/quasilyte/ebitenui v0.0.0-20230726093423-e2a7a066d711/go.mod h1:6Ty4FIhkLzzwO5kOpRQq+Ja4yP2eTE0ASg6y0eo5cvA=
 github.com/quasilyte/ge v0.0.0-20230925153958-e5b2a565e636 h1:SXdyww/bTMf99bA7IJBkiE4DDhxj2G4Xk9YY7nYVtRM=

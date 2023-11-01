@@ -34,6 +34,7 @@ itchio-wasm: wasm
 	cd ../_web && \
 		rm -rf roboden_data && \
 		cp -r ../roboden_data roboden_data && \
+		rm roboden_data/music/*.ogg && \
 		mkdir -p ../bin && \
 		rm -f ../bin/roboden.zip && \
 		zip ../bin/roboden.zip -r main.wasm index.html wasm_exec.js roboden_data

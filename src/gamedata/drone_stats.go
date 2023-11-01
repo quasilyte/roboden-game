@@ -483,7 +483,7 @@ var GeneratorAgentStats = InitDroneStats(&AgentStats{
 	MaxPayload:           1,
 	Speed:                90,
 	MaxHealth:            26,
-	EnergyRegenRateBonus: 1,
+	EnergyRegenRateBonus: 2,
 })
 
 var ClonerAgentStats = InitDroneStats(&AgentStats{

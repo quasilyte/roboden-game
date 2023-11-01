@@ -464,4 +464,5 @@ const SeasonNumber = 1
 // - Servo bot point cost: 3 -> 2
 // - Fighter point cost: 3 -> 4
 // - Destroyer gets DPS boost, but its attack energy cost is not higher as well
+// - Increase Generator bot energy regen rate & mention it as special ability
 const BuildNumber int = 22

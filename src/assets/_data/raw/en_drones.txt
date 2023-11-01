@@ -77,6 +77,7 @@
 ##drone.ability.cloak_hide : Cloaks itself when heavily damaged
 ##drone.ability.cloak_scavenge : Cloaks itself when harvesting scraps
 
+##drone.ability.energy_regen : Very high energy regen rate
 ##drone.ability.cloning : Performs cloning of non-elite drones
 ##drone.ability.repair : Repairs damaged drones
 ##drone.ability.recharge : Recovers the energy of the nearby drones

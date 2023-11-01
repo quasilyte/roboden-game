@@ -78,6 +78,7 @@
 ##drone.ability.cloak_hide : Уходит в невидимость при высокой опасности
 ##drone.ability.cloak_scavenge : Добывает ресурсы в невидимости
 
+##drone.ability.energy_regen : Высокая скорость восстановления энергии
 ##drone.ability.cloning : Клонирует других дронов (кроме элитных)
 ##drone.ability.repair : Чинит повреждённых дронов
 ##drone.ability.recharge : Восстанавливает энергию ближайшим дронам

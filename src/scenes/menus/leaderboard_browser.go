@@ -98,9 +98,9 @@ func (c *LeaderboardBrowserController) initBoard() {
 	if boardData == nil {
 		panel.AddChild(eui.NewCenteredLabel(d.Get("menu.leaderboard.fetch_error"), tinyFont))
 	} else {
-		numColumns := 5
+		numColumns := 6
 		if c.gameMode == "arena" {
-			numColumns = 4
+			numColumns = 5
 		}
 
 		grid := widget.NewContainer(
@@ -110,10 +110,11 @@ func (c *LeaderboardBrowserController) initBoard() {
 			widget.ContainerOpts.Layout(widget.NewGridLayout(
 				widget.GridLayoutOpts.Spacing(24, 4),
 				widget.GridLayoutOpts.Columns(numColumns),
-				widget.GridLayoutOpts.Stretch([]bool{false, true, false, false, false}, nil),
+				widget.GridLayoutOpts.Stretch([]bool{false, false, true, false, false, false}, nil),
 			)))
 
 		grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_rank")+"]", tinyFont))
+		grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_platform")+"]", tinyFont))
 		grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_name")+"]", tinyFont))
 		grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_difficulty")+"]", tinyFont))
 		grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_score")+"]", tinyFont))
@@ -121,11 +122,7 @@ func (c *LeaderboardBrowserController) initBoard() {
 			grid.AddChild(eui.NewLabel("["+d.Get("menu.leaderboard.col_time")+"]", tinyFont))
 		}
 
-		grid.AddChild(eui.NewLabel("-", tinyFont))
-		grid.AddChild(eui.NewLabel("-", tinyFont))
-		grid.AddChild(eui.NewLabel("-", tinyFont))
-		grid.AddChild(eui.NewLabel("-", tinyFont))
-		if c.gameMode != "arena" {
+		for i := 0; i < numColumns; i++ {
 			grid.AddChild(eui.NewLabel("-", tinyFont))
 		}
 
@@ -136,6 +133,13 @@ func (c *LeaderboardBrowserController) initBoard() {
 			}
 			d := time.Duration(e.Time) * time.Second
 			grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Rank), tinyFont, clr))
+			clan := e.Platform
+			if clan == "" {
+				// Empty platforms is an old thing before we were sending this data to the server.
+				// Assume these players to come from Steam.
+				clan = "Steam"
+			}
+			grid.AddChild(eui.NewColoredLabel(clan, tinyFont, clr))
 			grid.AddChild(eui.NewColoredLabel(e.PlayerName, tinyFont, clr))
 			grid.AddChild(eui.NewColoredLabel(fmt.Sprintf("%d%%", e.Difficulty), tinyFont, clr))
 			grid.AddChild(eui.NewColoredLabel(strconv.Itoa(e.Score), tinyFont, clr))

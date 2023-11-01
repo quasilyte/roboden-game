@@ -40,6 +40,7 @@ You can change this decision later.
 ##menu.leaderboard.num_players : Players
 ##menu.leaderboard.col_rank : rank
 ##menu.leaderboard.col_name : name
+##menu.leaderboard.col_platform : clan
 ##menu.leaderboard.col_difficulty : difficulty
 ##menu.leaderboard.col_score : score
 ##menu.leaderboard.col_time : time

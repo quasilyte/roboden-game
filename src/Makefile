@@ -28,7 +28,7 @@ runsim:
 	go build -ldflags="-s -w -X 'main.CommitHash=$(COMMIT_HASH)'" -trimpath -o runsim_x ./cmd/runsim
 
 wasm:
-	GOARCH=wasm GOOS=js go build -ldflags="-s -w" -trimpath -o ../_web/main.wasm ./cmd/game
+	GOARCH=wasm GOOS=js go build -ldflags="-s -w" -tags "itchio" -trimpath -o ../_web/main.wasm ./cmd/game
 
 itchio-wasm: wasm
 	cd ../_web && \

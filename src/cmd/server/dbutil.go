@@ -62,7 +62,7 @@ func (db *seasonDB) PrepareQueries() error {
 
 	if db.id == currentSeason {
 		q := `
-			SELECT player_name, score, difficulty, drones, time_seconds
+			SELECT player_name, score, difficulty, drones, time_seconds, platform
 			FROM classic_scores
 			ORDER BY score DESC
 		`
@@ -76,9 +76,9 @@ func (db *seasonDB) PrepareQueries() error {
 	{
 		q := `
 		INSERT OR REPLACE INTO classic_scores
-			('player_name', 'score', 'difficulty', 'drones', 'time_seconds')
+			('player_name', 'score', 'difficulty', 'drones', 'time_seconds', 'platform')
 		VALUES
-			(?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?)
 		`
 		stmt, err := db.conn.Prepare(q)
 		if err != nil {
@@ -98,7 +98,7 @@ func (db *seasonDB) PrepareQueries() error {
 
 	if db.id == currentSeason {
 		q := `
-			SELECT player_name, score, difficulty, drones
+			SELECT player_name, score, difficulty, drones, platform
 			FROM arena_scores
 			ORDER BY score DESC
 		`
@@ -112,9 +112,9 @@ func (db *seasonDB) PrepareQueries() error {
 	{
 		q := `
 		INSERT OR REPLACE INTO arena_scores
-			('player_name', 'score', 'difficulty', 'drones')
+			('player_name', 'score', 'difficulty', 'drones', 'platform')
 		VALUES
-			(?, ?, ?, ?)
+			(?, ?, ?, ?, ?)
 		`
 		stmt, err := db.conn.Prepare(q)
 		if err != nil {
@@ -134,7 +134,7 @@ func (db *seasonDB) PrepareQueries() error {
 
 	if db.id == currentSeason {
 		q := `
-			SELECT player_name, score, difficulty, drones, time_seconds
+			SELECT player_name, score, difficulty, drones, time_seconds, platform
 			FROM inf_arena_scores
 			ORDER BY score DESC
 		`
@@ -148,9 +148,9 @@ func (db *seasonDB) PrepareQueries() error {
 	{
 		q := `
 		INSERT OR REPLACE INTO inf_arena_scores
-			('player_name', 'score', 'difficulty', 'drones', 'time_seconds')
+			('player_name', 'score', 'difficulty', 'drones', 'time_seconds', 'platform')
 		VALUES
-			(?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?)
 		`
 		stmt, err := db.conn.Prepare(q)
 		if err != nil {
@@ -170,7 +170,7 @@ func (db *seasonDB) PrepareQueries() error {
 
 	if db.id == currentSeason {
 		q := `
-			SELECT player_name, score, difficulty, time_seconds
+			SELECT player_name, score, difficulty, time_seconds, platform
 			FROM reverse_scores
 			ORDER BY score DESC
 		`
@@ -184,9 +184,9 @@ func (db *seasonDB) PrepareQueries() error {
 	{
 		q := `
 		INSERT OR REPLACE INTO reverse_scores
-			('player_name', 'score', 'difficulty', 'time_seconds')
+			('player_name', 'score', 'difficulty', 'time_seconds', 'platform')
 		VALUES
-			(?, ?, ?, ?)
+			(?, ?, ?, ?, ?)
 		`
 		stmt, err := db.conn.Prepare(q)
 		if err != nil {
@@ -198,17 +198,17 @@ func (db *seasonDB) PrepareQueries() error {
 	return nil
 }
 
-func (db *seasonDB) UpdatePlayerScore(mode, name, drones string, score, difficulty, timeSeconds int) error {
+func (db *seasonDB) UpdatePlayerScore(mode, name, drones string, score, difficulty, timeSeconds int, platform string) error {
 	var err error
 	switch mode {
 	case "classic":
-		_, err = db.classicUpsert.Exec(name, score, difficulty, drones, timeSeconds)
+		_, err = db.classicUpsert.Exec(name, score, difficulty, drones, timeSeconds, platform)
 	case "arena":
-		_, err = db.arenaUpsert.Exec(name, score, difficulty, drones)
+		_, err = db.arenaUpsert.Exec(name, score, difficulty, drones, platform)
 	case "inf_arena":
-		_, err = db.infArenaUpsert.Exec(name, score, difficulty, drones, timeSeconds)
+		_, err = db.infArenaUpsert.Exec(name, score, difficulty, drones, timeSeconds, platform)
 	case "reverse":
-		_, err = db.reverseUpsert.Exec(name, score, difficulty, timeSeconds)
+		_, err = db.reverseUpsert.Exec(name, score, difficulty, timeSeconds, platform)
 	}
 	return err
 }
@@ -256,11 +256,11 @@ func (db *seasonDB) AllScores(mode string) ([]serverapi.LeaderboardEntry, error)
 		var err error
 		switch mode {
 		case "classic", "inf_arena":
-			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Drones, &e.Time)
+			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Drones, &e.Time, &e.Platform)
 		case "arena":
-			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Drones)
+			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Drones, &e.Platform)
 		case "reverse":
-			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Time)
+			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Time, &e.Platform)
 		}
 		if err != nil {
 			return nil, err

@@ -460,6 +460,7 @@ const SeasonNumber = 1
 //
 // # Version 22
 // - Added XM music support (optional for desktops, mandatory for wasm builds)
+// - Include "clan" information to published results (Steam, itch.io, etc)
 // - Anti Air bot point cost: 2 -> 3
 // - Servo bot point cost: 3 -> 2
 // - Fighter point cost: 3 -> 4

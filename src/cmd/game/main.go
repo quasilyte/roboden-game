@@ -13,6 +13,7 @@ import (
 	"github.com/quasilyte/ge"
 
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/buildinfo"
 	"github.com/quasilyte/roboden-game/contentlock"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -106,6 +107,8 @@ func main() {
 			gameDataFolder = filepath.Join(gameLocation, "roboden_data")
 		}
 	}
+
+	state.Logf("buildinfo distribution tag: %s", buildinfo.Distribution)
 
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)
 	assets.RegisterRawResources(ctx)

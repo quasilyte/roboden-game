@@ -6,12 +6,15 @@ type LeaderboardEntry struct {
 	Score      int    `json:"score"`
 	Time       int    `json:"time"`
 	PlayerName string `json:"player_name"`
+	Platform   string `json:"platform"`
 	Drones     string `json:"drones"`
 }
 
 type GameReplay struct {
 	GameVersion int    `json:"game_version"`
 	GameCommit  string `json:"game_commit"`
+
+	Platform string `json:"platform"`
 
 	LevelGenChecksum int `json:"level_gen_checksum"`
 

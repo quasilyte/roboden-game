@@ -4,7 +4,8 @@ CREATE TABLE classic_scores (
     difficulty INTEGER NOT NULL,
     time_seconds INTEGER NOT NULL,
     drones TEXT,
-    score_rank INTEGER
+    score_rank INTEGER,
+    platform TEXT
 );
 
 CREATE TABLE arena_scores (
@@ -12,7 +13,8 @@ CREATE TABLE arena_scores (
     score INTEGER NOT NULL,
     difficulty INTEGER NOT NULL,
     drones TEXT,
-    score_rank INTEGER
+    score_rank INTEGER,
+    platform TEXT
 );
 
 CREATE TABLE inf_arena_scores (
@@ -21,7 +23,8 @@ CREATE TABLE inf_arena_scores (
     difficulty INTEGER NOT NULL,
     time_seconds INTEGER NOT NULL,
     drones TEXT,
-    score_rank INTEGER
+    score_rank INTEGER,
+    platform TEXT
 );
 
 CREATE TABLE reverse_scores (
@@ -29,5 +32,6 @@ CREATE TABLE reverse_scores (
     score INTEGER NOT NULL,
     difficulty INTEGER NOT NULL,
     time_seconds INTEGER NOT NULL,
-    score_rank INTEGER
+    score_rank INTEGER,
+    platform TEXT
 );

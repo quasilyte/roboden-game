@@ -40,6 +40,7 @@
 ##menu.leaderboard.num_players : Участников
 ##menu.leaderboard.col_rank : позиция
 ##menu.leaderboard.col_name : никнейм
+##menu.leaderboard.col_platform : клан
 ##menu.leaderboard.col_difficulty : сложность
 ##menu.leaderboard.col_score : очки
 ##menu.leaderboard.col_time : время

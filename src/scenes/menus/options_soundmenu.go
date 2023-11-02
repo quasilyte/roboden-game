@@ -27,7 +27,8 @@ func (c *OptionsSoundMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *OptionsSoundMenuController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
+	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.back()
 		return
 	}
@@ -50,7 +51,7 @@ func (c *OptionsSoundMenuController) initUI() {
 	{
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources:  uiResources,
-			Input:      c.state.CombinedInput,
+			Input:      c.state.MenuInput,
 			Value:      &options.EffectsVolumeLevel,
 			Label:      d.Get("menu.options.effects_volume"),
 			ValueNames: []string{"0", "1", "2", "3", "4", "5", "6"},
@@ -66,7 +67,7 @@ func (c *OptionsSoundMenuController) initUI() {
 	{
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources:  uiResources,
-			Input:      c.state.CombinedInput,
+			Input:      c.state.MenuInput,
 			Value:      &options.MusicVolumeLevel,
 			Label:      d.Get("menu.options.music_volume"),
 			ValueNames: []string{"0", "1", "2", "3", "4", "5", "6"},

@@ -23,7 +23,9 @@ func (c *ControlsPromptController) Init(scene *ge.Scene) {
 	c.initUI()
 }
 
-func (c *ControlsPromptController) Update(delta float64) {}
+func (c *ControlsPromptController) Update(delta float64) {
+	c.state.MenuInput.Update()
+}
 
 func (c *ControlsPromptController) initUI() {
 	eui.AddBackground(c.state.BackgroundImage, c.scene)

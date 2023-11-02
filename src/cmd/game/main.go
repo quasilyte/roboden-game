@@ -112,12 +112,13 @@ func main() {
 
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)
 	assets.RegisterRawResources(ctx)
+
 	keymaps := controls.BindKeymap(ctx)
-	state.TouchInput = keymaps.TouchInput
-	state.CombinedInput = keymaps.CombinedInput
-	state.KeyboardInput = keymaps.KeyboardInput
-	state.FirstGamepadInput = keymaps.FirstGamepadInput
-	state.SecondGamepadInput = keymaps.SecondGamepadInput
+	state.TouchInput = gameinput.Handler{InputMethod: gameinput.InputMethodTouch, Handler: ctx.Input.NewHandler(0, keymaps.TouchKeymap)}
+	state.CombinedInput = gameinput.Handler{InputMethod: gameinput.InputMethodCombined, Handler: ctx.Input.NewHandler(0, keymaps.CombinedKeymap)}
+	state.KeyboardInput = gameinput.Handler{InputMethod: gameinput.InputMethodKeyboard, Handler: ctx.Input.NewHandler(0, keymaps.KeyboardKeymap)}
+	state.FirstGamepadInput = gameinput.Handler{InputMethod: gameinput.InputMethodGamepad1, Handler: ctx.Input.NewHandler(0, keymaps.FirstGamepadKeymap)}
+	state.SecondGamepadInput = gameinput.Handler{InputMethod: gameinput.InputMethodGamepad2, Handler: ctx.Input.NewHandler(1, keymaps.SecondGamepadKeymap)}
 
 	if ctx.CheckGameData("save") {
 		if err := ctx.LoadGameData("save", &state.Persistent); err != nil {

@@ -214,7 +214,8 @@ func (c *resultsController) updateProgress() {
 }
 
 func (c *resultsController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
+	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		if c.rewards.IsEmpty() {
 			c.back()
 		} else {

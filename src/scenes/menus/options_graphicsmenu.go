@@ -26,7 +26,8 @@ func (c *OptionsGraphicsMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *OptionsGraphicsMenuController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
+	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.back()
 		return
 	}
@@ -105,7 +106,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 
 	{
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
-			Input:     c.state.CombinedInput,
+			Input:     c.state.MenuInput,
 			Scene:     c.scene,
 			Resources: uiResources,
 			Value:     &options.Graphics.ScreenFilter,
@@ -142,7 +143,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		b := eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:     c.scene,
 			Resources: uiResources,
-			Input:     c.state.CombinedInput,
+			Input:     c.state.MenuInput,
 			Value:     &options.Graphics.AspectRation,
 			Label:     d.Get("menu.options.graphics.aspect_ratio"),
 			ValueNames: []string{

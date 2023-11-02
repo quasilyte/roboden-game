@@ -35,21 +35,8 @@ func (c *ProfileAchievementsMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *ProfileAchievementsMenuController) Update(delta float64) {
-	// if info, ok := c.state.MainInput.JustPressedActionInfo(controls.ActionInfoTap); ok {
-	// 	for i, b := range c.buttons {
-	// 		rect := b.GetWidget().Rect
-	// 		frect := gmath.Rect{
-	// 			Min: gmath.Vec{X: float64(rect.Min.X), Y: float64(rect.Min.Y)},
-	// 			Max: gmath.Vec{X: float64(rect.Max.X), Y: float64(rect.Max.Y)},
-	// 		}
-	// 		if frect.Contains(info.Pos) {
-	// 			c.helpLabel.Label = c.descriptions[i]
-	// 			break
-	// 		}
-	// 	}
-	// }
-
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
+	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.back()
 		return
 	}

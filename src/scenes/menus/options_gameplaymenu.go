@@ -25,7 +25,8 @@ func (c *OptionsGameplayMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *OptionsGameplayMenuController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
+	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.back()
 		return
 	}
@@ -48,7 +49,7 @@ func (c *OptionsGameplayMenuController) initUI() {
 	{
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources: uiResources,
-			Input:     c.state.CombinedInput,
+			Input:     c.state.MenuInput,
 			Value:     &options.HintMode,
 			Label:     d.Get("menu.options.hint_mode"),
 			ValueNames: []string{
@@ -75,7 +76,7 @@ func (c *OptionsGameplayMenuController) initUI() {
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:      c.scene,
 			Resources:  uiResources,
-			Input:      c.state.CombinedInput,
+			Input:      c.state.MenuInput,
 			Value:      &options.ScrollingSpeed,
 			Label:      d.Get("menu.options.scroll_speed"),
 			ValueNames: []string{"1", "2", "3", "4", "5"},
@@ -86,7 +87,7 @@ func (c *OptionsGameplayMenuController) initUI() {
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:      c.scene,
 			Resources:  uiResources,
-			Input:      c.state.CombinedInput,
+			Input:      c.state.MenuInput,
 			Value:      &options.EdgeScrollRange,
 			Label:      d.Get("menu.options.edge_scroll_range"),
 			ValueNames: []string{"0", "1", "2", "3", "4"},

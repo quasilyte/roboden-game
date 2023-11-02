@@ -7,6 +7,7 @@ import (
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/gsignal"
+	"github.com/quasilyte/roboden-game/controls"
 )
 
 type WheelScrollStyle int
@@ -41,6 +42,8 @@ type Handler struct {
 	keysReplacer *strings.Replacer
 
 	gamepadConnected bool
+
+	lastTouchPos gmath.Vec
 
 	InputMethod PlayerInputMethod
 
@@ -129,6 +132,13 @@ func (h *Handler) SetGamepadDeadzoneLevel(level int) {
 }
 
 func (h *Handler) Update() {
+	if h.InputMethod == InputMethodTouch {
+		if info, ok := h.JustPressedActionInfo(controls.ActionClick); ok {
+			h.lastTouchPos = info.Pos
+		}
+		return
+	}
+
 	gamepadConnected := h.GamepadConnected()
 	if gamepadConnected != h.gamepadConnected {
 		if !gamepadConnected {
@@ -143,6 +153,9 @@ func (h *Handler) UpdateVirtualCursorPos(pos gmath.Vec) {
 }
 
 func (h *Handler) AnyCursorPos() gmath.Vec {
+	if h.InputMethod == InputMethodTouch {
+		return h.lastTouchPos
+	}
 	if !h.virtualCursorPos.IsZero() {
 		return h.virtualCursorPos
 	}

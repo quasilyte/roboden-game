@@ -3,8 +3,6 @@ package controls
 import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/input"
-
-	"github.com/quasilyte/roboden-game/gameinput"
 )
 
 const (
@@ -58,11 +56,11 @@ const (
 )
 
 type KeymapSet struct {
-	TouchInput         gameinput.Handler
-	CombinedInput      gameinput.Handler
-	KeyboardInput      gameinput.Handler
-	FirstGamepadInput  gameinput.Handler
-	SecondGamepadInput gameinput.Handler
+	TouchKeymap         input.Keymap
+	CombinedKeymap      input.Keymap
+	KeyboardKeymap      input.Keymap
+	FirstGamepadKeymap  input.Keymap
+	SecondGamepadKeymap input.Keymap
 }
 
 func BindKeymap(ctx *ge.Context) KeymapSet {
@@ -176,10 +174,10 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 	}
 
 	return KeymapSet{
-		TouchInput:         gameinput.Handler{InputMethod: gameinput.InputMethodTouch, Handler: ctx.Input.NewHandler(0, touchKeymap)},
-		CombinedInput:      gameinput.Handler{InputMethod: gameinput.InputMethodCombined, Handler: ctx.Input.NewHandler(0, mainKeymap)},
-		KeyboardInput:      gameinput.Handler{InputMethod: gameinput.InputMethodKeyboard, Handler: ctx.Input.NewHandler(0, keyboardKeymap)},
-		FirstGamepadInput:  gameinput.Handler{InputMethod: gameinput.InputMethodGamepad1, Handler: ctx.Input.NewHandler(0, gamepadKeymap)},
-		SecondGamepadInput: gameinput.Handler{InputMethod: gameinput.InputMethodGamepad2, Handler: ctx.Input.NewHandler(1, gamepadKeymap)},
+		TouchKeymap:         touchKeymap,
+		CombinedKeymap:      mainKeymap,
+		KeyboardKeymap:      keyboardKeymap,
+		FirstGamepadKeymap:  gamepadKeymap,
+		SecondGamepadKeymap: gamepadKeymap,
 	}
 }

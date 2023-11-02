@@ -95,7 +95,8 @@ func (c *LobbyMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *LobbyMenuController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
+	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.back()
 		return
 	}
@@ -607,7 +608,7 @@ func (c *LobbyMenuController) newOptionButtonWithDisabled(value *int, key string
 	return eui.NewSelectButton(eui.SelectButtonConfig{
 		Scene:          c.scene,
 		Resources:      c.state.Resources.UI,
-		Input:          c.state.CombinedInput,
+		Input:          c.state.MenuInput,
 		Value:          value,
 		DisabledValues: disabled,
 		Label:          c.scene.Dict().Get(key),

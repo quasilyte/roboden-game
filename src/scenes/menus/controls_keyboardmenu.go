@@ -27,7 +27,8 @@ func (c *ControlsKeyboardMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *ControlsKeyboardMenuController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
+	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.back()
 		return
 	}
@@ -68,7 +69,7 @@ func (c *ControlsKeyboardMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources: uiResources,
-		Input:     c.state.CombinedInput,
+		Input:     c.state.MenuInput,
 		Value:     &options.WheelScrollingMode,
 		Label:     d.Get("menu.controls.wheel_scroll"),
 		ValueNames: []string{

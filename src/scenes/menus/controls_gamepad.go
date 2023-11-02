@@ -45,7 +45,8 @@ func (c *ControlsGamepadMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *ControlsGamepadMenuController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
+	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.back()
 		return
 	}
@@ -159,7 +160,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
-		Input:      c.state.CombinedInput,
+		Input:      c.state.MenuInput,
 		Value:      &options.GamepadSettings[c.id].Layout,
 		Label:      d.Get("menu.controls.gamepad_layout"),
 		ValueNames: []string{"Xbox", "PlayStation", "Nintendo Switch", "Steam Deck"},
@@ -172,7 +173,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
-		Input:      c.state.CombinedInput,
+		Input:      c.state.MenuInput,
 		Value:      &options.GamepadSettings[c.id].CursorSpeed,
 		Label:      d.Get("menu.controls.gamepad_cursor_speed"),
 		ValueNames: []string{"-80", "-50%", "-20%", "+0%", "+20%", "+50%", "+80%", "+100%"},
@@ -183,7 +184,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
-		Input:      c.state.CombinedInput,
+		Input:      c.state.MenuInput,
 		Value:      &options.GamepadSettings[c.id].DeadzoneLevel,
 		Label:      d.Get("menu.controls.gamepad_deadzone"),
 		ValueNames: []string{"0.05", "0.10", "0.15", "0.20", "0.25", "0.30", "0.35", "0.40", "0.45", "0.50", "0.55", "0.60"},

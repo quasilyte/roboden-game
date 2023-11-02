@@ -10,15 +10,12 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
-	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 )
 
 type MainMenuController struct {
 	state *session.State
-
-	cursor *gameui.CursorNode
 
 	scene *ge.Scene
 }
@@ -30,8 +27,8 @@ func NewMainMenuController(state *session.State) *MainMenuController {
 func (c *MainMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
 
-	c.cursor = gameui.NewCursorNode(&c.state.CombinedInput, scene.Context().WindowRect())
-	scene.AddObject(c.cursor)
+	// c.cursor = gameui.NewCursorNode(c.state.MenuInput, scene.Context().WindowRect())
+	// scene.AddObject(c.cursor)
 
 	c.state.AdjustVolumeLevels()
 
@@ -43,7 +40,8 @@ func (c *MainMenuController) Init(scene *ge.Scene) {
 }
 
 func (c *MainMenuController) Update(delta float64) {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionMenuBack) {
+	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.scene.Audio().PauseCurrentMusic()
 		c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
 		return

@@ -485,7 +485,7 @@ func NewButtonWithConfig(res *Resources, config ButtonConfig) *widget.Button {
 
 type SelectButtonConfig struct {
 	Resources *Resources
-	Input     gameinput.Handler
+	Input     *gameinput.Handler
 	Scene     *ge.Scene // If press sound is needed
 
 	Value          *int

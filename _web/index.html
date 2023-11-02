@@ -1,18 +1,56 @@
 <!DOCTYPE html>
 
+<style>
+.app_loader_block {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: black;
+}
+
+#app_spinner {
+    display: inline-block;
+    width: 120px;
+    height: 120px;
+    border: 8px solid #164b50;
+    border-radius: 50%;
+    border-top-color: #29bac7;
+    animation: spin 1s ease-in-out infinite;
+    -webkit-animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { -webkit-transform: rotate(360deg); }
+}
+@-webkit-keyframes spin {
+    to { -webkit-transform: rotate(360deg); }
+}
+</style>
+
+<div id="app_loader" class="app_loader_block">
+    <div id="app_spinner"></div>
+</div>
+
 <script src="wasm_exec.js"></script>
 
 <script>
-    function _localStorageAvailable() {
-        try {
-            const key = `storage__test__`;
-            window.localStorage.setItem(key, null);
-            window.localStorage.removeItem(key);
-            return true;
-        } catch (e) {
-            return false;
-        }
+function _localStorageAvailable() {
+    try {
+        const key = `storage__test__`;
+        window.localStorage.setItem(key, null);
+        window.localStorage.removeItem(key);
+        return true;
+    } catch (e) {
+        return false;
     }
+}
+
+(function () {
+    let spinnerInterval = null;
 
     if (!WebAssembly.instantiateStreaming) {
         WebAssembly.instantiateStreaming = async (resp, importObject) => {
@@ -23,10 +61,12 @@
 
     const go = new Go();
     WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then(result => {
+        document.getElementById("app_loader").remove();
         go.run(result.instance);
     });
 
     window.addEventListener("load", function() {
         document.body.focus();
     });
+})();
 </script>

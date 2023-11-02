@@ -288,6 +288,9 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		}
 		if c.state.Device.IsMobile() {
 			disabled = append(disabled, 3) // Two players are not available on mobiles
+			// These modes are disabled on mobiles because they'll have no screen buttons.
+			// TODO: they should be available, fix the UI.
+			disabled = append(disabled, 1, 4)
 		}
 		key := "menu.lobby.players"
 		if c.config.RawGameMode == "reverse" {

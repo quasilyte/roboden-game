@@ -459,6 +459,8 @@ const SeasonNumber = 1
 // - Added screen filters
 //
 // # Version 22
+// - Added wasm loading spinner
+// - Moved sfx back to embed data to make load times faster (even on desktops)
 // - Added XM music support (optional for desktops, mandatory for wasm builds)
 // - Fixed mobiles support on wasm builds
 // - Include "clan" information to published results (Steam, itch.io, etc)

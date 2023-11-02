@@ -11,6 +11,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/buildinfo"
 	"github.com/quasilyte/roboden-game/contentlock"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -123,6 +124,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 
 func (c *resultsController) makeGameReplay() serverapi.GameReplay {
 	var replay serverapi.GameReplay
+	replay.Platform = buildinfo.Distribution
 	replay.GameVersion = gamedata.BuildNumber
 	replay.GameCommit = c.state.GameCommitHash
 	replay.LevelGenChecksum = c.results.LevelGenChecksum

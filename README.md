@@ -2,7 +2,7 @@
 
 [Roboden in available on Steam!](https://store.steampowered.com/app/2416030/Roboden/)
 
-The **online demo** can be found here: <https://quasilyte.itch.io/roboden>.
+You can also play this game in your browser on [itch.io](https://quasilyte.itch.io/roboden).
 
 ## Game Overview
 
@@ -19,7 +19,7 @@ Features:
 * Units combining system for higher tier units
 * About 30 different drones divided into 3 tiers
 * 4 game modes: classic, arena, infinite arena, and reverse
-* Online leaderboard
+* [Online, cross-platform leaderboard](https://roboden-game.github.io/leaderboard/)
 * Procedural level generation with extensive customization
 
 If you're playing a browser version of the game, please use Chrome or some other browser that has good wasm support (you may have performance issues in Firefox). If possible, prefer a native build instead; you'll get a smooth 60fps experience this way.
@@ -59,7 +59,7 @@ go run ./cmd/builder -goos windows -goarch amd64 -o roboden.exe
 go run ./cmd/builder -goos windows -goarch amd64 -steam -o roboden.exe
 ```
 
-#### Build for web(wasm):
+Build Roboden for web (wasm):
 
 ```bash
 cd src/
@@ -72,9 +72,9 @@ After that you can open `_web/index.html` in browser (you'll need to serve the w
 
 * windows/amd64
 * linux/amd64
-* darwin/arm64
+* darwin/arm64 and darwin/amd64
 * js/wasm
 
-It's also tested on Steam Deck.
+It's also tested it on Steam Deck.
 
 A native build for Android is planned as well. The game does have a touch screen support already.

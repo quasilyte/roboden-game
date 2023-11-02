@@ -5,9 +5,9 @@ COMMIT_HASH=`git rev-parse HEAD`
 steam-release:
 	rm -rf ../steam_dist
 	mkdir -p ../steam_dist/linux_x86-64 ../steam_dist/windows_x86-32 ../steam_dist/windows_x86-64 ../steam_dist/out
-	go run ./cmd/builder -o ../steam_dist/linux_x86-64/roboden -steam -goos=linux -goarch=amd64
-	go run ./cmd/builder -o ../steam_dist/windows_x86-32/roboden.exe -steam -goos=windows -goarch=386
-	go run ./cmd/builder -o ../steam_dist/windows_x86-64/roboden.exe -steam -goos=windows -goarch=amd64
+	go run ./cmd/builder -o ../steam_dist/linux_x86-64/roboden -platform=steam -goos=linux -goarch=amd64
+	go run ./cmd/builder -o ../steam_dist/windows_x86-32/roboden.exe -platform=steam -goos=windows -goarch=386
+	go run ./cmd/builder -o ../steam_dist/windows_x86-64/roboden.exe -platform=steam -goos=windows -goarch=amd64
 	cp -r ../roboden_data ../steam_dist/linux_x86-64/roboden_data
 	cp -r ../roboden_data ../steam_dist/windows_x86-32/roboden_data
 	cp -r ../roboden_data ../steam_dist/windows_x86-64/roboden_data
@@ -16,6 +16,20 @@ steam-release:
 	cd ../steam_dist/linux_x86-64 && zip -r ../out/roboden_linux.zip *
 	cd ../steam_dist/windows_x86-32 && zip -r ../out/roboden_windows32.zip *
 	cd ../steam_dist/windows_x86-64 && zip -r ../out/roboden_windows64.zip *
+	@echo "[OK] all done"
+
+itchio-release:
+	rm -rf ../itchio_dist
+	mkdir -p ../itchio_dist/linux_x86-64 ../itchio_dist/windows_x86-32 ../itchio_dist/windows_x86-64 ../itchio_dist/out
+	go run ./cmd/builder -o ../itchio_dist/linux_x86-64/roboden -platform=itchio -goos=linux -goarch=amd64
+	go run ./cmd/builder -o ../itchio_dist/windows_x86-32/roboden.exe -platform=itchio -goos=windows -goarch=386
+	go run ./cmd/builder -o ../itchio_dist/windows_x86-64/roboden.exe -platform=itchio -goos=windows -goarch=amd64
+	cp -r ../roboden_data ../itchio_dist/linux_x86-64/roboden_data
+	cp -r ../roboden_data ../itchio_dist/windows_x86-32/roboden_data
+	cp -r ../roboden_data ../itchio_dist/windows_x86-64/roboden_data
+	cd ../itchio_dist/linux_x86-64 && zip -r ../out/roboden_linux.zip *
+	cd ../itchio_dist/windows_x86-32 && zip -r ../out/roboden_windows32.zip *
+	cd ../itchio_dist/windows_x86-64 && zip -r ../out/roboden_windows64.zip *
 	@echo "[OK] all done"
 
 server:

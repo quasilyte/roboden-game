@@ -18,8 +18,8 @@ func main() {
 		"select a cross-compilation GOOS value")
 	flag.StringVar(&args.goarch, "goarch", "",
 		"select a cross-compilation GOARCH value")
-	flag.BoolVar(&args.steam, "steam", false,
-		"whether we're building for Steam")
+	flag.StringVar(&args.platform, "platform", "",
+		"a platform-specific tag (steam, itchio)")
 	flag.Parse()
 
 	commit := args.commit
@@ -37,8 +37,13 @@ func main() {
 		"-s -w",
 	}
 	buildTags := []string{}
-	if args.steam {
-		buildTags = append(buildTags, "steam")
+	switch args.platform {
+	case "steam", "itchio":
+		buildTags = append(buildTags, args.platform)
+	case "":
+		// OK.
+	default:
+		panic(fmt.Sprintf("unexpected platform flag: %q", args.platform))
 	}
 	goFlags := []string{
 		"build",
@@ -70,5 +75,5 @@ type arguments struct {
 	goos   string
 	goarch string
 
-	steam bool
+	platform string
 }

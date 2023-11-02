@@ -4,6 +4,8 @@ import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/serverapi"
 )
 
@@ -11,6 +13,12 @@ type player interface {
 	Init()
 	Update(computedDelta, delta float64)
 	GetState() *playerState
+}
+
+type mainPlayer interface {
+	player
+	GetCursor() *gameui.CursorNode
+	GetInput() *gameinput.Handler
 }
 
 func isHumanPlayer(p player) bool {

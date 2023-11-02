@@ -14,6 +14,8 @@ const (
 
 	ActionNextTutorialMessage
 
+	ActionShowTooltip
+
 	ActionPanRight
 	ActionPanDown
 	ActionPanLeft
@@ -56,6 +58,7 @@ const (
 )
 
 type KeymapSet struct {
+	TouchInput         gameinput.Handler
 	CombinedInput      gameinput.Handler
 	KeyboardInput      gameinput.Handler
 	FirstGamepadInput  gameinput.Handler
@@ -63,6 +66,18 @@ type KeymapSet struct {
 }
 
 func BindKeymap(ctx *ge.Context) KeymapSet {
+	touchKeymap := input.Keymap{
+		ActionSkipDemo: {input.KeyTouchTap},
+
+		ActionMoveChoice: {input.KeyTouchTap},
+
+		ActionClick: {input.KeyTouchTap},
+
+		ActionPanDrag: {input.KeyTouchDrag},
+
+		ActionShowTooltip: {input.KeyTouchLongTap},
+	}
+
 	gamepadKeymap := input.Keymap{
 		ActionSkipDemo: {input.KeyGamepadStart},
 
@@ -161,6 +176,7 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 	}
 
 	return KeymapSet{
+		TouchInput:         gameinput.Handler{InputMethod: gameinput.InputMethodTouch, Handler: ctx.Input.NewHandler(0, touchKeymap)},
 		CombinedInput:      gameinput.Handler{InputMethod: gameinput.InputMethodCombined, Handler: ctx.Input.NewHandler(0, mainKeymap)},
 		KeyboardInput:      gameinput.Handler{InputMethod: gameinput.InputMethodKeyboard, Handler: ctx.Input.NewHandler(0, keyboardKeymap)},
 		FirstGamepadInput:  gameinput.Handler{InputMethod: gameinput.InputMethodGamepad1, Handler: ctx.Input.NewHandler(0, gamepadKeymap)},

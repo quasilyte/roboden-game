@@ -5,7 +5,8 @@ import (
 )
 
 type nodeRunner struct {
-	paused bool
+	paused     bool
+	exitPrompt bool
 
 	speedMultiplier float64
 

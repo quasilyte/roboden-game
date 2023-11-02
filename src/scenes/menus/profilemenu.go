@@ -59,17 +59,18 @@ func (c *ProfileMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewProfileDroneCollectionMenuController(c.state))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.watch_replay"), func() {
-		c.scene.Context().ChangeScene(NewReplayMenuController(c.state))
-	}))
+	// TODO: enable replays on mobile devices.
+	if !c.state.Device.IsMobile() {
+		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.watch_replay"), func() {
+			c.scene.Context().ChangeScene(NewReplayMenuController(c.state))
+		}))
+	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	if !c.state.Device.IsMobile() {
-		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.set_user_name"), func() {
-			c.scene.Context().ChangeScene(NewUserNameMenuController(c.state, c))
-		}))
-	}
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.set_user_name"), func() {
+		c.scene.Context().ChangeScene(NewUserNameMenuController(c.state, c))
+	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

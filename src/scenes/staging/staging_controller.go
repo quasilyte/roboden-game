@@ -34,6 +34,8 @@ type Controller struct {
 
 	backController ge.SceneController
 
+	mainPlayer mainPlayer
+
 	scene  *ge.Scene
 	world  *worldState
 	config gamedata.LevelConfig
@@ -567,6 +569,11 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		c.tutorialManager.EventForceSpecialChoice.Connect(c, func(kind specialChoiceKind) {
 			p.ForceSpecialChoice(kind)
 		})
+		if c.state.Device.IsMobile() {
+			c.tutorialManager.EventShowRecipeTab.Connect(c, func(gsignal.Void) {
+				p.SetRecipeTabVisibility(true)
+			})
+		}
 	}
 
 	if c.state.Persistent.Settings.ShowFPS || c.state.Persistent.Settings.ShowTimer {
@@ -691,6 +698,7 @@ func (c *Controller) createPlayers() {
 				c.world.humanPlayers = append(c.world.humanPlayers, human)
 
 				if i == 0 {
+					c.mainPlayer = human
 					human.EventRecipesToggled.Connect(c, func(visible bool) {
 						c.world.result.OpenedEvolutionTab = true
 						if c.debugInfo != nil {
@@ -773,6 +781,7 @@ func (c *Controller) onExitButtonClicked() {
 		msg := cam.input.ReplaceKeyNames(d.Get("game.exit.notice", input.DetectInputMode()))
 		exitNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg)
 		c.exitNotices = append(c.exitNotices, exitNotice)
+		c.nodeRunner.exitPrompt = true
 		c.scene.AddObject(exitNotice)
 		noticeSize := gmath.Vec{X: exitNotice.width, Y: exitNotice.height}
 		noticeCenterPos := cam.Rect.Center().Sub(noticeSize.Mulf(0.5))
@@ -1358,30 +1367,44 @@ func (c *Controller) sharedActionIsJustPressed(a input.Action) bool {
 	return false
 }
 
-func (c *Controller) handleInput() {
+func (c *Controller) handleInput() bool {
 	switch c.config.ExecMode {
 	case gamedata.ExecuteSimulation, gamedata.ExecuteDemo:
-		return
+		return true
 	case gamedata.ExecuteReplay:
 		// It does some common stuff and returns from the function.
+	}
+
+	if c.nodeRunner.exitPrompt && c.state.Device.IsMobile() && c.mainPlayer != nil {
+		if info, ok := c.mainPlayer.GetInput().JustPressedActionInfo(controls.ActionClick); ok {
+			for _, m := range c.exitNotices {
+				if m.ContainsPos(info.Pos) {
+					c.leaveScene(c.backController)
+					return false
+				}
+			}
+			// This will remove the exit prompt.
+			c.onPausePressed()
+			return false
+		}
 	}
 
 	if c.world.canFastForward {
 		if c.sharedActionIsJustPressed(controls.ActionToggleFastForward) {
 			c.onFastForwardPressed()
-			return
+			return true
 		}
 		if c.config.GameMode != gamedata.ModeTutorial {
 			if c.sharedActionIsJustPressed(controls.ActionToggleFastForwardAlt) {
 				c.onFastForwardPressed()
-				return
+				return true
 			}
 		}
 	}
 
 	if c.sharedActionIsJustPressed(controls.ActionPause) {
 		c.onPausePressed()
-		return
+		return true
 	}
 
 	c.camera.HandleInput()
@@ -1391,11 +1414,11 @@ func (c *Controller) handleInput() {
 
 	if c.sharedActionIsJustPressed(controls.ActionBack) {
 		c.onExitButtonClicked()
-		return
+		return true
 	}
 
 	if c.config.ExecMode == gamedata.ExecuteReplay {
-		return
+		return true
 	}
 
 	if c.tutorialManager != nil {
@@ -1404,6 +1427,8 @@ func (c *Controller) handleInput() {
 			c.tutorialManager.OnNextPressed()
 		}
 	}
+
+	return true
 }
 
 func (c *Controller) isDefeatState() bool {
@@ -1485,6 +1510,7 @@ func (c *Controller) onPausePressed() {
 			n.Dispose()
 		}
 		c.exitNotices = c.exitNotices[:0]
+		c.nodeRunner.exitPrompt = false
 		return
 	}
 
@@ -1546,10 +1572,10 @@ func (c *Controller) Update(delta float64) {
 		}
 	}
 
-	c.handleInput()
-
-	for _, p := range c.world.humanPlayers {
-		p.BeforeUpdateStep(delta)
+	if c.handleInput() {
+		for _, p := range c.world.humanPlayers {
+			p.BeforeUpdateStep(delta)
+		}
 	}
 	if !c.nodeRunner.IsPaused() {
 		computedDelta := c.nodeRunner.ComputeDelta(delta)

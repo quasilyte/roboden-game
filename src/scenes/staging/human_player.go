@@ -277,6 +277,17 @@ func (p *humanPlayer) Init() {
 		}
 		p.EventPauseRequest.Emit(gsignal.Void{})
 	})
+
+	// On mobiles, this tab is always opened.
+	// Except for the tutorial, where we reveal it later.
+	if p.world.config.GameMode != gamedata.ModeTutorial && p.input.InputMethod == gameinput.InputMethodTouch {
+		p.SetRecipeTabVisibility(true)
+	}
+}
+
+func (p *humanPlayer) SetRecipeTabVisibility(visible bool) {
+	p.recipeTab.Visible = visible
+	p.EventRecipesToggled.Emit(visible)
 }
 
 func (p *humanPlayer) IsDisposed() bool { return false }
@@ -376,10 +387,23 @@ func (p *humanPlayer) updateWaypointLine() {
 	}
 }
 
+func (p *humanPlayer) GetCursor() *gameui.CursorNode {
+	return p.cursor
+}
+
+func (p *humanPlayer) GetInput() *gameinput.Handler {
+	return p.input
+}
+
 func (p *humanPlayer) handleInput() {
 	selectedColony := p.state.selectedColony
 
 	p.input.Update()
+
+	if p.input.InputMethod == gameinput.InputMethodTouch && p.world.nodeRunner.exitPrompt {
+		// On mobiles, exit prompt is handled in the staging controller.
+		return
+	}
 
 	// Pinging is OK even during the pause.
 	if p.canPing && p.pingDelay == 0 {
@@ -394,8 +418,7 @@ func (p *humanPlayer) handleInput() {
 	// Recipe tab toggle is OK during the pause.
 	if p.recipeTab != nil {
 		if p.input.ActionIsJustPressed(controls.ActionShowRecipes) {
-			p.recipeTab.Visible = !p.recipeTab.Visible
-			p.EventRecipesToggled.Emit(p.recipeTab.Visible)
+			p.SetRecipeTabVisibility(!p.recipeTab.Visible)
 		}
 	}
 
@@ -429,9 +452,31 @@ func (p *humanPlayer) handleInput() {
 		}
 	}
 
-	// Selecting a colony by clicking on it is OK during the pause.
-	handledClick := false
+	if p.world.deviceInfo.IsMobile() && p.tooltipManager != nil {
+		if p.input.ActionIsJustPressed(controls.ActionPanDrag) {
+			p.tooltipManager.OnStopHover()
+			return
+		}
+		if info, ok := p.input.JustPressedActionInfo(controls.ActionShowTooltip); ok {
+			p.tooltipManager.OnHover(info.Pos)
+			return
+		}
+	}
+
 	clickPos, hasClick := p.cursor.ClickPos(controls.ActionClick)
+
+	if p.world.deviceInfo.IsMobile() && p.recipeTab != nil && p.recipeTab.Visible {
+		if p.recipeTab.ContainsPos(clickPos) {
+			return
+		}
+	}
+
+	if hasClick && p.state.messageManager.HandleInput(clickPos) {
+		return
+	}
+
+	handledClick := false
+	// Selecting a colony by clicking on it is OK during the pause.
 	if len(p.state.colonies) > 1 {
 		if hasClick {
 			globalClickPos := p.state.camera.AbsClickPos(clickPos)

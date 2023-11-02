@@ -23,6 +23,7 @@ const (
 	InputMethodKeyboard
 	InputMethodGamepad1
 	InputMethodGamepad2
+	InputMethodTouch
 )
 
 type Cursor interface {
@@ -174,6 +175,8 @@ func (h *Handler) ClickPos(action input.Action) (gmath.Vec, bool) {
 
 func (h *Handler) DetectInputMode() string {
 	switch PlayerInputMethod(h.InputMethod) {
+	case InputMethodTouch:
+		return "touch"
 	case InputMethodKeyboard:
 		return "keyboard"
 	case InputMethodGamepad1, InputMethodGamepad2:

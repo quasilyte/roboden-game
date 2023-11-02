@@ -33,6 +33,9 @@ type State struct {
 
 	Device userdevice.Info
 
+	MenuInput *gameinput.Handler
+
+	TouchInput         gameinput.Handler
 	CombinedInput      gameinput.Handler
 	KeyboardInput      gameinput.Handler
 	FirstGamepadInput  gameinput.Handler
@@ -241,6 +244,8 @@ func (state *State) UnlockAchievement(a Achievement) bool {
 
 func (state *State) resolveInputMethod(method gameinput.PlayerInputMethod) *gameinput.Handler {
 	switch method {
+	case gameinput.InputMethodTouch:
+		return &state.TouchInput
 	case gameinput.InputMethodCombined:
 		return &state.CombinedInput
 	case gameinput.InputMethodKeyboard:

@@ -59,7 +59,11 @@ func (c *OptionsMenuController) initUI() {
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.controls"), func() {
-		c.scene.Context().ChangeScene(NewControlsMenuController(c.state))
+		if c.state.Device.IsMobile() {
+			c.scene.Context().ChangeScene(NewControlsTouchMenuController(c.state))
+		} else {
+			c.scene.Context().ChangeScene(NewControlsMenuController(c.state))
+		}
 	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.extra"), func() {

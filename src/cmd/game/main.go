@@ -113,6 +113,7 @@ func main() {
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, gameDataFolder)
 	assets.RegisterRawResources(ctx)
 	keymaps := controls.BindKeymap(ctx)
+	state.TouchInput = keymaps.TouchInput
 	state.CombinedInput = keymaps.CombinedInput
 	state.KeyboardInput = keymaps.KeyboardInput
 	state.FirstGamepadInput = keymaps.FirstGamepadInput
@@ -141,8 +142,20 @@ func main() {
 		state.Logf("save data does not exist")
 		ctx.SaveGameData("save", state.Persistent)
 	}
+	if state.Device.IsMobile() {
+		// For mobile devices, it's always a touch control.
+		state.Persistent.Settings.Player1InputMethod = int(gameinput.InputMethodTouch)
+		// You can't play on mobiles without those.
+		state.Persistent.Settings.ScreenButtons = true
+	}
 	state.ReloadInputs()
 	state.ReloadLanguage(ctx)
+
+	if state.Device.IsMobile() {
+		state.MenuInput = &state.TouchInput
+	} else {
+		state.MenuInput = &state.CombinedInput
+	}
 
 	state.CombinedInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[0].DeadzoneLevel)
 	state.FirstGamepadInput.SetGamepadDeadzoneLevel(state.Persistent.Settings.GamepadSettings[0].DeadzoneLevel)

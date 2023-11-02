@@ -12,6 +12,7 @@ import (
 	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameinput"
 )
 
 type tooltipManager struct {
@@ -180,8 +181,11 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 
 func (m *tooltipManager) inHoverRange(hoverPos, objectPos gmath.Vec, objectSize float64) bool {
 	multiplier := 1.0
-	if m.player.cursor.VirtualCursorIsVisible() {
+	switch {
+	case m.player.cursor.VirtualCursorIsVisible():
 		multiplier = 1.2
+	case m.player.input.InputMethod == gameinput.InputMethodTouch:
+		multiplier = 1.5
 	}
 	maxDistSqr := (objectSize * objectSize) * multiplier
 	return objectPos.DistanceSquaredTo(hoverPos) < maxDistSqr

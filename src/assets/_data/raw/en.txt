@@ -2,6 +2,7 @@
 
 ##game.splash.presskey.keyboard : Press ENTER to continue
 ##game.splash.presskey.gamepad : Press $gamepad_start to continue
+##game.splash.presskey.touch : Tap to continue
 
 ##game.onboard.welcome : Welcome to Roboden!
 ##game.onboard.select_input_method
@@ -443,6 +444,13 @@ Toggle fast forward (single player only) | Left stick click
 Ping (coop only) | Left stick click
 Exit/Back | $gamepad_back
 
+##menu.controls.touch.text
+Pan camera | Drag gesture
+Move colony | Tap on the destination
+Select colony | Tap on the colony
+Action disk select | Tap on the card
+Show tooltip | Long tap on the object of interest
+
 ##menu.overview.intro_mission
 Intro mission (est. time: 15 minutes)
 
@@ -562,6 +570,9 @@ Press the button again to quit
 ##game.exit.notice.gamepad
 Press the button again to quit
 [to resume the game, press $gamepad_start]
+##game.exit.notice.touch
+Tap this message to quit.
+[to resume the game, tap anywhere else]
 
 ##game.wave : Wave
 ##game.wave_last : Survive to win

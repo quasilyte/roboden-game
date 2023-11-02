@@ -91,7 +91,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	scene.AddGraphics(logo)
 
 	d := scene.Dict()
-	input := c.state.CombinedInput
+	input := c.state.MenuInput
 
 	presskeyLabel := ge.NewLabel(assets.BitmapFont2)
 	presskeyLabel.Width = scene.Context().WindowWidth
@@ -151,7 +151,7 @@ func (c *SplashScreenController) Update(delta float64) {
 }
 
 func (c *SplashScreenController) handleInput() {
-	if c.state.CombinedInput.ActionIsJustPressed(controls.ActionSkipDemo) {
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionSkipDemo) {
 		c.stopDemo()
 		return
 	}

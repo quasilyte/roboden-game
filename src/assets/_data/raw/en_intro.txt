@@ -2,6 +2,8 @@
 [press ENTER to continue]
 ##tutorial.next.gamepad
 [click left joystick to continue]
+##tutorial.next.touch
+[tap this message to continue]
 
 ##tutorial.greeting
 Enemies are planning to capture this sector.
@@ -25,6 +27,12 @@ Locate a resource stash by following a marker.
 
 [press ENTER to continue]
 
+##tutorial.camera.touch
+Drag the screen to pan the camera.
+Locate a resource stash by following a marker.
+
+[press ENTER to continue]
+
 ##tutorial.move.keyboard
 The right mouse click sends the selected colony
 to the destination.
@@ -34,6 +42,12 @@ Move the colony closer to the resources.
 ##tutorial.move.gamepad
 The right joystick controls the virtual cursor.
 Right joystick click sends the selected colony
+to the destination.
+
+Move the colony closer to the resources.
+
+##tutorial.move.touch
+A tap sends the selected colony
 to the destination.
 
 Move the colony closer to the resources.
@@ -89,6 +103,13 @@ decreasing the others.
 Try activating them. Use a right stick click
 on the disk or press $gamepad_y/$gamepad_b/$gamepad_a/$gamepad_x.
 
+##tutorial.enable_choices.touch
+These disks on the right will affect these priorities.
+Keep in mind that increasing one priority always means
+decreasing the others.
+
+Tap one of them to try it.
+
 ##tutorial.enemy_scouts
 A small squad of enemy scouts entered the sector.
 The colony should be able to defend itself.
@@ -118,6 +139,14 @@ To see what drones are available, press the R2 button.
 
 [press ENTER to continue]
 
+##tutorial.factions2.touch
+Factions (colors) are important to get tier 2 drones.
+When two tier 1 drones combine, a tier 2 drone emerges.
+The top-left panel shows you available combinations.
+To get extra details, do a long tap over something.
+
+[press ENTER to continue]
+
 ##tutorial.build_turret.keyboard
 The next enemy group consist of ground units.
 Construct a turret to make this battle easier.
@@ -131,6 +160,13 @@ Construct a turret to make this battle easier.
 
 The turret construction disk can appear
 as a fifth disk and is activated by the R1 button.
+
+##tutorial.build_turret.touch
+The next enemy group consist of ground units.
+Construct a turret to make this battle easier.
+
+The turret construction disk can appear
+as a fifth disk.
 
 ##tutorial.crawlers_attack
 Enemy ground units detected!
@@ -210,6 +246,14 @@ but not priorities.
 To switch between the colonies, press the L1 button.
 Alternatively, do a right stick click over
 a colony that should be selected.
+
+The colonies share the disk selection,
+but not priorities.
+
+##tutorial.context.second_base.touch
+To switch between the colonies, tap this button.
+Alternatively, do a tap a colony that
+should be selected.
 
 The colonies share the disk selection,
 but not priorities.

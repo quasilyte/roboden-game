@@ -59,7 +59,7 @@ func (c *OptionsGameplayMenuController) initUI() {
 		}))
 	}
 
-	{
+	if !c.state.Device.IsMobile() {
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
 			Resources: uiResources,
 			Value:     &options.ScreenButtons,
@@ -82,7 +82,7 @@ func (c *OptionsGameplayMenuController) initUI() {
 		}))
 	}
 
-	{
+	if !c.state.Device.IsMobile() {
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:      c.scene,
 			Resources:  uiResources,

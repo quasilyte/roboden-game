@@ -58,7 +58,7 @@ func (c *OptionsExtraMenuController) initUI() {
 		}))
 	}
 
-	{
+	if !c.state.Device.IsMobile() {
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
 			Scene:     c.scene,
 			Resources: uiResources,
@@ -71,7 +71,7 @@ func (c *OptionsExtraMenuController) initUI() {
 		}))
 	}
 
-	{
+	if !c.state.Device.IsMobile() {
 		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
 			Scene:     c.scene,
 			Resources: uiResources,
@@ -86,11 +86,9 @@ func (c *OptionsExtraMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	if !c.state.Device.IsMobile() {
-		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.terminal"), func() {
-			c.scene.Context().ChangeScene(NewTerminalMenuController(c.state))
-		}))
-	}
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.terminal"), func() {
+		c.scene.Context().ChangeScene(NewTerminalMenuController(c.state))
+	}))
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

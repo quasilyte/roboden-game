@@ -57,10 +57,9 @@ type tutorialManager struct {
 	waitingForEnterKey bool
 	enterKeyTimer      float64
 
-	hint *messageNode
-
 	updateDelay float64
 
+	EventShowRecipeTab        gsignal.Event[gsignal.Void]
 	EventEnableChoices        gsignal.Event[gsignal.Void]
 	EventEnableSpecialChoices gsignal.Event[gsignal.Void]
 	EventForceSpecialChoice   gsignal.Event[specialChoiceKind]
@@ -80,6 +79,10 @@ func newTutorialManager(h *gameinput.Handler, world *worldState, messageManager 
 
 func (m *tutorialManager) Init(scene *ge.Scene) {
 	m.scene = scene
+
+	m.messageManager.EventMainMessageClicked.Connect(nil, func(gsignal.Void) {
+		m.OnNextPressed()
+	})
 }
 
 func (m *tutorialManager) IsDisposed() bool {
@@ -159,18 +162,17 @@ func (m *tutorialManager) runUpdateFunc() {
 		return
 	}
 
-	if m.waitingForEnterKey && m.hint != nil && !m.hint.highlight {
+	if m.waitingForEnterKey && m.hint() != nil && !m.hint().highlight {
 		if m.enterKeyTimer > (30 * 1.2) {
-			m.hint.Highlight()
+			m.hint().Highlight()
 		}
 	}
 
-	hintOpen := m.hint != nil
+	hintOpen := m.hint() != nil
 	if m.maybeCompleteStep() {
 		m.tutorialStep++
-		if hintOpen && m.hint != nil {
-			m.hint.Dispose()
-			m.hint = nil
+		if hintOpen && m.hint() != nil {
+			m.hint().Dispose()
 		}
 	}
 }
@@ -181,6 +183,10 @@ func (m *tutorialManager) OnChoice(choice selectedChoice) {
 	if choice.Option.special == specialChoiceMoveColony {
 		m.alreadyMoved = true
 	}
+}
+
+func (m *tutorialManager) hint() *messageNode {
+	return m.messageManager.mainMessage
 }
 
 func (m *tutorialManager) explainDrone(drone *colonyAgentNode, textKey string) {
@@ -270,9 +276,14 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	if !m.explainedSecondBase && len(m.world.allColonies) > 1 {
 		m.explainedSecondBase = true
+		pos := ge.Pos{}
+		if m.input.InputMethod == gameinput.InputMethodTouch {
+			pos = ge.Pos{Offset: gmath.Vec{X: 30, Y: 490}}
+		}
 		m.messageManager.AddMessage(queuedMessageInfo{
-			text:  m.scene.Dict().Get("tutorial.context.second_base", m.world.inputMode),
-			timer: 25,
+			text:      m.scene.Dict().Get("tutorial.context.second_base", m.world.inputMode),
+			timer:     25,
+			targetPos: pos,
 		})
 	}
 
@@ -425,6 +436,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 	case 27:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.factions2", m.world.inputMode))
 		m.waitForEnter()
+		m.EventShowRecipeTab.Emit(gsignal.Void{})
 		return true
 	case 28:
 		return m.nextPressed
@@ -593,6 +605,9 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 func (m *tutorialManager) processMessageText(s string) string {
 	switch m.world.inputMode {
+	case "touch":
+		d := m.scene.Dict()
+		return strings.Replace(s, d.Get("tutorial.next.keyboard"), d.Get("tutorial.next.touch"), 1)
 	case "gamepad":
 		d := m.scene.Dict()
 		return strings.Replace(s, d.Get("tutorial.next.keyboard"), d.Get("tutorial.next.gamepad"), 1)
@@ -602,13 +617,18 @@ func (m *tutorialManager) processMessageText(s string) string {
 }
 
 func (m *tutorialManager) addScreenHintNode(targetPos gmath.Vec, msg string) {
-	m.hint = newScreenTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, targetPos, m.processMessageText(msg))
-	m.scene.AddObject(m.hint)
+	m.messageManager.SetMainMessage(queuedMessageInfo{
+		text:      m.processMessageText(msg),
+		targetPos: ge.Pos{Offset: targetPos},
+	})
 }
 
 func (m *tutorialManager) addHintNode(targetPos ge.Pos, msg string) {
-	m.hint = newWorldTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, targetPos, m.processMessageText(msg))
-	m.scene.AddObject(m.hint)
+	m.messageManager.SetMainMessage(queuedMessageInfo{
+		text:          m.processMessageText(msg),
+		targetPos:     targetPos,
+		forceWorldPos: true,
+	})
 }
 
 func (m *tutorialManager) findResourceStash(minDist float64) ge.Pos {

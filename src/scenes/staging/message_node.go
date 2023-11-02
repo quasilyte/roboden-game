@@ -64,6 +64,14 @@ func (m *messageNode) SetPos(pos gmath.Vec) {
 	m.label.Pos.Offset = m.pos.Add(gmath.Vec{Y: 4})
 }
 
+func (m *messageNode) ContainsPos(pos gmath.Vec) bool {
+	bounds := gmath.Rect{
+		Min: m.pos,
+		Max: m.pos.Add(gmath.Vec{X: m.width, Y: m.height}),
+	}
+	return bounds.Contains(pos)
+}
+
 func (m *messageNode) Init(scene *ge.Scene) {
 	m.width, m.height = estimateMessageBounds(m.text, m.xpadding)
 

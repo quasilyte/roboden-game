@@ -19,6 +19,9 @@ type recipeTabNode struct {
 
 	pos gmath.Vec
 
+	width  float64
+	height float64
+
 	rects []recipeTabRect
 }
 
@@ -29,6 +32,14 @@ type recipeTabRect struct {
 
 func newRecipeTabNode(world *worldState) *recipeTabNode {
 	return &recipeTabNode{world: world}
+}
+
+func (tab *recipeTabNode) ContainsPos(pos gmath.Vec) bool {
+	bounds := gmath.Rect{
+		Min: tab.pos,
+		Max: tab.pos.Add(gmath.Vec{X: tab.width, Y: tab.height}),
+	}
+	return bounds.Contains(pos)
 }
 
 func (tab *recipeTabNode) GetDroneUnderCursor(pos gmath.Vec) *gamedata.AgentStats {
@@ -118,7 +129,7 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 
 	combined := ebiten.NewImage(imageWidth+2, imageHeight+2)
 	offsetX := 0.0
-	for _, recipe := range tab.world.tier2recipes {
+	for i, recipe := range tab.world.tier2recipes {
 		rect := gmath.Rect{
 			Min: tab.pos.Add(gmath.Vec{X: offsetX}),
 			Max: tab.pos.Add(gmath.Vec{X: offsetX + droneWidth + 2, Y: float64(imageHeight + 2)}),
@@ -133,9 +144,16 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 			drone: recipe.Result,
 			rect:  rect,
 		})
-		offsetX += 30.0 + float64(droneSeparator)
+		offsetX += droneWidth + float64(droneSeparator)
+
+		tab.width += droneWidth
+		if i != 0 {
+			tab.width += float64(droneSeparator)
+		}
 	}
 	tab.combinedImage = combined
+
+	tab.height = float64(imageHeight)
 }
 
 func (tab *recipeTabNode) Draw(screen *ebiten.Image) {

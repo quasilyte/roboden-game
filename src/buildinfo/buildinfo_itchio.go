@@ -2,4 +2,4 @@
 
 package buildinfo
 
-const Distribution = "itch.io"
+const Distribution = TagItchio

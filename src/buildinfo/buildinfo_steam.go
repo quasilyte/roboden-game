@@ -2,4 +2,4 @@
 
 package buildinfo
 
-const Distribution = "Steam"
+const Distribution = TagSteam

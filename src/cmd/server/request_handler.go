@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/quasilyte/roboden-game/buildinfo"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/serverapi"
 )
@@ -144,6 +145,14 @@ func (h *requestHandler) HandleSavePlayerScore(r *http.Request) (any, error) {
 	}
 	if err := h.isValidGameReplay(gameReplay); err != nil {
 		return nil, err
+	}
+
+	if gameReplay.Platform == "" {
+		// Consider it to be a Steam replay.
+		gameReplay.Platform = "Steam"
+	}
+	if !buildinfo.IsValidTag(gameReplay.Platform) {
+		return nil, errBadParams
 	}
 
 	// TODO: hashcash check here to deal with spammers?

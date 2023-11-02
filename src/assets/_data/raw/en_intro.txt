@@ -1,5 +1,5 @@
 ##tutorial.next.keyboard
-[press ENTER to continue]
+[click here or press ENTER to continue]
 ##tutorial.next.gamepad
 [click left joystick to continue]
 ##tutorial.next.touch
@@ -11,7 +11,7 @@ Enemies are planning to capture this sector.
 To build an appropriate fleet, the colony
 will need a lot of resources.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.camera.keyboard
 To pan the camera, use the WASD keys.
@@ -19,19 +19,19 @@ The mouse scrolling works near the camera edges
 or when the middle mouse button is pressed.
 Locate a resource stash by following a marker.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.camera.gamepad
 To pan the camera, use the D-pad or left joystick.
 Locate a resource stash by following a marker.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.camera.touch
 Drag the screen to pan the camera.
 Locate a resource stash by following a marker.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.move.keyboard
 The right mouse click sends the selected colony
@@ -57,7 +57,7 @@ The worker drones will collect the nearby resources.
 The resources collection intensity depends on the
 associated priority, like any other automated action.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.resources_priority
 There are four priorities that govern the colony.
@@ -65,27 +65,27 @@ There are four priorities that govern the colony.
 The resources priority makes workers more eager
 to gather various minerals around the base.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.growth_priority
 The growth priority affects drone production
 and building construction rate. It also increases
 the number of drones the colony will have.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.evolution_priority
 The evolution priority is needed to make
 tier 1 drones combine into something more powerful.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.security_priority
 The security priority changes the worker-to-combat
 drone proportion. The higher security priority
 means more military units.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.enable_choices.keyboard
 These disks on the right will affect these priorities.
@@ -130,14 +130,14 @@ Factions (colors) are important to get tier 2 drones.
 When two tier 1 drones combine, a tier 2 drone emerges.
 To see what drones are available, press the ALT key.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.factions2.gamepad
 Factions (colors) are important to get tier 2 drones.
 When two tier 1 drones combine, a tier 2 drone emerges.
 To see what drones are available, press the R2 button.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.factions2.touch
 Factions (colors) are important to get tier 2 drones.
@@ -145,7 +145,7 @@ When two tier 1 drones combine, a tier 2 drone emerges.
 The top-left panel shows you available combinations.
 To get extra details, do a long tap over something.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.build_turret.keyboard
 The next enemy group consist of ground units.
@@ -187,7 +187,7 @@ are the two main ways to create a stronger colony.
 To get more drones and territory - increase the radius,
 to get better units - increase the evolution priority.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.final_attack_warning
 The final attack will be much more serious.
@@ -212,7 +212,7 @@ Remember this victory recipe: collect resources,
 increase the colony's radius and growth,
 and combine the right drones via evolution.
 
-[press ENTER to continue]
+[click here or press ENTER to continue]
 
 ##tutorial.context.resource_bar
 This bar indicator in the middle of the colony

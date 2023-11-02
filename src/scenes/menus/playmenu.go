@@ -28,6 +28,11 @@ func NewPlayMenuController(state *session.State) *PlayMenuController {
 
 func (c *PlayMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
+
+	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
+		scene.Audio().ContinueMusic(assets.AudioMusicTrack3)
+	}
+
 	c.initUI()
 }
 

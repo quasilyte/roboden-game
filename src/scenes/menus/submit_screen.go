@@ -57,7 +57,7 @@ func (c *submitScreenController) spawnTask() {
 		c.scene.Context().ChangeScene(c.backController)
 		if c.success {
 			if c.state.UnlockAchievement(session.Achievement{Name: "gladiator", Elite: true}) {
-				c.scene.Context().SaveGameData("save", c.state.Persistent)
+				c.state.SaveGameItem("save.json", c.state.Persistent)
 			}
 		}
 	})

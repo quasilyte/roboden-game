@@ -116,7 +116,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 	victory := c.results.Victory || c.config.GameMode == gamedata.ModeInfArena
 	if victory {
 		c.updateProgress()
-		c.scene.Context().SaveGameData("save", c.state.Persistent)
+		c.state.SaveGameItem("save.json", c.state.Persistent)
 	}
 
 	c.initUI()
@@ -347,7 +347,7 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 	}
 
 	if needSave {
-		c.scene.Context().SaveGameData("save", c.state.Persistent)
+		c.state.SaveGameItem("save.json", c.state.Persistent)
 	}
 
 	return newAchievements, upgradedAchievements
@@ -432,8 +432,8 @@ func (c *resultsController) initUI() {
 	replay := c.makeGameReplay()
 	if c.config.GameMode != gamedata.ModeTutorial && c.highScore {
 		c.state.SentHighscores = false
-		key := c.config.RawGameMode + "_highscore"
-		c.scene.Context().SaveGameData(key, replay)
+		key := c.config.RawGameMode + "_highscore.json"
+		c.state.SaveGameItem(key, replay)
 	}
 	if gamedata.IsRunnableReplay(replay) {
 		r := session.SavedReplay{
@@ -442,7 +442,7 @@ func (c *resultsController) initUI() {
 			Replay:    replay,
 		}
 		recentReplayKey := c.state.ReplayDataKey(0)
-		c.scene.Context().SaveGameData(recentReplayKey, r)
+		c.state.SaveGameItem(recentReplayKey, r)
 
 		saved := false
 		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.save_replay"), func() {
@@ -453,7 +453,7 @@ func (c *resultsController) initUI() {
 			}
 			saved = true
 			k := c.state.ReplayDataKey(c.state.FindNextReplayIndex())
-			c.scene.Context().SaveGameData(k, r)
+			c.state.SaveGameItem(k, r)
 		}))
 	}
 	if gamedata.IsSendableReplay(replay) {

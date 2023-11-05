@@ -231,6 +231,6 @@ func (c *ControlsGamepadMenuController) createRadarImage() *ebiten.Image {
 }
 
 func (c *ControlsGamepadMenuController) back() {
-	c.scene.Context().SaveGameData("save", c.state.Persistent)
+	c.state.SaveGameItem("save.json", c.state.Persistent)
 	c.scene.Context().ChangeScene(NewControlsMenuController(c.state))
 }

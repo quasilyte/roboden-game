@@ -254,12 +254,12 @@ func (c *TerminalMenu) initUI() {
 
 func (c *TerminalMenu) maybeGrantAchievement() {
 	if c.state.UnlockAchievement(session.Achievement{Name: "terminal", Elite: true}) {
-		c.scene.Context().SaveGameData("save", c.state.Persistent)
+		c.state.SaveGameItem("save.json", c.state.Persistent)
 	}
 }
 
 func (c *TerminalMenu) back() {
-	c.scene.Context().SaveGameData("save", c.state.Persistent)
+	c.state.SaveGameItem("save.json", c.state.Persistent)
 	c.scene.Context().ChangeScene(NewOptionsExtraMenuController(c.state))
 }
 
@@ -336,7 +336,7 @@ func (c *TerminalMenu) onSaveDelete(ctx *terminalCommandContext) (string, error)
 	}
 	c.state.Persistent = contentlock.GetDefaultData()
 	contentlock.Update(c.state)
-	c.scene.Context().SaveGameData("save", c.state.Persistent)
+	c.state.SaveGameItem("save.json", c.state.Persistent)
 	c.state.ReloadLanguage(c.scene.Context())
 	return "The save data is cleared.", nil
 }
@@ -400,7 +400,7 @@ func (c *TerminalMenu) onLogsGrep(ctx *terminalCommandContext) (string, error) {
 
 func (c *TerminalMenu) onSaveInfo(*terminalCommandContext) (string, error) {
 	lines := []string{
-		fmt.Sprintf("Save file: %q", c.scene.Context().LocateGameData("save")),
+		fmt.Sprintf("Save file: %q", c.scene.Context().LocateGameData("save.json")),
 	}
 	return strings.Join(lines, "\n"), nil
 }
@@ -689,13 +689,13 @@ func (c *TerminalMenu) onReplayDump(ctx *terminalCommandContext) (string, error)
 	args := ctx.parsedArgs.(*argsType)
 	var replayKey string
 	switch args.file {
-	case "classic_highscore", "arena_highscore", "inf_arena_highscore":
+	case "classic_highscore.json", "arena_highscore.json", "inf_arena_highscore.json", "reverse_highscore.json":
 		replayKey = args.file
 	default:
 		return "", fmt.Errorf("unknown replay file %q", args.file)
 	}
 	var replayData serverapi.GameReplay
-	if err := c.scene.Context().LoadGameData(replayKey, &replayData); err != nil {
+	if err := c.state.LoadGameItem(replayKey, &replayData); err != nil {
 		return "", err
 	}
 	jsonData, err := json.Marshal(replayData)

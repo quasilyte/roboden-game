@@ -36,10 +36,10 @@ func GetLeaderboard(state *session.State, season int, gameMode string) (*servera
 }
 
 func enqueueReplay(state *session.State, replay serverapi.GameReplay) {
-	key := fmt.Sprintf("queued_replay_%d", state.Persistent.NumPendingSubmissions)
+	key := fmt.Sprintf("queued_replay_%d.json", state.Persistent.NumPendingSubmissions)
 	state.Persistent.NumPendingSubmissions++
-	state.Context.SaveGameData(key, replay)
-	state.Context.SaveGameData("save", state.Persistent)
+	state.SaveGameItem(key, replay)
+	state.SaveGameItem("save.json", state.Persistent)
 }
 
 func SendOrEnqueueScore(state *session.State, season int, replay serverapi.GameReplay) bool {

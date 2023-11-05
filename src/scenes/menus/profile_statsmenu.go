@@ -115,18 +115,18 @@ func (c *ProfileStatsMenuController) initUI() {
 
 func (c *ProfileStatsMenuController) prepareHighscoreReplays() []serverapi.GameReplay {
 	keys := []string{
-		"classic_highscore",
-		"arena_highscore",
-		"inf_arena_highscore",
-		"reverse_highscore",
+		"classic_highscore.json",
+		"arena_highscore.json",
+		"inf_arena_highscore.json",
+		"reverse_highscore.json",
 	}
 	var replays []serverapi.GameReplay
 	for _, key := range keys {
-		if !c.scene.Context().CheckGameData(key) {
+		if !c.state.CheckGameItem(key) {
 			continue
 		}
 		var replay serverapi.GameReplay
-		if err := c.scene.Context().LoadGameData(key, &replay); err != nil {
+		if err := c.state.LoadGameItem(key, &replay); err != nil {
 			c.state.Logf("load %q highscore data: %v", key, err)
 			continue
 		}

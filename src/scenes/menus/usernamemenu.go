@@ -107,7 +107,7 @@ func (c *UserNameMenu) save(name string) {
 	name = strings.TrimSpace(name)
 	if gamedata.IsValidUsername(name) || name == "" {
 		c.state.Persistent.PlayerName = name
-		c.scene.Context().SaveGameData("save", c.state.Persistent)
+		c.state.SaveGameItem("save.json", c.state.Persistent)
 	}
 }
 

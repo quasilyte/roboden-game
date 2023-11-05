@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/quasilyte/gdata"
 	"github.com/quasilyte/ge"
 
 	"github.com/quasilyte/roboden-game/assets"
@@ -26,6 +27,23 @@ import (
 
 func main() {
 	state := getDefaultSessionState()
+
+	{
+		m, err := gdata.Open(gdata.Config{AppName: "ge_game_roboden"})
+		if err != nil {
+			// It's OK to continue, we'll just have to avoid referencing
+			// gamedata object if it's nil.
+			state.Logf("failed to initialize game data storage: %v", err)
+		} else {
+			state.GameData = m
+			if runtime.GOARCH == "wasm" {
+				// We were using "save" key before, now it's "save.json";
+				// migrate the old save item to a new key if localStorage
+				// contains the old key.
+				maybeMigrateSaves(state)
+			}
+		}
+	}
 
 	{
 		deviceInfo, err := userdevice.GetInfo()
@@ -120,12 +138,12 @@ func main() {
 	state.FirstGamepadInput = gameinput.Handler{InputMethod: gameinput.InputMethodGamepad1, Handler: ctx.Input.NewHandler(0, keymaps.FirstGamepadKeymap)}
 	state.SecondGamepadInput = gameinput.Handler{InputMethod: gameinput.InputMethodGamepad2, Handler: ctx.Input.NewHandler(1, keymaps.SecondGamepadKeymap)}
 
-	if ctx.CheckGameData("save") {
-		if err := ctx.LoadGameData("save", &state.Persistent); err != nil {
+	if state.CheckGameItem("save.json") {
+		if err := state.LoadGameItem("save.json", &state.Persistent); err != nil {
 			state.Logf("can't load game data: %v", err)
 			state.Persistent = contentlock.GetDefaultData()
 			contentlock.Update(state)
-			ctx.SaveGameData("save", state.Persistent)
+			state.SaveGameItem("save.json", state.Persistent)
 		} else {
 			// Loaded without errors.
 			if state.Persistent.FirstLaunch && state.Persistent.PlayerStats.TotalPlayTime > 0 {
@@ -133,7 +151,7 @@ func main() {
 				// Some players may have already played the game,
 				// so we don't want them to be marked as first-timers.
 				state.Persistent.FirstLaunch = false
-				ctx.SaveGameData("save", state.Persistent)
+				state.SaveGameItem("save.json", state.Persistent)
 			}
 			// Re-check the content.
 			contentlock.Update(state)
@@ -141,7 +159,7 @@ func main() {
 	} else {
 		// This is a first launch.
 		state.Logf("save data does not exist")
-		ctx.SaveGameData("save", state.Persistent)
+		state.SaveGameItem("save.json", state.Persistent)
 	}
 	if state.Device.IsMobile() {
 		// For mobile devices, it's always a touch control.
@@ -190,6 +208,26 @@ func main() {
 	if err := ge.RunGame(ctx, menus.NewBootloadController(state)); err != nil {
 		panic(err)
 	}
+}
+
+func maybeMigrateSaves(state *session.State) {
+	if !state.GameData.ItemExists("save") {
+		state.Logf("using an updated localStorage library")
+		return
+	}
+
+	state.Logf("an old-style localStorage save detected; migrating it to a new slot")
+	data, err := state.GameData.LoadItem("save")
+	if err != nil {
+		state.Logf("saves migration failed: %v", err)
+		return
+	}
+	if err := state.GameData.SaveItem("save.json", data); err != nil {
+		state.Logf("saves migration failed: %v", err)
+		return
+	}
+	// If everything is fine, remove the old-style save.
+	state.GameData.DeleteItem("save")
 }
 
 func registerScenes(state *session.State) {

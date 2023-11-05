@@ -104,6 +104,6 @@ func (c *OptionsMenuController) initUI() {
 }
 
 func (c *OptionsMenuController) back() {
-	c.scene.Context().SaveGameData("save", c.state.Persistent)
+	c.state.SaveGameItem("save.json", c.state.Persistent)
 	c.scene.Context().ChangeScene(NewMainMenuController(c.state))
 }

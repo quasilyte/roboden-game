@@ -101,6 +101,6 @@ func (c *ControlsMenuController) initUI() {
 
 func (c *ControlsMenuController) back() {
 	c.state.ReloadInputs()
-	c.scene.Context().SaveGameData("save", c.state.Persistent)
+	c.state.SaveGameItem("save.json", c.state.Persistent)
 	c.scene.Context().ChangeScene(NewOptionsController(c.state))
 }

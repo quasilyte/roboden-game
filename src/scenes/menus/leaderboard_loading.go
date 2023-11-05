@@ -90,7 +90,7 @@ func (c *LeaderboardLoadingController) initUI() {
 		} else {
 			// Save fetched data to the cache.
 			*c.getBoardCache() = *boardData
-			c.scene.Context().SaveGameData("save", c.state.Persistent)
+			c.state.SaveGameItem("save.json", c.state.Persistent)
 		}
 	})
 	fetchTask.EventCompleted.Connect(nil, func(gsignal.Void) {

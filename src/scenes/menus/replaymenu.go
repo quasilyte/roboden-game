@@ -69,10 +69,10 @@ func (c *ReplayMenuController) initUI() {
 
 	for i := 0; i < 10; i++ {
 		key := c.state.ReplayDataKey(i)
-		replayExists := c.scene.Context().CheckGameData(key)
+		replayExists := c.state.CheckGameItem(key)
 		var r session.SavedReplay
 		if replayExists {
-			if err := c.scene.Context().LoadGameData(key, &r); err != nil {
+			if err := c.state.LoadGameItem(key, &r); err != nil {
 				replayExists = false
 			}
 			if !gamedata.IsRunnableReplay(r.Replay) {

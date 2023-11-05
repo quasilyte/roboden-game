@@ -24,6 +24,7 @@ require (
 	github.com/jezek/xgb v1.1.0 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
+	github.com/quasilyte/gdata v0.8.1 // indirect
 	github.com/quasilyte/xm v0.0.0-20231101102547-462698b5183e // indirect
 	golang.org/x/exp v0.0.0-20221023144134-a1e5550cf13e // indirect
 	golang.org/x/exp/shiny v0.0.0-20230817173708-d852ddb80c63 // indirect

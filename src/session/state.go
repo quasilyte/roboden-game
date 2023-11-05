@@ -1,12 +1,14 @@
 package session
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	resource "github.com/quasilyte/ebitengine-resource"
+	"github.com/quasilyte/gdata"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/ge/xslices"
@@ -60,11 +62,49 @@ type State struct {
 
 	Context *ge.Context
 
+	GameData *gdata.Manager
+
 	SentHighscores bool
 
 	GameCommitHash string
 
 	StdoutLogs []string
+}
+
+func (state *State) CheckGameItem(key string) bool {
+	if state.GameData == nil {
+		return false
+	}
+	return state.GameData.ItemExists(key)
+}
+
+func (state *State) LoadGameItem(key string, dst any) error {
+	if state.GameData == nil {
+		return nil
+	}
+	data, err := state.GameData.LoadItem(key)
+	if err != nil {
+		return err
+	}
+	if data == nil {
+		state.SaveGameItem(key, dst)
+		return nil
+	}
+	return json.Unmarshal(data, dst)
+}
+
+func (state *State) SaveGameItem(key string, data any) {
+	if state.GameData == nil {
+		return
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		panic(fmt.Sprintf("can't save game data with key %q: %v", key, err))
+	}
+	err = state.GameData.SaveItem(key, jsonData)
+	if err != nil {
+		panic(fmt.Sprintf("can't save game data with key %q: %v", key, err))
+	}
 }
 
 func (state *State) Logf(format string, args ...any) {
@@ -291,11 +331,11 @@ func (state *State) FindNextReplayIndex() int {
 	minIndex := 0
 	for i := 1; i < 10; i++ {
 		k := state.ReplayDataKey(i)
-		if !state.Context.CheckGameData(k) {
+		if !state.CheckGameItem(k) {
 			return i
 		}
 		var r SavedReplay
-		err := state.Context.LoadGameData(k, &r)
+		err := state.LoadGameItem(k, &r)
 		if err != nil {
 			return i
 		}
@@ -311,5 +351,5 @@ func (state *State) FindNextReplayIndex() int {
 }
 
 func (state *State) ReplayDataKey(i int) string {
-	return fmt.Sprintf("saved_replay_%d", i)
+	return fmt.Sprintf("saved_replay_%d.json", i)
 }

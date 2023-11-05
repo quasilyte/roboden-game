@@ -81,7 +81,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 		c.state.BackgroundImage = c.controller.RenderDemoFrame()
 
 		if c.state.UnlockAchievement(session.Achievement{Name: "spectator", Elite: true}) {
-			c.scene.Context().SaveGameData("save", c.state.Persistent)
+			c.state.SaveGameItem("save.json", c.state.Persistent)
 		}
 	})
 

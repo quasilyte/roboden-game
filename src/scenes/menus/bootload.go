@@ -147,7 +147,7 @@ func (c *BootloadController) onFirstLaunch() bool {
 	}
 
 	c.state.Persistent.FirstLaunch = false
-	c.scene.Context().SaveGameData("save", c.state.Persistent)
+	c.state.SaveGameItem("save.json", c.state.Persistent)
 
 	if c.state.Device.IsSteamDeck() || c.state.Device.IsMobile() {
 		// Do not redirect to a controls prompt.

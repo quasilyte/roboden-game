@@ -32,6 +32,8 @@ github.com/quasilyte/ebitengine-resource v0.5.1-0.20231101125830-f1fc00a87be0 h1
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20231101125830-f1fc00a87be0/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
 github.com/quasilyte/ebitenui v0.0.0-20230726093423-e2a7a066d711 h1:jYfAMq+T8SbkdspoD/wi7M4Y/Hm3rmR+N5mNx75tuMU=
 github.com/quasilyte/ebitenui v0.0.0-20230726093423-e2a7a066d711/go.mod h1:6Ty4FIhkLzzwO5kOpRQq+Ja4yP2eTE0ASg6y0eo5cvA=
+github.com/quasilyte/gdata v0.8.1 h1:cR9TFUHrRciVq1E4hqofan6jcQvmJd9lM1E7YLeUfi8=
+github.com/quasilyte/gdata v0.8.1/go.mod h1:VZbd2RCpKR2cbTGuLC1Esnyl1+KFv/jXBJrs/ijL8TA=
 github.com/quasilyte/ge v0.0.0-20230925153958-e5b2a565e636 h1:SXdyww/bTMf99bA7IJBkiE4DDhxj2G4Xk9YY7nYVtRM=
 github.com/quasilyte/ge v0.0.0-20230925153958-e5b2a565e636/go.mod h1:Ybw5zUJaepnaxpYwjdwFeiqx0gHf7Um+Om62bR9oUbE=
 github.com/quasilyte/ge v0.0.0-20231101092205-0ac6a94c4f0a h1:8tlj2eIvj74dV+Cve1GcwADQHNwFnKmhMMxXPhT9JG0=

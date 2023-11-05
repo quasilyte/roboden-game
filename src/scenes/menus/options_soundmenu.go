@@ -96,7 +96,8 @@ func (c *OptionsSoundMenuController) initUI() {
 		})
 		rowContainer.AddChild(b)
 		// Don't allow web platforms to change the music player.
-		b.GetWidget().Disabled = runtime.GOARCH == "wasm"
+		// The same goes for Androids.
+		b.GetWidget().Disabled = runtime.GOARCH == "wasm" || runtime.GOOS == "android"
 	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())

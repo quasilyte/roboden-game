@@ -25,10 +25,10 @@ func RegisterMusicResource(ctx *ge.Context, config *Config, progress *float64) {
 		}
 	} else {
 		audioResources = map[resource.AudioID]resource.AudioInfo{
-			AudioMusicTrack1: {Path: "$music/deadly_windmills.xm", Volume: -0.1, Group: SoundGroupMusic},
-			AudioMusicTrack2: {Path: "$music/war_path.xm", Volume: -0.1, Group: SoundGroupMusic},
-			AudioMusicTrack3: {Path: "$music/crush.xm", Volume: -0.1, Group: SoundGroupMusic},
-			AudioMusicTrack4: {Path: "$music/track4.xm", Volume: -0.1, Group: SoundGroupMusic},
+			AudioMusicTrack1: {Path: "music/deadly_windmills.xm", Volume: -0.1, Group: SoundGroupMusic},
+			AudioMusicTrack2: {Path: "music/war_path.xm", Volume: -0.1, Group: SoundGroupMusic},
+			AudioMusicTrack3: {Path: "music/crush.xm", Volume: -0.1, Group: SoundGroupMusic},
+			AudioMusicTrack4: {Path: "music/track4.xm", Volume: -0.1, Group: SoundGroupMusic},
 		}
 		xmParser := xmfile.NewParser(xmfile.ParserConfig{})
 		ctx.Loader.CustomAudioLoader = func(r io.Reader, info resource.AudioInfo) io.ReadSeeker {

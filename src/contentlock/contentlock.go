@@ -21,7 +21,8 @@ func GetDefaultData() session.PersistentData {
 		FirstLaunch: true,
 		Settings: session.GameSettings{
 			// Web platforms have XM music set as default.
-			XM: runtime.GOARCH == "wasm",
+			// The same goes for the Androids.
+			XM: runtime.GOARCH == "wasm" || runtime.GOOS == "android",
 
 			WheelScrollingMode: int(gameinput.WheelScrollDrag),
 			Player1InputMethod: int(gameinput.InputMethodCombined),

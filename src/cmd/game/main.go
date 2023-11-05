@@ -102,6 +102,10 @@ func main() {
 		state.Persistent.Settings.XM = true
 	}
 
+	if runtime.GOOS == "android" {
+		state.Persistent.Settings.XM = true
+	}
+
 	ctx := ge.NewContext(ge.ContextConfig{
 		FixedDelta: true,
 	})

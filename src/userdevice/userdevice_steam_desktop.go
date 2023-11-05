@@ -1,4 +1,4 @@
-//go:build (linux || darwin || windows) && steam
+//go:build (linux || darwin || windows) && steam && !android
 
 package userdevice
 

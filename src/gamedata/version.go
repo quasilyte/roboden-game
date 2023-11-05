@@ -472,7 +472,8 @@ const SeasonNumber = 1
 //
 // # Version 22.1 (doesn't trigger a version bump)
 // - userdevice package now recognizes Android devices as mobile platforms
-// - using an updated game save/load package (gdata) to make it possible to save/load on Android
-// - embed XM music tracks (since they're available everywhere)
-// - force Android builds to use XM music player
+// - Using an updated game save/load package (gdata) to make it possible to save/load on Android
+// - Embed XM music tracks (since they're available everywhere)
+// - Force Android builds to use XM music player
+// - Moved cmd/main implementation to cmd/internal/main to allow a second entry point (cmd/mobilegame)
 const BuildNumber int = 22

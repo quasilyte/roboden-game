@@ -32,8 +32,8 @@ func main() {
 	}
 
 	ldFlags := []string{
-		fmt.Sprintf("-X 'main.CommitHash=%s'", commit),
-		"-X 'main.DefaultServerAddr=https://quasilyte.tech/roboden/api'",
+		fmt.Sprintf("-X 'github.com/quasilyte/roboden-game/cmd/internal/game.CommitHash=%s'", commit),
+		"-X 'github.com/quasilyte/roboden-game/cmd/internal/game.DefaultServerAddr=https://quasilyte.tech/roboden/api'",
 		"-s -w",
 	}
 	buildTags := []string{}

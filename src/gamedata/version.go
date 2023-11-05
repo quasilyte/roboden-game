@@ -469,4 +469,7 @@ const SeasonNumber = 1
 // - Fighter point cost: 3 -> 4
 // - Destroyer gets DPS boost, but its attack energy cost is not higher as well
 // - Increase Generator bot energy regen rate & mention it as special ability
+//
+// # Version 22.1 (doesn't trigger a version bump)
+// - userdevice package now recognizes Android devices as mobile platforms
 const BuildNumber int = 22

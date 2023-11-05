@@ -476,4 +476,5 @@ const SeasonNumber = 1
 // - Embed XM music tracks (since they're available everywhere)
 // - Force Android builds to use XM music player
 // - Moved cmd/main implementation to cmd/internal/main to allow a second entry point (cmd/mobilegame)
+// - Removed _localStorageAvailable from the index.html (it's not needed anymore)
 const BuildNumber int = 22

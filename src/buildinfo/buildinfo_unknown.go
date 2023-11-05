@@ -1,4 +1,4 @@
-//go:build !steam && !itchio
+//go:build !steam && !itchio && !android
 
 package buildinfo
 

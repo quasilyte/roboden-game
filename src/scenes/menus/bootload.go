@@ -114,6 +114,12 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 			}
 		}
 
+		// There is no audio system preload on Android, but we still
+		// may want to do it. Play some sound before we show the splashscreen.
+		if runtime.GOOS == "android" {
+			c.scene.Audio().PlaySound(assets.AudioChoiceReady)
+		}
+
 		if c.state.Persistent.Settings.Demo {
 			c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
 		} else {

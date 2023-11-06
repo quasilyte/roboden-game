@@ -622,7 +622,7 @@ func (c *Controller) updateFogOfWar(pos gmath.Vec) {
 func (c *Controller) createCameraManager(viewportWorld *viewport.World, main bool, h *gameinput.Handler) *cameraManager {
 	cam := c.createCamera(viewportWorld)
 	if !main {
-		cam.ScreenPos.X = (1920.0 / 2 / 2)
+		cam.ScreenPos.X = c.scene.Context().ScreenWidth / 2
 	}
 	cm := newCameraManager(c.world, cam)
 	if c.config.ExecMode == gamedata.ExecuteDemo {
@@ -636,9 +636,8 @@ func (c *Controller) createCameraManager(viewportWorld *viewport.World, main boo
 }
 
 func (c *Controller) createCamera(viewportWorld *viewport.World) *viewport.Camera {
-	// FIXME: hardcoded screen size.
-	width := 1920.0 / 2
-	height := 1080.0 / 2
+	width := c.scene.Context().ScreenWidth
+	height := c.scene.Context().ScreenHeight
 	if c.config.PlayersMode == serverapi.PmodeTwoPlayers {
 		if c.config.ExecMode != gamedata.ExecuteReplay {
 			width /= 2

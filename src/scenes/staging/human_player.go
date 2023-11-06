@@ -263,8 +263,8 @@ func (p *humanPlayer) Init() {
 	}
 
 	if len(p.world.cameras) == 2 && p.state.id == 0 {
-		begin := ge.Pos{Offset: gmath.Vec{X: (1920 / 4)}}
-		end := ge.Pos{Offset: gmath.Vec{X: (1920 / 4), Y: 1080}}
+		begin := ge.Pos{Offset: gmath.Vec{X: p.scene.Context().ScreenWidth / 2}}
+		end := ge.Pos{Offset: gmath.Vec{X: p.scene.Context().ScreenWidth / 2, Y: 1080}}
 		p.screenSeparator = ge.NewLine(begin, end)
 		p.screenSeparator.SetColorScaleRGBA(0xa1, 0x9a, 0x9e, 255)
 		p.screenSeparator.Visible = p.rpanel == nil || !p.state.camera.UI.Visible

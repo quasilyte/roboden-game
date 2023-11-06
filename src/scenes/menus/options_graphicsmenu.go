@@ -1,11 +1,14 @@
 package menus
 
 import (
+	"runtime"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
+	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 )
@@ -135,11 +138,15 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			},
 			OnPressed: func() {
 				ebiten.SetFullscreen(options.Graphics.FullscreenEnabled)
+				displayRatio := gamedata.SupportedDisplayRatio[options.Graphics.AspectRation]
+				if options.Graphics.FullscreenEnabled {
+					ebiten.SetWindowSize(int(displayRatio.Width), int(displayRatio.Height))
+				}
 			},
 		}))
 	}
 
-	if c.state.Device.IsDesktop() {
+	if runtime.GOARCH != "wasm" {
 		b := eui.NewSelectButton(eui.SelectButtonConfig{
 			Scene:     c.scene,
 			Resources: uiResources,
@@ -147,11 +154,25 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			Value:     &options.Graphics.AspectRation,
 			Label:     d.Get("menu.options.graphics.aspect_ratio"),
 			ValueNames: []string{
-				"16:9",
+				gamedata.SupportedDisplayRatio[0].Name,
+				gamedata.SupportedDisplayRatio[1].Name,
+				gamedata.SupportedDisplayRatio[2].Name,
+				gamedata.SupportedDisplayRatio[3].Name,
+				gamedata.SupportedDisplayRatio[4].Name,
+			},
+			OnPressed: func() {
+				displayRatio := gamedata.SupportedDisplayRatio[options.Graphics.AspectRation]
+				ctx := c.scene.Context()
+				ctx.WindowWidth = displayRatio.Width
+				ctx.WindowHeight = displayRatio.Height
+				ctx.ScreenWidth = displayRatio.Width
+				ctx.ScreenHeight = displayRatio.Height
+				if !options.Graphics.FullscreenEnabled {
+					ebiten.SetWindowSize(int(displayRatio.Width), int(displayRatio.Height))
+				}
 			},
 		})
 		rowContainer.AddChild(b)
-		b.GetWidget().Disabled = true
 	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())

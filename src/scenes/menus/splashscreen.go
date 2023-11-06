@@ -86,8 +86,8 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	})
 
 	logo := scene.NewSprite(assets.ImageLogo)
-	logo.Pos.Offset.X = scene.Context().WindowWidth / 2
-	logo.Pos.Offset.Y = scene.Context().WindowHeight / 5
+	logo.Pos.Offset.X = scene.Context().ScreenWidth / 2
+	logo.Pos.Offset.Y = scene.Context().ScreenHeight / 5
 	scene.AddGraphics(logo)
 
 	d := scene.Dict()
@@ -101,7 +101,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	presskeyLabel.Pos.Offset.Y = logo.Pos.Offset.Y + 54
 	scene.AddGraphics(presskeyLabel)
 
-	c.darkRect = ge.NewRect(scene.Context(), scene.Context().WindowWidth, scene.Context().WindowHeight)
+	c.darkRect = ge.NewRect(scene.Context(), scene.Context().ScreenWidth, scene.Context().ScreenHeight)
 	c.darkRect.Centered = false
 	c.darkRect.FillColorScale.SetRGBA(0, 0, 0, 0xff)
 	scene.AddGraphics(c.darkRect)

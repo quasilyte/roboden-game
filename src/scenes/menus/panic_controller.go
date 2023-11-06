@@ -55,8 +55,8 @@ func (c *PanicController) Init(scene *ge.Scene) {
 	fmt.Println(c.panicInfo.Trace)
 
 	errorLabel := ge.NewLabel(assets.BitmapFont1)
-	errorLabel.Width = scene.Context().WindowWidth
-	errorLabel.Height = scene.Context().WindowHeight
+	errorLabel.Width = scene.Context().ScreenWidth
+	errorLabel.Height = scene.Context().ScreenHeight
 	errorLabel.GrowVertical = ge.GrowVerticalDown
 	errorLabel.Pos.Offset = gmath.Vec{X: 16, Y: 16}
 	errorLabel.Text = text + "\n\n" + fmt.Sprint(c.panicInfo.Value) + "\n" + trimmedTrace

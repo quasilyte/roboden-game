@@ -112,8 +112,6 @@ func Main() {
 	ctx.Rand.SetSeed(time.Now().Unix())
 	ctx.GameName = "roboden"
 	ctx.WindowTitle = "Roboden"
-	ctx.WindowWidth = 1920 / 2
-	ctx.WindowHeight = 1080 / 2
 
 	if gameDataFolder == "" {
 		if runtime.GOARCH == "wasm" {
@@ -173,6 +171,12 @@ func Main() {
 	}
 	state.ReloadInputs()
 	state.ReloadLanguage(ctx)
+
+	displayRatio := gamedata.SupportedDisplayRatio[state.Persistent.Settings.Graphics.AspectRation]
+	ctx.WindowWidth = displayRatio.Width
+	ctx.WindowHeight = displayRatio.Height
+	ctx.ScreenWidth = displayRatio.Width
+	ctx.ScreenHeight = displayRatio.Height
 
 	if state.Device.IsMobile() {
 		state.MenuInput = &state.TouchInput

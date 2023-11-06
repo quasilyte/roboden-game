@@ -472,6 +472,7 @@ const SeasonNumber = 1
 //
 // # Version 22.1 (doesn't trigger a version bump)
 // - Added wide screens support (18:9 through 21:9)
+// - Added scaled (~x2) buttons support for mobile platforms
 // - userdevice package now recognizes Android devices as mobile platforms
 // - Using an updated game save/load package (gdata) to make it possible to save/load on Android
 // - Embed XM music tracks (since they're available everywhere)

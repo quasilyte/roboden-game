@@ -229,6 +229,7 @@ func (p *humanPlayer) Init() {
 
 	if len(p.world.cameras) == 1 && p.world.screenButtonsEnabled {
 		p.screenButtons = newScreenButtonsNode(p.state.camera.Camera, buttonsPos, p.creepsState != nil)
+		p.screenButtons.scaled = p.world.deviceInfo.IsMobile()
 		p.screenButtons.Init(p.world.rootScene)
 		p.screenButtons.EventToggleButtonPressed.Connect(p, p.onToggleButtonClicked)
 		p.screenButtons.EventExitButtonPressed.Connect(p, p.onExitButtonClicked)

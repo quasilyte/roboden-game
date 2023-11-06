@@ -56,25 +56,27 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCapturedCursor: {Path: "image/captured_cursor.png"},
 		ImageMoveConfirm:    {Path: "image/move_confirm.png", FrameWidth: 24},
 
-		ImageRadarlessButtons:     {Path: "image/ui/radarless_buttons.png"},
-		ImageDarkRadarlessButtons: {Path: "image/ui/dark_radarless_buttons.png"},
-		ImageDarkRadar:            {Path: "image/ui/dark_radar.png"},
-		ImageDarkRadarHorizontal:  {Path: "image/ui/dark_radar_horizontal.png"},
-		ImageDarkRadarVertical:    {Path: "image/ui/dark_radar_vertical.png"},
-		ImageRadar:                {Path: "image/ui/radar.png"},
-		ImageRadarWave:            {Path: "image/ui/radar_wave.png"},
-		ImageRadarAlliedSpot:      {Path: "image/ui/radar_allied_spot.png"},
-		ImageRadarMiniAlliedSpot:  {Path: "image/ui/radar_mini_allied_spot.png"},
-		ImageRadarAlliedCross:     {Path: "image/ui/radar_allied_cross.png"},
-		ImageRadarBossFar:         {Path: "image/ui/radar_boss_far.png"},
-		ImageRadarBossNear:        {Path: "image/ui/radar_boss_near.png"},
-		ImageRightPanelLayer1:     {Path: "image/ui/right_panel_layer1.png"},
-		ImageRightPanelLayer2:     {Path: "image/ui/right_panel_layer2.png"},
-		ImageDarkDPad:             {Path: "image/ui/dark_dpad.png"},
-		ImageDarkRightPanelLayer1: {Path: "image/ui/dark_right_panel_layer1.png"},
-		ImageDarkRightPanelLayer2: {Path: "image/ui/dark_right_panel_layer2.png"},
-		ImagePriorityBar:          {Path: "image/ui/priority_bar.png"},
-		ImagePriorityIcons:        {Path: "image/ui/priority_icons.png", FrameWidth: 16},
+		ImageRadarlessButtons:       {Path: "image/ui/radarless_buttons.png"},
+		ImageRadarlessButtonsX2:     {Path: "image/ui/radarless_buttons_x2.png"},
+		ImageDarkRadarlessButtons:   {Path: "image/ui/dark_radarless_buttons.png"},
+		ImageDarkRadarlessButtonsX2: {Path: "image/ui/dark_radarless_buttons_x2.png"},
+		ImageDarkRadar:              {Path: "image/ui/dark_radar.png"},
+		ImageDarkRadarHorizontal:    {Path: "image/ui/dark_radar_horizontal.png"},
+		ImageDarkRadarVertical:      {Path: "image/ui/dark_radar_vertical.png"},
+		ImageRadar:                  {Path: "image/ui/radar.png"},
+		ImageRadarWave:              {Path: "image/ui/radar_wave.png"},
+		ImageRadarAlliedSpot:        {Path: "image/ui/radar_allied_spot.png"},
+		ImageRadarMiniAlliedSpot:    {Path: "image/ui/radar_mini_allied_spot.png"},
+		ImageRadarAlliedCross:       {Path: "image/ui/radar_allied_cross.png"},
+		ImageRadarBossFar:           {Path: "image/ui/radar_boss_far.png"},
+		ImageRadarBossNear:          {Path: "image/ui/radar_boss_near.png"},
+		ImageRightPanelLayer1:       {Path: "image/ui/right_panel_layer1.png"},
+		ImageRightPanelLayer2:       {Path: "image/ui/right_panel_layer2.png"},
+		ImageDarkDPad:               {Path: "image/ui/dark_dpad.png"},
+		ImageDarkRightPanelLayer1:   {Path: "image/ui/dark_right_panel_layer1.png"},
+		ImageDarkRightPanelLayer2:   {Path: "image/ui/dark_right_panel_layer2.png"},
+		ImagePriorityBar:            {Path: "image/ui/priority_bar.png"},
+		ImagePriorityIcons:          {Path: "image/ui/priority_icons.png", FrameWidth: 16},
 
 		ImageFloppyYellow:     {Path: "image/ui/floppy_yellow.png"},
 		ImageFloppyRed:        {Path: "image/ui/floppy_red.png"},
@@ -480,7 +482,9 @@ const (
 	ImageMoveConfirm
 
 	ImageRadarlessButtons
+	ImageRadarlessButtonsX2
 	ImageDarkRadarlessButtons
+	ImageDarkRadarlessButtonsX2
 	ImageRadar
 	ImageRadarWave
 	ImageRadarBossFar

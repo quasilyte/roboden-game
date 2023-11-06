@@ -477,4 +477,5 @@ const SeasonNumber = 1
 // - Force Android builds to use XM music player
 // - Moved cmd/main implementation to cmd/internal/main to allow a second entry point (cmd/mobilegame)
 // - Removed _localStorageAvailable from the index.html (it's not needed anymore)
+// - Use new ge package version that uses mobile.SetGame instead of ebiten.RunGame for mobile platforms
 const BuildNumber int = 22

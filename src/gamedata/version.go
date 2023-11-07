@@ -470,7 +470,8 @@ const SeasonNumber = 1
 // - Destroyer gets DPS boost, but its attack energy cost is not higher as well
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
-// # Version 22.1 (doesn't trigger a version bump)
+// # Version 23
+// - Update input library version
 // - Show buildinfo tag on the main menu screen
 // - Properly save empty platforms as "Steam"
 // - Added wide screens support (18:9 through 21:9)
@@ -483,4 +484,4 @@ const SeasonNumber = 1
 // - Moved cmd/main implementation to cmd/internal/main to allow a second entry point (cmd/mobilegame)
 // - Removed _localStorageAvailable from the index.html (it's not needed anymore)
 // - Use new ge package version that uses mobile.SetGame instead of ebiten.RunGame for mobile platforms
-const BuildNumber int = 22
+const BuildNumber int = 23

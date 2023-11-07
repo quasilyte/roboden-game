@@ -8,6 +8,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/buildinfo"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
@@ -93,8 +94,8 @@ func (c *MainMenuController) initUI() {
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	buildLabel := fmt.Sprintf("%s %d", d.Get("menu.main.build"), gamedata.BuildNumber)
-	if c.state.Device.Steam.Enabled {
-		buildLabel += " [Steam]"
+	if buildinfo.Distribution != buildinfo.TagUnknown {
+		buildLabel += " [" + buildinfo.Distribution + "]"
 	}
 
 	buildVersionLabel := eui.NewCenteredLabel(buildLabel, assets.BitmapFont1)

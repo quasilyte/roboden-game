@@ -471,6 +471,7 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 22.1 (doesn't trigger a version bump)
+// - Show buildinfo tag on the main menu screen
 // - Properly save empty platforms as "Steam"
 // - Added wide screens support (18:9 through 21:9)
 // - Make "vertical" world shape fit the widest of resolutions to avoid camera issues

@@ -2,4 +2,4 @@
 
 package buildinfo
 
-const Distribution = "unknown"
+const Distribution = TagUnknown

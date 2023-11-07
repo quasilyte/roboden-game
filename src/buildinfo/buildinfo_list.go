@@ -4,6 +4,7 @@ const (
 	TagSteam   = "Steam"
 	TagItchio  = "itch.io"
 	TagAndroid = "Android"
+	TagUnknown = "unknown"
 )
 
 func IsValidTag(tag string) bool {

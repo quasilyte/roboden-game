@@ -64,7 +64,11 @@ func (tab *recipeTabNode) Init(scene *ge.Scene) {
 		}).(*ebiten.Image)
 	}
 
-	diode := scene.LoadImage(assets.ImageFactionDiode).Data
+	diodeImg := assets.ImageFactionDiode
+	if tab.world.gameSettings.LargeDiodes {
+		diodeImg = assets.ImageFactionDiodeLarge
+	}
+	diode := scene.LoadImage(diodeImg).Data
 	diodeSize := diode.Bounds().Size()
 
 	extraOffsets := [...]float64{

@@ -169,9 +169,10 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageDisappearSmokeBig:          {Path: "image/effects/disappear_big.png", FrameWidth: 64},
 		ImageCreepCreatedEffect:         {Path: "image/effects/creep_created.png", FrameWidth: 32},
 
-		ImageFactionDiode:     {Path: "image/faction_diode.png"},
-		ImageTeleporter:       {Path: "image/teleporter.png"},
-		ImageTeleporterLights: {Path: "image/teleporter_lights.png"},
+		ImageFactionDiode:      {Path: "image/faction_diode.png"},
+		ImageFactionDiodeLarge: {Path: "image/faction_diode_large.png"},
+		ImageTeleporter:        {Path: "image/teleporter.png"},
+		ImageTeleporterLights:  {Path: "image/teleporter_lights.png"},
 
 		ImageDroneSelector: {Path: "image/ui/drone_selector.png"},
 
@@ -604,6 +605,7 @@ const (
 	ImageActionAbomb
 
 	ImageFactionDiode
+	ImageFactionDiodeLarge
 	ImageUberBoss
 	ImageUberBossDoor
 	ImageUberBossShadow

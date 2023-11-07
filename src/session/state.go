@@ -203,6 +203,7 @@ type GameSettings struct {
 	XM                 bool
 	ShowFPS            bool
 	ShowTimer          bool
+	LargeDiodes        bool
 	DebugLogs          bool
 	DebugDroneLabels   bool
 	Demo               bool

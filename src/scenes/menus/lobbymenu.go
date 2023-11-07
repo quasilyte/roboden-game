@@ -103,7 +103,7 @@ func (c *LobbyMenuController) Update(delta float64) {
 }
 
 func (c *LobbyMenuController) prepareRecipeIcons() {
-	c.recipeIcons = gameui.GenerateRecipePreviews(c.scene, false)
+	c.recipeIcons = gameui.GenerateRecipePreviews(c.scene, false, c.state.Persistent.Settings.LargeDiodes)
 }
 
 func (c *LobbyMenuController) initUI() {

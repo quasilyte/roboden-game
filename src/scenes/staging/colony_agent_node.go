@@ -346,7 +346,11 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	a.flashComponent.sprite = a.sprite
 
 	if a.faction != gamedata.NeutralFactionTag {
-		a.diode = scene.NewSprite(assets.ImageFactionDiode)
+		diodeImg := assets.ImageFactionDiode
+		if a.world().gameSettings.LargeDiodes {
+			diodeImg = assets.ImageFactionDiodeLarge
+		}
+		a.diode = scene.NewSprite(diodeImg)
 		a.diode.Pos.Base = &a.pos
 		a.diode.Pos.Offset.Y = a.stats.DiodeOffset
 		var colorScale ge.ColorScale

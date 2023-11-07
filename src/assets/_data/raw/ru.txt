@@ -151,6 +151,7 @@
 ##menu.options.music_volume : Громкость музыки
 ##menu.options.scroll_speed : Скорость скроллинга
 ##menu.options.edge_scroll_range : Ширина границы прокрутки
+##menu.options.large_diodes : Крупные диоды
 ##menu.options.show_fps : Отображать FPS
 ##menu.options.show_timer : Отображать таймер
 ##menu.options.splash_screen : Экран заставки

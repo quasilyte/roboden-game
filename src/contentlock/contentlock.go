@@ -20,6 +20,8 @@ func GetDefaultData() session.PersistentData {
 		// The default settings.
 		FirstLaunch: true,
 		Settings: session.GameSettings{
+			LargeDiodes: runtime.GOOS == "anrdoid",
+
 			// Web platforms have XM music set as default.
 			// The same goes for the Androids.
 			XM: runtime.GOARCH == "wasm" || runtime.GOOS == "android",

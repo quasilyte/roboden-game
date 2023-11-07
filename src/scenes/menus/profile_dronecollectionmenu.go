@@ -34,7 +34,7 @@ func NewProfileDroneCollectionMenuController(state *session.State) *ProfileDrone
 
 func (c *ProfileDroneCollectionMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
-	c.recipeIcons = gameui.GenerateRecipePreviews(c.scene, true)
+	c.recipeIcons = gameui.GenerateRecipePreviews(c.scene, true, c.state.Persistent.Settings.LargeDiodes)
 	c.initUI()
 }
 

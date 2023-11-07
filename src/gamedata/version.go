@@ -471,6 +471,7 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Added "large diode" mode for accessibility
 // - Update input library version
 // - Show buildinfo tag on the main menu screen
 // - Properly save empty platforms as "Steam"

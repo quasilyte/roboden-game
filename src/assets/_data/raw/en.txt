@@ -150,6 +150,7 @@ You can change this decision later.
 ##menu.options.music_volume : Music volume
 ##menu.options.scroll_speed : Scroll speed
 ##menu.options.edge_scroll_range : Edge scroll range
+##menu.options.large_diodes : Large diodes
 ##menu.options.show_fps : Show FPS
 ##menu.options.show_timer : Show timer
 ##menu.options.splash_screen : Splash screen

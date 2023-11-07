@@ -10,7 +10,7 @@ import (
 	"github.com/quasilyte/roboden-game/gamedata"
 )
 
-func GenerateRecipePreviews(scene *ge.Scene, needT3 bool) map[gamedata.RecipeSubject]*ebiten.Image {
+func GenerateRecipePreviews(scene *ge.Scene, needT3, largeDiode bool) map[gamedata.RecipeSubject]*ebiten.Image {
 	createSubImage := func(img resource.Image) *ebiten.Image {
 		return img.Data.SubImage(image.Rectangle{
 			Max: image.Point{
@@ -23,7 +23,11 @@ func GenerateRecipePreviews(scene *ge.Scene, needT3 bool) map[gamedata.RecipeSub
 	workerFrame := createSubImage(scene.LoadImage(assets.ImageWorkerAgent))
 	scoutFrame := createSubImage(scene.LoadImage(assets.ImageScoutAgent))
 
-	diode := scene.LoadImage(assets.ImageFactionDiode).Data
+	img := assets.ImageFactionDiode
+	if largeDiode {
+		img = assets.ImageFactionDiodeLarge
+	}
+	diode := scene.LoadImage(img).Data
 	diodeSize := diode.Bounds().Size()
 
 	recipeIcons := make(map[gamedata.RecipeSubject]*ebiten.Image)
@@ -38,11 +42,11 @@ func GenerateRecipePreviews(scene *ge.Scene, needT3 bool) map[gamedata.RecipeSub
 				continue
 			}
 
-			diodeOffset := gamedata.WorkerAgentStats.DiodeOffset + 1
+			diodeOffset := gamedata.WorkerAgentStats.DiodeOffset + 5
 			droneFrame := workerFrame
 			if s.Kind == gamedata.AgentScout {
 				droneFrame = scoutFrame
-				diodeOffset = gamedata.ScoutAgentStats.DiodeOffset + 2
+				diodeOffset = gamedata.ScoutAgentStats.DiodeOffset + 5
 			}
 			frameSize := droneFrame.Bounds().Size()
 			img := ebiten.NewImage(32, 32)

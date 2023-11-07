@@ -85,6 +85,17 @@ func (c *OptionsExtraMenuController) initUI() {
 		}))
 	}
 
+	rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+		Scene:     c.scene,
+		Resources: uiResources,
+		Value:     &options.LargeDiodes,
+		Label:     d.Get("menu.options.large_diodes"),
+		ValueNames: []string{
+			d.Get("menu.option.off"),
+			d.Get("menu.option.on"),
+		},
+	}))
+
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.terminal"), func() {

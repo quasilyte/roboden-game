@@ -3,6 +3,7 @@ package menus
 import (
 	"fmt"
 	"image"
+	"runtime"
 	"runtime/pprof"
 	"strconv"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/descriptions"
@@ -45,6 +47,10 @@ type LobbyMenuController struct {
 	helpRecipe *eui.RecipeView
 
 	recipeIcons map[gamedata.RecipeSubject]*ebiten.Image
+
+	keyboard *eui.Keyboard
+
+	ui *eui.SceneObject
 
 	scene *ge.Scene
 }
@@ -160,9 +166,9 @@ func (c *LobbyMenuController) initUI() {
 	rightRows.AddChild(c.createHelpPanel(uiResources))
 	rightRows.AddChild(c.createButtonsPanel(uiResources))
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	c.ui = eui.NewSceneObject(root)
+	c.scene.AddGraphics(c.ui)
+	c.scene.AddObject(c.ui)
 
 	c.updateDifficultyScore(c.calcDifficultyScore())
 }
@@ -886,6 +892,17 @@ func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widge
 		)
 		grid.AddChild(label)
 
+		if runtime.GOOS == "android" {
+			c.seedInput.GetWidget().FocusEvent.AddHandler(func(args any) {
+				e := args.(*widget.WidgetFocusEventArgs)
+				if e.Focused {
+					if c.keyboard == nil {
+						c.openKeyboard()
+					}
+				}
+			})
+		}
+
 		worldSettingsPanel.AddChild(grid)
 	}
 
@@ -1133,4 +1150,34 @@ func (c *LobbyMenuController) onDroneToggled() {
 func (c *LobbyMenuController) back() {
 	c.saveConfig()
 	c.scene.Context().ChangeScene(NewPlayMenuController(c.state))
+}
+
+func (c *LobbyMenuController) openKeyboard() {
+	k := eui.NewTextKeyboard(eui.KeyboardConfig{
+		Resources:  c.state.Resources.UI,
+		Scene:      c.scene,
+		Input:      c.state.MenuInput,
+		DigitsOnly: true,
+	})
+	c.ui.AddWindow(k.Window)
+
+	runeBuf := []rune{0}
+	k.EventKey.Connect(nil, func(ch rune) {
+		runeBuf[0] = ch
+		c.seedInput.Insert(runeBuf)
+		c.seedInput.Focus(true)
+	})
+	k.EventBackspace.Connect(nil, func(gsignal.Void) {
+		c.seedInput.Backspace()
+		c.seedInput.Focus(true)
+	})
+	k.EventSubmit.Connect(nil, func(gsignal.Void) {
+		c.seedInput.Submit()
+		k.Close()
+	})
+	k.EventClosed.Connect(nil, func(gsignal.Void) {
+		c.keyboard = nil
+	})
+	c.keyboard = k
+	c.scene.AddObject(c.keyboard)
 }

@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"regexp"
+	"runtime"
 	"sort"
 	"strings"
 	"unicode"
@@ -16,6 +17,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/contentlock"
 	"github.com/quasilyte/roboden-game/controls"
@@ -29,9 +31,14 @@ import (
 type TerminalMenu struct {
 	state *session.State
 
+	ui *eui.SceneObject
+
 	errorSoundDelay float64
 
 	outputLabel *widget.Text
+
+	textInput *widget.TextInput
+	keyboard  *eui.Keyboard
 
 	scene *ge.Scene
 }
@@ -243,13 +250,54 @@ func (c *TerminalMenu) initUI() {
 	rowContainer.AddChild(outputTitle)
 	rowContainer.AddChild(outputPanel)
 
+	c.textInput = textinput
+	if runtime.GOOS == "android" {
+		c.textInput.GetWidget().FocusEvent.AddHandler(func(args any) {
+			e := args.(*widget.WidgetFocusEventArgs)
+			if e.Focused {
+				if c.keyboard == nil {
+					c.openKeyboard()
+				}
+			}
+		})
+	}
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
 	}))
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	c.ui = eui.NewSceneObject(root)
+	c.scene.AddGraphics(c.ui)
+	c.scene.AddObject(c.ui)
+}
+
+func (c *TerminalMenu) openKeyboard() {
+	k := eui.NewTextKeyboard(eui.KeyboardConfig{
+		Resources: c.state.Resources.UI,
+		Scene:     c.scene,
+		Input:     c.state.MenuInput,
+	})
+	c.ui.AddWindow(k.Window)
+
+	runeBuf := []rune{0}
+	k.EventKey.Connect(nil, func(ch rune) {
+		runeBuf[0] = ch
+		c.textInput.Insert(runeBuf)
+		c.textInput.Focus(true)
+	})
+	k.EventBackspace.Connect(nil, func(gsignal.Void) {
+		c.textInput.Backspace()
+		c.textInput.Focus(true)
+	})
+	k.EventSubmit.Connect(nil, func(gsignal.Void) {
+		c.textInput.Submit()
+		k.Close()
+	})
+	k.EventClosed.Connect(nil, func(gsignal.Void) {
+		c.keyboard = nil
+	})
+	c.keyboard = k
+	c.scene.AddObject(c.keyboard)
 }
 
 func (c *TerminalMenu) maybeGrantAchievement() {

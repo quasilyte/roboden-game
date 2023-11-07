@@ -423,6 +423,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageUIButtonSelectedPressed:    {Path: "image/ebitenui/button-selected-pressed.png"},
 		ImageUIButtonSelectedDisabled:   {Path: "image/ebitenui/button-selected-disabled.png"},
 		ImageUIPanelIdle:                {Path: "image/ebitenui/panel-idle.png"},
+		ImageUIPanelIdleDark:            {Path: "image/ebitenui/panel-idle-dark.png"},
 	}
 
 	singleThread := runtime.GOMAXPROCS(-1) == 1
@@ -842,4 +843,5 @@ const (
 	ImageUIButtonSelectedPressed
 	ImageUIButtonSelectedDisabled
 	ImageUIPanelIdle
+	ImageUIPanelIdleDark
 )

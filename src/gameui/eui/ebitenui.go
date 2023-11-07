@@ -32,6 +32,7 @@ type Resources struct {
 	TextInput      *TextInputResource
 	ButtonSelected *ButtonResource
 	Panel          *PanelResource
+	DarkPanel      *PanelResource
 
 	mobile bool
 }
@@ -93,6 +94,10 @@ func NewSceneObject(root *widget.Container) *SceneObject {
 			Container: root,
 		},
 	}
+}
+
+func (o *SceneObject) AddWindow(w *widget.Window) {
+	o.ui.AddWindow(w)
 }
 
 func (o *SceneObject) IsDisposed() bool { return false }
@@ -633,13 +638,25 @@ func NewTextPanel(res *Resources, minWidth, minHeight int) *widget.Container {
 		)))
 }
 
+func NewDarkPanel(res *Resources, minWidth, minHeight int, opts ...widget.ContainerOpt) *widget.Container {
+	return newPanel(res, minWidth, minHeight, true, opts...)
+}
+
 func NewPanel(res *Resources, minWidth, minHeight int, opts ...widget.ContainerOpt) *widget.Container {
+	return newPanel(res, minWidth, minHeight, false, opts...)
+}
+
+func newPanel(res *Resources, minWidth, minHeight int, dark bool, opts ...widget.ContainerOpt) *widget.Container {
+	panelRes := res.Panel
+	if dark {
+		panelRes = res.DarkPanel
+	}
 	options := []widget.ContainerOpt{
-		widget.ContainerOpts.BackgroundImage(res.Panel.Image),
+		widget.ContainerOpts.BackgroundImage(panelRes.Image),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Spacing(4),
-			widget.RowLayoutOpts.Padding(res.Panel.Padding),
+			widget.RowLayoutOpts.Padding(panelRes.Padding),
 		)),
 		widget.ContainerOpts.WidgetOpts(
 			// instruct the container's anchor layout to center the button both horizontally and vertically
@@ -733,6 +750,19 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 	{
 		idle := loader.LoadImage(assets.ImageUIPanelIdle).Data
 		result.Panel = &PanelResource{
+			Image: nineSliceImage(idle, 10, 10),
+			Padding: widget.Insets{
+				Left:   16,
+				Right:  16,
+				Top:    10,
+				Bottom: 10,
+			},
+		}
+	}
+
+	{
+		idle := loader.LoadImage(assets.ImageUIPanelIdleDark).Data
+		result.DarkPanel = &PanelResource{
 			Image: nineSliceImage(idle, 10, 10),
 			Padding: widget.Insets{
 				Left:   16,

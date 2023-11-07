@@ -1,11 +1,13 @@
 package menus
 
 import (
+	"runtime"
 	"strings"
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
+	"github.com/quasilyte/gsignal"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -20,6 +22,10 @@ type UserNameMenu struct {
 	errorSoundDelay float64
 
 	nextController ge.SceneController
+
+	ui        *eui.SceneObject
+	keyboard  *eui.Keyboard
+	textInput *widget.TextInput
 
 	scene *ge.Scene
 }
@@ -85,6 +91,18 @@ func (c *UserNameMenu) initUI() {
 	textinput.SetText(c.state.Persistent.PlayerName)
 	rowContainer.AddChild(textinput)
 
+	c.textInput = textinput
+	if runtime.GOOS == "android" {
+		c.textInput.GetWidget().FocusEvent.AddHandler(func(args any) {
+			e := args.(*widget.WidgetFocusEventArgs)
+			if e.Focused {
+				if c.keyboard == nil {
+					c.openKeyboard()
+				}
+			}
+		})
+	}
+
 	panel := eui.NewTextPanel(uiResources, 0, 0)
 
 	normalContainer := eui.NewAnchorContainer()
@@ -98,9 +116,9 @@ func (c *UserNameMenu) initUI() {
 		c.next()
 	}))
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	c.ui = eui.NewSceneObject(root)
+	c.scene.AddGraphics(c.ui)
+	c.scene.AddObject(c.ui)
 }
 
 func (c *UserNameMenu) save(name string) {
@@ -117,4 +135,33 @@ func (c *UserNameMenu) next() {
 
 func (c *UserNameMenu) back() {
 	c.scene.Audio().PlaySound(assets.AudioError)
+}
+
+func (c *UserNameMenu) openKeyboard() {
+	k := eui.NewTextKeyboard(eui.KeyboardConfig{
+		Resources: c.state.Resources.UI,
+		Scene:     c.scene,
+		Input:     c.state.MenuInput,
+	})
+	c.ui.AddWindow(k.Window)
+
+	runeBuf := []rune{0}
+	k.EventKey.Connect(nil, func(ch rune) {
+		runeBuf[0] = ch
+		c.textInput.Insert(runeBuf)
+		c.textInput.Focus(true)
+	})
+	k.EventBackspace.Connect(nil, func(gsignal.Void) {
+		c.textInput.Backspace()
+		c.textInput.Focus(true)
+	})
+	k.EventSubmit.Connect(nil, func(gsignal.Void) {
+		c.textInput.Submit()
+		k.Close()
+	})
+	k.EventClosed.Connect(nil, func(gsignal.Void) {
+		c.keyboard = nil
+	})
+	c.keyboard = k
+	c.scene.AddObject(c.keyboard)
 }

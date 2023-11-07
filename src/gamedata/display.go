@@ -13,3 +13,13 @@ var SupportedDisplayRatio = []DisplayRatio{
 	{Name: "20:9", Width: 1200, Height: 540},
 	{Name: "21:9", Width: 1260, Height: 540},
 }
+
+func MaxDisplayWidth() float64 {
+	v := 0.0
+	for _, d := range SupportedDisplayRatio {
+		if d.Width > v {
+			v = d.Width
+		}
+	}
+	return v
+}

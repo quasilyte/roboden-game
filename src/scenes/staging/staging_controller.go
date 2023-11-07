@@ -324,7 +324,12 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		worldWidth += float64(512 * (c.config.WorldSize + 1))
 		worldHeight = 1088
 	case gamedata.WorldVertical:
-		worldWidth = 1088
+		worldWidth = 1280
+		// Can't have a world width less than a max screen width.
+		// Otherwise that would create a buggy camera experience.
+		if worldWidth < gamedata.MaxDisplayWidth() {
+			panic("new display ratio is added without adjusting the vertical world camera size")
+		}
 		worldHeight += float64(512 * (c.config.WorldSize + 1))
 	}
 	viewportWorld := &viewport.World{

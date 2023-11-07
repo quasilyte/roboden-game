@@ -397,11 +397,16 @@ func (s *apiServer) doRunReplay() (bool, error) {
 		return true, nil
 	}
 
+	platform := replayData.Platform
+	if platform == "" {
+		platform = "Steam"
+	}
+
 	// Now we can delete the replay from the queue and add
 	// verified results to the database.
 	// TODO: this should be done in a transaction.
 	drones := strings.Join(replayData.Config.Tier2Recipes, ",")
-	err = db.UpdatePlayerScore(replayData.Config.RawGameMode, playerName, drones, result.Score, replayData.Config.DifficultyScore, result.Time, replayData.Platform)
+	err = db.UpdatePlayerScore(replayData.Config.RawGameMode, playerName, drones, result.Score, replayData.Config.DifficultyScore, result.Time, platform)
 	if err != nil {
 		return true, err
 	}

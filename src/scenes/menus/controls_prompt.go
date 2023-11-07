@@ -64,5 +64,5 @@ func (c *ControlsPromptController) selectControls(inputMethod gameinput.PlayerIn
 	c.state.Persistent.Settings.Player1InputMethod = int(inputMethod)
 	c.state.ReloadInputs()
 	c.state.SaveGameItem("save.json", c.state.Persistent)
-	c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
+	c.scene.Context().ChangeScene(NewSplashScreenController(c.state, NewMainMenuController(c.state)))
 }

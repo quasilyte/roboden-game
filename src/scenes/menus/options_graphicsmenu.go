@@ -25,6 +25,12 @@ func NewOptionsGraphicsMenuController(state *session.State) *OptionsGraphicsMenu
 
 func (c *OptionsGraphicsMenuController) Init(scene *ge.Scene) {
 	c.scene = scene
+
+	// You can get here from a demo screen that is triggered after an aspect ratio change.
+	if c.state.Persistent.Settings.MusicVolumeLevel != 0 {
+		scene.Audio().ContinueMusic(assets.AudioMusicTrack3)
+	}
+
 	c.initUI()
 }
 
@@ -170,6 +176,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 				if !options.Graphics.FullscreenEnabled {
 					ebiten.SetWindowSize(int(displayRatio.Width), int(displayRatio.Height))
 				}
+				c.scene.Context().ChangeScene(NewSplashScreenController(c.state, c))
 			},
 		})
 		rowContainer.AddChild(b)

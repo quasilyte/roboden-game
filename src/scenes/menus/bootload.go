@@ -121,7 +121,7 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		}
 
 		if c.state.Persistent.Settings.Demo {
-			c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
+			c.scene.Context().ChangeScene(NewSplashScreenController(c.state, NewMainMenuController(c.state)))
 		} else {
 			c.prepareBackground()
 			c.scene.Context().ChangeScene(NewMainMenuController(c.state))

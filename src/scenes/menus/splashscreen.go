@@ -22,17 +22,18 @@ type SplashScreenController struct {
 	controller *staging.Controller
 	simulated  bool
 
-	menuController *MainMenuController
+	nextController ge.SceneController
 }
 
-func NewSplashScreenController(state *session.State) *SplashScreenController {
-	return &SplashScreenController{state: state}
+func NewSplashScreenController(state *session.State, nextController ge.SceneController) *SplashScreenController {
+	return &SplashScreenController{
+		state:          state,
+		nextController: nextController,
+	}
 }
 
 func (c *SplashScreenController) Init(scene *ge.Scene) {
 	c.scene = scene
-
-	c.menuController = NewMainMenuController(c.state)
 
 	c.scene.Audio().SetGroupVolume(assets.SoundGroupMusic, 0)
 	c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, 0)
@@ -72,7 +73,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 		config.ExtraDrones = append(config.ExtraDrones, d)
 	}
 	config.Finalize()
-	c.controller = staging.NewController(c.state, config, c.menuController)
+	c.controller = staging.NewController(c.state, config, c.nextController)
 	scene.AddObject(c.controller)
 
 	c.controller.EventBeforeLeaveScene.Connect(nil, func(gsignal.Void) {
@@ -161,5 +162,5 @@ func (c *SplashScreenController) stopDemo() {
 	c.state.BackgroundImage = c.controller.RenderDemoFrame()
 
 	c.scene.Audio().PauseCurrentMusic()
-	c.scene.Context().ChangeScene(c.menuController)
+	c.scene.Context().ChangeScene(c.nextController)
 }

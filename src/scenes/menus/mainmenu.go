@@ -43,7 +43,7 @@ func (c *MainMenuController) Update(delta float64) {
 	c.state.MenuInput.Update()
 	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.scene.Audio().PauseCurrentMusic()
-		c.scene.Context().ChangeScene(NewSplashScreenController(c.state))
+		c.scene.Context().ChangeScene(NewSplashScreenController(c.state, NewMainMenuController(c.state)))
 		return
 	}
 }

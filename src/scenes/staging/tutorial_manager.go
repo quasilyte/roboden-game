@@ -278,7 +278,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		m.explainedSecondBase = true
 		pos := ge.Pos{}
 		if m.input.InputMethod == gameinput.InputMethodTouch {
-			pos = ge.Pos{Offset: gmath.Vec{X: 30, Y: 490}}
+			pos = ge.Pos{Offset: gmath.Vec{X: 28, Y: 480}}
 		}
 		m.messageManager.AddMessage(queuedMessageInfo{
 			text:      m.scene.Dict().Get("tutorial.context.second_base", m.world.inputMode),
@@ -365,28 +365,28 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return m.stepTicks == 0
 
 	case 11:
-		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 0), Y: 516}, d.Get("tutorial.resources_priority"))
+		m.addScreenHintNode(gmath.Vec{X: (m.scene.Context().ScreenWidth - 148) + (36 * 0), Y: 516}, d.Get("tutorial.resources_priority"))
 		m.waitForEnter()
 		return true
 	case 12:
 		return m.nextPressed
 
 	case 13:
-		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 1), Y: 516}, d.Get("tutorial.growth_priority"))
+		m.addScreenHintNode(gmath.Vec{X: (m.scene.Context().ScreenWidth - 148) + (36 * 1), Y: 516}, d.Get("tutorial.growth_priority"))
 		m.waitForEnter()
 		return true
 	case 14:
 		return m.nextPressed
 
 	case 15:
-		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 2), Y: 516}, d.Get("tutorial.evolution_priority"))
+		m.addScreenHintNode(gmath.Vec{X: (m.scene.Context().ScreenWidth - 148) + (36 * 2), Y: 516}, d.Get("tutorial.evolution_priority"))
 		m.waitForEnter()
 		return true
 	case 16:
 		return m.nextPressed
 
 	case 17:
-		m.addScreenHintNode(gmath.Vec{X: 812 + (36 * 3), Y: 516}, d.Get("tutorial.security_priority"))
+		m.addScreenHintNode(gmath.Vec{X: (m.scene.Context().ScreenWidth - 148) + (36 * 3), Y: 516}, d.Get("tutorial.security_priority"))
 		m.waitForEnter()
 		return true
 	case 18:

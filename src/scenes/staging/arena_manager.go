@@ -34,6 +34,10 @@ type arenaManager struct {
 	levelStartDelay      float64
 	budgetStepMultiplier float64
 
+	grenadiersDelay float64
+	grenadierWave   int
+	attackGroup     arenaWaveGroup
+
 	victory  bool
 	infArena bool
 
@@ -112,6 +116,8 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 		m.lastLevel = 20
 	}
 
+	m.grenadiersDelay = m.world.rand.FloatRange(2*60.0, 3*60.0)
+
 	m.level = 1
 
 	m.crawlerCreepInfo = &arenaCreepInfo{
@@ -187,6 +193,11 @@ func (m *arenaManager) Update(delta float64) {
 		return
 	}
 
+	m.grenadiersDelay = gmath.ClampMin(m.grenadiersDelay-delta, 0)
+	if m.grenadiersDelay == 0 {
+		m.spawnGrenadiers()
+	}
+
 	m.levelStartDelay -= delta
 	if m.levelStartDelay <= 0 {
 		if !m.infArena && m.level > m.lastLevel {
@@ -213,6 +224,36 @@ func (m *arenaManager) Update(delta float64) {
 		m.infoUpdateDelay = 5 + m.infoUpdateDelay
 		m.info.UpdateText(m.createWaveInfoText())
 	}
+}
+
+func (m *arenaManager) spawnGrenadiers() {
+	if !m.world.config.GrenadierCreeps {
+		m.grenadiersDelay = 99999999 // ~never
+		return
+	}
+
+	minGrenadiers := gmath.ClampMax(2+m.grenadierWave, 8)
+	maxGrenadiers := gmath.ClampMax(3+m.grenadierWave, 12)
+	numGrenadiers := m.world.rand.IntRange(minGrenadiers, maxGrenadiers)
+	maxSupers := gmath.ClampMax(1+(m.grenadierWave/3), 4)
+
+	units := m.attackGroup.units[:0]
+	for i := 0; i < numGrenadiers; i++ {
+		super := m.world.config.SuperCreeps && i < maxSupers && m.grenadierWave > 0
+		units = append(units, arenaWaveUnit{
+			stats: gamedata.GrenadierCreepStats,
+			super: super,
+		})
+	}
+
+	m.grenadiersDelay = m.world.rand.FloatRange(100, 230)
+	if m.grenadiersDelay >= 160 {
+		m.grenadierWave++
+	}
+
+	m.attackGroup.units = units
+	m.attackGroup.side = m.world.rand.IntRange(0, 3)
+	sendCreeps(m.world, m.attackGroup)
 }
 
 func (m *arenaManager) createWaveInfoMessageNode() *messageNode {

@@ -10,4 +10,5 @@ var LobbyOptionMap = map[string]LobbyOption{
 	"creep_fortress":     {ScoreCost: FortressOptionCost, Category: "difficulty"},
 	"ion_mortars":        {ScoreCost: IonMortarOptionCost, Category: "difficulty"},
 	"coordinator_creeps": {ScoreCost: CoordinatorCreepsOptionCost, Category: "difficulty"},
+	"grenadier_creeps":   {ScoreCost: GrenadierCreepsOptionCost, Category: "difficulty"},
 }

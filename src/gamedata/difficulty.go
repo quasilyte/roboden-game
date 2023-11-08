@@ -38,11 +38,21 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 
 	case "classic":
+		if config.GrenadierCreeps {
+			if config.CoreDesign != "ark" {
+				score += 30
+			} else {
+				score += 10
+			}
+			if config.SuperCreeps {
+				score += 15
+			}
+		}
 		if config.CoordinatorCreeps {
-			score += 10 * config.NumCreepBases
+			score += 15 * config.NumCreepBases
 		}
 		if config.CreepFortress {
-			score += 25
+			score += 30
 		}
 		if config.IonMortars {
 			score += 10
@@ -74,9 +84,9 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 			// Extra penalty for the weakest boss.
 			score -= 15
 		} else {
-			// Extra 15 for the boss not being the weakest & super.
+			// Extra 20 for the boss not being the weakest & super.
 			if config.SuperCreeps {
-				score += 15
+				score += 20
 			}
 		}
 		score += (config.CreepSpawnRate - 1) * 10
@@ -95,8 +105,21 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		}
 
 	case "arena", "inf_arena":
+		if config.GrenadierCreeps {
+			grenadierScore := 40
+			if config.CoreDesign == "ark" {
+				grenadierScore = 15
+			}
+			if config.SuperCreeps {
+				grenadierScore += 15
+			}
+			if config.RawGameMode == "inf_arena" {
+				grenadierScore *= 2
+			}
+			score += grenadierScore
+		}
 		if config.CreepFortress {
-			score += 30
+			score += 35
 		}
 		if !config.Relicts {
 			score += 20

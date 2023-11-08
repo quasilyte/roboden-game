@@ -42,6 +42,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageAchievementSpectator:      {Path: "image/achievement/spectator.png"},
 		ImageAchievementGladiator:      {Path: "image/achievement/gladiator.png"},
 		ImageAchievementDarkness:       {Path: "image/achievement/darkness.png"},
+		ImageAchievementQuicksilver:    {Path: "image/achievement/quicksilver.png"},
 
 		ImageLock: {Path: "image/ui/lock.png"},
 
@@ -283,6 +284,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCreepTier2:          {Path: "image/creeps/tier2_creep.png", FrameHeight: 16},
 		ImageCreepTemplar:        {Path: "image/creeps/templar_creep.png", FrameWidth: 19, FrameHeight: 14},
 		ImageCreepCenturion:      {Path: "image/creeps/centurion_creep.png", FrameWidth: 21, FrameHeight: 20},
+		ImageCreepGrenadier:      {Path: "image/creeps/grenadier_creep.png", FrameWidth: 20, FrameHeight: 16},
 		ImageCreepTier3:          {Path: "image/creeps/tier3_creep.png", FrameWidth: 25, FrameHeight: 22},
 		ImageCreepDominator:      {Path: "image/creeps/dominator_creep.png", FrameWidth: 23, FrameHeight: 24},
 		ImageTurretCreep:         {Path: "image/creeps/turret_creep.png", FrameHeight: 25},
@@ -358,6 +360,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageWandererProjectile:       {Path: "image/projectile/wanderer_projectile.png"},
 		ImageStormbringerProjectile:   {Path: "image/projectile/stormbringer_projectile.png"},
 		ImageMortarProjectile:         {Path: "image/projectile/mortar_projectile.png"},
+		ImageGrenadierProjectile:      {Path: "image/projectile/grenadier_projectile.png"},
 		ImageHowitzerProjectile:       {Path: "image/projectile/howitzer_projectile.png"},
 		ImageHowitzerLaserProjectile:  {Path: "image/projectile/howitzer_laser_projectile.png"},
 		ImageAbombMissile:             {Path: "image/projectile/abomb.png"},
@@ -472,6 +475,7 @@ const (
 	ImageAchievementSpectator
 	ImageAchievementGladiator
 	ImageAchievementDarkness
+	ImageAchievementQuicksilver
 
 	ImageLock
 
@@ -712,6 +716,7 @@ const (
 	ImageCreepTier2
 	ImageCreepTemplar
 	ImageCreepCenturion
+	ImageCreepGrenadier
 	ImageCreepTier3
 	ImageCreepDominator
 	ImageTurretCreep
@@ -779,6 +784,7 @@ const (
 	ImageServantProjectile
 	ImageStormbringerProjectile
 	ImageMortarProjectile
+	ImageGrenadierProjectile
 	ImageHowitzerProjectile
 	ImageHowitzerLaserProjectile
 	ImageAbombMissile

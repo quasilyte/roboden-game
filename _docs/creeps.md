@@ -23,3 +23,4 @@ In addition to that, there are creep-specific bonuses.
 | Drone Base | Spawns super drones sometimes (40%) |
 | Stunner | Can stun even when target's energy is full, faster fire rate |
 | Coordinator | Can turn normal crawlers into super crawlers |
+| Grenadier | No special bonuses yet... |

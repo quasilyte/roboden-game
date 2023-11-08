@@ -172,6 +172,12 @@ var AchievementList = []*Achievement{
 		Icon:         assets.ImageAchievementAntiDominator,
 		NeedsVictory: true,
 	},
+	{
+		Name:         "quicksilver",
+		Mode:         ModeArena,
+		Icon:         assets.ImageAchievementQuicksilver,
+		NeedsVictory: true,
+	},
 
 	// Infinite arena mode achievements.
 	{

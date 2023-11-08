@@ -57,8 +57,11 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	default:
 		config.Environment = int(gamedata.EnvMoon)
 	}
+
 	if scene.Rand().Chance(0.3) {
 		config.IonMortars = true
+	} else if scene.Rand().Chance(0.25) {
+		config.GrenadierCreeps = true
 	}
 	config.Seed = scene.Rand().PositiveInt64()
 	for i := 0; i < 3; i++ {

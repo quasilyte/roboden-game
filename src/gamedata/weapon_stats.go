@@ -78,6 +78,7 @@ const (
 	ProjectileTrailSuperIonMortar
 	ProjectileTrailTankColonyWeapon1
 	ProjectileTrailMagma
+	ProjectileTrailGrenade
 )
 
 type ProjectileExplosionKind int

@@ -10,6 +10,7 @@ const (
 	FortressOptionCost          int = 7000
 	IonMortarOptionCost         int = 10000
 	CoordinatorCreepsOptionCost int = 14000
+	GrenadierCreepsOptionCost   int = 18000
 
 	ArkCoreCost  int = 3000
 	TankCoreCost int = 8000

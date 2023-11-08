@@ -333,6 +333,12 @@ Enables Coordinator enemies.
 Once in a while, enemy drone factories will produce special Coordinator units.
 These units will gather around the Dreadnought, serving both as a sword and shield.
 
+##menu.lobby.grenadier_creeps : Grenadiers
+##menu.lobby.grenadier_creeps.description
+Enables Grenadier enemies.
+Occasionally, a group of grenadiers will enter the map.
+Grenadiers can only attack ground targets and they will do anything to destroy the colonies and turrets.
+
 ##menu.lobby.super_creeps : Super enemies
 ##menu.lobby.super_creeps.description
 Whether enemies can have super versions of units.

@@ -132,3 +132,7 @@ Submit your results and enter the global leadership table!
 ##achievement.darkness : Into the Darkness
 ##achievement.darkness.description
 Win on a map with a non-square shape and fog of war enabled.
+
+##achievement.quicksilver : Quicksilver
+##achievement.quicksilver.description
+Enable Grenadier creeps in Arena mode and don't let your colonies get hit by them. It's not allowed to use an Ark colony.

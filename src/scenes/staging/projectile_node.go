@@ -252,6 +252,9 @@ func (p *projectileNode) updateTrail(delta float64) {
 	case gamedata.ProjectileTrailSmoke:
 		p.trailCounter = p.world.localRand.FloatRange(0.1, 0.3)
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageProjectileSmoke))
+	case gamedata.ProjectileTrailGrenade:
+		p.trailCounter = p.world.localRand.FloatRange(0.05, 0.1)
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageScarabShotExplosion))
 	case gamedata.ProjectileTrailRoomba:
 		p.trailCounter = p.world.localRand.FloatRange(0.1, 0.2)
 		effect := newEffectNode(p.world, p.pos, slightlyAboveEffectLayer, assets.ImageRoombaLaserTrail)
@@ -410,9 +413,14 @@ func (p *projectileNode) detonate() {
 	p.target.OnDamage(dmg, p.attacker)
 	p.createExplosion()
 
-	if p.weapon == gamedata.AtomicBombWeapon {
+	switch p.weapon {
+	case gamedata.AtomicBombWeapon:
 		if len(p.world.allColonies) == 0 {
 			p.world.result.AtomicBombVictory = true
+		}
+	case gamedata.GrenadierCreepStats.SpecialWeapon:
+		if _, ok := p.target.(*colonyCoreNode); ok {
+			p.world.result.GrenadierColonyHit = true
 		}
 	}
 }

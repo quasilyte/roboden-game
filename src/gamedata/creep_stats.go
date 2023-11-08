@@ -32,6 +32,7 @@ const (
 	CreepFortress
 	CreepTemplar
 	CreepCenturion
+	CreepGrenadier
 )
 
 type CreepStats struct {
@@ -520,6 +521,39 @@ var StealthCrawlerCreepStats = &CreepStats{
 	Disarmable:    true,
 	CanBeRepelled: false,
 	TargetKind:    TargetGround,
+}
+
+var GrenadierCreepStats = &CreepStats{
+	NameTag:     "grenadier",
+	Kind:        CreepGrenadier,
+	Image:       assets.ImageCreepGrenadier,
+	AnimSpeed:   0.15,
+	ShadowImage: assets.ImageMediumShadow,
+	Tier:        2,
+	Speed:       30,
+	MaxHealth:   90,
+	SpecialWeapon: InitWeaponStats(&WeaponStats{
+		AttackRange:         200,
+		Reload:              25.0,
+		AttackSound:         assets.AudioGrenadierShot,
+		ProjectileImage:     assets.ImageGrenadierProjectile,
+		ProjectileFireSound: true,
+		ImpactArea:          22,
+		AlwaysExplodes:      true,
+		ProjectileSpeed:     80,
+		Damage:              DamageValue{Health: 15},
+		MaxTargets:          1,
+		BurstSize:           1,
+		Explosion:           ProjectileExplosionNormal,
+		ArcPower:            1.0,
+		TargetFlags:         TargetGround,
+		FireOffsets:         []gmath.Vec{{X: 0, Y: 10}},
+		TrailEffect:         ProjectileTrailGrenade,
+	}),
+	Disarmable:    true,
+	CanBeRepelled: true,
+	Flying:        true,
+	TargetKind:    TargetFlying,
 }
 
 var AssaultCreepStats = &CreepStats{

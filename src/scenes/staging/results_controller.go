@@ -38,13 +38,14 @@ type resultsController struct {
 }
 
 type battleResults struct {
-	Victory           bool
-	GroundBossDefeat  bool
-	BossDefeated      bool
-	GroundControl     bool
-	AtomicBombVictory bool
-	TimePlayed        time.Duration
-	Ticks             int
+	Victory            bool
+	GroundBossDefeat   bool
+	BossDefeated       bool
+	GroundControl      bool
+	AtomicBombVictory  bool
+	GrenadierColonyHit bool
+	TimePlayed         time.Duration
+	Ticks              int
 
 	ResourcesGathered      float64
 	EliteResourcesGathered float64
@@ -311,6 +312,9 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 
 		case "antidominator":
 			unlocked = c.results.DominatorsSurvived == 0
+		case "quicksilver":
+			unlocked = c.config.GrenadierCreeps && !c.results.GrenadierColonyHit &&
+				c.config.CoreDesign != "ark"
 
 		case "infinite":
 			unlocked = c.results.ArenaLevel >= 35

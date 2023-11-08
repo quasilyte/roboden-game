@@ -471,6 +471,8 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Added Grenadier creeps
+// - Added Quicksilver achievement
 // - Do not grant some achievements in the Inf Arena mode
 // - Added "large diode" mode for accessibility
 // - Update input library version

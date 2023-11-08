@@ -16,6 +16,9 @@ type classicManager struct {
 	tier3spawnDelay float64
 	tier3spawnRate  float64
 
+	grenadiersDelay float64
+	grenadierWave   int
+
 	crawlersDelay float64
 
 	coordinatorsDelay float64
@@ -44,6 +47,8 @@ func (m *classicManager) Init(scene *ge.Scene) {
 	// Extra crawlers show up around the 10th minute.
 	m.crawlersDelay = m.world.rand.FloatRange(10*60.0, 14*60.0) * firstSpawnDelayMultiplier
 
+	m.grenadiersDelay = m.world.rand.FloatRange(2*60.0, 3*60.0) * firstSpawnDelayMultiplier
+
 	m.coordinatorsDelay = m.world.rand.FloatRange(5, 20)
 }
 
@@ -59,6 +64,10 @@ func (m *classicManager) Update(delta float64) {
 	m.crawlersDelay = gmath.ClampMin(m.crawlersDelay-delta, 0)
 	if m.crawlersDelay == 0 {
 		m.spawnCrawlers()
+	}
+	m.grenadiersDelay = gmath.ClampMin(m.grenadiersDelay-delta, 0)
+	if m.grenadiersDelay == 0 {
+		m.spawnGrenadiers()
 	}
 	m.coordinatorsDelay = gmath.ClampMin(m.coordinatorsDelay-delta, 0)
 	if m.coordinatorsDelay == 0 {
@@ -119,6 +128,36 @@ func (m *classicManager) maybeSendCoordinators() {
 	m.coordinatorsDelay = m.world.rand.FloatRange(50, 80)
 }
 
+func (m *classicManager) spawnGrenadiers() {
+	if !m.world.config.GrenadierCreeps {
+		m.grenadiersDelay = 99999999 // ~never
+		return
+	}
+
+	minGrenadiers := gmath.ClampMax(2+m.grenadierWave, 8)
+	maxGrenadiers := gmath.ClampMax(3+m.grenadierWave, 12)
+	numGrenadiers := m.world.rand.IntRange(minGrenadiers, maxGrenadiers)
+	maxSupers := gmath.ClampMax(1+(m.grenadierWave/3), 4)
+
+	units := m.attackGroup.units[:0]
+	for i := 0; i < numGrenadiers; i++ {
+		super := m.world.config.SuperCreeps && i < maxSupers && m.grenadierWave > 0
+		units = append(units, arenaWaveUnit{
+			stats: gamedata.GrenadierCreepStats,
+			super: super,
+		})
+	}
+
+	m.grenadiersDelay = m.world.rand.FloatRange(100, 230)
+	if m.grenadiersDelay >= 160 {
+		m.grenadierWave++
+	}
+
+	m.attackGroup.units = units
+	m.attackGroup.side = m.world.rand.IntRange(0, 3)
+	sendCreeps(m.world, m.attackGroup)
+}
+
 func (m *classicManager) spawnCrawlers() {
 	units := m.attackGroup.units[:0]
 
@@ -143,6 +182,7 @@ func (m *classicManager) spawnCrawlers() {
 	m.crawlersDelay = nextAttackDelay * m.spawnDelayMultiplier
 
 	m.attackGroup.units = units
+	m.attackGroup.side = m.world.rand.IntRange(0, 3)
 	sendCreeps(m.world, m.attackGroup)
 }
 

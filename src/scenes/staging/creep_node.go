@@ -307,6 +307,8 @@ func (c *creepNode) Update(delta float64) {
 		c.updateTemplar(delta)
 	case gamedata.CreepCenturion:
 		c.updateCenturion(delta)
+	case gamedata.CreepGrenadier:
+		c.updateGrenadier(delta)
 	default:
 		panic("unexpected creep kind in update()")
 	}
@@ -1466,6 +1468,92 @@ func (c *creepNode) updateCenturion(delta float64) {
 			c.shadowComponent.SetVisibility(true)
 			c.shadowComponent.UpdateHeight(c.pos, agentFlightHeight, agentFlightHeight)
 		}
+	}
+}
+
+func (c *creepNode) updateGrenadier(delta float64) {
+	// Grenadier behavior:
+	// - Choose a ground target; it can be a colony or some turret
+	// - Fly to that target, until the waypoint is reached
+	// - If target is close to the waypoint, drop the bomb
+	// - While bomb is on a cooldown, fly away
+	// - Then repeat the process
+	//
+	// Grenadiers can't attack when discharged; an attack attempt
+	// while discharged will lead them to a temporary retreat.
+
+	if c.anim != nil {
+		c.anim.Tick(delta)
+	}
+
+	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
+
+	if c.waypoint.IsZero() {
+		if c.specialDelay != 0 {
+			// Can't attack yet, fly somewhere.
+			c.setWaypoint(c.pos.Add(c.scene.Rand().Offset(-320, 320)))
+			return
+		}
+		var target targetable
+		if c.world.coreDesign != gamedata.ArkCoreStats && c.scene.Rand().Chance(0.4) {
+			// Focus a colony.
+			if len(c.world.allColonies) > 0 {
+				target = gmath.RandElem(c.scene.Rand(), c.world.allColonies)
+			}
+		} else {
+			// Focus a turret.
+			randIterate(c.scene.Rand(), c.world.allColonies, func(c *colonyCoreNode) bool {
+				if len(c.turrets) == 0 {
+					return false
+				}
+				t := gmath.RandElem(c.scene.Rand(), c.turrets)
+				if !t.IsFlying() {
+					target = t
+					return true
+				}
+				return false
+			})
+		}
+		if target != nil {
+			c.specialTarget = target
+			c.setWaypoint(target.GetPos().Add(c.scene.Rand().Offset(-8, 8).Sub(gmath.Vec{Y: agentFlightHeight + 32})))
+		} else {
+			c.specialDelay = c.scene.Rand().FloatRange(10, 16)
+			c.setWaypoint(c.pos.Add(c.scene.Rand().Offset(-160, 160)))
+		}
+		return
+	}
+
+	if c.moveTowards(delta, c.waypoint) {
+		c.waypoint = gmath.Vec{}
+		if c.specialTarget == nil {
+			return
+		}
+		target := c.specialTarget.(targetable)
+		if target.IsDisposed() {
+			c.specialTarget = nil
+			c.setWaypoint(c.pos.Add(c.scene.Rand().Offset(-64, 64)))
+			return
+		}
+		distSqr := target.GetPos().DistanceSquaredTo(c.pos.Add(gmath.Vec{Y: agentFlightHeight + 32}))
+		if distSqr < (32*32) && c.disarm == 0 && !target.IsFlying() {
+			// Can perform an attack.
+			c.doAttack(target, c.stats.SpecialWeapon)
+			c.specialDelay = c.stats.SpecialWeapon.Reload * c.scene.Rand().FloatRange(0.9, 1.5)
+			c.setWaypoint(c.pos.Add(c.scene.Rand().Offset(-400, 400)))
+			c.specialTarget = nil
+		} else {
+			if c.scene.Rand().Chance(0.85) {
+				// Try again.
+				c.setWaypoint(target.GetPos().Add(c.scene.Rand().Offset(-12, 12).Sub(gmath.Vec{Y: agentFlightHeight + 32})))
+			} else {
+				// Give up.
+				c.specialTarget = nil
+				c.specialDelay = c.scene.Rand().FloatRange(5, 10)
+				c.setWaypoint(c.pos.Add(c.scene.Rand().Offset(-320, 320)))
+			}
+		}
+		return
 	}
 }
 

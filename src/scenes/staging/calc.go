@@ -191,7 +191,7 @@ func calcScore(world *worldState) int {
 		timePlayed -= 5 * 60
 		baselineTime := 60.0 * 60.0
 		multiplier := timePlayed / baselineTime
-		return int(math.Round(float64(score) * multiplier))
+		return int(math.Round(float64(score)*multiplier)) + (world.config.DifficultyScore / 5)
 
 	case gamedata.ModeArena:
 		score := world.config.DifficultyScore * 11
@@ -201,7 +201,7 @@ func calcScore(world *worldState) int {
 		if world.result.CreepTotalValue != 0 {
 			multiplier = float64(world.result.CreepFragScore) / float64(world.result.CreepTotalValue)
 		}
-		return int(math.Round(float64(score) * multiplier))
+		return int(math.Round(float64(score)*multiplier)) + (world.config.DifficultyScore / 4)
 
 	case gamedata.ModeReverse:
 		score := world.config.DifficultyScore * 8
@@ -212,7 +212,7 @@ func calcScore(world *worldState) int {
 		if multiplier < 0 {
 			multiplier = 0.001
 		}
-		return int(math.Round(float64(score) * multiplier))
+		return int(math.Round(float64(score)*multiplier)) + (world.config.DifficultyScore / 4)
 
 	case gamedata.ModeClassic:
 		score := world.config.DifficultyScore * 10
@@ -222,7 +222,7 @@ func calcScore(world *worldState) int {
 		if multiplier < 0 {
 			multiplier = 0.001
 		}
-		return int(math.Round(float64(score) * multiplier))
+		return int(math.Round(float64(score)*multiplier)) + (world.config.DifficultyScore / 6)
 
 	default:
 		return 0

@@ -6,10 +6,11 @@ import (
 )
 
 type Achievement struct {
-	Name      string
-	Mode      Mode
-	Icon      resource.ImageID
-	OnlyElite bool
+	Name         string
+	Mode         Mode
+	Icon         resource.ImageID
+	OnlyElite    bool
+	NeedsVictory bool
 }
 
 type Mode int
@@ -53,104 +54,123 @@ var AchievementList = []*Achievement{
 		OnlyElite: true,
 	},
 	{
-		Name: "trample",
-		Mode: ModeAny,
-		Icon: assets.ImageAchievementTrample,
+		Name:         "trample",
+		Mode:         ModeAny,
+		Icon:         assets.ImageAchievementTrample,
+		NeedsVictory: true,
 	},
 	{
-		Name: "nopeeking",
-		Mode: ModeAny,
-		Icon: assets.ImageAchievementNoPeeking,
+		Name:         "nopeeking",
+		Mode:         ModeAny,
+		Icon:         assets.ImageAchievementNoPeeking,
+		NeedsVictory: true,
 	},
 	{
-		Name: "nonstop",
-		Mode: ModeAny,
-		Icon: assets.ImageAchievementNonstop,
+		Name:         "nonstop",
+		Mode:         ModeAny,
+		Icon:         assets.ImageAchievementNonstop,
+		NeedsVictory: true,
 	},
 	{
-		Name: "darkness",
-		Mode: ModeAny,
-		Icon: assets.ImageAchievementDarkness,
+		Name:         "darkness",
+		Mode:         ModeAny,
+		Icon:         assets.ImageAchievementDarkness,
+		NeedsVictory: true,
 	},
 
 	// Classic mode achievements.
 	{
-		Name:      "impossible",
-		Mode:      ModeClassic,
-		Icon:      assets.ImageAchievementImpossible,
-		OnlyElite: true,
+		Name:         "impossible",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementImpossible,
+		OnlyElite:    true,
+		NeedsVictory: true,
 	},
 	{
-		Name: "cheapbuild10",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementCheapBuild10,
+		Name:         "cheapbuild10",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementCheapBuild10,
+		NeedsVictory: true,
 	},
 	{
-		Name: "hightension",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementHighTension,
+		Name:         "hightension",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementHighTension,
+		NeedsVictory: true,
 	},
 	{
-		Name: "solobase",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementSoloBase,
+		Name:         "solobase",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementSoloBase,
+		NeedsVictory: true,
 	},
 	{
-		Name: "uiless",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementUILess,
+		Name:         "uiless",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementUILess,
+		NeedsVictory: true,
 	},
 	{
-		Name: "powerof3",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementPowerOf3,
+		Name:         "powerof3",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementPowerOf3,
+		NeedsVictory: true,
 	},
 	{
-		Name: "tinyradius",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementTinyRadius,
+		Name:         "tinyradius",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementTinyRadius,
+		NeedsVictory: true,
 	},
 	{
-		Name: "t1army",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementT1Army,
+		Name:         "t1army",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementT1Army,
+		NeedsVictory: true,
 	},
 	{
-		Name: "groundwin",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementGroundWin,
+		Name:         "groundwin",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementGroundWin,
+		NeedsVictory: true,
 	},
 	{
-		Name: "speedrunning",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementSpeedrunning,
+		Name:         "speedrunning",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementSpeedrunning,
+		NeedsVictory: true,
 	},
 	{
-		Name: "victorydrag",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementVictoryDrag,
+		Name:         "victorydrag",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementVictoryDrag,
+		NeedsVictory: true,
 	},
 	{
-		Name: "t3less",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementT3Less,
+		Name:         "t3less",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementT3Less,
+		NeedsVictory: true,
 	},
 	{
-		Name: "turretdamage",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementTurretDamage,
+		Name:         "turretdamage",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementTurretDamage,
+		NeedsVictory: true,
 	},
 	{
-		Name: "leet",
-		Mode: ModeClassic,
-		Icon: assets.ImageAchievementLeet,
+		Name:         "leet",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementLeet,
+		NeedsVictory: true,
 	},
 
 	// Arena mode achievements.
 	{
-		Name: "antidominator",
-		Mode: ModeArena,
-		Icon: assets.ImageAchievementAntiDominator,
+		Name:         "antidominator",
+		Mode:         ModeArena,
+		Icon:         assets.ImageAchievementAntiDominator,
+		NeedsVictory: true,
 	},
 
 	// Infinite arena mode achievements.
@@ -162,24 +182,28 @@ var AchievementList = []*Achievement{
 
 	// Reverse mode achievements.
 	{
-		Name: "colonyhunter",
-		Mode: ModeReverse,
-		Icon: assets.ImageAchievementColonyHunter,
+		Name:         "colonyhunter",
+		Mode:         ModeReverse,
+		Icon:         assets.ImageAchievementColonyHunter,
+		NeedsVictory: true,
 	},
 	{
-		Name: "groundcontrol",
-		Mode: ModeReverse,
-		Icon: assets.ImageAchievementGroundControl,
+		Name:         "groundcontrol",
+		Mode:         ModeReverse,
+		Icon:         assets.ImageAchievementGroundControl,
+		NeedsVictory: true,
 	},
 	{
-		Name: "atomicfinisher",
-		Mode: ModeReverse,
-		Icon: assets.ImageAchievementAtomicFinisher,
+		Name:         "atomicfinisher",
+		Mode:         ModeReverse,
+		Icon:         assets.ImageAchievementAtomicFinisher,
+		NeedsVictory: true,
 	},
 	{
-		Name: "coordinator",
-		Mode: ModeReverse,
-		Icon: assets.ImageAchievementCoordinator,
+		Name:         "coordinator",
+		Mode:         ModeReverse,
+		Icon:         assets.ImageAchievementCoordinator,
+		NeedsVictory: true,
 	},
 
 	// Other achievements.

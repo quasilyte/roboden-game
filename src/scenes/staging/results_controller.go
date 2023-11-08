@@ -261,6 +261,9 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 				continue
 			}
 		}
+		if a.NeedsVictory && !c.results.Victory {
+			continue
+		}
 		unlocked := false
 
 		switch a.Name {

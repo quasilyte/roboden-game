@@ -690,9 +690,6 @@ func NewTextInput(res *Resources, config TextInputConfig, opts ...widget.TextInp
 			widget.CaretOpts.Size(res.TextInput.FontFace, 2),
 		),
 		widget.TextInputOpts.AllowDuplicateSubmit(true),
-		// widget.TextInputOpts.SubmitHandler(func(args *widget.TextInputChangedEventArgs) {
-		// 	f(args.InputText)
-		// }),
 	}
 	options = append(options, opts...)
 	t := widget.NewTextInput(options...)

@@ -282,7 +282,9 @@ func (p *humanPlayer) Init() {
 	// On mobiles, this tab is always opened.
 	// Except for the tutorial, where we reveal it later.
 	if p.world.config.GameMode != gamedata.ModeTutorial && p.input.InputMethod == gameinput.InputMethodTouch {
-		p.SetRecipeTabVisibility(true)
+		if p.creepsState == nil {
+			p.SetRecipeTabVisibility(true)
+		}
 	}
 }
 

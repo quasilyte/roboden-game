@@ -315,6 +315,10 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.lobby.atom_weapon.description
 Включает или выключает атомное оружие Дредноута, которое открывается на 150% технологического прогресса.
 
+##menu.lobby.elite_fleet : Элитный флот
+##menu.lobby.elite_fleet.description
+Если включено, колония стартует с элитными дронами.
+
 ##menu.lobby.ion_mortars : Ионные мортиры
 ##menu.lobby.ion_mortars.description
 Переключить доступность ионных мортир для крипов.

@@ -372,12 +372,20 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 
 	for i := 0; i < 5; i++ {
 		a := core.NewColonyAgentNode(gamedata.WorkerAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
+		if g.world.config.EliteFleet {
+			a.rank = 1
+			a.faction = gamedata.FactionTag(i % 5)
+		}
 		g.world.nodeRunner.AddObject(a)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 	if g.world.config.GameMode == gamedata.ModeReverse {
 		for i := 0; i < 5; i++ {
 			a := core.NewColonyAgentNode(gamedata.ScoutAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
+			if g.world.config.EliteFleet {
+				a.rank = 2
+				a.faction = gamedata.FactionTag(i % 5)
+			}
 			g.world.nodeRunner.AddObject(a)
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		}

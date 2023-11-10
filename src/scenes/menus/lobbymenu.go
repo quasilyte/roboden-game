@@ -518,6 +518,9 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	if c.mode == gamedata.ModeReverse {
 		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.AtomicBomb, "atom_weapon", assets.ImageItemAtomWeapon))
 	}
+	if c.mode == gamedata.ModeReverse {
+		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.EliteFleet, "elite_fleet", assets.ImageItemEliteFleet))
+	}
 	if c.mode == gamedata.ModeClassic {
 		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.SuperCreeps, "super_creeps", assets.ImageItemSuperCreeps))
 	}

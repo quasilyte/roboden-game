@@ -18,6 +18,17 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score += (config.OilRegenRate - 2) * 5
 		score += (config.Resources - 2) * 20
 		score -= (config.ReverseSuperCreepRate - 3) * 15
+		if config.EliteFleet {
+			score += 20
+			switch {
+			case config.DronesPower >= 4:
+				score += 20
+			case config.DronesPower >= 3:
+				score += 15
+			case config.DronesPower >= 2:
+				score += 10
+			}
+		}
 		if config.StartingResources {
 			score += 20
 		}

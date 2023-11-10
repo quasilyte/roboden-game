@@ -471,6 +471,7 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - New Reverse mode difficulty toggle: Elite Fleet
 // - Rebalance some of the difficulty calculations
 // - Tier1 drones now have less maxEnergy
 // - Nerf Prisms (~x2 energy cost per shot, makes Rechargers more synergetic)

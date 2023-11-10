@@ -89,6 +89,7 @@ type ReplayLevelConfig struct {
 	CoordinatorCreeps bool `json:"coordinator_creeps"`
 	GrenadierCreeps   bool `json:"grenadier_creeps"`
 	AtomicBomb        bool `json:"atomic_bomb"`
+	EliteFleet        bool `json:"elite_fleet"`
 	IonMortars        bool `json:"ion_mortars"`
 
 	InitialCreeps         int  `json:"initial_creeps"`

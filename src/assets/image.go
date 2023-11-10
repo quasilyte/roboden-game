@@ -392,6 +392,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageItemSuperCreeps:       {Path: "image/ui/items/super_creeps.png"},
 		ImageItemFortress:          {Path: "image/ui/items/fortress.png"},
 		ImageItemAtomWeapon:        {Path: "image/ui/items/atom_weapon.png"},
+		ImageItemEliteFleet:        {Path: "image/ui/items/elite_fleet.png"},
 
 		ImageUIGamepadRadar:    {Path: "image/ui/gamepad_radar.png"},
 		ImageUIGamepadRadarDot: {Path: "image/ui/gamepad_radar_dot.png"},
@@ -817,6 +818,7 @@ const (
 	ImageItemSuperCreeps
 	ImageItemFortress
 	ImageItemAtomWeapon
+	ImageItemEliteFleet
 
 	ImageUIGamepadRadar
 	ImageUIGamepadRadarDot

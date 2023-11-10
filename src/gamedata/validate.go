@@ -92,6 +92,14 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 		return false
 	}
 
+	if replay.Config.RawGameMode != "reverse" {
+		if replay.Config.EliteFleet {
+			return false
+		}
+		if replay.Config.DronesPower != 1 {
+			return false
+		}
+	}
 	switch replay.Config.RawGameMode {
 	case "reverse":
 		if replay.Config.FogOfWar {

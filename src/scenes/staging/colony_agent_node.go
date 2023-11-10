@@ -2043,7 +2043,7 @@ func (a *colonyAgentNode) updateRelictDroneFactory(delta float64) {
 	}
 
 	// Produce new units.
-	const maxUnits = 3
+	const maxUnits = 4
 	if a.specialDelay == 0 {
 		if a.extraLevel >= maxUnits {
 			a.specialDelay = a.scene.Rand().FloatRange(4, 8)

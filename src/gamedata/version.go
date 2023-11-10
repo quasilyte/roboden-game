@@ -471,6 +471,7 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Buff some of the relicts
 // - Added Grenadier creeps
 // - Added Quicksilver achievement
 // - Added Cheese achievement

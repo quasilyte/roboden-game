@@ -125,6 +125,7 @@ func (c *resultsController) Init(scene *ge.Scene) {
 
 func (c *resultsController) makeGameReplay() serverapi.GameReplay {
 	var replay serverapi.GameReplay
+	replay.Date = timeutil.FormatDateISO8601(time.Now(), false)
 	replay.Platform = buildinfo.Distribution
 	replay.GameVersion = gamedata.BuildNumber
 	replay.GameCommit = c.state.GameCommitHash

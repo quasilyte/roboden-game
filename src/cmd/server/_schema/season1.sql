@@ -1,5 +1,6 @@
 CREATE TABLE classic_scores (
     player_name TEXT NOT NULL PRIMARY KEY,
+    replay_id INTEGER,
     score INTEGER NOT NULL,
     difficulty INTEGER NOT NULL,
     time_seconds INTEGER NOT NULL,
@@ -10,6 +11,7 @@ CREATE TABLE classic_scores (
 
 CREATE TABLE arena_scores (
     player_name TEXT NOT NULL PRIMARY KEY,
+    replay_id INTEGER,
     score INTEGER NOT NULL,
     difficulty INTEGER NOT NULL,
     drones TEXT,
@@ -19,6 +21,7 @@ CREATE TABLE arena_scores (
 
 CREATE TABLE inf_arena_scores (
     player_name TEXT NOT NULL PRIMARY KEY,
+    replay_id INTEGER,
     score INTEGER NOT NULL,
     difficulty INTEGER NOT NULL,
     time_seconds INTEGER NOT NULL,
@@ -29,6 +32,7 @@ CREATE TABLE inf_arena_scores (
 
 CREATE TABLE reverse_scores (
     player_name TEXT NOT NULL PRIMARY KEY,
+    replay_id INTEGER,
     score INTEGER NOT NULL,
     difficulty INTEGER NOT NULL,
     time_seconds INTEGER NOT NULL,

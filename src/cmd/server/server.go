@@ -402,11 +402,25 @@ func (s *apiServer) doRunReplay() (bool, error) {
 		platform = "Steam"
 	}
 
+	difficulty := replayData.Config.DifficultyScore
+	savedReplayID := 0
+	if result.Score >= 1800 && difficulty >= 200 {
+		// Save only interesting enough replay data.
+		savedReplayID = replayID
+		archivedAt := time.Now().Unix()
+		if err := s.queue.GoodArchive(replayID, playerName, archivedAt, compressedReplayData); err != nil {
+			// A failure to archive is not a show stopper.
+			s.logger.Error("can't archive interesting replay with id=%d: %v", replayID, err)
+		} else {
+			s.logger.Info("archived interesting replay with id=%d", replayID)
+		}
+	}
+
 	// Now we can delete the replay from the queue and add
 	// verified results to the database.
 	// TODO: this should be done in a transaction.
 	drones := strings.Join(replayData.Config.Tier2Recipes, ",")
-	err = db.UpdatePlayerScore(replayData.Config.RawGameMode, playerName, drones, result.Score, replayData.Config.DifficultyScore, result.Time, platform)
+	err = db.UpdatePlayerScore(replayData.Config.RawGameMode, playerName, savedReplayID, drones, result.Score, difficulty, result.Time, platform)
 	if err != nil {
 		return true, err
 	}

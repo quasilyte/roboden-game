@@ -499,4 +499,5 @@ const SeasonNumber = 1
 // - Moved cmd/main implementation to cmd/internal/main to allow a second entry point (cmd/mobilegame)
 // - Removed _localStorageAvailable from the index.html (it's not needed anymore)
 // - Use new ge package version that uses mobile.SetGame instead of ebiten.RunGame for mobile platforms
+// - Server can now achive interesting replays in addition to the rejected replays
 const BuildNumber int = 23

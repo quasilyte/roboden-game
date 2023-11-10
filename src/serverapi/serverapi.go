@@ -14,6 +14,8 @@ type GameReplay struct {
 	GameVersion int    `json:"game_version"`
 	GameCommit  string `json:"game_commit"`
 
+	Date string `json:"date"`
+
 	Platform string `json:"platform"`
 
 	LevelGenChecksum int `json:"level_gen_checksum"`

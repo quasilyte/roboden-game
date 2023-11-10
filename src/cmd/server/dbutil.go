@@ -76,9 +76,9 @@ func (db *seasonDB) PrepareQueries() error {
 	{
 		q := `
 		INSERT OR REPLACE INTO classic_scores
-			('player_name', 'score', 'difficulty', 'drones', 'time_seconds', 'platform')
+			('player_name', 'replay_id', 'score', 'difficulty', 'drones', 'time_seconds', 'platform')
 		VALUES
-			(?, ?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?, ?)
 		`
 		stmt, err := db.conn.Prepare(q)
 		if err != nil {
@@ -112,9 +112,9 @@ func (db *seasonDB) PrepareQueries() error {
 	{
 		q := `
 		INSERT OR REPLACE INTO arena_scores
-			('player_name', 'score', 'difficulty', 'drones', 'platform')
+			('player_name', 'replay_id', 'score', 'difficulty', 'drones', 'platform')
 		VALUES
-			(?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?)
 		`
 		stmt, err := db.conn.Prepare(q)
 		if err != nil {
@@ -148,9 +148,9 @@ func (db *seasonDB) PrepareQueries() error {
 	{
 		q := `
 		INSERT OR REPLACE INTO inf_arena_scores
-			('player_name', 'score', 'difficulty', 'drones', 'time_seconds', 'platform')
+			('player_name', 'replay_id', 'score', 'difficulty', 'drones', 'time_seconds', 'platform')
 		VALUES
-			(?, ?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?, ?)
 		`
 		stmt, err := db.conn.Prepare(q)
 		if err != nil {
@@ -184,9 +184,9 @@ func (db *seasonDB) PrepareQueries() error {
 	{
 		q := `
 		INSERT OR REPLACE INTO reverse_scores
-			('player_name', 'score', 'difficulty', 'time_seconds', 'platform')
+			('player_name', 'replay_id', 'score', 'difficulty', 'time_seconds', 'platform')
 		VALUES
-			(?, ?, ?, ?, ?)
+			(?, ?, ?, ?, ?, ?)
 		`
 		stmt, err := db.conn.Prepare(q)
 		if err != nil {
@@ -198,17 +198,17 @@ func (db *seasonDB) PrepareQueries() error {
 	return nil
 }
 
-func (db *seasonDB) UpdatePlayerScore(mode, name, drones string, score, difficulty, timeSeconds int, platform string) error {
+func (db *seasonDB) UpdatePlayerScore(mode, name string, replayID int, drones string, score, difficulty, timeSeconds int, platform string) error {
 	var err error
 	switch mode {
 	case "classic":
-		_, err = db.classicUpsert.Exec(name, score, difficulty, drones, timeSeconds, platform)
+		_, err = db.classicUpsert.Exec(name, replayID, score, difficulty, drones, timeSeconds, platform)
 	case "arena":
-		_, err = db.arenaUpsert.Exec(name, score, difficulty, drones, platform)
+		_, err = db.arenaUpsert.Exec(name, replayID, score, difficulty, drones, platform)
 	case "inf_arena":
-		_, err = db.infArenaUpsert.Exec(name, score, difficulty, drones, timeSeconds, platform)
+		_, err = db.infArenaUpsert.Exec(name, replayID, score, difficulty, drones, timeSeconds, platform)
 	case "reverse":
-		_, err = db.reverseUpsert.Exec(name, score, difficulty, timeSeconds, platform)
+		_, err = db.reverseUpsert.Exec(name, replayID, score, difficulty, timeSeconds, platform)
 	}
 	return err
 }

@@ -700,7 +700,7 @@ var PrismAgentStats = InitDroneStats(&AgentStats{
 		AttackRangeMarkMultiplier: 1.25,
 		AttackRange:               230,
 		Reload:                    3.7,
-		EnergyCost:                3,
+		EnergyCost:                7,
 		AttackSound:               assets.AudioPrismShot,
 		ImpactArea:                8,
 		ProjectileSpeed:           220,

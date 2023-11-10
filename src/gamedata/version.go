@@ -471,6 +471,8 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Nerf Prisms (~x2 energy cost per shot, makes Rechargers more synergetic)
+// - Buff Bomber (bombs deal more damage)
 // - Buff some of the relicts
 // - Added Grenadier creeps
 // - Added Quicksilver achievement

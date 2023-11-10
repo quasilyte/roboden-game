@@ -161,9 +161,13 @@ func (r *radarNode) Init(scene *ge.Scene) {
 		}
 	}
 	r.sprite = scene.NewSprite(img)
-	r.sprite.Pos.Offset = gmath.Vec{
-		X: 8 + r.sprite.ImageWidth()/2,
-		Y: 1080/2 - (8 + r.sprite.ImageHeight()/2),
+	{
+		radarPos := gmath.Vec{
+			X: 8 + r.sprite.ImageWidth()/2,
+			Y: 540 - (8 + r.sprite.ImageHeight()/2),
+		}
+		radarPos.Y += scene.Context().ScreenHeight - 540
+		r.sprite.Pos.Offset = radarPos
 	}
 	r.player.state.camera.UI.AddGraphics(r.sprite)
 
@@ -176,8 +180,9 @@ func (r *radarNode) Init(scene *ge.Scene) {
 
 	r.pos = (gmath.Vec{X: 65, Y: 74}).Add(gmath.Vec{
 		X: 8,
-		Y: 1080/2 - r.sprite.ImageHeight() - 8,
+		Y: 540 - r.sprite.ImageHeight() - 8,
 	})
+	r.pos.Y += scene.Context().ScreenHeight - 540
 
 	if !r.dark {
 		r.wave = scene.NewSprite(assets.ImageRadarWave)

@@ -144,11 +144,15 @@ func (c *BootloadController) onFirstLaunch() bool {
 			c.state.Persistent.PlayerName = name
 		}
 
-		// If it's a Steam Deck, set an appropriate gamepad layout.
+		// If it's a Steam Deck, set appropriate defaults.
 		if c.state.Device.IsSteamDeck() {
 			c.state.Persistent.Settings.GamepadSettings[0].Layout = int(gameinput.GamepadLayoutSteamDeck)
 			c.state.CombinedInput.SetGamepadLayout(gameinput.GamepadLayoutSteamDeck)
 			c.state.FirstGamepadInput.SetGamepadLayout(gameinput.GamepadLayoutSteamDeck)
+
+			// Use 16:10 on Steam Deck instead of default 16:9.
+			// This removes the black vertical lines/borders.
+			c.state.Persistent.Settings.Graphics.AspectRation = gamedata.FindDisplayRatio("16:10")
 		}
 	}
 

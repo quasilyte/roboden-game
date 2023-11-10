@@ -489,6 +489,7 @@ const SeasonNumber = 1
 // - Show buildinfo tag on the main menu screen
 // - Properly save empty platforms as "Steam"
 // - Added wide screens support (18:9 through 21:9)
+// - Added a 16:10 display ratio (useful for Steam Deck and tablets)
 // - Added a on-screen keyboard support for Androids (because I can't make the native soft keyboard work everywhere)
 // - Make "vertical" world shape fit the widest of resolutions to avoid camera issues
 // - Added scaled (~x2) buttons support for mobile platforms

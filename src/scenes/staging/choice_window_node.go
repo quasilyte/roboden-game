@@ -91,7 +91,7 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 	}
 	offsetY := 8.0
 	w.floppyOffsetX = (w.cam.Rect.Width() - 86 - 8)
-	offset := gmath.Vec{X: w.floppyOffsetX, Y: 8}
+	offset := gmath.Vec{X: w.floppyOffsetX, Y: 8 + (scene.Context().ScreenHeight - 540)}
 	w.choices = make([]*choiceOptionSlot, 5)
 	for i := range w.choices {
 		floppyImageID := floppies[i]

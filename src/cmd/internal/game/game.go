@@ -172,7 +172,7 @@ func Main() {
 	state.ReloadInputs()
 	state.ReloadLanguage(ctx)
 
-	displayRatio := gamedata.SupportedDisplayRatio[state.Persistent.Settings.Graphics.AspectRation]
+	displayRatio := gamedata.SupportedDisplayRatios[state.Persistent.Settings.Graphics.AspectRation]
 	ctx.WindowWidth = displayRatio.Width
 	ctx.WindowHeight = displayRatio.Height
 	ctx.ScreenWidth = displayRatio.Width

@@ -47,8 +47,9 @@ type humanPlayer struct {
 
 	creepsState *creepsPlayerState
 
-	canPing   bool
-	pingDelay float64
+	permanentSeparator bool
+	canPing            bool
+	pingDelay          float64
 
 	EventRecipesToggled     gsignal.Event[bool]
 	EventPauseRequest       gsignal.Event[gsignal.Void]
@@ -226,6 +227,7 @@ func (p *humanPlayer) Init() {
 	} else {
 		buttonsPos = gmath.Vec{X: 8, Y: 470}
 	}
+	buttonsPos.Y += p.scene.Context().ScreenHeight - 540
 
 	if len(p.world.cameras) == 1 && p.world.screenButtonsEnabled {
 		p.screenButtons = newScreenButtonsNode(p.state.camera.Camera, buttonsPos, p.creepsState != nil)
@@ -265,10 +267,11 @@ func (p *humanPlayer) Init() {
 
 	if len(p.world.cameras) == 2 && p.state.id == 0 {
 		begin := ge.Pos{Offset: gmath.Vec{X: p.scene.Context().ScreenWidth / 2}}
-		end := ge.Pos{Offset: gmath.Vec{X: p.scene.Context().ScreenWidth / 2, Y: 1080}}
+		end := ge.Pos{Offset: gmath.Vec{X: p.scene.Context().ScreenWidth / 2, Y: p.scene.Context().ScreenHeight}}
+		p.permanentSeparator = p.scene.Context().ScreenHeight > 540
 		p.screenSeparator = ge.NewLine(begin, end)
 		p.screenSeparator.SetColorScaleRGBA(0xa1, 0x9a, 0x9e, 255)
-		p.screenSeparator.Visible = p.rpanel == nil || !p.state.camera.UI.Visible
+		p.screenSeparator.Visible = p.permanentSeparator || p.rpanel == nil || !p.state.camera.UI.Visible
 		p.scene.AddGraphicsAbove(p.screenSeparator, 1)
 	}
 
@@ -435,7 +438,7 @@ func (p *humanPlayer) handleInput() {
 	if p.input.ActionIsJustPressed(controls.ActionToggleInterface) {
 		p.state.camera.UI.Visible = !p.state.camera.UI.Visible
 		if p.screenSeparator != nil {
-			p.screenSeparator.Visible = p.rpanel == nil || !p.state.camera.UI.Visible
+			p.screenSeparator.Visible = p.permanentSeparator || p.rpanel == nil || !p.state.camera.UI.Visible
 		}
 	}
 

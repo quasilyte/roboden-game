@@ -152,13 +152,17 @@ func (panel *rpanelNode) initPrioritiesForColonies() {
 	}
 	for i, priority := range priorities {
 		bar := panel.scene.NewSprite(assets.ImagePriorityBar)
-		bar.Pos.Offset = gmath.Vec{X: (cameraWidth - (panel.layerSprite1.FrameWidth - 16)) + ((18 + bar.FrameWidth) * float64(i))}
+		bar.Pos.Offset = gmath.Vec{
+			X: (cameraWidth - (panel.layerSprite1.FrameWidth - 16)) + ((18 + bar.FrameWidth) * float64(i)),
+		}
 		bar.Centered = false
 		panel.cam.UI.AddGraphics(bar)
 
 		icon := panel.scene.NewSprite(assets.ImagePriorityIcons)
 		setPriorityIconFrame(icon, priority, gamedata.NeutralFactionTag)
-		icon.Pos.Offset = gmath.Vec{X: (cameraWidth - (panel.layerSprite1.FrameWidth - 16)) + ((18 + bar.FrameWidth) * float64(i))}
+		icon.Pos.Offset = gmath.Vec{
+			X: (cameraWidth - (panel.layerSprite1.FrameWidth - 16)) + ((18 + bar.FrameWidth) * float64(i)),
+		}
 		icon.Centered = false
 		panel.cam.UI.AddGraphicsAbove(icon)
 
@@ -172,7 +176,7 @@ func (panel *rpanelNode) initPrioritiesForCreeps() {
 
 	dpadOffset := gmath.Vec{
 		X: (cameraWidth - (panel.layerSprite1.FrameWidth - 85)),
-		Y: panel.layerSprite1.FrameHeight - 94,
+		Y: panel.layerSprite1.FrameHeight - 94 + (panel.scene.Context().ScreenHeight - 540),
 	}
 
 	panel.dpad = panel.scene.NewSprite(assets.ImageDarkDPad)
@@ -204,6 +208,7 @@ func (panel *rpanelNode) Init(scene *ge.Scene) {
 
 	panel.layerSprite1 = scene.NewSprite(layer1image)
 	panel.layerSprite1.Pos.Offset.X = (cameraWidth - panel.layerSprite1.FrameWidth)
+	panel.layerSprite1.Pos.Offset.Y += scene.Context().ScreenHeight - 540
 	panel.layerSprite1.Centered = false
 	panel.cam.UI.AddGraphicsBelow(panel.layerSprite1)
 
@@ -249,7 +254,7 @@ func (panel *rpanelNode) updateMetricsForColony() {
 	}
 
 	// Update factions distribution rects.
-	topOffset := 8.0
+	topOffset := 8.0 + (panel.scene.Context().ScreenHeight - 540)
 	totalHeight := 344.0
 	height := topOffset
 	for i, kv := range panel.colony.factionWeights.Elems {
@@ -262,7 +267,7 @@ func (panel *rpanelNode) updateMetricsForColony() {
 		height += factionHeight
 	}
 
-	fullPriorityOffset := 445.0
+	fullPriorityOffset := 445.0 + (panel.scene.Context().ScreenHeight - 540)
 	for i, kv := range panel.colony.priorities.Elems {
 		bar := panel.priorityBars[i]
 		bar.Pos.Offset.Y = fullPriorityOffset + ((bar.FrameHeight - 8) * (1.0 - kv.Weight))

@@ -159,6 +159,13 @@ var AchievementList = []*Achievement{
 		NeedsVictory: true,
 	},
 	{
+		Name:         "cheese",
+		Mode:         ModeClassic,
+		Icon:         assets.ImageAchievementCheese,
+		NeedsVictory: true,
+		OnlyElite:    true,
+	},
+	{
 		Name:         "leet",
 		Mode:         ModeClassic,
 		Icon:         assets.ImageAchievementLeet,

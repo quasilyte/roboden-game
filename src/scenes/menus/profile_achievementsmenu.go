@@ -80,7 +80,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 	leftPanel := eui.NewPanel(uiResources, 0, 0)
 	leftGrid := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(6),
+			widget.GridLayoutOpts.Columns(7),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 	for i := range gamedata.AchievementList {
 		achievement := gamedata.AchievementList[i]

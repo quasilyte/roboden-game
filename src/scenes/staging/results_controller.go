@@ -307,6 +307,13 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = c.results.GroundBossDefeat
 		case "turretdamage":
 			unlocked = c.results.EnemyColonyDamageFromTurrets >= (c.results.EnemyColonyDamage * 0.25)
+		case "cheese":
+			unlocked = len(c.config.Tier2Recipes) <= 1 &&
+				c.config.TurretDesign == "BeamTower" &&
+				c.config.CoreDesign == "tank" &&
+				c.config.BossDifficulty < 3 &&
+				c.results.DifficultyScore >= 200 &&
+				c.results.TimePlayed.Minutes() < 20
 		case "leet":
 			unlocked = c.results.SeedKind == gamedata.SeedLeet
 

@@ -51,10 +51,10 @@ func (b *bombNode) explode() {
 
 	// Bombs deal some extra damage to the dreadnought
 	// and a lot of extra damage to buildings.
-	const bombMaxDamage = 30.0
-	const bombMaxBossDamage = 35.0
-	const bombMaxBuildingDamage = 50.0
-	const maxRadius = 56
+	const bombMaxDamage = 35.0
+	const bombMaxBossDamage = 40.0
+	const bombMaxBuildingDamage = 60.0
+	const maxRadius = 64
 	const maxRadiusSqr = maxRadius * maxRadius
 	b.world.WalkCreeps(b.pos, 40, func(creep *creepNode) bool {
 		distSqr := b.pos.DistanceSquaredTo(creep.pos)

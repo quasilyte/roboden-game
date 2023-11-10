@@ -86,6 +86,7 @@ func CoreText(d *langs.Dictionary, core *gamedata.ColonyCoreStats) string {
 	switch core {
 	case gamedata.DenCoreStats:
 		traits = append(traits, d.Get("core.ability.crush"))
+		traits = append(traits, d.Get("core.ability.build_discount"))
 	case gamedata.ArkCoreStats:
 		traits = append(traits, d.Get("core.ability.flying"))
 		traits = append(traits, d.Get("core.ability.no_teleporters"))

@@ -1418,7 +1418,11 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		return ok
 
 	case actionBuildBuilding:
-		sendCost := 3.0
+		target := action.Value.(*constructionNode)
+		sendCost := target.ConstructionCost()
+		if c.stats == gamedata.DenCoreStats {
+			sendCost *= 0.5
+		}
 		maxNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/10, 1, 6)
 		minNumAgents := gmath.Clamp(c.agents.NumAvailableWorkers()/15, 1, 3)
 		toAssign := c.scene.Rand().IntRange(minNumAgents, maxNumAgents)

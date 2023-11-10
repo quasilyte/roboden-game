@@ -14,6 +14,7 @@
 ##core.capacity_rating : Рейтинг вместимости ресурсов
 
 ##core.ability.crush : Может разрушать наземных юнитов при посадке
+##core.ability.build_discount : Тратит на 50% меньше ресурсов на строительство
 ##core.ability.flying : Воздушная колония
 ##core.ability.no_teleporters : Не может использовать телепортеры
 ##core.ability.cant_fly : Не может летать

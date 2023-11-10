@@ -19,6 +19,7 @@ const (
 type constructionStats struct {
 	ConstructionSpeed float64
 	DamageModifier    float64
+	Cost              float64
 	Kind              constructionKind
 	TurretStats       *gamedata.AgentStats
 	Image             resource.ImageID
@@ -31,6 +32,7 @@ var colonyCoreConstructionStats = &constructionStats{
 }
 
 var harvesterConstructionStats = &constructionStats{
+	Cost:              4,
 	ConstructionSpeed: 0.03,
 	DamageModifier:    0.05,
 	Kind:              constructTurret,
@@ -39,6 +41,7 @@ var harvesterConstructionStats = &constructionStats{
 }
 
 var gunpointConstructionStats = &constructionStats{
+	Cost:              3,
 	ConstructionSpeed: 0.04,
 	DamageModifier:    0.03,
 	Kind:              constructTurret,
@@ -47,6 +50,7 @@ var gunpointConstructionStats = &constructionStats{
 }
 
 var siegeConstructionStats = &constructionStats{
+	Cost:              4,
 	ConstructionSpeed: 0.04,
 	DamageModifier:    0.03,
 	Kind:              constructTurret,
@@ -55,6 +59,7 @@ var siegeConstructionStats = &constructionStats{
 }
 
 var beamTowerConstructionStats = &constructionStats{
+	Cost:              5,
 	ConstructionSpeed: 0.025,
 	DamageModifier:    0.04,
 	Kind:              constructTurret,
@@ -63,6 +68,7 @@ var beamTowerConstructionStats = &constructionStats{
 }
 
 var tetherBeaconConstructionStats = &constructionStats{
+	Cost:              2,
 	ConstructionSpeed: 0.04,
 	DamageModifier:    0.03,
 	Kind:              constructTurret,
@@ -139,6 +145,18 @@ func (c *constructionNode) Update(delta float64) {
 		Y: (c.maxBuildHeight * (1.0 - c.progress)) - c.initialBuildHeight,
 	})
 	c.attention = gmath.ClampMin(c.attention-delta, 0)
+}
+
+func (c *constructionNode) ConstructionCost() float64 {
+	if c.stats.Kind == constructTurret {
+		return c.stats.Cost
+	}
+	switch c.world.coreDesign {
+	case gamedata.TankCoreStats:
+		return 6
+	default:
+		return 5
+	}
 }
 
 func (c *constructionNode) GetConstructPos() ge.Pos {

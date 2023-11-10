@@ -13,6 +13,7 @@
 ##core.capacity_rating : Resources capacity rating
 
 ##core.ability.crush : Crushes small ground units upon landing
+##core.ability.build_discount : Building turrets and bases is 50% cheaper
 ##core.ability.flying : Airborne
 ##core.ability.no_teleporters : Can't activate teleporters
 ##core.ability.cant_fly : Can't fly during the movement

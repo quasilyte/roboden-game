@@ -118,7 +118,7 @@ var TetherBeaconAgentStats = InitDroneStats(&AgentStats{
 	Upkeep:         8,
 	MaxHealth:      75,
 	SupportReload:  10,
-	SupportRange:   450,
+	SupportRange:   500,
 	BeamSlideSpeed: 0.4,
 	HasSupport:     true,
 })

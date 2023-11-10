@@ -471,10 +471,13 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Increase most building costs (with an exception of Tether Beacon, it's cheaper now)
 // - New Reverse mode difficulty toggle: Elite Fleet
 // - Rebalance some of the difficulty calculations
 // - Tier1 drones now have less maxEnergy
 // - Nerf Prisms (~x2 energy cost per shot, makes Rechargers more synergetic)
+// - Buff Den colony (building discount)
+// - Buff Tether Beacon (increased range)
 // - Buff Bomber (bombs deal more damage)
 // - Buff some of the relicts
 // - Added Grenadier creeps

@@ -70,11 +70,10 @@ After that you can open `_web/index.html` in browser (you'll need to serve the w
 
 #### This game is tested on these targets:
 
+* android (from tablets to smartphones)
 * windows/amd64
 * linux/amd64
 * darwin/arm64 and darwin/amd64
 * js/wasm
 
 It's also tested it on Steam Deck.
-
-A native build for Android is planned as well. The game does have a touch screen support already.

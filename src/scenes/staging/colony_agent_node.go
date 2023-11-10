@@ -229,7 +229,14 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		if !a.IsTurret() {
 			a.maxHealth *= scene.Rand().FloatRange(0.9, 1.1)
 		}
-		a.maxEnergy = scene.Rand().FloatRange(120, 200)
+		switch a.stats.Tier {
+		case 1:
+			a.maxEnergy = scene.Rand().FloatRange(80, 100)
+		case 2:
+			a.maxEnergy = scene.Rand().FloatRange(120, 200)
+		case 3:
+			a.maxEnergy = scene.Rand().FloatRange(150, 200)
+		}
 		a.speed = a.stats.Speed * scene.Rand().FloatRange(0.8, 1.1)
 
 		switch a.faction {

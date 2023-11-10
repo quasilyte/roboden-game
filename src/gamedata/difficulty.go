@@ -13,7 +13,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		score -= (config.BossDifficulty - 2) * 20
 		score += (3 - config.CreepDifficulty) * 15
 		score += (config.DronesPower - 1) * 15
-		score -= (config.InitialCreeps - 1) * 10
+		score -= (config.InitialCreeps - 1) * 20
 		score -= (config.TechProgressRate - 6) * 10
 		score += (config.OilRegenRate - 2) * 5
 		score += (config.Resources - 2) * 20
@@ -25,13 +25,13 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 			score += 15
 		}
 		if config.CreepFortress {
-			score -= 30
+			score -= 40
 		}
 		if !config.Relicts {
 			score -= 10
 		}
 		if config.IonMortars {
-			score -= 15
+			score -= 20
 		}
 		if !config.GoldEnabled {
 			score -= 35
@@ -77,26 +77,34 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 				score += 35
 			}
 		}
-		score -= (config.Resources - 2) * 15
+		score -= (config.Resources - 2) * 20
 		score += (config.NumCreepBases - 2) * 15
 		score += (config.BossDifficulty - 1) * 25
-		if config.BossDifficulty == 0 {
+		switch config.BossDifficulty {
+		case 0:
 			// Extra penalty for the weakest boss.
-			score -= 15
-		} else {
-			// Extra 20 for the boss not being the weakest & super.
-			if config.SuperCreeps {
-				score += 20
+			score -= 20
+		case 1:
+			// Nothing special.
+		case 2:
+			if config.CoordinatorCreeps {
+				score += 5
+			}
+		case 3:
+			// Extra points for the strongest boss.
+			score += 15
+			if config.CoordinatorCreeps {
+				score += 10
 			}
 		}
 		score += (config.CreepSpawnRate - 1) * 10
-		score += (config.InitialCreeps - 1) * 10
+		score += (config.InitialCreeps - 1) * 15
 		if config.Environment == int(EnvInferno) {
 			score += 10 - (config.OilRegenRate * 5)
 		} else {
 			score += 20 - (config.OilRegenRate * 10)
 		}
-		score += 40 - (2 * pointsAllocated)
+		score += 20 - (pointsAllocated)
 		if config.StartingResources {
 			score -= 10
 		}

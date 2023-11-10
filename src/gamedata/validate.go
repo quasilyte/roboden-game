@@ -92,6 +92,13 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 		return false
 	}
 
+	switch replay.Config.RawGameMode {
+	case "reverse":
+		if replay.Config.FogOfWar {
+			return false
+		}
+	}
+
 	cfg := &replay.Config
 
 	pointsAllocated := 0

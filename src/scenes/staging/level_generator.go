@@ -759,8 +759,18 @@ func (g *levelGenerator) placeBoss() {
 	g.world.nodeRunner.AddObject(boss)
 
 	if g.world.config.GameMode == gamedata.ModeReverse || g.world.config.CoordinatorCreeps {
-		coordinator := g.world.NewCreepNode(pos.Add(g.rng.Offset(-32, 32)), gamedata.CenturionCreepStats)
-		g.world.nodeRunner.AddObject(coordinator)
+		numCoordinators := 1
+		if g.world.config.GameMode == gamedata.ModeClassic && g.world.config.CoordinatorCreeps {
+			switch g.world.config.BossDifficulty {
+			case 2, 3:
+				numCoordinators = g.world.config.BossDifficulty
+			}
+		}
+		for i := 0; i < numCoordinators; i++ {
+			coordinator := g.world.NewCreepNode(pos.Add(g.rng.Offset(-32, 32)), gamedata.CenturionCreepStats)
+			coordinator.super = i == 0 && g.world.config.SuperCreeps
+			g.world.nodeRunner.AddObject(coordinator)
+		}
 	}
 
 	g.world.boss = boss

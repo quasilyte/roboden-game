@@ -751,7 +751,13 @@ func (c *colonyCoreNode) calcUpkeed() (float64, int) {
 		case gamedata.AgentGenerator, gamedata.AgentStormbringer:
 			upkeepDecrease++
 		}
-		upkeepTotal += a.stats.Upkeep
+		droneUpkeep := a.stats.Upkeep
+		if a.stats.CanGather {
+			// Rank 1 (elite) worker costs 2 less resources.
+			// Rank 2 (super elite) worker costs 4 less resources.
+			droneUpkeep = gmath.ClampMin(droneUpkeep-(2*a.rank), 0)
+		}
+		upkeepTotal += droneUpkeep
 	})
 	for _, turret := range c.turrets {
 		upkeepTotal += turret.stats.Upkeep

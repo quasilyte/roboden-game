@@ -471,6 +471,7 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Elite workers now have decreased upkeep costs
 // - Increase most building costs (with an exception of Tether Beacon, it's cheaper now)
 // - New Reverse mode difficulty toggle: Elite Fleet
 // - Rebalance some of the difficulty calculations

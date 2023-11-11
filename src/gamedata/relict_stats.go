@@ -13,15 +13,16 @@ var ArtifactsList = []*AgentStats{
 }
 
 var MegaRoombaAgentStats = InitDroneStats(&AgentStats{
-	Kind:      AgentMegaRoomba,
-	IsFlying:  false,
-	IsTurret:  true,
-	IsNeutral: true,
-	Image:     assets.ImageMegaRoombaAgent,
-	Size:      SizeMedium,
-	Tier:      3,
-	Speed:     30,
-	MaxHealth: 170,
+	Kind:            AgentMegaRoomba,
+	IsFlying:        false,
+	IsTurret:        true,
+	IsNeutral:       true,
+	Image:           assets.ImageMegaRoombaAgent,
+	Size:            SizeMedium,
+	Tier:            3,
+	Speed:           30,
+	MaxHealth:       170,
+	DamageReduction: 0.4,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:         260,
 		Reload:              4.2,
@@ -67,27 +68,29 @@ var RepulseTowerAgentStats = InitDroneStats(&AgentStats{
 })
 
 var PowerPlantAgentStats = InitDroneStats(&AgentStats{
-	Kind:       AgentPowerPlant,
-	IsFlying:   false,
-	IsTurret:   true,
-	IsBuilding: true,
-	IsNeutral:  true,
-	Image:      assets.ImagePowerPlantAgent,
-	Size:       SizeLarge,
-	Upkeep:     0,
-	MaxHealth:  140,
+	Kind:            AgentPowerPlant,
+	IsFlying:        false,
+	IsTurret:        true,
+	IsBuilding:      true,
+	IsNeutral:       true,
+	Image:           assets.ImagePowerPlantAgent,
+	Size:            SizeLarge,
+	Upkeep:          0,
+	MaxHealth:       140,
+	DamageReduction: 0.35,
 })
 
 var DroneFactoryAgentStats = InitDroneStats(&AgentStats{
-	Kind:       AgentDroneFactory,
-	IsFlying:   false,
-	IsTurret:   true,
-	IsBuilding: true,
-	IsNeutral:  true,
-	Image:      assets.ImageRelictFactoryAgent,
-	Size:       SizeLarge,
-	Upkeep:     0,
-	MaxHealth:  200,
+	Kind:            AgentDroneFactory,
+	IsFlying:        false,
+	IsTurret:        true,
+	IsBuilding:      true,
+	IsNeutral:       true,
+	Image:           assets.ImageRelictFactoryAgent,
+	Size:            SizeLarge,
+	Upkeep:          0,
+	MaxHealth:       200,
+	DamageReduction: 0.3,
 })
 
 var RelictAgentStats = InitDroneStats(&AgentStats{

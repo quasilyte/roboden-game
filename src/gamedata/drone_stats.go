@@ -272,6 +272,8 @@ type AgentStats struct {
 	BeamTexture    *ge.Texture
 	BeamExplosion  resource.ImageID
 
+	DamageReduction float64
+
 	Docs       DroneDocs
 	GlobalDocs DroneDocs
 }

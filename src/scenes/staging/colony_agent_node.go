@@ -1090,12 +1090,16 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 		return
 	}
 
-	a.health -= damage.Health
+	if damage.Health > 0 {
+		multiplier := 1.0 - a.damageReduction()
+		healthDamage := damage.Health * multiplier
+		a.health -= healthDamage
 
-	if a.health < 0 {
-		a.explode()
-		a.Destroy()
-		return
+		if a.health < 0 {
+			a.explode()
+			a.Destroy()
+			return
+		}
 	}
 
 	if !a.IsTurret() {
@@ -1709,6 +1713,14 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 	}
 
 	playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
+}
+
+func (a *colonyAgentNode) damageReduction() float64 {
+	extraReduction := 0.0
+	if a.mode == agentModeBomberAttack {
+		extraReduction = 0.25
+	}
+	return a.stats.DamageReduction + extraReduction
 }
 
 func (a *colonyAgentNode) movementSpeed() float64 {

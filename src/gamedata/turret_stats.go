@@ -47,14 +47,15 @@ var SiegeAgentStats = InitDroneStats(&AgentStats{
 })
 
 var GunpointAgentStats = InitDroneStats(&AgentStats{
-	Kind:       AgentGunpoint,
-	IsFlying:   false,
-	IsTurret:   true,
-	IsBuilding: true,
-	Image:      assets.ImageGunpointAgent,
-	Size:       SizeLarge,
-	Upkeep:     12,
-	MaxHealth:  100,
+	Kind:            AgentGunpoint,
+	IsFlying:        false,
+	IsTurret:        true,
+	IsBuilding:      true,
+	Image:           assets.ImageGunpointAgent,
+	Size:            SizeLarge,
+	Upkeep:          12,
+	MaxHealth:       100,
+	DamageReduction: 0.15,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange:     280,
 		Reload:          2,
@@ -109,16 +110,17 @@ var BeamTowerAgentStats = InitDroneStats(&AgentStats{
 })
 
 var TetherBeaconAgentStats = InitDroneStats(&AgentStats{
-	Kind:           AgentTetherBeacon,
-	IsFlying:       false,
-	IsTurret:       true,
-	IsBuilding:     true,
-	Image:          assets.ImageTetherBeaconAgent,
-	Size:           SizeLarge,
-	Upkeep:         8,
-	MaxHealth:      75,
-	SupportReload:  10,
-	SupportRange:   500,
-	BeamSlideSpeed: 0.4,
-	HasSupport:     true,
+	Kind:            AgentTetherBeacon,
+	IsFlying:        false,
+	IsTurret:        true,
+	IsBuilding:      true,
+	Image:           assets.ImageTetherBeaconAgent,
+	Size:            SizeLarge,
+	Upkeep:          8,
+	MaxHealth:       75,
+	DamageReduction: 0.1,
+	SupportReload:   10,
+	SupportRange:    500,
+	BeamSlideSpeed:  0.4,
+	HasSupport:      true,
 })

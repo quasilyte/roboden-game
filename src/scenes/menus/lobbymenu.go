@@ -665,7 +665,11 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 	}
 
 	{
-		b := c.newOptionButton(&c.config.WorldSize, "menu.lobby.world_size", []string{
+		disabled := []int{}
+		if c.config.RawGameMode == "reverse" {
+			disabled = append(disabled, 0)
+		}
+		b := c.newOptionButtonWithDisabled(&c.config.WorldSize, "menu.lobby.world_size", disabled, []string{
 			d.Get("menu.option.very_small"),
 			d.Get("menu.option.small"),
 			d.Get("menu.option.normal"),

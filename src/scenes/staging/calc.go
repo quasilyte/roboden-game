@@ -39,7 +39,7 @@ func getTurretPower(stats *gamedata.AgentStats) int {
 }
 
 func calcCreepPower(world *worldState, creep *creepNode) int {
-	power := 2.5 * float64(creepFragScore(creep.stats))
+	power := 2.3 * float64(creepDangerScore(creep))
 	if creep.super {
 		power *= float64(superCreepCostMultiplier(creep.stats))
 	}
@@ -117,7 +117,7 @@ func superCreepCostMultiplier(stats *gamedata.CreepStats) int {
 		return 3
 	case gamedata.CreepTurret, gamedata.CreepBase, gamedata.CreepCrawlerBase, gamedata.CreepHowitzer, gamedata.CreepDominator, gamedata.CreepServant:
 		return 5
-	case gamedata.CreepUberBoss:
+	case gamedata.CreepUberBoss, gamedata.CreepBuilder:
 		return 2
 	}
 	return 4
@@ -129,6 +129,23 @@ func creepCost(stats *gamedata.CreepStats, super bool) int {
 		fragScore *= superCreepCostMultiplier(stats)
 	}
 	return fragScore
+}
+
+func creepDangerScore(creep *creepNode) int {
+	score := 0
+	switch creep.stats {
+	case gamedata.GrenadierCreepStats:
+		score = 2
+	case gamedata.TemplarCreepStats:
+		score = 10
+	case gamedata.BuilderCreepStats:
+		score = 5
+	case gamedata.IonMortarCreepStats:
+		score = 6
+	default:
+		score = creepFragScore(creep.stats)
+	}
+	return score
 }
 
 func creepFragScore(stats *gamedata.CreepStats) int {

@@ -1735,7 +1735,8 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 		multiplier *= 0.55
 	}
 	if a.tether {
-		multiplier *= 2.0
+		multiplier *= 2
+		baseSpeed += 5
 	}
 	return baseSpeed * multiplier
 }

@@ -803,7 +803,18 @@ func (p *computerPlayer) maybeHandleHowitzerThreat(colony *computerColony) bool 
 	danger, _ := p.calcPosDanger(howitzer.pos, 250)
 	requiredPower := int(float64(danger) * p.world.rand.FloatRange(0.9, 1.3))
 
+	// A Den colony can crush howitzer just by landing on it.
+	tryStomping := false
+	if p.world.coreDesign == gamedata.DenCoreStats && howitzer.pos.DistanceTo(colony.node.pos) <= 0.9*colony.node.MaxFlyDistance() {
+		tryStomping = true
+		requiredPower /= 2
+	}
+
 	colonyPower := p.maybeAddTankPower(colony.node, p.selectedColonyPower(gamedata.TargetGround))
+	if tryStomping && howitzer.pos.DistanceSquaredTo(colony.node.pos) < colony.node.realRadiusSqr {
+		// If it's very close and we can stomp it, be more brave.
+		colonyPower += 100
+	}
 	var colonyForAttack *colonyCoreNode
 	if colonyPower < requiredPower {
 		// Can we find another colony that can take care of it?
@@ -829,7 +840,11 @@ func (p *computerPlayer) maybeHandleHowitzerThreat(colony *computerColony) bool 
 	}
 
 	if colonyForAttack != nil {
-		p.executeMoveAction(colonyForAttack, howitzer.pos.Add(p.world.rand.Offset(-140, 140)))
+		dstPos := howitzer.pos
+		if !tryStomping {
+			dstPos = dstPos.Add(p.world.rand.Offset(-140, 140))
+		}
+		p.executeMoveAction(colonyForAttack, dstPos)
 		return true
 	}
 
@@ -1179,6 +1194,10 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) float64 {
 	// Reason to move 3: can capture something.
 	if len(p.world.neutralBuildings) != 0 && p.captureDelay == 0 && colony.node.resources >= 130 && p.world.rand.Chance(0.4) {
 		b := randIterate(p.world.rand, p.world.neutralBuildings, func(b *neutralBuildingNode) bool {
+			if b.stats == gamedata.PowerPlantAgentStats {
+				// Bot can't utilize a power plant properly.
+				return false
+			}
 			return b.agent == nil && b.pos.DistanceSquaredTo(colony.node.pos) < colony.node.MaxFlyDistanceSqr()+96
 		})
 		if b != nil {

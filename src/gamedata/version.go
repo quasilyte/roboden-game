@@ -471,6 +471,10 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Den can now stomp a Howitzer as well
+// - Improve computer bot danger score calculations
+// - Forbid a very small map in Reverse mode
+// - Tether Beam speed boost increased
 // - Elite workers now have decreased upkeep costs
 // - Increase most building costs (with an exception of Tether Beacon, it's cheaper now)
 // - New Reverse mode difficulty toggle: Elite Fleet

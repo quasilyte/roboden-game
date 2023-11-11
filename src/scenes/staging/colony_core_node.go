@@ -143,7 +143,7 @@ func newColonyCoreNode(config colonyConfig) *colonyCoreNode {
 		world:       config.World,
 		realRadius:  config.Radius,
 		maxHealth:   stats.MaxHealth,
-		maxSpeed:    stats.Speed * 3,
+		maxSpeed:    stats.Speed * 3.5,
 		maxJumpDist: stats.JumpDist + 150,
 		player:      config.Player,
 		stats:       stats,
@@ -657,7 +657,7 @@ func (c *colonyCoreNode) movementSpeed() float64 {
 		speed := 13 + float64(c.agents.servoNum) + float64(c.tether*5)
 		return gmath.ClampMax(speed, c.maxSpeed)
 	case colonyModeRelocating:
-		speed := c.stats.Speed + float64(c.agents.servoNum*3) + float64(c.tether*15)
+		speed := c.stats.Speed + float64(c.agents.servoNum*3) + float64(c.tether*20)
 		return gmath.ClampMax(speed, c.maxSpeed) * c.acceleration
 	default:
 		return 0
@@ -1117,26 +1117,34 @@ func (c *colonyCoreNode) maybeTeleport() {
 }
 
 func (c *colonyCoreNode) crushCrawlers() {
-	// FIXME: use a grid here.
 	const crushRangeSqr = 24.0 * 24.0
 	const explodeRangeSqr = 42.0 * 42.0
 	crushPos := c.pos.Add(gmath.Vec{Y: 4})
-	for _, creep := range c.world.creeps {
-		if creep.stats.Kind != gamedata.CreepCrawler {
-			continue
+
+	c.world.WalkCreeps(crushPos, 48, func(creep *creepNode) bool {
+		switch creep.stats.Kind {
+		case gamedata.CreepCrawler, gamedata.CreepHowitzer:
+			// OK
+		default:
+			return false
 		}
+
 		distSqr := creep.pos.DistanceSquaredTo(crushPos)
-		if distSqr <= crushRangeSqr {
-			creep.Destroy() // Defeat without an explosion
-			c.world.result.CreepsStomped++
-			continue
+		if distSqr > explodeRangeSqr {
+			return false // Too far
 		}
-		if distSqr <= explodeRangeSqr {
-			creep.OnDamage(gamedata.DamageValue{Health: 1000}, c)
+
+		if distSqr > crushRangeSqr || creep.stats.Kind == gamedata.CreepHowitzer {
+			creep.OnDamage(gamedata.DamageValue{Health: 5000}, c)
 			c.world.result.CreepsStomped++
-			continue
+			return false
 		}
-	}
+
+		// Defeat without an explosion
+		creep.Destroy()
+		c.world.result.CreepsStomped++
+		return false
+	})
 }
 
 func (c *colonyCoreNode) createLandingSmokeEffect() {

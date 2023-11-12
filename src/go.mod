@@ -2,6 +2,8 @@ module github.com/quasilyte/roboden-game
 
 go 1.19
 
+replace github.com/ebitenui/ebitenui => github.com/quasilyte/ebitenui v0.0.0-20231109155013-385d074dc6cf
+
 require (
 	github.com/cespare/subcmd v1.1.0
 	github.com/ebitenui/ebitenui v0.5.5

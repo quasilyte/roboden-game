@@ -2378,7 +2378,14 @@ func (a *colonyAgentNode) updateConsumeDrone(delta float64) {
 			a.extraLevel++
 			a.maxHealth += 5
 		}
-		a.health = gmath.ClampMax(a.health+target.maxHealth*2, a.maxHealth)
+		if target.rank > 0 {
+			// Consuming a higher rank drone grants a full health.
+			a.health = a.maxHealth
+			a.energy = gmath.ClampMax(a.energy+50, a.maxEnergy)
+		} else {
+			a.health = gmath.ClampMax(a.health+target.maxHealth*2, a.maxHealth)
+			a.energy = gmath.ClampMax(a.energy+25, a.maxEnergy)
+		}
 		target.Destroy()
 		a.world().nodeRunner.AddObject(newEffectNode(a.world(), a.pos, aboveEffectLayer, assets.ImageDroneConsumed))
 	}

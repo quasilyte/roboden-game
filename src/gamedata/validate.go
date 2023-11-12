@@ -31,7 +31,7 @@ func Validate() {
 
 func IsRunnableReplay(r serverapi.GameReplay) bool {
 	switch r.Config.RawGameMode {
-	case "classic", "arena", "inf_arena", "reverse":
+	case "classic", "arena", "inf_arena", "reverse", "blitz":
 		return true
 	default:
 		return false
@@ -52,7 +52,7 @@ func IsSendableReplay(r serverapi.GameReplay) bool {
 		return false
 	}
 	switch r.Config.RawGameMode {
-	case "classic", "arena", "reverse":
+	case "classic", "arena", "reverse", "blitz":
 		// There is no point in running a non-victory game replay
 		// for a mode that can be won.
 		if !r.Results.Victory {
@@ -86,7 +86,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 	}
 
 	switch replay.Config.RawGameMode {
-	case "classic", "arena", "inf_arena", "reverse":
+	case "blitz", "classic", "arena", "inf_arena", "reverse":
 		// OK.
 	default:
 		return false
@@ -103,6 +103,10 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 	switch replay.Config.RawGameMode {
 	case "reverse":
 		if replay.Config.FogOfWar {
+			return false
+		}
+	case "blitz":
+		if replay.Config.NumCreepBases < 2 || replay.Config.NumCreepBases > 4 {
 			return false
 		}
 	}
@@ -149,6 +153,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 		{cfg.Terrain, 0, 2},
 		{cfg.InterfaceMode, 0, 2},
 		{cfg.Environment, 0, 2},
+		{cfg.CreepProductionRate, 0, 10},
 		{cfg.PlayersMode, serverapi.PmodeSinglePlayer, serverapi.PmodeTwoBots},
 	}
 	for _, o := range toValidate {

@@ -2,6 +2,7 @@ package gamedata
 
 const (
 	ClassicModeCost  int = 500
+	BlitzModeCost    int = 500
 	ArenaModeCost    int = 2000
 	InfArenaModeCost int = 4000
 	ReverseModeCost  int = 7500

@@ -471,6 +471,8 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Added Blitz game mode
+// - Boost siege turret damage (17 -> 20)
 // - Boost Courier's resource gain
 // - Changed the exit confirmation (click message instead of double Esc)
 // - Added damage reduction mechanic (Bomber attack mode, megaroomba and some other relicts)

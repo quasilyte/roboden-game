@@ -75,6 +75,7 @@ type worldState struct {
 	debugLogs            bool
 	cameraShakingEnabled bool
 	screenButtonsEnabled bool
+	gameStarted          bool
 
 	hintsMode int
 
@@ -85,16 +86,18 @@ type worldState struct {
 	innerRect2 gmath.Rect // A couple of tiles further than innerRect
 	spawnAreas []gmath.Rect
 
-	droneHealthMultiplier float64
-	dronePowerMultiplier  float64
-	creepHealthMultiplier float64
-	bossHealthMultiplier  float64
-	oilRegenMultiplier    float64
+	droneHealthMultiplier     float64
+	dronePowerMultiplier      float64
+	creepHealthMultiplier     float64
+	bossHealthMultiplier      float64
+	oilRegenMultiplier        float64
+	creepProductionMultiplier float64
 
 	superCreepChanceMultiplier float64
 
 	envKind gamedata.EnvironmentKind
 
+	numPlayers     int
 	numRedCrystals int
 	wispLimit      float64
 
@@ -218,6 +221,7 @@ func (w *worldState) UnmarkCell(coord pathing.GridCoord) {
 
 func (w *worldState) Init() {
 	w.gridCounters = make(map[int]uint8)
+	w.gameStarted = w.config.GameMode != gamedata.ModeBlitz
 
 	w.canFastForward = w.config.PlayersMode != serverapi.PmodeTwoPlayers
 
@@ -287,6 +291,7 @@ func (w *worldState) Init() {
 	w.bossHealthMultiplier = 0.7 + (float64(w.config.BossDifficulty) * 0.3)
 	w.oilRegenMultiplier = float64(w.config.OilRegenRate) * 0.5
 	w.superCreepChanceMultiplier = 0.1 + (float64(w.config.ReverseSuperCreepRate) * 0.3)
+	w.creepProductionMultiplier = 1.0 + (float64(w.config.CreepProductionRate) * 0.2)
 
 	if w.config.FogOfWar && w.config.ExecMode != gamedata.ExecuteSimulation {
 		w.visionCircle = ebiten.NewImage(int(colonyVisionRadius*2), int(colonyVisionRadius*2))
@@ -302,6 +307,13 @@ func (w *worldState) Init() {
 		w.wispLimit = 14
 	case 3:
 		w.wispLimit = 18
+	}
+
+	switch w.config.PlayersMode {
+	case serverapi.PmodePlayerAndBot, serverapi.PmodeTwoBots, serverapi.PmodeTwoPlayers:
+		w.numPlayers = 2
+	default:
+		w.numPlayers = 1
 	}
 }
 

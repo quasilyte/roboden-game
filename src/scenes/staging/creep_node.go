@@ -1607,7 +1607,7 @@ func (c *creepNode) updateCreepCrawlerBase(delta float64) {
 		Y: c.scene.Rand().FloatRange(-160, 160),
 	}
 	dstPos := spawnPos.Add(dstOffset)
-	c.attackDelay = c.scene.Rand().FloatRange(15, 30) * productionDelay
+	c.attackDelay = (c.scene.Rand().FloatRange(15, 30) * productionDelay) * (1 / c.world.creepProductionMultiplier)
 	c.specialModifier++
 
 	crawler := c.world.NewCreepNode(spawnPos, gamedata.CrawlerCreepStats)
@@ -1661,7 +1661,7 @@ func (c *creepNode) updateCreepBase(delta float64) {
 	} else if level >= 14 {
 		spawnDelay *= 0.75
 	}
-	c.attackDelay = spawnDelay
+	c.attackDelay = (spawnDelay * (1 / c.world.creepProductionMultiplier))
 
 	spawnPoints := [...]gmath.Vec{
 		c.pos.Add(gmath.Vec{X: -5, Y: -5}),

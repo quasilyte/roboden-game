@@ -39,6 +39,7 @@ type computerPlayer struct {
 
 	colonyPower           int
 	calculatedColonyPower bool
+	disposed              bool
 
 	hasRepairbots bool
 	hasFirebugs   bool
@@ -191,8 +192,6 @@ func (p *computerPlayer) maxTurretsForColony() int {
 }
 
 func (p *computerPlayer) Init() {
-	p.state.Init(p.world)
-
 	p.choiceGen.EventChoiceReady.Connect(p, func(selection choiceSelection) {
 		p.choiceSelection = selection
 	})
@@ -200,9 +199,17 @@ func (p *computerPlayer) Init() {
 
 func (p *computerPlayer) GetState() *playerState { return p.state }
 
-func (p *computerPlayer) IsDisposed() bool { return false }
+func (p *computerPlayer) IsDisposed() bool { return p.disposed }
+
+func (p *computerPlayer) Dispose() {
+	p.disposed = true
+}
 
 func (p *computerPlayer) Update(computedDelta, delta float64) {
+	if p.disposed {
+		return
+	}
+
 	if len(p.state.colonies) == 0 {
 		return
 	}
@@ -362,8 +369,8 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 	}
 
 	if colony.attackBaseDelay == 0 {
-		if p.maybeAttackCreepBase(colony) {
-			colony.attackBaseDelay = p.world.rand.FloatRange(80, 120)
+		if delay := p.maybeAttackCreepBase(colony); delay != 0 {
+			colony.attackBaseDelay = delay
 		} else {
 			colony.attackBaseDelay = p.world.rand.FloatRange(20, 35)
 		}
@@ -590,27 +597,36 @@ func (p *computerPlayer) maybeAddTankPower(colony *colonyCoreNode, power int) in
 	return power
 }
 
-func (p *computerPlayer) maybeAttackCreepBase(colony *computerColony) bool {
+func (p *computerPlayer) maybeAttackCreepBase(colony *computerColony) float64 {
+	if !p.world.gameStarted {
+		return 0
+	}
 	if colony.node.agents.TotalNum() < 30 {
-		return false
+		return 0
 	}
 	if colony.node.agents.TotalNum() < 45 {
 		if colony.node.resources < 0.4*colony.node.maxVisualResources() {
-			return false
+			return 0
 		}
 	}
 
+	isBlitz := p.world.config.GameMode == gamedata.ModeBlitz
+
 	// Be less agressive when having only one colony.
-	if len(p.colonies) == 1 && p.world.rand.Chance(0.65) {
-		return false
+	if !isBlitz && len(p.colonies) == 1 && p.world.rand.Chance(0.65) {
+		return 0
 	}
 
 	power := p.selectedColonyPower(gamedata.TargetAny)
 	if power < 60 {
-		return false
+		return 0
 	}
 
 	searchRadius := colony.node.MaxFlyDistance() + colony.node.realRadius
+	if isBlitz {
+		// Even if it's out of the current range, we can get there in a couple of jumps.
+		searchRadius *= 2
+	}
 	searchRadiusSqr := searchRadius * searchRadius
 	enemyBase := p.world.WalkCreeps(colony.node.pos, searchRadius, func(creep *creepNode) bool {
 		switch creep.stats.Kind {
@@ -620,7 +636,8 @@ func (p *computerPlayer) maybeAttackCreepBase(colony *computerColony) bool {
 			return false
 		}
 		// Crawler bases are less interesting, so there is a chance to ignore them.
-		if creep.stats.Kind == gamedata.CreepCrawlerBase {
+		// For the Blitz mode, they're a winning condition, so this logic won't apply.
+		if !isBlitz && creep.stats.Kind == gamedata.CreepCrawlerBase {
 			if p.world.rand.Chance(0.4) {
 				return false
 			}
@@ -639,12 +656,20 @@ func (p *computerPlayer) maybeAttackCreepBase(colony *computerColony) bool {
 		return true
 	})
 	if enemyBase == nil {
-		return false
+		return 0
 	}
 
 	p.executeMoveAction(colony.node, enemyBase.pos.Add(p.world.rand.Offset(-160, 160)))
 
-	return true
+	if isBlitz {
+		if enemyBase.pos.DistanceTo(colony.node.pos) > (colony.node.MaxFlyDistance() + colony.node.realRadius) {
+			// It will probably need a second jump soon.
+			return p.world.rand.FloatRange(10, 20)
+		}
+		return p.world.rand.FloatRange(40, 70)
+	}
+
+	return p.world.rand.FloatRange(80, 120)
 }
 
 func (p *computerPlayer) maybeStartAttackingDreadnought(colony *computerColony) bool {
@@ -955,6 +980,9 @@ func (p *computerPlayer) maybeRetreatFrom(colony *computerColony, pos gmath.Vec)
 }
 
 func (p *computerPlayer) maybeBuildColony(colony *computerColony) bool {
+	if !p.world.gameStarted {
+		return false
+	}
 	if len(p.state.colonies) >= p.maxColonies {
 		return false
 	}
@@ -990,6 +1018,10 @@ func (p *computerPlayer) maybeBuildColony(colony *computerColony) bool {
 }
 
 func (p *computerPlayer) maybeBuildTurret(colony *computerColony) bool {
+	if !p.world.gameStarted {
+		return false
+	}
+
 	currentResourcesScore, _ := p.calcPosResources(colony.node, colony.node.pos, colony.node.realRadius*0.7)
 	canBuild := (float64(currentResourcesScore) >= 100 && (colony.node.resources*p.world.rand.FloatRange(0.8, 1.2)) > (140*p.turretCostMultiplier)) ||
 		((float64(currentResourcesScore) * p.world.rand.FloatRange(0.8, 1.2)) >= 250) ||

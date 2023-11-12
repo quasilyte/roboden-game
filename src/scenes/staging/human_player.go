@@ -406,9 +406,11 @@ func (p *humanPlayer) handleInput() {
 
 	p.input.Update()
 
-	if p.input.InputMethod == gameinput.InputMethodTouch && p.world.nodeRunner.exitPrompt {
-		// On mobiles, exit prompt is handled in the staging controller.
-		return
+	if p.world.nodeRunner.exitPrompt {
+		if p.input.IsClickDevice() {
+			// For these cases, the exit prompt is handled in the staging controller.
+			return
+		}
 	}
 
 	// Pinging is OK even during the pause.

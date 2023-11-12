@@ -39,7 +39,8 @@ const (
 
 	ActionClick
 
-	ActionBack
+	ActionExit
+	ActionExitConfirm
 	ActionMenuBack
 
 	ActionDebug
@@ -95,9 +96,10 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 
 		ActionToggleInterface: {input.KeyGamepadL2},
 
-		ActionBack:     {input.KeyGamepadBack},
-		ActionMenuBack: {input.KeyGamepadBack, input.KeyGamepadB},
-		ActionPause:    {input.KeyGamepadStart, input.KeyGamepadHome},
+		ActionExit:        {input.KeyGamepadBack},
+		ActionExitConfirm: {input.KeyGamepadBack},
+		ActionMenuBack:    {input.KeyGamepadBack, input.KeyGamepadB},
+		ActionPause:       {input.KeyGamepadStart, input.KeyGamepadHome},
 
 		ActionMenuFocusRight: {input.KeyGamepadRight},
 		ActionMenuFocusDown:  {input.KeyGamepadDown},
@@ -141,7 +143,7 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 
 		ActionDebug: {input.KeyBackquote},
 
-		ActionBack:     {input.KeyEscape},
+		ActionExit:     {input.KeyEscape},
 		ActionMenuBack: {input.KeyEscape},
 		ActionPause:    {input.KeySpace},
 

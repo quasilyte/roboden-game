@@ -576,13 +576,13 @@ Game paused
 Game paused
 [to resume the game, press $gamepad_start]
 ##game.exit.notice.keyboard
-Press the button again to quit
-[to resume the game, press SPACE]
+Click this message to quit
+[to resume the game, click anywhere else]
 ##game.exit.notice.gamepad
 Press the button again to quit
 [to resume the game, press $gamepad_start]
 ##game.exit.notice.touch
-Tap this message to quit.
+Tap this message to quit
 [to resume the game, tap anywhere else]
 
 ##game.wave : Wave

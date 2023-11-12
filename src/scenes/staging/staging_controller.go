@@ -34,8 +34,6 @@ type Controller struct {
 
 	backController ge.SceneController
 
-	mainPlayer mainPlayer
-
 	scene  *ge.Scene
 	world  *worldState
 	config gamedata.LevelConfig
@@ -702,7 +700,6 @@ func (c *Controller) createPlayers() {
 				c.world.humanPlayers = append(c.world.humanPlayers, human)
 
 				if i == 0 {
-					c.mainPlayer = human
 					human.EventRecipesToggled.Connect(c, func(visible bool) {
 						c.world.result.OpenedEvolutionTab = true
 						if c.debugInfo != nil {
@@ -1379,8 +1376,15 @@ func (c *Controller) handleInput() bool {
 		// It does some common stuff and returns from the function.
 	}
 
-	if c.nodeRunner.exitPrompt && c.state.Device.IsMobile() && c.mainPlayer != nil {
-		if info, ok := c.mainPlayer.GetInput().JustPressedActionInfo(controls.ActionClick); ok {
+	if c.nodeRunner.exitPrompt {
+		for _, p := range c.world.humanPlayers {
+			if !p.input.IsClickDevice() {
+				continue
+			}
+			info, ok := p.input.JustPressedActionInfo(controls.ActionClick)
+			if !ok {
+				continue
+			}
 			for _, m := range c.exitNotices {
 				if m.ContainsPos(info.Pos) {
 					c.leaveScene(c.backController)
@@ -1416,7 +1420,13 @@ func (c *Controller) handleInput() bool {
 		c.secondCamera.HandleInput()
 	}
 
-	if c.sharedActionIsJustPressed(controls.ActionBack) {
+	// This is a first exit press.
+	// Shows up an exit prompt.
+	if !c.nodeRunner.exitPrompt && c.sharedActionIsJustPressed(controls.ActionExit) {
+		c.onExitButtonClicked()
+		return true
+	}
+	if c.nodeRunner.exitPrompt && c.sharedActionIsJustPressed(controls.ActionExitConfirm) {
 		c.onExitButtonClicked()
 		return true
 	}

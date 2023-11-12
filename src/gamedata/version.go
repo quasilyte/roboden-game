@@ -471,6 +471,8 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Boost Courier's resource gain
+// - Changed the exit confirmation (click message instead of double Esc)
 // - Added damage reduction mechanic (Bomber attack mode, megaroomba and some other relicts)
 // - Den can now stomp a Howitzer as well
 // - Improve computer bot danger score calculations

@@ -97,7 +97,7 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 			buttonAction = controls.ActionToggleColony
 		case screenButtonExit:
 			hint = d.Get("game.hint.screen_button.exit")
-			buttonAction = controls.ActionBack
+			buttonAction = controls.ActionExit
 		case screenButtonFastForward:
 			hint = d.Get("game.hint.screen_button.fast_forward")
 			buttonAction = controls.ActionToggleFastForward

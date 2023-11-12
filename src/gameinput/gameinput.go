@@ -50,6 +50,17 @@ type Handler struct {
 	EventGamepadDisconnected gsignal.Event[gsignal.Void]
 }
 
+func (h *Handler) IsClickDevice() bool {
+	switch h.InputMethod {
+	case InputMethodCombined:
+		return !h.GamepadConnected()
+	case InputMethodKeyboard, InputMethodTouch:
+		return true
+	default:
+		return false
+	}
+}
+
 func (h *Handler) PrettyActionName(d *langs.Dictionary, a input.Action) string {
 	var mask input.DeviceKind
 	switch h.InputMethod {

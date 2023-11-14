@@ -474,6 +474,7 @@ const SeasonNumber = 1
 // - Added Blitz game mode
 // - Boost siege turret damage (17 -> 20)
 // - Boost Courier's resource gain
+// - Boost Commander: add 20% damage reduction to the units
 // - Changed the exit confirmation (click message instead of double Esc)
 // - Added damage reduction mechanic (Bomber attack mode, megaroomba and some other relicts)
 // - Den can now stomp a Howitzer as well

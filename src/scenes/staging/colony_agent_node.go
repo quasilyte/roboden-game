@@ -1717,8 +1717,11 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 
 func (a *colonyAgentNode) damageReduction() float64 {
 	extraReduction := 0.0
-	if a.mode == agentModeBomberAttack {
-		extraReduction = 0.25
+	switch a.mode {
+	case agentModeBomberAttack:
+		extraReduction = 0.5
+	case agentModeFollowCommander:
+		extraReduction = 0.20
 	}
 	return a.stats.DamageReduction + extraReduction
 }

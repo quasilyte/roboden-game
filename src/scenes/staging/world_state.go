@@ -495,6 +495,7 @@ func (w *worldState) NewCreepNode(pos gmath.Vec, stats *gamedata.CreepStats) *cr
 			if !x.IsFlying() {
 				w.result.GroundBossDefeat = true
 			}
+			w.centurionRallyPointPtr = nil
 			w.boss = nil
 			w.EventCheckDefeatState.Emit(gsignal.Void{})
 		case gamedata.CreepCenturion:

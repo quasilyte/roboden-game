@@ -12,6 +12,8 @@ type blitzManager struct {
 	grenadiersDelay float64
 	grenadierWave   int
 
+	waypointUpdateDelay float64
+
 	attackGroup arenaWaveGroup
 
 	scene *ge.Scene
@@ -28,6 +30,8 @@ func (m *blitzManager) Init(scene *ge.Scene) {
 
 	m.grenadiersDelay = gamedata.BlitzModeSetupTime(m.world.numPlayers) + m.world.rand.FloatRange(1*60.0, 2*60.0)
 	m.grenadierWave = 2
+
+	m.waypointUpdateDelay = gamedata.BlitzModeSetupTime(m.world.numPlayers) + m.world.rand.FloatRange(1.5*50, 3.0*60)
 }
 
 func (m *blitzManager) IsDisposed() bool {
@@ -39,6 +43,25 @@ func (m *blitzManager) Update(delta float64) {
 	if m.grenadiersDelay == 0 {
 		m.spawnGrenadiers()
 	}
+
+	m.waypointUpdateDelay = gmath.ClampMin(m.waypointUpdateDelay-delta, 0)
+	if m.waypointUpdateDelay == 0 {
+		m.updateWaypoint()
+	}
+}
+
+func (m *blitzManager) updateWaypoint() {
+	nextTarget := m.randCreepBase()
+	if nextTarget == nil {
+		m.waypointUpdateDelay = 10
+		return
+	}
+
+	prevPos := m.world.centurionRallyPoint
+	nextPos := nextTarget.pos
+	dist := prevPos.DistanceTo(nextPos)
+	m.world.centurionRallyPoint = nextPos
+	m.waypointUpdateDelay = (dist / float64(gamedata.CenturionCreepStats.Speed)) + m.world.rand.FloatRange(1.5*60.0, 2.5*60.0)
 }
 
 func (m *blitzManager) spawnGrenadiers() {
@@ -71,7 +94,21 @@ func (m *blitzManager) spawnGrenadiers() {
 	sendCreeps(m.world, m.attackGroup)
 }
 
+func (m *blitzManager) randCreepBase() *creepNode {
+	return randIterate(m.world.rand, m.world.creeps, func(creep *creepNode) bool {
+		switch creep.stats.Kind {
+		case gamedata.CreepCrawlerBase, gamedata.CreepBase:
+			return true
+		default:
+			return false
+		}
+	})
+}
+
 func (m *blitzManager) SpawnInitialCreeps() {
+	m.world.centurionRallyPointPtr = &m.world.centurionRallyPoint
+	m.world.centurionRallyPoint = m.randCreepBase().pos
+
 	numBuilders := 5
 	numSupers := 0
 	if m.world.config.SuperCreeps {
@@ -93,6 +130,13 @@ func (m *blitzManager) SpawnInitialCreeps() {
 		case 1:
 			for j := 0; j < 4; j++ {
 				g.units = append(g.units, arenaWaveUnit{stats: gamedata.HeavyCrawlerCreepStats})
+			}
+		case 3:
+			for j := 0; j < 9; j++ {
+				g.units = append(g.units, arenaWaveUnit{
+					stats: gamedata.CenturionCreepStats,
+					super: j == 0 && m.world.config.SuperCreeps,
+				})
 			}
 		}
 		sendCreeps(m.world, g)

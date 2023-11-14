@@ -1444,7 +1444,7 @@ func (c *creepNode) updateCenturion(delta float64) {
 
 	c.specialDelay = gmath.ClampMin(c.specialDelay-delta, 0)
 
-	if c.world.boss == nil {
+	if c.world.centurionRallyPointPtr == nil {
 		c.wandererMovement(delta)
 		return
 	}

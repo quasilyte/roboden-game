@@ -1542,7 +1542,7 @@ func (c *Controller) handleInput() bool {
 
 func (c *Controller) isDefeatState() bool {
 	switch c.config.GameMode {
-	case gamedata.ModeTutorial, gamedata.ModeClassic, gamedata.ModeArena, gamedata.ModeInfArena:
+	case gamedata.ModeTutorial, gamedata.ModeBlitz, gamedata.ModeClassic, gamedata.ModeArena, gamedata.ModeInfArena:
 		for _, p := range c.world.players {
 			if len(p.GetState().colonies) == 0 {
 				return true

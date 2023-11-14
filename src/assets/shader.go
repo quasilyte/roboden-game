@@ -21,7 +21,7 @@ func RegisterShaderResources(ctx *ge.Context, config *Config, progress *float64)
 		ShaderColonyTeleport:   {Path: "shader/colony_teleport.go"},
 		ShaderSharpen:          {Path: "shader/sharpen.go"},
 		ShaderHueRotate:        {Path: "shader/hue_rotate.go"},
-		ShaderCRT:              {Path: "shader/crt.go"},
+		ShaderCRT:              {Path: "shader/crt2.go"},
 	}
 
 	singleThread := runtime.GOMAXPROCS(-1) == 1

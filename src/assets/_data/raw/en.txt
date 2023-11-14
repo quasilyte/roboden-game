@@ -166,6 +166,7 @@ You can change this decision later.
 ##menu.options.graphics.aspect_ratio : Aspect ratio
 
 ##menu.options.screen_filter.normal : none (default)
+##menu.options.screen_filter.crt : CRT
 ##menu.options.screen_filter.sharpen : sharpen
 ##menu.options.screen_filter.heavy_sharpen : sharpen x2
 ##menu.options.screen_filter.hue_minus30 : hue rotate -15°

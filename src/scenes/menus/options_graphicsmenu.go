@@ -113,7 +113,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 		}))
 	}
 
-	{
+	if c.state.Device.IsDesktop() {
 		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
 			Input:     c.state.MenuInput,
 			Scene:     c.scene,
@@ -122,6 +122,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			Label:     d.Get("menu.options.graphics.screen_filter"),
 			ValueNames: []string{
 				d.Get("menu.options.screen_filter.normal"),
+				d.Get("menu.options.screen_filter.crt"),
 				d.Get("menu.options.screen_filter.sharpen"),
 				d.Get("menu.options.screen_filter.heavy_sharpen"),
 				d.Get("menu.options.screen_filter.hue_minus30"),

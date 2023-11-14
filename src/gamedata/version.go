@@ -471,6 +471,7 @@ const SeasonNumber = 1
 // - Increase Generator bot energy regen rate & mention it as special ability
 //
 // # Version 23
+// - Added CRT screen filter
 // - Added Blitz game mode
 // - Boost siege turret damage (17 -> 20)
 // - Boost Courier's resource gain

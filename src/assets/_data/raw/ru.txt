@@ -167,6 +167,7 @@
 ##menu.options.graphics.aspect_ratio : Соотношение сторон
 
 ##menu.options.screen_filter.normal : отключен
+##menu.options.screen_filter.sharpen : CRT
 ##menu.options.screen_filter.sharpen : sharpen
 ##menu.options.screen_filter.heavy_sharpen : sharpen x2
 ##menu.options.screen_filter.hue_minus30 : оттенок -15°

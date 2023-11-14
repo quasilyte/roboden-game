@@ -230,6 +230,7 @@ type GraphicsSettings struct {
 
 const (
 	ScreenFilterNone = iota
+	ScreenFilterCRT
 	ScreenFilterSharpenMinor
 	ScreenFilterSharpenMajor
 	ScreenFilterHueMinusMinor

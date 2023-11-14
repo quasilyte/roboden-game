@@ -233,10 +233,20 @@ func calcScore(world *worldState) int {
 		}
 		return int(math.Round(float64(score)*multiplier)) + (world.config.DifficultyScore / 4)
 
+	case gamedata.ModeBlitz:
+		score := world.config.DifficultyScore * 8
+		// 0.000555556 is a multiplier for 1 hour: 1/(1*60*(60/2))=0.000555556
+		multiplier := 1.0 - (0.000555556 * (world.result.TimePlayed.Seconds() / 2))
+		if multiplier < 0 {
+			multiplier = 0.001
+		}
+		return int(0.7*(math.Round(float64(score)*multiplier))) + (world.config.DifficultyScore / 3)
+
 	case gamedata.ModeClassic:
 		score := world.config.DifficultyScore * 10
 		crystalsCollected := gmath.Percentage(world.result.RedCrystalsCollected, world.numRedCrystals)
 		score += crystalsCollected * 3
+		// 0.000347222 is a multiplier for 4 hours: 1/(4*60*(60/5))=0.000347222
 		multiplier := 1.0 - (0.000347222 * (world.result.TimePlayed.Seconds() / 5))
 		if multiplier < 0 {
 			multiplier = 0.001

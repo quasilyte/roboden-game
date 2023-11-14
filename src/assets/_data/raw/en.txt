@@ -34,6 +34,7 @@ You can change this decision later.
 ##menu.leaderboard.placeholder : Loading data...
 ##menu.leaderboard.fetch_error : Can't load leaderboard
 ##menu.leaderboard.classic : Classic
+##menu.leaderboard.blitz : Blitz
 ##menu.leaderboard.arena : Arena
 ##menu.leaderboard.inf_arena : Infinite Arena
 ##menu.leaderboard.reverse : Reverse
@@ -63,6 +64,7 @@ You can change this decision later.
 
 ##menu.play.intro_mission : Intro Mission
 ##menu.play.classic : Classic Mode
+##menu.play.blitz : Blitz Mode
 ##menu.play.arena : Arena Mode
 ##menu.play.inf_arena : Infinite Arena Mode
 ##menu.play.reverse : Reverse Mode
@@ -279,6 +281,10 @@ A chance of a unit released from a garrison being extra powerful.
 The default rate is somewhat balanced.
 A lower rate makes the game harder for the Dreadnought.
 
+##menu.lobby.creep_production_rate : Creep production rate
+##menu.lobby.creep_production_rate.description
+Controls the creep units production speed.
+
 ##menu.lobby.creep_spawn_rate : Creep spawn rate
 ##menu.lobby.creep_spawn_rate.description
 This option controls the enemy unit spawn frequency.
@@ -470,11 +476,20 @@ This is a guided quick-start mode. Learn the gameplay fundamentals and defeat th
 Complete this mission to unlock other game modes.
 
 ##menu.overview.classic
-Classic mode  (est. time: 35 minutes)
+Classic mode (est. time: 30 minutes)
 
-Win by defeating the enemy flagship, the dreadnought.
+Win by defeating the enemy flagship, the dreadnought. This is the main game mode.
 
 The dreadnought is very powerful. Evade the combat with it until allied colonies are evolved enough.
+
+Split-screen multiplayer: cooperative.
+
+##menu.overview.blitz
+Blitz mode (est. time: 15 minutes)
+
+Win by destroying all enemy unit-producing structures. This game mode is more beginner-friendly than Classic mode.
+
+You start with an advanced colony on a map full of dangers.
 
 Split-screen multiplayer: cooperative.
 

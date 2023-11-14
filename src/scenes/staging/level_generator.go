@@ -979,7 +979,25 @@ func (g *levelGenerator) createCreepBase(i int, basePos gmath.Vec) {
 		Min: basePos.Sub(gmath.Vec{X: 148, Y: 148}),
 		Max: basePos.Add(gmath.Vec{X: 148, Y: 148}),
 	}
-	super := i == 0 && g.world.config.SuperCreeps
+
+	numTurrets := 1
+	if g.world.config.GameMode == gamedata.ModeBlitz {
+		if i == 0 {
+			numTurrets = 3
+		} else {
+			numTurrets = 2
+		}
+	}
+	numSuperBases := 0
+	if g.world.config.SuperCreeps {
+		if g.world.config.GameMode == gamedata.ModeBlitz {
+			numSuperBases = 2
+		} else {
+			numSuperBases = 1
+		}
+	}
+
+	super := i < numSuperBases
 
 	if g.world.seedKind == gamedata.SeedLeet {
 		for attempt := 0; attempt < 3; attempt++ {
@@ -999,16 +1017,38 @@ func (g *levelGenerator) createCreepBase(i int, basePos gmath.Vec) {
 	// Placing the turret before the base to avoid the "can't deploy" issue.
 	// It may lead to some weird setups, but oh well.
 	// A better solution would be to re-adjust the base pos afterwards or whatever.
-	g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, creepPlacingConfig{Pad: 24, NoScraps: true})
+	{
+		// If some turrets will not be deployed, they'll contribute to the
+		// base starting level (1 level per turret).
+		for attempt := 0; attempt < 5 && numTurrets > 0; attempt++ {
+			numTurrets -= g.placeCreepsCluster(baseRegion, 1, gamedata.TurretCreepStats, creepPlacingConfig{
+				Pad:      20,
+				NoScraps: true,
+				CreepInit: func(creep *creepNode) {
+					creep.super = super
+				},
+			})
+		}
+	}
 	base := g.world.NewCreepNode(basePos, gamedata.BaseCreepStats)
 	base.super = super
-	if i == 1 || i == 3 {
-		base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
+	if g.world.config.GameMode == gamedata.ModeBlitz {
+		// On Blitz mode, all bases are activated after a short delay.
+		// This is mostly to allow the bot autopilot do their thing.
+		base.attackDelay = gamedata.BlitzModeSetupTime(g.world.numPlayers) + ((1 * 60.0) * g.rng.FloatRange(0.9, 1.1))
+		base.specialDelay = base.attackDelay + 40
+		base.specialModifier = 2.0 + float64(numTurrets)
 	} else {
-		base.specialModifier = 1.0 // Initial base level
-		base.specialDelay = g.rng.FloatRange(60, 120)
-		base.attackDelay = g.rng.FloatRange(40, 50)
+		if i == 1 || i == 3 {
+			base.specialModifier = float64(numTurrets)
+			base.specialDelay = (9 * 60.0) * g.rng.FloatRange(0.9, 1.1)
+		} else {
+			base.specialModifier = 1.0 + float64(numTurrets) // Initial base level
+			base.specialDelay = g.rng.FloatRange(60, 120)
+			base.attackDelay = g.rng.FloatRange(40, 50)
+		}
 	}
+
 	g.world.nodeRunner.AddObject(base)
 }
 

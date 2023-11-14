@@ -95,6 +95,8 @@ func (config *LevelConfig) Finalize() {
 		config.GameMode = ModeReverse
 	case "tutorial":
 		config.GameMode = ModeTutorial
+	case "blitz":
+		config.GameMode = ModeBlitz
 	default:
 		panic(fmt.Sprintf("unexpected game mode: %q", config.RawGameMode))
 	}

@@ -42,6 +42,8 @@ func (c *LeaderboardLoadingController) Update(delta float64) {}
 
 func (c *LeaderboardLoadingController) getBoardCache() *serverapi.LeaderboardResp {
 	switch c.gameMode {
+	case "blitz":
+		return &c.state.Persistent.CachedBlitzLeaderboard
 	case "classic":
 		return &c.state.Persistent.CachedClassicLeaderboard
 	case "arena":

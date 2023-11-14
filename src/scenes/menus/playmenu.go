@@ -128,6 +128,20 @@ func (c *PlayMenuController) initUI() {
 	playerStats := &c.state.Persistent.PlayerStats
 
 	{
+		label := d.Get("menu.play.blitz")
+		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+			Scene: c.scene,
+			Text:  label,
+			OnPressed: func() {
+				c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeBlitz))
+			},
+			OnHover: func() { c.setHelpText(c.modeDescriptionText("blitz", gamedata.BlitzModeCost)) },
+		})
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "blitz")
+		buttonsContainer.AddChild(b)
+	}
+
+	{
 		label := d.Get("menu.play.classic")
 		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
 			Scene: c.scene,

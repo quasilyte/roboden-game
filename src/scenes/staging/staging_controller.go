@@ -525,6 +525,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		}
 	})
 
+	var blitz *blitzManager
 	switch c.config.GameMode {
 	case gamedata.ModeArena, gamedata.ModeInfArena:
 		c.arenaManager = newArenaManager(world)
@@ -534,6 +535,9 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		classicManager := newClassicManager(world)
 		c.nodeRunner.AddObject(classicManager)
 		// TODO: victory trigger should go to the classic manager
+	case gamedata.ModeBlitz:
+		blitz = newBlitzManager(world)
+		c.nodeRunner.AddObject(blitz)
 	}
 
 	c.createPlayers()
@@ -554,8 +558,10 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		p.Init()
 	}
 
-	for _, cam := range c.world.cameras {
-		scene.AddGraphics(cam)
+	if c.world.config.GameMode != gamedata.ModeBlitz {
+		for _, cam := range c.world.cameras {
+			scene.AddGraphics(cam)
+		}
 	}
 
 	if c.world.config.GameMode == gamedata.ModeTutorial {
@@ -595,6 +601,58 @@ func (c *Controller) doInit(scene *ge.Scene) {
 			c.updateFogOfWar(colony.pos)
 		}
 	}
+
+	if c.config.GameMode == gamedata.ModeBlitz {
+		c.runBlitzSetup(blitz)
+	}
+}
+
+func (c *Controller) runBlitzSetup(blitz *blitzManager) {
+	// TODO: move this method to a Blitz manager?
+
+	c.scene.Audio().SetGroupVolume(assets.SoundGroupMusic, 0)
+	c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, 0)
+
+	timeSimulated := gamedata.BlitzModeSetupTime(c.world.numPlayers)
+	numFrames := int(timeSimulated * 60 * (1 / c.nodeRunner.speedMultiplier))
+	for i := 0; i < numFrames; i++ {
+		c.Update(1.0 / 60.0)
+	}
+
+	c.nodeRunner.timePlayed = 0
+	c.nodeRunner.ticks = 0
+	if c.debugInfo != nil {
+		c.forcedUpdateDebug()
+	}
+	c.world.gameStarted = true
+	c.state.Logf("blitz setup simulation finished")
+
+	// Swap the computer players with human players, if necessary.
+	switch c.config.PlayersMode {
+	case serverapi.PmodeSinglePlayer, serverapi.PmodeTwoPlayers:
+		for _, p := range c.world.players {
+			c.convertToHumanPlayer(p.(*computerPlayer))
+		}
+	case serverapi.PmodePlayerAndBot:
+		c.convertToHumanPlayer(c.world.players[0].(*computerPlayer))
+		c.world.players[1].(*computerPlayer).choiceGen.generateChoices()
+	case serverapi.PmodeSingleBot, serverapi.PmodeTwoBots:
+		for _, p := range c.world.players {
+			p.(*computerPlayer).choiceGen.generateChoices()
+		}
+		c.camera.CenterOn(c.world.allColonies[0].pos)
+	default:
+		panic("unexpected pmode")
+	}
+
+	for _, cam := range c.world.cameras {
+		c.scene.AddGraphics(cam)
+	}
+
+	blitz.SpawnInitialCreeps()
+
+	c.scene.Audio().SetGroupVolume(assets.SoundGroupMusic, assets.VolumeMultiplier(c.state.Persistent.Settings.MusicVolumeLevel))
+	c.scene.Audio().SetGroupVolume(assets.SoundGroupEffect, assets.VolumeMultiplier(c.state.Persistent.Settings.EffectsVolumeLevel))
 }
 
 func (c *Controller) Init(scene *ge.Scene) {
@@ -650,6 +708,89 @@ func (c *Controller) createCamera(viewportWorld *viewport.World) *viewport.Camer
 	return cam
 }
 
+func (c *Controller) convertToHumanPlayer(computer *computerPlayer) {
+	pstate := computer.GetState()
+	pstate.selectedColony = nil
+	computer.choiceGen.EventChoiceReady.Disconnect(computer)
+	computer.choiceGen.EventChoiceSelected.Disconnect(computer)
+	human := c.createHumanPlayer(pstate, computer.choiceGen)
+	computer.choiceGen.player = human
+	computer.choiceGen.generateChoices()
+	c.world.players[pstate.id] = human
+	computer.Dispose()
+	human.Init()
+}
+
+func (c *Controller) createHumanPlayer(pstate *playerState, choiceGen *choiceGenerator) player {
+	i := pstate.id
+	isSimulation := c.world.config.ExecMode == gamedata.ExecuteReplay ||
+		c.world.config.ExecMode == gamedata.ExecuteSimulation
+
+	if isSimulation {
+		p := newReplayPlayer(c.world, pstate, choiceGen)
+		pstate.replay = c.replayActions[i]
+		return p
+	}
+
+	var creepsState *creepsPlayerState
+	if i == 0 && c.world.config.GameMode == gamedata.ModeReverse {
+		creepsState = c.world.creepsPlayerState
+	}
+
+	playerInput := c.state.GetInput(i)
+	pstate.camera = c.camera
+	if i != 0 {
+		c.secondCamera = c.createCameraManager(c.camera.World, false, playerInput)
+		pstate.camera = c.secondCamera
+	}
+	pstate.messageManager = newMessageManager(c.world, pstate.camera.Camera)
+	cursorRect := pstate.camera.Rect
+	cursorRect.Min = cursorRect.Min.Add(pstate.camera.ScreenPos)
+	cursorRect.Max = cursorRect.Max.Add(pstate.camera.ScreenPos)
+	cursor := gameui.NewCursorNode(playerInput, cursorRect)
+	human := newHumanPlayer(humanPlayerConfig{
+		world:       c.world,
+		state:       pstate,
+		input:       playerInput,
+		cursor:      cursor,
+		choiceGen:   choiceGen,
+		creepsState: creepsState,
+	})
+	c.world.humanPlayers = append(c.world.humanPlayers, human)
+
+	if i == 0 {
+		human.EventRecipesToggled.Connect(c, func(visible bool) {
+			c.world.result.OpenedEvolutionTab = true
+			if c.debugInfo != nil {
+				c.debugInfo.Visible = !visible
+			}
+		})
+	}
+	human.EventPauseRequest.Connect(c, func(gsignal.Void) {
+		c.onPausePressed()
+	})
+	human.EventExitPressed.Connect(c, func(gsignal.Void) {
+		c.onExitButtonClicked()
+	})
+	human.EventFastForwardPressed.Connect(c, func(gsignal.Void) {
+		c.onFastForwardPressed()
+	})
+	if human.CanPing() {
+		human.EventPing.Connect(c, func(pingPos gmath.Vec) {
+			c.scene.Audio().PlaySound(assets.AudioPing)
+			dst := c.world.GetPingDst(human)
+			dst.GetState().messageManager.AddMessage(queuedMessageInfo{
+				text:          c.scene.Dict().Get("game.notice.ping"),
+				timer:         5,
+				targetPos:     ge.Pos{Offset: pingPos},
+				forceWorldPos: true,
+			})
+		})
+	}
+	c.scene.AddObject(cursor)
+	return human
+}
+
 func (c *Controller) createPlayers() {
 	c.world.players = make([]player, 0, len(c.config.Players))
 	hasMouseInput := false
@@ -662,75 +803,29 @@ func (c *Controller) createPlayers() {
 			creepsState = newCreepsPlayerState()
 			c.world.creepsPlayerState = creepsState
 		}
+
 		choiceGen := newChoiceGenerator(c.world, creepsState)
 		choiceGen.EventChoiceSelected.Connect(c, c.onChoiceSelected)
 		pstate := newPlayerState()
 		pstate.id = i
+		pstate.Init(c.world)
 
 		var p player
 		switch pk {
 		case gamedata.PlayerHuman:
 			hasPlayers = true
-			if isSimulation {
-				p = newReplayPlayer(c.world, pstate, choiceGen)
-				pstate.replay = c.replayActions[i]
-			} else {
+			if !isSimulation {
 				playerInput := c.state.GetInput(i)
 				if playerInput.HasMouseInput() {
 					hasMouseInput = true
 				}
-				pstate.camera = c.camera
-				if i != 0 {
-					c.secondCamera = c.createCameraManager(c.camera.World, false, playerInput)
-					pstate.camera = c.secondCamera
-				}
-				pstate.messageManager = newMessageManager(c.world, pstate.camera.Camera)
-				cursorRect := pstate.camera.Rect
-				cursorRect.Min = cursorRect.Min.Add(pstate.camera.ScreenPos)
-				cursorRect.Max = cursorRect.Max.Add(pstate.camera.ScreenPos)
-				cursor := gameui.NewCursorNode(playerInput, cursorRect)
-				human := newHumanPlayer(humanPlayerConfig{
-					world:       c.world,
-					state:       pstate,
-					input:       playerInput,
-					cursor:      cursor,
-					choiceGen:   choiceGen,
-					creepsState: creepsState,
-				})
-				c.world.humanPlayers = append(c.world.humanPlayers, human)
-
-				if i == 0 {
-					human.EventRecipesToggled.Connect(c, func(visible bool) {
-						c.world.result.OpenedEvolutionTab = true
-						if c.debugInfo != nil {
-							c.debugInfo.Visible = !visible
-						}
-					})
-				}
-				human.EventPauseRequest.Connect(c, func(gsignal.Void) {
-					c.onPausePressed()
-				})
-				human.EventExitPressed.Connect(c, func(gsignal.Void) {
-					c.onExitButtonClicked()
-				})
-				human.EventFastForwardPressed.Connect(c, func(gsignal.Void) {
-					c.onFastForwardPressed()
-				})
-				if human.CanPing() {
-					human.EventPing.Connect(c, func(pingPos gmath.Vec) {
-						c.scene.Audio().PlaySound(assets.AudioPing)
-						dst := c.world.GetPingDst(human)
-						dst.GetState().messageManager.AddMessage(queuedMessageInfo{
-							text:          c.scene.Dict().Get("game.notice.ping"),
-							timer:         5,
-							targetPos:     ge.Pos{Offset: pingPos},
-							forceWorldPos: true,
-						})
-					})
-				}
-				p = human
-				c.scene.AddObject(cursor)
 			}
+			if c.config.GameMode == gamedata.ModeBlitz {
+				p = newComputerPlayer(c.world, pstate, choiceGen)
+			} else {
+				p = c.createHumanPlayer(pstate, choiceGen)
+			}
+
 		case gamedata.PlayerComputer:
 			p = newComputerPlayer(c.world, pstate, choiceGen)
 		default:
@@ -1138,7 +1233,7 @@ func (c *Controller) onChoiceSelected(choice selectedChoice) {
 	}
 
 	ok := c.executeAction(choice)
-	if c.config.ExecMode == gamedata.ExecuteNormal {
+	if c.config.ExecMode == gamedata.ExecuteNormal && isHumanPlayer(choice.Player) {
 		if ok || choice.Option.special != specialChoiceMoveColony {
 			c.saveExecutedAction(choice)
 		}
@@ -1503,6 +1598,18 @@ func (c *Controller) checkVictory() {
 			colonyPlayer := c.world.players[1]
 			victory = len(colonyPlayer.GetState().colonies) == 0
 		}
+
+	case gamedata.ModeBlitz:
+		foundBases := false
+		for _, c := range c.world.creeps {
+			kind := c.stats.Kind
+			isBase := kind == gamedata.CreepBase || kind == gamedata.CreepCrawlerBase
+			if isBase {
+				foundBases = true
+				break
+			}
+		}
+		victory = !foundBases
 	}
 
 	if victory {
@@ -1654,6 +1761,10 @@ func (c *Controller) updateDebug(delta float64) {
 	}
 	c.debugUpdateDelay = 0.5
 
+	c.forcedUpdateDebug()
+}
+
+func (c *Controller) forcedUpdateDebug() {
 	settings := &c.state.Persistent.Settings
 	switch {
 	case settings.ShowFPS && settings.ShowTimer:

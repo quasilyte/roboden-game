@@ -45,6 +45,10 @@ func (c *LeaderboardMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.blitz"), func() {
+		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "blitz"))
+	}))
+
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.classic"), func() {
 		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "classic"))
 	}))

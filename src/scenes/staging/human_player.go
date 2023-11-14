@@ -167,8 +167,6 @@ func (p *humanPlayer) Init() {
 		p.state.camera.UI.AddGraphics(choiceCardHighligh)
 	}
 
-	p.state.Init(p.world)
-
 	if p.world.hintsMode > 0 {
 		ttm := newTooltipManager(p, p.world.hintsMode > 1)
 		p.cursor.EventHover.Connect(p, func(hoverPos gmath.Vec) {

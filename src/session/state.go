@@ -46,6 +46,7 @@ type State struct {
 	BoundInputs [2]*gameinput.Handler
 
 	SplashLevelConfig   *gamedata.LevelConfig
+	BlitzLevelConfig    *gamedata.LevelConfig
 	ClassicLevelConfig  *gamedata.LevelConfig
 	ArenaLevelConfig    *gamedata.LevelConfig
 	InfArenaLevelConfig *gamedata.LevelConfig
@@ -143,6 +144,7 @@ type PersistentData struct {
 
 	PlayerStats PlayerStats
 
+	CachedBlitzLeaderboard    serverapi.LeaderboardResp
 	CachedClassicLeaderboard  serverapi.LeaderboardResp
 	CachedArenaLeaderboard    serverapi.LeaderboardResp
 	CachedInfArenaLeaderboard serverapi.LeaderboardResp

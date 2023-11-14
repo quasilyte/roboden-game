@@ -20,6 +20,7 @@ const (
 	ModeArena
 	ModeInfArena
 	ModeReverse
+	ModeBlitz
 
 	ModeTutorial
 
@@ -38,6 +39,8 @@ func (m Mode) String() string {
 		return "inf_arena"
 	case ModeReverse:
 		return "reverse"
+	case ModeBlitz:
+		return "blitz"
 	case ModeTutorial:
 		return "tutorial"
 	default:

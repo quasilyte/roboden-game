@@ -322,6 +322,18 @@ func getDefaultSessionState() *session.State {
 				DronesPower:    1,
 			},
 		}),
+		BlitzLevelConfig: newLevelConfig(&gamedata.LevelConfig{
+			ReplayLevelConfig: serverapi.ReplayLevelConfig{
+				SuperCreeps:       false,
+				InitialCreeps:     0,
+				NumCreepBases:     2,
+				CreepSpawnRate:    1,
+				Teleporters:       1,
+				RawGameMode:       "blitz",
+				DronesPower:       1,
+				StartingResources: true,
+			},
+		}),
 		Persistent: contentlock.GetDefaultData(),
 	}
 

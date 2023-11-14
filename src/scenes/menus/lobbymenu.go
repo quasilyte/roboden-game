@@ -175,6 +175,8 @@ func (c *LobbyMenuController) initUI() {
 
 func (c *LobbyMenuController) getConfigForMode() *gamedata.LevelConfig {
 	switch c.mode {
+	case gamedata.ModeBlitz:
+		return c.state.BlitzLevelConfig
 	case gamedata.ModeArena:
 		return c.state.ArenaLevelConfig
 	case gamedata.ModeInfArena:
@@ -389,8 +391,12 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		)),
 	)
 
-	if c.mode == gamedata.ModeClassic {
-		b := c.newOptionButton(&c.config.NumCreepBases, "menu.lobby.num_creep_bases", []string{
+	if c.mode == gamedata.ModeClassic || c.mode == gamedata.ModeBlitz {
+		disabled := []int{}
+		if c.mode == gamedata.ModeBlitz {
+			disabled = []int{0, 1, 5}
+		}
+		b := c.newOptionButtonWithDisabled(&c.config.NumCreepBases, "menu.lobby.num_creep_bases", disabled, []string{
 			"0",
 			"1",
 			"2",
@@ -401,7 +407,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		tab.AddChild(b)
 	}
 
-	{
+	if c.mode != gamedata.ModeBlitz {
 		b := c.newOptionButton(&c.config.InitialCreeps, "menu.lobby.initial_creeps", []string{
 			d.Get("menu.option.none"),
 			d.Get("menu.option.some"),
@@ -411,7 +417,11 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	{
-		b := c.newOptionButton(&c.config.CreepDifficulty, "menu.lobby.creeps_difficulty", []string{
+		disabled := []int{}
+		if c.config.RawGameMode != "reverse" {
+			disabled = append(disabled, 0, 1)
+		}
+		b := c.newOptionButtonWithDisabled(&c.config.CreepDifficulty, "menu.lobby.creeps_difficulty", disabled, []string{
 			"25%",
 			"50%",
 			"75%",
@@ -475,6 +485,22 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		}))
 	}
 
+	if c.mode == gamedata.ModeBlitz {
+		tab.AddChild(c.newOptionButton(&c.config.CreepProductionRate, "menu.lobby.creep_production_rate", []string{
+			"100%",
+			"120%",
+			"140%",
+			"160%",
+			"180%",
+			"200%",
+			"220%",
+			"240%",
+			"260%",
+			"280%",
+			"300%",
+		}))
+	}
+
 	if c.mode == gamedata.ModeClassic {
 		tab.AddChild(c.newOptionButton(&c.config.CreepSpawnRate, "menu.lobby.creep_spawn_rate", []string{
 			"75%",
@@ -514,14 +540,16 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 
 	var toggleButtons []widget.PreferredSizeLocateableWidget
 
-	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.StartingResources, "starting_resources", assets.ImageItemStartingResources))
+	if c.mode != gamedata.ModeBlitz {
+		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.StartingResources, "starting_resources", assets.ImageItemStartingResources))
+	}
 	if c.mode == gamedata.ModeReverse {
 		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.AtomicBomb, "atom_weapon", assets.ImageItemAtomWeapon))
 	}
 	if c.mode == gamedata.ModeReverse {
 		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.EliteFleet, "elite_fleet", assets.ImageItemEliteFleet))
 	}
-	if c.mode == gamedata.ModeClassic {
+	if c.mode == gamedata.ModeClassic || c.mode == gamedata.ModeBlitz {
 		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.SuperCreeps, "super_creeps", assets.ImageItemSuperCreeps))
 	}
 	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.CreepFortress, "creep_fortress", assets.ImageItemFortress))
@@ -530,7 +558,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.CoordinatorCreeps, "coordinator_creeps", assets.ImageCreepCenturion))
 	}
 	switch c.mode {
-	case gamedata.ModeClassic, gamedata.ModeArena, gamedata.ModeInfArena:
+	case gamedata.ModeClassic, gamedata.ModeArena, gamedata.ModeInfArena, gamedata.ModeBlitz:
 		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.GrenadierCreeps, "grenadier_creeps", assets.ImageCreepGrenadier))
 	}
 
@@ -666,7 +694,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 
 	{
 		disabled := []int{}
-		if c.config.RawGameMode == "reverse" {
+		if c.config.RawGameMode == "reverse" || c.config.RawGameMode == "blitz" {
 			disabled = append(disabled, 0)
 		}
 		b := c.newOptionButtonWithDisabled(&c.config.WorldSize, "menu.lobby.world_size", disabled, []string{

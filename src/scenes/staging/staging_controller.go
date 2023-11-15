@@ -607,6 +607,13 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	if c.config.GameMode == gamedata.ModeBlitz {
 		c.runBlitzSetup(blitz)
 	}
+
+	// Do this after the blitz setup.
+	if c.fogOfWar != nil {
+		for _, colony := range c.world.allColonies {
+			c.updateFogOfWar(colony.pos)
+		}
+	}
 }
 
 func (c *Controller) runBlitzSetup(blitz *blitzManager) {
@@ -679,6 +686,9 @@ func (c *Controller) onCameraShake(cameraShake CameraShakeData) {
 }
 
 func (c *Controller) updateFogOfWar(pos gmath.Vec) {
+	if !c.world.gameStarted {
+		return
+	}
 	var options ebiten.DrawImageOptions
 	options.CompositeMode = ebiten.CompositeModeDestinationOut
 	options.GeoM.Translate(pos.X-colonyVisionRadius, pos.Y-colonyVisionRadius)

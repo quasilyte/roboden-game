@@ -128,7 +128,7 @@ func (m *blitzManager) SpawnInitialCreeps() {
 				arenaWaveUnit{stats: gamedata.AssaultCreepStats, super: isSuper},
 			)
 		case 1:
-			for j := 0; j < 4; j++ {
+			for j := 0; j < 2; j++ {
 				g.units = append(g.units, arenaWaveUnit{stats: gamedata.HeavyCrawlerCreepStats})
 			}
 		case 3:

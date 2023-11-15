@@ -138,6 +138,8 @@ func creepDangerScore(creep *creepNode) int {
 		score = 2
 	case gamedata.TemplarCreepStats:
 		score = 10
+	case gamedata.CenturionCreepStats:
+		score = 11
 	case gamedata.BuilderCreepStats:
 		score = 5
 	case gamedata.IonMortarCreepStats:

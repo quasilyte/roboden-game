@@ -461,15 +461,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	switch filter := c.state.Persistent.Settings.Graphics.ScreenFilter; filter {
 	case session.ScreenFilterCRT:
 		shader := scene.Context().Loader.LoadShader(assets.ShaderCRT).Data
-		sizeVec := []float32{
-			float32(scene.Context().ScreenWidth),
-			// This is not a mistake; treat it as a square screen for the shader.
-			float32(scene.Context().ScreenWidth),
-		}
-		c.world.stage.SetShader(shader, map[string]any{
-			"ScreenSize":  sizeVec,
-			"TextureSize": sizeVec,
-		})
+		c.world.stage.SetShader(shader, nil)
 	case session.ScreenFilterSharpenMinor, session.ScreenFilterSharpenMajor:
 		amount := float32(0.1)
 		if filter == session.ScreenFilterSharpenMajor {

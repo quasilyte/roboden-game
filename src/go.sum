@@ -29,8 +29,8 @@ github.com/quasilyte/ebitenui v0.0.0-20231109155013-385d074dc6cf h1:UK/Qpie8bluk
 github.com/quasilyte/ebitenui v0.0.0-20231109155013-385d074dc6cf/go.mod h1:CkzAwu9Ks32P+NC/7+iypdLA85Wqnn93UztPFE+kAH4=
 github.com/quasilyte/gdata v0.8.1 h1:cR9TFUHrRciVq1E4hqofan6jcQvmJd9lM1E7YLeUfi8=
 github.com/quasilyte/gdata v0.8.1/go.mod h1:VZbd2RCpKR2cbTGuLC1Esnyl1+KFv/jXBJrs/ijL8TA=
-github.com/quasilyte/ge v0.0.0-20231107155627-a3b450947ce5 h1:Lspokt7A64DDiv7So11pMSeAtMNKQEAklLvRQY4ToCc=
-github.com/quasilyte/ge v0.0.0-20231107155627-a3b450947ce5/go.mod h1:SZ1XrZNdqgThnC/GS4lAPrwyP00pUNlESCDAGdZz95c=
+github.com/quasilyte/ge v0.0.0-20231115130203-182a2a2a6800 h1:BJhLXfA9AGBz02tWkB9SudC4+qTgyWdQbizE5IntUPE=
+github.com/quasilyte/ge v0.0.0-20231115130203-182a2a2a6800/go.mod h1:SZ1XrZNdqgThnC/GS4lAPrwyP00pUNlESCDAGdZz95c=
 github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef h1:ylROAnCA+a6Ry6M9pkRXzL+bhPIT5ctHND5kcdxbwe4=
 github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gsignal v0.0.0-20231010082051-3c00e9ebb4e5 h1:G6D9dfcBvveLmNi8B7de96/347Xk8rvTyhQb6uNwWPQ=

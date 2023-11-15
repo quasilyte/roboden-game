@@ -1479,8 +1479,17 @@ func (c *Controller) handleInput() bool {
 			if !p.input.IsClickDevice() {
 				continue
 			}
-			info, ok := p.input.JustPressedActionInfo(controls.ActionClick)
-			if !ok {
+			clicked := false
+			var info input.EventInfo
+			// This branching is needed until ebitengine-input learns how to
+			// handle a tap gesture release event.
+			// See https://github.com/quasilyte/ebitengine-input/issues/38
+			if c.state.Device.IsMobile() {
+				info, clicked = p.input.JustPressedActionInfo(controls.ActionClick)
+			} else {
+				info, clicked = p.input.JustReleasedActionInfo(controls.ActionClick)
+			}
+			if !clicked {
 				continue
 			}
 			for _, m := range c.exitNotices {

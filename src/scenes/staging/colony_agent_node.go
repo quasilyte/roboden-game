@@ -1712,7 +1712,9 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		a.attackTargets(targets, a.stats.Weapon.BurstSize)
 	}
 
-	playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
+	if !a.stats.Weapon.ProjectileFireSound {
+		playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
+	}
 }
 
 func (a *colonyAgentNode) damageReduction() float64 {

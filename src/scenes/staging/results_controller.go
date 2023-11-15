@@ -450,8 +450,7 @@ func (c *resultsController) initUI() {
 		key := c.config.RawGameMode + "_highscore.json"
 		c.state.SaveGameItem(key, replay)
 	}
-	// TODO: enable replays on mobile devices (#16).
-	if !c.state.Device.IsMobile() && gamedata.IsRunnableReplay(replay) {
+	if gamedata.IsRunnableReplay(replay) {
 		r := session.SavedReplay{
 			Date:      time.Now(),
 			ResultTag: c.resultTag,

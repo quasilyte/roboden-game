@@ -60,12 +60,9 @@ func (c *ProfileMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewProfileDroneCollectionMenuController(c.state))
 	}))
 
-	// TODO: enable replays on mobile devices.
-	if !c.state.Device.IsMobile() {
-		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.watch_replay"), func() {
-			c.scene.Context().ChangeScene(NewReplayMenuController(c.state))
-		}))
-	}
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.watch_replay"), func() {
+		c.scene.Context().ChangeScene(NewReplayMenuController(c.state))
+	}))
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 

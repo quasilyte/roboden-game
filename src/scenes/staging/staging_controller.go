@@ -48,8 +48,8 @@ type Controller struct {
 	gameFinished      bool
 	victoryCheckDelay float64
 
-	camera       *cameraManager
-	secondCamera *cameraManager
+	viewportWorld   *viewport.World
+	cinematicCamera *cameraManager
 
 	tutorialManager *tutorialManager
 
@@ -86,16 +86,16 @@ func (c *Controller) SetReplayActions(replay serverapi.GameReplay) {
 }
 
 func (c *Controller) CenterDemoCamera(pos gmath.Vec) {
-	c.camera.ToggleCamera(pos)
-	c.camera.cinematicSwitchDelay = c.world.localRand.FloatRange(20, 30)
-	c.camera.mode = camCinematic
+	c.cinematicCamera.ToggleCamera(pos)
+	c.cinematicCamera.cinematicSwitchDelay = c.world.localRand.FloatRange(20, 30)
+	c.cinematicCamera.mode = camCinematic
 }
 
 func (c *Controller) RenderDemoFrame() *ebiten.Image {
-	visible := c.camera.UI.Visible
-	c.camera.UI.Visible = false
-	img := c.camera.RenderToImage()
-	c.camera.UI.Visible = visible
+	visible := c.cinematicCamera.UI.Visible
+	c.cinematicCamera.UI.Visible = false
+	img := c.cinematicCamera.RenderToImage()
+	c.cinematicCamera.UI.Visible = visible
 	return img
 }
 
@@ -330,7 +330,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		}
 		worldHeight += float64(512 * (c.config.WorldSize + 1))
 	}
-	viewportWorld := &viewport.World{
+	c.viewportWorld = &viewport.World{
 		Width:  worldWidth,
 		Height: worldHeight,
 	}
@@ -363,7 +363,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		rootScene:            scene,
 		nodeRunner:           c.nodeRunner,
 		graphicsSettings:     c.state.Persistent.Settings.Graphics,
-		pathgrid:             pathing.NewGrid(viewportWorld.Width, viewportWorld.Height, 0),
+		pathgrid:             pathing.NewGrid(c.viewportWorld.Width, c.viewportWorld.Height, 0),
 		config:               &c.config,
 		gameSettings:         &c.state.Persistent.Settings,
 		deviceInfo:           c.state.Device,
@@ -377,12 +377,12 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		tmpTargetSlice:       make([]targetable, 0, 20),
 		tmpTargetSlice2:      make([]targetable, 0, 8),
 		tmpColonySlice:       make([]*colonyCoreNode, 0, 4),
-		width:                viewportWorld.Width,
-		height:               viewportWorld.Height,
+		width:                c.viewportWorld.Width,
+		height:               c.viewportWorld.Height,
 		rect: gmath.Rect{
 			Max: gmath.Vec{
-				X: viewportWorld.Width,
-				Y: viewportWorld.Height,
+				X: c.viewportWorld.Width,
+				Y: c.viewportWorld.Height,
 			},
 		},
 		tier2recipes: tier2recipes,
@@ -454,7 +454,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 			img = assets.ImageBackgroundInfernoTiles
 			tileset = assets.RawInfernoTilesJSON
 		}
-		bg.LoadTilesetWithRand(scene.Context(), &localRand, viewportWorld.Width, viewportWorld.Height, img, tileset)
+		bg.LoadTilesetWithRand(scene.Context(), &localRand, c.viewportWorld.Width, c.viewportWorld.Height, img, tileset)
 	}
 	c.world.stage.SetBackground(bg)
 
@@ -485,7 +485,9 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		c.world.stage.SetShader(shader, map[string]any{"HueAngle": angle})
 	}
 
-	c.camera = c.createCameraManager(viewportWorld, true, c.state.GetInput(0))
+	if c.config.ExecMode == gamedata.ExecuteDemo {
+		c.cinematicCamera = c.createCameraManager(c.viewportWorld, true, c.state.GetInput(0))
+	}
 
 	c.nodeRunner.world = world
 
@@ -550,15 +552,12 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		g.Generate()
 	}
 
-	forceCenter := c.config.ExecMode == gamedata.ExecuteReplay ||
-		c.config.PlayersMode == serverapi.PmodeTwoBots ||
-		c.config.PlayersMode == serverapi.PmodeSingleBot
-	if forceCenter {
-		c.camera.CenterOn(c.world.spawnPos)
-	}
-
 	for _, p := range c.world.players {
 		p.Init()
+	}
+	if len(c.world.humanPlayers) == 1 && c.world.humanPlayers[0].spectator {
+		// The spectator player is not in the world.players slice, so handle it separately.
+		c.world.humanPlayers[0].Init()
 	}
 
 	if c.world.config.GameMode != gamedata.ModeBlitz {
@@ -643,9 +642,12 @@ func (c *Controller) runBlitzSetup(blitz *blitzManager) {
 		for _, p := range c.world.players {
 			p.(*computerPlayer).choiceGen.generateChoices()
 		}
-		c.camera.CenterOn(c.world.allColonies[0].pos)
 	default:
 		panic("unexpected pmode")
+	}
+
+	if len(c.world.humanPlayers) == 1 && c.world.humanPlayers[0].spectator {
+		c.world.humanPlayers[0].onToggleButtonClicked(gsignal.Void{})
 	}
 
 	for _, cam := range c.world.cameras {
@@ -741,16 +743,9 @@ func (c *Controller) createHumanPlayer(pstate *playerState, choiceGen *choiceGen
 	}
 
 	playerInput := c.state.GetInput(i)
-	pstate.camera = c.camera
-	if i != 0 {
-		c.secondCamera = c.createCameraManager(c.camera.World, false, playerInput)
-		pstate.camera = c.secondCamera
-	}
+	pstate.camera = c.createCameraManager(c.viewportWorld, i == 0, playerInput)
 	pstate.messageManager = newMessageManager(c.world, pstate.camera.Camera)
-	cursorRect := pstate.camera.Rect
-	cursorRect.Min = cursorRect.Min.Add(pstate.camera.ScreenPos)
-	cursorRect.Max = cursorRect.Max.Add(pstate.camera.ScreenPos)
-	cursor := gameui.NewCursorNode(playerInput, cursorRect)
+	cursor := c.createPlayerCursorNode(pstate, playerInput)
 	human := newHumanPlayer(humanPlayerConfig{
 		world:       c.world,
 		state:       pstate,
@@ -761,27 +756,34 @@ func (c *Controller) createHumanPlayer(pstate *playerState, choiceGen *choiceGen
 	})
 	c.world.humanPlayers = append(c.world.humanPlayers, human)
 
-	if i == 0 {
-		human.EventRecipesToggled.Connect(c, func(visible bool) {
+	c.connectPlayerEvents(human)
+
+	c.scene.AddObject(cursor)
+	return human
+}
+
+func (c *Controller) connectPlayerEvents(p *humanPlayer) {
+	p.EventPauseRequest.Connect(c, func(gsignal.Void) {
+		c.onPausePressed()
+	})
+	p.EventExitPressed.Connect(c, func(gsignal.Void) {
+		c.onExitButtonClicked()
+	})
+	p.EventFastForwardPressed.Connect(c, func(gsignal.Void) {
+		c.onFastForwardPressed()
+	})
+	if p.state.id == 0 {
+		p.EventRecipesToggled.Connect(c, func(visible bool) {
 			c.world.result.OpenedEvolutionTab = true
 			if c.debugInfo != nil {
 				c.debugInfo.Visible = !visible
 			}
 		})
 	}
-	human.EventPauseRequest.Connect(c, func(gsignal.Void) {
-		c.onPausePressed()
-	})
-	human.EventExitPressed.Connect(c, func(gsignal.Void) {
-		c.onExitButtonClicked()
-	})
-	human.EventFastForwardPressed.Connect(c, func(gsignal.Void) {
-		c.onFastForwardPressed()
-	})
-	if human.CanPing() {
-		human.EventPing.Connect(c, func(pingPos gmath.Vec) {
+	if p.CanPing() {
+		p.EventPing.Connect(c, func(pingPos gmath.Vec) {
 			c.scene.Audio().PlaySound(assets.AudioPing)
-			dst := c.world.GetPingDst(human)
+			dst := c.world.GetPingDst(p)
 			dst.GetState().messageManager.AddMessage(queuedMessageInfo{
 				text:          c.scene.Dict().Get("game.notice.ping"),
 				timer:         5,
@@ -790,14 +792,13 @@ func (c *Controller) createHumanPlayer(pstate *playerState, choiceGen *choiceGen
 			})
 		})
 	}
-	c.scene.AddObject(cursor)
-	return human
 }
 
 func (c *Controller) createPlayers() {
 	c.world.players = make([]player, 0, len(c.config.Players))
 	hasMouseInput := false
 	hasPlayers := false
+	hasPlayerWithCamera := false
 	isSimulation := c.world.config.ExecMode == gamedata.ExecuteReplay ||
 		c.world.config.ExecMode == gamedata.ExecuteSimulation
 	for i, pk := range c.config.Players {
@@ -818,6 +819,7 @@ func (c *Controller) createPlayers() {
 		case gamedata.PlayerHuman:
 			hasPlayers = true
 			if !isSimulation {
+				hasPlayerWithCamera = true
 				playerInput := c.state.GetInput(i)
 				if playerInput.HasMouseInput() {
 					hasMouseInput = true
@@ -840,11 +842,39 @@ func (c *Controller) createPlayers() {
 		c.world.players = append(c.world.players, p)
 	}
 
+	needSpectator := c.world.config.ExecMode != gamedata.ExecuteDemo && !hasPlayerWithCamera
+	if needSpectator {
+		// Add a dummy spectator player to control the camera and place the screen buttons.
+		playerInput := c.state.GetInput(0)
+		pstate := newPlayerState()
+		pstate.Init(c.world)
+		pstate.camera = c.createCameraManager(c.viewportWorld, true, playerInput)
+		pstate.messageManager = newMessageManager(c.world, pstate.camera.Camera)
+		cursor := c.createPlayerCursorNode(pstate, playerInput)
+		spectator := newHumanPlayer(humanPlayerConfig{
+			world:     c.world,
+			state:     pstate,
+			input:     playerInput,
+			cursor:    cursor,
+			spectator: true,
+		})
+		c.world.humanPlayers = append(c.world.humanPlayers, spectator)
+		c.connectPlayerEvents(spectator)
+		c.scene.AddObject(cursor)
+	}
+
 	if c.world.config.ExecMode == gamedata.ExecuteNormal {
 		if !hasMouseInput && hasPlayers {
 			ebiten.SetCursorMode(ebiten.CursorModeHidden)
 		}
 	}
+}
+
+func (c *Controller) createPlayerCursorNode(pstate *playerState, h *gameinput.Handler) *gameui.CursorNode {
+	cursorRect := pstate.camera.Rect
+	cursorRect.Min = cursorRect.Min.Add(pstate.camera.ScreenPos)
+	cursorRect.Max = cursorRect.Max.Add(pstate.camera.ScreenPos)
+	return gameui.NewCursorNode(h, cursorRect)
 }
 
 func (c *Controller) onVictoryTrigger(gsignal.Void) {
@@ -887,18 +917,8 @@ func (c *Controller) onExitButtonClicked() {
 		exitNotice.SetPos(noticeCenterPos)
 	}
 
-	foundPlayer := false
-
-	for _, p := range c.world.players {
-		human, ok := p.(*humanPlayer)
-		if !ok {
-			continue
-		}
-		foundPlayer = true
-		createNotification(p.GetState().camera, human.input)
-	}
-	if !foundPlayer {
-		createNotification(c.camera, c.state.GetInput(0))
+	for _, p := range c.world.humanPlayers {
+		createNotification(p.GetState().camera, p.input)
 	}
 }
 
@@ -1522,11 +1542,6 @@ func (c *Controller) handleInput() bool {
 		return true
 	}
 
-	c.camera.HandleInput()
-	if c.secondCamera != nil {
-		c.secondCamera.HandleInput()
-	}
-
 	// This is a first exit press.
 	// Shows up an exit prompt.
 	if !c.nodeRunner.exitPrompt && c.sharedActionIsJustPressed(controls.ActionExit) {
@@ -1665,17 +1680,8 @@ func (c *Controller) onPausePressed() {
 	}
 
 	if paused {
-		foundPlayer := false
-		for _, p := range c.world.players {
-			human, ok := p.(*humanPlayer)
-			if !ok {
-				continue
-			}
-			foundPlayer = true
-			createNotification(p.GetState().camera, human.input)
-		}
-		if !foundPlayer {
-			createNotification(c.camera, c.state.GetInput(0))
+		for _, p := range c.world.humanPlayers {
+			createNotification(p.GetState().camera, p.input)
 		}
 	}
 
@@ -1688,9 +1694,8 @@ func (c *Controller) GetSessionState() *session.State {
 
 func (c *Controller) Update(delta float64) {
 	c.world.stage.Update()
-	c.camera.Update(delta)
-	if c.secondCamera != nil {
-		c.secondCamera.Update(delta)
+	if c.cinematicCamera != nil {
+		c.cinematicCamera.Update(delta)
 	}
 	c.musicPlayer.Update(delta)
 

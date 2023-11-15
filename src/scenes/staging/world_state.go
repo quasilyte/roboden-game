@@ -223,7 +223,8 @@ func (w *worldState) Init() {
 	w.gridCounters = make(map[int]uint8)
 	w.gameStarted = w.config.GameMode != gamedata.ModeBlitz
 
-	w.canFastForward = w.config.PlayersMode != serverapi.PmodeTwoPlayers
+	w.canFastForward = w.config.PlayersMode != serverapi.PmodeTwoPlayers ||
+		w.config.ExecMode == gamedata.ExecuteReplay
 
 	{
 		pad := 160.0

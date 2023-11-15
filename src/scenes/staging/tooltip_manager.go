@@ -137,7 +137,7 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 		}
 	}
 
-	if m.player.choiceGen.IsReady() && m.player.choiceWindow != nil {
+	if !m.player.spectator && m.player.choiceGen.IsReady() && m.player.choiceWindow != nil {
 		choice := m.player.choiceWindow.GetChoiceUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
 		if choice != nil {
 			var hint string

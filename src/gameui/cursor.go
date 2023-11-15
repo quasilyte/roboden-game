@@ -50,7 +50,15 @@ func (c *CursorNode) Init(scene *ge.Scene) {
 func (c *CursorNode) IsDisposed() bool { return false }
 
 func (c *CursorNode) ClickPos(action input.Action) (gmath.Vec, bool) {
-	info, ok := c.input.JustPressedActionInfo(action)
+	if c.input.InputMethod == gameinput.InputMethodTouch {
+		info, ok := c.input.JustPressedActionInfo(action)
+		if !ok {
+			return gmath.Vec{}, false
+		}
+		return info.Pos, true
+	}
+
+	info, ok := c.input.JustReleasedActionInfo(action)
 	if !ok {
 		return gmath.Vec{}, false
 	}

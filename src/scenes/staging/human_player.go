@@ -47,6 +47,7 @@ type humanPlayer struct {
 
 	creepsState *creepsPlayerState
 
+	spectator          bool
 	permanentSeparator bool
 	canPing            bool
 	pingDelay          float64
@@ -65,6 +66,7 @@ type humanPlayerConfig struct {
 	cursor      *gameui.CursorNode
 	choiceGen   *choiceGenerator
 	creepsState *creepsPlayerState
+	spectator   bool
 }
 
 func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
@@ -80,6 +82,7 @@ func newHumanPlayer(config humanPlayerConfig) *humanPlayer {
 		cursor:          config.cursor,
 		creepsState:     config.creepsState,
 		canPing:         canPing,
+		spectator:       config.spectator,
 		choiceCardIndex: -1,
 	}
 	return p
@@ -149,7 +152,7 @@ func (p *humanPlayer) ForceSpecialChoice(kind specialChoiceKind) {
 }
 
 func (p *humanPlayer) Init() {
-	if p.creepsState == nil {
+	if p.creepsState == nil && !p.spectator {
 		p.colonyDestination = ge.NewLine(ge.Pos{}, ge.Pos{})
 		p.colonyDestination.Visible = false
 		p.colonyDestination.SetColorScaleRGBA(0x6e, 0x8e, 0xbd, 160)
@@ -160,7 +163,7 @@ func (p *humanPlayer) Init() {
 		}
 	}
 
-	{
+	if !p.spectator {
 		choiceCardHighligh := p.scene.NewSprite(assets.ImageFloppyHighlight)
 		choiceCardHighligh.Visible = false
 		p.choiceCardHighligh = choiceCardHighligh
@@ -187,7 +190,7 @@ func (p *humanPlayer) Init() {
 		})
 	}
 
-	if p.world.config.InterfaceMode >= 2 {
+	if !p.spectator && p.world.config.InterfaceMode >= 2 {
 		if p.creepsState != nil {
 			p.rpanel = newCreepsRpanelNode(p.state.camera.Camera, p.creepsState)
 		} else {
@@ -197,7 +200,7 @@ func (p *humanPlayer) Init() {
 	}
 
 	buttonsPos := gmath.Vec{X: 137, Y: 470}
-	if p.world.config.EnemyBoss && p.world.config.InterfaceMode >= 1 {
+	if !p.spectator && p.world.config.EnemyBoss && p.world.config.InterfaceMode >= 1 {
 		p.radar = newRadarNode(p.world, p, p.creepsState != nil)
 		p.radar.Init(p.world.rootScene)
 		if p.creepsState != nil {
@@ -236,7 +239,10 @@ func (p *humanPlayer) Init() {
 		p.screenButtons.EventFastForwardButtonPressed.Connect(p, p.onFastForwardButtonClicked)
 	}
 
-	if p.creepsState != nil {
+	if p.spectator {
+		p.state.selectedColony = p.world.allColonies[0]
+		p.state.camera.CenterOn(p.state.selectedColony.pos)
+	} else if p.creepsState != nil {
 		p.state.camera.CenterOn(p.world.boss.pos)
 	} else {
 		p.colonySelector = p.scene.NewSprite(p.world.coreDesign.SelectorImageID())
@@ -252,7 +258,7 @@ func (p *humanPlayer) Init() {
 		p.state.camera.CenterOn(p.state.selectedColony.pos)
 	}
 
-	if p.world.config.GameMode != gamedata.ModeTutorial {
+	if !p.spectator && p.world.config.GameMode != gamedata.ModeTutorial {
 		p.CreateChoiceWindow(false)
 	}
 
@@ -299,7 +305,7 @@ func (p *humanPlayer) IsDisposed() bool { return false }
 func (p *humanPlayer) GetState() *playerState { return p.state }
 
 func (p *humanPlayer) AfterUpdateStep() {
-	if p.state.selectedColony != nil {
+	if !p.spectator && p.state.selectedColony != nil {
 		flying := p.state.selectedColony.IsFlying()
 		p.colonySelector.Visible = !flying
 		p.flyingColonySelector.Visible = flying
@@ -317,21 +323,24 @@ func (p *humanPlayer) BeforeUpdateStep(delta float64) {
 	// It also allows the game to execute the actions inside the Update() loop as
 	// opposed to an out-of-place execution right during the pause.
 
+	p.state.camera.Update(delta)
 	p.state.messageManager.Update(delta)
 
-	if p.world.nodeRunner.IsPaused() {
-		p.choiceCardHighligh.Visible = p.choiceCardColony == p.state.selectedColony &&
-			p.choiceCardIndex != -1
-	} else {
-		p.choiceCardHighligh.Visible = false
-	}
+	if !p.spectator {
+		if p.world.nodeRunner.IsPaused() {
+			p.choiceCardHighligh.Visible = p.choiceCardColony == p.state.selectedColony &&
+				p.choiceCardIndex != -1
+		} else {
+			p.choiceCardHighligh.Visible = false
+		}
 
-	if p.canPing {
-		p.pingDelay = gmath.ClampMin(p.pingDelay-delta, 0)
-	}
+		if p.canPing {
+			p.pingDelay = gmath.ClampMin(p.pingDelay-delta, 0)
+		}
 
-	if p.radar != nil {
-		p.radar.UpdateCamera()
+		if p.radar != nil {
+			p.radar.UpdateCamera()
+		}
 	}
 
 	p.handleInput()
@@ -403,6 +412,7 @@ func (p *humanPlayer) handleInput() {
 	selectedColony := p.state.selectedColony
 
 	p.input.Update()
+	p.state.camera.HandleInput()
 
 	if p.world.nodeRunner.exitPrompt {
 		if p.input.IsClickDevice() {
@@ -443,7 +453,7 @@ func (p *humanPlayer) handleInput() {
 	}
 
 	// Card choice is not executed right away. We just remember the index that was selected.
-	if (selectedColony != nil || p.creepsState != nil) && p.choiceWindow != nil && p.state.camera.UI.Visible {
+	if !p.spectator && (selectedColony != nil || p.creepsState != nil) && p.choiceWindow != nil && p.state.camera.UI.Visible {
 		cardIndex, cardPos := p.choiceWindow.HandleInput()
 		if cardIndex != -1 {
 			if p.choiceCardIndex != cardIndex || selectedColony != p.choiceCardColony {
@@ -483,7 +493,7 @@ func (p *humanPlayer) handleInput() {
 
 	handledClick := false
 	// Selecting a colony by clicking on it is OK during the pause.
-	if len(p.state.colonies) > 1 {
+	if !p.spectator && len(p.state.colonies) > 1 {
 		if hasClick {
 			globalClickPos := p.state.camera.AbsClickPos(clickPos)
 			selectDist := 40.0
@@ -531,7 +541,7 @@ func (p *humanPlayer) handleInput() {
 		}
 	}
 
-	if selectedColony != nil && selectedColony.relocationPoint.IsZero() && selectedColony.mode == colonyModeNormal {
+	if !p.spectator && selectedColony != nil && selectedColony.relocationPoint.IsZero() && selectedColony.mode == colonyModeNormal {
 		if pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice); ok {
 			globalClickPos := p.state.camera.AbsClickPos(pos)
 			if globalClickPos.DistanceTo(selectedColony.pos) > 28 {
@@ -553,27 +563,27 @@ func (p *humanPlayer) handleInput() {
 }
 
 func (p *humanPlayer) selectNextColony(center bool) {
-	colony := p.findNextColony()
+	colony := p.findNextColony(p.state.colonies)
 	p.selectColony(colony)
 	if center && p.state.selectedColony != nil {
 		p.state.camera.ToggleCamera(p.state.selectedColony.pos)
 	}
 }
 
-func (p *humanPlayer) findNextColony() *colonyCoreNode {
-	if len(p.state.colonies) == 0 {
+func (p *humanPlayer) findNextColony(colonies []*colonyCoreNode) *colonyCoreNode {
+	if len(colonies) == 0 {
 		return nil
 	}
-	if len(p.state.colonies) == 1 {
-		return p.state.colonies[0]
+	if len(colonies) == 1 {
+		return colonies[0]
 	}
-	index := xslices.Index(p.state.colonies, p.state.selectedColony)
-	if index == len(p.state.colonies)-1 {
+	index := xslices.Index(colonies, p.state.selectedColony)
+	if index == len(colonies)-1 {
 		index = 0
 	} else {
 		index++
 	}
-	return p.state.colonies[index]
+	return colonies[index]
 }
 
 func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
@@ -667,6 +677,15 @@ func (p *humanPlayer) onExitButtonClicked(gsignal.Void) {
 func (p *humanPlayer) onToggleButtonClicked(gsignal.Void) {
 	if p.tooltipManager != nil {
 		p.tooltipManager.removeTooltip()
+	}
+
+	if p.spectator {
+		colony := p.findNextColony(p.world.allColonies)
+		if colony != nil {
+			p.state.selectedColony = colony
+			p.state.camera.ToggleCamera(p.state.selectedColony.pos)
+		}
+		return
 	}
 
 	if p.creepsState == nil {

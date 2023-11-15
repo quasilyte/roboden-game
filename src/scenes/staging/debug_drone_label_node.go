@@ -45,7 +45,7 @@ func (l *debugDroneLabelNode) Init(scene *ge.Scene) {
 	l.label.Pos.Offset.Y = 6
 	l.label.AlignHorizontal = ge.AlignHorizontalCenter
 	l.label.AlignVertical = ge.AlignVerticalCenter
-	l.label.ColorScale.SetRGBA(0x9d, 0xd7, 0x93, 200)
+	l.label.SetColorScaleRGBA(0x9d, 0xd7, 0x93, 200)
 	l.pstate.camera.Private.AddGraphicsAbove(l)
 }
 

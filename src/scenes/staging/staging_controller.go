@@ -591,7 +591,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	if c.state.Persistent.Settings.ShowFPS || c.state.Persistent.Settings.ShowTimer {
 		if len(c.world.cameras) != 0 {
 			c.debugInfo = ge.NewLabel(assets.BitmapFont1)
-			c.debugInfo.ColorScale.SetRGBA(0x9d, 0xd7, 0x93, 0xff)
+			c.debugInfo.SetColorScaleRGBA(0x9d, 0xd7, 0x93, 0xff)
 			c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 20}
 			c.world.cameras[0].UI.AddGraphics(c.debugInfo)
 		}

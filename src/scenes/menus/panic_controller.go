@@ -60,7 +60,7 @@ func (c *PanicController) Init(scene *ge.Scene) {
 	errorLabel.GrowVertical = ge.GrowVerticalDown
 	errorLabel.Pos.Offset = gmath.Vec{X: 16, Y: 16}
 	errorLabel.Text = text + "\n\n" + fmt.Sprint(c.panicInfo.Value) + "\n" + trimmedTrace
-	errorLabel.ColorScale.SetRGBA(0x9d, 0xd7, 0x93, 0xff)
+	errorLabel.SetColorScaleRGBA(0x9d, 0xd7, 0x93, 0xff)
 	scene.AddGraphics(errorLabel)
 }
 

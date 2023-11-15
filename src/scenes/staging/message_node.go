@@ -97,7 +97,7 @@ func (m *messageNode) Init(scene *ge.Scene) {
 	m.label.Height = m.height
 	m.label.Pos.Offset = m.pos.Add(gmath.Vec{Y: 4})
 	m.label.Text = m.text
-	m.label.ColorScale.SetColor(ge.RGB(0x9dd793))
+	m.label.SetColorScaleRGBA(0x9d, 0xd7, 0x93, 0xff)
 
 	if !m.targetPos.Resolve().IsZero() {
 		m.targetLine = ge.NewLine(ge.Pos{}, ge.Pos{})

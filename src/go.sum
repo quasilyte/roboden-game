@@ -10,8 +10,11 @@ github.com/hajimehoshi/bitmapfont/v3 v3.0.0 h1:r2+6gYK38nfztS/et50gHAswb9hXgxXEC
 github.com/hajimehoshi/bitmapfont/v3 v3.0.0/go.mod h1:+CxxG+uMmgU4mI2poq944i3uZ6UYFfAkj9V6WqmuvZA=
 github.com/hajimehoshi/ebiten/v2 v2.6.0 h1:nh09FUhjNGFVcUUPsx6oTMbD1pHerNvTKPE+494y3cU=
 github.com/hajimehoshi/ebiten/v2 v2.6.0/go.mod h1:TZtorL713an00UW4LyvMeKD8uXWnuIuCPtlH11b0pgI=
+github.com/hajimehoshi/file2byteslice v0.0.0-20210813153925-5340248a8f41/go.mod h1:CqqAHp7Dk/AqQiwuhV1yT2334qbA/tFWQW0MD2dGqUE=
 github.com/hajimehoshi/go-steamworks v0.0.0-20230809071343-ee1a81910acc h1:su3G3PSnbcv2j3nAsryljGCsoxjgdu7oNxUXRyj7NCk=
 github.com/hajimehoshi/go-steamworks v0.0.0-20230809071343-ee1a81910acc/go.mod h1:dXOYZp8y+T57rJesE7OBBI9ZWtu85NwaaBTb3PEeLU4=
+github.com/hajimehoshi/oto/v2 v2.3.1/go.mod h1:seWLbgHH7AyUMYKfKYT9pg7PhUu9/SisyJvNTT+ASQo=
+github.com/jakecoffman/cp v1.2.1/go.mod h1:JjY/Fp6d8E1CHnu74gWNnU0+b9VzEdUVPoJxg2PsTQg=
 github.com/jezek/xgb v1.1.0 h1:wnpxJzP1+rkbGclEkmwpVFQWpuE2PUGNUzP8SbfFobk=
 github.com/jezek/xgb v1.1.0/go.mod h1:nrhwO0FX/enq75I7Y7G8iN1ubpSGZEiA3v9e9GyRFlk=
 github.com/jfreymuth/oggvorbis v1.0.5 h1:u+Ck+R0eLSRhgq8WTmffYnrVtSztJcYrl588DM4e3kQ=
@@ -31,6 +34,8 @@ github.com/quasilyte/gdata v0.8.1 h1:cR9TFUHrRciVq1E4hqofan6jcQvmJd9lM1E7YLeUfi8
 github.com/quasilyte/gdata v0.8.1/go.mod h1:VZbd2RCpKR2cbTGuLC1Esnyl1+KFv/jXBJrs/ijL8TA=
 github.com/quasilyte/ge v0.0.0-20231115130203-182a2a2a6800 h1:BJhLXfA9AGBz02tWkB9SudC4+qTgyWdQbizE5IntUPE=
 github.com/quasilyte/ge v0.0.0-20231115130203-182a2a2a6800/go.mod h1:SZ1XrZNdqgThnC/GS4lAPrwyP00pUNlESCDAGdZz95c=
+github.com/quasilyte/ge v0.0.0-20231115160627-da35ef8153e1 h1:O12NqS4JmYndVQGSk1GJHKps1kd9fvC57nj8fl9dETU=
+github.com/quasilyte/ge v0.0.0-20231115160627-da35ef8153e1/go.mod h1:SZ1XrZNdqgThnC/GS4lAPrwyP00pUNlESCDAGdZz95c=
 github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef h1:ylROAnCA+a6Ry6M9pkRXzL+bhPIT5ctHND5kcdxbwe4=
 github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef/go.mod h1:EbI+KMbALSVE2s0YFOQpR4uj66zBh9ter5P4CBMSuvA=
 github.com/quasilyte/gsignal v0.0.0-20231010082051-3c00e9ebb4e5 h1:G6D9dfcBvveLmNi8B7de96/347Xk8rvTyhQb6uNwWPQ=

@@ -146,19 +146,25 @@ func (w *choiceWindowNode) Init(scene *ge.Scene) {
 			w.cam.UI.AddGraphics(icon)
 		}
 
+		choiceRect := gmath.Rect{
+			Min: floppy.Pos.Resolve(),
+			Max: floppy.Pos.Resolve().Add(gmath.Vec{
+				X: floppy.ImageWidth(),
+				Y: floppy.ImageHeight(),
+			}),
+		}
+		if w.world.sessionState.Device.IsMobile() {
+			// Make the clickable area larger on mobiles.
+			choiceRect.Min = choiceRect.Min.Sub(gmath.Vec{X: 10, Y: 4})
+			choiceRect.Max = choiceRect.Max.Add(gmath.Vec{Y: 4})
+		}
 		choice := &choiceOptionSlot{
 			flipAnim: ge.NewAnimation(flipSprite, -1),
 			label1:   label1,
 			label2:   label2,
 			floppy:   floppy,
 			icon:     icon,
-			rect: gmath.Rect{
-				Min: floppy.Pos.Resolve(),
-				Max: floppy.Pos.Resolve().Add(gmath.Vec{
-					X: floppy.ImageWidth(),
-					Y: floppy.ImageHeight(),
-				}),
-			},
+			rect:     choiceRect,
 		}
 		// Hide it behind the camera before Update() starts to drag it in.
 		floppy.Pos.Offset.X += 640

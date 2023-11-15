@@ -1,3 +1,9 @@
+// A Kage port of https://www.shadertoy.com/view/Ms23DR by https://github.com/Zyko0
+//
+// The original license comment is:
+//	Loosely based on postprocessing shader by inigo quilez,
+//	License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+
 package main
 
 //kage:unit pixels

@@ -392,7 +392,12 @@ func (c *creepNode) explode() {
 	default:
 		roll := c.scene.Rand().Float()
 		if roll < 0.3 {
-			createExplosion(c.world, aboveEffectLayer, c.pos)
+			if !c.world.simulation {
+				createExplosion(c.world, aboveEffectLayer, c.pos)
+				for i := 1; i < c.stats.Tier; i++ {
+					createMuteExplosion(c.world, aboveEffectLayer, c.pos.Add(c.world.localRand.Offset(-8, 8)))
+				}
+			}
 		} else {
 			var scraps *essenceSourceStats
 			if roll > 0.65 {

@@ -1721,7 +1721,7 @@ func (a *colonyAgentNode) damageReduction() float64 {
 	extraReduction := 0.0
 	switch a.mode {
 	case agentModeBomberAttack:
-		extraReduction = 0.5
+		extraReduction = 0.6
 	case agentModeFollowCommander:
 		extraReduction = 0.20
 	}
@@ -1736,7 +1736,7 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 	case agentModeKamikazeAttack:
 		return 2 * a.speed
 	case agentModeBomberAttack:
-		baseSpeed = a.speed + 50
+		baseSpeed = a.speed + 60
 	case agentModeTakeoff, agentModeRecycleLanding:
 		return 30
 	case agentModePickup, agentModeResourceTakeoff, agentModeAlignStandby:

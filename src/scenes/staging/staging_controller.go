@@ -990,7 +990,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		return c.launchRelocation(selectedColony, dist, relocationPos)
 	case specialIncreaseRadius:
 		c.world.result.RadiusIncreases++
-		selectedColony.realRadius += c.world.rand.FloatRange(16, 32)
+		selectedColony.realRadius += c.world.rand.FloatRange(24, 32)
 		selectedColony.realRadiusSqr = selectedColony.realRadius * selectedColony.realRadius
 		return true
 	case specialDecreaseRadius:

@@ -401,7 +401,11 @@ func (s *apiServer) doRunReplay() (bool, error) {
 
 	var result serverapi.GameResults
 	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
-		return true, fmt.Errorf("unmarshal runsim results: %w", err)
+		part := stdout.Bytes()
+		if len(part) > 128 {
+			part = part[:128]
+		}
+		return true, fmt.Errorf("unmarshal runsim results: %w (%q)", err, string(part))
 	}
 
 	if result != replayData.Results {

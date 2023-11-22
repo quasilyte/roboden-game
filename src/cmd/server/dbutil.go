@@ -15,6 +15,10 @@ type seasonDB struct {
 	classicFetchAll    *sql.Stmt
 	classicUpsert      *sql.Stmt
 
+	blitzPlayerScore *sql.Stmt
+	blitzFetchAll    *sql.Stmt
+	blitzUpsert      *sql.Stmt
+
 	arenaPlayerScore *sql.Stmt
 	arenaFetchAll    *sql.Stmt
 	arenaUpsert      *sql.Stmt
@@ -85,6 +89,42 @@ func (db *seasonDB) PrepareQueries() error {
 			return err
 		}
 		db.classicUpsert = stmt
+	}
+
+	{
+		q := "SELECT score FROM blitz_scores WHERE player_name = ?"
+		stmt, err := db.conn.Prepare(q)
+		if err != nil {
+			return err
+		}
+		db.blitzPlayerScore = stmt
+	}
+
+	if db.id == currentSeason {
+		q := `
+			SELECT player_name, score, difficulty, drones, time_seconds, platform
+			FROM blitz_scores
+			ORDER BY score DESC
+		`
+		stmt, err := db.conn.Prepare(q)
+		if err != nil {
+			return err
+		}
+		db.blitzFetchAll = stmt
+	}
+
+	{
+		q := `
+		INSERT OR REPLACE INTO blitz_scores
+			('player_name', 'replay_id', 'score', 'difficulty', 'drones', 'time_seconds', 'platform')
+		VALUES
+			(?, ?, ?, ?, ?, ?, ?)
+		`
+		stmt, err := db.conn.Prepare(q)
+		if err != nil {
+			return err
+		}
+		db.blitzUpsert = stmt
 	}
 
 	{
@@ -203,6 +243,8 @@ func (db *seasonDB) UpdatePlayerScore(mode, name string, replayID int, drones st
 	switch mode {
 	case "classic":
 		_, err = db.classicUpsert.Exec(name, replayID, score, difficulty, drones, timeSeconds, platform)
+	case "blitz":
+		_, err = db.blitzUpsert.Exec(name, replayID, score, difficulty, drones, timeSeconds, platform)
 	case "arena":
 		_, err = db.arenaUpsert.Exec(name, replayID, score, difficulty, drones, platform)
 	case "inf_arena":
@@ -219,6 +261,8 @@ func (db *seasonDB) PlayerScore(mode, name string) int {
 	switch mode {
 	case "classic":
 		err = db.classicPlayerScore.QueryRow(name).Scan(&result)
+	case "blitz":
+		err = db.blitzPlayerScore.QueryRow(name).Scan(&result)
 	case "arena":
 		err = db.arenaPlayerScore.QueryRow(name).Scan(&result)
 	case "inf_arena":
@@ -238,6 +282,8 @@ func (db *seasonDB) AllScores(mode string) ([]serverapi.LeaderboardEntry, error)
 	switch mode {
 	case "classic":
 		rows, err = db.classicFetchAll.Query()
+	case "blitz":
+		rows, err = db.blitzFetchAll.Query()
 	case "arena":
 		rows, err = db.arenaFetchAll.Query()
 	case "inf_arena":
@@ -255,7 +301,7 @@ func (db *seasonDB) AllScores(mode string) ([]serverapi.LeaderboardEntry, error)
 		var e serverapi.LeaderboardEntry
 		var err error
 		switch mode {
-		case "classic", "inf_arena":
+		case "classic", "blitz", "inf_arena":
 			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Drones, &e.Time, &e.Platform)
 		case "arena":
 			err = rows.Scan(&e.PlayerName, &e.Score, &e.Difficulty, &e.Drones, &e.Platform)

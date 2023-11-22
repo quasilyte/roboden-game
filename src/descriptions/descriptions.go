@@ -250,6 +250,7 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier, global
 	case gamedata.AgentCommander:
 		traits = append(traits, d.Get("drone.ability.group_command"))
 		traits = append(traits, d.Get("drone.ability.group_buff"))
+		traits = append(traits, d.Get("drone.ability.group_buff_def"))
 	case gamedata.AgentTargeter:
 		traits = append(traits, d.Get("drone.ability.target_marking"))
 	case gamedata.AgentKamikaze:

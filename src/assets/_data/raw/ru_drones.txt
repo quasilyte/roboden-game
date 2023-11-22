@@ -95,6 +95,7 @@
 ##drone.ability.discharged_after_attack : Разряжается после использования оружия
 ##drone.ability.group_command : Берёт под контроль несколько боевых дронов
 ##drone.ability.group_buff : Улучшает меткость стрельбы своей группы
+##drone.ability.group_buff_def : Увеличивает прочность дронов группы
 ##drone.ability.target_marking : Размеченные им цели можно атаковать издалека
 ##drone.ability.kamikaze : Перед смертью бросается в последний рывок
 ##drone.ability.prism_reflect : Атаки близкостоящих призм объединяются

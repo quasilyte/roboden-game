@@ -94,6 +94,7 @@
 ##drone.ability.discharged_after_attack : Completely discharges after firing its weapon
 ##drone.ability.group_command : Takes command of several combat drones
 ##drone.ability.group_buff : Improves the firing accuracy of its group
+##drone.ability.group_buff_def : Improves the durability of its group
 ##drone.ability.target_marking : Makes targets attackable from a longer distance
 ##drone.ability.kamikaze : Becomes a kamikaze drone if heavily damaged
 ##drone.ability.prism_reflect : Combines attacks with nearby prisms

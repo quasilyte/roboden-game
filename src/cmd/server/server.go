@@ -46,6 +46,7 @@ type apiServer struct {
 
 	leaderboardMu       sync.RWMutex
 	classicLeaderboard  *leaderboardData
+	blitzLeaderboard    *leaderboardData
 	arenaLeaderboard    *leaderboardData
 	infArenaLeaderboard *leaderboardData
 	reverseLeaderboard  *leaderboardData
@@ -76,6 +77,7 @@ func newAPIServer(config serverConfig) *apiServer {
 		metricsFile:  config.metricsFile,
 
 		classicLeaderboard:  &leaderboardData{mode: "classic"},
+		blitzLeaderboard:    &leaderboardData{mode: "blitz"},
 		arenaLeaderboard:    &leaderboardData{mode: "arena"},
 		infArenaLeaderboard: &leaderboardData{mode: "inf_arena"},
 		reverseLeaderboard:  &leaderboardData{mode: "reverse"},
@@ -103,6 +105,9 @@ func (s *apiServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *apiServer) Preload() error {
 	if err := s.reloadLeaderboard(s.classicLeaderboard); err != nil {
+		return err
+	}
+	if err := s.reloadLeaderboard(s.blitzLeaderboard); err != nil {
 		return err
 	}
 	if err := s.reloadLeaderboard(s.arenaLeaderboard); err != nil {
@@ -170,6 +175,7 @@ func (s *apiServer) Stop() {
 
 func (s *apiServer) BackgroundTask() {
 	untilClassicLeaderboardUpdate := s.intervalLeaderboardUpdate()
+	untilBlitzLeaderboardUpdate := s.intervalLeaderboardUpdate()
 	untilArenaLeaderboardUpdate := s.intervalLeaderboardUpdate()
 	untilInfArenaLeaderboardUpdate := s.intervalLeaderboardUpdate()
 	untilReverseLeaderboardUpdate := s.intervalLeaderboardUpdate()
@@ -201,6 +207,18 @@ func (s *apiServer) BackgroundTask() {
 				s.logger.Info("reloaded classic leaderboard")
 			}
 			untilClassicLeaderboardUpdate = s.intervalLeaderboardUpdate() * delayMultiplier
+			continue
+		}
+		untilBlitzLeaderboardUpdate -= secondsSlept
+		if untilBlitzLeaderboardUpdate <= 0 {
+			delayMultiplier := 1.0
+			if err := s.reloadLeaderboard(s.blitzLeaderboard); err != nil {
+				s.logger.Error("blitz leaderboard reload: %v", err)
+				delayMultiplier += floatRange(s.rand, 0.5, 1.5)
+			} else {
+				s.logger.Info("reloaded blitz leaderboard")
+			}
+			untilBlitzLeaderboardUpdate = s.intervalLeaderboardUpdate() * delayMultiplier
 			continue
 		}
 		untilArenaLeaderboardUpdate -= secondsSlept
@@ -461,6 +479,8 @@ func (s *apiServer) getBoardForMode(mode string) *leaderboardData {
 	switch mode {
 	case "classic":
 		return s.classicLeaderboard
+	case "blitz":
+		return s.blitzLeaderboard
 	case "arena":
 		return s.arenaLeaderboard
 	case "inf_arena":

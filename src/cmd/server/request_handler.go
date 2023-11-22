@@ -46,7 +46,7 @@ func (h *requestHandler) HandleGetPlayerBoard(r *http.Request) (any, error) {
 	}
 	modeParam := r.URL.Query().Get("mode")
 	switch modeParam {
-	case "classic", "arena", "inf_arena", "reverse":
+	case "classic", "blitz", "arena", "inf_arena", "reverse":
 		// OK
 	default:
 		return nil, errBadParams
@@ -93,7 +93,7 @@ func (h *requestHandler) HandleGetBoard(r *http.Request) (any, error) {
 	}
 	modeParam := r.URL.Query().Get("mode")
 	switch modeParam {
-	case "classic", "arena", "inf_arena", "reverse":
+	case "classic", "blitz", "arena", "inf_arena", "reverse":
 		// OK
 	default:
 		return nil, errBadParams

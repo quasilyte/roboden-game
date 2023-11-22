@@ -632,9 +632,9 @@ func (c *Controller) runBlitzSetup(blitz *blitzManager) {
 	c.nodeRunner.ticks = 0
 	if c.debugInfo != nil {
 		c.forcedUpdateDebug()
+		c.state.Logf("blitz setup simulation finished")
 	}
 	c.world.gameStarted = true
-	c.state.Logf("blitz setup simulation finished")
 
 	// Swap the computer players with human players, if necessary.
 	switch c.config.PlayersMode {

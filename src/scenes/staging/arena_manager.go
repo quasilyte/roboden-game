@@ -182,7 +182,10 @@ func (m *arenaManager) Init(scene *ge.Scene) {
 	m.infoUpdateDelay = 5
 	m.prepareWave()
 	m.overviewText = m.createWaveOverviewText()
-	if len(m.world.cameras) != 0 {
+}
+
+func (m *arenaManager) LateInit() {
+	if !m.world.simulation {
 		m.info = m.createWaveInfoMessageNode()
 		m.world.nodeRunner.AddObject(m.info)
 	}

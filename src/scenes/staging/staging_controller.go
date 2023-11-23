@@ -614,6 +614,11 @@ func (c *Controller) doInit(scene *ge.Scene) {
 			c.updateFogOfWar(colony.pos)
 		}
 	}
+
+	// Call LateInit after the cameras are initialized.
+	if c.arenaManager != nil {
+		c.arenaManager.LateInit()
+	}
 }
 
 func (c *Controller) runBlitzSetup(blitz *blitzManager) {

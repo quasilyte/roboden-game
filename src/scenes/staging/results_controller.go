@@ -160,6 +160,9 @@ func (c *resultsController) updateProgress() {
 			if !xslices.Contains(stats.ModesUnlocked, "classic") {
 				stats.ModesUnlocked = append(stats.ModesUnlocked, "classic")
 			}
+			if !xslices.Contains(stats.ModesUnlocked, "blitz") {
+				stats.ModesUnlocked = append(stats.ModesUnlocked, "blitz")
+			}
 			stats.TutorialCompleted = true
 		}
 		return

@@ -143,7 +143,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			},
 			OnPressed: func() {
 				ebiten.SetFullscreen(options.Graphics.FullscreenEnabled)
-				displayRatio := gamedata.SupportedDisplayRatios[options.Graphics.AspectRation]
+				displayRatio := gamedata.SupportedDisplayRatios[options.Graphics.AspectRatio]
 				if options.Graphics.FullscreenEnabled {
 					ebiten.SetWindowSize(int(displayRatio.Width), int(displayRatio.Height))
 				}
@@ -156,7 +156,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			Scene:     c.scene,
 			Resources: uiResources,
 			Input:     c.state.MenuInput,
-			Value:     &options.Graphics.AspectRation,
+			Value:     &options.Graphics.AspectRatio,
 			Label:     d.Get("menu.options.graphics.aspect_ratio"),
 			ValueNames: []string{
 				gamedata.SupportedDisplayRatios[0].Name,
@@ -167,7 +167,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 				gamedata.SupportedDisplayRatios[5].Name,
 			},
 			OnPressed: func() {
-				displayRatio := gamedata.SupportedDisplayRatios[options.Graphics.AspectRation]
+				displayRatio := gamedata.SupportedDisplayRatios[options.Graphics.AspectRatio]
 				ctx := c.scene.Context()
 				ctx.WindowWidth = displayRatio.Width
 				ctx.WindowHeight = displayRatio.Height

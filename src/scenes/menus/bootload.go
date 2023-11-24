@@ -153,8 +153,24 @@ func (c *BootloadController) onFirstLaunch() bool {
 
 			// Use 16:10 on Steam Deck instead of default 16:9.
 			// This removes the black vertical lines/borders.
-			c.state.Persistent.Settings.Graphics.AspectRation = gamedata.FindDisplayRatio("16:10")
+			c.state.Persistent.Settings.Graphics.AspectRatio = gamedata.FindDisplayRatio("16:10")
 		}
+	}
+
+	if c.state.Device.IsMobile() {
+		ratioX, ratioY := c.scene.Context().InferDisplayRatio()
+		ratioKey := fmt.Sprintf("%d:%d", ratioX, ratioY)
+		c.state.Persistent.Settings.Graphics.AspectRatio = gamedata.FindDisplayRatio(ratioKey)
+		c.state.Logf("the inferred display ratio is %s", ratioKey)
+	}
+
+	{
+		displayRatio := gamedata.SupportedDisplayRatios[c.state.Persistent.Settings.Graphics.AspectRatio]
+		ctx := c.scene.Context()
+		ctx.WindowWidth = displayRatio.Width
+		ctx.WindowHeight = displayRatio.Height
+		ctx.ScreenWidth = displayRatio.Width
+		ctx.ScreenHeight = displayRatio.Height
 	}
 
 	c.state.Persistent.FirstLaunch = false

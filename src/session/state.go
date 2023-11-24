@@ -225,7 +225,7 @@ type GraphicsSettings struct {
 	AllShadersEnabled    bool
 	ScreenFilter         int
 	FullscreenEnabled    bool
-	AspectRation         int
+	AspectRatio          int
 }
 
 const (

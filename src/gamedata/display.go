@@ -21,7 +21,7 @@ func FindDisplayRatio(name string) int {
 			return i
 		}
 	}
-	panic("invalid screen ratio")
+	return 0
 }
 
 func MaxDisplayWidth() float64 {

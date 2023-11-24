@@ -13,7 +13,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/quasilyte/ebitengine-resource v0.5.1-0.20231101125830-f1fc00a87be0
 	github.com/quasilyte/gdata v0.8.1
-	github.com/quasilyte/ge v0.0.0-20231115160627-da35ef8153e1
+	github.com/quasilyte/ge v0.0.0-20231124151700-929daaff90ec
 	github.com/quasilyte/gmath v0.0.0-20230626195558-43d7cdc669ef
 	github.com/quasilyte/gsignal v0.0.0-20231010082051-3c00e9ebb4e5
 	github.com/quasilyte/xm v0.0.0-20231101102547-462698b5183e

@@ -1,6 +1,8 @@
 ![logo](_metadata/logo.png)
 
-[Roboden in available on Steam!](https://store.steampowered.com/app/2416030/Roboden/)
+[Roboden is available on Steam!](https://store.steampowered.com/app/2416030/Roboden/)
+
+[Roboden is available on Google Play!](https://play.google.com/store/apps/details?id=com.quasilyte.roboden)
 
 You can also play this game in your browser on [itch.io](https://quasilyte.itch.io/roboden).
 

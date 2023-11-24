@@ -243,9 +243,9 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, config *assets.Config, p
 	}
 
 	if c.state.Device.IsMobile() {
-		alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<>.,=+-:()[]&@'\"%!?"
+		alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 <>.,=+-:()[]&@'\"%!?"
 		if c.state.Persistent.Settings.Lang == "ru" {
-			alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789<>.,=+-:()[]&@'\"%!?"
+			alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789 <>.,=+-:()[]&@'\"%!?"
 		}
 		text.CacheGlyphs(assets.BitmapFont1, alphabet)
 		text.CacheGlyphs(assets.BitmapFont2, alphabet)

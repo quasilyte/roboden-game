@@ -63,6 +63,9 @@ func (c *ProfileStatsMenuController) initUI() {
 		{d.Get("menu.profile.stats.totalscore"), fmt.Sprintf("%v", stats.TotalScore)},
 		{d.Get("menu.profile.stats.classic_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestClassicScore, stats.HighestClassicScoreDifficulty)},
 	}
+	if stats.TotalScore >= gamedata.BlitzModeCost {
+		lines = append(lines, [2]string{d.Get("menu.profile.stats.blitz_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestBlitzScore, stats.HighestBlitzScoreDifficulty)})
+	}
 	if stats.TotalScore >= gamedata.ArenaModeCost {
 		lines = append(lines, [2]string{d.Get("menu.profile.stats.arena_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestArenaScore, stats.HighestArenaScoreDifficulty)})
 	}
@@ -100,6 +103,7 @@ func (c *ProfileStatsMenuController) initUI() {
 	rowContainer.AddChild(sendScoreButton)
 	sendScoreButton.GetWidget().Disabled = c.state.SentHighscores ||
 		(c.state.Persistent.PlayerStats.HighestClassicScore == 0 &&
+			c.state.Persistent.PlayerStats.HighestBlitzScore == 0 &&
 			c.state.Persistent.PlayerStats.HighestArenaScore == 0 &&
 			c.state.Persistent.PlayerStats.HighestInfArenaScore == 0 &&
 			c.state.Persistent.PlayerStats.HighestReverseScore == 0)
@@ -116,6 +120,7 @@ func (c *ProfileStatsMenuController) initUI() {
 func (c *ProfileStatsMenuController) prepareHighscoreReplays() []serverapi.GameReplay {
 	keys := []string{
 		"classic_highscore.json",
+		"blitz_highscore.json",
 		"arena_highscore.json",
 		"inf_arena_highscore.json",
 		"reverse_highscore.json",

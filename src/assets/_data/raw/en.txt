@@ -83,6 +83,7 @@ You can change this decision later.
 
 ##menu.profile.stats.totalscore : Total score
 ##menu.profile.stats.classic_highscore : Classic highest score
+##menu.profile.stats.blitz_highscore : Blitz highest score
 ##menu.profile.stats.arena_highscore : Arena highest score
 ##menu.profile.stats.inf_arena_highscore : Infinite arena highest score
 ##menu.profile.stats.reverse_highscore : Reverse highest score

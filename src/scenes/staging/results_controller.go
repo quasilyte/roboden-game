@@ -191,6 +191,12 @@ func (c *resultsController) updateProgress() {
 			stats.HighestClassicScore = c.results.Score
 			stats.HighestClassicScoreDifficulty = c.results.DifficultyScore
 		}
+	case gamedata.ModeBlitz:
+		if stats.HighestBlitzScore < c.results.Score {
+			c.highScore = true
+			stats.HighestBlitzScore = c.results.Score
+			stats.HighestBlitzScoreDifficulty = c.results.DifficultyScore
+		}
 	case gamedata.ModeInfArena:
 		if stats.HighestInfArenaScore < c.results.Score {
 			c.highScore = true

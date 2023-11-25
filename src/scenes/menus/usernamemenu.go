@@ -80,6 +80,9 @@ func (c *UserNameMenu) initUI() {
 			}
 		}),
 		widget.TextInputOpts.Validation(func(newInputText string) (bool, *string) {
+			if len(newInputText) == 0 {
+				return true, nil
+			}
 			good := len(newInputText) <= serverapi.MaxNameLength && gamedata.IsValidUsername(newInputText)
 			if !good && c.errorSoundDelay == 0 {
 				c.scene.Audio().PlaySound(assets.AudioError)

@@ -93,13 +93,16 @@ func Main() {
 		}
 		state.Logf("server proto=%q host=%q path=%q", state.ServerProtocol, state.ServerHost, state.ServerPath)
 	} else {
-		// On wasm (inside the browser) we're hardcoding the server data for now.
+		// Force XM tracks when running a web build.
+		// We don't bundle OGG tracks for it.
+		state.Persistent.Settings.XM = true
+	}
+
+	if state.Device.IsMobile() || runtime.GOARCH == "wasm" {
+		// Hardcode the server endpoint for non-desktop targets for now.
 		state.ServerProtocol = "https"
 		state.ServerHost = "quasilyte.tech"
 		state.ServerPath = "/roboden/api"
-		// Also, force XM tracks when running a web build.
-		// We don't bundle OGG tracks for it.
-		state.Persistent.Settings.XM = true
 	}
 
 	if runtime.GOOS == "android" {

@@ -83,6 +83,7 @@
 
 ##menu.profile.stats.totalscore : Суммарное количество очков
 ##menu.profile.stats.classic_highscore : Рекорд в классическом режиме
+##menu.profile.stats.blitz_highscore : Рекорд в блиц-режиме
 ##menu.profile.stats.arena_highscore : Рекорд в арене
 ##menu.profile.stats.inf_arena_highscore : Рекорд в бесконечной арене
 ##menu.profile.stats.reverse_highscore : Рекорд в реверсивном режиме

@@ -169,6 +169,9 @@ type PlayerStats struct {
 	HighestClassicScore           int
 	HighestClassicScoreDifficulty int
 
+	HighestBlitzScore           int
+	HighestBlitzScoreDifficulty int
+
 	HighestArenaScore           int
 	HighestArenaScoreDifficulty int
 

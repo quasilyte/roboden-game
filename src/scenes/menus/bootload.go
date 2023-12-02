@@ -7,7 +7,6 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/text"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gsignal"
@@ -256,16 +255,6 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, config *assets.Config, p
 	for _, step := range steps {
 		*step.dst = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(step.imageID), step.length)
 		*progress += progressPerItem
-	}
-
-	if c.state.Device.IsMobile() {
-		alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 <>.,=+-:()[]&@'\"%!?"
-		if c.state.Persistent.Settings.Lang == "ru" {
-			alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789 <>.,=+-:()[]&@'\"%!?"
-		}
-		text.CacheGlyphs(assets.BitmapFont1, alphabet)
-		text.CacheGlyphs(assets.BitmapFont2, alphabet)
-		text.CacheGlyphs(assets.BitmapFont3, alphabet)
 	}
 }
 

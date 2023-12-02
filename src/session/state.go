@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/gdata"
 	"github.com/quasilyte/ge"
@@ -331,6 +332,16 @@ func (state *State) ReloadLanguage(ctx *ge.Context) {
 		panic(err)
 	}
 	ctx.Dict = dict
+
+	if state.Device.IsMobile() {
+		alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 <>.,=+-:()[]&@'\"%!?●◌"
+		if state.Persistent.Settings.Lang == "ru" {
+			alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789 <>.,=+-:()[]&@'\"%!?●◌"
+		}
+		text.CacheGlyphs(assets.BitmapFont1, alphabet)
+		text.CacheGlyphs(assets.BitmapFont2, alphabet)
+		text.CacheGlyphs(assets.BitmapFont3, alphabet)
+	}
 }
 
 func (state *State) FindNextReplayIndex() int {

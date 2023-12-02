@@ -657,7 +657,7 @@ func (s *apiServer) corsAllowed(origin string) bool {
 		// The usual local debug servers.
 		return true
 
-	case itchioWebGames:
+	case itchioWebGames, "https://html-classic.itch.zone":
 		return true
 
 	default:

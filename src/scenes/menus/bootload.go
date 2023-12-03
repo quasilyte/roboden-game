@@ -256,6 +256,9 @@ func (c *BootloadController) loadExtra(ctx *ge.Context, config *assets.Config, p
 		*step.dst = ge.NewHorizontallyRepeatedTexture(c.scene.LoadImage(step.imageID), step.length)
 		*progress += progressPerItem
 	}
+
+	c.state.CacheCommonGlyphs()
+	c.state.CacheGlyphs()
 }
 
 func (c *BootloadController) Update(delta float64) {

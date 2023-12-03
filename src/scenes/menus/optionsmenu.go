@@ -87,7 +87,13 @@ func (c *OptionsMenuController) initUI() {
 			OnPressed: func() {
 				options.Lang = langOptions[langIndex]
 				c.state.ReloadLanguage(c.scene.Context())
-				c.scene.Context().ChangeScene(c)
+				if c.state.Device.IsMobile() {
+					// Show the spinner and cache the glyphs in the background.
+					c.scene.Context().ChangeScene(NewGlyphCacheController(c.state))
+				} else {
+					// Just reload the current scene.
+					c.scene.Context().ChangeScene(c)
+				}
 			},
 		}))
 	}

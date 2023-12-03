@@ -332,16 +332,31 @@ func (state *State) ReloadLanguage(ctx *ge.Context) {
 		panic(err)
 	}
 	ctx.Dict = dict
+}
 
-	if state.Device.IsMobile() {
-		alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 <>.,=+-:()[]&@'\"%!?●◌"
-		if state.Persistent.Settings.Lang == "ru" {
-			alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789 <>.,=+-:()[]&@'\"%!?●◌"
-		}
-		text.CacheGlyphs(assets.BitmapFont1, alphabet)
-		text.CacheGlyphs(assets.BitmapFont2, alphabet)
-		text.CacheGlyphs(assets.BitmapFont3, alphabet)
+func (state *State) CacheCommonGlyphs() {
+	if !state.Device.IsMobile() {
+		return
 	}
+
+	alphabet := "0123456789 <>.,=+-:()[]&@'\"%!?●◌|\\"
+	text.CacheGlyphs(assets.BitmapFont1, alphabet)
+	text.CacheGlyphs(assets.BitmapFont2, alphabet)
+	text.CacheGlyphs(assets.BitmapFont3, alphabet)
+}
+
+func (state *State) CacheGlyphs() {
+	if !state.Device.IsMobile() {
+		return
+	}
+
+	alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	if state.Persistent.Settings.Lang == "ru" {
+		alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+	}
+	text.CacheGlyphs(assets.BitmapFont1, alphabet)
+	text.CacheGlyphs(assets.BitmapFont2, alphabet)
+	text.CacheGlyphs(assets.BitmapFont3, alphabet)
 }
 
 func (state *State) FindNextReplayIndex() int {

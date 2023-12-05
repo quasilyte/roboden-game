@@ -515,4 +515,7 @@ const SeasonNumber = 1
 // - Removed _localStorageAvailable from the index.html (it's not needed anymore)
 // - Use new ge package version that uses mobile.SetGame instead of ebiten.RunGame for mobile platforms
 // - Server can now achive interesting replays in addition to the rejected replays
+//
+// # Version 24
+// - An option to disable pause turning off the fast forward
 const BuildNumber int = 23

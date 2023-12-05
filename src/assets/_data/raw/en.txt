@@ -149,6 +149,7 @@ You can change this decision later.
 
 ##menu.options.hint_mode : In-game tooltips
 ##menu.options.screen_buttons : Screen buttons
+##menu.options.pause_speed_toggle : Disable FF on pause
 ##menu.options.effects_volume : Effects volume
 ##menu.options.music_volume : Music volume
 ##menu.options.scroll_speed : Scroll speed

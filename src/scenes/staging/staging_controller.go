@@ -1677,7 +1677,9 @@ func (c *Controller) onPausePressed() {
 		return
 	}
 
-	c.nodeRunner.SetFastForward(false)
+	if !c.state.Persistent.Settings.NoPauseSpeedToggle {
+		c.nodeRunner.SetFastForward(false)
+	}
 	c.removePauseNotices()
 
 	paused := !c.nodeRunner.IsPaused()

@@ -94,6 +94,19 @@ func (c *OptionsGameplayMenuController) initUI() {
 		}))
 	}
 
+	if !c.state.Device.IsMobile() {
+		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+			Resources: uiResources,
+			Value:     &options.NoPauseSpeedToggle,
+			Label:     d.Get("menu.options.pause_speed_toggle"),
+			ValueNames: []string{
+				// It's a reverse (negated) option, so this order makes sense.
+				d.Get("menu.option.on"),
+				d.Get("menu.option.off"),
+			},
+		}))
+	}
+
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {

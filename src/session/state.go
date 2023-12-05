@@ -214,6 +214,7 @@ type GameSettings struct {
 	DebugDroneLabels   bool
 	Demo               bool
 	ScreenButtons      bool
+	NoPauseSpeedToggle bool
 	IntroDifficulty    int
 	IntroSpeed         int
 	GamepadSettings    [2]GamepadSettings

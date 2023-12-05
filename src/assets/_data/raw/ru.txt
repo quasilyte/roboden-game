@@ -150,6 +150,7 @@
 
 ##menu.options.hint_mode : Всплывающие подсказки
 ##menu.options.screen_buttons : Экранные кнопки
+##menu.options.pause_speed_toggle : Пауза отключает ускорение
 ##menu.options.effects_volume : Громкость эффектов
 ##menu.options.music_volume : Громкость музыки
 ##menu.options.scroll_speed : Скорость скроллинга

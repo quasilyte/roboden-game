@@ -250,6 +250,25 @@ type SavedReplay struct {
 	Replay    serverapi.GameReplay
 }
 
+func (state *State) GetConfigForMode(m gamedata.Mode) *gamedata.LevelConfig {
+	switch m {
+	case gamedata.ModeBlitz:
+		return state.BlitzLevelConfig
+	case gamedata.ModeArena:
+		return state.ArenaLevelConfig
+	case gamedata.ModeInfArena:
+		return state.InfArenaLevelConfig
+	case gamedata.ModeClassic:
+		return state.ClassicLevelConfig
+	case gamedata.ModeReverse:
+		return state.ReverseLevelConfig
+	case gamedata.ModeTutorial:
+		return state.TutorialLevelConfig
+	default:
+		panic("unexpected game mode")
+	}
+}
+
 func (state *State) AdjustVolumeLevels() {
 	state.Context.Audio.SetGroupVolume(assets.SoundGroupMusic,
 		assets.VolumeMultiplier(state.Persistent.Settings.MusicVolumeLevel))
@@ -386,4 +405,8 @@ func (state *State) FindNextReplayIndex() int {
 
 func (state *State) ReplayDataKey(i int) string {
 	return fmt.Sprintf("saved_replay_%d.json", i)
+}
+
+func (state *State) SchemaDataKey(m gamedata.Mode, i int) string {
+	return fmt.Sprintf("%s_schema_%d.json", m.String(), i)
 }

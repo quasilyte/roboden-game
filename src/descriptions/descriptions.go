@@ -3,6 +3,7 @@ package descriptions
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 	"time"
 
@@ -12,6 +13,38 @@ import (
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/timeutil"
 )
+
+func SchemaText(d *langs.Dictionary, id int, schema *gamedata.SavedSchema) string {
+	var lines []string
+
+	title := schema.Name
+	if title == "" {
+		title = fmt.Sprintf("Schema %d", id+1)
+	}
+
+	lines = append(lines, fmt.Sprintf("%s [%s]", title, timeutil.FormatDateISO8601(schema.Date, true)))
+	lines = append(lines, "")
+
+	difficulty := gamedata.CalcDifficultyScore(schema.Config, gamedata.CalcAllocatedPoints(schema.Config.Tier2Recipes))
+	lines = append(lines, fmt.Sprintf("%s: %d%%", d.Get("menu.schema.difficulty"), difficulty))
+	lines = append(lines, "")
+	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.schema.colony"), d.Get("core", schema.Config.CoreDesign)))
+	lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.schema.turret"), d.Get("turret", strings.ToLower(schema.Config.TurretDesign))))
+	lines = append(lines, "")
+
+	{
+		var allDrones []string
+		for _, recipe := range schema.Config.Tier2Recipes {
+			allDrones = append(allDrones, d.Get("drone", strings.ToLower(recipe)))
+		}
+		sort.Strings(allDrones)
+		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.schema.drones"), strings.Join(allDrones, ", ")))
+	}
+
+	// lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.schema.colony"), schema.Config.CoreDesign))
+
+	return strings.Join(lines, "\n")
+}
 
 func ReplayText(d *langs.Dictionary, r *session.SavedReplay) string {
 	var lines []string

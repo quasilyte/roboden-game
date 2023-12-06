@@ -24,6 +24,7 @@ You can change this decision later.
 
 ##menu.main.title : Main Menu
 ##menu.main.play : Play
+##menu.main.schema : Schema Manager
 ##menu.main.profile : Profile
 ##menu.main.settings : Settings
 ##menu.main.credits : Credits
@@ -46,6 +47,25 @@ You can change this decision later.
 ##menu.leaderboard.col_difficulty : difficulty
 ##menu.leaderboard.col_score : score
 ##menu.leaderboard.col_time : time
+
+##menu.save_schema : Save
+##menu.load_schema : Load
+##menu.load_schema_drones : Load Drones
+##menu.rename_schema : Rename
+##menu.schema_name : Schema Name
+##menu.empty_schema_slot : Empty schema slot
+
+##menu.schema.difficulty : Difficulty
+##menu.schema.colony : Colony
+##menu.schema.turret : Turret
+##menu.schema.drones : Drones
+
+##menu.lobby.schema_edit
+Open the schema editor.
+
+You can save the current game settings and restore them later.
+
+Schemas can be used to save and load your favorite drone build.
 
 ##menu.save_replay : Save Replay
 ##menu.publish_score : Publish Score
@@ -376,6 +396,7 @@ Apart from the visual differences, each biome has
 some special differences that will affect the gameplay.
 
 ##menu.lobby.go : Go!
+##menu.lobby.edit : Schema
 
 ##menu.lobby.moon : moon
 ##menu.lobby.forest : forest

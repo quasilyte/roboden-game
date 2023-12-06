@@ -220,6 +220,17 @@ type AgentMergeRecipe struct {
 	Result  *AgentStats
 }
 
+func CalcAllocatedPoints(drones []string) int {
+	pointsAllocated := 0
+	for _, drone := range drones {
+		stats := findRecipeByName(drone)
+		if stats.Result != nil {
+			pointsAllocated += stats.Result.PointCost
+		}
+	}
+	return pointsAllocated
+}
+
 func FindRecipeByName(droneName string) AgentMergeRecipe {
 	r := findRecipeByName(droneName)
 	if r.Result != nil {

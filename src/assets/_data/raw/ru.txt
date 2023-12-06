@@ -24,6 +24,7 @@
 
 ##menu.main.title : Главное меню
 ##menu.main.play : Играть
+##menu.main.schema : Менеджер Игровых Схем
 ##menu.main.profile : Профиль
 ##menu.main.settings : Опции
 ##menu.main.credits : Авторы
@@ -46,6 +47,25 @@
 ##menu.leaderboard.col_difficulty : сложность
 ##menu.leaderboard.col_score : очки
 ##menu.leaderboard.col_time : время
+
+##menu.save_schema : Сохранить
+##menu.load_schema : Загрузить
+##menu.load_schema_drones : Загрузить Дронов
+##menu.rename_schema : Переименовать
+##menu.schema_name : Название Схемы
+##menu.empty_schema_slot : Пустой слот схемы
+
+##menu.schema.difficulty : Сложность
+##menu.schema.colony : Колония
+##menu.schema.turret : Турель
+##menu.schema.drones : Дроны
+
+##menu.lobby.schema_edit
+Открыть редактор игровых схем.
+
+Там можно сохранить текущие настройки для восстановления их в будущем.
+
+Схемы можно использовать как способ сохранить/загрузить любимый набор дронов.
 
 ##menu.save_replay : Сохранить Реплей
 ##menu.publish_score : Отправить Результат
@@ -376,6 +396,7 @@ x1.5 означает, что игра будет работать на 50% бы
 некоторые особенности, влияющие на игровой процесс.
 
 ##menu.lobby.go : Вперёд!
+##menu.lobby.edit : Схема
 
 ##menu.lobby.moon : луна
 ##menu.lobby.forest : лес

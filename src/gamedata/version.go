@@ -518,4 +518,5 @@ const SeasonNumber = 1
 //
 // # Version 24
 // - An option to disable pause turning off the fast forward
+// - Added Schemes to the lobby
 const BuildNumber int = 23

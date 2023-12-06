@@ -175,6 +175,10 @@ func isValidChar(ch byte) bool {
 	return isLetter(ch) || isDigit(ch) || ch == ' ' || ch == '_'
 }
 
+func IsValidSchemaName(s string) bool {
+	return IsValidUsername(s)
+}
+
 func IsValidUsername(s string) bool {
 	nonSpace := 0
 	if len(s) > serverapi.MaxNameLength {

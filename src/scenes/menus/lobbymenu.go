@@ -174,22 +174,7 @@ func (c *LobbyMenuController) initUI() {
 }
 
 func (c *LobbyMenuController) getConfigForMode() *gamedata.LevelConfig {
-	switch c.mode {
-	case gamedata.ModeBlitz:
-		return c.state.BlitzLevelConfig
-	case gamedata.ModeArena:
-		return c.state.ArenaLevelConfig
-	case gamedata.ModeInfArena:
-		return c.state.InfArenaLevelConfig
-	case gamedata.ModeClassic:
-		return c.state.ClassicLevelConfig
-	case gamedata.ModeReverse:
-		return c.state.ReverseLevelConfig
-	case gamedata.ModeTutorial:
-		return c.state.TutorialLevelConfig
-	default:
-		panic("unexpected game mode")
-	}
+	return c.state.GetConfigForMode(c.mode)
 }
 
 func (c *LobbyMenuController) saveConfig() {
@@ -206,7 +191,18 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 	c.difficultyLabel = eui.NewCenteredLabel("Difficulty: 1000%", tinyFont)
 	panel.AddChild(c.difficultyLabel)
 
-	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
+	buttonsGrid := widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+			Stretch: true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(2),
+			widget.GridLayoutOpts.Stretch([]bool{true, true}, nil),
+			widget.GridLayoutOpts.Spacing(4, 4))))
+
+	panel.AddChild(buttonsGrid)
+
+	buttonsGrid.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
 		c.saveConfig()
 
 		if c.config.PlayersMode == serverapi.PmodeSinglePlayer && c.mode == gamedata.ModeReverse {
@@ -229,6 +225,18 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 
 		c.config.Finalize()
 		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
+	}))
+
+	buttonsGrid.AddChild(eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+		Scene: c.scene,
+		Text:  d.Get("menu.lobby.edit"),
+		OnPressed: func() {
+			c.saveConfig()
+			c.scene.Context().ChangeScene(NewSchemaMenuController(c.state, c.mode))
+		},
+		OnHover: func() {
+			c.setHelpText(d.Get("menu.lobby.schema_edit"))
+		},
 	}))
 
 	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {

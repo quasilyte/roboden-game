@@ -2,6 +2,7 @@ package gamedata
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/quasilyte/roboden-game/serverapi"
 )
@@ -68,6 +69,12 @@ func MakeLevelConfig(mode ExecutionMode, config serverapi.ReplayLevelConfig) Lev
 	}
 }
 
+type SavedSchema struct {
+	Name   string                      `json:"name"`
+	Date   time.Time                   `json:"date"`
+	Config serverapi.ReplayLevelConfig `json:"config"`
+}
+
 type LevelConfig struct {
 	serverapi.ReplayLevelConfig
 
@@ -129,11 +136,7 @@ func (config *LevelConfig) Finalize() {
 		}
 	}
 
-	pointsAllocated := 0
-	for _, drone := range config.Tier2Recipes {
-		stats := findRecipeByName(drone)
-		pointsAllocated += stats.Result.PointCost
-	}
+	pointsAllocated := CalcAllocatedPoints(config.Tier2Recipes)
 	config.DifficultyScore = CalcDifficultyScore(config.ReplayLevelConfig, pointsAllocated)
 }
 

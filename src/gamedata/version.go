@@ -516,7 +516,11 @@ const SeasonNumber = 1
 // - Use new ge package version that uses mobile.SetGame instead of ebiten.RunGame for mobile platforms
 // - Server can now achive interesting replays in addition to the rejected replays
 //
-// # Version 24
+// # Version 23.1
 // - An option to disable pause turning off the fast forward
 // - Added Schemes to the lobby
-const BuildNumber int = 23
+// - The first introduction of minor build versions
+const (
+	BuildNumber      int = 23
+	BuildMinorNumber int = 1
+)

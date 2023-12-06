@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strconv"
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
@@ -93,7 +94,12 @@ func (c *MainMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	buildLabel := fmt.Sprintf("%s %d", d.Get("menu.main.build"), gamedata.BuildNumber)
+	buildVersion := strconv.Itoa(gamedata.BuildNumber)
+	if gamedata.BuildMinorNumber != 0 {
+		buildVersion += "." + strconv.Itoa(gamedata.BuildMinorNumber)
+	}
+
+	buildLabel := fmt.Sprintf("%s %s", d.Get("menu.main.build"), buildVersion)
 	if buildinfo.Distribution != buildinfo.TagUnknown {
 		buildLabel += " [" + buildinfo.Distribution + "]"
 	}

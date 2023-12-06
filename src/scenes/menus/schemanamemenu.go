@@ -15,6 +15,11 @@ import (
 	"github.com/quasilyte/roboden-game/session"
 )
 
+// TODO: refarctor all text input-related code.
+// There is a big code duplication on every screen that
+// expects some text input from the user.
+// These screens include: this one, username, lobby (seed), terminal (command input).
+
 type SchemaNameMenu struct {
 	state *session.State
 

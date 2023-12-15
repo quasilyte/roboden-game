@@ -119,6 +119,12 @@ A siege missile launcher.
 Can only attack large ground targets.
 After a few attacks, it needs a long time to reload.
 
+##turret.sentinelpoint : Twister
+##turret.sentinelpoint.description
+A multi-target laser turret capable of attacking both air and ground targets.
+This turret requires the constant maintenance of three worker drones to function.
+If any of these three drones are disabled, the turret will go offline.
+
 ##turret.gunpoint : Pillbox
 ##turret.gunpoint.description
 A sturdy defense that is fast and cheap to build.

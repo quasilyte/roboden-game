@@ -412,6 +412,14 @@ func (a *colonyAgentNode) initExtra() {
 		a.target = turret
 		a.specialDelay = a.world().rand.FloatRange(3, 6)
 
+	case gamedata.SentinelpointAgentStats:
+		turret := newSentinelpointTurretNode(a.world(), a.pos)
+		turret.Init(a.scene)
+		a.EventDestroyed.Connect(nil, func(*colonyAgentNode) {
+			turret.Dispose()
+		})
+		a.target = turret
+
 	case gamedata.DroneFactoryAgentStats:
 		hatch := a.scene.NewSprite(assets.ImageRelictFactoryHatch)
 		hatch.Pos.Base = &a.pos
@@ -1636,10 +1644,6 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 		return
 	}
 
-	if a.stats == gamedata.SentinelpointAgentStats && a.extraLevel == 0 {
-		return
-	}
-
 	reloaded := delta * a.reloadRate
 	if a.resting {
 		reloaded *= 0.7
@@ -2012,6 +2016,38 @@ func (a *colonyAgentNode) updateSentielPatrol(delta float64) {
 }
 
 func (a *colonyAgentNode) updateSentielTurret(delta float64) {
+	a.attackDelay = gmath.ClampMin(a.attackDelay-delta, 0)
+	if a.attackDelay == 0 {
+		fired := false
+		if a.extraLevel != 0 {
+			targets := a.findAttackTargets()
+			turret := a.target.(*sentinelpointTurretNode)
+			for _, target := range targets {
+				fired = true
+				fireOffset := turret.SetRotation(a.pos.AngleToPoint(*target.GetPos()).Normalized())
+				toPos := snipePos(a.stats.Weapon.ProjectileSpeed, a.pos, *target.GetPos(), target.GetVelocity())
+				for i := 0; i < a.stats.Weapon.AttacksPerBurst; i++ {
+					p := a.world().newProjectileNode(projectileConfig{
+						World:      a.world(),
+						Weapon:     a.stats.Weapon,
+						Attacker:   a,
+						ToPos:      toPos,
+						Target:     target,
+						FireOffset: fireOffset,
+						Seq:        uint8(i),
+					})
+					a.world().nodeRunner.AddProjectile(p)
+				}
+			}
+		}
+		if fired {
+			playSound(a.world(), a.stats.Weapon.AttackSound, a.pos)
+			a.attackDelay = a.stats.Weapon.Reload * a.scene.Rand().FloatRange(0.8, 1.2)
+		} else {
+			a.attackDelay = 0.75 * a.scene.Rand().FloatRange(0.8, 1.4)
+		}
+	}
+
 	if a.specialDelay != 0 {
 		return
 	}
@@ -3211,7 +3247,9 @@ func (a *colonyAgentNode) SetSentinelWorkers(workers []*colonyAgentNode) {
 
 	a.extraLevel = 1
 
-	a.target = workers[0]
+	turret := a.target.(*sentinelpointTurretNode)
+
+	turret.worker = workers[0]
 	workers[0].target = workers[1]
 	workers[1].target = workers[2]
 	workers[2].target = a
@@ -3226,10 +3264,11 @@ func (a *colonyAgentNode) ReleaseSentinelWorkers() {
 		worker.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 		worker.target = nil
 	})
-	a.target = nil
+	a.target.(*sentinelpointTurretNode).worker = nil
 }
 
 func (a *colonyAgentNode) GetSentinelTurret() *colonyAgentNode {
+	// a -> worker assigned to a sentinel turret.
 	current := a.target
 	i := 0
 	for current != nil {
@@ -3250,10 +3289,12 @@ func (a *colonyAgentNode) GetSentinelTurret() *colonyAgentNode {
 }
 
 func (a *colonyAgentNode) WalkSentinelWorkers(f func(worker *colonyAgentNode)) {
-	if a.target == nil {
+	// a -> sentinel turret
+	turret := a.target.(*sentinelpointTurretNode)
+	worker := turret.worker
+	if worker == nil {
 		return
 	}
-	worker := a.target.(*colonyAgentNode)
 	for worker != nil {
 		if worker.mode != agentModeSentinelPatrol {
 			break

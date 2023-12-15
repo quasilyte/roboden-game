@@ -530,7 +530,7 @@ const SeasonNumber = 1
 // - Tier 2 workers now repair buildings more efficiently
 // - Buff Disingrator: +1 damage (16 -> 17)
 // - Buff Scarab: -1 upkeep cost (8 -> 7), -1 cost (20 -> 19)
-// - Buff Servo: -1 upkeep cost (7 -> 6), -4 cost (26 -> 22)
+// - Buff Servo: -1 upkeep cost (7 -> 6), -4 cost (26 -> 22), +4 hp (18 -> 22)
 // - Buff Cloner: -5% cloning cost (85% -> 80%), -2 cost (26 -> 24)
 // - Buff Courier: +10 attack range (140 -> 150)
 // - Buff Trucker: alternative AoE attack, faster reload (2.6 -> 2.2), energy regen +0.2 (0.5 -> 0.7)

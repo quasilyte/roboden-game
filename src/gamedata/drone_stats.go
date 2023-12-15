@@ -599,7 +599,7 @@ var ServoAgentStats = InitDroneStats(&AgentStats{
 	CanBeSentinel: true,
 	MaxPayload:    1,
 	Speed:         125,
-	MaxHealth:     18,
+	MaxHealth:     22,
 	SupportReload: 8,
 	SupportRange:  310,
 })

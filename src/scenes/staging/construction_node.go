@@ -73,7 +73,7 @@ var sentinelpointConstructionStats = &constructionStats{
 	DamageModifier:    0.03,
 	Kind:              constructTurret,
 	TurretStats:       gamedata.SentinelpointAgentStats,
-	Image:             assets.ImageSentinelpointAgent,
+	Image:             assets.ImageSentinelpointAgentIcon,
 }
 
 var tetherBeaconConstructionStats = &constructionStats{

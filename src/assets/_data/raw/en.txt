@@ -503,7 +503,7 @@ Intro mission (est. time: 15 minutes)
 
 This is a guided quick-start mode. Learn the gameplay fundamentals and defeat the opposing force.
 
-Complete this mission to unlock other game modes.
+Completing the tutorial unlocks the Classic mode (or you can conquer a couple of Blitz matches).
 
 ##menu.overview.classic
 Classic mode (est. time: 30 minutes)

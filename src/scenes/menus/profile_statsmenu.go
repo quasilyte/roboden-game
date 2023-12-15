@@ -63,9 +63,7 @@ func (c *ProfileStatsMenuController) initUI() {
 		{d.Get("menu.profile.stats.totalscore"), fmt.Sprintf("%v", stats.TotalScore)},
 		{d.Get("menu.profile.stats.classic_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestClassicScore, stats.HighestClassicScoreDifficulty)},
 	}
-	if stats.TotalScore >= gamedata.BlitzModeCost {
-		lines = append(lines, [2]string{d.Get("menu.profile.stats.blitz_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestBlitzScore, stats.HighestBlitzScoreDifficulty)})
-	}
+	lines = append(lines, [2]string{d.Get("menu.profile.stats.blitz_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestBlitzScore, stats.HighestBlitzScoreDifficulty)})
 	if stats.TotalScore >= gamedata.ArenaModeCost {
 		lines = append(lines, [2]string{d.Get("menu.profile.stats.arena_highscore"), fmt.Sprintf("%v (%d%%)", stats.HighestArenaScore, stats.HighestArenaScoreDifficulty)})
 	}

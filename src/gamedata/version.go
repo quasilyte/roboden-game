@@ -524,6 +524,7 @@ const SeasonNumber = 1
 // # Version 24
 // - A new snowy biome
 // - A wether toggle (works only with a snowy biome for now)
+// - Blitz is open by default (no need to unlock it anymore)
 const (
 	BuildNumber      int = 24
 	BuildMinorNumber int = 0

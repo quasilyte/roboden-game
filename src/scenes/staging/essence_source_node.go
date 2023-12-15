@@ -36,6 +36,17 @@ var redCrystalSource = &essenceSourceStats{
 	size:            32,
 }
 
+var artifactSource = &essenceSourceStats{
+	name:            "artifact",
+	image:           assets.ImageEssenceArtifactSource,
+	capacity:        gmath.MakeRange(1, 1),
+	value:           35,
+	spritesheet:     true,
+	canDeplete:      true,
+	harvesterTarget: false,
+	size:            28,
+}
+
 var oilSource = &essenceSourceStats{
 	name:            "oil",
 	image:           assets.ImageEssenceSource,
@@ -103,6 +114,18 @@ var ironSource = &essenceSourceStats{
 	capacity:        gmath.MakeRange(105, 150),
 	regenDelay:      0,   // none
 	value:           1.5, // 160-220 total
+	spritesheet:     true,
+	canDeplete:      true,
+	harvesterTarget: true,
+	size:            20,
+}
+
+var mineralSource = &essenceSourceStats{
+	name:            "mineral",
+	image:           assets.ImageEssenceMineralSource,
+	capacity:        gmath.MakeRange(200, 250),
+	regenDelay:      0,   // none
+	value:           2.5, // 500-625 total
 	spritesheet:     true,
 	canDeplete:      true,
 	harvesterTarget: true,
@@ -262,6 +285,10 @@ func (e *essenceSourceNode) Init(scene *ge.Scene) {
 	if e.stats == ironSource && !e.world.config.GoldEnabled {
 		// If gold is disabled, iron has doubled capacity.
 		e.capacity *= 2
+	}
+	if e.stats == mineralSource && !e.world.config.GoldEnabled {
+		// If gold is disabled, minerals have extra capacity.
+		e.capacity = int(float64(e.capacity) * 1.5)
 	}
 	e.resource = e.capacity
 

@@ -184,6 +184,9 @@ type Camera struct {
 	shakeDelay int // in frames
 	shakeIndex uint
 
+	WeatherShader       *ebiten.Shader
+	WeatherShaderParams map[string]any
+
 	screen *ebiten.Image
 
 	disposed bool
@@ -404,11 +407,6 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 		options.GeoM.Translate(drawOffset.X, drawOffset.Y)
 		c.screen.DrawImage(c.stage.fogOfWar, &options)
 	}
-	if c.UI != nil && c.UI.Visible {
-		c.UI.belowObjects = drawSlice(c.screen, c.UI.belowObjects)
-		c.UI.objects = drawSlice(c.screen, c.UI.objects)
-		c.UI.aboveObjects = drawSlice(c.screen, c.UI.aboveObjects)
-	}
 
 	var options ebiten.DrawImageOptions
 	options.GeoM.Translate(c.ScreenPos.X, c.ScreenPos.Y)
@@ -420,16 +418,28 @@ func (c *Camera) Draw(screen *ebiten.Image) {
 		options.GeoM.Translate(float64(width)*0.5, float64(height)*0.5)
 	}
 
-	if c.stage.shader == nil {
-		screen.DrawImage(c.screen, &options)
-		return
+	if c.WeatherShader != nil {
+		var options2 ebiten.DrawRectShaderOptions
+		options2.Uniforms = c.WeatherShaderParams
+		options2.Blend = ebiten.BlendSourceAtop
+		c.screen.DrawRectShader(width, height, c.WeatherShader, &options2)
 	}
 
-	var options2 ebiten.DrawRectShaderOptions
-	options2.GeoM = options.GeoM
-	options2.Images[0] = c.screen
-	options2.Uniforms = c.stage.shaderParams
-	screen.DrawRectShader(width, height, c.stage.shader, &options2)
+	if c.UI != nil && c.UI.Visible {
+		c.UI.belowObjects = drawSlice(c.screen, c.UI.belowObjects)
+		c.UI.objects = drawSlice(c.screen, c.UI.objects)
+		c.UI.aboveObjects = drawSlice(c.screen, c.UI.aboveObjects)
+	}
+
+	if c.stage.shader == nil {
+		screen.DrawImage(c.screen, &options)
+	} else {
+		var options2 ebiten.DrawRectShaderOptions
+		options2.GeoM = options.GeoM
+		options2.Images[0] = c.screen
+		options2.Uniforms = c.stage.shaderParams
+		screen.DrawRectShader(width, height, c.stage.shader, &options2)
+	}
 }
 
 type layer struct {

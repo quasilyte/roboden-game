@@ -170,6 +170,37 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 		}
 	}
 
+	if len(p.world.artifacts) > 0 {
+		if p.colony.artifactDelay == 0 {
+			p.colony.actionDelay = p.world.rand.FloatRange(5, 10)
+			var closestArtifact *essenceSourceNode
+			closestArtifactDist := math.MaxFloat64
+			for _, a := range p.colony.world.artifacts {
+				dist := a.pos.DistanceTo(p.colony.pos)
+				if dist > p.colony.PatrolRadius()+20 {
+					continue
+				}
+				if dist < closestArtifactDist {
+					closestArtifactDist = dist
+					closestArtifact = a
+				}
+			}
+			if closestArtifact != nil {
+				candidate := p.colony.agents.Find(searchRandomized|searchOnlyAvailable|searchWorkers|searchFighters, func(a *colonyAgentNode) bool {
+					return a.rank < 2 && a.stats.Tier >= 2 && a.health >= (a.maxHealth*0.6)
+				})
+				if candidate != nil {
+					return colonyAction{
+						Kind:     actionGrabArtifact,
+						Value:    closestArtifact,
+						Value2:   candidate,
+						TimeCost: 0.1,
+					}
+				}
+			}
+		}
+	}
+
 	if len(p.colony.agents.workers) == 0 && p.colony.resources < 80 && p.numTier1Agents != 0 {
 		// This is a very bad situation.
 		// The colony may need to recycle some scouts ASAP to create workers instead.
@@ -229,6 +260,9 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 				bestRedOilSource = source
 			}
 		} else {
+			if source.stats == mineralSource && p.colony.agents.tier2plusWorkerNum == 0 {
+				continue
+			}
 			if score != 0 && score > bestScore {
 				bestScore = score
 				bestSource = source

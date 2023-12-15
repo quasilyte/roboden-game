@@ -6,4 +6,5 @@ const (
 	EnvForest EnvironmentKind = iota
 	EnvInferno
 	EnvMoon
+	EnvSnow
 )

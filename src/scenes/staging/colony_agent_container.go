@@ -61,13 +61,14 @@ type colonyAgentContainer struct {
 
 	sortTmp [3][]*colonyAgentNode
 
-	hasGatherer bool
-	hasRedMiner bool
-	hasCloner   bool
-	hasCourier  bool
-	servoNum    int
-	tier2Num    int
-	tier3Num    int
+	hasGatherer        bool
+	hasRedMiner        bool
+	hasCloner          bool
+	hasCourier         bool
+	servoNum           int
+	tier2Num           int
+	tier3Num           int
+	tier2plusWorkerNum int
 }
 
 func newColonyAgentContainer(rand *gmath.Rand) *colonyAgentContainer {
@@ -103,8 +104,10 @@ func (c *colonyAgentContainer) Update() {
 		switch a.stats.Tier {
 		case 2:
 			c.tier2Num++
+			c.tier2plusWorkerNum++
 		case 3:
 			c.tier3Num++
+			c.tier2plusWorkerNum++
 		}
 		if a.mode == agentModeStandby {
 			c.availableWorkers = append(c.availableWorkers, a)

@@ -283,6 +283,11 @@ x1.5 означает, что игра будет работать на 50% бы
 Контролирует наличие золотых ископаемых на карте.
 При игре на лунном окружении, отключение золота удваивает ёмкость железных руд.
 
+##menu.lobby.weather_enabled : Погода
+##menu.lobby.weather_enabled.description
+Этот переключатель контролирует специфичные для окружения погодные эффекты.
+Не каждый биом имеет погодные эффекты.
+
 ##menu.lobby.oil_regen_rate : Регенерация нефти
 ##menu.lobby.oil_regen_rate.description
 Как быстро восстанавливаются нефть и лавообразные ресуры.
@@ -401,6 +406,7 @@ x1.5 означает, что игра будет работать на 50% бы
 ##menu.lobby.moon : луна
 ##menu.lobby.forest : лес
 ##menu.lobby.inferno : инферно
+##menu.lobby.snow : тундра
 
 ##menu.lobby.land_flat : плато
 ##menu.lobby.land_normal : сбалансированный
@@ -587,6 +593,10 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.hint.resource.scrap.value : Очень низкая ценность
 ##game.hint.resource.iron : Железо (ресурс)
 ##game.hint.resource.iron.value : Низкая ценность
+##game.hint.resource.mineral : Минералы (ресурс)
+##game.hint.resource.mineral.value : Средняя ценность
+##game.hint.resource.artifact : Артифакт
+##game.hint.resource.artifact.value : Улучшает дрона
 ##game.hint.resource.organic : Органика (ресурс)
 ##game.hint.resource.organic.value : Средняя ценность
 ##game.hint.resource.gold : Золото (ресурс)

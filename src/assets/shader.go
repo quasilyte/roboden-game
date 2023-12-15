@@ -22,6 +22,7 @@ func RegisterShaderResources(ctx *ge.Context, config *Config, progress *float64)
 		ShaderSharpen:          {Path: "shader/sharpen.go"},
 		ShaderHueRotate:        {Path: "shader/hue_rotate.go"},
 		ShaderCRT:              {Path: "shader/crt2.go"},
+		ShaderSnow:             {Path: "shader/snowfall.go"},
 	}
 
 	singleThread := runtime.GOMAXPROCS(-1) == 1
@@ -52,4 +53,5 @@ const (
 	ShaderSharpen
 	ShaderHueRotate
 	ShaderCRT
+	ShaderSnow
 )

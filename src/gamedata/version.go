@@ -520,7 +520,11 @@ const SeasonNumber = 1
 // - An option to disable pause turning off the fast forward
 // - Added Schemes to the lobby
 // - The first introduction of minor build versions
+//
+// # Version 24
+// - A new snowy biome
+// - A wether toggle (works only with a snowy biome for now)
 const (
-	BuildNumber      int = 23
-	BuildMinorNumber int = 1
+	BuildNumber      int = 24
+	BuildMinorNumber int = 0
 )

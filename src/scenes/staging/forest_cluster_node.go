@@ -47,11 +47,16 @@ func newForestClusterNode(world *worldState, config forestClusterConfig) *forest
 	return f
 }
 
-func (f *forestClusterNode) init(scene *ge.Scene) []pendingImage {
+func (f *forestClusterNode) init(scene *ge.Scene, snowy bool) []pendingImage {
 	// TODO: make() with a capacity hint.
 	var images []pendingImage
 
-	texture := scene.LoadImage(assets.ImageTrees)
+	textureID := assets.ImageTrees
+	if snowy {
+		textureID = assets.ImageSnowTrees
+	}
+
+	texture := scene.LoadImage(textureID)
 	numFrames := texture.Data.Bounds().Dx() / int(texture.DefaultFrameWidth)
 
 	for y := 0; y < f.config.height; y++ {

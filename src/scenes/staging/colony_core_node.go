@@ -106,6 +106,7 @@ type colonyCoreNode struct {
 	cloningDelay    float64
 	resourceDelay   float64
 	captureDelay    float64
+	artifactDelay   float64
 
 	attackDelay float64
 
@@ -546,6 +547,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 
 	c.updateResourceRects()
 
+	c.artifactDelay = gmath.ClampMin(c.artifactDelay-delta, 0)
 	c.captureDelay = gmath.ClampMin(c.captureDelay-delta, 0)
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
 	c.freeWorkerDelay = gmath.ClampMin(c.freeWorkerDelay-delta, 0)
@@ -1264,6 +1266,11 @@ func (c *colonyCoreNode) calcResourceDelay() float64 {
 	return 4.0 - (c.GetResourcePriority() * 4)
 }
 
+func (c *colonyCoreNode) addEvoPoints(delta float64) {
+	c.evoPoints = gmath.ClampMax(c.evoPoints+delta, maxEvoPoints)
+	c.updateEvoDiode()
+}
+
 func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	switch action.Kind {
 	case actionConvertEvo:
@@ -1314,8 +1321,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		// * 300 radius => 0.5
 		// * 400 radius => 0.1 (min)
 		evoGainMultiplier := gmath.Clamp(2.0-(c.realRadius/200), 0.1, 1.5)
-		c.evoPoints = gmath.ClampMax(c.evoPoints+(evoGain*evoGainMultiplier), maxEvoPoints)
-		c.updateEvoDiode()
+		c.addEvoPoints(evoGain * evoGainMultiplier)
 		return true
 
 	case actionSendCourier:
@@ -1359,6 +1365,12 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		}
 		return numAssigned != 0
 
+	case actionGrabArtifact:
+		artifact := action.Value.(*essenceSourceNode)
+		d := action.Value2.(*colonyAgentNode)
+		d.AssignMode(agentModeGrabArtifact, gmath.Vec{}, artifact)
+		return true
+
 	case actionMineEssence:
 		if c.agents.NumAvailableWorkers() == 0 {
 			return false
@@ -1386,6 +1398,9 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		numAssigned := 0
 		c.agents.Find(searchWorkers|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
 			if source.stats == redOilSource && a.stats.Kind != gamedata.AgentRedminer {
+				return false
+			}
+			if source.stats == mineralSource && a.stats.Tier < 2 {
 				return false
 			}
 			toAssign--

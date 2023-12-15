@@ -12,6 +12,7 @@ func RegisterRawResources(ctx *ge.Context) {
 		RawTilesJSON:        {Path: "raw/tiles.json"},
 		RawForestTilesJSON:  {Path: "raw/forest_tiles.json"},
 		RawInfernoTilesJSON: {Path: "raw/inferno_tiles.json"},
+		RawSnowTilesJSON:    {Path: "raw/snow_tiles.json"},
 
 		RawDictEn:             {Path: "raw/en.txt"},
 		RawDictTutorialEn:     {Path: "raw/en_intro.txt"},
@@ -36,6 +37,7 @@ const (
 	RawTilesJSON
 	RawForestTilesJSON
 	RawInfernoTilesJSON
+	RawSnowTilesJSON
 
 	RawDictEn
 	RawDictTutorialEn

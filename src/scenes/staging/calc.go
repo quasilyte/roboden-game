@@ -286,6 +286,9 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 	if source.stats.regenDelay != 0 && source.percengage < 0.15 || source.beingHarvested {
 		return 0
 	}
+	if source.stats == artifactSource {
+		return 0
+	}
 	if core.failedResource == source {
 		return 0
 	}

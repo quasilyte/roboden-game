@@ -36,6 +36,7 @@ type worldState struct {
 	players          []player
 	allColonies      []*colonyCoreNode
 	essenceSources   []*essenceSourceNode
+	artifacts        []*essenceSourceNode
 	creeps           []*creepNode
 	centurions       []*creepNode
 	mercs            []*colonyAgentNode
@@ -70,6 +71,7 @@ type worldState struct {
 	turretDesign     *gamedata.AgentStats
 	coreDesign       *gamedata.ColonyCoreStats
 
+	weatherEnabled       bool
 	hasForests           bool
 	droneLabels          bool
 	debugLogs            bool
@@ -86,12 +88,13 @@ type worldState struct {
 	innerRect2 gmath.Rect // A couple of tiles further than innerRect
 	spawnAreas []gmath.Rect
 
-	droneHealthMultiplier     float64
-	dronePowerMultiplier      float64
-	creepHealthMultiplier     float64
-	bossHealthMultiplier      float64
-	oilRegenMultiplier        float64
-	creepProductionMultiplier float64
+	droneEnergyDischargeMultiplier float64
+	droneHealthMultiplier          float64
+	dronePowerMultiplier           float64
+	creepHealthMultiplier          float64
+	bossHealthMultiplier           float64
+	oilRegenMultiplier             float64
+	creepProductionMultiplier      float64
 
 	superCreepChanceMultiplier float64
 
@@ -255,6 +258,13 @@ func (w *worldState) Init() {
 	w.projectilePool = make([]*projectileNode, 0, 128)
 	w.simulation = w.config.ExecMode == gamedata.ExecuteSimulation
 
+	if w.config.WeatherEnabled && !w.simulation {
+		switch w.envKind {
+		case gamedata.EnvSnow:
+			w.weatherEnabled = true
+		}
+	}
+
 	factions := []gamedata.FactionTag{
 		gamedata.YellowFactionTag,
 		gamedata.RedFactionTag,
@@ -315,6 +325,11 @@ func (w *worldState) Init() {
 		w.numPlayers = 2
 	default:
 		w.numPlayers = 1
+	}
+
+	w.droneEnergyDischargeMultiplier = 2.0
+	if w.envKind == gamedata.EnvSnow {
+		w.droneEnergyDischargeMultiplier = 3.0
 	}
 }
 

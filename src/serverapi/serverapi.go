@@ -76,8 +76,9 @@ const (
 )
 
 type ReplayLevelConfig struct {
-	Resources   int  `json:"resources"`
-	GoldEnabled bool `json:"gold_enabled"`
+	Resources      int  `json:"resources"`
+	GoldEnabled    bool `json:"gold_enabled"`
+	WeatherEnabled bool `json:"weather_enabled"`
 
 	RawGameMode string `json:"mode"`
 

@@ -2,10 +2,13 @@ package staging
 
 import (
 	"fmt"
+	"image"
 	"math"
 	"sort"
 	"time"
 
+	"github.com/hajimehoshi/ebiten/v2"
+	resource "github.com/quasilyte/ebitengine-resource"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
@@ -532,6 +535,7 @@ func (g *levelGenerator) placeResources() {
 	}
 	multiplier := resMultiplier * worldSizeMultipliers[g.world.config.WorldSize]
 	numIron := int(float64(rand.IntRange(28, 42)) * multiplier)
+	numMineral := int(float64(rand.IntRange(32, 40)) * multiplier)
 	numScrap := int(float64(rand.IntRange(6, 8)) * multiplier)
 	numGold := int(float64(rand.IntRange(20, 28)) * multiplier)
 	numCrystals := int(float64(rand.IntRange(14, 20)) * multiplier)
@@ -541,6 +545,7 @@ func (g *levelGenerator) placeResources() {
 
 	numRedOil := 0
 	numRedCrystals := 0
+	numArtifacts := int(float64(rand.IntRange(12, 14)) * multiplier)
 	if g.world.config.EliteResources {
 		numRedOil = gmath.ClampMin(int(float64(rand.IntRange(2, 3))*multiplier), 2)
 		numRedCrystals = int(float64(rand.IntRange(10, 15)) * multiplier)
@@ -559,19 +564,32 @@ func (g *levelGenerator) placeResources() {
 	}
 
 	switch g.world.envKind {
-	case gamedata.EnvMoon:
+	case gamedata.EnvSnow:
 		numSulfur = 0
 		numOrganic = 0
+		numIron = 0
+		numOil = int(float64(numOil) * 0.5)
+		numGold = int(float64(numGold) * 0.7)
+		numRedOil++
+	case gamedata.EnvMoon:
+		numArtifacts = 0
+		numSulfur = 0
+		numOrganic = 0
+		numMineral = 0
 	case gamedata.EnvForest:
+		numArtifacts = 0
 		numSulfur = 0
 		numIron = 0
+		numMineral = 0
 		numCrystals /= 2
 		numGold = int(float64(numGold) * 0.7)
 		numOil = int(float64(numOil) * 1.5)
 	case gamedata.EnvInferno:
+		numArtifacts = 0
 		numOil = 0
 		numIron = 0
 		numOrganic = 0
+		numMineral = 0
 		numRedCrystals = int(float64(numRedCrystals) * 1.1)
 	}
 
@@ -588,6 +606,13 @@ func (g *levelGenerator) placeResources() {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
 		numOrganic -= g.placeResourceCluster(sector, clusterSize, 64, organicSource)
+	}
+
+	for numMineral > 0 {
+		clusterSize := rand.IntRange(3, 5)
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numMineral -= g.placeResourceCluster(sector, gmath.ClampMax(clusterSize, numMineral), 0, mineralSource)
 	}
 
 	for numIron > 0 {
@@ -644,6 +669,11 @@ func (g *levelGenerator) placeResources() {
 		g.sectorSlider.Inc()
 		numRedCrystals -= g.placeResourceCluster(sector, 1, 0, redCrystalSource)
 	}
+	for numArtifacts > 0 {
+		sector := g.sectors[g.sectorSlider.Value()]
+		g.sectorSlider.Inc()
+		numArtifacts -= g.placeResourceCluster(sector, 1, 0, artifactSource)
+	}
 	for numCrystals > 0 {
 		clusterSize := 1
 		if g.world.envKind != gamedata.EnvInferno && rand.Chance(0.4) {
@@ -665,6 +695,9 @@ func (g *levelGenerator) placeResources() {
 	})
 	for _, source := range g.pendingResources {
 		g.world.nodeRunner.AddObject(source)
+		if source.stats == artifactSource {
+			g.world.artifacts = append(g.world.artifacts, source)
+		}
 	}
 }
 
@@ -704,7 +737,7 @@ func (g *levelGenerator) deployStartingResources() {
 			case gamedata.EnvMoon:
 				res = ironSource
 				resNum = 2
-			case gamedata.EnvForest:
+			case gamedata.EnvForest, gamedata.EnvSnow:
 				res = oilSource
 				resNum = 1
 			case gamedata.EnvInferno:
@@ -1056,6 +1089,9 @@ func (g *levelGenerator) placeLandmarks() {
 	switch g.world.envKind {
 	case gamedata.EnvForest:
 		g.placeForests()
+	case gamedata.EnvSnow:
+		g.placeSnowPiles()
+		g.placeForests()
 	case gamedata.EnvInferno:
 		g.placeLavaPuddles()
 		g.placeLavaGeysers()
@@ -1199,17 +1235,112 @@ func (g *levelGenerator) placeLavaGeysers() {
 	}
 }
 
-func (g *levelGenerator) placeForests() {
-	if g.world.envKind != gamedata.EnvForest {
+func (g *levelGenerator) placeSnowPiles() {
+	if g.world.simulation {
 		return
 	}
 
+	rand := g.world.localRand
+
+	// These constants are copied from the lava puddles code.
+	const (
+		shapeTiny int = iota
+		shapeLong
+		shapeShort
+		shapeLongWider
+		shapeSquare
+	)
+
+	shapePicker := gmath.NewRandPicker[int](rand)
+	shapePicker.AddOption(shapeTiny, 0.2)
+	shapePicker.AddOption(shapeLong, 0.1)
+	shapePicker.AddOption(shapeShort, 0.35)
+	shapePicker.AddOption(shapeLongWider, 0.25)
+	shapePicker.AddOption(shapeSquare, 0.3)
+
+	layerPicker := gmath.NewRandPicker[resource.ImageID](rand)
+	for _, l := range snowAtlas {
+		layerPicker.AddOption(l.texture, l.weight)
+	}
+
+	tmpImage := ebiten.NewImageWithOptions(
+		image.Rect(0, 0, 32*12, 32*12),
+		&ebiten.NewImageOptions{Unmanaged: true})
+
+	for y := 96.0; y < g.world.height-96; y += rand.FloatRange(320, 480) {
+		for x := 96.0; x < g.world.width-96; x += rand.FloatRange(320, 480) {
+			if rand.Chance(0.35) {
+				continue
+			}
+			pos := gmath.Vec{
+				X: x + rand.FloatRange(-64, 64),
+				Y: y + rand.FloatRange(-64, 64),
+			}
+			pos = g.world.pathgrid.AlignPos(pos)
+			var width int
+			var height int
+			switch shapePicker.Pick() {
+			case shapeShort:
+				width = rand.IntRange(3, 5)
+				height = 2
+				if rand.Bool() {
+					width, height = height, width
+				}
+			case shapeLong:
+				width = rand.IntRange(6, 8)
+				height = 2
+				if rand.Bool() {
+					width, height = height, width
+				}
+			case shapeLongWider:
+				width = rand.IntRange(4, 8)
+				height = 3
+				if rand.Chance(0.3) {
+					height = 3
+					width++
+				}
+				if rand.Bool() {
+					width, height = height, width
+				}
+			case shapeSquare:
+				width = rand.IntRange(3, 5)
+				height = width
+			default:
+				width = 2
+				height = 2
+			}
+			rectOrigin := pos.Sub(gmath.Vec{X: 16, Y: 16})
+			rect := gmath.Rect{
+				Min: rectOrigin,
+				Max: rectOrigin.Add(gmath.Vec{X: float64(width) * 32, Y: float64(height) * 32}),
+			}
+			rect.Max.X = math.Ceil(rect.Max.X)
+			rect.Max.Y = math.Ceil(rect.Max.Y)
+			tmpImage.Clear()
+			for y := 0.0; y < rect.Height(); y += 32.0 {
+				for x := 0.0; x < rect.Width(); x += 32.0 {
+					tileImages := g.scene.LoadImage(layerPicker.Pick())
+					drawDirectionalTile(rand, tmpImage, tileImages, rect, x, y)
+				}
+			}
+			var drawOptions ebiten.DrawImageOptions
+			drawOptions.GeoM.Translate(pos.X, pos.Y)
+			g.bg.DrawImage(tmpImage, &drawOptions)
+		}
+	}
+
+	tmpImage.Dispose()
+}
+
+func (g *levelGenerator) placeForests() {
 	rand := &g.rng
 
 	playerTerritory := gmath.Rect{
 		Min: g.playerSpawn.Sub(gmath.Vec{X: 96, Y: 96}),
 		Max: g.playerSpawn.Add(gmath.Vec{X: 96, Y: 96}),
 	}
+
+	isSnowy := g.world.envKind == gamedata.EnvSnow
 
 	var maxForests int
 	switch g.world.config.WorldSize {
@@ -1226,9 +1357,14 @@ func (g *levelGenerator) placeForests() {
 	case 0: // flat
 		maxForests--
 	case 2: // less flat
-		maxForests++
+		if !isSnowy {
+			maxForests++
+		}
 	}
 	if g.world.config.WorldShape != int(gamedata.WorldSquare) {
+		maxForests--
+	}
+	if isSnowy {
 		maxForests--
 	}
 	maxForests = gmath.ClampMin(maxForests, 1)
@@ -1239,6 +1375,10 @@ func (g *levelGenerator) placeForests() {
 	maxForestSize := 16
 	if g.world.mapShape != gamedata.WorldSquare {
 		maxForestSize = 11
+	}
+	if isSnowy {
+		minForestSize = 4
+		maxForestSize -= 2
 	}
 
 	for _, sector := range g.sectors {
@@ -1269,11 +1409,16 @@ func (g *levelGenerator) placeForests() {
 				continue
 			}
 
-			trees = append(trees, forest.init(g.scene)...)
+			trees = append(trees, forest.init(g.scene, isSnowy)...)
 
 			// TODO: move it to fillPathgrid step or maybe get rid of that stage instead?
 			forest.walkRects(func(rect gmath.Rect) {
-				g.fillPathgridRect(rect, ptagForest)
+				if isSnowy {
+					// Snowy forests can't be passed through.
+					g.fillPathgridRect(rect, ptagBlocked)
+				} else {
+					g.fillPathgridRect(rect, ptagForest)
+				}
 			})
 
 			g.world.forests = append(g.world.forests, forest)
@@ -1309,7 +1454,7 @@ func (g *levelGenerator) placeWalls() {
 	numMountains := int(float64(rand.IntRange(5, 9)) * multiplier)
 
 	switch g.world.envKind {
-	case gamedata.EnvMoon:
+	case gamedata.EnvMoon, gamedata.EnvSnow:
 		// Nothing to do.
 	case gamedata.EnvForest:
 		numWallClusters = 0
@@ -1535,6 +1680,9 @@ func (g *levelGenerator) placeWalls() {
 
 		if len(config.points) != 0 {
 			config.atlas = wallAtras{layers: landcrackAtlas}
+			if g.world.envKind == gamedata.EnvSnow {
+				config.atlas = wallAtras{layers: snowyLandcrackAtlas}
+			}
 			config.world = g.world
 			wall := g.world.NewWallClusterNode(config)
 			g.scene.AddObject(wall)

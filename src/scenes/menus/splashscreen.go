@@ -44,19 +44,19 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 		config.CreepFortress = true
 	}
 	config.CoordinatorCreeps = scene.Rand().Chance(0.7)
+	config.WeatherEnabled = scene.Rand().Chance(0.6)
 	config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, scene.Rand())
 	config.TurretDesign = gamedata.PickTurretDesign(scene.Rand())
 	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())
 	config.ExecMode = gamedata.ExecuteDemo
 	config.PlayersMode = serverapi.PmodeSingleBot
-	switch envRoll := scene.Rand().Float(); {
-	case envRoll < 0.4:
-		config.Environment = int(gamedata.EnvForest)
-	case envRoll < 0.75:
-		config.Environment = int(gamedata.EnvInferno)
-	default:
-		config.Environment = int(gamedata.EnvMoon)
-	}
+
+	envPicker := gmath.NewRandPicker[gamedata.EnvironmentKind](scene.Rand())
+	envPicker.AddOption(gamedata.EnvForest, 0.35)
+	envPicker.AddOption(gamedata.EnvInferno, 0.30)
+	envPicker.AddOption(gamedata.EnvSnow, 0.25)
+	envPicker.AddOption(gamedata.EnvMoon, 0.20)
+	config.Environment = int(envPicker.Pick())
 
 	if scene.Rand().Chance(0.3) {
 		config.IonMortars = true

@@ -272,6 +272,11 @@ Fewer resources mean it will be hard to play a long battle.
 Whether a map will have gold deposits.
 On moon environment, disabling gold doubles the iron resources capacity.
 
+##menu.lobby.weather_enabled : Weather
+##menu.lobby.weather_enabled.description
+This switch enables the enviroment-specific weather effects.
+Not every environment has weather.
+
 ##menu.lobby.world_size : World size
 ##menu.lobby.world_size.description
 The generated world size.
@@ -401,6 +406,7 @@ some special differences that will affect the gameplay.
 ##menu.lobby.moon : moon
 ##menu.lobby.forest : forest
 ##menu.lobby.inferno : inferno
+##menu.lobby.snow : tundra
 
 ##menu.lobby.land_flat : flat
 ##menu.lobby.land_normal : balanced
@@ -587,6 +593,10 @@ Split-screen multiplayer: competitive (PvP).
 ##game.hint.resource.scrap.value : Very low value
 ##game.hint.resource.iron : Iron resource
 ##game.hint.resource.iron.value : Low value
+##game.hint.resource.mineral : Mineral resource
+##game.hint.resource.mineral.value : Normal value (requires tier 2)
+##game.hint.resource.artifact : Artifact
+##game.hint.resource.artifact.value : Upgrades the drone
 ##game.hint.resource.organic : Organic resource
 ##game.hint.resource.organic.value : Normal value
 ##game.hint.resource.gold : Gold resource

@@ -152,7 +152,7 @@ func IsValidReplay(replay serverapi.GameReplay) bool {
 		{cfg.OilRegenRate, 0, 3},
 		{cfg.Terrain, 0, 2},
 		{cfg.InterfaceMode, 0, 2},
-		{cfg.Environment, 0, 2},
+		{cfg.Environment, 0, 3},
 		{cfg.CreepProductionRate, 0, 10},
 		{cfg.PlayersMode, serverapi.PmodeSinglePlayer, serverapi.PmodeTwoBots},
 	}

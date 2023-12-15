@@ -1324,6 +1324,17 @@ func (p *computerPlayer) calcPosResources(colony *colonyCoreNode, pos gmath.Vec,
 		if res.stats == redCrystalSource {
 			score = (score*2 + 10)
 		}
+		if res.stats == artifactSource {
+			score += 10
+		}
+		if res.stats == mineralSource {
+			switch {
+			case colony.agents.tier2plusWorkerNum == 0:
+				score = 0
+			case colony.agents.tier2plusWorkerNum < 5:
+				score /= 2
+			}
+		}
 		if res.stats == redOilSource {
 			if colony.agents.hasRedMiner {
 				score = (score*2 + 20)

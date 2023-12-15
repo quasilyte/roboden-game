@@ -744,6 +744,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			d.Get("menu.lobby.forest"),
 			d.Get("menu.lobby.inferno"),
 			d.Get("menu.lobby.moon"),
+			d.Get("menu.lobby.snow"),
 		})
 		tab.AddChild(b)
 	}
@@ -763,6 +764,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 	var toggleButtons []widget.PreferredSizeLocateableWidget
 
 	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.GoldEnabled, "gold_enabled", assets.ImageEssenceGoldSource))
+	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.WeatherEnabled, "weather_enabled", assets.ImageItemWeather))
 
 	for _, b := range toggleButtons {
 		grid.AddChild(b)

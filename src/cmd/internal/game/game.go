@@ -271,6 +271,7 @@ func newLevelConfig(options *gamedata.LevelConfig) *gamedata.LevelConfig {
 
 	config.Relicts = true
 	config.GoldEnabled = true
+	config.WeatherEnabled = true
 	config.OilRegenRate = 2
 	config.Terrain = 1
 	config.GameSpeed = 1

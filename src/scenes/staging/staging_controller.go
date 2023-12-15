@@ -453,6 +453,9 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		case gamedata.EnvInferno:
 			img = assets.ImageBackgroundInfernoTiles
 			tileset = assets.RawInfernoTilesJSON
+		case gamedata.EnvSnow:
+			img = assets.ImageBackgroundSnowTiles
+			tileset = assets.RawSnowTilesJSON
 		}
 		bg.LoadTilesetWithRand(scene.Context(), &localRand, c.viewportWorld.Width, c.viewportWorld.Height, img, tileset)
 	}
@@ -704,6 +707,15 @@ func (c *Controller) createCameraManager(viewportWorld *viewport.World, main boo
 	cam := c.createCamera(viewportWorld)
 	if !main {
 		cam.ScreenPos.X = c.scene.Context().ScreenWidth / 2
+	}
+	if c.world.weatherEnabled {
+		shader := c.scene.Context().Loader.LoadShader(assets.ShaderSnow).Data
+		cam.WeatherShader = shader
+		cam.WeatherShaderParams = map[string]any{
+			"Time":    float32(0.1),
+			"OffsetY": float32(0),
+			"OffsetX": float32(0),
+		}
 	}
 	cm := newCameraManager(c.world, cam)
 	if c.config.ExecMode == gamedata.ExecuteDemo {
@@ -1710,6 +1722,21 @@ func (c *Controller) GetSessionState() *session.State {
 }
 
 func (c *Controller) Update(delta float64) {
+	if c.world.weatherEnabled {
+		envKind := c.world.envKind
+		for _, cam := range c.world.cameras {
+			switch envKind {
+			case gamedata.EnvSnow:
+				if !c.nodeRunner.IsPaused() {
+					shaderDelta := float32(c.nodeRunner.NumSteps()) * float32(c.nodeRunner.ComputeDelta(delta))
+					cam.WeatherShaderParams["Time"] = cam.WeatherShaderParams["Time"].(float32) + shaderDelta
+				}
+				cam.WeatherShaderParams["OffsetY"] = float32(cam.Offset.Y * 0.0025)
+				cam.WeatherShaderParams["OffsetX"] = float32(cam.Offset.X * 0.004)
+			}
+		}
+	}
+
 	c.world.stage.Update()
 	if c.cinematicCamera != nil {
 		c.cinematicCamera.Update(delta)

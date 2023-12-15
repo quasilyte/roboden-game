@@ -258,11 +258,13 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 
 		ImageEssenceSourceDissolveMask:    {Path: "image/resources/essence_source_dissolve_mask.png"},
 		ImageEssenceRedCrystalSource:      {Path: "image/resources/red_crystal.png", FrameWidth: 16},
+		ImageEssenceArtifactSource:        {Path: "image/resources/artifact.png", FrameWidth: 16},
 		ImageEssenceCrystalSource:         {Path: "image/resources/crystal_source.png", FrameWidth: 16},
 		ImageEssenceGoldSource:            {Path: "image/resources/gold_source.png", FrameWidth: 28},
 		ImageEssenceSulfurSource:          {Path: "image/resources/sulfur_source.png", FrameWidth: 28},
 		ImageEssenceMagmaRockSource:       {Path: "image/resources/magma_rock_source.png", FrameWidth: 16},
 		ImageEssenceIronSource:            {Path: "image/resources/iron_source.png", FrameWidth: 32},
+		ImageEssenceMineralSource:         {Path: "image/resources/snowy_iron_source.png", FrameWidth: 26},
 		ImageEssenceScrapSource:           {Path: "image/resources/scrap_source.png"},
 		ImageEssenceSmallScrapSource:      {Path: "image/resources/small_scrap_source.png"},
 		ImageEssenceScrapCreepSource:      {Path: "image/resources/scrap_source_creep.png"},
@@ -302,6 +304,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageBackgroundTiles:        {Path: "image/landscape/moon/tiles.png"},
 		ImageBackgroundForestTiles:  {Path: "image/landscape/forest/tiles.png"},
 		ImageBackgroundInfernoTiles: {Path: "image/landscape/inferno/tiles.png"},
+		ImageBackgroundSnowTiles:    {Path: "image/landscape/snow/tiles.png"},
 
 		ImageMountainSmall:         {Path: "image/landscape/moon/mountain_small.png", FrameWidth: 32},
 		ImageMountainMedium:        {Path: "image/landscape/moon/mountain_medium.png", FrameWidth: 48},
@@ -318,11 +321,20 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageInfernoMountainBig:    {Path: "image/landscape/inferno/mountain_big.png", FrameWidth: 64},
 		ImageInfernoMountainWide:   {Path: "image/landscape/inferno/mountain_wide.png", FrameWidth: 64},
 		ImageInfernoMountainTall:   {Path: "image/landscape/inferno/mountain_tall.png", FrameWidth: 48},
+		ImageSnowMountainSmall:     {Path: "image/landscape/snow/mountain_small.png", FrameWidth: 32},
+		ImageSnowMountainMedium:    {Path: "image/landscape/snow/mountain_medium.png", FrameWidth: 48},
+		ImageSnowMountainBig:       {Path: "image/landscape/snow/mountain_big.png", FrameWidth: 64},
+		ImageSnowMountainWide:      {Path: "image/landscape/snow/mountain_wide.png", FrameWidth: 64},
+		ImageSnowMountainTall:      {Path: "image/landscape/snow/mountain_tall.png", FrameWidth: 48},
 
-		ImageLandCrack:  {Path: "image/landscape/landcrack.png", FrameWidth: 32},
-		ImageLandCrack2: {Path: "image/landscape/landcrack2.png", FrameWidth: 32},
-		ImageLandCrack3: {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
-		ImageLandCrack4: {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
+		ImageLandCrack:       {Path: "image/landscape/landcrack.png", FrameWidth: 32},
+		ImageLandCrack2:      {Path: "image/landscape/landcrack2.png", FrameWidth: 32},
+		ImageLandCrack3:      {Path: "image/landscape/landcrack3.png", FrameWidth: 32},
+		ImageLandCrack4:      {Path: "image/landscape/landcrack4.png", FrameWidth: 32},
+		ImageSnowyLandCrack:  {Path: "image/landscape/snow/landcrack.png", FrameWidth: 32},
+		ImageSnowyLandCrack2: {Path: "image/landscape/snow/landcrack2.png", FrameWidth: 32},
+		ImageSnowyLandCrack3: {Path: "image/landscape/snow/landcrack3.png", FrameWidth: 32},
+		ImageSnowyLandCrack4: {Path: "image/landscape/snow/landcrack4.png", FrameWidth: 32},
 
 		ImageLavaPuddle:  {Path: "image/landscape/inferno/lava.png", FrameWidth: 32},
 		ImageLavaPuddle2: {Path: "image/landscape/inferno/lava2.png", FrameWidth: 32},
@@ -330,7 +342,14 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageLavaPuddle4: {Path: "image/landscape/inferno/lava4.png", FrameWidth: 32},
 		ImageLavaPuddle5: {Path: "image/landscape/inferno/lava5.png", FrameWidth: 32},
 
-		ImageTrees: {Path: "image/landscape/forest/trees.png", FrameWidth: 32},
+		ImageSnowPile:  {Path: "image/landscape/snow/snowpile.png", FrameWidth: 32},
+		ImageSnowPile2: {Path: "image/landscape/snow/snowpile2.png", FrameWidth: 32},
+		ImageSnowPile3: {Path: "image/landscape/snow/snowpile3.png", FrameWidth: 32},
+		ImageSnowPile4: {Path: "image/landscape/snow/snowpile4.png", FrameWidth: 32},
+		ImageSnowPile5: {Path: "image/landscape/snow/snowpile5.png", FrameWidth: 32},
+
+		ImageTrees:     {Path: "image/landscape/forest/trees.png", FrameWidth: 32},
+		ImageSnowTrees: {Path: "image/landscape/snow/trees.png", FrameWidth: 32},
 
 		ImageLavaGeyser: {Path: "image/landscape/inferno/geyser.png"},
 
@@ -387,6 +406,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTemplarLine:     {Path: "image/lines/templar_line.png"},
 		ImageLavaGeyserLine:  {Path: "image/lines/lava_geyser_line.png"},
 
+		ImageItemWeather:           {Path: "image/ui/items/weather.png"},
 		ImageItemFogOfWar:          {Path: "image/ui/items/fog_of_war.png"},
 		ImageItemStartingResources: {Path: "image/ui/items/starting_resources.png"},
 		ImageItemSuperCreeps:       {Path: "image/ui/items/super_creeps.png"},
@@ -693,11 +713,13 @@ const (
 	ImageTargeterAgent
 	ImageBomberAgent
 	ImageEssenceRedCrystalSource
+	ImageEssenceArtifactSource
 	ImageEssenceCrystalSource
 	ImageEssenceGoldSource
 	ImageEssenceSulfurSource
 	ImageEssenceMagmaRockSource
 	ImageEssenceIronSource
+	ImageEssenceMineralSource
 	ImageEssenceScrapSource
 	ImageEssenceSmallScrapSource
 	ImageEssenceScrapCreepSource
@@ -733,6 +755,7 @@ const (
 	ImageBackgroundTiles
 	ImageBackgroundForestTiles
 	ImageBackgroundInfernoTiles
+	ImageBackgroundSnowTiles
 	ImageMountainSmall
 	ImageMountainMedium
 	ImageMountainBig
@@ -748,16 +771,31 @@ const (
 	ImageInfernoMountainBig
 	ImageInfernoMountainTall
 	ImageInfernoMountainWide
+	ImageSnowMountainSmall
+	ImageSnowMountainMedium
+	ImageSnowMountainBig
+	ImageSnowMountainTall
+	ImageSnowMountainWide
 	ImageLandCrack
 	ImageLandCrack2
 	ImageLandCrack3
 	ImageLandCrack4
+	ImageSnowyLandCrack
+	ImageSnowyLandCrack2
+	ImageSnowyLandCrack3
+	ImageSnowyLandCrack4
 	ImageLavaPuddle
 	ImageLavaPuddle2
 	ImageLavaPuddle3
 	ImageLavaPuddle4
 	ImageLavaPuddle5
+	ImageSnowPile
+	ImageSnowPile2
+	ImageSnowPile3
+	ImageSnowPile4
+	ImageSnowPile5
 	ImageTrees
+	ImageSnowTrees
 	ImageLavaGeyser
 
 	ImageMagmaBall
@@ -813,6 +851,7 @@ const (
 	ImageTemplarLine
 	ImageLavaGeyserLine
 
+	ImageItemWeather
 	ImageItemFogOfWar
 	ImageItemStartingResources
 	ImageItemSuperCreeps

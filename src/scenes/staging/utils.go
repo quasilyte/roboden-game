@@ -574,6 +574,87 @@ func playSound(world *worldState, id resource.AudioID, pos gmath.Vec) {
 	}
 }
 
+func drawDirectionalTile(rng *gmath.Rand, dst *ebiten.Image, texture resource.Image, rect gmath.Rect, x, y float64) {
+	var tileIndex int
+	var flipHorizontal bool
+	var flipVertical bool
+	if x == 0 {
+		switch {
+		case y == 0:
+			if rng.Bool() {
+				tileIndex = 0
+			} else {
+				tileIndex = 2
+				flipHorizontal = true
+			}
+		case y == rect.Height()-32:
+			if rng.Bool() {
+				tileIndex = 6
+			} else {
+				tileIndex = 8
+				flipHorizontal = true
+			}
+		default:
+			if rng.Bool() {
+				tileIndex = 3
+			} else {
+				tileIndex = 5
+				flipHorizontal = true
+			}
+		}
+	} else if x == rect.Width()-32 {
+		switch {
+		case y == 0:
+			if rng.Bool() {
+				tileIndex = 2
+			} else {
+				tileIndex = 0
+				flipHorizontal = true
+			}
+		case y == rect.Height()-32:
+			if rng.Bool() {
+				tileIndex = 8
+			} else {
+				tileIndex = 6
+				flipHorizontal = true
+			}
+		default:
+			if rng.Bool() {
+				tileIndex = 5
+			} else {
+				tileIndex = 3
+				flipHorizontal = true
+			}
+		}
+	} else {
+		switch {
+		case y == 0:
+			tileIndex = 1
+			flipHorizontal = rng.Bool()
+		case y == rect.Height()-32:
+			tileIndex = 7
+			flipHorizontal = rng.Bool()
+		default:
+			tileIndex = 4
+			flipHorizontal = rng.Bool()
+			flipVertical = rng.Bool()
+		}
+	}
+
+	tile := createSubImage(texture, tileIndex*32)
+	var drawOptions ebiten.DrawImageOptions
+	if flipHorizontal {
+		drawOptions.GeoM.Scale(-1, 1)
+		drawOptions.GeoM.Translate(32, 0)
+	}
+	if flipVertical {
+		drawOptions.GeoM.Scale(1, -1)
+		drawOptions.GeoM.Translate(0, 32)
+	}
+	drawOptions.GeoM.Translate(x, y)
+	dst.DrawImage(tile, &drawOptions)
+}
+
 type pendingImage struct {
 	data      *ebiten.Image
 	options   ebiten.DrawImageOptions

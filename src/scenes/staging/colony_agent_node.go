@@ -53,6 +53,7 @@ const (
 	agentModePosing
 	agentModeForcedCharging
 	agentModeMineEssence
+	agentModeGrabArtifact
 	agentModeMineSulfurEssence
 	agentModeCourierFlight
 	agentModeScavenge
@@ -70,6 +71,7 @@ const (
 	agentModeWaitCloning
 	agentModePickup
 	agentModeResourceTakeoff
+	agentModePickupArtifact
 	agentModeTakeoff
 	agentModeRecycleReturn
 	agentModeRecycleLanding
@@ -647,6 +649,18 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.target = target
 		return true
 
+	case agentModeGrabArtifact:
+		a.mode = mode
+		artifact := target.(*essenceSourceNode)
+		energyCost := artifact.pos.DistanceTo(a.pos) * 0.5
+		if a.tether {
+			energyCost *= 0.5
+		}
+		a.energyBill += energyCost
+		a.setWaypoint(roundedPos(artifact.pos.Sub(gmath.Vec{Y: agentFlightHeight})))
+		a.target = target
+		return true
+
 	case agentModeMineEssence:
 		if !a.stats.CanGather {
 			return false
@@ -682,6 +696,11 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModePickup:
+		a.mode = mode
+		a.setWaypoint(a.pos.Add(gmath.Vec{Y: agentFlightHeight}))
+		return true
+
+	case agentModePickupArtifact:
 		a.mode = mode
 		a.setWaypoint(a.pos.Add(gmath.Vec{Y: agentFlightHeight}))
 		return true
@@ -793,7 +812,7 @@ func (a *colonyAgentNode) Update(delta float64) {
 	}
 
 	if a.energyBill != 0 {
-		a.energy -= delta * 2
+		a.energy -= delta * a.world().droneEnergyDischargeMultiplier
 		a.energyBill = gmath.ClampMin(a.energyBill-delta*2, 0)
 	}
 
@@ -834,10 +853,14 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateForcedCharging(delta)
 	case agentModeCloakHide:
 		a.updateCloakHide(delta)
+	case agentModeGrabArtifact:
+		a.updateGrabArtifact(delta)
 	case agentModeMineEssence:
 		a.updateMineEssence(delta)
 	case agentModeMineSulfurEssence:
 		a.updateMineSulfurEssence(delta)
+	case agentModePickupArtifact:
+		a.updatePickupArtifact(delta)
 	case agentModePickup:
 		a.updatePickup(delta)
 	case agentModeReturn:
@@ -2947,6 +2970,20 @@ func (a *colonyAgentNode) updateMineSulfurEssence(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) updateGrabArtifact(delta float64) {
+	if a.moveTowards(delta) {
+		artifact := a.target.(*essenceSourceNode)
+		if a.IsCloaked() {
+			a.doUncloak()
+		}
+		if artifact.IsDisposed() {
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		} else {
+			a.AssignMode(agentModePickupArtifact, gmath.Vec{}, nil)
+		}
+	}
+}
+
 func (a *colonyAgentNode) updateMineEssence(delta float64) {
 	if a.moveTowards(delta) {
 		source := a.target.(*essenceSourceNode)
@@ -2959,6 +2996,37 @@ func (a *colonyAgentNode) updateMineEssence(delta float64) {
 			a.AssignMode(agentModePickup, gmath.Vec{}, nil)
 		}
 	}
+}
+
+func (a *colonyAgentNode) updatePickupArtifact(delta float64) {
+	speed := a.movementSpeed()
+	height := a.shadowComponent.height - delta*speed
+	if a.moveTowardsWithSpeed(delta, speed) {
+		height = 0
+		a.mode = agentModeAlignStandby
+		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
+		artifact := a.target.(*essenceSourceNode)
+		if !artifact.IsDisposed() {
+			a.colonyCore.addEvoPoints(5.0)
+			playSound(a.world(), assets.AudioCreepPromoted, a.pos)
+			createEffect(a.world(), effectConfig{
+				Pos:   a.pos,
+				Layer: slightlyAboveEffectLayer,
+				Image: assets.ImageDroneConsumed,
+			})
+			newAgent := a.colonyCore.NewColonyAgentNode(a.stats, a.pos)
+			newAgent.rank = a.rank + 1
+			newAgent.SetHeight(0)
+			newAgent.faction = a.faction
+			a.world().nodeRunner.AddObject(newAgent)
+			a.world().artifacts = xslices.Remove(a.world().artifacts, artifact)
+			newAgent.mode = agentModeAlignStandby
+			newAgent.setWaypoint(a.waypoint)
+			a.Destroy()
+			artifact.Destroy()
+		}
+	}
+	a.shadowComponent.UpdateHeight(a.pos, height, agentFlightHeight)
 }
 
 func (a *colonyAgentNode) updatePickup(delta float64) {

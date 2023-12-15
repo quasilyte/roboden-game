@@ -45,12 +45,27 @@ var (
 		{texture: assets.ImageLandCrack4, weight: 0.1},
 	}
 
+	snowyLandcrackAtlas = []wallAtlasLayer{
+		{texture: assets.ImageSnowyLandCrack, weight: 0.35},
+		{texture: assets.ImageSnowyLandCrack2, weight: 0.3},
+		{texture: assets.ImageSnowyLandCrack3, weight: 0.25},
+		{texture: assets.ImageSnowyLandCrack4, weight: 0.1},
+	}
+
 	lavaAtlas = []wallAtlasLayer{
 		{texture: assets.ImageLavaPuddle, weight: 0.4},
 		{texture: assets.ImageLavaPuddle2, weight: 0.3},
 		{texture: assets.ImageLavaPuddle3, weight: 0.1},
 		{texture: assets.ImageLavaPuddle4, weight: 0.2},
 		{texture: assets.ImageLavaPuddle5, weight: 0.15},
+	}
+
+	snowAtlas = []wallAtlasLayer{
+		{texture: assets.ImageSnowPile, weight: 0.35},
+		{texture: assets.ImageSnowPile2, weight: 0.35},
+		{texture: assets.ImageSnowPile3, weight: 0.30},
+		{texture: assets.ImageSnowPile4, weight: 0.20},
+		{texture: assets.ImageSnowPile5, weight: 0.20},
 	}
 )
 
@@ -175,6 +190,8 @@ func (w *wallClusterNode) drawMountains(bg *ge.TiledBackground, scene *ge.Scene)
 			texture += 5
 		case gamedata.EnvInferno:
 			texture += 10
+		case gamedata.EnvSnow:
+			texture += 15
 		}
 
 		for j := 0; j < numSprites; j++ {

@@ -31,6 +31,7 @@ func (dmg DamageValue) HasFlag(mask DamageFlags) bool {
 
 type WeaponStats struct {
 	MaxTargets                int
+	TargetMaxDist             float64 // If 0, no limits are applied
 	ProjectileImage           resource.ImageID
 	ProjectileSpeed           float64
 	ProjectileRotateSpeed     float64
@@ -106,6 +107,7 @@ const (
 	ProjectileExplosionScarab
 	ProjectileExplosionServant
 	ProjectileExplosionTankColonyBlaster
+	ProjectileExplosionSentinelGun
 )
 
 type TargetKind int
@@ -119,6 +121,9 @@ const TargetAny = TargetFlying | TargetGround
 
 func InitDroneStats(stats *AgentStats) *AgentStats {
 	stats.SupportRangeSqr = stats.SupportRange * stats.SupportRange
+	if !stats.NoAutoAttack {
+		stats.NoAutoAttack = stats.Weapon == nil
+	}
 	return stats
 }
 

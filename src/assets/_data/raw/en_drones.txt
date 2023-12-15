@@ -64,6 +64,7 @@
 
 ##drone.attack_rating_multi : per 1 target
 ##drone.ability.num_targets_f : Attacks up to %d targets
+##drone.ability.num_targets_alt_f : Up to %d extra targets
 
 ##drone.dps_rating : DPS rating
 ##drone.attack_range_rating : Attack range rating

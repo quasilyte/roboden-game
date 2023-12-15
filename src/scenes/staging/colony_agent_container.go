@@ -68,6 +68,7 @@ type colonyAgentContainer struct {
 	servoNum           int
 	tier2Num           int
 	tier3Num           int
+	tier1workerNum     int
 	tier2plusWorkerNum int
 }
 
@@ -90,6 +91,8 @@ func (c *colonyAgentContainer) Update() {
 	c.servoNum = 0
 	c.tier2Num = 0
 	c.tier3Num = 0
+	c.tier1workerNum = 0
+	c.tier2plusWorkerNum = 0
 	c.availableWorkers = c.availableWorkers[:0]
 	c.availableFighters = c.availableFighters[:0]
 	c.availableUniversal = c.availableUniversal[:0]
@@ -102,6 +105,8 @@ func (c *colonyAgentContainer) Update() {
 			c.servoNum++
 		}
 		switch a.stats.Tier {
+		case 1:
+			c.tier1workerNum++
 		case 2:
 			c.tier2Num++
 			c.tier2plusWorkerNum++

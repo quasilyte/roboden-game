@@ -125,6 +125,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
 		ImageTankColonyWeapon1Explosion: {Path: "image/effects/tank_colony_weapon1_impact.png", FrameWidth: 32},
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
+		ImageSentinelgunExplosion:       {Path: "image/effects/sentinelgun_explosion.png", FrameWidth: 24},
 		ImageRoombaShotExplosion:        {Path: "image/effects/roomba_shot_explosion.png", FrameWidth: 11},
 		ImageScarabShotExplosion:        {Path: "image/effects/scarab_projectile_explosion.png", FrameWidth: 11},
 		ImageCommanderShotExplosion:     {Path: "image/effects/commander_shot_explosion.png", FrameWidth: 10},
@@ -209,6 +210,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 
 		ImageHarvesterAgent:     {Path: "image/drones/harvester_agent.png"},
 		ImageGunpointAgent:      {Path: "image/drones/gunpoint_agent.png"},
+		ImageSentinelpointAgent: {Path: "image/drones/sentinelpoint_agent.png"},
 		ImageSiegeAgentIcon:     {Path: "image/drones/siege_agent_icon.png"},
 		ImageSiegeAgent:         {Path: "image/drones/siege_agent.png"},
 		ImageSiegeAgentTurret:   {Path: "image/drones/siege_agent_turret.png", FrameWidth: 27},
@@ -371,6 +373,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageScoutProjectile:          {Path: "image/projectile/scout_projectile.png"},
 		ImageRepellerProjectile:       {Path: "image/projectile/repeller_projectile.png"},
 		ImageGunpointProjectile:       {Path: "image/projectile/gunpoint_projectile.png"},
+		ImageSentinelpointProjectile:  {Path: "image/projectile/sentinelpoint_projectile.png"},
 		ImageFighterProjectile:        {Path: "image/projectile/fighter_projectile.png"},
 		ImageScavengerProjectile:      {Path: "image/projectile/scavenger_projectile.png"},
 		ImageMarauderProjectile:       {Path: "image/projectile/marauder_projectile.png"},
@@ -552,6 +555,7 @@ const (
 	ImageTargeterShotExplosion
 	ImageTankColonyWeapon1Explosion
 	ImageStealthLaserExplosion
+	ImageSentinelgunExplosion
 	ImageRoombaShotExplosion
 	ImageScarabShotExplosion
 	ImageCripplerBlasterExplosion
@@ -677,6 +681,7 @@ const (
 	ImageSiegeAgentTurret
 	ImageBeamtowerAgent
 	ImageTetherBeaconAgent
+	ImageSentinelpointAgent
 	ImageRoombaAgent
 	ImageMegaRoombaAgent
 	ImageWorkerAgent
@@ -816,6 +821,7 @@ const (
 	ImageScoutProjectile
 	ImageRepellerProjectile
 	ImageGunpointProjectile
+	ImageSentinelpointProjectile
 	ImageFighterProjectile
 	ImageScavengerProjectile
 	ImageMarauderProjectile

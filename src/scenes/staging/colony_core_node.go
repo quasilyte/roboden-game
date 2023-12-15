@@ -101,12 +101,13 @@ type colonyCoreNode struct {
 	realRadius    float64
 	realRadiusSqr float64
 
-	freeWorkerDelay float64
-	upkeepDelay     float64
-	cloningDelay    float64
-	resourceDelay   float64
-	captureDelay    float64
-	artifactDelay   float64
+	repairSentinelDelay float64
+	freeWorkerDelay     float64
+	upkeepDelay         float64
+	cloningDelay        float64
+	resourceDelay       float64
+	captureDelay        float64
+	artifactDelay       float64
 
 	attackDelay float64
 
@@ -501,6 +502,8 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	case gamedata.AgentMegaRoomba:
 		turret.mode = agentModeRelictRoomba
 		turret.target = c
+	case gamedata.AgentSentinelpoint:
+		turret.mode = agentModeSentinelTurret
 	default:
 		turret.mode = agentModeGuardForever
 	}
@@ -547,6 +550,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 
 	c.updateResourceRects()
 
+	c.repairSentinelDelay = gmath.ClampMin(c.repairSentinelDelay-delta, 0)
 	c.artifactDelay = gmath.ClampMin(c.artifactDelay-delta, 0)
 	c.captureDelay = gmath.ClampMin(c.captureDelay-delta, 0)
 	c.cloningDelay = gmath.ClampMin(c.cloningDelay-delta, 0)
@@ -603,7 +607,7 @@ func (c *colonyCoreNode) updateTeleporting(delta float64) {
 
 		c.agents.Each(func(a *colonyAgentNode) {
 			switch a.mode {
-			case agentModeKamikazeAttack, agentModeBomberAttack:
+			case agentModeKamikazeAttack, agentModeBomberAttack, agentModeSentinelPatrol:
 				return
 			}
 			// Create effect at the source pos.
@@ -879,7 +883,7 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) bool {
 			a.doUncloak()
 		}
 		switch a.mode {
-		case agentModeKamikazeAttack, agentModeFollowCommander:
+		case agentModeKamikazeAttack, agentModeFollowCommander, agentModeSentinelPatrol:
 			return
 		}
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
@@ -1572,6 +1576,23 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 				a.AssignMode(agentModePatrol, gmath.Vec{}, nil)
 			}
 		})
+		return true
+
+	case actionAssignSentinels:
+		c.world.tmpAgentSlice = c.world.tmpAgentSlice[:0]
+		c.agents.Find(searchOnlyAvailable|searchRandomized|searchWorkers, func(a *colonyAgentNode) bool {
+			ok := a.health >= a.maxHealth*0.2 && a.stats.CanBeSentinel
+			if !ok {
+				return false
+			}
+			c.world.tmpAgentSlice = append(c.world.tmpAgentSlice, a)
+			return len(c.world.tmpAgentSlice) >= 3
+		})
+		if len(c.world.tmpAgentSlice) < 3 {
+			return false
+		}
+		turret := action.Value.(*colonyAgentNode)
+		turret.SetSentinelWorkers(c.world.tmpAgentSlice[:3])
 		return true
 
 	case actionDefenceGarrison:

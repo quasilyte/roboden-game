@@ -67,6 +67,15 @@ var beamTowerConstructionStats = &constructionStats{
 	Image:             assets.ImageBeamtowerAgent,
 }
 
+var sentinelpointConstructionStats = &constructionStats{
+	Cost:              4,
+	ConstructionSpeed: 0.03,
+	DamageModifier:    0.03,
+	Kind:              constructTurret,
+	TurretStats:       gamedata.SentinelpointAgentStats,
+	Image:             assets.ImageSentinelpointAgent,
+}
+
 var tetherBeaconConstructionStats = &constructionStats{
 	Cost:              2,
 	ConstructionSpeed: 0.04,

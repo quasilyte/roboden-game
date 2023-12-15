@@ -11,10 +11,11 @@ var TurretStatsList = []*AgentStats{
 	BeamTowerAgentStats,
 	HarvesterAgentStats,
 	SiegeAgentStats,
+	SentinelpointAgentStats,
 }
 
 var SiegeAgentWeapon = InitWeaponStats(&WeaponStats{
-	AttackRange:               750,
+	AttackRange:               800,
 	Reload:                    10,
 	AttackSound:               assets.AudioSiegeRocket1,
 	ProjectileImage:           assets.ImageSiegeRocket,
@@ -46,6 +47,35 @@ var SiegeAgentStats = InitDroneStats(&AgentStats{
 	MaxHealth:    65,
 })
 
+var SentinelpointAgentStats = InitDroneStats(&AgentStats{
+	ScoreCost:  SentinelpointTurretCost,
+	Kind:       AgentSentinelpoint,
+	IsFlying:   false,
+	IsTurret:   true,
+	IsBuilding: true,
+	Image:      assets.ImageSentinelpointAgent,
+	Size:       SizeLarge,
+	Upkeep:     25,
+	MaxHealth:  80,
+	Weapon: InitWeaponStats(&WeaponStats{
+		AttackRange:     300,
+		Reload:          1.85,
+		AttackSound:     assets.AudioSentinelpointShot,
+		ProjectileImage: assets.ImageSentinelpointProjectile,
+		Explosion:       ProjectileExplosionSentinelGun,
+		ImpactArea:      10,
+		ProjectileSpeed: 400,
+		Damage:          DamageValue{Health: 4, Disarm: 0.1},
+		FireOffsets:     []gmath.Vec{{X: -8, Y: 1}, {X: 8, Y: 1}},
+		BurstSize:       2,
+		AttacksPerBurst: 2,
+		MaxTargets:      6,
+		TargetMaxDist:   80,
+		Accuracy:        0.8,
+		TargetFlags:     TargetGround | TargetFlying,
+	}),
+})
+
 var GunpointAgentStats = InitDroneStats(&AgentStats{
 	Kind:            AgentGunpoint,
 	IsFlying:        false,
@@ -61,7 +91,7 @@ var GunpointAgentStats = InitDroneStats(&AgentStats{
 		Reload:          2,
 		AttackSound:     assets.AudioGunpointShot,
 		ProjectileImage: assets.ImageGunpointProjectile,
-		ImpactArea:      10,
+		ImpactArea:      12,
 		ProjectileSpeed: 280,
 		Damage:          DamageValue{Health: 4},
 		MaxTargets:      1,
@@ -93,7 +123,7 @@ var BeamTowerAgentStats = InitDroneStats(&AgentStats{
 	IsBuilding: true,
 	Image:      assets.ImageBeamtowerAgent,
 	Size:       SizeLarge,
-	Upkeep:     18,
+	Upkeep:     22,
 	MaxHealth:  50,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange: 380,

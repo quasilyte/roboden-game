@@ -206,8 +206,9 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		c.saveConfig()
 
 		if c.config.PlayersMode == serverapi.PmodeSinglePlayer && c.mode == gamedata.ModeReverse {
-			c.config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, c.scene.Rand())
-			c.config.TurretDesign = gamedata.PickTurretDesign(c.scene.Rand())
+			pstats := c.state.Persistent.PlayerStats
+			c.config.CoreDesign = gamedata.PickColonyDesign(pstats.CoresUnlocked, c.scene.Rand())
+			c.config.TurretDesign = gamedata.PickTurretDesign(pstats.TurretsUnlocked, c.scene.Rand())
 			c.config.Tier2Recipes = gamedata.CreateDroneBuild(c.scene.Rand())
 		}
 

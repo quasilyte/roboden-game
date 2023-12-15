@@ -11,13 +11,24 @@ func PickColonyDesign(designsUnlocked []string, rng *gmath.Rand) string {
 	return gmath.RandElem(rng, designsUnlocked)
 }
 
-func PickTurretDesign(rng *gmath.Rand) string {
+func PickTurretDesign(designsUnlocked []string, rng *gmath.Rand) string {
 	picker := gmath.NewRandPicker[string](rng)
-	picker.AddOption("BeamTower", 0.35)
-	picker.AddOption("Gunpoint", 0.25)
-	picker.AddOption("Harvester", 0.15)
-	picker.AddOption("TetherBeacon", 0.2)
-	picker.AddOption("Siege", 0.2)
+	for _, t := range designsUnlocked {
+		switch t {
+		case "BeamTower":
+			picker.AddOption(t, 0.35)
+		case "Gunpoint":
+			picker.AddOption(t, 0.25)
+		case "Harvester":
+			picker.AddOption(t, 0.15)
+		case "TetherBeacon":
+			picker.AddOption(t, 0.2)
+		case "Siege":
+			picker.AddOption(t, 0.2)
+		case "Sentinelpoint":
+			picker.AddOption(t, 0.25)
+		}
+	}
 	return picker.Pick()
 }
 

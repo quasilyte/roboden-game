@@ -121,6 +121,7 @@ type worldState struct {
 	tmpTargetSlice  []targetable
 	tmpTargetSlice2 []targetable
 	tmpColonySlice  []*colonyCoreNode
+	tmpAgentSlice   []*colonyAgentNode
 
 	canFastForward bool
 

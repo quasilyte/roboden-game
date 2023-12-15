@@ -42,6 +42,7 @@ var stunnableModes = [256]bool{
 	agentModePanic:           true,
 	agentModeRecycleReturn:   true,
 	agentModeBuildBuilding:   true,
+	agentModeSentinelPatrol:  true,
 }
 
 type colonyAgentMode uint8
@@ -90,6 +91,8 @@ const (
 	agentModeConsumeDrone
 	agentModeFollowCommander
 	agentModeBomberAttack
+	agentModeSentinelPatrol
+	agentModeSentinelTurret
 
 	agentModeRelictDroneFactory
 	agentModeRelictPatrol
@@ -140,7 +143,7 @@ type colonyAgentNode struct {
 	payload         int
 	cloneGen        int
 	rank            int
-	extraLevel      int // Devourer level; drone factory units num
+	extraLevel      int // Devourer level; drone factory units num; on/off for sentinel turret
 	commanderID     int
 	faction         gamedata.FactionTag
 	cargoValue      float64
@@ -921,6 +924,10 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.updateRelictRoomba(delta)
 	case agentModeSiegeGuard:
 		a.updateSiegeGuard(delta)
+	case agentModeSentinelPatrol:
+		a.updateSentielPatrol(delta)
+	case agentModeSentinelTurret:
+		a.updateSentielTurret(delta)
 	case agentModeGuardForever:
 		// Just chill.
 	}
@@ -945,6 +952,10 @@ func (a *colonyAgentNode) dispose() {
 }
 
 func (a *colonyAgentNode) Destroy() {
+	if a.stats == gamedata.SentinelpointAgentStats {
+		a.ReleaseSentinelWorkers()
+	}
+
 	a.EventDestroyed.Emit(a)
 	a.dispose()
 }
@@ -1551,7 +1562,7 @@ func (a *colonyAgentNode) walkTetherTargets(colony *colonyCoreNode, num int, f f
 			return false
 		}
 		switch x.mode {
-		case agentModeKamikazeAttack, agentModeBomberAttack, agentModeConsumeDrone, agentModeCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging, agentModePosing:
+		case agentModeKamikazeAttack, agentModeBomberAttack, agentModeConsumeDrone, agentModeCharging, agentModePanic, agentModeWaitCloning, agentModeMakeClone, agentModeRecycleReturn, agentModeRecycleLanding, agentModeMerging, agentModePosing, agentModeSentinelPatrol:
 			// Modes that are never targeted.
 			return false
 		}
@@ -1583,11 +1594,14 @@ func (a *colonyAgentNode) walkTetherTargets(colony *colonyCoreNode, num int, f f
 func (a *colonyAgentNode) findAttackTargets() []targetable {
 	w := a.world()
 
-	maxTargets := a.stats.Weapon.MaxTargets
+	weapon := a.stats.Weapon
+	maxTargets := weapon.MaxTargets
 	targets := w.tmpTargetSlice[:0]
-	w.WalkCreeps(a.pos, a.stats.Weapon.AttackRange, func(creep *creepNode) bool {
+	w.WalkCreeps(a.pos, weapon.AttackRange, func(creep *creepNode) bool {
 		if a.isValidTarget(creep) {
-			targets = append(targets, creep)
+			if weapon.TargetMaxDist == 0 || len(targets) == 0 || targets[0].GetPos().DistanceTo(creep.pos) <= weapon.TargetMaxDist {
+				targets = append(targets, creep)
+			}
 		}
 		return len(targets) >= maxTargets
 	})
@@ -1618,7 +1632,11 @@ func (a *colonyAgentNode) attackTargets(targets []targetable, burstSize int) {
 }
 
 func (a *colonyAgentNode) processAttack(delta float64) {
-	if a.stats.Weapon == nil || a.stats.Kind == gamedata.AgentDisintegrator {
+	if a.stats.NoAutoAttack {
+		return
+	}
+
+	if a.stats == gamedata.SentinelpointAgentStats && a.extraLevel == 0 {
 		return
 	}
 
@@ -1747,6 +1765,8 @@ func (a *colonyAgentNode) damageReduction() float64 {
 		extraReduction = 0.6
 	case agentModeFollowCommander:
 		extraReduction = 0.20
+	case agentModeSentinelPatrol:
+		extraReduction = 0.25
 	}
 	return a.stats.DamageReduction + extraReduction
 }
@@ -1756,6 +1776,11 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 	switch a.mode {
 	case agentModeFollowCommander:
 		baseSpeed = a.speed + 25
+	case agentModeSentinelPatrol:
+		baseSpeed = 25
+		if a.cloningBeam != nil {
+			baseSpeed -= 15
+		}
 	case agentModeKamikazeAttack:
 		return 2 * a.speed
 	case agentModeBomberAttack:
@@ -1940,6 +1965,72 @@ func (a *colonyAgentNode) updateRelictTakeoff(delta float64) {
 	if height == agentFlightHeight {
 		a.mode = agentModeRelictPatrol
 		a.shadowComponent.SetVisibility(true)
+	}
+}
+
+func (a *colonyAgentNode) updateSentielPatrol(delta float64) {
+	if a.healthRegen != 0 {
+		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
+	}
+
+	a.energy = gmath.ClampMax(a.energy+delta*0.25*a.energyRegenRate, a.maxEnergy)
+
+	if a.moveTowards(delta) {
+		turret := a.GetSentinelTurret()
+		if a.cloningBeam != nil {
+			if turret != nil {
+				turret.OnBuildingRepair(0.3 * a.getRepairAmount())
+			}
+			a.cloningBeam.Dispose()
+			a.cloningBeam = nil
+		}
+		if turret == nil {
+			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+			return
+		}
+		const repairEnergyCost = 10
+		doRepair := turret.health <= turret.maxHealth*0.85 &&
+			a.cloningBeam == nil &&
+			a.energy >= repairEnergyCost &&
+			a.colonyCore.repairSentinelDelay == 0 &&
+			a.colonyCore.resources >= 40 &&
+			a.world().rand.Chance(0.65)
+		if doRepair {
+			a.energy -= repairEnergyCost
+			a.colonyCore.repairSentinelDelay = a.world().rand.FloatRange(1, 5)
+			a.colonyCore.resources = gmath.ClampMin(a.colonyCore.resources-5, 0)
+			repairPos := ge.Pos{
+				Base:   &turret.pos,
+				Offset: a.world().localRand.Offset(-4, 4),
+			}
+			beam := newCloningBeamNode(a.world(), abeamCloning, &a.pos, repairPos)
+			a.cloningBeam = beam
+			a.world().nodeRunner.AddObject(beam)
+		}
+		a.setWaypoint(a.orbitingWaypoint(turret.pos.Sub(gmath.Vec{Y: 16}), 52))
+	}
+}
+
+func (a *colonyAgentNode) updateSentielTurret(delta float64) {
+	if a.specialDelay != 0 {
+		return
+	}
+	a.specialDelay = a.world().rand.FloatRange(0.4, 1.2)
+
+	num := 0
+	a.WalkSentinelWorkers(func(worker *colonyAgentNode) {
+		if worker.IsDisposed() {
+			return
+		}
+		if worker.mode != agentModeSentinelPatrol {
+			return
+		}
+		num++
+	})
+	if num < 3 && num != 0 {
+		a.ReleaseSentinelWorkers()
+		a.specialDelay += 0.5
+		a.extraLevel = 0
 	}
 }
 
@@ -2557,13 +2648,20 @@ func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 	a.dist -= delta
 	if a.dist <= 0 {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-		amountRepaired := a.scene.Rand().FloatRange(5, 8)
-		if a.faction == gamedata.GreenFactionTag {
-			amountRepaired *= 1.5
-		}
-		target.OnBuildingRepair(amountRepaired)
+		target.OnBuildingRepair(a.getRepairAmount())
 		return
 	}
+}
+
+func (a *colonyAgentNode) getRepairAmount() float64 {
+	amountRepaired := a.scene.Rand().FloatRange(5, 8)
+	if a.faction == gamedata.GreenFactionTag {
+		amountRepaired *= 1.5
+	}
+	if a.stats.Tier > 1 {
+		amountRepaired += 2
+	}
+	return amountRepaired
 }
 
 func (a *colonyAgentNode) updateBuildBase(delta float64) {
@@ -3098,4 +3196,73 @@ func (a *colonyAgentNode) maxPayload() int {
 func (a *colonyAgentNode) changePos(pos gmath.Vec) {
 	a.pos = pos
 	a.shadowComponent.UpdatePos(pos)
+}
+
+func (a *colonyAgentNode) NumSentinelWorkers() int {
+	n := 0
+	a.WalkSentinelWorkers(func(worker *colonyAgentNode) {
+		n++
+	})
+	return n
+}
+
+func (a *colonyAgentNode) SetSentinelWorkers(workers []*colonyAgentNode) {
+	a.ReleaseSentinelWorkers()
+
+	a.extraLevel = 1
+
+	a.target = workers[0]
+	workers[0].target = workers[1]
+	workers[1].target = workers[2]
+	workers[2].target = a
+
+	for _, w := range workers {
+		w.mode = agentModeSentinelPatrol
+	}
+}
+
+func (a *colonyAgentNode) ReleaseSentinelWorkers() {
+	a.WalkSentinelWorkers(func(worker *colonyAgentNode) {
+		worker.AssignMode(agentModeStandby, gmath.Vec{}, nil)
+		worker.target = nil
+	})
+	a.target = nil
+}
+
+func (a *colonyAgentNode) GetSentinelTurret() *colonyAgentNode {
+	current := a.target
+	i := 0
+	for current != nil {
+		i++
+		x, ok := current.(*colonyAgentNode)
+		if !ok {
+			return nil
+		}
+		if x.stats == gamedata.SentinelpointAgentStats {
+			return x
+		}
+		if x.mode != agentModeSentinelPatrol {
+			return nil
+		}
+		current = x.target
+	}
+	return nil
+}
+
+func (a *colonyAgentNode) WalkSentinelWorkers(f func(worker *colonyAgentNode)) {
+	if a.target == nil {
+		return
+	}
+	worker := a.target.(*colonyAgentNode)
+	for worker != nil {
+		if worker.mode != agentModeSentinelPatrol {
+			break
+		}
+		next := worker.target.(*colonyAgentNode)
+		f(worker)
+		if next == a {
+			break
+		}
+		worker = next
+	}
 }

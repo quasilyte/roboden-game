@@ -523,8 +523,20 @@ const SeasonNumber = 1
 //
 // # Version 24
 // - A new snowy biome
+// - A new Sentinel turret
 // - A wether toggle (works only with a snowy biome for now)
 // - Blitz is open by default (no need to unlock it anymore)
+// - Bot now can only use unlocked turret designs in Reverse mode (in splash screen as well)
+// - Tier 2 workers now repair buildings more efficiently
+// - Buff Disingrator: +1 damage (16 -> 17)
+// - Buff Scarab: -1 upkeep cost (8 -> 7), -1 cost (20 -> 19)
+// - Buff Servo: -1 upkeep cost (7 -> 6), -4 cost (26 -> 22)
+// - Buff Cloner: -5% cloning cost (85% -> 80%), -2 cost (26 -> 24)
+// - Buff Courier: +10 attack range (140 -> 150)
+// - Buff Trucker: alternative AoE attack, faster reload (2.6 -> 2.2), energy regen +0.2 (0.5 -> 0.7)
+// - Buff Crippler: +1 max targets (6 -> 7)
+// - Buff Siege turret: +50 attack range (750 -> 800)
+// - Nerf Beam turret: +2 upkeep cost (18 -> 22)
 const (
 	BuildNumber      int = 24
 	BuildMinorNumber int = 0

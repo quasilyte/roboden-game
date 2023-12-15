@@ -13,6 +13,8 @@ import (
 	"github.com/quasilyte/roboden-game/pathing"
 )
 
+const timeNever float64 = 9999999999999
+
 func resizedRect(rect gmath.Rect, delta float64) gmath.Rect {
 	delta = -delta // Negative value should make the rect smaller
 	offset := gmath.Vec{X: delta, Y: delta}

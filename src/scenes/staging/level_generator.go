@@ -792,7 +792,7 @@ func (g *levelGenerator) placeBoss() {
 
 	boss := g.world.NewCreepNode(pos, gamedata.UberBossCreepStats)
 	if g.world.config.GameMode == gamedata.ModeReverse {
-		boss.specialDelay = 60 * 60 * 60 // ~never
+		boss.specialDelay = timeNever
 	} else {
 		boss.specialDelay = g.rng.FloatRange(3*60, 4*60)
 	}

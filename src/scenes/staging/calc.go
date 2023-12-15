@@ -278,7 +278,7 @@ func agentCloningEnergyCost() float64 {
 }
 
 func agentCloningCost(core *colonyCoreNode, cloner, a *colonyAgentNode) float64 {
-	multiplier := 0.85
+	multiplier := 0.8
 	return a.stats.Cost * multiplier
 }
 

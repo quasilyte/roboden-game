@@ -593,6 +593,24 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 		if p.numGarrisonAgents != 0 && p.numPatrolAgents < numPatrolWanted {
 			return colonyAction{Kind: actionSetPatrol, TimeCost: 0.25}
 		}
+
+		if p.world.turretDesign == gamedata.SentinelpointAgentStats && p.colony.agents.tier1workerNum > 6 && len(p.colony.agents.availableWorkers) >= 6 {
+			if p.world.rand.Chance(0.45) {
+				turret := randIterate(p.world.rand, p.world.turrets, func(turret *colonyAgentNode) bool {
+					return turret.stats == gamedata.SentinelpointAgentStats &&
+						turret.pos.DistanceSquaredTo(p.colony.pos) <= (1.3*p.colony.realRadiusSqr) &&
+						turret.NumSentinelWorkers() < 3
+				})
+				if turret != nil {
+					return colonyAction{
+						Kind:     actionAssignSentinels,
+						Value:    turret,
+						TimeCost: 1.2,
+					}
+				}
+			}
+		}
+
 		return colonyAction{}
 	}
 

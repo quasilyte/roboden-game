@@ -65,6 +65,7 @@
 
 ##drone.attack_rating_multi : на 1 цель
 ##drone.ability.num_targets_f : Атакует до %d целей
+##drone.ability.num_targets_alt_f : До %d дополнительных целей вокруг основной
 
 ##drone.dps_rating : Рейтинг урона в секунду
 ##drone.attack_range_rating : Рейтинг дальности атаки

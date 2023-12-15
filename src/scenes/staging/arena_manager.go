@@ -231,7 +231,7 @@ func (m *arenaManager) Update(delta float64) {
 
 func (m *arenaManager) spawnGrenadiers() {
 	if !m.world.config.GrenadierCreeps {
-		m.grenadiersDelay = 99999999 // ~never
+		m.grenadiersDelay = timeNever
 		return
 	}
 

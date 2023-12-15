@@ -315,6 +315,8 @@ func (p *projectileNode) createExplosion() {
 
 	explosionPos := p.pos.Add(p.world.localRand.Offset(-4, 4))
 	switch explosionKind {
+	case gamedata.ProjectileExplosionSentinelGun:
+		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageSentinelgunExplosion, Layer: layer})
 	case gamedata.ProjectileExplosionIonBlast:
 		createEffect(p.world, effectConfig{Pos: explosionPos, Image: assets.ImageIonBlast, Layer: layer})
 		playSound(p.world, assets.AudioIonBlast1, explosionPos)

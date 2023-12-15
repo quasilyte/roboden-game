@@ -307,7 +307,11 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier, global
 	}
 	if drone.Weapon != nil {
 		if drone.Weapon.MaxTargets > 1 {
-			traits = append(traits, fmt.Sprintf(d.Get("drone.ability.num_targets_f"), drone.Weapon.MaxTargets))
+			if drone.Weapon.TargetMaxDist == 0 {
+				traits = append(traits, fmt.Sprintf(d.Get("drone.ability.num_targets_f"), drone.Weapon.MaxTargets))
+			} else {
+				traits = append(traits, fmt.Sprintf(d.Get("drone.ability.num_targets_alt_f"), drone.Weapon.MaxTargets-1))
+			}
 		}
 		if drone.Weapon.Damage.HasFlag(gamedata.DmgflagAggro) {
 			traits = append(traits, d.Get("drone.ability.aggro"))

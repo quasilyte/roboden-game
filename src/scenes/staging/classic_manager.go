@@ -77,7 +77,7 @@ func (m *classicManager) Update(delta float64) {
 
 func (m *classicManager) maybeSendCoordinators() {
 	if m.world.boss == nil {
-		m.coordinatorsDelay = 999999 // ~never
+		m.coordinatorsDelay = timeNever
 		return
 	}
 
@@ -130,7 +130,7 @@ func (m *classicManager) maybeSendCoordinators() {
 
 func (m *classicManager) spawnGrenadiers() {
 	if !m.world.config.GrenadierCreeps {
-		m.grenadiersDelay = 99999999 // ~never
+		m.grenadiersDelay = timeNever
 		return
 	}
 

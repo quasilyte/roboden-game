@@ -43,4 +43,5 @@ const (
 	actionBuildBuilding
 	actionGetReinforcements
 	actionCaptureBuilding
+	actionAssignSentinels
 )

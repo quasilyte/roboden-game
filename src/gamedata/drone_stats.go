@@ -71,6 +71,7 @@ const (
 	AgentBeamTower
 	AgentHarvester
 	AgentSiege
+	AgentSentinelpoint
 
 	// Neutral buildings
 	AgentDroneFactory
@@ -243,15 +244,17 @@ type AgentStats struct {
 
 	EnergyRegenRateBonus float64
 
-	CanGather  bool
-	CanPatrol  bool
-	CanCloak   bool
-	HasSupport bool
-	IsFlying   bool
-	IsTurret   bool
-	IsBuilding bool
-	IsNeutral  bool
-	MaxPayload int
+	CanGather     bool
+	CanPatrol     bool
+	CanCloak      bool
+	HasSupport    bool
+	IsFlying      bool
+	IsTurret      bool
+	IsBuilding    bool
+	IsNeutral     bool
+	NoAutoAttack  bool
+	CanBeSentinel bool
+	MaxPayload    int
 
 	SelfRepair float64
 
@@ -286,18 +289,19 @@ type DroneDocs struct {
 }
 
 var WorkerAgentStats = InitDroneStats(&AgentStats{
-	Kind:        AgentWorker,
-	IsFlying:    true,
-	Image:       assets.ImageWorkerAgent,
-	Size:        SizeSmall,
-	DiodeOffset: 5,
-	Tier:        1,
-	Cost:        8,
-	Upkeep:      2,
-	CanGather:   true,
-	MaxPayload:  1,
-	Speed:       80,
-	MaxHealth:   12,
+	Kind:          AgentWorker,
+	IsFlying:      true,
+	Image:         assets.ImageWorkerAgent,
+	Size:          SizeSmall,
+	DiodeOffset:   5,
+	Tier:          1,
+	Cost:          8,
+	Upkeep:        2,
+	CanGather:     true,
+	CanBeSentinel: true,
+	MaxPayload:    1,
+	Speed:         80,
+	MaxHealth:     12,
 })
 
 var TargeterAgentStats = InitDroneStats(&AgentStats{
@@ -405,17 +409,18 @@ var TruckerAgentStats = InitDroneStats(&AgentStats{
 	MaxPayload:           3,
 	Speed:                85,
 	MaxHealth:            45,
-	EnergyRegenRateBonus: 0.5,
+	EnergyRegenRateBonus: 0.7,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRangeMarkMultiplier: 1.75,
 		AttackRange:               200,
-		Reload:                    2.6,
+		Reload:                    2.2,
 		AttackSound:               assets.AudioCourierShot,
 		ProjectileImage:           assets.ImageCourierProjectile,
 		ImpactArea:                15,
 		ProjectileSpeed:           170,
 		Damage:                    DamageValue{Health: 2, Slow: 1, Morale: 0.2},
-		MaxTargets:                2,
+		MaxTargets:                5,
+		TargetMaxDist:             40,
 		BurstSize:                 1,
 		ProjectileRotateSpeed:     24,
 		TargetFlags:               TargetFlying,
@@ -439,7 +444,7 @@ var CourierAgentStats = InitDroneStats(&AgentStats{
 	MaxHealth:   30,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRangeMarkMultiplier: 1.75,
-		AttackRange:               140,
+		AttackRange:               150,
 		Reload:                    3.2,
 		AttackSound:               assets.AudioCourierShot,
 		ProjectileImage:           assets.ImageCourierProjectile,
@@ -482,6 +487,7 @@ var GeneratorAgentStats = InitDroneStats(&AgentStats{
 	Cost:                 16,
 	Upkeep:               2,
 	CanGather:            true,
+	CanBeSentinel:        true,
 	MaxPayload:           1,
 	Speed:                90,
 	MaxHealth:            26,
@@ -496,7 +502,7 @@ var ClonerAgentStats = InitDroneStats(&AgentStats{
 	DiodeOffset: 5,
 	Tier:        2,
 	PointCost:   4,
-	Cost:        26,
+	Cost:        24,
 	Upkeep:      10,
 	CanGather:   true,
 	MaxPayload:  1,
@@ -518,6 +524,7 @@ var RepairAgentStats = InitDroneStats(&AgentStats{
 	Upkeep:         18,
 	CanGather:      true,
 	HasSupport:     true,
+	CanBeSentinel:  true,
 	MaxPayload:     1,
 	Speed:          100,
 	MaxHealth:      18,
@@ -586,9 +593,10 @@ var ServoAgentStats = InitDroneStats(&AgentStats{
 	DiodeOffset:   -4,
 	Tier:          2,
 	PointCost:     2,
-	Cost:          26,
-	Upkeep:        7,
+	Cost:          22,
+	Upkeep:        6,
 	CanGather:     true,
+	CanBeSentinel: true,
 	MaxPayload:    1,
 	Speed:         125,
 	MaxHealth:     18,
@@ -637,7 +645,7 @@ var CripplerAgentStats = InitDroneStats(&AgentStats{
 		ImpactArea:                10,
 		ProjectileSpeed:           250,
 		Damage:                    DamageValue{Health: 1, Slow: 2},
-		MaxTargets:                6,
+		MaxTargets:                7,
 		BurstSize:                 1,
 		TargetFlags:               TargetFlying | TargetGround,
 		Explosion:                 ProjectileExplosionCripplerBlaster,
@@ -920,9 +928,9 @@ var ScarabAgentStats = InitDroneStats(&AgentStats{
 	DiodeOffset: -5,
 	Tier:        2,
 	PointCost:   3,
-	Cost:        20,
+	Cost:        19,
 	PowerScore:  9,
-	Upkeep:      8,
+	Upkeep:      7,
 	CanGather:   true,
 	CanPatrol:   true,
 	Speed:       65,
@@ -1143,21 +1151,22 @@ var MarauderAgentStats = InitDroneStats(&AgentStats{
 })
 
 var RepellerAgentStats = InitDroneStats(&AgentStats{
-	Kind:        AgentRepeller,
-	IsFlying:    true,
-	Image:       assets.ImageRepellerAgent,
-	Size:        SizeMedium,
-	DiodeOffset: 3,
-	Tier:        2,
-	PointCost:   3,
-	Cost:        28,
-	PowerScore:  14,
-	Upkeep:      9,
-	CanGather:   true,
-	MaxPayload:  1,
-	CanPatrol:   true,
-	Speed:       105,
-	MaxHealth:   24,
+	Kind:          AgentRepeller,
+	IsFlying:      true,
+	Image:         assets.ImageRepellerAgent,
+	Size:          SizeMedium,
+	DiodeOffset:   3,
+	Tier:          2,
+	PointCost:     3,
+	Cost:          28,
+	PowerScore:    14,
+	Upkeep:        9,
+	CanGather:     true,
+	CanBeSentinel: true,
+	MaxPayload:    1,
+	CanPatrol:     true,
+	Speed:         105,
+	MaxHealth:     24,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRangeMarkMultiplier: 1.25,
 		AttackRange:               170,
@@ -1210,6 +1219,8 @@ var DisintegratorAgentStats = InitDroneStats(&AgentStats{
 	HasSupport:    true,
 	MaxPayload:    1,
 	CanPatrol:     true,
+	NoAutoAttack:  true,
+	CanBeSentinel: true,
 	Speed:         80,
 	MaxHealth:     20,
 	SupportReload: 8,
@@ -1222,7 +1233,7 @@ var DisintegratorAgentStats = InitDroneStats(&AgentStats{
 		ProjectileSpeed:           210,
 		ProjectileRotateSpeed:     26,
 		Reload:                    10, // Approx, for balance calculations
-		Damage:                    DamageValue{Health: 16},
+		Damage:                    DamageValue{Health: 17},
 		MaxTargets:                1,
 		BurstSize:                 1,
 		Explosion:                 ProjectileExplosionPurple,

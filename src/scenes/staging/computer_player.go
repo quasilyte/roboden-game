@@ -88,7 +88,7 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 		p.turretCostMultiplier = 0.8
 	case gamedata.BeamTowerAgentStats:
 		p.turretCostMultiplier = 1.2
-	case gamedata.TetherBeaconAgentStats:
+	case gamedata.TetherBeaconAgentStats, gamedata.SentinelpointAgentStats:
 		p.turretCostMultiplier = 1.1
 	case gamedata.HarvesterAgentStats:
 		p.turretCostMultiplier = 0.9
@@ -180,6 +180,8 @@ func (p *computerPlayer) maxTurretsForColony() int {
 		return p.world.rand.IntRange(2, 5)
 	case gamedata.BeamTowerAgentStats:
 		return p.world.rand.IntRange(1, 4)
+	case gamedata.SentinelpointAgentStats:
+		return p.world.rand.IntRange(2, 4)
 	case gamedata.TetherBeaconAgentStats:
 		return p.world.rand.IntRange(0, 2)
 	case gamedata.HarvesterAgentStats:

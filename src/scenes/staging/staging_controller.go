@@ -374,6 +374,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		screenButtonsEnabled: c.state.Persistent.Settings.ScreenButtons,
 		rand:                 scene.Rand(),
 		localRand:            &localRand,
+		tmpAgentSlice:        make([]*colonyAgentNode, 0, 4),
 		tmpTargetSlice:       make([]targetable, 0, 20),
 		tmpTargetSlice2:      make([]targetable, 0, 8),
 		tmpColonySlice:       make([]*colonyCoreNode, 0, 4),
@@ -1026,6 +1027,8 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 			stats = harvesterConstructionStats
 		case gamedata.SiegeAgentStats:
 			stats = siegeConstructionStats
+		case gamedata.SentinelpointAgentStats:
+			stats = sentinelpointConstructionStats
 		}
 		coord := c.world.pathgrid.PosToCoord(selectedColony.pos)
 		nearOffsets := colonyNearCellOffsets
@@ -1791,7 +1794,7 @@ func (c *Controller) runUpdateStep(computedDelta, delta float64) {
 	}
 	if c.world.simulation && checkpoint {
 		i := len(c.world.result.DebugCheckpoints) - 1
-		if c.replayCheckpoints[i] != c.world.result.DebugCheckpoints[i] {
+		if i < len(c.replayCheckpoints) && c.replayCheckpoints[i] != c.world.result.DebugCheckpoints[i] {
 			fmt.Printf("invalid checkpoint: %d vs %d\n", c.replayCheckpoints[i], c.world.result.DebugCheckpoints[i])
 			panic(errBadCheckpoint)
 		}

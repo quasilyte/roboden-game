@@ -2,7 +2,6 @@ package gamedata
 
 const (
 	ClassicModeCost  int = 500
-	BlitzModeCost    int = 500
 	ArenaModeCost    int = 2000
 	InfArenaModeCost int = 4000
 	ReverseModeCost  int = 7500
@@ -29,7 +28,8 @@ const (
 	ScarabDroneCost        int = 14000
 	FirebugDroneCost       int = 16000
 
-	BeamTowerTurretCost int = 3000
-	HarvesterTurretCost int = 6000
-	SiegeTurretCost     int = 13000
+	BeamTowerTurretCost     int = 3000
+	HarvesterTurretCost     int = 6000
+	SiegeTurretCost         int = 13000
+	SentinelpointTurretCost int = 20000
 )

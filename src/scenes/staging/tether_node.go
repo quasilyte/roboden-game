@@ -72,7 +72,8 @@ func (tether *tetherNode) Update(delta float64) {
 			return
 		}
 		if tether.mayDetach {
-			if tether.target.(*colonyAgentNode).mode == agentModeKamikazeAttack {
+			mode := tether.target.(*colonyAgentNode).mode
+			if mode == agentModeKamikazeAttack || mode == agentModeSentinelPatrol {
 				tether.dispose()
 				return
 			}

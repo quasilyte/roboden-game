@@ -1831,7 +1831,7 @@ func (c *creepNode) updateUberBoss(delta float64) {
 		}
 		if c.specialModifier == 0 {
 			if c.world.config.GameMode == gamedata.ModeReverse {
-				c.specialDelay = 60 * 60 * 60 // ~never
+				c.specialDelay = timeNever
 			} else {
 				c.specialDelay = c.scene.Rand().FloatRange(50, 90)
 			}

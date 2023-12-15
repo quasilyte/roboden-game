@@ -102,9 +102,14 @@ func runSimulation(rstate *runnerState, mode string) (serverapi.GameResults, gam
 	replayConfig.RawGameMode = mode
 	replayConfig.Seed = rstate.rng.PositiveInt64()
 
+	var turretDesigns []string
+	for _, turret := range gamedata.TurretStatsList {
+		turretDesigns = append(turretDesigns, turret.Kind.String())
+	}
+
 	// Create a random bot build.
 	replayConfig.Tier2Recipes = gamedata.CreateDroneBuild(rstate.rng)
-	replayConfig.TurretDesign = gamedata.PickTurretDesign(rstate.rng)
+	replayConfig.TurretDesign = gamedata.PickTurretDesign(turretDesigns, rstate.rng)
 	replayConfig.PlayersMode = serverapi.PmodeSingleBot
 	if rstate.rng.Bool() {
 		replayConfig.CoreDesign = "den"

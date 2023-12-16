@@ -1392,7 +1392,7 @@ func (a *colonyAgentNode) doTether() {
 		return
 	}
 
-	const maxNumberOfTargets = 4
+	const maxNumberOfTargets = 5
 	actionsLeft := maxNumberOfTargets
 	actionsLeft -= a.walkTetherTargets(a.colonyCore, actionsLeft, func(x *colonyAgentNode) {
 		a.tetherTarget(x)

@@ -536,6 +536,7 @@ const SeasonNumber = 1
 // - Buff Trucker: alternative AoE attack, faster reload (2.6 -> 2.2), energy regen +0.2 (0.5 -> 0.7)
 // - Buff Crippler: +1 max targets (6 -> 7)
 // - Buff Siege turret: +50 attack range (750 -> 800)
+// - Buff Tether turret: +1 max targets (4 -> 5)
 // - Nerf Beam turret: +2 upkeep cost (18 -> 22)
 const (
 	BuildNumber      int = 24

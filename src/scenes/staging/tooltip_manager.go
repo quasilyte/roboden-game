@@ -234,6 +234,16 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 		return d.Get("game.hint.teleporter") + " " + label
 	}
 
+	for _, turret := range m.world.turrets {
+		if !m.inHoverRange(pos, turret.pos, 16) {
+			continue
+		}
+		if turret.stats.IsNeutral {
+			continue
+		}
+		return d.Get("turret", strings.ToLower(turret.stats.Kind.String()))
+	}
+
 	for _, c := range m.player.state.colonies {
 		if !m.inHoverRange(pos, c.pos, 26) {
 			continue
@@ -245,6 +255,30 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 		boss := m.world.boss
 		hpPercentage := boss.health / boss.maxHealth
 		return fmt.Sprintf("%s (%d%%)", d.Get("game.hint.dreadnought"), int(math.Round(100*hpPercentage)))
+	}
+
+	{
+		creep := m.world.WalkCreeps(pos, 32, func(creep *creepNode) bool {
+			return m.inHoverRange(pos, creep.pos, 12) && creep.stats.Building
+		})
+		if creep != nil {
+			var tag string
+			switch creep.stats {
+			case gamedata.CrawlerBaseCreepStats:
+				tag = "creep.hint.crawler_base"
+			case gamedata.BaseCreepStats:
+				tag = "creep.hint.base"
+			case gamedata.TurretCreepStats:
+				tag = "creep.turret"
+			case gamedata.IonMortarCreepStats:
+				tag = "creep.ion_mortar"
+			case gamedata.FortressCreepStats:
+				tag = "creep.fortress"
+			}
+			if tag != "" {
+				return d.Get(tag)
+			}
+		}
 	}
 
 	if m.world.wispLair != nil && m.inHoverRange(pos, m.world.wispLair.pos, 22) {

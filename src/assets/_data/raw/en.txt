@@ -677,6 +677,12 @@ Tap this message to quit
 ##creep.stealth_crawler : Stealth Crawler
 ##creep.howitzer : Howitzer
 
+##creep.hint.crawler_base : Crawler Factory
+##creep.hint.base : Drone Factory
+##creep.turret : Missile Turret
+##creep.ion_mortar: Ion Mortar
+##creep.fortress : Fortress
+
 ##menu.special_text
 Congratulations! You found a secret letter!
 

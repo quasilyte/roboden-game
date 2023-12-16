@@ -677,6 +677,12 @@ x1.5 означает, что игра будет работать на 50% бы
 ##creep.stealth_crawler : Скрытный Шагатель
 ##creep.howitzer : Гаубица
 
+##creep.hint.crawler_base : Завод Шагателей
+##creep.hint.base : Завод Дронов
+##creep.turret : Ракетная Турель
+##creep.ion_mortar: Ионная Мортира
+##creep.fortress : Крепость
+
 ##menu.special_text
 Мои поздравления! Вы нашли письмо разработчиков!
 

@@ -119,6 +119,12 @@ A siege missile launcher.
 Can only attack large ground targets.
 After a few attacks, it needs a long time to reload.
 
+##turret.refinery : Refinery
+##turret.refinery.description
+An utility building that doesn't attack. A refinery serves as an income-boosting resources delivery point.
+It can also serve as an extra resource buffer, increasing the colony's max resource capacity.
+Losing a refinery does not waste any stored resources.
+
 ##turret.sentinelpoint : Twister
 ##turret.sentinelpoint.description
 A multi-target laser turret capable of attacking both air and ground targets.

@@ -24,6 +24,7 @@ type colonyAction struct {
 const (
 	actionNone colonyActionKind = iota
 	actionRecycleAgent
+	actionAccessResourceStash
 	actionGenerateEvo
 	actionConvertEvo
 	actionMineEssence

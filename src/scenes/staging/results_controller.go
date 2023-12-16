@@ -47,14 +47,13 @@ type battleResults struct {
 	TimePlayed         time.Duration
 	Ticks              int
 
-	ResourcesGathered      float64
-	EliteResourcesGathered float64
-	DronesProduced         int
-	CreepsDefeated         int
-	CreepsStomped          int
-	CreepTotalValue        int
-	CreepFragScore         int
-	CreepBasesDestroyed    int
+	ResourcesGathered   float64
+	DronesProduced      int
+	CreepsDefeated      int
+	CreepsStomped       int
+	CreepTotalValue     int
+	CreepFragScore      int
+	CreepBasesDestroyed int
 
 	DominatorsSurvived int
 

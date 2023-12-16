@@ -41,6 +41,8 @@ type playerState struct {
 
 	camera *cameraManager
 
+	resourceStash float64
+
 	hasRoombas bool
 }
 
@@ -55,6 +57,37 @@ func newPlayerState() *playerState {
 
 func (pstate *playerState) Init(world *worldState) {
 	pstate.hasRoombas = xslices.Contains(world.tier2recipes, gamedata.FindRecipe(gamedata.RoombaAgentStats))
+}
+
+func (pstate *playerState) CanTransferResourcesTo(colony *colonyCoreNode) bool {
+	if pstate.resourceStash < 1 {
+		return false
+	}
+	if colony.stashTransferDelay > 0 {
+		return false
+	}
+	// A player should have at least 1 active Refinery to do a transfer.
+	for _, playerColony := range pstate.colonies {
+		for _, turret := range playerColony.turrets {
+			if turret.stats != gamedata.RefineryAgentStats {
+				continue
+			}
+			return true
+		}
+	}
+	return false
+}
+
+func (pstate *playerState) TransferResources(colony *colonyCoreNode, maxAmount float64) {
+	transferAmount := maxAmount
+	if pstate.resourceStash < transferAmount {
+		transferAmount = pstate.resourceStash
+	}
+
+	// Add the resources to the colony, but don't increase the
+	// "resources gathered" metric.
+	pstate.resourceStash -= transferAmount
+	colony.resources += transferAmount
 }
 
 func getUnitColony(u any) *colonyCoreNode {

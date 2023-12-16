@@ -170,6 +170,17 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 		}
 	}
 
+	pstate := p.colony.player.GetState()
+	if p.colony.resources < 0.3*p.colony.maxVisualResources() && pstate.CanTransferResourcesTo(p.colony) {
+		if p.world.rand.Chance(0.2) {
+			return colonyAction{
+				Kind:     actionAccessResourceStash,
+				Value3:   5,
+				TimeCost: 0.02,
+			}
+		}
+	}
+
 	if len(p.world.artifacts) > 0 {
 		if p.colony.artifactDelay == 0 {
 			p.colony.actionDelay = p.world.rand.FloatRange(5, 10)
@@ -523,7 +534,16 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 			TimeCost: 0.6,
 		}
 	} else {
-		p.colony.resourceShortage++
+		pstate := p.colony.player.GetState()
+		if pstate.CanTransferResourcesTo(p.colony) {
+			return colonyAction{
+				Kind:     actionAccessResourceStash,
+				Value3:   12.0,
+				TimeCost: 0.02,
+			}
+		} else {
+			p.colony.resourceShortage++
+		}
 	}
 
 	return colonyAction{}

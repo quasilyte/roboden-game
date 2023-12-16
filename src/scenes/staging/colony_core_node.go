@@ -101,6 +101,7 @@ type colonyCoreNode struct {
 	realRadius    float64
 	realRadiusSqr float64
 
+	stashTransferDelay  float64
 	repairSentinelDelay float64
 	freeWorkerDelay     float64
 	upkeepDelay         float64
@@ -550,6 +551,7 @@ func (c *colonyCoreNode) Update(delta float64) {
 
 	c.updateResourceRects()
 
+	c.stashTransferDelay = gmath.ClampMin(c.stashTransferDelay-delta, 0)
 	c.repairSentinelDelay = gmath.ClampMin(c.repairSentinelDelay-delta, 0)
 	c.artifactDelay = gmath.ClampMin(c.artifactDelay-delta, 0)
 	c.captureDelay = gmath.ClampMin(c.captureDelay-delta, 0)
@@ -1175,7 +1177,7 @@ func (c *colonyCoreNode) createLandingSmokeEffect() {
 		sprite.FlipHorizontal = info.flip
 		sprite.Pos.Offset = c.pos.Add(info.offset)
 		e := newEffectNodeFromSprite(c.world, normalEffectLayer, sprite)
-		e.noFlip = true
+		e.flip = effectFlipDisabled
 		e.anim.SetAnimationSpan(0.3)
 		c.world.nodeRunner.AddObject(e)
 	}
@@ -1277,6 +1279,11 @@ func (c *colonyCoreNode) addEvoPoints(delta float64) {
 
 func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 	switch action.Kind {
+	case actionAccessResourceStash:
+		c.stashTransferDelay += 3
+		c.player.GetState().TransferResources(c, action.Value3)
+		return true
+
 	case actionConvertEvo:
 		target := action.Value.(*neutralBuildingNode)
 		c.createEvoBeam(ge.Pos{Base: &target.pos, Offset: gmath.Vec{Y: 13}})

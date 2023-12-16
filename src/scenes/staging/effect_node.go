@@ -15,7 +15,7 @@ type effectNode struct {
 	anim    *ge.Animation
 	layer   effectLayer
 	rotates bool
-	noFlip  bool
+	flip    effectFlipMode
 
 	rotation gmath.Rad
 	scale    float64
@@ -54,8 +54,13 @@ func (e *effectNode) Init(scene *ge.Scene) {
 	}
 	sprite.Rotation = &e.rotation
 	sprite.SetScale(e.scale, e.scale)
-	if !e.noFlip {
+	switch e.flip {
+	case effectFlipDisabled:
+		// No flipping.
+	case effectFlipRandom:
 		sprite.FlipHorizontal = e.world.localRand.Bool()
+	case effectFlipTrue:
+		sprite.FlipHorizontal = true
 	}
 	switch e.layer {
 	case aboveEffectLayer:

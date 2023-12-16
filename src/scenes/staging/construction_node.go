@@ -58,6 +58,15 @@ var siegeConstructionStats = &constructionStats{
 	Image:             assets.ImageSiegeAgentIcon,
 }
 
+var refineryConstructionStats = &constructionStats{
+	Cost:              4,
+	ConstructionSpeed: 0.025,
+	DamageModifier:    0.025,
+	Kind:              constructTurret,
+	TurretStats:       gamedata.RefineryAgentStats,
+	Image:             assets.ImageRefineryAgent,
+}
+
 var beamTowerConstructionStats = &constructionStats{
 	Cost:              5,
 	ConstructionSpeed: 0.025,

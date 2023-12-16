@@ -11,6 +11,7 @@ var TurretStatsList = []*AgentStats{
 	BeamTowerAgentStats,
 	HarvesterAgentStats,
 	SiegeAgentStats,
+	RefineryAgentStats,
 	SentinelpointAgentStats,
 }
 
@@ -156,4 +157,17 @@ var TetherBeaconAgentStats = InitDroneStats(&AgentStats{
 	SupportRange:    500,
 	BeamSlideSpeed:  0.4,
 	HasSupport:      true,
+})
+
+var RefineryAgentStats = InitDroneStats(&AgentStats{
+	ScoreCost:       RefineryTurretCost,
+	Kind:            AgentRefinery,
+	IsFlying:        false,
+	IsTurret:        true,
+	IsBuilding:      true,
+	Image:           assets.ImageRefineryAgent,
+	Size:            SizeLarge,
+	Upkeep:          5,
+	MaxHealth:       110,
+	DamageReduction: 0.2,
 })

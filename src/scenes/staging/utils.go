@@ -357,6 +357,14 @@ const (
 	customEffectLayer
 )
 
+type effectFlipMode int
+
+const (
+	effectFlipRandom effectFlipMode = iota
+	effectFlipDisabled
+	effectFlipTrue
+)
+
 func effectLayerFromBool(above bool) effectLayer {
 	if above {
 		return aboveEffectLayer
@@ -370,6 +378,7 @@ type effectConfig struct {
 	Image          resource.ImageID
 	AnimationSpeed animationSpeed
 	Layer          effectLayer
+	Flip           effectFlipMode
 	Reverse        bool
 	Rotates        bool
 }
@@ -407,6 +416,7 @@ func createEffect(world *worldState, config effectConfig) {
 	effect := newEffectNode(world, config.Pos, config.Layer, config.Image)
 	effect.rotation = config.Rotation
 	effect.rotates = config.Rotates
+	effect.flip = config.Flip
 	world.nodeRunner.AddObject(effect)
 	if config.AnimationSpeed != animationSpeedNormal {
 		effect.anim.SetSecondsPerFrame(config.AnimationSpeed.SecondsPerFrame())

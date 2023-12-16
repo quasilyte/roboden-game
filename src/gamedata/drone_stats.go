@@ -72,6 +72,7 @@ const (
 	AgentHarvester
 	AgentSiege
 	AgentSentinelpoint
+	AgentRefinery
 
 	// Neutral buildings
 	AgentDroneFactory

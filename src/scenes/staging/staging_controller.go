@@ -1029,6 +1029,8 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 			stats = siegeConstructionStats
 		case gamedata.SentinelpointAgentStats:
 			stats = sentinelpointConstructionStats
+		case gamedata.RefineryAgentStats:
+			stats = refineryConstructionStats
 		}
 		coord := c.world.pathgrid.PosToCoord(selectedColony.pos)
 		nearOffsets := colonyNearCellOffsets
@@ -1201,7 +1203,7 @@ func (c *Controller) createMoveConfirmEffect(pos gmath.Vec, p player) {
 		return
 	}
 	e := newEffectNode(c.world, pos, customEffectLayer, assets.ImageMoveConfirm)
-	e.noFlip = true
+	e.flip = effectFlipDisabled
 	c.scene.AddObject(e)
 	p.GetState().camera.Private.AddSpriteAbove(e.anim.Sprite())
 	e.anim.SetAnimationSpan(0.3)

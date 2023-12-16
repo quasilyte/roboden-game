@@ -123,6 +123,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageFireTrail:                  {Path: "image/effects/fire_trail.png", FrameWidth: 7},
 		ImageRoombaLaserTrail:           {Path: "image/effects/roomba_shot_trail.png", FrameWidth: 7},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
+		ImageRefinerySmoke:              {Path: "image/effects/refinery_smoke.png", FrameWidth: 32},
 		ImageTankColonyWeapon1Explosion: {Path: "image/effects/tank_colony_weapon1_impact.png", FrameWidth: 32},
 		ImageStealthLaserExplosion:      {Path: "image/effects/stealth_laser_explosion.png", FrameWidth: 14},
 		ImageSentinelgunExplosion:       {Path: "image/effects/sentinelgun_explosion.png", FrameWidth: 24},
@@ -218,6 +219,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageSiegeAgentTurret:         {Path: "image/drones/siege_agent_turret.png", FrameWidth: 27},
 		ImageBeamtowerAgent:           {Path: "image/drones/beamtower_agent.png"},
 		ImageTetherBeaconAgent:        {Path: "image/drones/tether_beacon_agent.png"},
+		ImageRefineryAgent:            {Path: "image/drones/refinery_agent.png"},
 		ImageRoombaAgent:              {Path: "image/drones/roomba_agent.png", FrameWidth: 17, FrameHeight: 14},
 		ImageWorkerAgent:              {Path: "image/drones/worker_agent.png", FrameWidth: 9, FrameHeight: 10},
 		ImageScoutAgent:               {Path: "image/drones/scout_agent.png", FrameWidth: 11, FrameHeight: 14},
@@ -545,6 +547,7 @@ const (
 	ImageFireTrail
 	ImageRoombaLaserTrail
 	ImageProjectileSmoke
+	ImageRefinerySmoke
 	ImageTeleportEffectBig
 	ImageTeleportEffectSmall
 	ImageAssaultShield
@@ -683,6 +686,7 @@ const (
 	ImageSiegeAgentTurret
 	ImageBeamtowerAgent
 	ImageTetherBeaconAgent
+	ImageRefineryAgent
 	ImageSentinelpointAgent
 	ImageSentinelpointAgentTurret
 	ImageSentinelpointAgentIcon

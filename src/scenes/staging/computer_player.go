@@ -45,6 +45,7 @@ type computerPlayer struct {
 	hasFirebugs   bool
 	hasBombers    bool
 	hasPrisms     bool
+	hasCouriers   bool
 	hasScavengers bool
 }
 
@@ -86,7 +87,7 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 	switch p.world.turretDesign {
 	case gamedata.GunpointAgentStats:
 		p.turretCostMultiplier = 0.8
-	case gamedata.BeamTowerAgentStats:
+	case gamedata.BeamTowerAgentStats, gamedata.RefineryAgentStats:
 		p.turretCostMultiplier = 1.2
 	case gamedata.TetherBeaconAgentStats, gamedata.SentinelpointAgentStats:
 		p.turretCostMultiplier = 1.1
@@ -140,11 +141,17 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 			p.hasBombers = true
 		case gamedata.AgentPrism:
 			p.hasPrisms = true
+		case gamedata.AgentCourier:
+			p.hasCouriers = true
 		case gamedata.AgentRepair:
 			p.hasRepairbots = true
 		case gamedata.AgentScavenger:
 			p.hasScavengers = true
 		}
+	}
+
+	if p.hasCouriers || p.world.turretDesign == gamedata.RefineryAgentStats {
+		p.maxColonies++
 	}
 
 	p.world.EventColonyCreated.Connect(p, func(colony *colonyCoreNode) {
@@ -184,7 +191,7 @@ func (p *computerPlayer) maxTurretsForColony() int {
 		return p.world.rand.IntRange(2, 4)
 	case gamedata.TetherBeaconAgentStats:
 		return p.world.rand.IntRange(0, 2)
-	case gamedata.HarvesterAgentStats:
+	case gamedata.HarvesterAgentStats, gamedata.RefineryAgentStats:
 		return p.world.rand.IntRange(1, 2)
 	case gamedata.SiegeAgentStats:
 		return p.world.rand.IntRange(1, 2)

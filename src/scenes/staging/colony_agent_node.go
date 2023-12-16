@@ -477,6 +477,39 @@ func (a *colonyAgentNode) updatePatrolRadius() {
 	}
 }
 
+func (a *colonyAgentNode) assignReturnMode() {
+	a.mode = agentModeReturn
+
+	if a.world().turretDesign == gamedata.RefineryAgentStats {
+		colonyDistSqr := a.colonyCore.pos.DistanceSquaredTo(a.pos)
+		maxSearchDistSqr := (colonyDistSqr * 1.05) + (128 * 128)
+		closestDistSqr := math.MaxFloat64
+		var closestRefinery *colonyAgentNode
+		for _, turret := range a.world().turrets {
+			if turret.stats != gamedata.RefineryAgentStats {
+				continue
+			}
+			distSqr := turret.pos.DistanceSquaredTo(a.pos)
+			if distSqr > maxSearchDistSqr {
+				continue
+			}
+			if distSqr < closestDistSqr {
+				closestDistSqr = distSqr
+				closestRefinery = turret
+			}
+		}
+		if closestRefinery != nil {
+			a.target = closestRefinery
+			a.setWaypoint(closestRefinery.pos.Sub(gmath.Vec{Y: 25}))
+			return
+		}
+	}
+
+	a.target = a.colonyCore
+	entranceNum := a.scene.Rand().IntRange(0, 2)
+	a.setWaypoint(a.colonyCore.GetStoragePos().Add(gmath.Vec{Y: float64(entranceNum) * 8}))
+}
+
 func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target any) bool {
 	if a.IsTurret() {
 		panic("assigning a mode to a turret")
@@ -484,9 +517,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	switch mode {
 	case agentModeReturn:
-		entranceNum := a.scene.Rand().IntRange(0, 2)
-		a.setWaypoint(a.colonyCore.GetStoragePos().Add(gmath.Vec{Y: float64(entranceNum) * 8}))
-		a.mode = mode
+		a.assignReturnMode()
 		return true
 
 	case agentModePatrol:
@@ -2330,7 +2361,7 @@ func (a *colonyAgentNode) updateHarvester(delta float64) {
 			}
 			if sprite != nil {
 				e := newEffectNodeFromSprite(a.world(), normalEffectLayer, sprite)
-				e.noFlip = true
+				e.flip = effectFlipDisabled
 				e.anim.SetAnimationSpan(0.3)
 				a.world().nodeRunner.AddObject(e)
 				playSound(a.world(), assets.AudioHarvesterEffect, a.pos)
@@ -3199,13 +3230,47 @@ func (a *colonyAgentNode) clearCargo() {
 
 func (a *colonyAgentNode) updateReturn(delta float64) {
 	if a.moveTowards(delta) {
+		var refinery *colonyAgentNode
+		if r, ok := a.target.(*colonyAgentNode); ok {
+			refinery = r
+			// If it's already destroyed, find another return destination.
+			if refinery.IsDisposed() {
+				a.assignReturnMode()
+				return
+			}
+		}
+
 		if a.IsCloaked() {
 			a.doUncloak()
 		}
 		if a.payload != 0 {
 			a.colonyCore.AddGatheredResources(a.cargoValue)
+			if refinery != nil {
+				// +20% resources.
+				a.colonyCore.AddGatheredResources(a.cargoValue * 0.20)
+				// Another 15% of the income go into a global buffer (the stash).
+				// It's not subtracted from the gain.
+				// These extra resources go to the Refinery owner.
+				pstate := refinery.colonyCore.player.GetState()
+				pstate.resourceStash = gmath.ClampMax(pstate.resourceStash+(a.cargoValue*0.15), 300)
+				if !a.world().simulation {
+					createEffect(a.world(), effectConfig{
+						AnimationSpeed: animationSpeedSlow,
+						Image:          assets.ImageRefinerySmoke,
+						Layer:          slightlyAboveEffectLayer,
+						Pos:            refinery.pos.Sub(gmath.Vec{X: 9, Y: 16}),
+						Flip:           effectFlipDisabled,
+					})
+					createEffect(a.world(), effectConfig{
+						AnimationSpeed: animationSpeedSlow,
+						Image:          assets.ImageRefinerySmoke,
+						Layer:          slightlyAboveEffectLayer,
+						Pos:            refinery.pos.Sub(gmath.Vec{X: -9, Y: 16}),
+						Flip:           effectFlipTrue,
+					})
+				}
+			}
 			a.colonyCore.eliteResources += a.cargoEliteValue
-			a.world().result.EliteResourcesGathered = a.cargoEliteValue
 			a.clearCargo()
 			playSound(a.world(), assets.AudioEssenceCollected, a.pos)
 		}

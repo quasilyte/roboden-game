@@ -1026,7 +1026,7 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 			StretchVertical:   true,
 		})),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(6),
+			widget.GridLayoutOpts.Columns(8),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 
 	for i := range gamedata.TurretStatsList {

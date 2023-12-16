@@ -524,6 +524,7 @@ const SeasonNumber = 1
 // # Version 24
 // - A new snowy biome
 // - A new Sentinel turret
+// - A new Refinery turret
 // - A wether toggle (works only with a snowy biome for now)
 // - Blitz is open by default (no need to unlock it anymore)
 // - Bot now can only use unlocked turret designs in Reverse mode (in splash screen as well)

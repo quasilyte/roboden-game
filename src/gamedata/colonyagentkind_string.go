@@ -49,17 +49,18 @@ func _() {
 	_ = x[AgentHarvester-38]
 	_ = x[AgentSiege-39]
 	_ = x[AgentSentinelpoint-40]
-	_ = x[AgentDroneFactory-41]
-	_ = x[AgentPowerPlant-42]
-	_ = x[AgentRepulseTower-43]
-	_ = x[AgentRelict-44]
-	_ = x[AgentMegaRoomba-45]
-	_ = x[agentLast-46]
+	_ = x[AgentRefinery-41]
+	_ = x[AgentDroneFactory-42]
+	_ = x[AgentPowerPlant-43]
+	_ = x[AgentRepulseTower-44]
+	_ = x[AgentRelict-45]
+	_ = x[AgentMegaRoomba-46]
+	_ = x[agentLast-47]
 }
 
-const _ColonyAgentKind_name = "agentFirstWorkerScoutFreighterRedminerCripplerFighterScavengerCourierPrismServoRepellerDisintegratorRepairClonerRechargerGeneratorMortarAntiAirDefenderKamikazeSkirmisherScarabRoombaCommanderTargeterFirebugGuardianStormbringerDestroyerBomberMarauderTruckerDevourerKindNumGunpointTetherBeaconBeamTowerHarvesterSiegeSentinelpointDroneFactoryPowerPlantRepulseTowerRelictMegaRoombaagentLast"
+const _ColonyAgentKind_name = "agentFirstWorkerScoutFreighterRedminerCripplerFighterScavengerCourierPrismServoRepellerDisintegratorRepairClonerRechargerGeneratorMortarAntiAirDefenderKamikazeSkirmisherScarabRoombaCommanderTargeterFirebugGuardianStormbringerDestroyerBomberMarauderTruckerDevourerKindNumGunpointTetherBeaconBeamTowerHarvesterSiegeSentinelpointRefineryDroneFactoryPowerPlantRepulseTowerRelictMegaRoombaagentLast"
 
-var _ColonyAgentKind_index = [...]uint16{0, 10, 16, 21, 30, 38, 46, 53, 62, 69, 74, 79, 87, 100, 106, 112, 121, 130, 136, 143, 151, 159, 169, 175, 181, 190, 198, 205, 213, 225, 234, 240, 248, 255, 263, 270, 278, 290, 299, 308, 313, 326, 338, 348, 360, 366, 376, 385}
+var _ColonyAgentKind_index = [...]uint16{0, 10, 16, 21, 30, 38, 46, 53, 62, 69, 74, 79, 87, 100, 106, 112, 121, 130, 136, 143, 151, 159, 169, 175, 181, 190, 198, 205, 213, 225, 234, 240, 248, 255, 263, 270, 278, 290, 299, 308, 313, 326, 334, 346, 356, 368, 374, 384, 393}
 
 func (i ColonyAgentKind) String() string {
 	if i >= ColonyAgentKind(len(_ColonyAgentKind_index)-1) {

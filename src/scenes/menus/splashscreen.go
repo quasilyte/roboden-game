@@ -97,13 +97,24 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	d := scene.Dict()
 	input := c.state.MenuInput
 
-	presskeyLabel := ge.NewLabel(assets.BitmapFont2)
-	presskeyLabel.Width = scene.Context().WindowWidth
-	presskeyLabel.AlignHorizontal = ge.AlignHorizontalCenter
-	presskeyLabel.Text = input.ReplaceKeyNames(d.Get("game.splash.presskey", input.DetectInputMode()))
-	presskeyLabel.SetColorScaleRGBA(0x9d, 0xd7, 0x93, 0xff)
-	presskeyLabel.Pos.Offset.Y = logo.Pos.Offset.Y + 54
-	scene.AddGraphics(presskeyLabel)
+	presskeyLabelShade := ge.NewLabel(assets.BitmapFont2)
+	presskeyLabelShade.Width = scene.Context().WindowWidth
+	presskeyLabelShade.AlignHorizontal = ge.AlignHorizontalCenter
+	presskeyLabelShade.Text = input.ReplaceKeyNames(d.Get("game.splash.presskey", input.DetectInputMode()))
+	presskeyLabelShade.SetColorScaleRGBA(0x60, 0x80, 0x59, 0xff)
+	presskeyLabelShade.Pos.Offset.Y = logo.Pos.Offset.Y + 56
+	scene.AddGraphics(presskeyLabelShade)
+
+	{
+		presskeyLabel := ge.NewLabel(assets.BitmapFont2)
+		presskeyLabel.Width = presskeyLabelShade.Width
+		presskeyLabel.AlignHorizontal = presskeyLabelShade.AlignHorizontal
+		presskeyLabel.Text = presskeyLabelShade.Text
+		presskeyLabel.SetColorScaleRGBA(0x9d, 0xd7, 0x93, 0xff)
+		presskeyLabel.Pos.Offset.Y = presskeyLabelShade.Pos.Offset.Y + 2
+		presskeyLabel.Pos.Offset.X = 1
+		scene.AddGraphics(presskeyLabel)
+	}
 
 	c.darkRect = ge.NewRect(scene.Context(), scene.Context().ScreenWidth, scene.Context().ScreenHeight)
 	c.darkRect.Centered = false

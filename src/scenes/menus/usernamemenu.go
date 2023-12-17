@@ -91,7 +91,9 @@ func (c *UserNameMenu) initUI() {
 			return good, nil
 		}),
 	)
-	textinput.SetText(c.state.Persistent.PlayerName)
+	if c.state.Persistent.PlayerName != "" {
+		textinput.SetText(c.state.Persistent.PlayerName)
+	}
 	rowContainer.AddChild(textinput)
 
 	c.textInput = textinput

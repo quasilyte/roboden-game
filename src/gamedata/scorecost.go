@@ -13,7 +13,8 @@ const (
 	GrenadierCreepsOptionCost   int = 18000
 
 	ArkCoreCost  int = 3000
-	TankCoreCost int = 8000
+	TankCoreCost int = 7000
+	HiveCoreCost int = 15000
 
 	RoombaDroneCost        int = 1000
 	MortarDroneCost        int = 1500

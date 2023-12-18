@@ -41,8 +41,6 @@ func SchemaText(d *langs.Dictionary, id int, schema *gamedata.SavedSchema) strin
 		lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.schema.drones"), strings.Join(allDrones, ", ")))
 	}
 
-	// lines = append(lines, fmt.Sprintf("%s: %s", d.Get("menu.schema.colony"), schema.Config.CoreDesign))
-
 	return strings.Join(lines, "\n")
 }
 
@@ -112,6 +110,7 @@ func CoreText(d *langs.Dictionary, core *gamedata.ColonyCoreStats) string {
 	textLines = append(textLines, fmt.Sprintf("%s\n", d.Get("core", core.Name)))
 	textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(core.MobilityRating), d.Get("core.mobility_rating")))
 	textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(core.UnitLimitRating), d.Get("core.unit_limit_rating")))
+	textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(core.AttackRating), d.Get("drone.attack_rating")))
 	textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(core.DefenseRating), d.Get("drone.defense_rating")))
 	textLines = append(textLines, fmt.Sprintf("%s %s", RatingBar(core.CapacityRating), d.Get("core.capacity_rating")))
 
@@ -126,6 +125,12 @@ func CoreText(d *langs.Dictionary, core *gamedata.ColonyCoreStats) string {
 	case gamedata.TankCoreStats:
 		traits = append(traits, d.Get("core.ability.cant_fly"))
 		traits = append(traits, d.Get("core.ability.weapons"))
+	case gamedata.HiveCoreStats:
+		traits = append(traits, d.Get("core.ability.cant_move"))
+		traits = append(traits, d.Get("core.ability.drone_control"))
+		traits = append(traits, d.Get("core.ability.ground_weapons"))
+		traits = append(traits, d.Get("core.ability.cheap_drones"))
+		traits = append(traits, d.Get("core.ability.robust"))
 	}
 	if len(traits) != 0 {
 		textLines = append(textLines, "")

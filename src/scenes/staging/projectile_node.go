@@ -270,6 +270,11 @@ func (p *projectileNode) updateTrail(delta float64) {
 		effect := newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageMagmaTrail)
 		effect.rotation = p.rotation
 		p.world.nodeRunner.AddObject(effect)
+	case gamedata.ProjectileHiveMortarTrailFire:
+		p.trailCounter = p.world.localRand.FloatRange(0.05, 0.08)
+		effect := newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageHiveMortarFireTrail)
+		effect.rotation = p.rotation
+		p.world.nodeRunner.AddObject(effect)
 	case gamedata.ProjectileTrailFire:
 		p.trailCounter = p.world.localRand.FloatRange(0.06, 0.1)
 		effect := newEffectNode(p.world, p.pos, aboveEffectLayer, assets.ImageFireTrail)
@@ -381,6 +386,9 @@ func (p *projectileNode) createExplosion() {
 	case gamedata.ProjectileExplosionPurple:
 		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, layer, assets.ImagePurpleExplosion))
 		playSound(p.world, assets.AudioPurpleExplosion1, explosionPos)
+	case gamedata.ProjectileExplosionPurpleBurst:
+		p.world.nodeRunner.AddObject(newEffectNode(p.world, explosionPos, layer, assets.ImagePurpleBurst))
+		playSound(p.world, assets.AudioExplosion1, explosionPos)
 	}
 }
 

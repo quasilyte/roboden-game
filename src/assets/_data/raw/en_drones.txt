@@ -7,6 +7,7 @@
 ##core.den : Den
 ##core.ark : Ark
 ##core.tank : Bastion
+##core.hive : Hive
 
 ##core.mobility_rating : Mobility rating
 ##core.unit_limit_rating : Drone limit rating
@@ -17,7 +18,12 @@
 ##core.ability.flying : Airborne
 ##core.ability.no_teleporters : Can't activate teleporters
 ##core.ability.cant_fly : Can't fly during the movement
+##core.ability.cant_move : Can't move at all
+##core.ability.drone_control : Can set drone rally points
 ##core.ability.weapons : Can attack flying targets
+##core.ability.ground_weapons : Can attack ground targets
+##core.ability.robust : Highly resistant to damage
+##core.ability.cheap_drones : Drone production takes less resources
 
 ##drone.kind.worker : worker
 ##drone.kind.military : combat
@@ -69,6 +75,7 @@
 ##drone.dps_rating : DPS rating
 ##drone.attack_range_rating : Attack range rating
 ##drone.defense_rating : Defense rating
+##drone.attack_rating : Weapon rating
 ##drone.upkeep_cost : Upkeep cost
 
 ##drone.ability.self_repair : Repairs itself over time

@@ -8,6 +8,7 @@
 ##core.den : Логово
 ##core.ark : Ковчег
 ##core.tank : Бастион
+##core.hive : Улий
 
 ##core.mobility_rating : Рейтинг мобильности
 ##core.unit_limit_rating : Рейтинг количества дронов
@@ -18,7 +19,12 @@
 ##core.ability.flying : Воздушная колония
 ##core.ability.no_teleporters : Не может использовать телепортеры
 ##core.ability.cant_fly : Не может летать
+##core.ability.cant_move : Не может перемещаться
+##core.ability.drone_control : Может устанавливать точки сбора дронов
 ##core.ability.weapons : Атакует воздушные цели
+##core.ability.ground_weapons : Атакует наземные цели
+##core.ability.robust : Блокирует часть наносимого урона
+##core.ability.cheap_drones : Производство дронов требует меньше ресурсов
 
 ##drone.kind.worker : рабочий
 ##drone.kind.military : военный
@@ -70,6 +76,7 @@
 ##drone.dps_rating : Рейтинг урона в секунду
 ##drone.attack_range_rating : Рейтинг дальности атаки
 ##drone.defense_rating : Рейтинг защиты
+##drone.attack_rating : Рейтинг вооружения
 ##drone.upkeep_cost : Цена обслуживания
 
 ##drone.ability.self_repair : Имеет функцию саморемонта

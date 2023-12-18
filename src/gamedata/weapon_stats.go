@@ -74,6 +74,7 @@ const (
 	ProjectileTrailSmoke
 	ProjectileTrailRoomba
 	ProjectileTrailFire
+	ProjectileHiveMortarTrailFire
 	ProjectileTrailEnergySpear
 	ProjectileTrailIonMortar
 	ProjectileTrailSuperIonMortar
@@ -94,6 +95,7 @@ const (
 	ProjectileExplosionMagma
 	ProjectileExplosionBigVertical
 	ProjectileExplosionPurple
+	ProjectileExplosionPurpleBurst
 	ProjectileExplosionHeavyCrawlerLaser
 	ProjectileExplosionFighterLaser
 	ProjectileExplosionScoutIon

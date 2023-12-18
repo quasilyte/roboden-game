@@ -121,6 +121,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageIonMortarTrail:             {Path: "image/effects/ion_mortar_trail.png", FrameWidth: 11},
 		ImageSuperIonMortarTrail:        {Path: "image/effects/super_ion_mortar_trail.png", FrameWidth: 11},
 		ImageFireTrail:                  {Path: "image/effects/fire_trail.png", FrameWidth: 7},
+		ImageHiveMortarFireTrail:        {Path: "image/effects/hive_mortar_trail.png", FrameWidth: 7},
 		ImageRoombaLaserTrail:           {Path: "image/effects/roomba_shot_trail.png", FrameWidth: 7},
 		ImageProjectileSmoke:            {Path: "image/effects/projectile_smoke.png", FrameWidth: 8},
 		ImageRefinerySmoke:              {Path: "image/effects/refinery_smoke.png", FrameWidth: 32},
@@ -133,6 +134,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageCripplerBlasterExplosion:   {Path: "image/effects/crippler_blaster_explosion.png", FrameWidth: 8},
 		ImageTargeterShotExplosion:      {Path: "image/effects/targeter_shot_explosion.png", FrameWidth: 15},
 		ImageFireBurst:                  {Path: "image/effects/fire_burst.png", FrameWidth: 32},
+		ImagePurpleBurst:                {Path: "image/effects/purple_burst.png", FrameWidth: 32},
 		ImagePrismShotExplosion:         {Path: "image/effects/prism_shot_explosion.png", FrameWidth: 15},
 		ImageStunExplosion:              {Path: "image/effects/stun_explosion.png", FrameWidth: 24},
 		ImageScoutIonExplosion:          {Path: "image/effects/scout_ion_explosion.png", FrameWidth: 5},
@@ -194,6 +196,10 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageTankCoreFlying:        {Path: "image/colonies/tank_core_flying.png"},
 		ImageTankCoreSelector:      {Path: "image/colonies/tank_core_selector.png"},
 		ImageTankCoreAllianceColor: {Path: "image/colonies/tank_core_alliance_color.png"},
+
+		ImageHiveCore:              {Path: "image/colonies/hive_core.png"},
+		ImageHiveCoreSelector:      {Path: "image/colonies/hive_core_selector.png"},
+		ImageHiveCoreAllianceColor: {Path: "image/colonies/hive_core_alliance_color.png"},
 
 		ImageColonyResourceBar1: {Path: "image/colonies/colony_resource_bar1.png"},
 		ImageColonyResourceBar2: {Path: "image/colonies/colony_resource_bar2.png"},
@@ -387,6 +393,7 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageWandererProjectile:       {Path: "image/projectile/wanderer_projectile.png"},
 		ImageStormbringerProjectile:   {Path: "image/projectile/stormbringer_projectile.png"},
 		ImageMortarProjectile:         {Path: "image/projectile/mortar_projectile.png"},
+		ImageHiveMortarProjectile:     {Path: "image/projectile/hive_mortar_projectile.png"},
 		ImageGrenadierProjectile:      {Path: "image/projectile/grenadier_projectile.png"},
 		ImageHowitzerProjectile:       {Path: "image/projectile/howitzer_projectile.png"},
 		ImageHowitzerLaserProjectile:  {Path: "image/projectile/howitzer_laser_projectile.png"},
@@ -545,6 +552,7 @@ const (
 	ImageSuperIonMortarTrail
 	ImageEnergySpearTrail
 	ImageFireTrail
+	ImageHiveMortarFireTrail
 	ImageRoombaLaserTrail
 	ImageProjectileSmoke
 	ImageRefinerySmoke
@@ -554,6 +562,7 @@ const (
 	ImageMergingComplete
 	ImageCloningComplete
 	ImageFireBurst
+	ImagePurpleBurst
 	ImagePrismShotExplosion
 	ImageStunExplosion
 	ImageCommanderShotExplosion
@@ -668,6 +677,10 @@ const (
 	ImageTankCoreFlying
 	ImageTankCoreSelector
 	ImageTankCoreAllianceColor
+
+	ImageHiveCore
+	ImageHiveCoreSelector
+	ImageHiveCoreAllianceColor
 
 	ImageRelictFactoryHatch
 	ImageColonyCoreHatch
@@ -839,6 +852,7 @@ const (
 	ImageServantProjectile
 	ImageStormbringerProjectile
 	ImageMortarProjectile
+	ImageHiveMortarProjectile
 	ImageGrenadierProjectile
 	ImageHowitzerProjectile
 	ImageHowitzerLaserProjectile

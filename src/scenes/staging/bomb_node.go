@@ -56,7 +56,7 @@ func (b *bombNode) explode() {
 	const bombMaxBuildingDamage = 60.0
 	const maxRadius = 64
 	const maxRadiusSqr = maxRadius * maxRadius
-	b.world.WalkCreeps(b.pos, 40, func(creep *creepNode) bool {
+	b.world.WalkCreepsWithRand(nil, b.pos, 40, func(creep *creepNode) bool {
 		distSqr := b.pos.DistanceSquaredTo(creep.pos)
 		if distSqr <= maxRadiusSqr {
 			// 40 => 0.5

@@ -59,7 +59,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if !config.Relicts {
 			score += 10
 		}
-		if config.CoreDesign != "ark" {
+		if config.CoreDesign != "ark" && config.CoreDesign != "hive" {
 			score += 5 - (config.Teleporters * 5)
 		}
 
@@ -176,7 +176,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if config.StartingResources {
 			score -= 10
 		}
-		if config.CoreDesign != "ark" {
+		if config.CoreDesign != "ark" && config.CoreDesign != "hive" {
 			score += 5 - (config.Teleporters * 5)
 		}
 
@@ -230,7 +230,7 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if config.StartingResources {
 			score -= 5
 		}
-		if config.CoreDesign != "ark" {
+		if config.CoreDesign != "ark" && config.CoreDesign != "hive" {
 			score += 5 - (config.Teleporters * 5)
 		}
 	}

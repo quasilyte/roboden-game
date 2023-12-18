@@ -30,6 +30,7 @@ type worldState struct {
 	stage   *viewport.CameraStage
 	cameras []*viewport.Camera
 
+	visionRadius float64
 	visionCircle *ebiten.Image
 
 	humanPlayers     []*humanPlayer
@@ -306,8 +307,12 @@ func (w *worldState) Init() {
 	w.creepProductionMultiplier = 1.0 + (float64(w.config.CreepProductionRate) * 0.2)
 
 	if w.config.FogOfWar && w.config.ExecMode != gamedata.ExecuteSimulation {
-		w.visionCircle = ebiten.NewImage(int(colonyVisionRadius*2), int(colonyVisionRadius*2))
-		gedraw.DrawCircle(w.visionCircle, gmath.Vec{X: colonyVisionRadius, Y: colonyVisionRadius}, colonyVisionRadius, color.RGBA{A: 255})
+		w.visionRadius = 500.0
+		if w.coreDesign == gamedata.HiveCoreStats {
+			w.visionRadius = 650.0
+		}
+		w.visionCircle = ebiten.NewImage(int(w.visionRadius*2), int(w.visionRadius*2))
+		gedraw.DrawCircle(w.visionCircle, gmath.Vec{X: w.visionRadius, Y: w.visionRadius}, w.visionRadius, color.RGBA{A: 255})
 	}
 
 	switch w.config.WorldSize {
@@ -654,7 +659,7 @@ func (w *worldState) findSearchClusters(pos gmath.Vec, r float64) (startX, start
 	return startX, startY, endX, endY
 }
 
-func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNode) bool) *creepNode {
+func (w *worldState) WalkCreepsWithRand(rand *gmath.Rand, pos gmath.Vec, r float64, f func(creep *creepNode) bool) *creepNode {
 	creeps := w.creeps
 	if len(creeps) == 0 {
 		return nil
@@ -667,20 +672,22 @@ func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNod
 	// Now decide the sector traversal order.
 	// This is needed to add some randomness to the target selection.
 	dx := 1
-	if w.rand.Bool() {
-		dx = -1
-		startX = endX
-	}
 	dy := 1
-	if w.rand.Bool() {
-		dy = -1
-		startY = endY
+	if rand != nil {
+		if rand.Bool() {
+			dx = -1
+			startX = endX
+		}
+		if rand.Bool() {
+			dy = -1
+			startY = endY
+		}
 	}
 
 	for i, y := 0, startY; i < numStepsY; i, y = i+1, y+dy {
 		for j, x := 0, startX; j < numStepsX; j, x = j+1, x+dx {
 			clusterCreeps := w.creepClusters[y][x]
-			if creep := randIterate(w.rand, clusterCreeps, f); creep != nil {
+			if creep := randIterate(rand, clusterCreeps, f); creep != nil {
 				return creep
 			}
 		}
@@ -689,9 +696,13 @@ func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNod
 	// New creeps are created outside of the map, so they end up
 	// in the fallback cluster that includes everything that is out of bounds.
 	if len(w.fallbackCreepCluster) != 0 {
-		return randIterate(w.rand, w.fallbackCreepCluster, f)
+		return randIterate(rand, w.fallbackCreepCluster, f)
 	}
 	return nil
+}
+
+func (w *worldState) WalkCreeps(pos gmath.Vec, r float64, f func(creep *creepNode) bool) *creepNode {
+	return w.WalkCreepsWithRand(w.rand, pos, r, f)
 }
 
 func (w *worldState) AllCenturionsReady() bool {

@@ -110,6 +110,8 @@ func RegisterAudioResource(ctx *ge.Context, config *Config, progress *float64) {
 		AudioDisintegratorShot:          {Path: "sfx/disintegrator_shot.wav", Volume: -0.2},
 		AudioTargeterShot:               {Path: "sfx/targeter_shot.wav", Volume: -0.8},
 		AudioMortarShot:                 {Path: "sfx/mortar_shot.wav", Volume: -0.3},
+		AudioHiveMortarShot1:            {Path: "sfx/hive_mortar1.wav", Volume: -0.05},
+		AudioHiveMortarShot2:            {Path: "sfx/hive_mortar2.wav", Volume: -0.05},
 		AudioGrenadierShot:              {Path: "sfx/grenadier_shot.wav", Volume: -0.3},
 		AudioCommanderShot:              {Path: "sfx/commander_shot.wav", Volume: +0.2},
 		AudioRoombaShot:                 {Path: "sfx/roomba_shot.wav", Volume: 0.2},
@@ -212,6 +214,8 @@ func NumAudioSamples(id resource.AudioID) int {
 		return 3
 	case AudioMegaRoombaShot1:
 		return 3
+	case AudioHiveMortarShot1:
+		return 2
 	default:
 		return 1
 	}
@@ -252,6 +256,8 @@ const (
 	AudioMegaRoombaShot2
 	AudioMegaRoombaShot3
 	AudioMortarShot
+	AudioHiveMortarShot1
+	AudioHiveMortarShot2
 	AudioGrenadierShot
 	AudioCommanderShot
 	AudioCripplerShot

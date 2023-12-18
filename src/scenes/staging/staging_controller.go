@@ -499,6 +499,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 
 	c.world.EventColonyCreated.Connect(c, func(colony *colonyCoreNode) {
 		if c.fogOfWar != nil {
+			c.updateFogOfWar(colony.pos)
 			colony.EventTeleported.Connect(c, func(colony *colonyCoreNode) {
 				c.updateFogOfWar(colony.pos)
 			})
@@ -698,9 +699,10 @@ func (c *Controller) updateFogOfWar(pos gmath.Vec) {
 	if !c.world.gameStarted {
 		return
 	}
+
 	var options ebiten.DrawImageOptions
 	options.CompositeMode = ebiten.CompositeModeDestinationOut
-	options.GeoM.Translate(pos.X-colonyVisionRadius, pos.Y-colonyVisionRadius)
+	options.GeoM.Translate(pos.X-c.world.visionRadius, pos.Y-c.world.visionRadius)
 	c.fogOfWar.DrawImage(c.world.visionCircle, &options)
 }
 
@@ -999,12 +1001,20 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		c.launchAttack(selectedColony)
 		return true
 	case specialChoiceMoveColony:
-		maxDist := selectedColony.MaxFlyDistance() * c.world.rand.FloatRange(0.9, 1.1)
+		var maxDist float64
+		if c.world.coreDesign == gamedata.HiveCoreStats {
+			maxDist = 600 + float64(selectedColony.agents.servoNum*60.0)
+		} else {
+			maxDist = selectedColony.MaxFlyDistance()
+		}
 		clickPos := choice.Pos
 		clickDist := selectedColony.pos.DistanceTo(clickPos)
 		dist := gmath.ClampMax(clickDist, maxDist)
 		relocationVec := selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
 		relocationPos = correctedPos(c.world.rect, relocationVec.Add(selectedColony.pos), 128)
+		if c.world.coreDesign == gamedata.HiveCoreStats {
+			return c.setHiveRallyPoint(selectedColony, relocationPos)
+		}
 		return c.launchRelocation(selectedColony, dist, relocationPos)
 	case specialIncreaseRadius:
 		c.world.result.RadiusIncreases++
@@ -1032,10 +1042,13 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		case gamedata.RefineryAgentStats:
 			stats = refineryConstructionStats
 		}
-		coord := c.world.pathgrid.PosToCoord(selectedColony.pos)
+		coord := c.world.pathgrid.PosToCoord(selectedColony.GetRallyPoint())
 		nearOffsets := colonyNearCellOffsets
-		if c.world.coreDesign == gamedata.TankCoreStats {
+		switch c.world.coreDesign {
+		case gamedata.TankCoreStats:
 			nearOffsets = smallColonyBuildOffsets
+		case gamedata.HiveCoreStats:
+			nearOffsets = hiveColonyNearCellOffsets
 		}
 		freeCoord := randIterate(c.world.rand, nearOffsets, func(offset pathing.GridCoord) bool {
 			probe := coord.Add(offset)
@@ -1053,7 +1066,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 	case specialBuildColony:
 		p := c.world.pathgrid
 		stats := colonyCoreConstructionStats
-		coord := p.PosToCoord(selectedColony.pos)
+		coord := p.PosToCoord(selectedColony.GetRallyPoint())
 		var freeCoord pathing.GridCoord
 		offset := gmath.Vec{X: 16, Y: 16}
 		if c.world.coreDesign == gamedata.TankCoreStats {
@@ -1064,7 +1077,11 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 					c.canBuildHere(p.CoordToPos(probe), false)
 			})
 		} else {
-			freeCoord = randIterate(c.world.rand, colonyNear2x2CellOffsets, func(offset pathing.GridCoord) bool {
+			offsets := colonyNear2x2CellOffsets
+			if c.world.coreDesign == gamedata.HiveCoreStats {
+				offsets = hiveColonyNear2x2CellOffsets
+			}
+			freeCoord = randIterate(c.world.rand, offsets, func(offset pathing.GridCoord) bool {
 				probe := coord.Add(offset)
 				return c.world.CellIsFree2x2(probe, layerLandColony) &&
 					c.canBuildHere(p.CoordToPos(probe).Sub(gmath.Vec{X: 16, Y: 16}), false)
@@ -1310,22 +1327,23 @@ func (c *Controller) launchAttack(selectedColony *colonyCoreNode) {
 	closeFlyingTargets := &c.world.tmpTargetSlice
 	closeGroundTargets := &c.world.tmpTargetSlice2
 	maxDist := selectedColony.AttackRadius() * c.world.rand.FloatRange(0.95, 1.1)
-	for _, creep := range c.world.creeps {
+	c.world.WalkCreeps(selectedColony.GetRallyPoint(), maxDist, func(creep *creepNode) bool {
 		if len(*closeFlyingTargets)+len(*closeGroundTargets) >= 8 {
-			break
+			return true
 		}
 		if !creep.CanBeTargeted() {
-			continue
+			return false
 		}
-		if creep.pos.DistanceTo(selectedColony.pos) > maxDist {
-			continue
+		if creep.pos.DistanceTo(selectedColony.GetRallyPoint()) > maxDist {
+			return false
 		}
 		if creep.IsFlying() {
 			*closeFlyingTargets = append(*closeFlyingTargets, creep)
 		} else {
 			*closeGroundTargets = append(*closeGroundTargets, creep)
 		}
-	}
+		return false
+	})
 	if len(*closeFlyingTargets)+len(*closeGroundTargets) == 0 {
 		return
 	}
@@ -1411,9 +1429,20 @@ func (c *Controller) findRelocationPoint(core *colonyCoreNode, dist float64, dst
 	return gmath.Vec{}
 }
 
+func (c *Controller) setHiveRallyPoint(core *colonyCoreNode, dst gmath.Vec) bool {
+	if dst.DistanceTo(core.rallyPoint) <= 20 {
+		return false
+	}
+
+	core.doRelocation(dst)
+	c.createMoveConfirmEffect(dst, core.player)
+
+	return true
+}
+
 func (c *Controller) launchRelocation(core *colonyCoreNode, dist float64, dst gmath.Vec) bool {
 	pos := c.findRelocationPoint(core, dist, dst)
-	if !pos.IsZero() && pos.DistanceTo(core.pos) > 16 {
+	if !pos.IsZero() && pos.DistanceTo(core.pos) > 20 {
 		ok := core.doRelocation(pos)
 		if ok {
 			c.createMoveConfirmEffect(core.relocationPoint, core.player)

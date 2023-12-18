@@ -56,7 +56,7 @@ func calcPosDanger(world *worldState, pstate *playerState, pos gmath.Vec, r floa
 	total := 0
 	highestDanger := 0
 	var mostDangerousPos gmath.Vec
-	world.WalkCreeps(pos, r, func(creep *creepNode) bool {
+	world.WalkCreepsWithRand(nil, pos, r, func(creep *creepNode) bool {
 		danger := calcCreepPower(world, creep)
 		if danger > highestDanger {
 			highestDanger = danger
@@ -292,7 +292,7 @@ func resourceScore(core *colonyCoreNode, source *essenceSourceNode) float64 {
 	if core.failedResource == source {
 		return 0
 	}
-	dist := core.pos.DistanceTo(source.pos)
+	dist := core.GetRallyPoint().DistanceTo(source.pos)
 	maxDist := 1.5 + (core.GetResourcePriority() * 0.5)
 	if dist > core.realRadius*maxDist || source.resource == 0 {
 		return 0

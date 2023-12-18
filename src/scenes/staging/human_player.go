@@ -15,8 +15,6 @@ import (
 	"github.com/quasilyte/roboden-game/serverapi"
 )
 
-const colonyVisionRadius float64 = 500.0
-
 type humanPlayer struct {
 	world     *worldState
 	state     *playerState
@@ -544,7 +542,7 @@ func (p *humanPlayer) handleInput() {
 	if !p.spectator && selectedColony != nil && selectedColony.relocationPoint.IsZero() && selectedColony.mode == colonyModeNormal {
 		if pos, ok := p.cursor.ClickPos(controls.ActionMoveChoice); ok {
 			globalClickPos := p.state.camera.AbsClickPos(pos)
-			if globalClickPos.DistanceTo(selectedColony.pos) > 28 {
+			if globalClickPos.DistanceTo(selectedColony.GetRallyPoint()) >= 40 {
 				selectedColony.plannedRelocationPoint = globalClickPos
 			} else {
 				selectedColony.plannedRelocationPoint = gmath.Vec{}
@@ -626,7 +624,11 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 	}
 	p.colonySelector.Pos.Base = &p.state.selectedColony.pos
 	p.flyingColonySelector.Pos.Base = &p.state.selectedColony.pos
-	p.colonyDestination.BeginPos.Base = &p.state.selectedColony.pos
+	if p.state.selectedColony.stats == gamedata.HiveCoreStats {
+		p.colonyDestination.BeginPos.Base = &p.state.selectedColony.rallyPoint
+	} else {
+		p.colonyDestination.BeginPos.Base = &p.state.selectedColony.pos
+	}
 	p.updateWaypointLine()
 }
 

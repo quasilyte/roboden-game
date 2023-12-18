@@ -523,7 +523,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 	case agentModePatrol:
 		a.mode = mode
 		a.updatePatrolRadius()
-		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
+		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.GetRallyPoint(), a.dist))
 		a.waypointsLeft = a.scene.Rand().IntRange(40, 70)
 		return true
 
@@ -588,7 +588,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			maxDist *= 0.65
 		}
 		a.dist = a.scene.Rand().FloatRange(40, maxDist)
-		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
+		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.GetRallyPoint(), a.dist))
 		a.waypointsLeft = 0
 		return true
 
@@ -1631,25 +1631,7 @@ func (a *colonyAgentNode) walkTetherTargets(colony *colonyCoreNode, num int, f f
 }
 
 func (a *colonyAgentNode) findAttackTargets() []targetable {
-	w := a.world()
-
-	weapon := a.stats.Weapon
-	maxTargets := weapon.MaxTargets
-	targets := w.tmpTargetSlice[:0]
-	w.WalkCreeps(a.pos, weapon.AttackRange, func(creep *creepNode) bool {
-		if a.isValidTarget(creep) {
-			if weapon.TargetMaxDist == 0 || len(targets) == 0 || targets[0].GetPos().DistanceTo(creep.pos) <= weapon.TargetMaxDist {
-				targets = append(targets, creep)
-			}
-		}
-		return len(targets) >= maxTargets
-	})
-
-	return targets
-}
-
-func (a *colonyAgentNode) isValidTarget(creep *creepNode) bool {
-	return isValidCreepTarget(a.pos, creep, a.stats.Weapon)
+	return findAttackTargets(a.world(), a.pos, a.stats.Weapon)
 }
 
 func (a *colonyAgentNode) attackWithProjectile(target targetable, burstSize int) {
@@ -1891,7 +1873,7 @@ func (a *colonyAgentNode) updatePatrol(delta float64) {
 			return
 		}
 		a.updatePatrolRadius()
-		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
+		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.GetRallyPoint(), a.dist))
 	}
 }
 
@@ -1926,10 +1908,10 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 	if a.hasWaypoint() {
 		if a.moveTowards(delta) {
 			a.clearWaypoint()
-			// TODO: use local rand and do not create this beam in simulation?
+			// TODO: do not create this beam in simulation?
 			buildPos := ge.Pos{
 				Base:   &a.colonyCore.pos,
-				Offset: gmath.Vec{X: a.scene.Rand().FloatRange(-18, 18)},
+				Offset: gmath.Vec{X: a.world().rand.FloatRange(-18, 18)},
 			}
 			beam := newCloningBeamNode(a.world(), abeamCloning, &a.pos, buildPos)
 			a.cloningBeam = beam
@@ -3046,7 +3028,7 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 			a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
 			return
 		}
-		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.pos, a.dist))
+		a.setWaypoint(a.orbitingWaypoint(a.colonyCore.GetRallyPoint(), a.dist))
 		if a.hasTrait(traitAdventurer) {
 			a.waypointsLeft++
 			if a.waypointsLeft > 10 {
@@ -3252,7 +3234,7 @@ func (a *colonyAgentNode) updateReturn(delta float64) {
 				// It's not subtracted from the gain.
 				// These extra resources go to the Refinery owner.
 				pstate := refinery.colonyCore.player.GetState()
-				pstate.resourceStash = gmath.ClampMax(pstate.resourceStash+(a.cargoValue*0.15), 300)
+				pstate.resourceStash = gmath.ClampMax(pstate.resourceStash+(a.cargoValue*0.15), 600)
 				if !a.world().simulation {
 					createEffect(a.world(), effectConfig{
 						AnimationSpeed: animationSpeedSlow,

@@ -335,8 +335,10 @@ func (r *RecipeView) SetImages(a, b *ebiten.Image) {
 	r.Icon1.Image = a
 	r.Icon2.Image = b
 	if a == nil && b == nil {
+		r.Container.GetWidget().Visibility = widget.Visibility_Hide
 		r.Separator.Label = ""
 	} else {
+		r.Container.GetWidget().Visibility = widget.Visibility_Show
 		r.Separator.Label = "+"
 	}
 }

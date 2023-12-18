@@ -258,7 +258,7 @@ func (m *tooltipManager) findHoverTargetHint(pos gmath.Vec) string {
 	}
 
 	{
-		creep := m.world.WalkCreeps(pos, 32, func(creep *creepNode) bool {
+		creep := m.world.WalkCreepsWithRand(nil, pos, 32, func(creep *creepNode) bool {
 			return m.inHoverRange(pos, creep.pos, 12) && creep.stats.Building
 		})
 		if creep != nil {

@@ -129,7 +129,7 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 		if colony.mode != colonyModeNormal {
 			continue
 		}
-		if colony.pos.DistanceTo(p.colony.pos) > maxTradingDist {
+		if colony.pos.DistanceTo(p.colony.GetRallyPoint()) > maxTradingDist {
 			continue
 		}
 		*potentialTargets = append(*potentialTargets, colony)
@@ -158,7 +158,7 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 		Kind:     actionSendCourier,
 		Value:    selectedColony,
 		Value2:   courier,
-		TimeCost: 0.2,
+		TimeCost: 0.1,
 	}
 }
 
@@ -187,7 +187,7 @@ func (p *colonyActionPlanner) pickResourcesAction() colonyAction {
 			var closestArtifact *essenceSourceNode
 			closestArtifactDist := math.MaxFloat64
 			for _, a := range p.colony.world.artifacts {
-				dist := a.pos.DistanceTo(p.colony.pos)
+				dist := a.pos.DistanceTo(p.colony.GetRallyPoint())
 				if dist > p.colony.PatrolRadius()+20 {
 					continue
 				}
@@ -429,7 +429,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	if p.colony.captureDelay == 0 && p.colony.GetGrowthPriority() > 0.2 && p.colony.resources > 60 {
 		p.colony.captureDelay = p.world.rand.FloatRange(10, 20)
 		b := randIterate(p.world.rand, p.world.neutralBuildings, func(b *neutralBuildingNode) bool {
-			return b.agent == nil && b.pos.DistanceSquaredTo(p.colony.pos) <= p.colony.realRadiusSqr
+			return b.agent == nil && b.pos.DistanceSquaredTo(p.colony.GetRallyPoint()) <= p.colony.realRadiusSqr
 		})
 		if b != nil {
 			return colonyAction{
@@ -442,7 +442,8 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 
 	canRepairColony := p.colony.agents.NumAvailableWorkers() != 0 &&
 		p.colony.health < p.colony.maxHealth &&
-		p.colony.resources > 30
+		p.colony.resources > 30 &&
+		p.colony.GetRallyPoint().DistanceTo(p.colony.pos) < 1.4*p.colony.realRadius
 	if canRepairColony && p.world.rand.Chance(0.25) {
 		return colonyAction{
 			Kind:     actionRepairBase,
@@ -457,7 +458,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 			if turret.health >= turret.maxHealth*0.9 {
 				continue
 			}
-			distSqr := turret.pos.DistanceSquaredTo(p.colony.pos)
+			distSqr := turret.pos.DistanceSquaredTo(p.colony.GetRallyPoint())
 			if distSqr > p.colony.realRadiusSqr*1.8 {
 				continue
 			}
@@ -479,7 +480,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 			if c.attention > 2 {
 				continue
 			}
-			dist := c.pos.DistanceTo(p.colony.pos)
+			dist := c.pos.DistanceTo(p.colony.GetRallyPoint())
 			if dist > p.colony.realRadius*1.75 {
 				continue
 			}
@@ -527,7 +528,7 @@ func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	if combatUnit {
 		stats = gamedata.ScoutAgentStats
 	}
-	if p.colony.resources >= stats.Cost {
+	if p.colony.resources >= stats.Cost*p.colony.stats.DroneProductionCost {
 		return colonyAction{
 			Kind:     actionProduceAgent,
 			Value:    stats,
@@ -561,8 +562,8 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 				if c.NumAgents() < 10 || c.agents.NumAvailableWorkers() < 6 || c.agents.NumAvailableFighters() < 2 {
 					continue
 				}
-				dist := c.pos.DistanceTo(p.colony.pos)
-				if dist > c.realRadius*3 {
+				dist := c.GetRallyPoint().DistanceTo(p.colony.pos)
+				if dist > c.realRadius*3.5 {
 					continue
 				}
 				return colonyAction{
@@ -583,7 +584,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 		if !creep.CanBeTargeted() {
 			continue
 		}
-		dist := creep.pos.DistanceTo(p.colony.pos)
+		dist := creep.pos.DistanceTo(p.colony.GetRallyPoint())
 		if dist >= intrusionDist {
 			continue
 		}
@@ -618,7 +619,7 @@ func (p *colonyActionPlanner) pickSecurityAction() colonyAction {
 			if p.world.rand.Chance(0.45) {
 				turret := randIterate(p.world.rand, p.world.turrets, func(turret *colonyAgentNode) bool {
 					return turret.stats == gamedata.SentinelpointAgentStats &&
-						turret.pos.DistanceSquaredTo(p.colony.pos) <= (1.3*p.colony.realRadiusSqr) &&
+						turret.pos.DistanceSquaredTo(p.colony.GetRallyPoint()) <= (1.3*p.colony.realRadiusSqr) &&
 						turret.NumSentinelWorkers() < 3
 				})
 				if turret != nil {
@@ -855,9 +856,11 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 				}
 			}
 
-			return colonyAction{
-				Kind:     actionGenerateEvo,
-				TimeCost: 1.0,
+			if p.colony.GetRallyPoint().DistanceTo(p.colony.pos) < (1.5*p.colony.realRadius + 96) {
+				return colonyAction{
+					Kind:     actionGenerateEvo,
+					TimeCost: 1.0,
+				}
 			}
 		}
 	}

@@ -72,7 +72,7 @@ func (n *lavaGeyserNode) dealDamage() {
 		})
 	}
 
-	n.world.WalkCreeps(n.pos, 128, func(creep *creepNode) bool {
+	n.world.WalkCreepsWithRand(nil, n.pos, 128, func(creep *creepNode) bool {
 		if !creep.IsFlying() || creep.stats == gamedata.UberBossCreepStats {
 			return false
 		}

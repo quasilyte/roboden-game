@@ -75,6 +75,7 @@ type colonyCoreNode struct {
 
 	mode colonyCoreMode
 
+	rallyPoint             gmath.Vec
 	waypoint               gmath.Vec
 	relocationPoint        gmath.Vec
 	plannedRelocationPoint gmath.Vec
@@ -189,6 +190,13 @@ func (c *colonyCoreNode) BoundsRect() gmath.Rect {
 	return resizedRect(c.sprite.BoundsRect(), -10)
 }
 
+func (c *colonyCoreNode) GetRallyPoint() gmath.Vec {
+	if c.rallyPoint.IsZero() {
+		return c.pos
+	}
+	return c.rallyPoint
+}
+
 func (c *colonyCoreNode) addSpriteToStage(s *ge.Sprite) {
 	switch c.stats {
 	case gamedata.ArkCoreStats:
@@ -197,6 +205,8 @@ func (c *colonyCoreNode) addSpriteToStage(s *ge.Sprite) {
 		c.world.stage.AddSprite(s)
 	case gamedata.TankCoreStats:
 		c.world.stage.AddSortableGraphics(s, &c.drawOrder)
+	case gamedata.HiveCoreStats:
+		c.world.stage.AddSprite(s)
 	default:
 		panic("unexpected core design")
 	}
@@ -260,7 +270,7 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 	c.addSpriteToStage(c.evoDiode)
 
 	if c.stats != gamedata.TankCoreStats {
-		// Den, Ark cores.
+		// Den, Ark, Hive cores.
 		c.resourceRects = make([]*ge.Sprite, 3)
 		c.flyingResourceRects = make([]*ge.Sprite, 3)
 		makeResourceRects := func(rects []*ge.Sprite, above bool) {
@@ -296,10 +306,13 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 
 	c.markCells(c.pos)
 
-	if c.stats == gamedata.ArkCoreStats {
+	switch c.stats {
+	case gamedata.ArkCoreStats:
 		c.shadowComponent.SetVisibility(true)
 		c.relocationPoint = c.pos
 		c.enterTakeoffMode()
+	case gamedata.HiveCoreStats:
+		c.rallyPoint = c.pos
 	}
 
 	c.drawOrder = c.pos.Y
@@ -310,17 +323,18 @@ func (c *colonyCoreNode) GetTargetInfo() targetInfo {
 }
 
 func (c *colonyCoreNode) IsFlying() bool {
-	if c.stats == gamedata.ArkCoreStats {
+	switch c.stats {
+	case gamedata.ArkCoreStats:
 		return true
-	}
-	if c.stats == gamedata.TankCoreStats {
-		return false
-	}
-	switch c.mode {
-	case colonyModeNormal, colonyModeTeleporting:
+	case gamedata.TankCoreStats, gamedata.HiveCoreStats:
 		return false
 	default:
-		return true
+		switch c.mode {
+		case colonyModeNormal, colonyModeTeleporting:
+			return false
+		default:
+			return true
+		}
 	}
 }
 
@@ -361,7 +375,9 @@ func (c *colonyCoreNode) OnHeal(amount float64) {
 }
 
 func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable) {
-	c.health -= damage.Health
+	multiplier := 1.0 - c.damageReduction()
+	healthDamage := damage.Health * multiplier
+	c.health -= healthDamage
 	if c.health < 0 {
 		if c.shadowComponent.height == 0 {
 			createAreaExplosion(c.world, spriteRect(c.pos, c.sprite), normalEffectLayer)
@@ -391,6 +407,10 @@ func (c *colonyCoreNode) OnDamage(damage gamedata.DamageValue, source targetable
 	if c.scene.Rand().Chance(0.7) {
 		c.AddPriority(prioritySecurity, 0.02)
 	}
+}
+
+func (c *colonyCoreNode) damageReduction() float64 {
+	return c.stats.DamageReduction
 }
 
 func (c *colonyCoreNode) Destroy() {
@@ -915,6 +935,10 @@ func (c *colonyCoreNode) doRelocation(pos gmath.Vec) bool {
 		createEffect(c.world, effectConfig{Pos: c.pos.Add(gmath.Vec{X: -12, Y: -18}), Image: assets.ImageRoombaSmoke})
 		c.switchSprite(true)
 		return true
+
+	case gamedata.HiveCoreStats:
+		c.mode = colonyModeRelocating
+		return true
 	}
 
 	return false
@@ -968,6 +992,18 @@ func (c *colonyCoreNode) sendTo(pos gmath.Vec) {
 
 func (c *colonyCoreNode) updateRelocating(delta float64) {
 	c.processAttack(delta * 0.25)
+
+	if c.stats == gamedata.HiveCoreStats {
+		travelled := 50 * delta
+		if c.rallyPoint.DistanceTo(c.relocationPoint) <= travelled {
+			c.rallyPoint = c.relocationPoint
+			c.relocationPoint = gmath.Vec{}
+			c.mode = colonyModeNormal
+		} else {
+			c.rallyPoint = c.rallyPoint.MoveTowards(c.relocationPoint, travelled)
+		}
+		return
+	}
 
 	c.acceleration = gmath.ClampMax(c.acceleration+(delta*0.3), 1)
 	if c.moveTowards(delta, c.movementSpeed(), c.waypoint) {
@@ -1129,7 +1165,7 @@ func (c *colonyCoreNode) crushCrawlers() {
 	const explodeRangeSqr = 42.0 * 42.0
 	crushPos := c.pos.Add(gmath.Vec{Y: 4})
 
-	c.world.WalkCreeps(crushPos, 48, func(creep *creepNode) bool {
+	c.world.WalkCreepsWithRand(nil, crushPos, 48, func(creep *creepNode) bool {
 		switch creep.stats.Kind {
 		case gamedata.CreepCrawler, gamedata.CreepHowitzer:
 			// OK
@@ -1184,29 +1220,29 @@ func (c *colonyCoreNode) createLandingSmokeEffect() {
 }
 
 func (c *colonyCoreNode) processAttack(delta float64) {
-	if c.stats == gamedata.TankCoreStats {
-		c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
-		if c.attackDelay == 0 {
-			c.attackWithWeapon(gamedata.TankCoreWeapon1)
-		}
+	c.attackDelay = gmath.ClampMin(c.attackDelay-delta, 0)
+	if c.attackDelay != 0 {
+		return
+	}
+
+	switch c.stats {
+	case gamedata.TankCoreStats:
+		c.attackWithWeapon(gamedata.TankCoreWeapon1, false)
+	case gamedata.HiveCoreStats:
+		c.attackWithWeapon(gamedata.HiveMortarWeapon, c.world.rand.Chance(0.4))
 	}
 }
 
-func (c *colonyCoreNode) attackWithWeapon(weapon *gamedata.WeaponStats) {
-	var target targetable
-	c.world.WalkCreeps(c.pos, weapon.AttackRange, func(creep *creepNode) bool {
-		if isValidCreepTarget(c.pos, creep, weapon) {
-			target = creep
-			return true
-		}
-		return false
-	})
-	if target != nil {
-		c.attackDelay = weapon.Reload * c.world.rand.FloatRange(0.9, 1.1)
-		attackWithProjectile(c.world, weapon, c, target, weapon.BurstSize, false)
-		return
+func (c *colonyCoreNode) attackWithWeapon(weapon *gamedata.WeaponStats, guided bool) {
+	targets := findAttackTargets(c.world, c.pos, weapon)
+	for _, target := range targets {
+		attackWithProjectile(c.world, weapon, c, target, weapon.BurstSize, guided)
 	}
-	c.attackDelay = c.world.rand.FloatRange(0.4, 0.9)
+	if len(targets) == 0 {
+		c.attackDelay = c.world.rand.FloatRange(0.4, 0.9)
+	} else {
+		c.attackDelay = weapon.Reload * c.world.rand.FloatRange(0.9, 1.1)
+	}
 }
 
 func (c *colonyCoreNode) updateNormal(delta float64) {
@@ -1510,7 +1546,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		c.world.nodeRunner.AddObject(a)
 		a.SetHeight(c.shadowComponent.height)
 		c.world.result.DronesProduced++
-		c.resources -= a.stats.Cost
+		c.resources -= a.stats.Cost * c.stats.DroneProductionCost
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)
 		playSound(c.world, assets.AudioAgentProduced, c.pos)
 		c.openHatchTime = 1.5

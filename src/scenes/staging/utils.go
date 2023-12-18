@@ -185,6 +185,17 @@ func moveTowardsWithSpeed(from, to gmath.Vec, delta, speed float64) (gmath.Vec, 
 
 func randIterate[T any](rand *gmath.Rand, slice []T, f func(x T) bool) T {
 	var result T
+
+	if rand == nil {
+		for i := range slice {
+			if f(slice[i]) {
+				result = slice[i]
+				break
+			}
+		}
+		return result
+	}
+
 	if len(slice) == 0 {
 		return result
 	}
@@ -671,4 +682,18 @@ type pendingImage struct {
 	data      *ebiten.Image
 	options   ebiten.DrawImageOptions
 	drawOrder float64
+}
+
+func findAttackTargets(w *worldState, pos gmath.Vec, weapon *gamedata.WeaponStats) []targetable {
+	maxTargets := weapon.MaxTargets
+	targets := w.tmpTargetSlice[:0]
+	w.WalkCreeps(pos, weapon.AttackRange, func(creep *creepNode) bool {
+		if isValidCreepTarget(pos, creep, weapon) {
+			if weapon.TargetMaxDist == 0 || len(targets) == 0 || targets[0].GetPos().DistanceTo(creep.pos) <= weapon.TargetMaxDist {
+				targets = append(targets, creep)
+			}
+		}
+		return len(targets) >= maxTargets
+	})
+	return targets
 }

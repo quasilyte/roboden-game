@@ -239,7 +239,7 @@ func (p *humanPlayer) Init() {
 
 	if p.spectator {
 		p.state.selectedColony = p.world.allColonies[0]
-		p.state.camera.CenterOn(p.state.selectedColony.pos)
+		p.state.camera.CenterOn(p.state.selectedColony.GetRallyPoint())
 	} else if p.creepsState != nil {
 		p.state.camera.CenterOn(p.world.boss.pos)
 	} else {
@@ -253,7 +253,7 @@ func (p *humanPlayer) Init() {
 		p.state.camera.Private.AddSpriteSlightlyAbove(p.flyingColonySelector)
 
 		p.selectNextColony(true)
-		p.state.camera.CenterOn(p.state.selectedColony.pos)
+		p.state.camera.CenterOn(p.state.selectedColony.GetRallyPoint())
 	}
 
 	if !p.spectator && p.world.config.GameMode != gamedata.ModeTutorial {
@@ -564,7 +564,7 @@ func (p *humanPlayer) selectNextColony(center bool) {
 	colony := p.findNextColony(p.state.colonies)
 	p.selectColony(colony)
 	if center && p.state.selectedColony != nil {
-		p.state.camera.ToggleCamera(p.state.selectedColony.pos)
+		p.state.camera.ToggleCamera(p.state.selectedColony.GetRallyPoint())
 	}
 }
 
@@ -685,7 +685,7 @@ func (p *humanPlayer) onToggleButtonClicked(gsignal.Void) {
 		colony := p.findNextColony(p.world.allColonies)
 		if colony != nil {
 			p.state.selectedColony = colony
-			p.state.camera.ToggleCamera(p.state.selectedColony.pos)
+			p.state.camera.ToggleCamera(p.state.selectedColony.GetRallyPoint())
 		}
 		return
 	}

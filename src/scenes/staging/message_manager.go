@@ -19,6 +19,7 @@ type messageManager struct {
 	message          *messageNode
 	queue            []queuedMessageInfo
 
+	EventMessageClicked     gsignal.Event[gmath.Vec]
 	EventMainMessageClicked gsignal.Event[gsignal.Void]
 }
 
@@ -83,6 +84,13 @@ func (m *messageManager) HandleInput(clickPos gmath.Vec) bool {
 	if m.mainMessage != nil {
 		if m.mainMessage.ContainsPos(clickPos) {
 			m.EventMainMessageClicked.Emit(gsignal.Void{})
+			return true
+		}
+	}
+
+	if m.message != nil {
+		if m.message.ContainsPos(clickPos) {
+			m.EventMessageClicked.Emit(m.message.targetPos.Resolve())
 			return true
 		}
 	}

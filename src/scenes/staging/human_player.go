@@ -291,6 +291,13 @@ func (p *humanPlayer) Init() {
 			p.SetRecipeTabVisibility(true)
 		}
 	}
+
+	p.state.messageManager.EventMessageClicked.Connect(p, func(targetPos gmath.Vec) {
+		if targetPos.IsZero() {
+			return
+		}
+		p.state.camera.ToggleCamera(targetPos)
+	})
 }
 
 func (p *humanPlayer) SetRecipeTabVisibility(visible bool) {
@@ -485,7 +492,7 @@ func (p *humanPlayer) handleInput() {
 		}
 	}
 
-	if hasClick && p.state.messageManager.HandleInput(clickPos) {
+	if hasClick && p.state.messageManager.HandleInput(clickPos.Sub(p.state.camera.ScreenPos)) {
 		return
 	}
 
@@ -534,7 +541,7 @@ func (p *humanPlayer) handleInput() {
 
 	// Screen buttons (toggle view, exit, fast forward) are OK during the pause.
 	if p.screenButtons != nil && p.state.camera.UI.Visible {
-		if p.screenButtons.HandleInput(clickPos) {
+		if p.screenButtons.HandleInput(clickPos.Sub(p.state.camera.ScreenPos)) {
 			return
 		}
 	}

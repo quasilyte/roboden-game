@@ -223,7 +223,7 @@ func (m *arenaManager) Update(delta float64) {
 	}
 
 	m.infoUpdateDelay -= delta
-	if m.infoUpdateDelay <= 0 {
+	if m.infoUpdateDelay <= 0 && !m.world.simulation {
 		m.infoUpdateDelay = 5 + m.infoUpdateDelay
 		m.info.UpdateText(m.createWaveInfoText())
 	}

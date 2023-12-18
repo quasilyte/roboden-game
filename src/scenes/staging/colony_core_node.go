@@ -304,8 +304,6 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.world.stage.AddSortableGraphics(rect, &c.drawOrder)
 	}
 
-	c.markCells(c.pos)
-
 	switch c.stats {
 	case gamedata.ArkCoreStats:
 		c.shadowComponent.SetVisibility(true)
@@ -313,6 +311,10 @@ func (c *colonyCoreNode) Init(scene *ge.Scene) {
 		c.enterTakeoffMode()
 	case gamedata.HiveCoreStats:
 		c.rallyPoint = c.pos
+	}
+
+	if c.stats != gamedata.ArkCoreStats {
+		c.markCells(c.pos)
 	}
 
 	c.drawOrder = c.pos.Y
@@ -414,6 +416,10 @@ func (c *colonyCoreNode) damageReduction() float64 {
 }
 
 func (c *colonyCoreNode) Destroy() {
+	if c.sprite.IsDisposed() {
+		return
+	}
+
 	c.agents.Each(func(a *colonyAgentNode) {
 		a.OnDamage(gamedata.DamageValue{Health: 1000}, c)
 	})
@@ -422,6 +428,9 @@ func (c *colonyCoreNode) Destroy() {
 	}
 	for _, roomba := range c.roombas {
 		roomba.OnDamage(gamedata.DamageValue{Health: 1000}, c)
+	}
+	if !c.IsFlying() {
+		c.unmarkCells(c.pos)
 	}
 	c.EventDestroyed.Emit(c)
 	c.Dispose()
@@ -496,7 +505,7 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 		if !x.stats.IsNeutral {
 			c.numTurretsBuilt--
 		}
-		if turret.stats.Kind != gamedata.AgentHarvester {
+		if turret.stats != gamedata.HarvesterAgentStats && turret.stats != gamedata.MegaRoombaAgentStats {
 			c.world.UnmarkPos(x.pos)
 		}
 		c.world.turrets = xslices.Remove(c.world.turrets, x)
@@ -505,7 +514,7 @@ func (c *colonyCoreNode) AcceptTurret(turret *colonyAgentNode) {
 	if !turret.stats.IsNeutral {
 		c.numTurretsBuilt++
 	}
-	if turret.stats.Kind != gamedata.AgentHarvester {
+	if turret.stats != gamedata.HarvesterAgentStats && turret.stats != gamedata.MegaRoombaAgentStats {
 		c.world.MarkPos(turret.pos, ptagBlocked)
 	}
 	c.world.turrets = append(c.world.turrets, turret)

@@ -523,6 +523,7 @@ const SeasonNumber = 1
 //
 // # Version 24
 // - A new snowy biome
+// - A new Hive colony
 // - A new Sentinel turret
 // - A new Refinery turret
 // - A wether toggle (works only with a snowy biome for now)
@@ -540,6 +541,7 @@ const SeasonNumber = 1
 // - Buff Siege turret: +50 attack range (750 -> 800)
 // - Buff Tether turret: +1 max targets (4 -> 5)
 // - Nerf Beam turret: +2 upkeep cost (18 -> 22)
+// - Fixed a couple of cell collision mark/unmark bugs
 const (
 	BuildNumber      int = 24
 	BuildMinorNumber int = 0

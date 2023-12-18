@@ -542,6 +542,7 @@ const SeasonNumber = 1
 // - Buff Tether turret: +1 max targets (4 -> 5)
 // - Nerf Beam turret: +2 upkeep cost (18 -> 22)
 // - Fixed a couple of cell collision mark/unmark bugs
+// - Fixed T1 army achivement bug: it will no longer be granted when Seekers are used
 const (
 	BuildNumber      int = 24
 	BuildMinorNumber int = 0

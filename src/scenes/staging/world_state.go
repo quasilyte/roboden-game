@@ -292,7 +292,7 @@ func (w *worldState) Init() {
 
 	w.result.OnlyTier1Military = true
 	for _, recipe := range w.tier2recipes {
-		if recipe.Result.CanPatrol {
+		if recipe.Result.CanPatrol || recipe.Result == gamedata.RoombaAgentStats {
 			w.result.OnlyTier1Military = false
 			break
 		}

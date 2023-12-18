@@ -1,8 +1,12 @@
 package main
 
+//kage:unit pixels
+
 var Time float
 var OffsetY float
 var OffsetX float
+var ResolutionWidth float
+var ResolutionHeight float
 
 func snow(uv vec2, scale, t float) float {
 	w := smoothstep(1.0, 0.0, -uv.y*(scale/20.0))
@@ -25,15 +29,15 @@ func snow(uv vec2, scale, t float) float {
 	return k * w
 }
 
-func Fragment(position vec4, texCoord vec2, clr vec4) vec4 {
+func Fragment(dst vec4, src vec2, color vec4) vec4 {
 	t := 0.25 * -Time
 
-	resolution := vec2(1920.0/2, 1080.0/2)
+	resolution := vec2(ResolutionWidth, ResolutionHeight)
 
-	uv := (position.xy*2.0 - resolution.xy) / min(resolution.x, resolution.y)
+	uv := (dst.xy*2.0 - resolution.xy) / min(resolution.x, resolution.y)
+	uv.x += OffsetX
 	uv.y *= 0.8
 	uv.y += OffsetY
-	uv.x += OffsetX
 
 	c := vec3(0)
 	c += snow(uv, 10.0, t) * 0.9

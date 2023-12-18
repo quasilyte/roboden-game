@@ -715,9 +715,11 @@ func (c *Controller) createCameraManager(viewportWorld *viewport.World, main boo
 		shader := c.scene.Context().Loader.LoadShader(assets.ShaderSnow).Data
 		cam.WeatherShader = shader
 		cam.WeatherShaderParams = map[string]any{
-			"Time":    float32(0.1),
-			"OffsetY": float32(0),
-			"OffsetX": float32(0),
+			"Time":             float32(0.1),
+			"OffsetY":          float32(0),
+			"OffsetX":          float32(0),
+			"ResolutionWidth":  float32(c.scene.Context().ScreenWidth),
+			"ResolutionHeight": float32(c.scene.Context().ScreenHeight),
 		}
 	}
 	cm := newCameraManager(c.world, cam)

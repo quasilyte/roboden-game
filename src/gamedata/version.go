@@ -547,6 +547,7 @@ const SeasonNumber = 1
 // - Nerf Beam turret: +2 upkeep cost (18 -> 22)
 // - Fixed a couple of cell collision mark/unmark bugs
 // - Fixed T1 army achivement bug: it will no longer be granted when Seekers are used
+// - Fixed megaroomba getting too close to the owner colony
 const (
 	BuildNumber      int = 24
 	BuildMinorNumber int = 0

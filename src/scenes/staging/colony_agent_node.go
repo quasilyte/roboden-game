@@ -2170,12 +2170,13 @@ func (a *colonyAgentNode) updateRelictRoomba(delta float64) {
 		return
 	}
 	owner := a.target.(*colonyCoreNode)
-	if a.pos.DistanceTo(owner.pos) <= 220 {
+	currentDist := a.pos.DistanceTo(owner.pos)
+	if currentDist <= 220 && currentDist > 40 {
 		a.specialDelay = a.world().rand.FloatRange(0.8, 4)
 		return
 	}
 
-	dist := a.world().rand.FloatRange(40, 128)
+	dist := a.world().rand.FloatRange(64, 128)
 	dst := owner.pos.Add(gmath.RadToVec(a.world().rand.Rad()).Mulf(dist))
 	a.sendTo(a.pos.MoveTowards(dst, 350), layerLandColony)
 }

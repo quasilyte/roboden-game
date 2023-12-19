@@ -160,7 +160,6 @@ type colonyAgentNode struct {
 	health          float64
 	maxEnergy       float64
 	energy          float64
-	energyBill      float64
 	energyRegenRate float64
 	slow            float64
 	lifetime        float64
@@ -238,9 +237,9 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 		case 1:
 			a.maxEnergy = scene.Rand().FloatRange(80, 100)
 		case 2:
-			a.maxEnergy = scene.Rand().FloatRange(120, 200)
+			a.maxEnergy = scene.Rand().FloatRange(120, 180)
 		case 3:
-			a.maxEnergy = scene.Rand().FloatRange(150, 200)
+			a.maxEnergy = scene.Rand().FloatRange(150, 220)
 		}
 		a.speed = a.stats.Speed * scene.Rand().FloatRange(0.8, 1.1)
 
@@ -537,7 +536,6 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		a.mode = mode
 		a.target = target
 		a.dist = a.scene.Rand().FloatRange(1.2, 2) // cloning time
-		a.energyBill += 20
 		targetPos := target.(*colonyAgentNode).pos
 		a.setWaypoint(a.pos.DirectionTo(targetPos).Mulf(110).Add(targetPos).Add(a.scene.Rand().Offset(-20, 20)))
 		return true
@@ -634,16 +632,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModeCourierFlight:
-		colony := target.(*colonyCoreNode)
-		energyCost := gmath.ClampMax(colony.pos.DistanceTo(a.pos)*0.33, 100)
-		if a.tether {
-			energyCost *= 0.5
+		if a.energy < 20 && !a.hasTrait(traitWorkaholic) {
+			return false
 		}
-		if a.stats.Kind == gamedata.AgentTrucker {
-			// Truckers consume 20% less energy for flights.
-			energyCost *= 0.8
-		}
-		a.energyBill += energyCost
 		a.target = target
 		a.mode = mode
 		a.setWaypoint(a.pos)
@@ -651,18 +642,13 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 
 	case agentModeScavenge:
 		source := target.(*essenceSourceNode)
-		energyCost := source.pos.DistanceTo(a.pos) * 0.33
-		if a.tether {
-			energyCost *= 0.5
-		}
-		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+		if a.energy < 25 && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		if a.stats.Kind == gamedata.AgentMarauder && a.specialDelay == 0 {
 			a.doCloak(20)
 			a.specialDelay = 10
 		}
-		a.energyBill += energyCost
 		a.mode = agentModeMineEssence
 		a.setWaypoint(roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8))))
 		a.target = target
@@ -677,28 +663,21 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 			return false
 		}
 		source := target.(*essenceSourceNode)
-		energyCost := (source.pos.DistanceTo(a.pos) * 0.3) + 20
-		if a.tether {
-			energyCost *= 0.5
-		}
-		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+		if a.energy < 45 && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		a.dist = a.scene.Rand().FloatRange(20, 25) // time to harvest
-		a.energyBill += energyCost
 		a.mode = mode
 		a.setWaypoint(roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-10, 10))))
 		a.target = target
 		return true
 
 	case agentModeGrabArtifact:
+		if a.energy < 20 && !a.hasTrait(traitWorkaholic) {
+			return false
+		}
 		a.mode = mode
 		artifact := target.(*essenceSourceNode)
-		energyCost := artifact.pos.DistanceTo(a.pos) * 0.5
-		if a.tether {
-			energyCost *= 0.5
-		}
-		a.energyBill += energyCost
 		a.setWaypoint(roundedPos(artifact.pos.Sub(gmath.Vec{Y: agentFlightHeight})))
 		a.target = target
 		return true
@@ -710,7 +689,7 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		switch a.stats.Kind {
 		case gamedata.AgentCourier, gamedata.AgentTrucker:
 			// Couriers try to keep their energy for travelling between the bases.
-			if a.energy < 120 || a.energyBill > 10 {
+			if a.energy < 100 {
 				return false
 			}
 		}
@@ -718,14 +697,9 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		if source.stats == redOilSource && a.stats.Kind != gamedata.AgentRedminer {
 			return false
 		}
-		energyCost := source.pos.DistanceTo(a.pos) * 0.5
-		if a.tether {
-			energyCost *= 0.5
-		}
-		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+		if a.energy < 20 && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
-		a.energyBill += energyCost
 		a.mode = mode
 		a.setWaypoint(roundedPos(source.pos.Sub(gmath.Vec{Y: agentFlightHeight}).Add(a.scene.Rand().Offset(-8, 8))))
 		a.target = target
@@ -738,11 +712,21 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModePickup:
+		energyCost := 15.0
+		if a.tether {
+			energyCost = 10
+		}
+		a.energy = gmath.ClampMin(a.energy-energyCost, 0)
 		a.mode = mode
 		a.setWaypoint(a.pos.Add(gmath.Vec{Y: agentFlightHeight}))
 		return true
 
 	case agentModePickupArtifact:
+		energyCost := 15.0
+		if a.tether {
+			energyCost = 10
+		}
+		a.energy = gmath.ClampMin(a.energy-energyCost, 0)
 		a.mode = mode
 		a.setWaypoint(a.pos.Add(gmath.Vec{Y: agentFlightHeight}))
 		return true
@@ -760,48 +744,40 @@ func (a *colonyAgentNode) AssignMode(mode colonyAgentMode, pos gmath.Vec, target
 		return true
 
 	case agentModeCaptureBuilding:
-		const energyCost = 20.0
-		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+		if a.energy < 20 && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		a.target = target
 		a.mode = mode
-		a.energyBill += energyCost
 		a.dist = a.scene.Rand().FloatRange(5, 7) // working time
 		a.setWaypoint(gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(target.(*neutralBuildingNode).pos))
 		return true
 
 	case agentModeRepairTurret:
-		energyCost := 40.0
-		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+		if a.energy < 40.0 && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		a.target = target
 		a.mode = mode
-		a.energyBill += energyCost
 		a.dist = a.scene.Rand().FloatRange(3, 4) // repair time
 		a.setWaypoint(gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(target.(*colonyAgentNode).pos))
 		return true
 
 	case agentModeRepairBase:
-		energyCost := 40.0
-		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+		if a.energy < 40 && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		a.mode = mode
-		a.energyBill += energyCost
 		a.dist = a.scene.Rand().FloatRange(3, 4) // repair time
 		a.setWaypoint(gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(a.colonyCore.pos))
 		return true
 
 	case agentModeBuildBuilding:
 		construction := target.(*constructionNode)
-		energyCost := construction.pos.DistanceTo(a.pos) * 0.6
-		if energyCost > a.energy && !a.hasTrait(traitWorkaholic) {
+		if a.energy < 40 && !a.hasTrait(traitWorkaholic) {
 			return false
 		}
 		a.mode = mode
-		a.energyBill += energyCost
 		a.dist = a.scene.Rand().FloatRange(5, 7) // build time
 		a.target = target
 		a.setWaypoint(gmath.RadToVec(a.scene.Rand().Rad()).Mulf(64.0).Add(construction.pos))
@@ -851,11 +827,6 @@ func (a *colonyAgentNode) Update(delta float64) {
 
 	if a.stats.Tier == 1 {
 		a.lifetime -= delta
-	}
-
-	if a.energyBill != 0 {
-		a.energy -= delta * a.world().droneEnergyDischargeMultiplier
-		a.energyBill = gmath.ClampMin(a.energyBill-delta*2, 0)
 	}
 
 	if a.resting {
@@ -1385,11 +1356,11 @@ func (a *colonyAgentNode) doConsumeDrone() {
 func (a *colonyAgentNode) tetherTarget(target *colonyAgentNode) {
 	if target.mode == agentModeForcedCharging {
 		target.AssignMode(agentModeStandby, gmath.Vec{}, nil)
-		target.energy = gmath.ClampMax(target.energy+5, target.maxEnergy)
+		target.energy = gmath.ClampMax(target.energy+10, target.maxEnergy)
 	}
 	target.tether = true
-	if target.energyBill > 50 {
-		target.energyBill = gmath.ClampMin(target.energyBill-20, 50)
+	if target.energy < 40 {
+		target.energy = gmath.ClampMax(target.energy+5, target.maxEnergy)
 	}
 	a.world().nodeRunner.AddObject(newTetherNode(a.world(), a, target))
 	playSound(a.world(), assets.AudioTetherShot, a.pos)
@@ -1495,7 +1466,7 @@ func (a *colonyAgentNode) doScavenge() {
 	default:
 		return
 	}
-	if a.energy < 20 || a.energyBill > 100 {
+	if a.energy < 30 {
 		return
 	}
 	if a.colonyCore.resources > a.colonyCore.maxVisualResources() {
@@ -1529,7 +1500,7 @@ func (a *colonyAgentNode) doScavenge() {
 }
 
 func (a *colonyAgentNode) doRecharge() {
-	const rechargerEnergyRecorery float64 = 25.0
+	const rechargerEnergyRecorery float64 = 35.0
 	target := a.colonyCore.agents.Find(searchWorkers|searchFighters|searchRandomized, func(x *colonyAgentNode) bool {
 		return x != a &&
 			x.mode != agentModeKamikazeAttack &&
@@ -1683,6 +1654,9 @@ func (a *colonyAgentNode) processAttack(delta float64) {
 
 	a.attackDelay = a.stats.Weapon.Reload * reloadMultiplier
 	a.energy = gmath.ClampMin(a.energy-a.stats.Weapon.EnergyCost, 0)
+	if a.energy <= 1 {
+		a.attackDelay *= 2
+	}
 
 	switch a.stats.Kind {
 	case gamedata.AgentDestroyer:
@@ -1781,7 +1755,7 @@ func (a *colonyAgentNode) damageReduction() float64 {
 	case agentModeBomberAttack:
 		extraReduction = 0.6
 	case agentModeFollowCommander:
-		extraReduction = 0.20
+		extraReduction = 0.25
 	case agentModeSentinelPatrol:
 		extraReduction = 0.25
 	}
@@ -1811,7 +1785,13 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 	}
 	multiplier := 1.0
 	if a.resting {
-		multiplier = 0.5
+		if a.stats == gamedata.ServoAgentStats {
+			multiplier = 0.8
+		} else {
+			multiplier = 0.5
+		}
+	} else if a.energy <= 1 {
+		multiplier *= 0.3
 	}
 	if a.slow > 0 {
 		multiplier *= 0.55
@@ -1823,9 +1803,12 @@ func (a *colonyAgentNode) movementSpeed() float64 {
 	return baseSpeed * multiplier
 }
 
-func (a *colonyAgentNode) moveTowardsWithSpeed(delta, speed float64) bool {
+func (a *colonyAgentNode) moveTowardsWithSpeed(delta, speed, energyCost float64) bool {
 	// This method is slightly more optimized that from.MoveTowards(dest).
 	travelled := speed * delta
+	if energyCost != 0 {
+		a.energy = gmath.ClampMin(a.energy-(travelled*energyCost*a.world().droneEnergyDischargeMultiplier), 0)
+	}
 	distSqr := a.pos.DistanceSquaredTo(a.waypoint)
 	if distSqr < travelled*travelled || distSqr < gmath.Epsilon*gmath.Epsilon {
 		a.changePos(a.waypoint)
@@ -1836,7 +1819,11 @@ func (a *colonyAgentNode) moveTowardsWithSpeed(delta, speed float64) bool {
 }
 
 func (a *colonyAgentNode) moveTowards(delta float64) bool {
-	return a.moveTowardsWithSpeed(delta, a.movementSpeed())
+	return a.moveTowardsWithSpeed(delta, a.movementSpeed(), 0)
+}
+
+func (a *colonyAgentNode) moveTowardsWithEnergyCost(delta, cost float64) bool {
+	return a.moveTowardsWithSpeed(delta, a.movementSpeed(), cost)
 }
 
 func (a *colonyAgentNode) updateFollowCommander(delta float64) {
@@ -1865,6 +1852,12 @@ func (a *colonyAgentNode) updatePatrol(delta float64) {
 	if a.healthRegen != 0 {
 		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
 	}
+
+	energyGain := 0.1
+	if a.colonyCore.mode != colonyModeNormal {
+		energyGain = 0.05
+	}
+	a.energy = gmath.ClampMax(a.energy+delta*energyGain*a.energyRegenRate, a.maxEnergy)
 
 	if a.moveTowards(delta) {
 		a.waypointsLeft--
@@ -1920,6 +1913,7 @@ func (a *colonyAgentNode) updateRepairBase(delta float64) {
 		}
 		return
 	}
+	a.energy = gmath.ClampMin(a.energy-5.0*delta, 0)
 	a.dist -= delta
 	if a.dist <= 0 {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
@@ -1990,7 +1984,7 @@ func (a *colonyAgentNode) updateSentielPatrol(delta float64) {
 		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
 	}
 
-	a.energy = gmath.ClampMax(a.energy+delta*0.25*a.energyRegenRate, a.maxEnergy)
+	a.energy = gmath.ClampMax(a.energy+delta*0.1*a.energyRegenRate, a.maxEnergy)
 
 	if a.moveTowards(delta) {
 		turret := a.GetSentinelTurret()
@@ -2005,7 +1999,7 @@ func (a *colonyAgentNode) updateSentielPatrol(delta float64) {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 			return
 		}
-		const repairEnergyCost = 10
+		const repairEnergyCost = 25
 		doRepair := turret.health <= turret.maxHealth*0.85 &&
 			a.cloningBeam == nil &&
 			a.energy >= repairEnergyCost &&
@@ -2193,7 +2187,7 @@ func (a *colonyAgentNode) updateRelictPatrol(delta float64) {
 		return
 	}
 
-	a.energy = gmath.ClampMax(a.energy+delta*0.5*a.energyRegenRate, a.maxEnergy)
+	a.energy = gmath.ClampMax(a.energy+delta*0.4*a.energyRegenRate, a.maxEnergy)
 	a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
 
 	if a.attackDelay > 1 {
@@ -2657,6 +2651,8 @@ func (a *colonyAgentNode) updateCaptureBuilding(delta float64) {
 		}
 		return
 	}
+
+	a.energy = gmath.ClampMin(a.energy-5*delta, 0)
 	a.dist -= delta
 	if a.dist <= 0 {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
@@ -2694,6 +2690,7 @@ func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 		}
 		return
 	}
+	a.energy = gmath.ClampMin(a.energy-5.0*delta, 0)
 	a.dist -= delta
 	if a.dist <= 0 {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
@@ -2741,6 +2738,7 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 	if target.Construct(amountConstructed, a.colonyCore) {
 		return
 	}
+	a.energy = gmath.ClampMin(a.energy-6.5*delta, 0)
 	a.dist -= delta
 	if a.dist <= 0 || a.energy < 20 {
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
@@ -2895,6 +2893,7 @@ func (a *colonyAgentNode) updateMakeClone(delta float64) {
 		return
 	}
 	a.dist -= delta
+	a.energy = gmath.ClampMin(a.energy-30*delta, 0)
 	if a.dist <= 0 {
 		a.cloningBeam.Dispose()
 		a.cloningBeam = nil
@@ -2954,7 +2953,16 @@ func (a *colonyAgentNode) updatePanic(delta float64) {
 }
 
 func (a *colonyAgentNode) updateCourierFlight(delta float64) {
-	if a.moveTowards(delta) {
+	energyCost := 0.05
+	if a.stats.Kind == gamedata.AgentTrucker {
+		// Truckers consume 25% less energy for flights.
+		energyCost *= 0.75
+	}
+	if a.tether {
+		energyCost *= 0.5
+	}
+
+	if a.moveTowardsWithEnergyCost(delta, energyCost) {
 		target := a.target.(*colonyCoreNode)
 		if target.IsDisposed() || target.mode != colonyModeNormal {
 			if a.payload != 0 {
@@ -2994,7 +3002,17 @@ func (a *colonyAgentNode) updateCourierFlight(delta float64) {
 }
 
 func (a *colonyAgentNode) updateFollow(delta float64) {
-	if a.moveTowards(delta) {
+	energyCost := 0.015
+	if a.faction != gamedata.RedFactionTag {
+		// All factions except the red one waste less energy on flying fast.
+		// This is an effort to make them less useless when it comes to combat.
+		energyCost *= 0.75
+	}
+	if a.tether {
+		energyCost *= 0.5
+	}
+
+	if a.moveTowardsWithEnergyCost(delta, energyCost) {
 		target := a.target.(*creepNode)
 		if a.waypointsLeft == 0 || target.IsDisposed() || !target.CanBeTargeted() {
 			a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
@@ -3008,7 +3026,7 @@ func (a *colonyAgentNode) updateFollow(delta float64) {
 func (a *colonyAgentNode) updateAlignStandby(delta float64) {
 	speed := a.movementSpeed()
 	height := a.shadowComponent.height + delta*speed
-	if a.moveTowardsWithSpeed(delta, speed) {
+	if a.moveTowardsWithSpeed(delta, speed, 0) {
 		height = agentFlightHeight
 	}
 	a.shadowComponent.UpdateHeight(a.pos, height, agentFlightHeight)
@@ -3022,7 +3040,11 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 		a.health = gmath.ClampMax(a.health+(delta*a.healthRegen), a.maxHealth)
 	}
 
-	a.energy = gmath.ClampMax(a.energy+delta*0.5*a.energyRegenRate, a.maxEnergy)
+	energyGain := 0.4
+	if a.colonyCore.mode != colonyModeNormal {
+		energyGain = 0.1
+	}
+	a.energy = gmath.ClampMax(a.energy+delta*energyGain*a.energyRegenRate, a.maxEnergy)
 	if a.moveTowards(delta) {
 		if a.stats.Tier == 1 && a.lifetime < 0 && a.colonyCore.mode == colonyModeNormal {
 			a.AssignMode(agentModeRecycleReturn, gmath.Vec{}, nil)
@@ -3038,14 +3060,12 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 					pos := a.pos.Add(a.scene.Rand().Offset(-100, 100))
 					a.AssignMode(agentModeMove, pos, nil)
 					// Add some energy to compensate for this unproductive behavior.
-					a.energy = gmath.ClampMax(a.energy+5, a.maxEnergy)
-					a.energyBill = gmath.ClampMin(a.energyBill-5, 0)
+					a.energy = gmath.ClampMax(a.energy+7.5, a.maxEnergy)
 					return
 				}
 			}
 		}
-		if a.colonyCore.mode == colonyModeNormal && !a.hasTrait(traitNeverStop) && a.energy < 40 && a.scene.Rand().Chance(0.2) {
-			a.energyBill *= 0.5
+		if a.colonyCore.mode == colonyModeNormal && !a.hasTrait(traitNeverStop) && a.energy < 35 && a.scene.Rand().Chance(0.2) {
 			a.AssignMode(agentModeCharging, gmath.Vec{}, nil)
 			return
 		}
@@ -3053,7 +3073,7 @@ func (a *colonyAgentNode) updateStandby(delta float64) {
 }
 
 func (a *colonyAgentNode) updateCloakHide(delta float64) {
-	a.energy = gmath.ClampMax(a.energy+delta*a.energyRegenRate, a.maxEnergy)
+	a.energy = gmath.ClampMax(a.energy+1.0*delta*a.energyRegenRate, a.maxEnergy)
 	if a.cloaking <= 0 {
 		a.health = gmath.ClampMax(a.health+2, a.maxHealth)
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
@@ -3061,9 +3081,8 @@ func (a *colonyAgentNode) updateCloakHide(delta float64) {
 }
 
 func (a *colonyAgentNode) updateCharging(delta float64) {
-	a.energy = gmath.ClampMax(a.energy+delta*4*a.energyRegenRate, a.maxEnergy)
+	a.energy = gmath.ClampMax(a.energy+delta*3.5*a.energyRegenRate, a.maxEnergy)
 	if a.energy >= a.maxEnergy*0.55 {
-		a.energyBill = 0
 		a.AssignMode(agentModeStandby, gmath.Vec{}, nil)
 	}
 }
@@ -3086,7 +3105,11 @@ func (a *colonyAgentNode) updateForcedCharging(delta float64) {
 
 func (a *colonyAgentNode) updateMineSulfurEssence(delta float64) {
 	if a.hasWaypoint() {
-		if a.moveTowards(delta) {
+		energyCost := 0.02
+		if a.tether {
+			energyCost *= 0.5
+		}
+		if a.moveTowardsWithEnergyCost(delta, energyCost) {
 			a.waypoint = gmath.Vec{}
 			if !a.world().simulation {
 				source := a.target.(*essenceSourceNode)
@@ -3099,6 +3122,7 @@ func (a *colonyAgentNode) updateMineSulfurEssence(delta float64) {
 		return
 	}
 
+	a.energy = gmath.ClampMin(a.energy-1.25*delta, 0)
 	a.dist -= delta
 	if a.tether {
 		// The gather speed is doubled.
@@ -3132,7 +3156,12 @@ func (a *colonyAgentNode) updateGrabArtifact(delta float64) {
 }
 
 func (a *colonyAgentNode) updateMineEssence(delta float64) {
-	if a.moveTowards(delta) {
+	energyCost := 0.02
+	if a.tether {
+		energyCost *= 0.5
+	}
+
+	if a.moveTowardsWithEnergyCost(delta, energyCost) {
 		source := a.target.(*essenceSourceNode)
 		if source.IsDisposed() {
 			if a.IsCloaked() {
@@ -3148,7 +3177,7 @@ func (a *colonyAgentNode) updateMineEssence(delta float64) {
 func (a *colonyAgentNode) updatePickupArtifact(delta float64) {
 	speed := a.movementSpeed()
 	height := a.shadowComponent.height - delta*speed
-	if a.moveTowardsWithSpeed(delta, speed) {
+	if a.moveTowardsWithSpeed(delta, speed, 0) {
 		height = 0
 		a.mode = agentModeAlignStandby
 		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
@@ -3179,7 +3208,7 @@ func (a *colonyAgentNode) updatePickupArtifact(delta float64) {
 func (a *colonyAgentNode) updatePickup(delta float64) {
 	speed := a.movementSpeed()
 	height := a.shadowComponent.height - delta*speed
-	if a.moveTowardsWithSpeed(delta, speed) {
+	if a.moveTowardsWithSpeed(delta, speed, 0) {
 		height = 0
 		a.mode = agentModeResourceTakeoff
 		a.setWaypoint(a.pos.Sub(gmath.Vec{Y: agentFlightHeight}))
@@ -3195,7 +3224,7 @@ func (a *colonyAgentNode) updatePickup(delta float64) {
 func (a *colonyAgentNode) updateResourceTakeoff(delta float64) {
 	speed := a.movementSpeed()
 	height := a.shadowComponent.height + delta*speed
-	if a.moveTowardsWithSpeed(delta, speed) {
+	if a.moveTowardsWithSpeed(delta, speed, 0) {
 		height = agentFlightHeight
 	}
 	a.shadowComponent.UpdateHeight(a.pos, height, agentFlightHeight)
@@ -3211,7 +3240,12 @@ func (a *colonyAgentNode) clearCargo() {
 }
 
 func (a *colonyAgentNode) updateReturn(delta float64) {
-	if a.moveTowards(delta) {
+	energyCost := 0.05
+	if a.tether {
+		energyCost *= 0.5
+	}
+
+	if a.moveTowardsWithEnergyCost(delta, energyCost) {
 		var refinery *colonyAgentNode
 		if r, ok := a.target.(*colonyAgentNode); ok {
 			refinery = r

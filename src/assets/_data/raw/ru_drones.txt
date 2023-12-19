@@ -94,6 +94,7 @@
 ##drone.ability.red_oil_scavenge : Может добывать алую нефть
 ##drone.ability.colony_speed : Ускоряет колонию
 ##drone.ability.colony_jump : Увеличивает дальность прыжка колонии
+##drone.ability.discharged_speed : Быстро перемещается даже при низком заряде
 ##drone.ability.scrap_scavenge : Может собирать обломки
 ##drone.ability.courier : Перераспределяет ресурсы между колониями
 ##drone.ability.zero_upkeep : Нулевая цена обслужевания

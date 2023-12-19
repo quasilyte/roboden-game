@@ -269,6 +269,7 @@ func DroneText(d *langs.Dictionary, drone *gamedata.AgentStats, showTier, global
 	case gamedata.AgentServo:
 		traits = append(traits, d.Get("drone.ability.colony_speed"))
 		traits = append(traits, d.Get("drone.ability.colony_jump"))
+		traits = append(traits, d.Get("drone.ability.discharged_speed"))
 	case gamedata.AgentScavenger:
 		traits = append(traits, d.Get("drone.ability.scrap_scavenge"))
 	case gamedata.AgentCourier, gamedata.AgentTrucker:

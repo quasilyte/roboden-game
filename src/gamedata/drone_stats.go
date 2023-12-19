@@ -323,7 +323,7 @@ var TargeterAgentStats = InitDroneStats(&AgentStats{
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRange: 320,
 		Reload:      3.4,
-		EnergyCost:  3,
+		EnergyCost:  4,
 		AttackSound: assets.AudioTargeterShot,
 		Damage:      DamageValue{Health: 2, Flags: DmgflagMark},
 		MaxTargets:  1,
@@ -575,7 +575,7 @@ var GuardianAgentStats = InitDroneStats(&AgentStats{
 		AttackRangeMarkMultiplier: 1.5,
 		AttackRange:               260,
 		Reload:                    3.2,
-		EnergyCost:                2,
+		EnergyCost:                3,
 		AttackSound:               assets.AudioDefenderShot,
 		Damage:                    DamageValue{Health: 3, Flags: DmgflagAggro},
 		MaxTargets:                2,
@@ -711,7 +711,7 @@ var PrismAgentStats = InitDroneStats(&AgentStats{
 		AttackRangeMarkMultiplier: 1.25,
 		AttackRange:               230,
 		Reload:                    3.7,
-		EnergyCost:                7,
+		EnergyCost:                12,
 		AttackSound:               assets.AudioPrismShot,
 		ImpactArea:                8,
 		ProjectileSpeed:           220,
@@ -775,7 +775,7 @@ var FighterAgentStats = InitDroneStats(&AgentStats{
 		AttackRangeMarkMultiplier: 2,
 		AttackRange:               195,
 		Reload:                    1.9,
-		EnergyCost:                1.5,
+		EnergyCost:                2,
 		AttackSound:               assets.AudioFighterBeam,
 		ProjectileImage:           assets.ImageFighterProjectile,
 		ImpactArea:                10,
@@ -809,7 +809,7 @@ var SkirmisherAgentStats = InitDroneStats(&AgentStats{
 		AttackRangeMarkMultiplier: 1.5,
 		AttackRange:               160,
 		Reload:                    2,
-		EnergyCost:                2,
+		EnergyCost:                5,
 		AttackSound:               assets.AudioSkirmisherShot,
 		ProjectileImage:           assets.ImageSkirmisherProjectile,
 		ImpactArea:                15,
@@ -960,9 +960,9 @@ var ScarabAgentStats = InitDroneStats(&AgentStats{
 })
 
 const (
-	// +1 burst size per level (+7)
-	// +5 max hp per level (+35)
-	DevourerMaxLevel = 7
+	// +1 burst size per level (+8)
+	// +5 max hp per level (+40)
+	DevourerMaxLevel = 8
 )
 
 var DevourerAgentStats = InitDroneStats(&AgentStats{
@@ -1090,9 +1090,9 @@ var DestroyerAgentStats = InitDroneStats(&AgentStats{
 	MaxHealth:   45,
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRangeMarkMultiplier: 1.25,
-		AttackRange:               220,
-		Reload:                    1.7,
-		EnergyCost:                6.0,
+		AttackRange:               225,
+		Reload:                    1.6,
+		EnergyCost:                8.0,
 		AttackSound:               assets.AudioDestroyerBeam,
 		Damage:                    DamageValue{Health: 7},
 		MaxTargets:                1,
@@ -1172,7 +1172,7 @@ var RepellerAgentStats = InitDroneStats(&AgentStats{
 		AttackRangeMarkMultiplier: 1.25,
 		AttackRange:               170,
 		Reload:                    2.2,
-		EnergyCost:                2,
+		EnergyCost:                3,
 		AttackSound:               assets.AudioRepellerBeam,
 		ProjectileImage:           assets.ImageRepellerProjectile,
 		ImpactArea:                10,

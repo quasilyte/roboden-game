@@ -20,15 +20,10 @@ import (
 )
 
 func main() {
-	runSimBinary := flag.String("runsim", "",
-		"a path to a runsim executable")
 	outputDir := flag.String("o", "",
 		"an output directory")
 	flag.Parse()
 
-	if *runSimBinary == "" {
-		panic("runsim binary path can't be empty")
-	}
 	if *outputDir == "" {
 		panic("the output directory should be specified")
 	}
@@ -48,10 +43,9 @@ func main() {
 	generation := int(time.Now().Unix())
 
 	rstate := &runnerState{
-		ctx:          ctx,
-		runSimBinary: *runSimBinary,
-		session:      runsim.NewState(ctx),
-		rng:          &rng,
+		ctx:     ctx,
+		session: runsim.NewState(ctx),
+		rng:     &rng,
 	}
 	for i := 0; i < 1000; i++ {
 		fmt.Printf("Running simulation #%d\n", i)
@@ -78,10 +72,9 @@ func main() {
 }
 
 type runnerState struct {
-	ctx          *ge.Context
-	runSimBinary string
-	session      *session.State
-	rng          *gmath.Rand
+	ctx     *ge.Context
+	session *session.State
+	rng     *gmath.Rand
 }
 
 type runResults struct {
@@ -116,7 +109,7 @@ func runSimulation(rstate *runnerState, mode string) (serverapi.GameResults, gam
 	} else {
 		replayConfig.CoreDesign = "ark"
 	}
-	replayConfig.Environment = rstate.rng.IntRange(0, 1)
+	replayConfig.Environment = rstate.rng.IntRange(0, 3)
 
 	// Some default settings.
 	replayConfig.DronesPower = 1

@@ -146,7 +146,7 @@ func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 	courier := p.colony.agents.Find(searchWorkers|searchOnlyAvailable|searchRandomized, func(a *colonyAgentNode) bool {
 		switch a.stats.Kind {
 		case gamedata.AgentCourier, gamedata.AgentTrucker:
-			return a.energy >= 50 && a.energyBill < 20
+			return a.energy >= 50
 		default:
 			return false
 		}
@@ -338,7 +338,7 @@ func (p *colonyActionPlanner) pickCloner() *colonyAgentNode {
 		if a.stats.Kind != gamedata.AgentCloner {
 			return false
 		}
-		return a.energy >= agentCloningEnergyCost() && a.energyBill == 0
+		return a.energy >= 40
 	})
 	return cloner
 }

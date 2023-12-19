@@ -93,6 +93,7 @@
 ##drone.ability.red_oil_scavenge : Can harvest a red oil resource
 ##drone.ability.colony_speed : Makes the colony move faster
 ##drone.ability.colony_jump : Increases colony max jump distance
+##drone.ability.discharged_speed : Moves fast even when low on energy
 ##drone.ability.scrap_scavenge : Can harvest scraps
 ##drone.ability.courier : Distributes the resources between colonies
 ##drone.ability.zero_upkeep : Zero upkeep cost

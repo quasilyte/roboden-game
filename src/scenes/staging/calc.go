@@ -273,10 +273,6 @@ func mergeAgents(world *worldState, x, y *colonyAgentNode) *gamedata.AgentStats 
 	return nil
 }
 
-func agentCloningEnergyCost() float64 {
-	return 30.0
-}
-
 func agentCloningCost(core *colonyCoreNode, cloner, a *colonyAgentNode) float64 {
 	multiplier := 0.8
 	return a.stats.Cost * multiplier

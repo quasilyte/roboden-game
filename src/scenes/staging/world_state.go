@@ -785,7 +785,7 @@ func (w *worldState) FindTargetableAgents(pos gmath.Vec, skipGround bool, r floa
 
 	randIterate(w.rand, w.allColonies, func(c *colonyCoreNode) bool {
 		skipIdling := false
-		dist := c.pos.DistanceTo(pos)
+		dist := c.GetRallyPoint().DistanceTo(pos)
 		colonyEffectiveRadius := c.PatrolRadius()
 		if dist > colonyEffectiveRadius {
 			skipIdling = (dist - colonyEffectiveRadius) > r

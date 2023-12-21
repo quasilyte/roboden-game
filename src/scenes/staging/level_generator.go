@@ -373,6 +373,10 @@ func (g *levelGenerator) createBase(p player, pos gmath.Vec, mainBase bool) {
 		core.resources = core.maxVisualResources()
 	}
 
+	if g.world.coreDesign == gamedata.HiveCoreStats {
+		core.resources += 20
+	}
+
 	for i := 0; i < 5; i++ {
 		a := core.NewColonyAgentNode(gamedata.WorkerAgentStats, core.pos.Add(g.rng.Offset(-20, 20)))
 		if g.world.config.EliteFleet {

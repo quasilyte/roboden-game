@@ -29,6 +29,15 @@ import (
 	"github.com/quasilyte/roboden-game/viewport"
 )
 
+type weatherState int
+
+const (
+	weatherStateFadeIn weatherState = iota
+	weatherStateNormal
+	weatherStateFadeOut
+	weatherStateCooldown
+)
+
 type Controller struct {
 	state *session.State
 
@@ -58,6 +67,10 @@ type Controller struct {
 
 	debugInfo        *ge.Label
 	debugUpdateDelay float64
+
+	weatherState  weatherState
+	weatherPower  float64
+	weatherTicker float64
 
 	controllerTick    int
 	replayActions     [][]serverapi.PlayerAction
@@ -712,6 +725,7 @@ func (c *Controller) createCameraManager(viewportWorld *viewport.World, main boo
 		cam.ScreenPos.X = c.scene.Context().ScreenWidth / 2
 	}
 	if c.world.weatherEnabled {
+		c.weatherTicker = c.world.localRand.FloatRange(60, 100)
 		shader := c.scene.Context().Loader.LoadShader(assets.ShaderSnow).Data
 		cam.WeatherShader = shader
 		cam.WeatherShaderParams = map[string]any{
@@ -1752,21 +1766,63 @@ func (c *Controller) GetSessionState() *session.State {
 	return c.state
 }
 
-func (c *Controller) Update(delta float64) {
-	if c.world.weatherEnabled {
-		envKind := c.world.envKind
-		for _, cam := range c.world.cameras {
-			switch envKind {
-			case gamedata.EnvSnow:
-				if !c.nodeRunner.IsPaused() {
-					shaderDelta := float32(c.nodeRunner.NumSteps()) * float32(c.nodeRunner.ComputeDelta(delta))
-					cam.WeatherShaderParams["Time"] = cam.WeatherShaderParams["Time"].(float32) + shaderDelta
-				}
-				cam.WeatherShaderParams["OffsetY"] = float32(cam.Offset.Y * 0.0025)
-				cam.WeatherShaderParams["OffsetX"] = float32(cam.Offset.X * 0.004)
+func (c *Controller) updateWeather(delta float64) {
+	if !c.world.weatherEnabled {
+		return
+	}
+
+	shaderDelta := float64(c.nodeRunner.NumSteps()) * c.nodeRunner.ComputeDelta(delta)
+	if !c.nodeRunner.IsPaused() {
+		switch c.weatherState {
+		case weatherStateFadeIn:
+			c.weatherPower = gmath.ClampMax(c.weatherPower+0.15*shaderDelta, 1.0)
+			c.weatherTicker -= shaderDelta
+			if c.weatherPower == 1.0 {
+				c.weatherState = weatherStateNormal
+			}
+		case weatherStateNormal:
+			c.weatherTicker -= shaderDelta
+			if c.weatherTicker <= 0 {
+				c.weatherState = weatherStateFadeOut
+			}
+		case weatherStateFadeOut:
+			c.weatherPower = gmath.ClampMin(c.weatherPower-0.1*shaderDelta, 0.0)
+			c.weatherTicker -= shaderDelta
+			if c.weatherPower == 0.0 {
+				c.weatherState = weatherStateCooldown
+				c.weatherTicker = c.world.localRand.FloatRange(20, 140)
+			}
+		case weatherStateCooldown:
+			c.weatherTicker -= shaderDelta
+			if c.weatherTicker <= 0 {
+				c.weatherState = weatherStateFadeIn
+				c.weatherTicker = c.world.localRand.FloatRange(60, 140)
 			}
 		}
 	}
+
+	for _, cam := range c.world.cameras {
+		c.updateCameraWeather(cam, shaderDelta)
+	}
+}
+
+func (c *Controller) updateCameraWeather(cam *viewport.Camera, shaderDelta float64) {
+	envKind := c.world.envKind
+
+	switch envKind {
+	case gamedata.EnvSnow:
+		cam.WeatherShaderParams["OffsetY"] = float32(cam.Offset.Y * 0.0025)
+		cam.WeatherShaderParams["OffsetX"] = float32(cam.Offset.X * 0.004)
+		if c.nodeRunner.IsPaused() {
+			break
+		}
+		cam.WeatherShaderParams["Time"] = float32(c.weatherTicker)
+		cam.WeatherShaderParams["Power"] = float32(c.weatherPower)
+	}
+}
+
+func (c *Controller) Update(delta float64) {
+	c.updateWeather(delta)
 
 	c.world.stage.Update()
 	if c.cinematicCamera != nil {

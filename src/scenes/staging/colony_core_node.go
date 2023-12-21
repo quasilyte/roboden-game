@@ -347,7 +347,7 @@ func (c *colonyCoreNode) MaxFlyDistanceSqr() float64 {
 
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
 	if c.stats == gamedata.HiveCoreStats {
-		return 600.0 + float64(c.agents.servoNum*60.0)
+		return 820.0 + float64(c.agents.servoNum*60.0)
 	}
 	return gmath.ClampMax(c.stats.JumpDist+float64(c.agents.servoNum*10.0), c.maxJumpDist)
 }

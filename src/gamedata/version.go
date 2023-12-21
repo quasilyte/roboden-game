@@ -532,8 +532,11 @@ const SeasonNumber = 1
 // - Blitz is open by default (no need to unlock it anymore)
 // - Bot now can only use unlocked turret designs in Reverse mode (in splash screen as well)
 // - Tier 2 workers now repair buildings more efficiently
+// - Tier 1 workers now build slower
 // - Rework energy system
 // - Computer player: can now come back to finish construction sites
+// - Computer player: distributes the factions more carefully
+// - Computer player: can pick less obvious drone builds in Reverse mode
 // - Extra tooltips (turrets, buildings)
 // - Buff Disingrator: +1 damage (16 -> 17)
 // - Buff Scarab: -1 upkeep cost (8 -> 7), -1 cost (20 -> 19), -0.1 reload (2.5 -> 2.4)

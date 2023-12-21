@@ -7,6 +7,7 @@ var OffsetY float
 var OffsetX float
 var ResolutionWidth float
 var ResolutionHeight float
+var Power float
 
 func snow(uv vec2, scale, t float) float {
 	w := smoothstep(1.0, 0.0, -uv.y*(scale/20.0))
@@ -30,7 +31,7 @@ func snow(uv vec2, scale, t float) float {
 }
 
 func Fragment(dst vec4, src vec2, color vec4) vec4 {
-	t := 0.25 * -Time
+	t := 0.25 * Time
 
 	resolution := vec2(ResolutionWidth, ResolutionHeight)
 
@@ -43,5 +44,5 @@ func Fragment(dst vec4, src vec2, color vec4) vec4 {
 	c += snow(uv, 10.0, t) * 0.9
 	c += snow(uv, 8.0, t)
 
-	return vec4(c, 0)
+	return vec4(c, 0) * Power
 }

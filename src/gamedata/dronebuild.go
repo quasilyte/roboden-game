@@ -75,6 +75,41 @@ func CreateDroneBuild(rng *gmath.Rand) []string {
 
 	drones := make([]string, 0, 8)
 
+	if rng.Chance(0.1) {
+		minAllocated := ClassicModePoints
+		if rng.Chance(0.6) {
+			minAllocated = rng.IntRange(10, ClassicModePoints)
+		}
+		minPoints := ClassicModePoints - minAllocated
+
+		selection := []*AgentStats{
+			FighterAgentStats,
+			PrismAgentStats,
+			ScarabAgentStats,
+			SkirmisherAgentStats,
+			MortarAgentStats,
+			AntiAirAgentStats,
+			FirebugAgentStats,
+			DefenderAgentStats,
+			CommanderAgentStats,
+		}
+		if minAllocated >= 15 {
+			selection = append(selection, TargeterAgentStats)
+		}
+		for round := 0; round < 7; round++ {
+			if points <= minPoints {
+				break
+			}
+			var stats *AgentStats
+			stats, selection = popRand(selection)
+			if stats != nil {
+				drones = append(drones, stats.Kind.String())
+			}
+		}
+		sort.Strings(drones)
+		return drones
+	}
+
 	coreSupportDrones := []*AgentStats{
 		RedminerAgentStats,
 		RepairAgentStats,
@@ -140,6 +175,5 @@ func CreateDroneBuild(rng *gmath.Rand) []string {
 	}
 
 	sort.Strings(drones)
-
 	return drones
 }

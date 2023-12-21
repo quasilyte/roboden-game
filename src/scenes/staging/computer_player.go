@@ -2,6 +2,7 @@ package staging
 
 import (
 	"math"
+	"sort"
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
@@ -41,14 +42,16 @@ type computerPlayer struct {
 	calculatedColonyPower bool
 	disposed              bool
 
-	hasT3recipes  bool
-	hasRepairbots bool
-	hasFirebugs   bool
-	hasBombers    bool
-	hasPrisms     bool
-	hasCouriers   bool
-	hasScavengers bool
-	isHive        bool
+	hasT3recipes    bool
+	hasRepairbots   bool
+	hasFirebugs     bool
+	hasBombers      bool
+	hasPrisms       bool
+	hasCouriers     bool
+	hasScavengers   bool
+	isHive          bool
+	needAllFactions bool
+	neededFactions  []int
 }
 
 type computerColony struct {
@@ -149,8 +152,11 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 	}
 
 	{
+		neededFactions := make(map[gamedata.FactionTag]struct{}, 4)
 		t2recipeSet := make(map[gamedata.ColonyAgentKind]struct{}, len(p.world.tier2recipes))
 		for _, recipe := range p.world.tier2recipes {
+			neededFactions[recipe.Drone1.Faction] = struct{}{}
+			neededFactions[recipe.Drone2.Faction] = struct{}{}
 			t2recipeSet[recipe.Result.Kind] = struct{}{}
 			switch recipe.Result.Kind {
 			case gamedata.AgentFirebug:
@@ -177,6 +183,11 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 			p.hasT3recipes = true
 			break
 		}
+		for faction := range neededFactions {
+			p.neededFactions = append(p.neededFactions, int(faction))
+		}
+		sort.Ints(p.neededFactions)
+		p.needAllFactions = len(p.neededFactions) == 4 || len(p.neededFactions) == 0
 	}
 
 	if p.hasCouriers || p.world.turretDesign == gamedata.RefineryAgentStats {
@@ -859,10 +870,10 @@ func (p *computerPlayer) maybeProtectHive(colony *computerColony) float64 {
 
 	p.executeMoveAction(colony.node, colony.node.pos.Add(p.world.rand.Offset(-32, 32)))
 	if hpPercent >= 0.5 {
-		colony.moveDelay = p.world.rand.FloatRange(5, 15)
+		colony.moveDelay = p.world.rand.FloatRange(10, 20)
 		return 50
 	}
-	colony.moveDelay = p.world.rand.FloatRange(10, 20)
+	colony.moveDelay = p.world.rand.FloatRange(15, 25)
 	return 35
 }
 
@@ -1330,13 +1341,20 @@ func (p *computerPlayer) maybeUseSpecial(colony *computerColony) bool {
 }
 
 func (p *computerPlayer) maybeChangePriorities(colony *computerColony) bool {
-	randomCardChance := 0.25
+	factionCardChance := 0.25
 	if colony.node.factionWeights.GetWeight(gamedata.NeutralFactionTag) > 0.5 {
-		randomCardChance = 0.7
+		factionCardChance = 0.7
 	}
-	if p.world.rand.Chance(randomCardChance) {
-		// Use a random card.
-		return p.tryExecuteAction(colony.node, p.world.rand.IntRange(0, 3), gmath.Vec{})
+	if p.world.rand.Chance(factionCardChance) {
+		// Use a faction card.
+		// If colony needs all the colors, pick it randomly.
+		if p.needAllFactions {
+			return p.tryExecuteAction(colony.node, p.world.rand.IntRange(0, 3), gmath.Vec{})
+		}
+		// Otherwise, pick something from a list.
+		if len(p.neededFactions) != 0 {
+			return p.tryExecuteAction(colony.node, gmath.RandElem(p.world.rand, p.neededFactions), gmath.Vec{})
+		}
 	}
 
 	p.resourceCards = p.resourceCards[:0]

@@ -2700,6 +2700,17 @@ func (a *colonyAgentNode) updateRepairTurret(delta float64) {
 	}
 }
 
+func (a *colonyAgentNode) getConstructionAmount(delta float64) float64 {
+	amountConstructed := delta
+	if a.faction == gamedata.GreenFactionTag {
+		amountConstructed *= 1.5
+	}
+	if a.stats.Tier == 1 {
+		amountConstructed *= 0.75
+	}
+	return amountConstructed
+}
+
 func (a *colonyAgentNode) getRepairAmount() float64 {
 	amountRepaired := a.scene.Rand().FloatRange(5, 8)
 	if a.faction == gamedata.GreenFactionTag {
@@ -2732,11 +2743,7 @@ func (a *colonyAgentNode) updateBuildBase(delta float64) {
 		}
 		return
 	}
-	amountConstructed := delta
-	if a.faction == gamedata.GreenFactionTag {
-		amountConstructed *= 1.5
-	}
-	if target.Construct(amountConstructed, a.colonyCore) {
+	if target.Construct(a.getConstructionAmount(delta), a.colonyCore) {
 		return
 	}
 	a.energy = gmath.ClampMin(a.energy-6.5*delta, 0)

@@ -5,9 +5,9 @@ type GameModeInfo struct {
 }
 
 var GameModeInfoMap = map[string]GameModeInfo{
-	"classic":   {ScoreCost: ClassicModeCost},
 	"blitz":     {ScoreCost: 0},
+	"classic":   {ScoreCost: ClassicModeCost},
 	"arena":     {ScoreCost: ArenaModeCost},
-	"inf_arena": {ScoreCost: InfArenaModeCost},
 	"reverse":   {ScoreCost: ReverseModeCost},
+	"inf_arena": {ScoreCost: InfArenaModeCost},
 }

@@ -3,8 +3,8 @@ package gamedata
 const (
 	ClassicModeCost  int = 500
 	ArenaModeCost    int = 2000
-	InfArenaModeCost int = 4000
-	ReverseModeCost  int = 7500
+	ReverseModeCost  int = 4000
+	InfArenaModeCost int = 7500
 
 	SuperCreepsOptionCost       int = 5000
 	FortressOptionCost          int = 7000

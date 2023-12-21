@@ -57,12 +57,12 @@ func (c *LeaderboardMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "arena"))
 	}))
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.inf_arena"), func() {
-		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "inf_arena"))
-	}))
-
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.reverse"), func() {
 		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "reverse"))
+	}))
+
+	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.inf_arena"), func() {
+		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "inf_arena"))
 	}))
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())

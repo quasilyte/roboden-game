@@ -169,20 +169,6 @@ func (c *PlayMenuController) initUI() {
 	}
 
 	{
-		label := d.Get("menu.play.inf_arena")
-		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
-			Scene: c.scene,
-			Text:  label,
-			OnPressed: func() {
-				c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeInfArena))
-			},
-			OnHover: func() { c.setHelpText(c.modeDescriptionText("inf_arena", gamedata.InfArenaModeCost)) },
-		})
-		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "inf_arena")
-		buttonsContainer.AddChild(b)
-	}
-
-	{
 		label := d.Get("menu.play.reverse")
 		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
 			Scene: c.scene,
@@ -193,6 +179,20 @@ func (c *PlayMenuController) initUI() {
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("reverse", gamedata.ReverseModeCost)) },
 		})
 		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "reverse")
+		buttonsContainer.AddChild(b)
+	}
+
+	{
+		label := d.Get("menu.play.inf_arena")
+		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+			Scene: c.scene,
+			Text:  label,
+			OnPressed: func() {
+				c.scene.Context().ChangeScene(NewLobbyMenuController(c.state, gamedata.ModeInfArena))
+			},
+			OnHover: func() { c.setHelpText(c.modeDescriptionText("inf_arena", gamedata.InfArenaModeCost)) },
+		})
+		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "inf_arena")
 		buttonsContainer.AddChild(b)
 	}
 

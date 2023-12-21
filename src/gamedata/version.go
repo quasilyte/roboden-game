@@ -527,6 +527,7 @@ const SeasonNumber = 1
 // - A new Sentinel turret
 // - A new Refinery turret
 // - A wether toggle (works only with a snowy biome for now)
+// - Reverse mode is now unlocked before Inf Arena
 // - Clicking on a message node moves the camera to the marked target
 // - Blitz is open by default (no need to unlock it anymore)
 // - Bot now can only use unlocked turret designs in Reverse mode (in splash screen as well)

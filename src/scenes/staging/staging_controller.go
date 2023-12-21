@@ -1024,7 +1024,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		relocationVec := selectedColony.pos.VecTowards(clickPos, 1).Mulf(dist)
 		relocationPos = correctedPos(c.world.rect, relocationVec.Add(selectedColony.pos), 128)
 		if c.world.coreDesign == gamedata.HiveCoreStats {
-			return c.setHiveRallyPoint(selectedColony, relocationPos)
+			return c.setHiveRallyPoint(selectedColony, clickPos, relocationPos)
 		}
 		return c.launchRelocation(selectedColony, dist, relocationPos)
 	case specialIncreaseRadius:
@@ -1440,8 +1440,8 @@ func (c *Controller) findRelocationPoint(core *colonyCoreNode, dist float64, dst
 	return gmath.Vec{}
 }
 
-func (c *Controller) setHiveRallyPoint(core *colonyCoreNode, dst gmath.Vec) bool {
-	if dst.DistanceTo(core.rallyPoint) <= 20 {
+func (c *Controller) setHiveRallyPoint(core *colonyCoreNode, origDst, dst gmath.Vec) bool {
+	if origDst.DistanceTo(core.GetRallyPoint()) <= 20 {
 		return false
 	}
 

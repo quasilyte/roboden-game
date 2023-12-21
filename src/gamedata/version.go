@@ -549,6 +549,7 @@ const SeasonNumber = 1
 // - Buff Devourer: +1 max level (7 -> 8)
 // - Buff Siege turret: +50 attack range (750 -> 800)
 // - Buff Tether turret: +1 max targets (4 -> 5)
+// - Buff Seeker: +20% damage against buildings
 // - Nerf Beam turret: +2 upkeep cost (18 -> 22)
 // - Fixed a couple of cell collision mark/unmark bugs
 // - Fixed T1 army achivement bug: it will no longer be granted when Seekers are used

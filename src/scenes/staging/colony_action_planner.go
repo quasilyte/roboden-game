@@ -120,6 +120,9 @@ func (p *colonyActionPlanner) PickAction() colonyAction {
 func (p *colonyActionPlanner) trySendingCourier() colonyAction {
 	// Try to find a colony for a trading route.
 	maxTradingDist := (p.colony.PatrolRadius() * 1.75) + 200
+	if p.world.coreDesign == gamedata.HiveCoreStats {
+		maxTradingDist += 150
+	}
 	potentialTargets := &p.world.tmpColonySlice
 	(*potentialTargets) = (*potentialTargets)[:0]
 	for _, colony := range p.colony.player.GetState().colonies {

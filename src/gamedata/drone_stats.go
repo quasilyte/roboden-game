@@ -749,6 +749,7 @@ var RoombaAgentStats = InitDroneStats(&AgentStats{
 		MaxTargets:          1,
 		BurstSize:           2,
 		BurstDelay:          0.65,
+		BuildingDamageBonus: 0.2,
 		TargetFlags:         TargetFlying | TargetGround,
 		Accuracy:            0.8,
 		ProjectileFireSound: true,

@@ -940,7 +940,7 @@ var ScarabAgentStats = InitDroneStats(&AgentStats{
 	Weapon: InitWeaponStats(&WeaponStats{
 		AttackRangeMarkMultiplier: 1.5,
 		AttackRange:               150,
-		Reload:                    2.5,
+		Reload:                    2.4,
 		AttackSound:               assets.AudioScarabShot,
 		ProjectileImage:           assets.ImageScarabProjectile,
 		ImpactArea:                8,

@@ -41,12 +41,14 @@ type computerPlayer struct {
 	calculatedColonyPower bool
 	disposed              bool
 
+	hasT3recipes  bool
 	hasRepairbots bool
 	hasFirebugs   bool
 	hasBombers    bool
 	hasPrisms     bool
 	hasCouriers   bool
 	hasScavengers bool
+	isHive        bool
 }
 
 type computerColony struct {
@@ -82,6 +84,7 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 		securityCards:  make([]int, 0, 4),
 
 		buildColonyDelay: world.rand.FloatRange(60, 3*60),
+		isHive:           world.coreDesign == gamedata.HiveCoreStats,
 	}
 
 	switch p.world.turretDesign {
@@ -122,10 +125,22 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 		numColoniesPicker.AddOption(5, 0.4)
 		numColoniesPicker.AddOption(6, 0.3)
 		numColoniesPicker.AddOption(7, 0.2)
+	case gamedata.HiveCoreStats:
+		p.colonyTargetRadius = 420
+		p.minRadiusBeforeColony = 120
+		p.buildColonyDelay *= 0.1
+		numColoniesPicker.AddOption(4, 0.4)
+		numColoniesPicker.AddOption(5, 0.3)
+		numColoniesPicker.AddOption(6, 0.2)
+		numColoniesPicker.AddOption(7, 0.1)
 	default:
 		panic("bot can't play on this core design")
 	}
 	p.maxColonies = numColoniesPicker.Pick()
+
+	if p.world.config.WorldSize >= 3 && p.isHive {
+		p.maxColonies += 2
+	}
 
 	p.attackGroup = make([]*computerColony, 0, p.maxColonies)
 
@@ -133,20 +148,34 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 		p.world.sessionState.Logf("max colonies: %d", p.maxColonies)
 	}
 
-	for _, recipe := range p.world.tier2recipes {
-		switch recipe.Result.Kind {
-		case gamedata.AgentFirebug:
-			p.hasFirebugs = true
-		case gamedata.AgentBomber:
-			p.hasBombers = true
-		case gamedata.AgentPrism:
-			p.hasPrisms = true
-		case gamedata.AgentCourier:
-			p.hasCouriers = true
-		case gamedata.AgentRepair:
-			p.hasRepairbots = true
-		case gamedata.AgentScavenger:
-			p.hasScavengers = true
+	{
+		t2recipeSet := make(map[gamedata.ColonyAgentKind]struct{}, len(p.world.tier2recipes))
+		for _, recipe := range p.world.tier2recipes {
+			t2recipeSet[recipe.Result.Kind] = struct{}{}
+			switch recipe.Result.Kind {
+			case gamedata.AgentFirebug:
+				p.hasFirebugs = true
+			case gamedata.AgentBomber:
+				p.hasBombers = true
+			case gamedata.AgentPrism:
+				p.hasPrisms = true
+			case gamedata.AgentCourier:
+				p.hasCouriers = true
+			case gamedata.AgentRepair:
+				p.hasRepairbots = true
+			case gamedata.AgentScavenger:
+				p.hasScavengers = true
+			}
+		}
+		for _, recipe := range gamedata.Tier3agentMergeRecipes {
+			if _, ok := t2recipeSet[recipe.Drone1.Kind]; !ok {
+				continue
+			}
+			if _, ok := t2recipeSet[recipe.Drone2.Kind]; !ok {
+				continue
+			}
+			p.hasT3recipes = true
+			break
 		}
 	}
 
@@ -162,6 +191,9 @@ func newComputerPlayer(world *worldState, state *playerState, choiceGen *choiceG
 			node:       colony,
 			moveDelay:  p.world.rand.FloatRange(10, 15),
 			maxTurrets: p.maxTurretsForColony(),
+		}
+		if p.isHive {
+			wrapped.maxTurrets++
 		}
 		colony.EventDestroyed.Connect(p, func(_ *colonyCoreNode) {
 			p.colonies = xslices.Remove(p.colonies, wrapped)
@@ -272,7 +304,7 @@ func (p *computerPlayer) findGoodComebackSpot(leaderColony *computerColony, colo
 	probePos := leaderColony.node.pos.MoveTowards(p.world.rect.Center(), dist)
 	randIterate(p.world.rand, comebackProbeOffsets, func(offset gmath.Vec) bool {
 		pos := probePos.Add(offset)
-		resourceScore, _ := p.calcPosResources(leaderColony.node, pos, 200)
+		resourceScore, _, _ := p.calcPosResources(leaderColony.node, pos, 200)
 		dangerScore, _ := p.calcPosDangerWithHazards(pos, 250)
 		multiplier := float64(colonyPower) / float64(dangerScore)
 		score := int(float64(resourceScore) * multiplier)
@@ -290,6 +322,10 @@ func (p *computerPlayer) maybeDoComeback() bool {
 	// to do anything due to the danger levels.
 	// Try to show them a chance of breaking out.
 
+	if p.isHive {
+		return false
+	}
+
 	leaderColony := randIterate(p.world.rand, p.colonies, func(c *computerColony) bool {
 		if !p.world.innerRect2.Contains(c.node.pos) {
 			return false
@@ -303,7 +339,7 @@ func (p *computerPlayer) maybeDoComeback() bool {
 		if c.node.mode != colonyModeNormal {
 			return false
 		}
-		resourceScore, _ := p.calcPosResources(c.node, c.node.pos, c.node.realRadius*0.8)
+		resourceScore, _, _ := p.calcPosResources(c.node, c.node.pos, c.node.realRadius*0.8)
 		if resourceScore >= 100 {
 			return false
 		}
@@ -387,12 +423,12 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 
 	// If bot is attacking the dreadnought with this colony,
 	// this strategy takes the priority.
-	if colony.attacking != 0 && p.world.boss != nil {
+	if colony.attacking != 0 && p.world.boss != nil && !p.isHive {
 		colony.attacking--
 		if p.maybeDoAttacking(colony) {
 			return true
 		}
-		if colony.attacking == 0 || colony.node.pos.DistanceTo(p.world.boss.pos) <= 250 {
+		if colony.attacking == 0 || colony.node.GetRallyPoint().DistanceTo(p.world.boss.pos) <= 250 {
 			colony.attacking = 0
 			if p.maybeStayForAttack() {
 				delay := p.world.rand.FloatRange(9, 16)
@@ -411,23 +447,26 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 		colony.defendDelay = p.world.rand.FloatRange(3, 6)
 	}
 
-	// Only defensive actions (like relocation) are allowed
-	// for any unrecoverable colony.
-	// It will be a waste of a turn to invest cards here.
-	if p.colonyCantRecover(colony.node) {
-		return false
-	}
-
 	if colony.moveDelay == 0 {
 		if delay := p.maybeMoveColony(colony); delay != 0 {
-			if colony.node.stats == gamedata.TankCoreStats {
+			switch colony.node.stats {
+			case gamedata.TankCoreStats:
 				colony.moveDelay = delay * p.world.rand.FloatRange(0.6, 1.1)
-			} else {
+			case gamedata.HiveCoreStats:
+				colony.moveDelay = delay * p.world.rand.FloatRange(1.4, 2.1)
+			default:
 				colony.moveDelay = delay * p.world.rand.FloatRange(0.8, 1.4)
 			}
 			return true
 		}
 		colony.moveDelay = p.world.rand.FloatRange(5, 10)
+	}
+
+	// Only defensive actions (like relocation) are allowed
+	// for any unrecoverable colony.
+	// It will be a waste of a turn to invest cards here.
+	if p.colonyCantRecover(colony.node) {
+		return false
 	}
 
 	// All actions below require the choices (cards) to be ready.
@@ -437,10 +476,18 @@ func (p *computerPlayer) maybeDoColonyAction(colony *computerColony) bool {
 
 	if p.buildColonyDelay == 0 && p.choiceSelection.special.special == specialBuildColony {
 		if p.maybeBuildColony(colony) {
-			p.buildColonyDelay = p.world.rand.FloatRange(80, 6*60)
+			if p.isHive {
+				p.buildColonyDelay = p.world.rand.FloatRange(70, 2*60)
+			} else {
+				p.buildColonyDelay = p.world.rand.FloatRange(80, 6*60)
+			}
 			return true
 		}
-		p.buildColonyDelay = p.world.rand.FloatRange(30, 60)
+		if p.isHive {
+			p.buildColonyDelay = p.world.rand.FloatRange(15, 30)
+		} else {
+			p.buildColonyDelay = p.world.rand.FloatRange(30, 60)
+		}
 	}
 
 	if p.buildTurretDelay == 0 && p.choiceSelection.special.special == specialBuildGunpoint && colony.node.numTurretsBuilt < colony.maxTurrets {
@@ -548,6 +595,9 @@ func (p *computerPlayer) colonyCantRecover(colony *colonyCoreNode) bool {
 	if colony.stats == gamedata.TankCoreStats {
 		return false
 	}
+	if len(p.colonies) < 2 {
+		return false
+	}
 	return colony.resources < gamedata.WorkerAgentStats.Cost &&
 		len(colony.agents.workers) == 0
 }
@@ -565,7 +615,7 @@ func (p *computerPlayer) maybeStayForAttack() bool {
 	if dist > 275 {
 		return false
 	}
-	power := p.maybeAddTankPower(p.state.selectedColony, p.selectedColonyPower(p.bossTargetKind()))
+	power := p.maybeAddColonyPower(p.state.selectedColony, p.selectedColonyPower(p.bossTargetKind()))
 	return power >= 140
 }
 
@@ -579,11 +629,11 @@ func (p *computerPlayer) maybeDoAttacking(colony *computerColony) bool {
 	if !p.world.boss.IsFlying() {
 		targetKind = gamedata.TargetGround
 	}
-	if p.maybeAddTankPower(p.state.selectedColony, p.selectedColonyPower(targetKind)) < 90 {
+	if p.maybeAddColonyPower(p.state.selectedColony, p.selectedColonyPower(targetKind)) < 90 {
 		return false
 	}
 
-	dist := p.world.boss.pos.DistanceTo(colony.node.pos)
+	dist := p.world.boss.pos.DistanceTo(colony.node.GetRallyPoint())
 
 	if p.choiceGen.IsReady() {
 		if p.choiceSelection.special.special == specialAttack && dist < 0.9*colony.node.AttackRadius() {
@@ -599,9 +649,12 @@ func (p *computerPlayer) maybeDoAttacking(colony *computerColony) bool {
 	return false
 }
 
-func (p *computerPlayer) maybeAddTankPower(colony *colonyCoreNode, power int) int {
+func (p *computerPlayer) maybeAddColonyPower(colony *colonyCoreNode, power int) int {
 	if p.world.coreDesign == gamedata.TankCoreStats {
 		power += 30 + (2 * colony.NumAgents())
+	}
+	if p.world.coreDesign == gamedata.HiveCoreStats {
+		power += 20
 	}
 	return power
 }
@@ -627,12 +680,12 @@ func (p *computerPlayer) maybeAttackCreepBase(colony *computerColony) float64 {
 	}
 
 	power := p.selectedColonyPower(gamedata.TargetAny)
-	if power < 60 {
+	if power < 70 {
 		return 0
 	}
 
 	searchRadius := colony.node.MaxFlyDistance() + colony.node.realRadius
-	if isBlitz {
+	if isBlitz && !p.isHive {
 		// Even if it's out of the current range, we can get there in a couple of jumps.
 		searchRadius *= 2
 	}
@@ -670,7 +723,7 @@ func (p *computerPlayer) maybeAttackCreepBase(colony *computerColony) float64 {
 
 	p.executeMoveAction(colony.node, enemyBase.pos.Add(p.world.rand.Offset(-160, 160)))
 
-	if isBlitz {
+	if isBlitz && !p.isHive {
 		if enemyBase.pos.DistanceTo(colony.node.pos) > (colony.node.MaxFlyDistance() + colony.node.realRadius) {
 			// It will probably need a second jump soon.
 			return p.world.rand.FloatRange(10, 20)
@@ -687,12 +740,17 @@ func (p *computerPlayer) maybeStartAttackingDreadnought(colony *computerColony) 
 	}
 	distSqr := p.world.boss.pos.DistanceSquaredTo(colony.node.pos)
 	jumpDistSqr := colony.node.MaxFlyDistanceSqr() + 100
-	if distSqr > 2.75*jumpDistSqr {
+	maxSearchSqr := jumpDistSqr
+	numJumps := 1
+	if !p.isHive {
+		numJumps = int(math.Ceil(distSqr / jumpDistSqr))
+		maxSearchSqr *= 2.75
+	}
+	if distSqr > maxSearchSqr {
 		return false
 	}
-	numJumps := distSqr / jumpDistSqr
 
-	totalPower := p.maybeAddTankPower(colony.node, p.selectedColonyPower(gamedata.TargetAny))
+	totalPower := p.maybeAddColonyPower(colony.node, p.selectedColonyPower(gamedata.TargetAny))
 	group := p.attackGroup[:0]
 	group = append(group, colony)
 	for _, otherColony := range p.colonies {
@@ -704,7 +762,7 @@ func (p *computerPlayer) maybeStartAttackingDreadnought(colony *computerColony) 
 		if !addToGroup {
 			continue
 		}
-		colonyPower := p.maybeAddTankPower(otherColony.node, p.calcColonyPower(otherColony.node, gamedata.TargetAny))
+		colonyPower := p.maybeAddColonyPower(otherColony.node, p.calcColonyPower(otherColony.node, gamedata.TargetAny))
 		if colonyPower < 90 {
 			continue
 		}
@@ -718,7 +776,7 @@ func (p *computerPlayer) maybeStartAttackingDreadnought(colony *computerColony) 
 		return false
 	}
 
-	colony.attacking = int(math.Ceil(numJumps))
+	colony.attacking = numJumps
 	for _, otherColony := range group[1:] {
 		if otherColony.node.stats == gamedata.TankCoreStats {
 			otherColony.attacking = colony.attacking
@@ -736,17 +794,76 @@ func (p *computerPlayer) maybeDoDefensiveAction(colony *computerColony) float64 
 		}
 	}
 
-	if p.world.boss != nil {
+	if p.isHive {
+		if delay := p.maybeProtectHive(colony); delay != 0 {
+			return delay
+		}
+	}
+
+	if !p.isHive && p.world.boss != nil {
 		if p.maybeRetreatFromBoss(colony) {
 			return 20
 		}
 	}
 
-	if p.maybeRegroup(colony) {
+	if !p.isHive && p.maybeRegroup(colony) {
 		return 10
 	}
 
 	return 0
+}
+
+func (p *computerPlayer) maybeProtectHive(colony *computerColony) float64 {
+	hpPercent := colony.node.health / colony.node.maxHealth
+	if hpPercent >= 0.9 {
+		return 0
+	}
+
+	dist := colony.node.pos.DistanceTo(colony.node.GetRallyPoint())
+	if dist < colony.node.realRadius {
+		return 0
+	}
+
+	danger, _ := p.calcPosDanger(colony.node.pos, 200)
+	if p.world.boss != nil && p.world.boss.pos.DistanceTo(colony.node.pos) < 210 {
+		power := p.selectedColonyPower(gamedata.TargetAny)
+		if power < 150 && hpPercent >= 0.4 && p.world.rand.Chance(0.85) {
+			danger = gmath.ClampMin(danger-300, 0)
+		}
+	}
+	danger = gmath.ClampMin(danger-10, 0)
+
+	// 250 danger points result in a 100% rescue action.
+	// 50% colony health add around 50% to the rescue action.
+	rescueChance := (1.0 - hpPercent) + (float64(danger) * (1.0 / 250.0))
+	if len(p.colonies) == 1 {
+		// Have only 1 colony - protect it more eagerly.
+		rescueChance += 0.1
+	}
+	doRescue := rescueChance >= 1.0 || p.world.rand.Chance(rescueChance)
+	if !doRescue {
+		return 0
+	}
+
+	if danger <= 15 {
+		if hpPercent >= 0.65 {
+			delay := p.shouldWait(colony.node)
+			if delay > 0 {
+				return delay + 2
+			}
+		}
+		if hpPercent >= 0.3 && colony.node.resources < 50 && p.world.rand.Chance(0.9) {
+			return 0
+		}
+	}
+
+	p.executeMoveAction(colony.node, colony.node.pos.Add(p.world.rand.Offset(-32, 32)))
+	if hpPercent >= 0.5 {
+		colony.moveDelay = p.world.rand.FloatRange(5, 15)
+		return 50
+	}
+	colony.moveDelay = p.world.rand.FloatRange(10, 20)
+	return 35
 }
 
 func (p *computerPlayer) maybeRegroup(colony *computerColony) bool {
@@ -844,7 +961,7 @@ func (p *computerPlayer) maybeHandleHowitzerThreat(colony *computerColony) bool 
 		requiredPower /= 2
 	}
 
-	colonyPower := p.maybeAddTankPower(colony.node, p.selectedColonyPower(gamedata.TargetGround))
+	colonyPower := p.maybeAddColonyPower(colony.node, p.selectedColonyPower(gamedata.TargetGround))
 	if tryStomping && howitzer.pos.DistanceSquaredTo(colony.node.pos) < colony.node.realRadiusSqr {
 		// If it's very close and we can stomp it, be more brave.
 		colonyPower += 100
@@ -882,12 +999,15 @@ func (p *computerPlayer) maybeHandleHowitzerThreat(colony *computerColony) bool 
 		return true
 	}
 
+	if p.isHive {
+		return false
+	}
 	return p.maybeRetreatFrom(colony, howitzer.pos) != 0
 }
 
 func (p *computerPlayer) maybeRetreatFrom(colony *computerColony, pos gmath.Vec) float64 {
 	// Retreat to a nearby allied colony?
-	if p.world.rand.Chance(0.85) {
+	if !p.isHive && p.world.rand.Chance(0.85) {
 		otherColony := randIterate(p.world.rand, p.state.colonies, func(c *colonyCoreNode) bool {
 			if c == colony.node {
 				return false
@@ -905,7 +1025,7 @@ func (p *computerPlayer) maybeRetreatFrom(colony *computerColony, pos gmath.Vec)
 	}
 
 	// Escape via teleporter?
-	if p.world.rand.Chance(0.8) {
+	if !p.isHive && p.world.rand.Chance(0.8) {
 		tp := p.findUsableTeleporter(colony.node, func(tp *teleporterNode) bool {
 			danger, _ := p.calcPosDanger(tp.other.pos, colony.node.PatrolRadius()+260)
 			return 3*danger < p.selectedColonyPower(gamedata.TargetAny)
@@ -918,7 +1038,7 @@ func (p *computerPlayer) maybeRetreatFrom(colony *computerColony, pos gmath.Vec)
 
 	// Try to find a safe spot to retreat to.
 	currentDanger, _ := p.calcPosDanger(colony.node.pos, colony.node.PatrolRadius()+300)
-	currentResourceScore, _ := p.calcPosResources(colony.node, colony.node.pos, colony.node.realRadius*0.7)
+	currentResourceScore, _, _ := p.calcPosResources(colony.node, colony.node.pos, colony.node.realRadius*0.7)
 
 	var safestSpotPos gmath.Vec
 	safestSpotDanger := currentDanger
@@ -933,7 +1053,7 @@ func (p *computerPlayer) maybeRetreatFrom(colony *computerColony, pos gmath.Vec)
 		dist := colony.node.MaxFlyDistance()*p.world.rand.FloatRange(0.7, 1.2) + 200
 		candidatePos := dir.Mulf(dist).Add(colony.node.pos)
 		danger, _ := p.calcPosDanger(candidatePos, colony.node.PatrolRadius()+300)
-		resourceScore, _ := p.calcPosResources(colony.node, colony.node.pos, colony.node.realRadius)
+		resourceScore, _, _ := p.calcPosResources(colony.node, colony.node.pos, colony.node.realRadius)
 		if danger < safestSpotDanger {
 			safestSpotDanger = danger
 			safestSpotPos = candidatePos
@@ -1001,21 +1121,18 @@ func (p *computerPlayer) maybeBuildColony(colony *computerColony) bool {
 	}
 
 	if p.world.boss != nil {
-		if p.world.boss.pos.DistanceTo(colony.node.pos) < 320 {
+		if p.world.boss.pos.DistanceTo(colony.node.GetRallyPoint()) < 320 {
 			return false
 		}
-		pathDist := pointToLineDistance(colony.node.pos, p.world.boss.pos, p.world.boss.waypoint)
-		if pathDist < 280 {
-			return false
+		if !p.isHive {
+			pathDist := pointToLineDistance(colony.node.GetRallyPoint(), p.world.boss.pos, p.world.boss.waypoint)
+			if pathDist < 280 {
+				return false
+			}
 		}
 	}
 
-	currentResourcesScore, _ := p.calcPosResources(colony.node, colony.node.pos, colony.node.realRadius*0.7)
-	canBuild := (float64(currentResourcesScore) >= 200 && (colony.node.resources*p.world.rand.FloatRange(0.8, 1.2)) > 170) ||
-		((float64(currentResourcesScore) * p.world.rand.FloatRange(0.8, 1.2)) >= 400) ||
-		(colony.node.stats == gamedata.TankCoreStats && len(p.state.colonies) < 3 && (colony.node.resources >= colony.node.maxVisualResources()*0.85) && colony.node.agents.NumAvailableWorkers() >= 15) ||
-		(colony.node.resources > 100 && colony.node.agents.NumAvailableWorkers() >= 30 && p.world.rand.Chance(0.1))
-	if !canBuild {
+	if !p.shouldBuildBaseHere(colony) {
 		return false
 	}
 
@@ -1026,16 +1143,106 @@ func (p *computerPlayer) maybeBuildColony(colony *computerColony) bool {
 	return success
 }
 
+func (p *computerPlayer) shouldBuildBaseHere(colony *computerColony) bool {
+	currentResourcesScore, _, recoverableResources := p.calcPosResources(colony.node, colony.node.GetRallyPoint(), colony.node.realRadius*0.7)
+
+	if p.isHive {
+		minDist := math.MaxFloat64
+		for _, c := range p.colonies {
+			dist := c.node.pos.DistanceTo(colony.node.GetRallyPoint())
+			if dist < minDist {
+				minDist = dist
+			}
+		}
+		if minDist < 140 {
+			return false
+		}
+
+		danger, _ := p.calcPosDanger(colony.node.GetRallyPoint(), 200)
+		if danger < 100 {
+			if recoverableResources && currentResourcesScore >= 50 && colony.node.resources >= 120 && p.world.rand.Chance(0.8) {
+				return true
+			}
+			if len(p.colonies) == 1 && currentResourcesScore >= 90 && p.colonies[0].node.pos.DistanceTo(colony.node.GetRallyPoint()) >= 200 {
+				return true
+			}
+		}
+
+		if colony.node.resources >= 200 && danger <= 50 && (currentResourcesScore >= 30 || recoverableResources) {
+			if minDist >= 280 {
+				return true
+			}
+		}
+	}
+
+	// Below we have a list of common build conditions.
+	// They're good for all colony types except Hive.
+
+	if float64(currentResourcesScore) >= 200 && (colony.node.resources*p.world.rand.FloatRange(0.8, 1.2)) > 170 {
+		return true
+	}
+	if (float64(currentResourcesScore) * p.world.rand.FloatRange(0.8, 1.2)) >= 400 {
+		return true
+	}
+	if colony.node.stats == gamedata.TankCoreStats && len(p.state.colonies) < 3 && (colony.node.resources >= colony.node.maxVisualResources()*0.85) && colony.node.agents.NumAvailableWorkers() >= 15 {
+		return true
+	}
+	if colony.node.resources > 100 && colony.node.agents.NumAvailableWorkers() >= 30 && p.world.rand.Chance(0.1) {
+		return true
+	}
+
+	return false
+}
+
+func (p *computerPlayer) shouldBuildTurretHere(colony *computerColony) bool {
+	currentResourcesScore, _, recoverableResources := p.calcPosResources(colony.node, colony.node.GetRallyPoint(), colony.node.realRadius*0.7)
+
+	if p.world.turretDesign == gamedata.RefineryAgentStats {
+		// Don't build a new refinery close to another.
+		for _, turret := range p.world.turrets {
+			if turret.stats != gamedata.RefineryAgentStats {
+				continue
+			}
+			if turret.pos.DistanceTo(colony.node.GetRallyPoint()) < 160 {
+				return false
+			}
+		}
+
+		if currentResourcesScore > 200 && colony.node.resources >= 50 && p.world.rand.Chance(0.4) {
+			return true
+		}
+		if recoverableResources && currentResourcesScore > 100 && colony.node.resources >= 30 && p.world.rand.Chance(0.8) {
+			return true
+		}
+	}
+
+	if p.isHive {
+		if colony.node.GetRallyPoint().DistanceTo(colony.node.pos) < 160 {
+			if float64(currentResourcesScore) >= 120 || colony.node.resources >= (80*p.turretCostMultiplier) && p.world.rand.Chance(0.6) {
+				return true
+			}
+		}
+	}
+
+	if float64(currentResourcesScore) >= 100 && (colony.node.resources*p.world.rand.FloatRange(0.8, 1.2)) > (140*p.turretCostMultiplier) {
+		return true
+	}
+	if (float64(currentResourcesScore) * p.world.rand.FloatRange(0.8, 1.2)) >= 250 {
+		return true
+	}
+	if colony.node.resources > 80 && colony.node.agents.NumAvailableWorkers() > 30 && p.world.rand.Chance(0.15) {
+		return true
+	}
+
+	return false
+}
+
 func (p *computerPlayer) maybeBuildTurret(colony *computerColony) bool {
 	if !p.world.gameStarted {
 		return false
 	}
 
-	currentResourcesScore, _ := p.calcPosResources(colony.node, colony.node.pos, colony.node.realRadius*0.7)
-	canBuild := (float64(currentResourcesScore) >= 100 && (colony.node.resources*p.world.rand.FloatRange(0.8, 1.2)) > (140*p.turretCostMultiplier)) ||
-		((float64(currentResourcesScore) * p.world.rand.FloatRange(0.8, 1.2)) >= 250) ||
-		(colony.node.resources > 80 && colony.node.agents.NumAvailableWorkers() > 30 && p.world.rand.Chance(0.15))
-	if !canBuild {
+	if !p.shouldBuildTurretHere(colony) {
 		return false
 	}
 
@@ -1092,7 +1299,7 @@ func (p *computerPlayer) maybeUseSpecial(colony *computerColony) bool {
 		if colony.node.resources > 50 && p.world.rand.Chance(0.7) {
 			power := p.selectedColonyPower(gamedata.TargetAny)
 			if power > 90 {
-				danger, _ := p.calcPosDanger(colony.node.pos, colony.node.AttackRadius()*1.1)
+				danger, _ := p.calcPosDanger(colony.node.GetRallyPoint(), colony.node.AttackRadius()*1.1)
 				if danger != 0 && power > 2*danger {
 					return p.tryExecuteAction(colony.node, 4, gmath.Vec{})
 				}
@@ -1174,11 +1381,14 @@ func (p *computerPlayer) maybeChangePriorities(colony *computerColony) bool {
 		}
 	}
 
-	if colony.node.evoPoints < blueEvoThreshold && colony.moveDelay >= 10 && c.NumAgents() >= 20 && len(p.evolutionCards) != 0 {
+	if colony.node.evoPoints < blueEvoThreshold && colony.moveDelay >= 5 && c.NumAgents() >= 20 && len(p.evolutionCards) != 0 {
 		needMoreEvolution := (c.agents.tier2Num >= 4 && c.agents.tier3Num < 15) ||
-			(c.agents.tier2Num < 5 && c.GetEvolutionPriority() < 0.05)
+			(c.agents.tier2Num < 5 && c.GetEvolutionPriority() < 0.05) ||
+			(colony.node.planner.agentCountTable[gamedata.AgentScarab] >= 5)
 		if needMoreEvolution {
-			increaseElolutionChance := gmath.Clamp(0.1+(1.0-(p.world.rand.FloatRange(0.7, 1.0)*c.GetGrowthPriority())), 0, 1)
+			// 10 Scarab drones give extra 20%.
+			extraChance := 0.02 * float64(colony.node.planner.agentCountTable[gamedata.AgentScarab])
+			increaseElolutionChance := gmath.Clamp(extraChance+0.1+(1.0-(p.world.rand.FloatRange(0.7, 1.0)*c.GetGrowthPriority())), 0, 1)
 			if p.world.rand.Chance(increaseElolutionChance) {
 				return p.tryExecuteAction(colony.node, gmath.RandElem(p.world.rand, p.evolutionCards), gmath.Vec{})
 			}
@@ -1196,18 +1406,37 @@ func (p *computerPlayer) maybeChangePriorities(colony *computerColony) bool {
 
 func (p *computerPlayer) maybeMoveColony(colony *computerColony) float64 {
 	resourcesReach := colony.node.realRadius*0.4 + 100
-	resourcesScore, _ := p.calcPosResources(colony.node, colony.node.pos, resourcesReach)
+	resourcesScore, _, _ := p.calcPosResources(colony.node, colony.node.GetRallyPoint(), resourcesReach)
 
 	// Reason to move 1: swarmed by enemies.
-	colonyPower := int(float64(p.selectedColonyPower(gamedata.TargetAny)) * p.world.rand.FloatRange(0.9, 1.1))
-	danger, dangerousPos := p.calcPosDanger(colony.node.pos, colony.node.realRadius+100)
-	doRetreat := (danger >= p.world.rand.IntRange(700, 1000)) ||
-		(colony.retreatPos.IsZero() && danger > (int(2.2*float64(colonyPower))+15) && colony.node.resources < 120) ||
-		(colony.retreatPos.IsZero() && danger > 30 && colonyPower < 40 && resourcesScore < 40 && colony.node.resources < 50)
-	if doRetreat {
-		if delay := p.maybeRetreatFrom(colony, dangerousPos); delay != 0 {
-			colony.retreatPos = colony.node.pos
-			return delay
+	if p.isHive {
+		danger, dangerousPos := p.calcPosDanger(colony.node.GetRallyPoint(), colony.node.realRadius+200)
+		doRetreat := danger > 180 &&
+			(dangerousPos.DistanceTo(colony.node.GetRallyPoint()) < colony.node.PatrolRadius()+200) &&
+			(colony.node.pos.DistanceTo(colony.node.GetRallyPoint()) > colony.node.PatrolRadius()) &&
+			(p.selectedColonyPower(gamedata.TargetAny)+80 < danger)
+		if doRetreat {
+			colony.retreatPos = colony.node.GetRallyPoint()
+			if p.world.rand.Chance(0.3) {
+				p.executeMoveAction(colony.node, colony.node.pos)
+				return 20
+			}
+			if delay := p.maybeRetreatFrom(colony, dangerousPos); delay != 0 {
+				colony.retreatPos = colony.node.pos
+				return delay
+			}
+		}
+	} else {
+		colonyPower := int(float64(p.selectedColonyPower(gamedata.TargetAny)) * p.world.rand.FloatRange(0.9, 1.1))
+		danger, dangerousPos := p.calcPosDanger(colony.node.pos, colony.node.realRadius+100)
+		doRetreat := (danger >= p.world.rand.IntRange(700, 1000)) ||
+			(colony.retreatPos.IsZero() && danger > (int(2.2*float64(colonyPower))+15) && colony.node.resources < 120) ||
+			(colony.retreatPos.IsZero() && danger > 30 && colonyPower < 40 && resourcesScore < 40 && colony.node.resources < 50)
+		if doRetreat {
+			if delay := p.maybeRetreatFrom(colony, dangerousPos); delay != 0 {
+				colony.retreatPos = colony.node.pos
+				return delay
+			}
 		}
 	}
 
@@ -1242,7 +1471,7 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) float64 {
 			return b.agent == nil && b.pos.DistanceSquaredTo(colony.node.pos) < colony.node.MaxFlyDistanceSqr()+96
 		})
 		if b != nil {
-			danger, _ := p.calcPosDangerWithHazards(colony.node.pos, colony.node.realRadius+100)
+			danger, _ := p.calcPosDangerWithHazards(b.pos, colony.node.realRadius+100)
 			if danger < 2*p.selectedColonyPower(gamedata.TargetAny) {
 				p.captureDelay = p.world.rand.FloatRange(50, 100)
 				p.executeMoveAction(colony.node, b.pos.Add(p.world.rand.Offset(-128, 128)))
@@ -1256,7 +1485,7 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) float64 {
 
 	// Reason to move 4: close to the map boundary.
 	// This is just inconvenient for the player.
-	if !p.world.innerRect.Contains(colony.node.pos) && p.world.rand.Chance(0.9) {
+	if !p.isHive && !p.world.innerRect.Contains(colony.node.pos) && p.world.rand.Chance(0.9) {
 		pos := randomSectorPos(p.world.rand, p.world.innerRect)
 		dir := gmath.RadToVec(colony.node.pos.AngleToPoint(pos))
 		candidatePos := dir.Mulf(colony.node.MaxFlyDistance()).Add(colony.node.pos)
@@ -1265,6 +1494,40 @@ func (p *computerPlayer) maybeMoveColony(colony *computerColony) float64 {
 		if danger < power/3 {
 			p.executeMoveAction(colony.node, candidatePos)
 			return 5
+		}
+	}
+
+	// Reason to move 5: complete the unfinished construction.
+	if colony.node.resources >= 0.65*colony.node.maxVisualResources() {
+		for _, construction := range p.world.constructions {
+			if construction.attention > 1 {
+				continue
+			}
+			if !colony.retreatPos.IsZero() {
+				if colony.retreatPos.DistanceTo(construction.pos) <= colony.node.MaxFlyDistance() {
+					continue
+				}
+			}
+			shouldFinish := construction.stats.Kind == constructBase ||
+				(construction.stats.Kind == constructTurret && construction.progress >= 0.8)
+			if !shouldFinish {
+				continue
+			}
+			dist := construction.pos.DistanceTo(colony.node.pos)
+			if dist >= 0.65*colony.node.realRadius && dist < 0.9*colony.node.MaxFlyDistance() {
+				p.executeMoveAction(colony.node, construction.pos.Add(p.world.rand.Offset(-40, 40)))
+				return 55
+			}
+		}
+	}
+
+	// Reason to move 6 (Hive only): move the drones closer to let them evolve.
+	if p.isHive && p.hasT3recipes && colony.node.GetEvolutionPriority() >= 0.35 && colony.node.resources >= 80 {
+		if colony.node.pos.DistanceTo(colony.node.GetRallyPoint()) > 200 {
+			if colony.node.agents.tier2Num >= 15 && colony.node.agents.tier3Num < 10 && colony.node.NumAgents() >= 35 {
+				p.executeMoveAction(colony.node, colony.node.pos.Add(p.world.rand.Offset(-16, 16)))
+				return 65
+			}
 		}
 	}
 
@@ -1317,9 +1580,10 @@ func (p *computerPlayer) calcColonyPower(c *colonyCoreNode, targetFlags gamedata
 	return score
 }
 
-func (p *computerPlayer) calcPosResources(colony *colonyCoreNode, pos gmath.Vec, r float64) (int, gmath.Vec) {
+func (p *computerPlayer) calcPosResources(colony *colonyCoreNode, pos gmath.Vec, r float64) (int, gmath.Vec, bool) {
 	resourcesScore := 0
 	bestResource := 0
+	foundRecoverable := false
 	var bestResourcePos gmath.Vec
 	rSqr := r * r
 	for _, res := range p.world.essenceSources {
@@ -1332,6 +1596,9 @@ func (p *computerPlayer) calcPosResources(colony *colonyCoreNode, pos gmath.Vec,
 		score := int(res.stats.value) * res.resource
 		if res.stats == redCrystalSource {
 			score = (score*2 + 10)
+		}
+		if !res.stats.canDeplete {
+			score += 20
 		}
 		if res.stats == artifactSource {
 			score += 10
@@ -1351,6 +1618,9 @@ func (p *computerPlayer) calcPosResources(colony *colonyCoreNode, pos gmath.Vec,
 				score = 0
 			}
 		}
+		if res.stats.regenerates {
+			foundRecoverable = true
+		}
 		if res.stats.scrap && p.hasScavengers {
 			score = int(float64(score)*1.2) + 1
 		}
@@ -1367,7 +1637,7 @@ func (p *computerPlayer) calcPosResources(colony *colonyCoreNode, pos gmath.Vec,
 		}
 		resourcesScore += score
 	}
-	return resourcesScore, bestResourcePos
+	return resourcesScore, bestResourcePos, foundRecoverable
 }
 
 func (p *computerPlayer) findRandomResourcesSpot(colony *computerColony) gmath.Vec {
@@ -1378,7 +1648,7 @@ func (p *computerPlayer) findRandomResourcesSpot(colony *computerColony) gmath.V
 	if 2*danger > power {
 		return gmath.Vec{}
 	}
-	score, _ := p.calcPosResources(colony.node, pos, colony.node.realRadius*0.5+120)
+	score, _, _ := p.calcPosResources(colony.node, pos, colony.node.realRadius*0.5+120)
 	if score < 50 {
 		return gmath.Vec{}
 	}
@@ -1402,7 +1672,7 @@ func (p *computerPlayer) findBestResourcesSpot(colony *computerColony, maxDanger
 			currentAngle += (2 * math.Pi) / numProbes
 			dist := currentDist * p.world.rand.FloatRange(0.8, 1.1)
 			candidatePos := dir.Mulf(dist).Add(colony.node.pos)
-			score, bestResPos := p.calcPosResources(colony.node, candidatePos, resourcesReach)
+			score, bestResPos, _ := p.calcPosResources(colony.node, candidatePos, resourcesReach)
 			if score > bestScore {
 				checkedSpot := bestResPos.Add(p.world.rand.Offset(-32, 32))
 				danger, _ := p.calcPosDangerWithHazards(checkedSpot, colony.node.PatrolRadius()+260)
@@ -1434,7 +1704,7 @@ func (p *computerPlayer) findBestResourcesSpot(colony *computerColony, maxDanger
 		if danger > maxDanger {
 			return false
 		}
-		score, _ := p.calcPosResources(colony.node, tp.other.pos, resourcesReach)
+		score, _, _ := p.calcPosResources(colony.node, tp.other.pos, resourcesReach)
 		if score > bestScore {
 			bestScore = score
 			bestScorePos = tp.pos
@@ -1547,7 +1817,7 @@ func (p *computerPlayer) calcPosDanger(pos gmath.Vec, r float64) (int, gmath.Vec
 }
 
 func (p *computerPlayer) findUsableTeleporter(colony *colonyCoreNode, f func(*teleporterNode) bool) *teleporterNode {
-	if p.world.coreDesign == gamedata.ArkCoreStats {
+	if p.world.coreDesign == gamedata.ArkCoreStats || p.isHive {
 		// Can't use teleporters.
 		return nil
 	}

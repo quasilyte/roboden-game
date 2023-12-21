@@ -346,6 +346,9 @@ func (c *colonyCoreNode) MaxFlyDistanceSqr() float64 {
 }
 
 func (c *colonyCoreNode) MaxFlyDistance() float64 {
+	if c.stats == gamedata.HiveCoreStats {
+		return 600.0 + float64(c.agents.servoNum*60.0)
+	}
 	return gmath.ClampMax(c.stats.JumpDist+float64(c.agents.servoNum*10.0), c.maxJumpDist)
 }
 
@@ -1555,7 +1558,7 @@ func (c *colonyCoreNode) tryExecutingAction(action colonyAction) bool {
 		c.world.nodeRunner.AddObject(a)
 		a.SetHeight(c.shadowComponent.height)
 		c.world.result.DronesProduced++
-		c.resources -= a.stats.Cost * c.stats.DroneProductionCost
+		c.resources = gmath.ClampMin(c.resources-(a.stats.Cost*c.stats.DroneProductionCost), 0)
 		a.AssignMode(agentModeTakeoff, gmath.Vec{}, nil)
 		playSound(c.world, assets.AudioAgentProduced, c.pos)
 		c.openHatchTime = 1.5

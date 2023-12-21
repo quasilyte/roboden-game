@@ -200,10 +200,10 @@ func (m *cameraManager) Update(delta float64) {
 			pstate := gmath.RandElem(m.world.localRand, m.world.players).GetState()
 			if m.world.boss != nil && m.world.localRand.Chance(0.6) {
 				for _, c := range pstate.colonies {
-					if c.pos.DistanceTo(m.world.boss.pos) < 500 {
+					if c.GetRallyPoint().DistanceTo(m.world.boss.pos) < 500 {
 						if m.world.localRand.Chance(0.85) {
 							m.cinematicSwitchDelay = m.world.localRand.FloatRange(10, 14)
-							m.ToggleCamera(midpoint(m.world.boss.pos, c.pos))
+							m.ToggleCamera(midpoint(m.world.boss.pos, c.GetRallyPoint()))
 							return
 						}
 					}
@@ -220,7 +220,13 @@ func (m *cameraManager) Update(delta float64) {
 				// Show one of the colonies.
 				m.cinematicSwitchDelay = m.world.localRand.FloatRange(15, 25)
 				if len(pstate.colonies) > 0 {
-					pos := gmath.RandElem(m.world.localRand, pstate.colonies).pos
+					colony := gmath.RandElem(m.world.localRand, pstate.colonies)
+					var pos gmath.Vec
+					if m.world.localRand.Chance(0.3) {
+						pos = colony.pos
+					} else {
+						pos = colony.GetRallyPoint()
+					}
 					if len(pstate.colonies) > 1 && m.world.localRand.Chance(0.4) {
 						pair := m.findTwoColonies(pstate, 320)
 						if pair[0] != nil {

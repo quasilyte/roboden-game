@@ -46,7 +46,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	config.CoordinatorCreeps = scene.Rand().Chance(0.7)
 	config.WeatherEnabled = scene.Rand().Chance(0.6)
 	config.CoreDesign = gamedata.PickColonyDesign(c.state.Persistent.PlayerStats.CoresUnlocked, scene.Rand())
-	config.TurretDesign = gamedata.PickTurretDesign(c.state.Persistent.PlayerStats.TurretsUnlocked, scene.Rand())
+	config.TurretDesign = gamedata.PickTurretDesign(config.CoreDesign, c.state.Persistent.PlayerStats.TurretsUnlocked, scene.Rand())
 	config.Tier2Recipes = gamedata.CreateDroneBuild(scene.Rand())
 	config.ExecMode = gamedata.ExecuteDemo
 	config.PlayersMode = serverapi.PmodeSingleBot

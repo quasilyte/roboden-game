@@ -418,7 +418,11 @@ func (p *colonyActionPlanner) maybeCloneAgent(combatUnit bool) colonyAction {
 
 func (p *colonyActionPlanner) pickGrowthAction() colonyAction {
 	if !p.colony.agents.hasGatherer && p.colony.resources < 10 && p.colony.freeWorkerDelay == 0 {
-		p.colony.freeWorkerDelay = 30
+		if p.world.coreDesign == gamedata.HiveCoreStats {
+			p.colony.freeWorkerDelay = 20
+		} else {
+			p.colony.freeWorkerDelay = 30
+		}
 		return colonyAction{
 			Kind:     actionProduceAgent,
 			Value:    gamedata.WorkerAgentStats,

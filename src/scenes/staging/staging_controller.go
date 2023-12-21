@@ -1003,12 +1003,7 @@ func (c *Controller) executeAction(choice selectedChoice) bool {
 		c.launchAttack(selectedColony)
 		return true
 	case specialChoiceMoveColony:
-		var maxDist float64
-		if c.world.coreDesign == gamedata.HiveCoreStats {
-			maxDist = 600 + float64(selectedColony.agents.servoNum*60.0)
-		} else {
-			maxDist = selectedColony.MaxFlyDistance()
-		}
+		maxDist := selectedColony.MaxFlyDistance()
 		clickPos := choice.Pos
 		clickDist := selectedColony.pos.DistanceTo(clickPos)
 		dist := gmath.ClampMax(clickDist, maxDist)

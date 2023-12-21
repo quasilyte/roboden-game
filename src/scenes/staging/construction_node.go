@@ -86,7 +86,7 @@ var sentinelpointConstructionStats = &constructionStats{
 }
 
 var tetherBeaconConstructionStats = &constructionStats{
-	Cost:              2,
+	Cost:              1,
 	ConstructionSpeed: 0.04,
 	DamageModifier:    0.03,
 	Kind:              constructTurret,

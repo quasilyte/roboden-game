@@ -8,25 +8,52 @@ import (
 )
 
 func PickColonyDesign(designsUnlocked []string, rng *gmath.Rand) string {
-	return gmath.RandElem(rng, designsUnlocked)
+	picker := gmath.NewRandPicker[string](rng)
+	for _, c := range designsUnlocked {
+		switch c {
+		case "den":
+			picker.AddOption(c, 0.3)
+		case "ark":
+			picker.AddOption(c, 0.3)
+		case "tank":
+			picker.AddOption(c, 0.3)
+		case "hive":
+			picker.AddOption(c, 0.25)
+		}
+	}
+	return picker.Pick()
 }
 
-func PickTurretDesign(designsUnlocked []string, rng *gmath.Rand) string {
+func PickTurretDesign(coreDesign string, designsUnlocked []string, rng *gmath.Rand) string {
 	picker := gmath.NewRandPicker[string](rng)
 	for _, t := range designsUnlocked {
 		switch t {
 		case "BeamTower":
 			picker.AddOption(t, 0.35)
 		case "Gunpoint":
-			picker.AddOption(t, 0.25)
+			if coreDesign == "hive" {
+				picker.AddOption(t, 0.05)
+			} else {
+				picker.AddOption(t, 0.25)
+			}
 		case "Harvester":
 			picker.AddOption(t, 0.15)
 		case "TetherBeacon":
 			picker.AddOption(t, 0.2)
 		case "Siege":
-			picker.AddOption(t, 0.2)
+			if coreDesign == "hive" {
+				picker.AddOption(t, 0.15)
+			} else {
+				picker.AddOption(t, 0.2)
+			}
 		case "Sentinelpoint":
 			picker.AddOption(t, 0.25)
+		case "Refinery":
+			if coreDesign == "hive" {
+				picker.AddOption(t, 0.4)
+			} else {
+				picker.AddOption(t, 0.15)
+			}
 		}
 	}
 	return picker.Pick()

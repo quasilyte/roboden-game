@@ -21,6 +21,7 @@ type essenceSourceStats struct {
 	scrap           bool
 	canDeplete      bool
 	harvesterTarget bool
+	regenerates     bool
 	size            float64
 }
 
@@ -56,6 +57,7 @@ var oilSource = &essenceSourceStats{
 	spritesheet:     true,
 	canDeplete:      false,
 	harvesterTarget: false,
+	regenerates:     true,
 	size:            32,
 }
 
@@ -69,6 +71,7 @@ var redOilSource = &essenceSourceStats{
 	spritesheet:     true,
 	canDeplete:      false,
 	harvesterTarget: false,
+	regenerates:     true,
 	size:            32,
 }
 
@@ -142,6 +145,7 @@ var magmaRockSource = &essenceSourceStats{
 	canDeplete:      true,
 	harvesterTarget: true,
 	passable:        true,
+	regenerates:     true, // Not really, but it's just a marker for a bot
 	size:            16,
 }
 
@@ -155,6 +159,7 @@ var organicSource = &essenceSourceStats{
 	canDeplete:      false,
 	harvesterTarget: false,
 	passable:        true,
+	regenerates:     true, // Not really, but it's just a marker for a bot
 	size:            20,
 }
 

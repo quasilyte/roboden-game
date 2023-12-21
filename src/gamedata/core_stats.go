@@ -222,7 +222,7 @@ var HiveCoreStats = &ColonyCoreStats{
 	ResourcesLimit:      600,
 	DroneProductionCost: 0.75,
 	MaxHealth:           200,
-	DamageReduction:     0.6,
+	DamageReduction:     0.65,
 
 	MobilityRating:  0,
 	AttackRating:    10,

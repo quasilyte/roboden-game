@@ -27,7 +27,7 @@ func getTurretPower(stats *gamedata.AgentStats) int {
 	switch stats {
 	case gamedata.GunpointAgentStats:
 		return 35
-	case gamedata.BeamTowerAgentStats:
+	case gamedata.BeamTowerAgentStats, gamedata.SentinelpointAgentStats:
 		return 45
 	case gamedata.RepulseTowerAgentStats, gamedata.DroneFactoryAgentStats:
 		return 50

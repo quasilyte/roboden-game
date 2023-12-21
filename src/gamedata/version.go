@@ -532,9 +532,10 @@ const SeasonNumber = 1
 // - Bot now can only use unlocked turret designs in Reverse mode (in splash screen as well)
 // - Tier 2 workers now repair buildings more efficiently
 // - Rework energy system
+// - Computer player: can now come back to finish construction sites
 // - Extra tooltips (turrets, buildings)
 // - Buff Disingrator: +1 damage (16 -> 17)
-// - Buff Scarab: -1 upkeep cost (8 -> 7), -1 cost (20 -> 19)
+// - Buff Scarab: -1 upkeep cost (8 -> 7), -1 cost (20 -> 19), -0.1 reload (2.5 -> 2.4)
 // - Buff Servo: -1 upkeep cost (7 -> 6), -4 cost (26 -> 22), +4 hp (18 -> 22), moves fast ability
 // - Buff Cloner: -5% cloning cost (85% -> 80%), -2 cost (26 -> 24)
 // - Buff Courier: +10 attack range (140 -> 150)

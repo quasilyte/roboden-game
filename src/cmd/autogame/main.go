@@ -99,16 +99,16 @@ func runSimulation(rstate *runnerState, mode string) (serverapi.GameResults, gam
 	for _, turret := range gamedata.TurretStatsList {
 		turretDesigns = append(turretDesigns, turret.Kind.String())
 	}
+	var coreDesigns []string
+	for _, core := range gamedata.CoreStatsList {
+		coreDesigns = append(coreDesigns, core.Name)
+	}
 
 	// Create a random bot build.
 	replayConfig.Tier2Recipes = gamedata.CreateDroneBuild(rstate.rng)
-	replayConfig.TurretDesign = gamedata.PickTurretDesign(turretDesigns, rstate.rng)
+	replayConfig.CoreDesign = gamedata.PickColonyDesign(coreDesigns, rstate.rng)
+	replayConfig.TurretDesign = gamedata.PickTurretDesign(replayConfig.CoreDesign, turretDesigns, rstate.rng)
 	replayConfig.PlayersMode = serverapi.PmodeSingleBot
-	if rstate.rng.Bool() {
-		replayConfig.CoreDesign = "den"
-	} else {
-		replayConfig.CoreDesign = "ark"
-	}
 	replayConfig.Environment = rstate.rng.IntRange(0, 3)
 
 	// Some default settings.

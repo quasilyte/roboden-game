@@ -1796,7 +1796,7 @@ func (c *Controller) updateWeather(delta float64) {
 			c.weatherTicker -= shaderDelta
 			if c.weatherTicker <= 0 {
 				c.weatherState = weatherStateFadeIn
-				c.weatherTicker = c.world.localRand.FloatRange(60, 140)
+				c.weatherTicker = c.world.localRand.FloatRange(40, 90)
 			}
 		}
 	}

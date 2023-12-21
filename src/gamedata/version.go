@@ -551,6 +551,7 @@ const SeasonNumber = 1
 // - Buff Tether turret: +1 max targets (4 -> 5)
 // - Buff Seeker: +20% damage against buildings
 // - Nerf Beam turret: +2 upkeep cost (18 -> 22)
+// - Dreadnought deals 40% less damage against buildings
 // - Fixed a couple of cell collision mark/unmark bugs
 // - Fixed T1 army achivement bug: it will no longer be granted when Seekers are used
 // - Fixed megaroomba getting too close to the owner colony

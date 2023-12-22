@@ -863,7 +863,7 @@ func (p *colonyActionPlanner) pickEvolutionAction() colonyAction {
 				}
 			}
 
-			if p.colony.GetRallyPoint().DistanceTo(p.colony.pos) < (1.5*p.colony.realRadius + 96) {
+			if p.colony.GetRallyPoint().DistanceTo(p.colony.pos) < (1.2*p.colony.PatrolRadius() + 96) {
 				return colonyAction{
 					Kind:     actionGenerateEvo,
 					TimeCost: 1.0,

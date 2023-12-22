@@ -1,6 +1,9 @@
 COMMIT_HASH=`git rev-parse HEAD`
 
-.PHONY: server serverutil runsim wasm itchio-wasm steam-release
+.PHONY: android-aar server serverutil runsim wasm itchio-wasm steam-release
+
+android-aar:
+	ebitenmobile bind -target android -javapkg com.quasilyte.go.roboden -o roboden.aar --tags mobile ./cmd/mobilegame/ && cp roboden.aar ../_android/libs/roboden.aar
 
 steam-release:
 	rm -rf ../steam_dist

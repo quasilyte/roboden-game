@@ -157,6 +157,13 @@ func (c *creepNode) Init(scene *ge.Scene) {
 		c.altSprite.Pos.Offset.Y = 13
 		c.world.stage.AddSprite(c.altSprite)
 		c.maxHealth *= c.world.bossHealthMultiplier
+		// Compensate the lack of a better number of servants on low-level difficulties.
+		switch c.world.config.BossDifficulty {
+		case 0:
+			c.maxHealth += 75
+		case 1:
+			c.maxHealth += 15
+		}
 	} else {
 		c.maxHealth *= c.world.creepHealthMultiplier
 		if c.stats.Kind == gamedata.CreepHowitzer {

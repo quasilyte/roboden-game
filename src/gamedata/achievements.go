@@ -80,6 +80,12 @@ var AchievementList = []*Achievement{
 		Icon:         assets.ImageAchievementDarkness,
 		NeedsVictory: true,
 	},
+	{
+		Name:         "lucky",
+		Mode:         ModeAny,
+		Icon:         assets.ImageAchievementLucky,
+		NeedsVictory: true,
+	},
 
 	// Classic mode achievements.
 	{
@@ -186,6 +192,12 @@ var AchievementList = []*Achievement{
 		Name:         "quicksilver",
 		Mode:         ModeArena,
 		Icon:         assets.ImageAchievementQuicksilver,
+		NeedsVictory: true,
+	},
+	{
+		Name:         "infernal",
+		Mode:         ModeArena,
+		Icon:         assets.ImageAchievementInfernal,
 		NeedsVictory: true,
 	},
 

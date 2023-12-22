@@ -164,6 +164,8 @@ type PlayerStats struct {
 
 	TutorialCompleted bool
 
+	NumVictories int
+
 	TotalPlayTime time.Duration
 	TotalScore    int
 

@@ -407,6 +407,9 @@ func (m *arenaManager) prepareWave() {
 	m.waveBudget += int(math.Round(float64(budgetStep) * m.budgetStepMultiplier))
 
 	budget := m.waveBudget
+	if m.world.seedKind == gamedata.SeedInfernal {
+		budget *= 2
+	}
 	if m.world.config.ExecMode != gamedata.ExecuteSimulation {
 		m.world.sessionState.Logf("wave %d budget is %d", m.level, budget)
 	}

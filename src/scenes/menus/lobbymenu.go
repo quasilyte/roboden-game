@@ -875,7 +875,7 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 func (c *LobbyMenuController) randomSeed() int64 {
 	for {
 		seed := c.scene.Rand().PositiveInt64()
-		if gamedata.GetSeedKind(seed, c.mode.String()) == gamedata.SeedNormal {
+		if gamedata.GetSeedKind(seed, c.config.ReplayLevelConfig) == gamedata.SeedNormal {
 			return seed
 		}
 	}

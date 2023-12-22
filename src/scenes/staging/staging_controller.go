@@ -369,7 +369,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	}
 
 	world := &worldState{
-		seedKind:             gamedata.GetSeedKind(c.config.Seed, c.config.RawGameMode),
+		seedKind:             gamedata.GetSeedKind(c.config.Seed, c.config.ReplayLevelConfig),
 		sessionState:         c.state,
 		cameras:              make([]*viewport.Camera, 0, 2),
 		stage:                viewport.NewCameraStage(c.config.ExecMode == gamedata.ExecuteSimulation),
@@ -405,6 +405,9 @@ func (c *Controller) doInit(scene *ge.Scene) {
 		hasForests:   gamedata.EnvironmentKind(c.config.Environment) == gamedata.EnvForest,
 		envKind:      gamedata.EnvironmentKind(c.config.Environment),
 		mapShape:     gamedata.WorldShape(c.config.WorldShape),
+	}
+	if world.seedKind != gamedata.SeedNormal {
+		scene.Audio().PlaySound(assets.AudioWaveStart)
 	}
 
 	switch world.mapShape {

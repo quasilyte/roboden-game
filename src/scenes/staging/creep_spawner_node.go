@@ -49,6 +49,10 @@ func (spawner *creepSpawnerNode) Update(delta float64) {
 		spawner.world.nodeRunner.AddObject(creep)
 		creep.SendTo(spawner.creepDest)
 		creep.fragScore = spawner.fragScore
+		if spawner.world.seedKind == gamedata.SeedInfernal {
+			creep.maxHealth *= 0.6
+			creep.health = creep.maxHealth
+		}
 		return
 	}
 }

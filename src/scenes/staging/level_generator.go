@@ -1140,6 +1140,10 @@ func (g *levelGenerator) placeLavaPuddles() {
 	}
 	numPuddles := rand.IntRange(minPuddles, maxPuddles)
 
+	if g.world.seedKind == gamedata.SeedInfernal {
+		numPuddles = int(math.Round(float64(numPuddles) * 1.8))
+	}
+
 	canPlacePuddle := func(pos gmath.Vec, width, height int) bool {
 		for offsetY := 0.0; offsetY < float64(height)*32; offsetY += 32 {
 			for offsetX := 0.0; offsetX < float64(width)*32; offsetX += 32 {
@@ -1223,16 +1227,19 @@ func (g *levelGenerator) placeLavaGeysers() {
 		maxGeysers = 22
 	}
 	numGeysers := rand.IntRange(minGeysers, maxGeysers)
+	if g.world.seedKind == gamedata.SeedInfernal {
+		numGeysers *= 3
+	}
 
 	g.sectorSlider.TrySetValue(rand.IntRange(0, len(g.sectors)-1))
 	for i := 0; i < numGeysers; i++ {
 		sector := g.sectors[g.sectorSlider.Value()]
 		g.sectorSlider.Inc()
-		pos := g.randomFreePos(sector, 64, 96)
+		pos := g.randomFreePos(sector, 64, 80)
 		if pos.IsZero() {
 			continue
 		}
-		adjustedPos := g.world.AdjustCellPos(pos, 6)
+		adjustedPos := g.world.AdjustCellPos(pos, 10)
 		geyser := newLavaGeyserNode(g.world, adjustedPos)
 		g.world.nodeRunner.AddObject(geyser)
 		g.world.lavaGeysers = append(g.world.lavaGeysers, geyser)

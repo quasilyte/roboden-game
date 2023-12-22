@@ -137,6 +137,14 @@
 ##achievement.quicksilver.description
 Включите Гренадеров в режиме Арены и не дайте им ни разу попасть по вашим колониям. Достижение не выдаётся при использовании колонии класса Ковчег.
 
+##achievement.infernal : Инфернал
+##achievement.infernal.description
+Покорите Инферно в режиме Арены, играя на подходящем магическом сиде.
+
+##achievement.lucky : Удачный бросок
+##achievement.lucky.description
+Каждая победа имеет шанс выдать удачный бросок.
+
 ##achievement.cheese : Геймерский Сыр
 ##achievement.cheese.description
 Всего хорошего, и спасибо за сыр!

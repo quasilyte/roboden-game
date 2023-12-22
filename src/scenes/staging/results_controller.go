@@ -182,6 +182,10 @@ func (c *resultsController) updateProgress() {
 		stats.Tier3DronesSeen = append(stats.Tier3DronesSeen, k.String())
 	}
 
+	if c.results.Victory {
+		stats.NumVictories++
+	}
+
 	stats.TotalScore += c.results.Score
 	switch c.config.GameMode {
 	case gamedata.ModeClassic:
@@ -287,6 +291,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = !c.results.Paused && c.config.GameMode != gamedata.ModeReverse
 		case "darkness":
 			unlocked = c.config.WorldShape != int(gamedata.WorldSquare) && c.config.FogOfWar
+		case "lucky":
+			unlocked = stats.NumVictories >= 64 || c.scene.Rand().Chance(0.02)
 
 		case "impossible":
 			unlocked = c.results.DifficultyScore > 200
@@ -331,6 +337,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 		case "quicksilver":
 			unlocked = c.config.GrenadierCreeps && !c.results.GrenadierColonyHit &&
 				c.config.CoreDesign != "ark"
+		case "infernal":
+			unlocked = c.results.SeedKind == gamedata.SeedInfernal
 
 		case "infinite":
 			unlocked = c.results.ArenaLevel >= 35

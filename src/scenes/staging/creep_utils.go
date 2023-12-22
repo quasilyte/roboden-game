@@ -44,6 +44,10 @@ func sendCreeps(world *worldState, g arenaWaveGroup) gmath.Vec {
 			creep.fragScore = u.fragScore
 			world.nodeRunner.AddObject(creep)
 			creep.SendTo(creepTargetPos)
+			if world.seedKind == gamedata.SeedInfernal {
+				creep.maxHealth *= 0.65
+				creep.health = creep.maxHealth
+			}
 		}
 	}
 

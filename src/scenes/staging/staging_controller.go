@@ -1780,7 +1780,7 @@ func (c *Controller) updateWeather(delta float64) {
 	if !c.nodeRunner.IsPaused() {
 		switch c.weatherState {
 		case weatherStateFadeIn:
-			c.weatherPower = gmath.ClampMax(c.weatherPower+0.15*shaderDelta, 1.0)
+			c.weatherPower = gmath.ClampMax(c.weatherPower+0.12*shaderDelta, 1.0)
 			c.weatherTicker -= shaderDelta
 			if c.weatherPower == 1.0 {
 				c.weatherState = weatherStateNormal
@@ -1791,7 +1791,7 @@ func (c *Controller) updateWeather(delta float64) {
 				c.weatherState = weatherStateFadeOut
 			}
 		case weatherStateFadeOut:
-			c.weatherPower = gmath.ClampMin(c.weatherPower-0.1*shaderDelta, 0.0)
+			c.weatherPower = gmath.ClampMin(c.weatherPower-0.04*shaderDelta, 0.0)
 			c.weatherTicker -= shaderDelta
 			if c.weatherPower == 0.0 {
 				c.weatherState = weatherStateCooldown

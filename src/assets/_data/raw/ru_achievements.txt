@@ -145,7 +145,7 @@
 ##achievement.infernal.description
 Покорите Инферно в режиме Арены, играя на подходящем магическом сиде.
 
-##achievement.lucky : Удачный бросок
+##achievement.lucky : Удачный Бросок
 ##achievement.lucky.description
 Каждая победа имеет шанс выдать удачный бросок.
 

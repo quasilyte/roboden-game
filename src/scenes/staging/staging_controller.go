@@ -728,7 +728,7 @@ func (c *Controller) createCameraManager(viewportWorld *viewport.World, main boo
 		cam.ScreenPos.X = c.scene.Context().ScreenWidth / 2
 	}
 	if c.world.weatherEnabled {
-		c.weatherTicker = c.world.localRand.FloatRange(60, 100)
+		c.weatherTicker = math.Round(c.world.localRand.FloatRange(50, 70))
 		shader := c.scene.Context().Loader.LoadShader(assets.ShaderSnow).Data
 		cam.WeatherShader = shader
 		cam.WeatherShaderParams = map[string]any{
@@ -1801,7 +1801,7 @@ func (c *Controller) updateWeather(delta float64) {
 			c.weatherTicker -= shaderDelta
 			if c.weatherTicker <= 0 {
 				c.weatherState = weatherStateFadeIn
-				c.weatherTicker = c.world.localRand.FloatRange(40, 90)
+				c.weatherTicker = math.Round(c.world.localRand.FloatRange(40, 70))
 			}
 		}
 	}

@@ -1795,7 +1795,7 @@ func (c *Controller) updateWeather(delta float64) {
 			c.weatherTicker -= shaderDelta
 			if c.weatherPower == 0.0 {
 				c.weatherState = weatherStateCooldown
-				c.weatherTicker = c.world.localRand.FloatRange(20, 140)
+				c.weatherTicker = math.Round(c.world.localRand.FloatRange(30, 200))
 			}
 		case weatherStateCooldown:
 			c.weatherTicker -= shaderDelta

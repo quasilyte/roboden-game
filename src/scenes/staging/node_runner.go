@@ -14,8 +14,9 @@ type nodeRunner struct {
 
 	scene *ge.Scene
 
-	timePlayed float64
-	ticks      int
+	timePlayed       float64
+	ticks            int
+	fastforwardTicks int
 
 	numSteps int
 
@@ -70,6 +71,10 @@ func (r *nodeRunner) SetFastForward(ff bool) {
 	}
 }
 
+func (r *nodeRunner) IsFastForward() bool {
+	return r.numSteps > 1
+}
+
 func (r *nodeRunner) IsPaused() bool {
 	return r.paused
 }
@@ -90,7 +95,11 @@ func (r *nodeRunner) ComputeDelta(delta float64) float64 {
 
 func (r *nodeRunner) runTick(computedDelta float64) {
 	r.timePlayed += computedDelta
+
 	r.ticks++
+	if r.IsFastForward() {
+		r.fastforwardTicks++
+	}
 
 	r.creepCoordinator.Update(computedDelta)
 	r.world.Update()

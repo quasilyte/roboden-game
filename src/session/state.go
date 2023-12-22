@@ -374,7 +374,7 @@ func (state *State) CacheGlyphs() {
 
 	alphabet := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	if state.Persistent.Settings.Lang == "ru" {
-		alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+		alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabxyABXYRL"
 	}
 	text.CacheGlyphs(assets.BitmapFont1, alphabet)
 	text.CacheGlyphs(assets.BitmapFont2, alphabet)

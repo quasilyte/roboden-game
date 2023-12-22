@@ -555,6 +555,8 @@ const SeasonNumber = 1
 // - Fixed a couple of cell collision mark/unmark bugs
 // - Fixed T1 army achivement bug: it will no longer be granted when Seekers are used
 // - Fixed megaroomba getting too close to the owner colony
+// - New Siege achievement
+// - New Fastforward achievement
 // - New Lucky Roll achievement
 // - New Infernal achievement
 // - New 666 secret seed for Arena

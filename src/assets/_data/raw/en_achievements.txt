@@ -106,6 +106,10 @@ Win a game by launching an atomic bomb. An atomic bomb is available at 150% tech
 ##achievement.coordinator.description
 Launch an attack of 5+ units via Coordinator drones using Rally action. When Coordinators are detached from the Dreadnought, they will act as an additional Rally activation point.
 
+##achievement.siege : Siege
+##achievement.siege.description
+Defeat a Hive colony in combat without relying on atomic bomb weapon.
+
 ##achievement.nonstop : Nonstop
 ##achievement.nonstop.description
 Get to a victory in any mode without using a pause feature.
@@ -144,6 +148,15 @@ Conquer the Inferno environment in Arena mode using the fitting magic seed.
 ##achievement.lucky : Lucky Roll
 ##achievement.lucky.description
 Every victory has a chance of producing a lucky roll.
+
+##achievement.fastforward : Fast Forward
+##achievement.fastforward.description
+Win while spending at least 85% of time with fast-forward enabled.
+
+To get this achievement, the game speed should be set to x2 ("extra" tab).
+
+To enable fast-forward, activate an on-screen button with this similar icon.
+The fast-forward mode is disabled when pause is activated, but you can override this behavior in settings.
 
 ##achievement.cheese : Gaming Cheese
 ##achievement.cheese.description

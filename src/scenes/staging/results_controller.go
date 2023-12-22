@@ -43,9 +43,11 @@ type battleResults struct {
 	BossDefeated       bool
 	GroundControl      bool
 	AtomicBombVictory  bool
+	AtomicBombUsed     bool
 	GrenadierColonyHit bool
 	TimePlayed         time.Duration
 	Ticks              int
+	FastforwardTicks   int
 
 	ResourcesGathered   float64
 	DronesProduced      int
@@ -291,6 +293,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = !c.results.Paused && c.config.GameMode != gamedata.ModeReverse
 		case "darkness":
 			unlocked = c.config.WorldShape != int(gamedata.WorldSquare) && c.config.FogOfWar
+		case "fastforward":
+			unlocked = c.config.GameSpeed == 3 && (float64(c.results.FastforwardTicks)/float64(c.results.Ticks)) >= 0.85
 		case "lucky":
 			unlocked = stats.NumVictories >= 64 || c.scene.Rand().Chance(0.02)
 
@@ -351,6 +355,8 @@ func (c *resultsController) checkAchievements() ([]string, []string) {
 			unlocked = c.results.AtomicBombVictory
 		case "coordinator":
 			unlocked = c.results.CoordinatorRallyUsed
+		case "siege":
+			unlocked = !c.results.AtomicBombUsed && c.config.CoreDesign == "hive"
 		}
 
 		if !unlocked {

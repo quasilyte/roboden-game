@@ -81,6 +81,12 @@ var AchievementList = []*Achievement{
 		NeedsVictory: true,
 	},
 	{
+		Name:         "fastforward",
+		Mode:         ModeAny,
+		Icon:         assets.ImageAchievementFastforward,
+		NeedsVictory: true,
+	},
+	{
 		Name:         "lucky",
 		Mode:         ModeAny,
 		Icon:         assets.ImageAchievementLucky,
@@ -231,6 +237,12 @@ var AchievementList = []*Achievement{
 		Name:         "coordinator",
 		Mode:         ModeReverse,
 		Icon:         assets.ImageAchievementCoordinator,
+		NeedsVictory: true,
+	},
+	{
+		Name:         "siege",
+		Mode:         ModeReverse,
+		Icon:         assets.ImageAchievementSiege,
 		NeedsVictory: true,
 	},
 

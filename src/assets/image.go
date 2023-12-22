@@ -38,6 +38,8 @@ func RegisterImageResources(ctx *ge.Context, config *Config, progress *float64) 
 		ImageAchievementGroundControl:  {Path: "image/achievement/groundcontrol.png"},
 		ImageAchievementAtomicFinisher: {Path: "image/achievement/atomicfinisher.png"},
 		ImageAchievementCoordinator:    {Path: "image/achievement/coordinator.png"},
+		ImageAchievementSiege:          {Path: "image/achievement/siege.png"},
+		ImageAchievementFastforward:    {Path: "image/achievement/fastforward.png"},
 		ImageAchievementSecret:         {Path: "image/achievement/secret.png"},
 		ImageAchievementTerminal:       {Path: "image/achievement/terminal.png"},
 		ImageAchievementSpectator:      {Path: "image/achievement/spectator.png"},
@@ -509,6 +511,8 @@ const (
 	ImageAchievementGroundControl
 	ImageAchievementAtomicFinisher
 	ImageAchievementCoordinator
+	ImageAchievementSiege
+	ImageAchievementFastforward
 	ImageAchievementSecret
 	ImageAchievementTerminal
 	ImageAchievementSpectator

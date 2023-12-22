@@ -1172,6 +1172,7 @@ func (c *Controller) launchAbomb() bool {
 		FireOffset: gmath.Vec{Y: -20},
 	})
 	c.nodeRunner.AddProjectile(abomb)
+	c.world.result.AtomicBombUsed = true
 	return true
 }
 
@@ -1480,6 +1481,7 @@ func (c *Controller) prepareBattleResults() {
 	c.world.result.SeedKind = c.world.seedKind
 
 	c.world.result.Ticks = c.nodeRunner.ticks
+	c.world.result.FastforwardTicks = c.nodeRunner.fastforwardTicks
 	c.world.result.TimePlayed = time.Second * time.Duration(c.nodeRunner.timePlayed)
 	if c.arenaManager != nil {
 		c.world.result.ArenaLevel = c.arenaManager.level

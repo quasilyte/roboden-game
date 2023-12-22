@@ -134,6 +134,9 @@ func CalcDifficultyScore(config serverapi.ReplayLevelConfig, pointsAllocated int
 		if !config.Relicts {
 			score += 15
 		}
+		if config.SuperCreeps {
+			score += config.BossDifficulty * 5
+		}
 		if config.NumCreepBases != 0 {
 			score += (config.CreepDifficulty - 3) * 15
 			if config.SuperCreeps {

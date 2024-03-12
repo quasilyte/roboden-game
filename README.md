@@ -78,4 +78,4 @@ After that you can open `_web/index.html` in browser (you'll need to serve the w
 * darwin/arm64 and darwin/amd64
 * js/wasm
 
-It's also tested it on Steam Deck.
+It's also tested on Steam Deck.

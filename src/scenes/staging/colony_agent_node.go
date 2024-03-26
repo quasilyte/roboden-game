@@ -1232,6 +1232,10 @@ func (a *colonyAgentNode) OnDamage(damage gamedata.DamageValue, source targetabl
 	}
 }
 
+func (a *colonyAgentNode) GetHitboxRadius() float64 {
+	return a.stats.HitboxRadius
+}
+
 func (a *colonyAgentNode) GetPos() *gmath.Vec { return &a.pos }
 
 func (a *colonyAgentNode) GetVelocity() gmath.Vec {

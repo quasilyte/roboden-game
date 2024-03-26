@@ -39,6 +39,7 @@ type projectileNode struct {
 
 type targetable interface {
 	GetPos() *gmath.Vec
+	GetHitboxRadius() float64
 	GetVelocity() gmath.Vec
 	OnDamage(damage gamedata.DamageValue, source targetable)
 	IsDisposed() bool
@@ -409,7 +410,9 @@ func (p *projectileNode) detonate() {
 	if p.guided {
 		impactAreaSqr *= 1.1
 	}
-	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > impactAreaSqr {
+	hitbox := p.target.GetHitboxRadius()
+	hitboxSqr := hitbox * hitbox
+	if p.toPos.DistanceSquaredTo(*p.target.GetPos()) > (impactAreaSqr + hitboxSqr) {
 		if p.weapon.AlwaysExplodes {
 			p.createExplosion()
 		}

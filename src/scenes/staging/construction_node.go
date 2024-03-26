@@ -230,6 +230,10 @@ func (c *constructionNode) Construct(v float64, builder *colonyCoreNode) bool {
 
 func (c *constructionNode) GetVelocity() gmath.Vec { return gmath.Vec{} }
 
+func (c *constructionNode) GetHitboxRadius() float64 {
+	return 4.0
+}
+
 func (c *constructionNode) GetPos() *gmath.Vec { return &c.constructPosBase }
 
 func (c *constructionNode) Dispose() {

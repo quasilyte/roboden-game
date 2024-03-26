@@ -126,6 +126,17 @@ func InitDroneStats(stats *AgentStats) *AgentStats {
 	if !stats.NoAutoAttack {
 		stats.NoAutoAttack = stats.Weapon == nil
 	}
+	switch stats.Size {
+	case SizeSmall:
+		stats.HitboxRadius = 1
+	case SizeMedium:
+		stats.HitboxRadius = 2
+	case SizeLarge:
+		stats.HitboxRadius = 4
+	}
+	if stats.IsBuilding {
+		stats.HitboxRadius += 2
+	}
 	return stats
 }
 

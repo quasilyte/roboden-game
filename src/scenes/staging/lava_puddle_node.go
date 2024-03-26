@@ -32,6 +32,8 @@ type magmaDummyAttacker struct {
 
 func (a *magmaDummyAttacker) IsDisposed() bool { return false }
 
+func (a *magmaDummyAttacker) GetHitboxRadius() float64 { return 0 }
+
 func (a *magmaDummyAttacker) GetPos() *gmath.Vec { return &a.pos }
 
 func (a *magmaDummyAttacker) GetVelocity() gmath.Vec { return gmath.Vec{} }

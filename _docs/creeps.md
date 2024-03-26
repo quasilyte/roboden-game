@@ -16,7 +16,7 @@ In addition to that, there are creep-specific bonuses.
 | Ion Mortar | +2 projectiles in a burst (2 -> 4) |
 | Tier 1 Drone | +1 attack target (1 -> 2) |
 | Discharger | Attacks also apply slow condition, burn more energy |
-| Tier 3 Drone | +1 attack target (1 -> 2) |
+| Tier 3 Drone | +1 attack target (1 -> 2), longer shield |
 | Colony Servants | Improved AoE wave attack (higher radius, +1 slow score) |
 | Dominator | +1 attack target (1 -> 2) |
 | Builder | Builds super buildings sometimes (40%) |

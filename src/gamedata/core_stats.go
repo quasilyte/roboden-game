@@ -42,6 +42,8 @@ type ColonyCoreStats struct {
 	MaxHealth           float64
 	DroneProductionCost float64
 
+	HitboxRadius float64
+
 	DamageReduction float64
 }
 
@@ -100,6 +102,8 @@ var DenCoreStats = &ColonyCoreStats{
 	DroneProductionCost: 1,
 	MaxHealth:           140,
 
+	HitboxRadius: 6,
+
 	MobilityRating:  5,
 	AttackRating:    2,
 	DefenseRating:   8,
@@ -128,6 +132,8 @@ var ArkCoreStats = &ColonyCoreStats{
 	ResourcesLimit:      250,
 	DroneProductionCost: 1,
 	MaxHealth:           85,
+
+	HitboxRadius: 4,
 
 	MobilityRating:  10,
 	AttackRating:    0,
@@ -171,6 +177,8 @@ var TankCoreStats = &ColonyCoreStats{
 	ResourcesLimit:      200,
 	DroneProductionCost: 1,
 	MaxHealth:           75,
+
+	HitboxRadius: 2,
 
 	MobilityRating:  6,
 	AttackRating:    8,
@@ -223,6 +231,8 @@ var HiveCoreStats = &ColonyCoreStats{
 	DroneProductionCost: 0.65,
 	MaxHealth:           200,
 	DamageReduction:     0.7,
+
+	HitboxRadius: 8,
 
 	MobilityRating:  0,
 	AttackRating:    10,

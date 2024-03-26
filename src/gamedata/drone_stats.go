@@ -237,7 +237,8 @@ type AgentStats struct {
 	Cost       float64
 	PowerScore float64
 
-	Size UnitSize
+	Size         UnitSize
+	HitboxRadius float64
 
 	Speed float64
 

@@ -562,7 +562,10 @@ const SeasonNumber = 1
 // - New Infernal achievement
 // - New 666 secret seed for Arena
 // - Play a sound cue when special seed is executed
+//
+// # Version 25
+// - Make miss-hit check take the target's size into account
 const (
-	BuildNumber      int = 24
+	BuildNumber      int = 25
 	BuildMinorNumber int = 0
 )

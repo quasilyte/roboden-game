@@ -360,6 +360,10 @@ func (c *colonyCoreNode) AttackRadius() float64 {
 	return 1.4*c.PatrolRadius() + 320
 }
 
+func (c *colonyCoreNode) GetHitboxRadius() float64 {
+	return c.stats.HitboxRadius
+}
+
 func (c *colonyCoreNode) GetPos() *gmath.Vec { return &c.pos }
 
 func (c *colonyCoreNode) GetVelocity() gmath.Vec {

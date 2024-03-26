@@ -321,6 +321,10 @@ func (c *creepNode) Update(delta float64) {
 	}
 }
 
+func (c *creepNode) GetHitboxRadius() float64 {
+	return c.stats.HitboxRadius
+}
+
 func (c *creepNode) GetPos() *gmath.Vec { return &c.pos }
 
 func (c *creepNode) GetVelocity() gmath.Vec {

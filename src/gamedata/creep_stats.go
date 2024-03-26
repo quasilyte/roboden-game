@@ -42,8 +42,9 @@ type CreepStats struct {
 
 	Tier int
 
-	Speed float64
-	Size  float64
+	Speed        float64
+	Size         float64
+	HitboxRadius float64
 
 	AnimSpeed float64
 
@@ -151,6 +152,7 @@ var IonMortarCreepStats = &CreepStats{
 		RoundProjectile:     true,
 	}),
 	Size:            28,
+	HitboxRadius:    8,
 	CanBeRepelled:   false,
 	Disarmable:      false,
 	Building:        true,
@@ -179,6 +181,7 @@ var TurretCreepStats = &CreepStats{
 		TargetFlags:     TargetFlying | TargetGround,
 	}),
 	Size:            40,
+	HitboxRadius:    6,
 	CanBeRepelled:   false,
 	Disarmable:      false,
 	Building:        true,
@@ -210,6 +213,7 @@ var FortressCreepStats = &CreepStats{
 		RandArc:         true,
 	}),
 	Size:            64,
+	HitboxRadius:    12,
 	CanBeRepelled:   false,
 	Disarmable:      false,
 	Building:        true,
@@ -223,6 +227,7 @@ var BaseCreepStats = &CreepStats{
 	Speed:           0,
 	MaxHealth:       170,
 	Size:            60,
+	HitboxRadius:    8,
 	Disarmable:      false,
 	CanBeRepelled:   false,
 	Building:        true,
@@ -236,6 +241,7 @@ var CrawlerBaseCreepStats = &CreepStats{
 	Speed:           0,
 	MaxHealth:       140,
 	Size:            60,
+	HitboxRadius:    8,
 	Disarmable:      false,
 	CanBeRepelled:   false,
 	Building:        true,
@@ -249,6 +255,7 @@ var CrawlerBaseConstructionCreepStats = &CreepStats{
 	Speed:           0,
 	MaxHealth:       35,
 	Size:            40,
+	HitboxRadius:    6,
 	Disarmable:      false,
 	CanBeRepelled:   false,
 	Building:        true,
@@ -262,6 +269,7 @@ var TurretConstructionCreepStats = &CreepStats{
 	Speed:           0,
 	MaxHealth:       35,
 	Size:            40,
+	HitboxRadius:    6,
 	Disarmable:      false,
 	CanBeRepelled:   false,
 	Building:        true,
@@ -275,6 +283,7 @@ var IonMortarConstructionCreepStats = &CreepStats{
 	Speed:           0,
 	MaxHealth:       35,
 	Size:            40,
+	HitboxRadius:    6,
 	Disarmable:      false,
 	CanBeRepelled:   false,
 	Building:        true,
@@ -283,13 +292,14 @@ var IonMortarConstructionCreepStats = &CreepStats{
 }
 
 var WandererCreepStats = &CreepStats{
-	NameTag:     "rogue",
-	Kind:        CreepPrimitiveWanderer,
-	Image:       assets.ImageCreepTier1,
-	ShadowImage: assets.ImageSmallShadow,
-	Tier:        1,
-	Speed:       40,
-	MaxHealth:   14,
+	NameTag:      "rogue",
+	Kind:         CreepPrimitiveWanderer,
+	Image:        assets.ImageCreepTier1,
+	ShadowImage:  assets.ImageSmallShadow,
+	Tier:         1,
+	Speed:        40,
+	HitboxRadius: 1,
+	MaxHealth:    14,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:      1,
 		BurstSize:       1,
@@ -315,6 +325,7 @@ var WispCreepStats = &CreepStats{
 	ShadowImage:   assets.ImageMediumShadow,
 	Tier:          2,
 	Speed:         20,
+	HitboxRadius:  2,
 	MaxHealth:     35,
 	Disarmable:    false,
 	CanBeRepelled: false,
@@ -328,6 +339,7 @@ var WispLairCreepStats = &CreepStats{
 	Speed:         0,
 	MaxHealth:     160,
 	Size:          60,
+	HitboxRadius:  6,
 	Disarmable:    false,
 	CanBeRepelled: false,
 	Building:      true,
@@ -335,13 +347,14 @@ var WispLairCreepStats = &CreepStats{
 }
 
 var ServantCreepStats = &CreepStats{
-	Kind:        CreepServant,
-	Image:       assets.ImageServantCreep,
-	ShadowImage: assets.ImageMediumShadow,
-	Tier:        2,
-	Speed:       70,
-	MaxHealth:   70,
-	AnimSpeed:   0.15,
+	Kind:         CreepServant,
+	Image:        assets.ImageServantCreep,
+	ShadowImage:  assets.ImageMediumShadow,
+	Tier:         2,
+	Speed:        70,
+	HitboxRadius: 2,
+	MaxHealth:    70,
+	AnimSpeed:    0.15,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          1,
 		BurstSize:           1,
@@ -363,12 +376,13 @@ var ServantCreepStats = &CreepStats{
 }
 
 var CrawlerCreepStats = &CreepStats{
-	NameTag:   "crawler",
-	Kind:      CreepCrawler,
-	Image:     assets.ImageCrawlerCreep,
-	AnimSpeed: 0.09,
-	Speed:     44,
-	MaxHealth: 18,
+	NameTag:      "crawler",
+	Kind:         CreepCrawler,
+	Image:        assets.ImageCrawlerCreep,
+	AnimSpeed:    0.09,
+	Speed:        44,
+	HitboxRadius: 1,
+	MaxHealth:    18,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          1,
 		BurstSize:           2,
@@ -391,12 +405,13 @@ var CrawlerCreepStats = &CreepStats{
 }
 
 var EliteCrawlerCreepStats = &CreepStats{
-	NameTag:   "sprayer",
-	Kind:      CreepCrawler,
-	Image:     assets.ImageEliteCrawlerCreep,
-	AnimSpeed: 0.09,
-	Speed:     40,
-	MaxHealth: 28,
+	NameTag:      "sprayer",
+	Kind:         CreepCrawler,
+	Image:        assets.ImageEliteCrawlerCreep,
+	AnimSpeed:    0.09,
+	Speed:        40,
+	HitboxRadius: 1,
+	MaxHealth:    28,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:      6,
 		BurstSize:       1,
@@ -417,12 +432,13 @@ var EliteCrawlerCreepStats = &CreepStats{
 }
 
 var HeavyCrawlerCreepStats = &CreepStats{
-	NameTag:   "assault_crawler",
-	Kind:      CreepCrawler,
-	Image:     assets.ImageHeavyCrawlerCreep,
-	AnimSpeed: 0.16,
-	Speed:     30,
-	MaxHealth: 60,
+	NameTag:      "assault_crawler",
+	Kind:         CreepCrawler,
+	Image:        assets.ImageHeavyCrawlerCreep,
+	AnimSpeed:    0.16,
+	Speed:        30,
+	HitboxRadius: 1,
+	MaxHealth:    60,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          1,
 		BurstSize:           5,
@@ -448,12 +464,13 @@ var HeavyCrawlerCreepStats = &CreepStats{
 }
 
 var HowitzerCreepStats = &CreepStats{
-	NameTag:   "howitzer",
-	Kind:      CreepHowitzer,
-	Image:     assets.ImageHowitzerCreep,
-	AnimSpeed: 0.2,
-	Speed:     10,
-	MaxHealth: 260,
+	NameTag:      "howitzer",
+	Kind:         CreepHowitzer,
+	Image:        assets.ImageHowitzerCreep,
+	AnimSpeed:    0.2,
+	Speed:        10,
+	HitboxRadius: 6,
+	MaxHealth:    260,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          3,
 		BurstSize:           4,
@@ -496,12 +513,13 @@ var HowitzerCreepStats = &CreepStats{
 }
 
 var StealthCrawlerCreepStats = &CreepStats{
-	NameTag:   "stealth_crawler",
-	Kind:      CreepCrawler,
-	Image:     assets.ImageStealthCrawlerCreep,
-	AnimSpeed: 0.09,
-	Speed:     70,
-	MaxHealth: 25,
+	NameTag:      "stealth_crawler",
+	Kind:         CreepCrawler,
+	Image:        assets.ImageStealthCrawlerCreep,
+	AnimSpeed:    0.09,
+	Speed:        70,
+	HitboxRadius: 0,
+	MaxHealth:    25,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          1,
 		BurstSize:           3,
@@ -525,14 +543,15 @@ var StealthCrawlerCreepStats = &CreepStats{
 }
 
 var GrenadierCreepStats = &CreepStats{
-	NameTag:     "grenadier",
-	Kind:        CreepGrenadier,
-	Image:       assets.ImageCreepGrenadier,
-	AnimSpeed:   0.15,
-	ShadowImage: assets.ImageMediumShadow,
-	Tier:        2,
-	Speed:       30,
-	MaxHealth:   90,
+	NameTag:      "grenadier",
+	Kind:         CreepGrenadier,
+	Image:        assets.ImageCreepGrenadier,
+	AnimSpeed:    0.15,
+	ShadowImage:  assets.ImageMediumShadow,
+	Tier:         2,
+	Speed:        30,
+	HitboxRadius: 2,
+	MaxHealth:    90,
 	SpecialWeapon: InitWeaponStats(&WeaponStats{
 		AttackRange:         200,
 		Reload:              25.0,
@@ -558,14 +577,15 @@ var GrenadierCreepStats = &CreepStats{
 }
 
 var AssaultCreepStats = &CreepStats{
-	NameTag:     "vanguard",
-	Kind:        CreepAssault,
-	Image:       assets.ImageCreepTier3,
-	AnimSpeed:   0.2,
-	ShadowImage: assets.ImageBigShadow,
-	Tier:        3,
-	Speed:       30,
-	MaxHealth:   100,
+	NameTag:      "vanguard",
+	Kind:         CreepAssault,
+	Image:        assets.ImageCreepTier3,
+	AnimSpeed:    0.2,
+	ShadowImage:  assets.ImageBigShadow,
+	Tier:         3,
+	Speed:        30,
+	HitboxRadius: 3,
+	MaxHealth:    100,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          1,
 		BurstSize:           1,
@@ -586,13 +606,14 @@ var AssaultCreepStats = &CreepStats{
 }
 
 var DominatorCreepStats = &CreepStats{
-	NameTag:     "dominator",
-	Kind:        CreepDominator,
-	Image:       assets.ImageCreepDominator,
-	ShadowImage: assets.ImageBigShadow,
-	Tier:        3,
-	Speed:       35,
-	MaxHealth:   175,
+	NameTag:      "dominator",
+	Kind:         CreepDominator,
+	Image:        assets.ImageCreepDominator,
+	ShadowImage:  assets.ImageBigShadow,
+	Tier:         3,
+	Speed:        35,
+	HitboxRadius: 3,
+	MaxHealth:    175,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          1,
 		BurstSize:           1,
@@ -619,6 +640,7 @@ var BuilderCreepStats = &CreepStats{
 	ShadowImage:   assets.ImageBigShadow,
 	Tier:          3,
 	Speed:         40,
+	HitboxRadius:  3,
 	MaxHealth:     190,
 	CanBeRepelled: false,
 	Disarmable:    false,
@@ -627,11 +649,12 @@ var BuilderCreepStats = &CreepStats{
 }
 
 var UberBossCreepStats = &CreepStats{
-	Kind:        CreepUberBoss,
-	Image:       assets.ImageUberBoss,
-	ShadowImage: assets.ImageUberBossShadow,
-	Speed:       10,
-	MaxHealth:   600,
+	Kind:         CreepUberBoss,
+	Image:        assets.ImageUberBoss,
+	ShadowImage:  assets.ImageUberBossShadow,
+	Speed:        10,
+	HitboxRadius: 8,
+	MaxHealth:    600,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          5,
 		BurstSize:           1,
@@ -650,13 +673,14 @@ var UberBossCreepStats = &CreepStats{
 }
 
 var TemplarCreepStats = &CreepStats{
-	NameTag:     "stunner",
-	Kind:        CreepTemplar,
-	Image:       assets.ImageCreepTemplar,
-	ShadowImage: assets.ImageMediumShadow,
-	Tier:        2,
-	Speed:       40,
-	MaxHealth:   40,
+	NameTag:      "stunner",
+	Kind:         CreepTemplar,
+	Image:        assets.ImageCreepTemplar,
+	ShadowImage:  assets.ImageMediumShadow,
+	Tier:         2,
+	Speed:        40,
+	HitboxRadius: 2,
+	MaxHealth:    40,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:  1,
 		BurstSize:   1,
@@ -685,14 +709,15 @@ var TemplarCreepStats = &CreepStats{
 }
 
 var CenturionCreepStats = &CreepStats{
-	NameTag:     "coordinator",
-	Kind:        CreepCenturion,
-	Image:       assets.ImageCreepCenturion,
-	ShadowImage: assets.ImageMediumShadow,
-	AnimSpeed:   0.1,
-	Tier:        2,
-	Speed:       50,
-	MaxHealth:   55,
+	NameTag:      "coordinator",
+	Kind:         CreepCenturion,
+	Image:        assets.ImageCreepCenturion,
+	ShadowImage:  assets.ImageMediumShadow,
+	AnimSpeed:    0.1,
+	Tier:         2,
+	HitboxRadius: 3,
+	Speed:        50,
+	MaxHealth:    55,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:          1,
 		BurstSize:           2,
@@ -717,13 +742,14 @@ var CenturionCreepStats = &CreepStats{
 }
 
 var StunnerCreepStats = &CreepStats{
-	NameTag:     "discharger",
-	Kind:        CreepStunner,
-	Image:       assets.ImageCreepTier2,
-	ShadowImage: assets.ImageMediumShadow,
-	Tier:        2,
-	Speed:       70,
-	MaxHealth:   40,
+	NameTag:      "discharger",
+	Kind:         CreepStunner,
+	Image:        assets.ImageCreepTier2,
+	ShadowImage:  assets.ImageMediumShadow,
+	Tier:         2,
+	Speed:        70,
+	HitboxRadius: 1,
+	MaxHealth:    40,
 	Weapon: InitWeaponStats(&WeaponStats{
 		MaxTargets:  3,
 		BurstSize:   1,

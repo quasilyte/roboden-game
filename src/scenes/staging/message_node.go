@@ -78,7 +78,7 @@ func (m *messageNode) Init(scene *ge.Scene) {
 	m.rect = ge.NewRect(scene.Context(), m.width, m.height)
 	m.rect.OutlineColorScale.SetColor(ge.RGB(0x5e5a5d))
 	m.rect.OutlineWidth = 1
-	m.rect.FillColorScale.SetRGBA(0x13, 0x1a, 0x22, 160)
+	m.rect.FillColorScale.SetRGBA(0x13, 0x1a, 0x22, 200)
 	m.rect.Centered = false
 	m.rect.Pos.Offset = m.pos
 

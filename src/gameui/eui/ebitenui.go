@@ -675,7 +675,7 @@ func newButtonSelected(res *Resources, text string, opts ...widget.ButtonOpt) *w
 }
 
 func NewTextPanel(res *Resources, minWidth, minHeight int) *widget.Container {
-	return NewPanel(res, minWidth, minHeight,
+	return NewDarkPanel(res, minWidth, minHeight,
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Spacing(4),

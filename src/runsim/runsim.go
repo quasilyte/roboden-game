@@ -30,9 +30,7 @@ func NewState(ctx *ge.Context) *session.State {
 			},
 		},
 	}
-	state.CombinedInput = gameinput.Handler{
-		Handler: ctx.Input.NewHandler(0, nil),
-	}
+	state.CombinedInput = gameinput.MakeHandler(gameinput.InputMethodCombined, ctx.Input.NewHandler(0, nil))
 	state.BoundInputs[0] = &state.CombinedInput
 	return state
 }

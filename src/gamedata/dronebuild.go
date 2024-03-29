@@ -59,6 +59,78 @@ func PickTurretDesign(coreDesign string, designsUnlocked []string, rng *gmath.Ra
 	return picker.Pick()
 }
 
+func RandDroneBuild(rng *gmath.Rand, dronesUnlocked []string) []string {
+	points := ClassicModePoints
+
+	numWorkers := 0
+
+	var result []string
+
+	selection := make([]string, len(dronesUnlocked))
+	copy(selection, dronesUnlocked)
+	gmath.Shuffle(rng, selection)
+
+	maxWorkers := rng.IntRange(3, 6)
+	maxDroneCost := 4
+	if rng.Chance(0.15) {
+		maxDroneCost = 3
+	}
+	minDroneCost := 1
+	if rng.Chance(0.3) {
+		minDroneCost = 2
+	}
+
+	for _, d := range selection {
+		if points < 2 && rng.Chance(0.3) {
+			break
+		}
+
+		recipe := findRecipeByName(d)
+		if recipe.Result == nil {
+			continue
+		}
+		stats := recipe.Result
+
+		if stats.PointCost < minDroneCost {
+			continue
+		}
+		if stats.PointCost > maxDroneCost {
+			continue
+		}
+		if points < stats.PointCost {
+			continue
+		}
+
+		skipChance := 0.0
+		switch stats.Kind {
+		case AgentRoomba:
+			skipChance = 0.45
+		case AgentCourier, AgentScarab:
+			skipChance = 0.2
+		case AgentFreighter, AgentCommander:
+			skipChance = 0.05
+		case AgentFirebug:
+			skipChance = 0.1
+		}
+		if skipChance != 0 && rng.Chance(skipChance) {
+			continue
+		}
+
+		isWorker := stats.CanGather && !stats.CanPatrol
+		if isWorker && numWorkers >= maxWorkers {
+			continue
+		}
+
+		if isWorker {
+			numWorkers++
+		}
+		points -= stats.PointCost
+		result = append(result, d)
+	}
+
+	return result
+}
+
 func CreateDroneBuild(rng *gmath.Rand) []string {
 	points := ClassicModePoints
 

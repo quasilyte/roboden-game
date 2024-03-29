@@ -569,6 +569,7 @@ const SeasonNumber = 1
 // - Make text panels have dark background
 // - Credits is now a multi-page screen with a larger font
 // - Stats & Progress screens now use a larger font
+// - Add rand drones build button to the lobby
 const (
 	BuildNumber      int = 25
 	BuildMinorNumber int = 0

@@ -60,6 +60,9 @@
 ##menu.schema.turret : Турель
 ##menu.schema.drones : Дроны
 
+##menu.lobby.schema_rand
+Выбрать случайный набор дронов.
+
 ##menu.lobby.schema_edit
 Открыть редактор игровых схем.
 
@@ -403,6 +406,7 @@ x1.5 означает, что игра будет работать на 50% бы
 
 ##menu.lobby.go : Вперёд!
 ##menu.lobby.edit : Схема
+##menu.lobby.rand : Рандом
 
 ##menu.lobby.moon : луна
 ##menu.lobby.forest : лес

@@ -44,9 +44,10 @@ type LobbyMenuController struct {
 
 	seedInput *widget.TextInput
 
-	goButton     *widget.Button
-	schemaButton *widget.Button
-	backButton   *widget.Button
+	goButton         *widget.Button
+	schemaButton     *widget.Button
+	randSchemaButton *widget.Button
+	backButton       *widget.Button
 
 	colonyTab     *widget.TabBookTab
 	worldTab      *widget.TabBookTab
@@ -235,6 +236,10 @@ func (c *LobbyMenuController) initUI() {
 	c.onTabSelected(c.selectedTab)
 
 	c.updateDifficultyScore(c.calcDifficultyScore())
+
+	if c.config.RawGameMode == "reverse" {
+		c.randSchemaButton.GetWidget().Disabled = c.config.PlayersMode != serverapi.PmodeTwoPlayers
+	}
 }
 
 func (c *LobbyMenuController) bindNavTree() {
@@ -256,13 +261,19 @@ func (c *LobbyMenuController) bindNavTree() {
 
 	{
 		goButtonElem := c.rightNavBlock.NewElem(c.goButton)
-		schemaButtonElem := c.rightNavBlock.NewElem(c.schemaButton)
 		backButtonElem := c.rightNavBlock.NewElem(c.backButton)
-		goButtonElem.Edges[gameui.NavRight] = schemaButtonElem
-		goButtonElem.Edges[gameui.NavDown] = backButtonElem
-		schemaButtonElem.Edges[gameui.NavLeft] = goButtonElem
-		schemaButtonElem.Edges[gameui.NavDown] = backButtonElem
-		backButtonElem.Edges[gameui.NavUp] = goButtonElem
+
+		schemaButtonElem := c.rightNavBlock.NewElem(c.schemaButton)
+		randSchemaButtonElem := c.rightNavBlock.NewElem(c.randSchemaButton)
+
+		goButtonElem.Edges[gameui.NavRight] = backButtonElem
+		goButtonElem.Edges[gameui.NavDown] = schemaButtonElem
+		schemaButtonElem.Edges[gameui.NavRight] = randSchemaButtonElem
+		schemaButtonElem.Edges[gameui.NavUp] = goButtonElem
+		backButtonElem.Edges[gameui.NavDown] = randSchemaButtonElem
+		backButtonElem.Edges[gameui.NavLeft] = goButtonElem
+		randSchemaButtonElem.Edges[gameui.NavLeft] = schemaButtonElem
+		randSchemaButtonElem.Edges[gameui.NavUp] = backButtonElem
 	}
 
 	{
@@ -328,7 +339,6 @@ func (c *LobbyMenuController) bindNavTree() {
 				}
 			}
 		}
-
 	}
 }
 
@@ -388,6 +398,11 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 	})
 	buttonsGrid.AddChild(c.goButton)
 
+	c.backButton = eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+		c.back()
+	})
+	buttonsGrid.AddChild(c.backButton)
+
 	c.schemaButton = eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
 		Scene: c.scene,
 		Text:  d.Get("menu.lobby.edit"),
@@ -401,10 +416,27 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 	})
 	buttonsGrid.AddChild(c.schemaButton)
 
-	c.backButton = eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
-		c.back()
+	c.randSchemaButton = eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+		Scene: c.scene,
+		Text:  d.Get("menu.lobby.rand"),
+		OnPressed: func() {
+			pstats := c.state.Persistent.PlayerStats
+			drones := gamedata.RandDroneBuild(c.scene.Rand(), pstats.DronesUnlocked)
+			droneMap := make(map[*gamedata.AgentStats]struct{}, len(drones))
+			for _, d := range drones {
+				droneMap[gamedata.FindRecipeByName(d).Result] = struct{}{}
+			}
+			for _, b := range c.droneButtons {
+				_, enabled := droneMap[b.drone]
+				b.widget.SetToggled(enabled)
+			}
+			c.onDroneToggled()
+		},
+		OnHover: func() {
+			c.setHelpText(d.Get("menu.lobby.schema_rand"))
+		},
 	})
-	panel.AddChild(c.backButton)
+	buttonsGrid.AddChild(c.randSchemaButton)
 
 	return panel
 }
@@ -495,7 +527,9 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 		b.PressedEvent.AddHandler(func(args interface{}) {
 			// This handler is called before the config value is changed.
-			c.maybeDisableColonyTab(c.config.PlayersMode == serverapi.PmodeTwoPlayers)
+			disable := c.config.PlayersMode == serverapi.PmodeTwoPlayers
+			c.maybeDisableColonyTab(disable)
+			c.randSchemaButton.GetWidget().Disabled = disable
 		})
 	}
 

@@ -12,6 +12,9 @@ import (
 )
 
 func bindNavListNoWrap(elems []*gameui.NavElem, prevDir, nextDir gameui.NavDir) {
+	if len(elems) < 2 {
+		return
+	}
 	for i, e := range elems {
 		switch i {
 		case 0:
@@ -26,6 +29,9 @@ func bindNavListNoWrap(elems []*gameui.NavElem, prevDir, nextDir gameui.NavDir) 
 }
 
 func bindNavList(elems []*gameui.NavElem, prevDir, nextDir gameui.NavDir) {
+	if len(elems) < 2 {
+		return
+	}
 	for i, e := range elems {
 		switch i {
 		case 0:

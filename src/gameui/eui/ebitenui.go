@@ -379,6 +379,13 @@ func (b *ItemButton) SetDisabled(disabled bool) {
 	b.Button.GetWidget().Disabled = disabled
 }
 
+func (b *ItemButton) SetToggled(state bool) {
+	if b.state == state {
+		return
+	}
+	b.Toggle()
+}
+
 func (b *ItemButton) Toggle() {
 	b.state = !b.state
 	if b.state {

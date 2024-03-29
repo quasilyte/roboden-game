@@ -66,6 +66,8 @@ func (c *UserNameMenu) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.user_name"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
+	var widgets []eui.Widget
+
 	textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.Device.IsSteamDeck()},
 		widget.TextInputOpts.WidgetOpts(
 			widget.WidgetOpts.MinSize(480, 0),
@@ -95,6 +97,7 @@ func (c *UserNameMenu) initUI() {
 		textinput.SetText(c.state.Persistent.PlayerName)
 	}
 	rowContainer.AddChild(textinput)
+	widgets = append(widgets, textinput)
 
 	c.textInput = textinput
 	if runtime.GOOS == "android" {
@@ -116,14 +119,15 @@ func (c *UserNameMenu) initUI() {
 	panel.AddChild(normalContainer)
 	rowContainer.AddChild(panel)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.save"), func() {
+	saveButton := eui.NewButton(uiResources, c.scene, d.Get("menu.save"), func() {
 		c.save(textinput.GetText())
 		c.next()
-	}))
+	})
+	rowContainer.AddChild(saveButton)
+	widgets = append(widgets, saveButton)
 
-	c.ui = eui.NewSceneObject(root)
-	c.scene.AddGraphics(c.ui)
-	c.scene.AddObject(c.ui)
+	navTree := createSimpleNavTree(widgets)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *UserNameMenu) save(name string) {

@@ -40,6 +40,8 @@ func (c *OptionsGameplayMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainerWithMinWidth(520, 10, nil)
 	root.AddChild(rowContainer)
 
+	var buttons []eui.Widget
+
 	d := c.scene.Dict()
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.gameplay"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
@@ -47,7 +49,7 @@ func (c *OptionsGameplayMenuController) initUI() {
 	options := &c.state.Persistent.Settings
 
 	{
-		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+		hintModeSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources: uiResources,
 			Input:     c.state.MenuInput,
 			Value:     &options.HintMode,
@@ -57,65 +59,83 @@ func (c *OptionsGameplayMenuController) initUI() {
 				d.Get("menu.option.some"),
 				d.Get("menu.option.all"),
 			},
-		}))
+		})
+		c.scene.AddObject(hintModeSelect)
+		rowContainer.AddChild(hintModeSelect.Widget)
+		buttons = append(buttons, hintModeSelect.Widget)
 	}
 
 	if !c.state.Device.IsMobile() {
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources: uiResources,
-			Value:     &options.ScreenButtons,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.ScreenButtons,
 			Label:     d.Get("menu.options.screen_buttons"),
 			ValueNames: []string{
 				d.Get("menu.option.off"),
 				d.Get("menu.option.on"),
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
 	{
-		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
-			Scene:      c.scene,
+		scrollSpeedSelect := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound:  true,
 			Resources:  uiResources,
 			Input:      c.state.MenuInput,
 			Value:      &options.ScrollingSpeed,
 			Label:      d.Get("menu.options.scroll_speed"),
 			ValueNames: []string{"1", "2", "3", "4", "5"},
-		}))
+		})
+		c.scene.AddObject(scrollSpeedSelect)
+		rowContainer.AddChild(scrollSpeedSelect.Widget)
+		buttons = append(buttons, scrollSpeedSelect.Widget)
 	}
 
 	if !c.state.Device.IsMobile() {
-		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
-			Scene:      c.scene,
+		edgeScrollRangeSelect := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound:  true,
 			Resources:  uiResources,
 			Input:      c.state.MenuInput,
 			Value:      &options.EdgeScrollRange,
 			Label:      d.Get("menu.options.edge_scroll_range"),
 			ValueNames: []string{"0", "1", "2", "3", "4"},
-		}))
+		})
+		c.scene.AddObject(edgeScrollRangeSelect)
+		rowContainer.AddChild(edgeScrollRangeSelect.Widget)
+		buttons = append(buttons, edgeScrollRangeSelect.Widget)
 	}
 
 	if !c.state.Device.IsMobile() {
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources: uiResources,
-			Value:     &options.NoPauseSpeedToggle,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.NoPauseSpeedToggle,
 			Label:     d.Get("menu.options.pause_speed_toggle"),
 			ValueNames: []string{
 				// It's a reverse (negated) option, so this order makes sense.
 				d.Get("menu.option.on"),
 				d.Get("menu.option.off"),
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *OptionsGameplayMenuController) back() {

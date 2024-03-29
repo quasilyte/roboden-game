@@ -43,19 +43,33 @@ func (c *ControlsMenuController) initUI() {
 
 	d := c.scene.Dict()
 
+	var buttons []eui.Widget
+
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.keyboard"), func() {
-		c.scene.Context().ChangeScene(NewControlsKeyboardMenuController(c.state))
-	}))
+	{
+		b := eui.NewButton(uiResources, c.scene, d.Get("menu.controls.keyboard"), func() {
+			c.scene.Context().ChangeScene(NewControlsKeyboardMenuController(c.state))
+		})
+		rowContainer.AddChild(b)
+		buttons = append(buttons, b)
+	}
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.gamepad")+" 1", func() {
-		c.scene.Context().ChangeScene(NewControlsGamepadMenuController(c.state, 0))
-	}))
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.gamepad")+" 2", func() {
-		c.scene.Context().ChangeScene(NewControlsGamepadMenuController(c.state, 1))
-	}))
+	{
+		b := eui.NewButton(uiResources, c.scene, d.Get("menu.controls.gamepad")+" 1", func() {
+			c.scene.Context().ChangeScene(NewControlsGamepadMenuController(c.state, 0))
+		})
+		rowContainer.AddChild(b)
+		buttons = append(buttons, b)
+	}
+	{
+		b := eui.NewButton(uiResources, c.scene, d.Get("menu.controls.gamepad")+" 2", func() {
+			c.scene.Context().ChangeScene(NewControlsGamepadMenuController(c.state, 1))
+		})
+		rowContainer.AddChild(b)
+		buttons = append(buttons, b)
+	}
 
 	// TODO: show it for mobile devices.
 	// touchButton := eui.NewButton(uiResources, c.scene, d.Get("menu.controls.touch"), func() {
@@ -70,33 +84,42 @@ func (c *ControlsMenuController) initUI() {
 			d.Get("menu.controls.method_gamepad") + " 1",
 			d.Get("menu.controls.method_gamepad") + " 2",
 		}
-		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+
+		player1inputSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources:  uiResources,
 			Input:      c.state.MenuInput,
-			Scene:      c.scene,
+			PlaySound:  true,
 			Value:      &options.Player1InputMethod,
 			ValueNames: inputMethods,
 			Label:      d.Get("menu.controls.player_label") + " 1",
-		}))
-		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+		})
+		c.scene.AddObject(player1inputSelect)
+		rowContainer.AddChild(player1inputSelect.Widget)
+		buttons = append(buttons, player1inputSelect.Widget)
+
+		player2inputSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources:  uiResources,
 			Input:      c.state.MenuInput,
-			Scene:      c.scene,
+			PlaySound:  true,
 			Value:      &options.Player2InputMethod,
 			ValueNames: inputMethods,
 			Label:      d.Get("menu.controls.player_label") + " 2",
-		}))
+		})
+		c.scene.AddObject(player2inputSelect)
+		rowContainer.AddChild(player2inputSelect.Widget)
+		buttons = append(buttons, player2inputSelect.Widget)
 	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *ControlsMenuController) back() {

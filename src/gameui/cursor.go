@@ -77,7 +77,7 @@ func (c *CursorNode) setPreferGamepad(gamepad bool) {
 	c.sprite.Visible = gamepad
 	if gamepad {
 		ebiten.SetCursorMode(ebiten.CursorModeHidden)
-		c.prevMousePos = c.input.CursorPos()
+		c.prevMousePos = c.input.MouseCursorPos()
 		c.pos = c.prevMousePos
 	} else {
 		ebiten.SetCursorMode(ebiten.CursorModeVisible)
@@ -99,7 +99,7 @@ func (c *CursorNode) Update(delta float64) {
 		pos := c.pos
 		maxDistSqr := 8.0 * 8.0
 		if !c.gamepad {
-			pos = c.input.CursorPos()
+			pos = c.input.MouseCursorPos()
 			maxDistSqr = 6 * 6
 		}
 		if c.hoverPos.IsZero() {
@@ -128,9 +128,9 @@ func (c *CursorNode) Update(delta float64) {
 	}
 
 	if c.gamepad && c.input.CanHideMousePointer() {
-		if c.input.CursorPos().DistanceSquaredTo(c.prevMousePos) > 10 {
+		if c.input.MouseCursorPos().DistanceSquaredTo(c.prevMousePos) > 10 {
 			c.setPreferGamepad(false)
 		}
 	}
-	c.prevMousePos = c.input.CursorPos()
+	c.prevMousePos = c.input.MouseCursorPos()
 }

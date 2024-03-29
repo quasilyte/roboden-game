@@ -25,11 +25,16 @@ import (
 	"github.com/quasilyte/roboden-game/session"
 )
 
+const dronesPerRow = 8
+
 type LobbyMenuController struct {
 	state *session.State
 
 	config gamedata.LevelConfig
 	mode   gamedata.Mode
+
+	navTree       *gameui.NavTree
+	rightNavBlock *gameui.NavBlock
 
 	droneButtons         []droneButton
 	turretButtons        []droneButton
@@ -39,8 +44,21 @@ type LobbyMenuController struct {
 
 	seedInput *widget.TextInput
 
-	colonyTab *widget.TabBookTab
-	worldTab  *widget.TabBookTab
+	goButton     *widget.Button
+	schemaButton *widget.Button
+	backButton   *widget.Button
+
+	colonyTab     *widget.TabBookTab
+	worldTab      *widget.TabBookTab
+	difficultyTab *widget.TabBookTab
+	extraTab      *widget.TabBookTab
+	selectedTab   *widget.TabBookTab
+	autoFocusTab  *widget.TabBookTab
+	tabs          []*widget.TabBookTab
+	tabWidget     *widget.TabBook
+	tabNavs       []*gameui.NavBlock
+
+	navController *navController
 
 	helpPanel  *widget.Container
 	helpLabel  *widget.Text
@@ -100,8 +118,46 @@ func (c *LobbyMenuController) Init(scene *ge.Scene) {
 	}
 }
 
+func (c *LobbyMenuController) onTabSelected(tab *widget.TabBookTab) {
+	c.navController.Unfocus()
+
+	c.selectedTab = tab
+
+	tabIndex := xslices.Index(c.tabs, c.selectedTab)
+	for i := range c.tabNavs {
+		disabled := i != tabIndex
+		c.tabNavs[i].Disabled = disabled
+		if i == tabIndex && c.tabs[i] == c.autoFocusTab {
+			c.navController.FocusBlock(c.tabNavs[i])
+		}
+	}
+
+	c.autoFocusTab = nil
+}
+
+func (c *LobbyMenuController) changeTab(i int, autoFocus bool) {
+	tabIndex := xslices.Index(c.tabs, c.selectedTab) + i
+	if tabIndex < 0 {
+		tabIndex = len(c.tabs) - 1
+	}
+	if tabIndex >= len(c.tabs) {
+		tabIndex = 0
+	}
+
+	c.tabWidget.SetTab(c.tabs[tabIndex])
+	c.autoFocusTab = c.tabs[tabIndex]
+}
+
 func (c *LobbyMenuController) Update(delta float64) {
 	c.state.MenuInput.Update()
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuTabLeft) {
+		c.changeTab(-1, true)
+		return
+	}
+	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuTabRight) {
+		c.changeTab(+1, true)
+		return
+	}
 	if c.state.MenuInput.ActionIsJustPressed(controls.ActionMenuBack) {
 		c.back()
 		return
@@ -113,6 +169,9 @@ func (c *LobbyMenuController) prepareRecipeIcons() {
 }
 
 func (c *LobbyMenuController) initUI() {
+	c.navTree = gameui.NewNavTree()
+	c.rightNavBlock = c.navTree.NewBlock()
+
 	eui.AddBackground(c.state.BackgroundImage, c.scene)
 	uiResources := c.state.Resources.UI
 
@@ -159,18 +218,118 @@ func (c *LobbyMenuController) initUI() {
 	rightRows := eui.NewRowLayoutContainer(4, []bool{false, true, false})
 	rootGrid.AddChild(rightRows)
 
-	tabs := c.createTabs(uiResources)
-	leftRows.AddChild(tabs)
+	c.tabWidget = c.createTabs(uiResources)
+	leftRows.AddChild(c.tabWidget)
 
 	rightRows.AddChild(c.createSeedPanel(uiResources))
 	rightRows.AddChild(c.createHelpPanel(uiResources))
 	rightRows.AddChild(c.createButtonsPanel(uiResources))
 
-	c.ui = eui.NewSceneObject(root)
-	c.scene.AddGraphics(c.ui)
-	c.scene.AddObject(c.ui)
+	c.bindNavTree()
+	c.navController = setupUI(c.scene, root, c.state.MenuInput, c.navTree)
+	if c.colonyTab.Disabled {
+		c.selectedTab = c.worldTab
+	} else {
+		c.selectedTab = c.colonyTab
+	}
+	c.onTabSelected(c.selectedTab)
 
 	c.updateDifficultyScore(c.calcDifficultyScore())
+}
+
+func (c *LobbyMenuController) bindNavTree() {
+	colonyBlock := c.tabNavs[0]
+	worldBlock := c.tabNavs[1]
+	difficultyBlock := c.tabNavs[2]
+	extraBlock := c.tabNavs[3]
+
+	splitBlock := gameui.NewMultiNavBlock(c.tabNavs...)
+
+	c.rightNavBlock.Edges[gameui.NavLeft] = splitBlock
+	worldBlock.Edges[gameui.NavRight] = c.rightNavBlock
+	worldBlock.Edges[gameui.NavDown] = c.rightNavBlock
+	difficultyBlock.Edges[gameui.NavRight] = c.rightNavBlock
+	difficultyBlock.Edges[gameui.NavDown] = c.rightNavBlock
+	extraBlock.Edges[gameui.NavRight] = c.rightNavBlock
+	extraBlock.Edges[gameui.NavDown] = c.rightNavBlock
+	colonyBlock.Edges[gameui.NavRight] = c.rightNavBlock
+
+	{
+		goButtonElem := c.rightNavBlock.NewElem(c.goButton)
+		schemaButtonElem := c.rightNavBlock.NewElem(c.schemaButton)
+		backButtonElem := c.rightNavBlock.NewElem(c.backButton)
+		goButtonElem.Edges[gameui.NavRight] = schemaButtonElem
+		goButtonElem.Edges[gameui.NavDown] = backButtonElem
+		schemaButtonElem.Edges[gameui.NavLeft] = goButtonElem
+		schemaButtonElem.Edges[gameui.NavDown] = backButtonElem
+		backButtonElem.Edges[gameui.NavUp] = goButtonElem
+	}
+
+	{
+
+		var coreElements []*gameui.NavElem
+		for _, b := range c.coreButtons {
+			e := colonyBlock.NewElem(b.widget.Button)
+			coreElements = append(coreElements, e)
+		}
+		bindNavListNoWrap(coreElements, gameui.NavLeft, gameui.NavRight)
+
+		var turretElements []*gameui.NavElem
+		for _, b := range c.turretButtons {
+			e := colonyBlock.NewElem(b.widget.Button)
+			turretElements = append(turretElements, e)
+		}
+		bindNavListNoWrap(turretElements, gameui.NavLeft, gameui.NavRight)
+
+		var droneElements []*gameui.NavElem
+		for _, b := range c.droneButtons {
+			e := colonyBlock.NewElem(b.widget.Button)
+			droneElements = append(droneElements, e)
+		}
+
+		for i, coreElem := range coreElements {
+			if i > len(turretElements) {
+				break
+			}
+			coreElem.Edges[gameui.NavDown] = turretElements[i]
+		}
+		for i, turretElem := range turretElements {
+			targetI := i
+			if targetI >= len(coreElements) {
+				targetI = len(coreElements) - 1
+			}
+			turretElem.Edges[gameui.NavUp] = coreElements[targetI]
+			turretElem.Edges[gameui.NavDown] = droneElements[i]
+		}
+
+		for i, droneElem := range droneElements[:dronesPerRow] {
+			targetI := i
+			if targetI >= len(turretElements) {
+				targetI = len(turretElements) - 1
+			}
+			droneElem.Edges[gameui.NavUp] = turretElements[targetI]
+		}
+		const numRows = 3
+		for row := 0; row < numRows; row++ {
+			for col := 0; col < dronesPerRow; col++ {
+				i := (row * dronesPerRow) + col
+				elem := droneElements[i]
+				if row < numRows-1 {
+					elem.Edges[gameui.NavDown] = droneElements[i+dronesPerRow]
+				}
+				if row > 0 {
+					elem.Edges[gameui.NavUp] = droneElements[i-dronesPerRow]
+				}
+				if col < dronesPerRow-1 {
+					elem.Edges[gameui.NavRight] = droneElements[i+1]
+				}
+				if col > 0 {
+					elem.Edges[gameui.NavLeft] = droneElements[i-1]
+				}
+			}
+		}
+
+	}
 }
 
 func (c *LobbyMenuController) getConfigForMode() *gamedata.LevelConfig {
@@ -202,7 +361,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 
 	panel.AddChild(buttonsGrid)
 
-	buttonsGrid.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
+	c.goButton = eui.NewButton(uiResources, c.scene, d.Get("menu.lobby.go"), func() {
 		c.saveConfig()
 
 		if c.config.PlayersMode == serverapi.PmodeSinglePlayer && c.mode == gamedata.ModeReverse {
@@ -226,9 +385,10 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 
 		c.config.Finalize()
 		c.scene.Context().ChangeScene(staging.NewController(c.state, c.config.Clone(), NewLobbyMenuController(c.state, c.mode)))
-	}))
+	})
+	buttonsGrid.AddChild(c.goButton)
 
-	buttonsGrid.AddChild(eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
+	c.schemaButton = eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
 		Scene: c.scene,
 		Text:  d.Get("menu.lobby.edit"),
 		OnPressed: func() {
@@ -238,11 +398,13 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 		OnHover: func() {
 			c.setHelpText(d.Get("menu.lobby.schema_edit"))
 		},
-	}))
+	})
+	buttonsGrid.AddChild(c.schemaButton)
 
-	panel.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	c.backButton = eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	panel.AddChild(c.backButton)
 
 	return panel
 }
@@ -254,15 +416,21 @@ func (c *LobbyMenuController) createTabs(uiResources *eui.Resources) *widget.Tab
 	tabs = append(tabs, colonyTab)
 	worldTab := c.createWorldTab(uiResources)
 	tabs = append(tabs, worldTab)
-	tabs = append(tabs, c.createDifficultyTab(uiResources))
-	tabs = append(tabs, c.createExtraTab(uiResources))
+	difficultyTab := c.createDifficultyTab(uiResources)
+	tabs = append(tabs, difficultyTab)
+	extraTab := c.createExtraTab(uiResources)
+	tabs = append(tabs, extraTab)
+
+	c.tabs = tabs
 
 	if c.config.RawGameMode == "reverse" {
 		c.maybeDisableColonyTab(c.config.PlayersMode != serverapi.PmodeTwoPlayers)
 	}
 
 	t := widget.NewTabBook(
-		// widget.TabBookOpts.InitialTab(worldTab),
+		widget.TabBookOpts.TabSelectedHandler(func(args *widget.TabBookTabSelectedEventArgs) {
+			c.onTabSelected(args.Tab)
+		}),
 		widget.TabBookOpts.Tabs(tabs...),
 		widget.TabBookOpts.TabButtonImage(uiResources.TabButton.Image),
 		widget.TabBookOpts.TabButtonText(uiResources.TabButton.FontFace, uiResources.TabButton.TextColors),
@@ -289,6 +457,12 @@ func (c *LobbyMenuController) maybeDisableColonyTab(disable bool) {
 
 func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget.TabBookTab {
 	d := c.scene.Dict()
+
+	navBlock := c.navTree.NewBlock()
+	c.tabNavs = append(c.tabNavs, navBlock)
+
+	var verticalButtons []*gameui.NavElem
+	var horizontalButtons []*gameui.NavElem
 
 	tab := widget.NewTabBookTab(d.Get("menu.lobby.tab.extra"),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -318,6 +492,7 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 			d.Get("menu.lobby.player_mode.two_bots"),
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 		b.PressedEvent.AddHandler(func(args interface{}) {
 			// This handler is called before the config value is changed.
 			c.maybeDisableColonyTab(c.config.PlayersMode == serverapi.PmodeTwoPlayers)
@@ -335,6 +510,7 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 			d.Get("menu.lobby.ui_full"),
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	{
@@ -344,6 +520,7 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 			"2",
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	{
@@ -354,6 +531,7 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 			"x2.0",
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	panel := eui.NewPanel(uiResources, 0, 0)
@@ -365,10 +543,10 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 			StretchVertical:   true,
 		})),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(8),
+			widget.GridLayoutOpts.Columns(dronesPerRow),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 
-	var toggleButtons []widget.PreferredSizeLocateableWidget
+	var toggleButtons []*eui.ItemButton
 
 	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.Relicts, "relicts", assets.ImageRepulseTower))
 	if c.config.RawGameMode != "reverse" {
@@ -376,18 +554,34 @@ func (c *LobbyMenuController) createExtraTab(uiResources *eui.Resources) *widget
 	}
 
 	for _, b := range toggleButtons {
-		grid.AddChild(b)
+		grid.AddChild(b.Widget)
+		horizontalButtons = append(horizontalButtons, navBlock.NewElem(b.Button))
 	}
+
+	bindNavListNoWrap(verticalButtons, gameui.NavUp, gameui.NavDown)
+	bindNavListNoWrap(horizontalButtons, gameui.NavLeft, gameui.NavRight)
+	for _, e := range horizontalButtons {
+		e.Edges[gameui.NavUp] = verticalButtons[len(verticalButtons)-1]
+	}
+	verticalButtons[len(verticalButtons)-1].Edges[gameui.NavDown] = horizontalButtons[0]
 
 	panel.AddChild(grid)
 
 	tab.AddChild(panel)
+
+	c.extraTab = tab
 
 	return tab
 }
 
 func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *widget.TabBookTab {
 	d := c.scene.Dict()
+
+	navBlock := c.navTree.NewBlock()
+	c.tabNavs = append(c.tabNavs, navBlock)
+
+	var verticalButtons []*gameui.NavElem
+	var horizontalButtons []*gameui.NavElem
 
 	tab := widget.NewTabBookTab(d.Get("menu.lobby.tab.difficulty"),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -411,6 +605,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"5",
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	if c.mode != gamedata.ModeBlitz {
@@ -420,6 +615,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			d.Get("menu.option.lots"),
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	{
@@ -444,6 +640,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"350%",
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	if c.mode == gamedata.ModeReverse {
@@ -458,10 +655,11 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"220%",
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	if c.mode == gamedata.ModeReverse {
-		tab.AddChild(c.newOptionButton(&c.config.TechProgressRate, "menu.lobby.tech_progress_rate", []string{
+		techProgressSelect := c.newOptionButton(&c.config.TechProgressRate, "menu.lobby.tech_progress_rate", []string{
 			"40%",
 			"50%",
 			"60%",
@@ -471,28 +669,34 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"100%",
 			"110%",
 			"120%",
-		}))
+		})
+		tab.AddChild(techProgressSelect)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(techProgressSelect))
 
-		tab.AddChild(c.newOptionButton(&c.config.ReverseSuperCreepRate, "menu.lobby.reverse_super_creep_rate", []string{
+		superCreepRateSelect := c.newOptionButton(&c.config.ReverseSuperCreepRate, "menu.lobby.reverse_super_creep_rate", []string{
 			"x0.1",
 			"x0.4",
 			"x0.7",
 			"x1.0",
 			"x1.3",
-		}))
+		})
+		tab.AddChild(superCreepRateSelect)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(superCreepRateSelect))
 	}
 
 	if c.mode == gamedata.ModeClassic || c.mode == gamedata.ModeReverse {
-		tab.AddChild(c.newOptionButton(&c.config.BossDifficulty, "menu.lobby.boss_difficulty", []string{
+		bossDifficultySelect := c.newOptionButton(&c.config.BossDifficulty, "menu.lobby.boss_difficulty", []string{
 			d.Get("menu.power.weak"),
 			d.Get("menu.power.normal"),
 			d.Get("menu.power.tough"),
 			d.Get("menu.power.very_tough"),
-		}))
+		})
+		tab.AddChild(bossDifficultySelect)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(bossDifficultySelect))
 	}
 
 	if c.mode == gamedata.ModeBlitz {
-		tab.AddChild(c.newOptionButton(&c.config.CreepProductionRate, "menu.lobby.creep_production_rate", []string{
+		creepProductionRateSelect := c.newOptionButton(&c.config.CreepProductionRate, "menu.lobby.creep_production_rate", []string{
 			"100%",
 			"120%",
 			"140%",
@@ -504,18 +708,22 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"260%",
 			"280%",
 			"300%",
-		}))
+		})
+		tab.AddChild(creepProductionRateSelect)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(creepProductionRateSelect))
 	}
 
 	if c.mode == gamedata.ModeClassic {
-		tab.AddChild(c.newOptionButton(&c.config.CreepSpawnRate, "menu.lobby.creep_spawn_rate", []string{
+		creepSpawnRateSelect := c.newOptionButton(&c.config.CreepSpawnRate, "menu.lobby.creep_spawn_rate", []string{
 			"75%",
 			"100%",
 			"125%",
 			"150%",
 			"175%",
 			"200%",
-		}))
+		})
+		tab.AddChild(creepSpawnRateSelect)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(creepSpawnRateSelect))
 	}
 
 	if c.mode == gamedata.ModeArena || c.mode == gamedata.ModeInfArena {
@@ -530,6 +738,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			"250%",
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	panel := eui.NewPanel(uiResources, 0, 0)
@@ -544,7 +753,7 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 			widget.GridLayoutOpts.Columns(8),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 
-	var toggleButtons []widget.PreferredSizeLocateableWidget
+	var toggleButtons []*eui.ItemButton
 
 	if c.mode != gamedata.ModeBlitz {
 		toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.StartingResources, "starting_resources", assets.ImageItemStartingResources))
@@ -569,12 +778,22 @@ func (c *LobbyMenuController) createDifficultyTab(uiResources *eui.Resources) *w
 	}
 
 	for _, b := range toggleButtons {
-		grid.AddChild(b)
+		grid.AddChild(b.Widget)
+		horizontalButtons = append(horizontalButtons, navBlock.NewElem(b.Button))
 	}
+
+	bindNavListNoWrap(verticalButtons, gameui.NavUp, gameui.NavDown)
+	bindNavListNoWrap(horizontalButtons, gameui.NavLeft, gameui.NavRight)
+	for _, e := range horizontalButtons {
+		e.Edges[gameui.NavUp] = verticalButtons[len(verticalButtons)-1]
+	}
+	verticalButtons[len(verticalButtons)-1].Edges[gameui.NavDown] = horizontalButtons[0]
 
 	panel.AddChild(grid)
 
 	tab.AddChild(panel)
+
+	c.difficultyTab = tab
 
 	return tab
 }
@@ -584,11 +803,7 @@ func (c *LobbyMenuController) optionDescriptionText(key string) string {
 	return fmt.Sprintf("%s\n\n%s", d.Get(key), d.Get(key, "description"))
 }
 
-func (c *LobbyMenuController) newBoolOptionButton(value *bool, langKey string, valueNames []string) widget.PreferredSizeLocateableWidget {
-	return c.newUnlockableBoolOptionButton(value, "", langKey, valueNames)
-}
-
-func (c *LobbyMenuController) newToggleItemButton(value *bool, key string, icon resource.ImageID) widget.PreferredSizeLocateableWidget {
+func (c *LobbyMenuController) newToggleItemButton(value *bool, key string, icon resource.ImageID) *eui.ItemButton {
 	var b *eui.ItemButton
 
 	info := gamedata.LobbyOptionMap[key]
@@ -609,7 +824,7 @@ func (c *LobbyMenuController) newToggleItemButton(value *bool, key string, icon 
 	b.SetDisabled(!unlocked)
 
 	d := c.scene.Dict()
-	b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+	b.Button.CursorEnteredEvent.AddHandler(func(args interface{}) {
 		var s string
 		if unlocked {
 			s = c.optionDescriptionText("menu.lobby." + key)
@@ -623,40 +838,12 @@ func (c *LobbyMenuController) newToggleItemButton(value *bool, key string, icon 
 		b.Toggle()
 	}
 
-	return b.Widget
-}
-
-func (c *LobbyMenuController) newUnlockableBoolOptionButton(value *bool, id, langKey string, valueNames []string) widget.PreferredSizeLocateableWidget {
-	var b *widget.Button
-	playerStats := &c.state.Persistent.PlayerStats
-	b = eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-		Scene:      c.scene,
-		Resources:  c.state.Resources.UI,
-		Value:      value,
-		Label:      c.scene.Dict().Get(langKey),
-		ValueNames: valueNames,
-		OnPressed: func() {
-			c.updateDifficultyScore(c.calcDifficultyScore())
-		},
-		OnHover: func() {
-			s := c.optionDescriptionText(langKey)
-			if b.GetWidget().Disabled {
-				s += fmt.Sprintf("\n\n%s: %d/%d", c.scene.Dict().Get("drone.score_required"), playerStats.TotalScore, gamedata.LobbyOptionMap[id].ScoreCost)
-			}
-			c.setHelpText(s)
-		},
-	})
-
-	if id != "" && !xslices.Contains(playerStats.OptionsUnlocked, id) {
-		b.GetWidget().Disabled = true
-	}
-
 	return b
 }
 
 func (c *LobbyMenuController) newOptionButtonWithDisabled(value *int, key string, disabled []int, valueNames []string) *widget.Button {
-	return eui.NewSelectButton(eui.SelectButtonConfig{
-		Scene:          c.scene,
+	b := eui.NewSelectButton(eui.SelectButtonConfig{
+		PlaySound:      true,
 		Resources:      c.state.Resources.UI,
 		Input:          c.state.MenuInput,
 		Value:          value,
@@ -670,6 +857,8 @@ func (c *LobbyMenuController) newOptionButtonWithDisabled(value *int, key string
 			c.setHelpText(c.optionDescriptionText(key))
 		},
 	})
+	c.scene.AddObject(b)
+	return b.Widget
 }
 
 func (c *LobbyMenuController) newOptionButton(value *int, key string, valueNames []string) widget.PreferredSizeLocateableWidget {
@@ -678,6 +867,12 @@ func (c *LobbyMenuController) newOptionButton(value *int, key string, valueNames
 
 func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget.TabBookTab {
 	d := c.scene.Dict()
+
+	navBlock := c.navTree.NewBlock()
+	c.tabNavs = append(c.tabNavs, navBlock)
+
+	var verticalButtons []*gameui.NavElem
+	var horizontalButtons []*gameui.NavElem
 
 	tab := widget.NewTabBookTab(d.Get("menu.lobby.tab.world"),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -696,6 +891,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			d.Get("menu.option.very_rich"),
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	{
@@ -710,6 +906,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			d.Get("menu.option.big"),
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	{
@@ -720,6 +917,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			"150%",
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	{
@@ -729,6 +927,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			d.Get("menu.lobby.land_mountains"),
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	{
@@ -738,6 +937,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			d.Get("menu.lobby.world_shape.vertical"),
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	{
@@ -748,6 +948,7 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			d.Get("menu.lobby.snow"),
 		})
 		tab.AddChild(b)
+		verticalButtons = append(verticalButtons, navBlock.NewElem(b))
 	}
 
 	panel := eui.NewPanel(uiResources, 0, 0)
@@ -762,14 +963,22 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 			widget.GridLayoutOpts.Columns(8),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 
-	var toggleButtons []widget.PreferredSizeLocateableWidget
+	var toggleButtons []*eui.ItemButton
 
 	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.GoldEnabled, "gold_enabled", assets.ImageEssenceGoldSource))
 	toggleButtons = append(toggleButtons, c.newToggleItemButton(&c.config.WeatherEnabled, "weather_enabled", assets.ImageItemWeather))
 
 	for _, b := range toggleButtons {
-		grid.AddChild(b)
+		grid.AddChild(b.Widget)
+		horizontalButtons = append(horizontalButtons, navBlock.NewElem(b.Button))
 	}
+
+	bindNavListNoWrap(verticalButtons, gameui.NavUp, gameui.NavDown)
+	bindNavListNoWrap(horizontalButtons, gameui.NavLeft, gameui.NavRight)
+	for _, e := range horizontalButtons {
+		e.Edges[gameui.NavUp] = verticalButtons[len(verticalButtons)-1]
+	}
+	verticalButtons[len(verticalButtons)-1].Edges[gameui.NavDown] = horizontalButtons[0]
 
 	panel.AddChild(grid)
 
@@ -782,6 +991,9 @@ func (c *LobbyMenuController) createWorldTab(uiResources *eui.Resources) *widget
 
 func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widget.TabBookTab {
 	d := c.scene.Dict()
+
+	navBlock := c.navTree.NewBlock()
+	c.tabNavs = append(c.tabNavs, navBlock)
 
 	tab := widget.NewTabBookTab(d.Get("menu.lobby.tab.colony"),
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -987,7 +1199,7 @@ func (c *LobbyMenuController) createBasesPanel(uiResources *eui.Resources) *widg
 		})
 		b.SetDisabled(!available)
 		grid.AddChild(b.Widget)
-		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+		b.Button.CursorEnteredEvent.AddHandler(func(args interface{}) {
 			var s string
 			if available {
 				s = descriptions.CoreText(c.scene.Dict(), core)
@@ -1050,7 +1262,7 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 			}
 		})
 		b.SetDisabled(!available)
-		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+		b.Button.CursorEnteredEvent.AddHandler(func(args interface{}) {
 			var s string
 			if available {
 				s = descriptions.TurretText(c.scene.Dict(), turret)
@@ -1121,7 +1333,7 @@ func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *wid
 			recipe:    recipe,
 			available: available,
 		})
-		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+		b.Button.CursorEnteredEvent.AddHandler(func(args interface{}) {
 			if available {
 				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, false, false)
 				c.helpRecipe.SetImages(c.recipeIcons[recipe.Drone1], c.recipeIcons[recipe.Drone2])

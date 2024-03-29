@@ -12,6 +12,7 @@ import (
 	"github.com/quasilyte/ge/xslices"
 	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
+	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/steamsdk"
 	"github.com/quasilyte/roboden-game/userdevice"
@@ -23,6 +24,8 @@ var (
 	CaretColor         = ge.RGB(0xe7c34b)
 	disabledCaretColor = ge.RGB(0x766326)
 )
+
+type Widget = widget.PreferredSizeLocateableWidget
 
 type Resources struct {
 	Button         *ButtonResource
@@ -89,11 +92,28 @@ type SceneObject struct {
 }
 
 func NewSceneObject(root *widget.Container) *SceneObject {
-	return &SceneObject{
+	o := &SceneObject{
 		ui: &ebitenui.UI{
 			Container: root,
 		},
 	}
+	o.ui.DisableDefaultFocus = true
+	return o
+}
+
+func (o *SceneObject) Unfocus() {
+	focuser := o.ui.GetFocusedWidget()
+	if focuser != nil {
+		focuser.Focus(false)
+	}
+}
+
+func (o *SceneObject) GetFocused() Widget {
+	focuser := o.ui.GetFocusedWidget()
+	if w, ok := focuser.(Widget); ok {
+		return w
+	}
+	return nil
 }
 
 func (o *SceneObject) AddWindow(w *widget.Window) {
@@ -287,7 +307,7 @@ func NewBigItemButton(res *Resources, img *ebiten.Image, onclick func()) *ItemBu
 
 	return &ItemButton{
 		Widget: container,
-		button: b,
+		Button: b,
 		res:    res.BigItemButton,
 	}
 }
@@ -345,7 +365,7 @@ func (r *RecipeView) SetImages(a, b *ebiten.Image) {
 
 type ItemButton struct {
 	Widget widget.PreferredSizeLocateableWidget
-	button *widget.Button
+	Button *widget.Button
 	label  *widget.Text
 	state  bool
 	res    *ToggleButtonResource
@@ -356,18 +376,18 @@ func (b *ItemButton) IsToggled() bool {
 }
 
 func (b *ItemButton) SetDisabled(disabled bool) {
-	b.button.GetWidget().Disabled = disabled
+	b.Button.GetWidget().Disabled = disabled
 }
 
 func (b *ItemButton) Toggle() {
 	b.state = !b.state
 	if b.state {
-		b.button.Image = b.res.AltImage
+		b.Button.Image = b.res.AltImage
 		if b.label != nil {
 			b.label.Color = b.res.AltColor
 		}
 	} else {
-		b.button.Image = b.res.Image
+		b.Button.Image = b.res.Image
 		if b.label != nil {
 			b.label.Color = b.res.Color
 		}
@@ -399,7 +419,7 @@ func NewItemButton(res *Resources, img *ebiten.Image, ff font.Face, label string
 
 	result := &ItemButton{
 		Widget: container,
-		button: b,
+		Button: b,
 		res:    res.ItemButton,
 	}
 
@@ -487,18 +507,21 @@ func NewButtonWithConfig(res *Resources, config ButtonConfig) *widget.Button {
 		}))
 	}
 
-	return widget.NewButton(options...)
+	b := widget.NewButton(options...)
+	return b
 }
 
 type SelectButtonConfig struct {
 	Resources *Resources
 	Input     *gameinput.Handler
-	Scene     *ge.Scene // If press sound is needed
 
 	Value          *int
+	BoolValue      *bool
 	Label          string
 	ValueNames     []string
 	DisabledValues []int
+
+	PlaySound bool
 
 	LayoutData any
 
@@ -506,27 +529,115 @@ type SelectButtonConfig struct {
 	OnHover   func()
 }
 
-func NewSelectButton(config SelectButtonConfig) *widget.Button {
-	maxValue := len(config.ValueNames) - 1
-	value := config.Value
-	key := config.Label
-	valueNames := config.ValueNames
+type SelectButton struct {
+	Widget         *widget.Button
+	input          *gameinput.Handler
+	slider         gmath.Slider
+	value          *int
+	boolValue      *bool
+	disabledValues []int
+	key            string
+	valueNames     []string
+	scene          *ge.Scene
+	onPressed      func()
+	playSound      bool
+}
 
-	var slider gmath.Slider
-	slider.SetBounds(0, maxValue)
-	slider.TrySetValue(*value)
-	makeLabel := func() string {
-		if key == "" {
-			return valueNames[slider.Value()]
+func (b *SelectButton) Init(scene *ge.Scene) {
+	b.scene = scene
+}
+
+func (b *SelectButton) IsDisposed() bool { return false }
+
+func (b *SelectButton) Update(delta float64) {
+	if !b.Widget.IsFocused() {
+		return
+	}
+
+	if b.input.ActionIsJustPressed(controls.ActionMenuFocusLeft) {
+		b.ChangeValue(false)
+		b.input.MarkConsumed(controls.ActionMenuFocusLeft)
+	}
+	if b.input.ActionIsJustPressed(controls.ActionMenuFocusRight) {
+		b.ChangeValue(true)
+		b.input.MarkConsumed(controls.ActionMenuFocusRight)
+	}
+}
+
+func (b *SelectButton) ChangeValue(increase bool) {
+	for {
+		if increase {
+			b.slider.Inc()
+		} else {
+			b.slider.Dec()
 		}
-		return key + ": " + valueNames[slider.Value()]
+
+		if b.boolValue != nil {
+			*b.boolValue = b.slider.Value() != 0
+			break
+		}
+
+		// Non-bool values path.
+		*b.value = b.slider.Value()
+		if !xslices.Contains(b.disabledValues, *b.value) {
+			break
+		}
+	}
+
+	b.Widget.Text().Label = b.makeLabel()
+	if b.playSound {
+		b.scene.Audio().PlaySound(assets.AudioClick)
+	}
+	if b.onPressed != nil {
+		b.onPressed()
+	}
+}
+
+func (b *SelectButton) makeLabel() string {
+	if b.key == "" {
+		return b.valueNames[b.slider.Value()]
+	}
+	return b.key + ": " + b.valueNames[b.slider.Value()]
+}
+
+func NewSelectButton(config SelectButtonConfig) *SelectButton {
+	if config.Input == nil {
+		panic("nil input")
+	}
+
+	b := &SelectButton{
+		value:          config.Value,
+		boolValue:      config.BoolValue,
+		disabledValues: config.DisabledValues,
+		key:            config.Label,
+		valueNames:     config.ValueNames,
+		playSound:      config.PlaySound,
+		onPressed:      config.OnPressed,
+		input:          config.Input,
+	}
+
+	maxValue := len(config.ValueNames) - 1
+	if config.BoolValue != nil {
+		maxValue = 1
+	}
+
+	b.slider.SetBounds(0, maxValue)
+	if config.BoolValue != nil {
+		if *b.boolValue {
+			b.slider.TrySetValue(1)
+		} else {
+			b.slider.TrySetValue(0)
+		}
+	} else {
+		b.slider.TrySetValue(*b.value)
 	}
 
 	buttonOpts := []widget.ButtonOpt{}
 	if config.LayoutData != nil {
 		buttonOpts = append(buttonOpts, widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(config.LayoutData)))
 	}
-	button := newButtonSelected(config.Resources, makeLabel(), buttonOpts...)
+	button := newButtonSelected(config.Resources, b.makeLabel(), buttonOpts...)
+	b.Widget = button
 
 	button.ClickedEvent.AddHandler(func(args interface{}) {
 		increase := false
@@ -538,79 +649,16 @@ func NewSelectButton(config SelectButtonConfig) *widget.Button {
 				increase = true
 			}
 		}
-
-		for {
-			if increase {
-				slider.Inc()
-			} else {
-				slider.Dec()
-			}
-			*value = slider.Value()
-			if !xslices.Contains(config.DisabledValues, *value) {
-				break
-			}
-		}
-
-		button.Text().Label = makeLabel()
-		if config.Scene != nil {
-			config.Scene.Audio().PlaySound(assets.AudioClick)
-		}
-		if config.OnPressed != nil {
-			config.OnPressed()
-		}
+		b.ChangeValue(increase)
 	})
 
 	if config.OnHover != nil {
-		button.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+		button.CursorEnteredEvent.AddHandler(func(args interface{}) {
 			config.OnHover()
 		})
 	}
 
-	return button
-}
-
-type BoolSelectButtonConfig struct {
-	Resources *Resources
-	Scene     *ge.Scene // If press sound is needed
-
-	Value      *bool
-	Label      string
-	ValueNames []string
-
-	OnPressed func()
-	OnHover   func()
-}
-
-func NewBoolSelectButton(config BoolSelectButtonConfig) *widget.Button {
-	var slider gmath.Slider
-	slider.SetBounds(0, 1)
-	value := config.Value
-	key := config.Label
-	valueNames := config.ValueNames
-	if *value {
-		slider.TrySetValue(1)
-	}
-	button := newButtonSelected(config.Resources, key+": "+valueNames[slider.Value()])
-
-	button.ClickedEvent.AddHandler(func(args interface{}) {
-		slider.Inc()
-		*value = slider.Value() != 0
-		button.Text().Label = key + ": " + valueNames[slider.Value()]
-		if config.Scene != nil {
-			config.Scene.Audio().PlaySound(assets.AudioClick)
-		}
-		if config.OnPressed != nil {
-			config.OnPressed()
-		}
-	})
-
-	if config.OnHover != nil {
-		button.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
-			config.OnHover()
-		})
-	}
-
-	return button
+	return b
 }
 
 func newButtonSelected(res *Resources, text string, opts ...widget.ButtonOpt) *widget.Button {

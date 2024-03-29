@@ -44,6 +44,8 @@ func (c *ControlsKeyboardMenuController) initUI() {
 
 	d := c.scene.Dict()
 
+	var buttons []eui.Widget
+
 	smallFont := assets.BitmapFont1
 
 	options := &c.state.Persistent.Settings
@@ -67,7 +69,7 @@ func (c *ControlsKeyboardMenuController) initUI() {
 	}
 	panel.AddChild(grid)
 
-	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+	wheelScrollSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources: uiResources,
 		Input:     c.state.MenuInput,
 		Value:     &options.WheelScrollingMode,
@@ -76,15 +78,19 @@ func (c *ControlsKeyboardMenuController) initUI() {
 			d.Get("menu.controls.wheel_scroll.drag"),
 			d.Get("menu.controls.wheel_scroll.float"),
 		},
-	}))
+	})
+	c.scene.AddObject(wheelScrollSelect)
+	rowContainer.AddChild(wheelScrollSelect.Widget)
+	buttons = append(buttons, wheelScrollSelect.Widget)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *ControlsKeyboardMenuController) back() {

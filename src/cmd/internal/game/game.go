@@ -137,11 +137,11 @@ func Main() {
 	assets.RegisterRawResources(ctx)
 
 	keymaps := controls.BindKeymap(ctx)
-	state.TouchInput = gameinput.Handler{InputMethod: gameinput.InputMethodTouch, Handler: ctx.Input.NewHandler(0, keymaps.TouchKeymap)}
-	state.CombinedInput = gameinput.Handler{InputMethod: gameinput.InputMethodCombined, Handler: ctx.Input.NewHandler(0, keymaps.CombinedKeymap)}
-	state.KeyboardInput = gameinput.Handler{InputMethod: gameinput.InputMethodKeyboard, Handler: ctx.Input.NewHandler(0, keymaps.KeyboardKeymap)}
-	state.FirstGamepadInput = gameinput.Handler{InputMethod: gameinput.InputMethodGamepad1, Handler: ctx.Input.NewHandler(0, keymaps.FirstGamepadKeymap)}
-	state.SecondGamepadInput = gameinput.Handler{InputMethod: gameinput.InputMethodGamepad2, Handler: ctx.Input.NewHandler(1, keymaps.SecondGamepadKeymap)}
+	state.TouchInput = gameinput.MakeHandler(gameinput.InputMethodTouch, ctx.Input.NewHandler(0, keymaps.TouchKeymap))
+	state.CombinedInput = gameinput.MakeHandler(gameinput.InputMethodCombined, ctx.Input.NewHandler(0, keymaps.CombinedKeymap))
+	state.KeyboardInput = gameinput.MakeHandler(gameinput.InputMethodKeyboard, ctx.Input.NewHandler(0, keymaps.KeyboardKeymap))
+	state.FirstGamepadInput = gameinput.MakeHandler(gameinput.InputMethodGamepad1, ctx.Input.NewHandler(0, keymaps.FirstGamepadKeymap))
+	state.SecondGamepadInput = gameinput.MakeHandler(gameinput.InputMethodGamepad2, ctx.Input.NewHandler(1, keymaps.SecondGamepadKeymap))
 
 	if state.CheckGameItem("save.json") {
 		if err := state.LoadGameItem("save.json", &state.Persistent); err != nil {

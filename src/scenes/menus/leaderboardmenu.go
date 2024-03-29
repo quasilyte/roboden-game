@@ -45,35 +45,38 @@ func (c *LeaderboardMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.blitz"), func() {
-		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "blitz"))
-	}))
+	var buttons = []eui.Widget{
+		eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.blitz"), func() {
+			c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "blitz"))
+		}),
+		eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.classic"), func() {
+			c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "classic"))
+		}),
+		eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.arena"), func() {
+			c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "arena"))
+		}),
+		eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.reverse"), func() {
+			c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "reverse"))
+		}),
+		eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.inf_arena"), func() {
+			c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "inf_arena"))
+		}),
+	}
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.classic"), func() {
-		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "classic"))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.arena"), func() {
-		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "arena"))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.reverse"), func() {
-		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "reverse"))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.leaderboard.inf_arena"), func() {
-		c.scene.Context().ChangeScene(NewLeaderboardLoadingController(c.state, gamedata.SeasonNumber, "inf_arena"))
-	}))
+	for _, b := range buttons {
+		rowContainer.AddChild(b)
+	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *LeaderboardMenuController) back() {

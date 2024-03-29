@@ -2,6 +2,7 @@ package menus
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/ebitenui/ebitenui/widget"
@@ -11,6 +12,7 @@ import (
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 )
@@ -19,7 +21,7 @@ type ProfileAchievementsMenuController struct {
 	state *session.State
 
 	descriptions []string
-	buttons      []widget.HasWidget
+	buttons      []eui.Widget
 	helpLabel    *widget.Text
 
 	scene *ge.Scene
@@ -66,6 +68,18 @@ func (c *ProfileAchievementsMenuController) initUI() {
 	helpLabel.MaxWidth = 320
 	c.helpLabel = helpLabel
 
+	navTree := gameui.NewNavTree()
+	navBlock := navTree.NewBlock()
+	numColumns := 7
+	numRows := int(math.Ceil(float64(len(gamedata.AchievementList)) / float64(numColumns)))
+
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+		c.back()
+	})
+	backButtonElem := navBlock.NewElem(backButton)
+
+	var gridButtonElems []*gameui.NavElem
+
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.achievements"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
@@ -80,7 +94,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 	leftPanel := eui.NewPanel(uiResources, 0, 0)
 	leftGrid := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(7),
+			widget.GridLayoutOpts.Columns(numColumns),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 	for i := range gamedata.AchievementList {
 		achievement := gamedata.AchievementList[i]
@@ -98,7 +112,6 @@ func (c *ProfileAchievementsMenuController) initUI() {
 			}
 		}
 		b := eui.NewItemButton(uiResources, img, smallFont, strings.Repeat("*", grade), 44, func() {})
-		b.SetDisabled(true)
 		c.descriptions = append(c.descriptions, (func() string {
 			var lines []string
 			statusText := d.Get("achievement.grade.none")
@@ -118,7 +131,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 			return strings.Join(lines, "\n")
 		})())
 		desc := c.descriptions[i]
-		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+		b.Button.CursorEnteredEvent.AddHandler(func(args interface{}) {
 			helpLabel.Label = desc
 		})
 		if status != nil {
@@ -126,6 +139,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 		}
 		leftGrid.AddChild(b.Widget)
 		c.buttons = append(c.buttons, b.Widget)
+		gridButtonElems = append(gridButtonElems, navBlock.NewElem(b.Button))
 	}
 	leftPanel.AddChild(leftGrid)
 
@@ -137,13 +151,18 @@ func (c *ProfileAchievementsMenuController) initUI() {
 
 	rowContainer.AddChild(rootGrid)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
-		c.back()
-	}))
+	rowContainer.AddChild(backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	backButtonElem.Edges[gameui.NavUp] = gridButtonElems[len(gridButtonElems)-1]
+	bindNavGrid(gridButtonElems, numColumns, numRows)
+	for _, e := range gridButtonElems {
+		if e.Edges[gameui.NavDown] != nil {
+			continue
+		}
+		e.Edges[gameui.NavDown] = backButtonElem
+	}
+
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *ProfileAchievementsMenuController) back() {

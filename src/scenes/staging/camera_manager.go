@@ -137,7 +137,7 @@ func (m *cameraManager) HandleInput() {
 		}
 		if cameraPan.IsZero() && m.cameraPanBoundary != 0 {
 			// Mouse cursor can pan the camera too.
-			cursor := m.input.CursorPos().Sub(m.ScreenPos)
+			cursor := m.input.MouseCursorPos().Sub(m.ScreenPos)
 			if cursor.X >= m.Rect.Width()-m.cameraPanBoundary {
 				cameraPan.X += m.cameraPanSpeed
 			}

@@ -9,6 +9,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/descriptions"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/scenes/staging"
 	"github.com/quasilyte/roboden-game/session"
@@ -56,6 +57,19 @@ func (c *ReplayMenuController) initUI() {
 	helpLabel.MaxWidth = 268
 	c.helpLabel = helpLabel
 
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+		c.back()
+	})
+
+	navTree := gameui.NewNavTree()
+	bottomNavBlock := navTree.NewBlock()
+	leftNavBlock := navTree.NewBlock()
+	rightNavBlock := navTree.NewBlock()
+	var leftButtonElems []*gameui.NavElem
+	var rightButtonElems []*gameui.NavElem
+
+	bottomNavBlock.NewElem(backButton)
+
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.watch_replay"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
@@ -102,6 +116,11 @@ func (c *ReplayMenuController) initUI() {
 		b.GetWidget().Disabled = !replayExists || r.Replay.GameVersion != gamedata.BuildNumber
 		b.GetWidget().MinWidth = 220
 		leftGrid.AddChild(b)
+		if i%2 == 0 {
+			leftButtonElems = append(leftButtonElems, leftNavBlock.NewElem(b))
+		} else {
+			rightButtonElems = append(rightButtonElems, rightNavBlock.NewElem(b))
+		}
 	}
 
 	rightPanel := eui.NewTextPanel(uiResources, 320, 0)
@@ -116,13 +135,17 @@ func (c *ReplayMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
-		c.back()
-	}))
+	rowContainer.AddChild(backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	bindNavListNoWrap(leftButtonElems, gameui.NavUp, gameui.NavDown)
+	bindNavListNoWrap(rightButtonElems, gameui.NavUp, gameui.NavDown)
+	bottomNavBlock.Edges[gameui.NavUp] = leftNavBlock
+	leftNavBlock.Edges[gameui.NavDown] = bottomNavBlock
+	leftNavBlock.Edges[gameui.NavRight] = rightNavBlock
+	rightNavBlock.Edges[gameui.NavDown] = bottomNavBlock
+	rightNavBlock.Edges[gameui.NavLeft] = leftNavBlock
+
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *ReplayMenuController) back() {

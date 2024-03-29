@@ -67,6 +67,8 @@ func (c *SchemaNameMenu) initUI() {
 
 	d := c.scene.Dict()
 
+	var widgets []eui.Widget
+
 	key := c.state.SchemaDataKey(c.mode, c.selectedSlot)
 	if !c.state.CheckGameItem(key) {
 		c.scene.Audio().PlaySound(assets.AudioError)
@@ -113,6 +115,7 @@ func (c *SchemaNameMenu) initUI() {
 		textinput.SetText(schema.Name)
 	}
 	rowContainer.AddChild(textinput)
+	widgets = append(widgets, textinput)
 
 	c.textInput = textinput
 	if runtime.GOOS == "android" {
@@ -126,15 +129,16 @@ func (c *SchemaNameMenu) initUI() {
 		})
 	}
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.save"), func() {
+	saveButton := eui.NewButton(uiResources, c.scene, d.Get("menu.save"), func() {
 		schema.Name = textinput.GetText()
 		c.state.SaveGameItem(key, schema)
 		c.scene.Context().ChangeScene(NewSchemaMenuController(c.state, c.mode))
-	}))
+	})
+	rowContainer.AddChild(saveButton)
+	widgets = append(widgets, saveButton)
 
-	c.ui = eui.NewSceneObject(root)
-	c.scene.AddGraphics(c.ui)
-	c.scene.AddObject(c.ui)
+	navTree := createSimpleNavTree(widgets)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *SchemaNameMenu) back() {

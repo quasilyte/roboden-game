@@ -44,39 +44,44 @@ func (c *ProfileMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.achievements"), func() {
-		c.scene.Context().ChangeScene(NewProfileAchievementsMenuController(c.state))
-	}))
+	buttons := []eui.Widget{
+		eui.NewButton(uiResources, c.scene, d.Get("menu.profile.achievements"), func() {
+			c.scene.Context().ChangeScene(NewProfileAchievementsMenuController(c.state))
+		}),
+		eui.NewButton(uiResources, c.scene, d.Get("menu.profile.stats"), func() {
+			c.scene.Context().ChangeScene(NewProfileStatsMenuController(c.state))
+		}),
+		eui.NewButton(uiResources, c.scene, d.Get("menu.profile.progress"), func() {
+			c.scene.Context().ChangeScene(NewProfileProgressMenuController(c.state))
+		}),
+		eui.NewButton(uiResources, c.scene, d.Get("menu.profile.dronebook"), func() {
+			c.scene.Context().ChangeScene(NewProfileDroneCollectionMenuController(c.state))
+		}),
+		eui.NewButton(uiResources, c.scene, d.Get("menu.profile.watch_replay"), func() {
+			c.scene.Context().ChangeScene(NewReplayMenuController(c.state))
+		}),
+	}
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.stats"), func() {
-		c.scene.Context().ChangeScene(NewProfileStatsMenuController(c.state))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.progress"), func() {
-		c.scene.Context().ChangeScene(NewProfileProgressMenuController(c.state))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.dronebook"), func() {
-		c.scene.Context().ChangeScene(NewProfileDroneCollectionMenuController(c.state))
-	}))
-
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.profile.watch_replay"), func() {
-		c.scene.Context().ChangeScene(NewReplayMenuController(c.state))
-	}))
+	for _, b := range buttons {
+		rowContainer.AddChild(b)
+	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.set_user_name"), func() {
+	setUserNameButton := eui.NewButton(uiResources, c.scene, d.Get("menu.set_user_name"), func() {
 		c.scene.Context().ChangeScene(NewUserNameMenuController(c.state, c))
-	}))
+	})
+	rowContainer.AddChild(setUserNameButton)
+	buttons = append(buttons, setUserNameButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *ProfileMenuController) back() {

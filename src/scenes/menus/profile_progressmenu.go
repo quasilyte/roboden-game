@@ -79,13 +79,13 @@ func (c *ProfileProgressMenuController) initUI() {
 	}
 	panel.AddChild(grid)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree([]eui.Widget{backButton})
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *ProfileProgressMenuController) back() {

@@ -43,6 +43,8 @@ func (c *CreditsMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
+	var buttons []eui.Widget
+
 	d := c.scene.Context().Dict
 
 	smallFont := assets.BitmapFont1
@@ -86,16 +88,18 @@ func (c *CreditsMenuController) initUI() {
 		c.scene.Context().ChangeScene(NewSecretMenuController(c.state))
 	})
 	rowContainer.AddChild(secretScreen)
+	buttons = append(buttons, secretScreen)
 	secretTime := time.Duration(7*time.Hour + 7*time.Minute + 7*time.Second)
 	secretScreen.GetWidget().Disabled = c.state.Persistent.PlayerStats.TotalPlayTime < secretTime
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *CreditsMenuController) back() {

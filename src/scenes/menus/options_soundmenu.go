@@ -48,8 +48,10 @@ func (c *OptionsSoundMenuController) initUI() {
 
 	options := &c.state.Persistent.Settings
 
+	var buttons []eui.Widget
+
 	{
-		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+		effectsVolumeSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources:  uiResources,
 			Input:      c.state.MenuInput,
 			Value:      &options.EffectsVolumeLevel,
@@ -61,11 +63,14 @@ func (c *OptionsSoundMenuController) initUI() {
 					c.scene.Audio().PlaySound(assets.AudioAssaultShot)
 				}
 			},
-		}))
+		})
+		c.scene.AddObject(effectsVolumeSelect)
+		rowContainer.AddChild(effectsVolumeSelect.Widget)
+		buttons = append(buttons, effectsVolumeSelect.Widget)
 	}
 
 	{
-		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+		musicVolumeSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 			Resources:  uiResources,
 			Input:      c.state.MenuInput,
 			Value:      &options.MusicVolumeLevel,
@@ -80,35 +85,43 @@ func (c *OptionsSoundMenuController) initUI() {
 					c.scene.Audio().PauseCurrentMusic()
 				}
 			},
-		}))
+		})
+		c.scene.AddObject(musicVolumeSelect)
+		rowContainer.AddChild(musicVolumeSelect.Widget)
+		buttons = append(buttons, musicVolumeSelect.Widget)
 	}
 
 	{
-		b := eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-			Scene:     c.scene,
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound: true,
 			Resources: uiResources,
-			Value:     &options.XM,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.XM,
 			Label:     d.Get("menu.options.music_player"),
 			ValueNames: []string{
 				d.Get("menu.option.music_player.ogg"),
 				d.Get("menu.option.music_player.xm"),
 			},
 		})
-		rowContainer.AddChild(b)
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
 		// Don't allow web platforms to change the music player.
 		// The same goes for Androids.
-		b.GetWidget().Disabled = runtime.GOARCH == "wasm" || runtime.GOOS == "android"
+		b.Widget.GetWidget().Disabled = runtime.GOARCH == "wasm" || runtime.GOOS == "android"
+		buttons = append(buttons, b.Widget)
 	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *OptionsSoundMenuController) back() {

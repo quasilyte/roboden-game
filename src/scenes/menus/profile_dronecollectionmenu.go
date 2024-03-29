@@ -2,6 +2,7 @@ package menus
 
 import (
 	"image"
+	"math"
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -67,19 +68,6 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 
 	stats := &c.state.Persistent.PlayerStats
 
-	rootGrid := widget.NewContainer(
-		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-			Stretch: true,
-		})),
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(2),
-			widget.GridLayoutOpts.Stretch([]bool{false, true}, nil),
-			widget.GridLayoutOpts.Spacing(4, 4))))
-	leftPanel := eui.NewPanel(uiResources, 0, 0)
-	leftGrid := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(7),
-			widget.GridLayoutOpts.Spacing(4, 4))))
 	droneImage := func(drone *gamedata.AgentStats, available bool) *ebiten.Image {
 		if !available {
 			return c.scene.LoadImage(assets.ImageLock).Data
@@ -100,14 +88,40 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 			return true
 		}
 	}
+
+	navTree := gameui.NewNavTree()
+	navBlock := navTree.NewBlock()
+	numColumns := 7
+	numRows := int(math.Ceil(float64(len(drones)) / float64(numColumns)))
+
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+		c.back()
+	})
+	backButtonElem := navBlock.NewElem(backButton)
+
+	var gridButtonElems []*gameui.NavElem
+
+	rootGrid := widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+			Stretch: true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(2),
+			widget.GridLayoutOpts.Stretch([]bool{false, true}, nil),
+			widget.GridLayoutOpts.Spacing(4, 4))))
+	leftPanel := eui.NewPanel(uiResources, 0, 0)
+	leftGrid := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(numColumns),
+			widget.GridLayoutOpts.Spacing(4, 4))))
+
 	for i := range drones {
 		drone := drones[i]
 		available := droneIsUnlocked(drone)
 		available = true
 		frame := droneImage(drone, available)
 		b := eui.NewItemButton(uiResources, frame, tinyFont, "", 0, func() {})
-		b.SetDisabled(true)
-		b.Widget.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+		b.Button.CursorEnteredEvent.AddHandler(func(args interface{}) {
 			if available {
 				c.helpLabel.Label = descriptions.DroneText(c.scene.Dict(), drone, true, true)
 				if drone.Tier == 1 {
@@ -125,6 +139,7 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 			}
 		})
 		leftGrid.AddChild(b.Widget)
+		gridButtonElems = append(gridButtonElems, navBlock.NewElem(b.Button))
 	}
 	leftPanel.AddChild(leftGrid)
 
@@ -139,13 +154,18 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 
 	rowContainer.AddChild(rootGrid)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
-		c.back()
-	}))
+	rowContainer.AddChild(backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	backButtonElem.Edges[gameui.NavUp] = gridButtonElems[len(gridButtonElems)-1]
+	bindNavGrid(gridButtonElems, numColumns, numRows)
+	for _, e := range gridButtonElems {
+		if e.Edges[gameui.NavDown] != nil {
+			continue
+		}
+		e.Edges[gameui.NavDown] = backButtonElem
+	}
+
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *ProfileDroneCollectionMenuController) back() {

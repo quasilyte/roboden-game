@@ -56,26 +56,33 @@ func (c *OptionsGraphicsMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.graphics"), normalFont)
 	rowContainer.AddChild(titleLabel)
 
+	var buttons []eui.Widget
+
 	options := &c.state.Persistent.Settings
 
 	{
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-			Scene:     c.scene,
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound: true,
 			Resources: uiResources,
-			Value:     &options.Graphics.ShadowsEnabled,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.Graphics.ShadowsEnabled,
 			Label:     d.Get("menu.options.graphics.shadows"),
 			ValueNames: []string{
 				d.Get("menu.option.off"),
 				d.Get("menu.option.on"),
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
 	{
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-			Scene:     c.scene,
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound: true,
 			Resources: uiResources,
-			Value:     &options.Graphics.VSyncEnabled,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.Graphics.VSyncEnabled,
 			Label:     d.Get("menu.options.graphics.vsync"),
 			OnPressed: func() {
 				ebiten.SetVsyncEnabled(options.Graphics.VSyncEnabled)
@@ -84,38 +91,49 @@ func (c *OptionsGraphicsMenuController) initUI() {
 				d.Get("menu.option.off"),
 				d.Get("menu.option.on"),
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
 	{
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-			Scene:     c.scene,
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound: true,
 			Resources: uiResources,
-			Value:     &options.Graphics.CameraShakingEnabled,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.Graphics.CameraShakingEnabled,
 			Label:     d.Get("menu.options.graphics.camera_shaking"),
 			ValueNames: []string{
 				d.Get("menu.option.off"),
 				d.Get("menu.option.on"),
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
 	{
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-			Scene:     c.scene,
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound: true,
 			Resources: uiResources,
-			Value:     &options.Graphics.AllShadersEnabled,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.Graphics.AllShadersEnabled,
 			Label:     d.Get("menu.options.graphics.shaders"),
 			ValueNames: []string{
 				d.Get("menu.option.mandatory"),
 				d.Get("menu.option.all"),
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
-	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+	screenFilterSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 		Input:     c.state.MenuInput,
-		Scene:     c.scene,
+		PlaySound: true,
 		Resources: uiResources,
 		Value:     &options.Graphics.ScreenFilter,
 		Label:     d.Get("menu.options.graphics.screen_filter"),
@@ -129,13 +147,17 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			d.Get("menu.options.screen_filter.hue_plus30"),
 			d.Get("menu.options.screen_filter.hue_plus60"),
 		},
-	}))
+	})
+	c.scene.AddObject(screenFilterSelect)
+	rowContainer.AddChild(screenFilterSelect.Widget)
+	buttons = append(buttons, screenFilterSelect.Widget)
 
 	if c.state.Device.IsDesktop() {
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-			Scene:     c.scene,
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound: true,
 			Resources: uiResources,
-			Value:     &options.Graphics.FullscreenEnabled,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.Graphics.FullscreenEnabled,
 			Label:     d.Get("menu.options.graphics.fullscreen"),
 			ValueNames: []string{
 				d.Get("menu.option.off"),
@@ -148,12 +170,15 @@ func (c *OptionsGraphicsMenuController) initUI() {
 					ebiten.SetWindowSize(int(displayRatio.Width), int(displayRatio.Height))
 				}
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
 	if runtime.GOARCH != "wasm" {
 		b := eui.NewSelectButton(eui.SelectButtonConfig{
-			Scene:     c.scene,
+			PlaySound: true,
 			Resources: uiResources,
 			Input:     c.state.MenuInput,
 			Value:     &options.Graphics.AspectRatio,
@@ -179,18 +204,21 @@ func (c *OptionsGraphicsMenuController) initUI() {
 				c.scene.Context().ChangeScene(NewSplashScreenController(c.state, c))
 			},
 		})
-		rowContainer.AddChild(b)
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *OptionsGraphicsMenuController) back() {

@@ -45,31 +45,43 @@ func (c *OptionsMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
+	var buttons []eui.Widget
+
 	options := &c.state.Persistent.Settings
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.gameplay"), func() {
+	gameplayButton := eui.NewButton(uiResources, c.scene, d.Get("menu.options.gameplay"), func() {
 		c.scene.Context().ChangeScene(NewOptionsGameplayMenuController(c.state))
-	}))
+	})
+	rowContainer.AddChild(gameplayButton)
+	buttons = append(buttons, gameplayButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.sound"), func() {
+	soundButton := eui.NewButton(uiResources, c.scene, d.Get("menu.options.sound"), func() {
 		c.scene.Context().ChangeScene(NewOptionsSoundMenuController(c.state))
-	}))
+	})
+	rowContainer.AddChild(soundButton)
+	buttons = append(buttons, soundButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.graphics"), func() {
+	graphicsButton := eui.NewButton(uiResources, c.scene, d.Get("menu.options.graphics"), func() {
 		c.scene.Context().ChangeScene(NewOptionsGraphicsMenuController(c.state))
-	}))
+	})
+	rowContainer.AddChild(graphicsButton)
+	buttons = append(buttons, graphicsButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.controls"), func() {
+	controlsButton := eui.NewButton(uiResources, c.scene, d.Get("menu.options.controls"), func() {
 		if c.state.Device.IsMobile() {
 			c.scene.Context().ChangeScene(NewControlsTouchMenuController(c.state))
 		} else {
 			c.scene.Context().ChangeScene(NewControlsMenuController(c.state))
 		}
-	}))
+	})
+	rowContainer.AddChild(controlsButton)
+	buttons = append(buttons, controlsButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.options.extra"), func() {
+	extraButton := eui.NewButton(uiResources, c.scene, d.Get("menu.options.extra"), func() {
 		c.scene.Context().ChangeScene(NewOptionsExtraMenuController(c.state))
-	}))
+	})
+	rowContainer.AddChild(extraButton)
+	buttons = append(buttons, extraButton)
 
 	{
 		langOptions := []string{
@@ -77,8 +89,8 @@ func (c *OptionsMenuController) initUI() {
 			"ru",
 		}
 		langIndex := xslices.Index(langOptions, options.Lang)
-		rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
-			Scene:      c.scene,
+		langSelect := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound:  true,
 			Resources:  uiResources,
 			Input:      c.state.MenuInput,
 			Value:      &langIndex,
@@ -95,18 +107,22 @@ func (c *OptionsMenuController) initUI() {
 					c.scene.Context().ChangeScene(c)
 				}
 			},
-		}))
+		})
+		c.scene.AddObject(langSelect)
+		rowContainer.AddChild(langSelect.Widget)
+		buttons = append(buttons, langSelect.Widget)
 	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *OptionsMenuController) back() {

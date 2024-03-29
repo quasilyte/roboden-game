@@ -80,6 +80,8 @@ func (c *ProfileStatsMenuController) initUI() {
 
 	panel.AddChild(grid)
 
+	var buttons []eui.Widget
+
 	var sendScoreButton *widget.Button
 	sendScoreButton = eui.NewButton(uiResources, c.scene, d.Get("menu.publish_high_score"), func() {
 		if c.state.Persistent.PlayerName == "" {
@@ -98,6 +100,7 @@ func (c *ProfileStatsMenuController) initUI() {
 			return
 		}
 	})
+	buttons = append(buttons, sendScoreButton)
 	rowContainer.AddChild(sendScoreButton)
 	sendScoreButton.GetWidget().Disabled = c.state.SentHighscores ||
 		(c.state.Persistent.PlayerStats.HighestClassicScore == 0 &&
@@ -106,13 +109,14 @@ func (c *ProfileStatsMenuController) initUI() {
 			c.state.Persistent.PlayerStats.HighestInfArenaScore == 0 &&
 			c.state.Persistent.PlayerStats.HighestReverseScore == 0)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *ProfileStatsMenuController) prepareHighscoreReplays() []serverapi.GameReplay {

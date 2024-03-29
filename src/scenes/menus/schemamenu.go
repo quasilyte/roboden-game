@@ -10,6 +10,7 @@ import (
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/descriptions"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/timeutil"
@@ -92,15 +93,29 @@ func (c *SchemaMenuController) initUI() {
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.schema"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
+	numSlots := 10
+
+	navTree := gameui.NewNavTree()
+	navBlock := navTree.NewBlock()
+	numColumns := 2
+	numRows := numSlots / numColumns
+
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+		c.back()
+	})
+	backButtonElem := navBlock.NewElem(backButton)
+
 	rootGrid := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(2),
+			widget.GridLayoutOpts.Columns(numColumns),
 			widget.GridLayoutOpts.Stretch([]bool{true, false}, nil),
 			widget.GridLayoutOpts.Spacing(4, 4))))
 	leftGrid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(8, 4),
 		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))
 
-	for i := 0; i < 10; i++ {
+	var gridButtonElems []*gameui.NavElem
+
+	for i := 0; i < numSlots; i++ {
 		slotIndex := i
 		key := c.state.SchemaDataKey(c.mode, i)
 		var schema *gamedata.SavedSchema
@@ -115,12 +130,13 @@ func (c *SchemaMenuController) initUI() {
 			c.selectSlot(slotIndex)
 		})
 		c.buttons = append(c.buttons, b)
-		b.GetWidget().CursorEnterEvent.AddHandler(func(args interface{}) {
+		b.CursorEnteredEvent.AddHandler(func(args interface{}) {
 			c.updateHelpText(slotIndex)
 		})
 		b.GetWidget().MinWidth = 220
 		leftGrid.AddChild(b)
 		c.updateSlotLabel(slotIndex)
+		gridButtonElems = append(gridButtonElems, navBlock.NewElem(b))
 	}
 
 	rightPanel := eui.NewTextPanel(uiResources, 320, 0)
@@ -193,13 +209,34 @@ func (c *SchemaMenuController) initUI() {
 
 	rowContainer.AddChild(buttonsGrid)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
-		c.back()
-	}))
+	rowContainer.AddChild(backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	bindNavGrid(gridButtonElems, numColumns, numRows)
+	saveButtonElem := navBlock.NewElem(c.saveButton)
+	loadButtonElem := navBlock.NewElem(c.loadButton)
+	renameButtonElem := navBlock.NewElem(c.renameButton)
+	loadDronesButtonElem := navBlock.NewElem(c.loadDronesButton)
+	controlButtonElems := []*gameui.NavElem{
+		saveButtonElem,
+		loadButtonElem,
+		renameButtonElem,
+		loadDronesButtonElem,
+	}
+	bindNavGrid(controlButtonElems, 2, 2)
+
+	for _, b := range gridButtonElems {
+		if b.Edges[gameui.NavDown] != nil {
+			continue
+		}
+		b.Edges[gameui.NavDown] = saveButtonElem
+	}
+	saveButtonElem.Edges[gameui.NavUp] = gridButtonElems[len(gridButtonElems)-2]
+	loadButtonElem.Edges[gameui.NavUp] = gridButtonElems[len(gridButtonElems)-1]
+	renameButtonElem.Edges[gameui.NavDown] = backButtonElem
+	loadDronesButtonElem.Edges[gameui.NavDown] = backButtonElem
+	backButtonElem.Edges[gameui.NavUp] = renameButtonElem
+
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *SchemaMenuController) updateHelpText(i int) {

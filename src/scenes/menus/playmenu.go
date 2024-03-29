@@ -108,6 +108,8 @@ func (c *PlayMenuController) initUI() {
 	rightPanel.AddChild(helpLabel)
 	rootGrid.AddChild(rightPanel)
 
+	var buttons []eui.Widget
+
 	{
 		b := eui.NewButtonWithConfig(uiResources, eui.ButtonConfig{
 			Scene: c.scene,
@@ -123,6 +125,7 @@ func (c *PlayMenuController) initUI() {
 			OnHover: func() { c.setHelpText(d.Get("menu.overview.intro_mission")) },
 		})
 		buttonsContainer.AddChild(b)
+		buttons = append(buttons, b)
 	}
 
 	playerStats := &c.state.Persistent.PlayerStats
@@ -138,6 +141,7 @@ func (c *PlayMenuController) initUI() {
 			OnHover: func() { c.setHelpText(c.modeDescriptionText("blitz", 0)) },
 		})
 		buttonsContainer.AddChild(b)
+		buttons = append(buttons, b)
 	}
 
 	{
@@ -152,6 +156,7 @@ func (c *PlayMenuController) initUI() {
 		})
 		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "classic")
 		buttonsContainer.AddChild(b)
+		buttons = append(buttons, b)
 	}
 
 	{
@@ -166,6 +171,7 @@ func (c *PlayMenuController) initUI() {
 		})
 		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "arena")
 		buttonsContainer.AddChild(b)
+		buttons = append(buttons, b)
 	}
 
 	{
@@ -180,6 +186,7 @@ func (c *PlayMenuController) initUI() {
 		})
 		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "reverse")
 		buttonsContainer.AddChild(b)
+		buttons = append(buttons, b)
 	}
 
 	{
@@ -194,15 +201,19 @@ func (c *PlayMenuController) initUI() {
 		})
 		b.GetWidget().Disabled = !xslices.Contains(playerStats.ModesUnlocked, "inf_arena")
 		buttonsContainer.AddChild(b)
+		buttons = append(buttons, b)
 	}
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
-		c.back()
-	}))
+	{
+		b := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+			c.back()
+		})
+		rowContainer.AddChild(b)
+		buttons = append(buttons, b)
+	}
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *PlayMenuController) back() {

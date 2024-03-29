@@ -46,69 +46,90 @@ func (c *OptionsExtraMenuController) initUI() {
 
 	options := &c.state.Persistent.Settings
 
+	var buttons []eui.Widget
+
 	{
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-			Scene:     c.scene,
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound: true,
 			Resources: uiResources,
-			Value:     &options.Demo,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.Demo,
 			Label:     d.Get("menu.options.splash_screen"),
 			ValueNames: []string{
 				d.Get("menu.option.off"),
 				d.Get("menu.option.on"),
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
 	if !c.state.Device.IsMobile() {
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-			Scene:     c.scene,
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound: true,
 			Resources: uiResources,
-			Value:     &options.ShowFPS,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.ShowFPS,
 			Label:     d.Get("menu.options.show_fps"),
 			ValueNames: []string{
 				d.Get("menu.option.off"),
 				d.Get("menu.option.on"),
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
 	if !c.state.Device.IsMobile() {
-		rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-			Scene:     c.scene,
+		b := eui.NewSelectButton(eui.SelectButtonConfig{
+			PlaySound: true,
 			Resources: uiResources,
-			Value:     &options.ShowTimer,
+			Input:     c.state.MenuInput,
+			BoolValue: &options.ShowTimer,
 			Label:     d.Get("menu.options.show_timer"),
 			ValueNames: []string{
 				d.Get("menu.option.off"),
 				d.Get("menu.option.on"),
 			},
-		}))
+		})
+		c.scene.AddObject(b)
+		rowContainer.AddChild(b.Widget)
+		buttons = append(buttons, b.Widget)
 	}
 
-	rowContainer.AddChild(eui.NewBoolSelectButton(eui.BoolSelectButtonConfig{
-		Scene:     c.scene,
+	largeDiodesSelect := eui.NewSelectButton(eui.SelectButtonConfig{
+		PlaySound: true,
 		Resources: uiResources,
-		Value:     &options.LargeDiodes,
+		Input:     c.state.MenuInput,
+		BoolValue: &options.LargeDiodes,
 		Label:     d.Get("menu.options.large_diodes"),
 		ValueNames: []string{
 			d.Get("menu.option.off"),
 			d.Get("menu.option.on"),
 		},
-	}))
+	})
+	c.scene.AddObject(largeDiodesSelect)
+	rowContainer.AddChild(largeDiodesSelect.Widget)
+	buttons = append(buttons, largeDiodesSelect.Widget)
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.terminal"), func() {
+	terminalButton := eui.NewButton(uiResources, c.scene, d.Get("menu.terminal"), func() {
 		c.scene.Context().ChangeScene(NewTerminalMenuController(c.state))
-	}))
+	})
+	rowContainer.AddChild(terminalButton)
+	buttons = append(buttons, terminalButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *OptionsExtraMenuController) back() {

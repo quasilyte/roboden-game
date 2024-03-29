@@ -21,11 +21,6 @@ const (
 	ActionPanAlt
 	ActionPanDrag
 
-	ActionMenuFocusRight
-	ActionMenuFocusDown
-	ActionMenuFocusLeft
-	ActionMenuFocusUp
-
 	ActionPause
 
 	ActionPing
@@ -42,6 +37,13 @@ const (
 	ActionExit
 	ActionExitConfirm
 	ActionMenuBack
+	ActionMenuConfirm
+	ActionMenuFocusRight
+	ActionMenuFocusDown
+	ActionMenuFocusLeft
+	ActionMenuFocusUp
+	ActionMenuTabRight
+	ActionMenuTabLeft
 
 	ActionDebug
 
@@ -101,10 +103,13 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 		ActionMenuBack:    {input.KeyGamepadBack, input.KeyGamepadB},
 		ActionPause:       {input.KeyGamepadStart, input.KeyGamepadHome},
 
+		ActionMenuConfirm:    {input.KeyGamepadA},
 		ActionMenuFocusRight: {input.KeyGamepadRight},
 		ActionMenuFocusDown:  {input.KeyGamepadDown},
 		ActionMenuFocusLeft:  {input.KeyGamepadLeft},
 		ActionMenuFocusUp:    {input.KeyGamepadUp},
+		ActionMenuTabRight:   {input.KeyGamepadR1},
+		ActionMenuTabLeft:    {input.KeyGamepadL1},
 
 		ActionChoice1:    {input.KeyGamepadY},
 		ActionChoice2:    {input.KeyGamepadB},
@@ -147,10 +152,13 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 		ActionMenuBack: {input.KeyEscape},
 		ActionPause:    {input.KeySpace},
 
+		ActionMenuConfirm:    {}, // TODO: KeyEnter? It clashes with ebitenui default submit though
 		ActionMenuFocusRight: {input.KeyRight},
 		ActionMenuFocusDown:  {input.KeyDown},
 		ActionMenuFocusLeft:  {input.KeyLeft},
 		ActionMenuFocusUp:    {input.KeyUp},
+		ActionMenuTabRight:   {input.KeyTab},
+		ActionMenuTabLeft:    {input.KeyWithModifier(input.KeyTab, input.ModShift)},
 
 		ActionChoice1:    {input.Key1},
 		ActionChoice2:    {input.Key2},

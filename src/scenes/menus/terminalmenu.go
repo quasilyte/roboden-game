@@ -87,6 +87,8 @@ func (c *TerminalMenu) initUI() {
 
 	d := c.scene.Dict()
 
+	var widgets []eui.Widget
+
 	tinyFont := assets.BitmapFont1
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra")+" -> "+d.Get("menu.terminal"), assets.BitmapFont3)
@@ -100,6 +102,11 @@ func (c *TerminalMenu) initUI() {
 	c.outputLabel.MaxWidth = 500
 	normalContainer.AddChild(c.outputLabel)
 	outputPanel.AddChild(normalContainer)
+
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+		c.back()
+	})
+	widgets = append(widgets, backButton)
 
 	type terminalCommand struct {
 		key     string
@@ -249,6 +256,7 @@ func (c *TerminalMenu) initUI() {
 	rowContainer.AddChild(textinput)
 	rowContainer.AddChild(outputTitle)
 	rowContainer.AddChild(outputPanel)
+	widgets = append(widgets, textinput)
 
 	c.textInput = textinput
 	if runtime.GOOS == "android" {
@@ -262,13 +270,10 @@ func (c *TerminalMenu) initUI() {
 		})
 	}
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
-		c.back()
-	}))
+	rowContainer.AddChild(backButton)
 
-	c.ui = eui.NewSceneObject(root)
-	c.scene.AddGraphics(c.ui)
-	c.scene.AddObject(c.ui)
+	navTree := createSimpleNavTree(widgets)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *TerminalMenu) openKeyboard() {

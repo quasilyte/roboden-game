@@ -122,6 +122,8 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	d := c.scene.Dict()
 
+	var buttons []eui.Widget
+
 	smallFont := assets.BitmapFont1
 
 	options := &c.state.Persistent.Settings
@@ -158,7 +160,7 @@ func (c *ControlsGamepadMenuController) initUI() {
 	initControlsGrid(h.ReplaceKeyNames(d.Get("menu.controls.gamepad.text")))
 	panel.AddChild(grid)
 
-	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+	gamepadLayoutSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
 		Input:      c.state.MenuInput,
 		Value:      &options.GamepadSettings[c.id].Layout,
@@ -169,9 +171,12 @@ func (c *ControlsGamepadMenuController) initUI() {
 			grid.RemoveChildren()
 			initControlsGrid(h.ReplaceKeyNames(d.Get("menu.controls.gamepad.text")))
 		},
-	}))
+	})
+	c.scene.AddObject(gamepadLayoutSelect)
+	rowContainer.AddChild(gamepadLayoutSelect.Widget)
+	buttons = append(buttons, gamepadLayoutSelect.Widget)
 
-	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+	gamepadCursorSpeedSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
 		Input:      c.state.MenuInput,
 		Value:      &options.GamepadSettings[c.id].CursorSpeed,
@@ -180,9 +185,12 @@ func (c *ControlsGamepadMenuController) initUI() {
 		OnPressed: func() {
 			h.SetVirtualCursorSpeed(options.GamepadSettings[c.id].CursorSpeed)
 		},
-	}))
+	})
+	c.scene.AddObject(gamepadCursorSpeedSelect)
+	rowContainer.AddChild(gamepadCursorSpeedSelect.Widget)
+	buttons = append(buttons, gamepadCursorSpeedSelect.Widget)
 
-	rowContainer.AddChild(eui.NewSelectButton(eui.SelectButtonConfig{
+	gamepadDeadzoneSelect := eui.NewSelectButton(eui.SelectButtonConfig{
 		Resources:  uiResources,
 		Input:      c.state.MenuInput,
 		Value:      &options.GamepadSettings[c.id].DeadzoneLevel,
@@ -191,7 +199,10 @@ func (c *ControlsGamepadMenuController) initUI() {
 		OnPressed: func() {
 			h.SetGamepadDeadzoneLevel(options.GamepadSettings[c.id].DeadzoneLevel)
 		},
-	}))
+	})
+	c.scene.AddObject(gamepadDeadzoneSelect)
+	rowContainer.AddChild(gamepadDeadzoneSelect.Widget)
+	buttons = append(buttons, gamepadDeadzoneSelect.Widget)
 
 	{
 		calibrationContentsContainer := eui.NewRowLayoutContainer(10, nil)
@@ -217,13 +228,14 @@ func (c *ControlsGamepadMenuController) initUI() {
 		calibrationPanel.AddChild(calibrationContentsContainer)
 	}
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
+	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()
-	}))
+	})
+	rowContainer.AddChild(backButton)
+	buttons = append(buttons, backButton)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	navTree := createSimpleNavTree(buttons)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }
 
 func (c *ControlsGamepadMenuController) createRadarImage() *ebiten.Image {

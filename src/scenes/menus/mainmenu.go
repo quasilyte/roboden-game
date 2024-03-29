@@ -12,6 +12,7 @@ import (
 	"github.com/quasilyte/roboden-game/buildinfo"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
+	"github.com/quasilyte/roboden-game/gameui"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
 )
@@ -66,30 +67,52 @@ func (c *MainMenuController) initUI() {
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.play"), func() {
+	playButton := eui.NewButton(uiResources, c.scene, d.Get("menu.main.play"), func() {
 		c.scene.Context().ChangeScene(NewPlayMenuController(c.state))
-	}))
+	})
+	rowContainer.AddChild(playButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.profile"), func() {
+	profileButton := eui.NewButton(uiResources, c.scene, d.Get("menu.main.profile"), func() {
 		c.scene.Context().ChangeScene(NewProfileMenuController(c.state))
-	}))
+	})
+	rowContainer.AddChild(profileButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.leaderboard"), func() {
+	leaderboardButton := eui.NewButton(uiResources, c.scene, d.Get("menu.main.leaderboard"), func() {
 		c.scene.Context().ChangeScene(NewLeaderboardMenuController(c.state))
-	}))
+	})
+	rowContainer.AddChild(leaderboardButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.settings"), func() {
+	settingsButton := eui.NewButton(uiResources, c.scene, d.Get("menu.main.settings"), func() {
 		c.scene.Context().ChangeScene(NewOptionsController(c.state))
-	}))
+	})
+	rowContainer.AddChild(settingsButton)
 
-	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.credits"), func() {
+	creditsButton := eui.NewButton(uiResources, c.scene, d.Get("menu.main.credits"), func() {
 		c.scene.Context().ChangeScene(NewCreditsMenuController(c.state))
-	}))
+	})
+	rowContainer.AddChild(creditsButton)
 
+	var exitButton eui.Widget
 	if runtime.GOARCH != "wasm" {
-		rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.main.exit"), func() {
+		exitButton = eui.NewButton(uiResources, c.scene, d.Get("menu.main.exit"), func() {
 			os.Exit(0)
-		}))
+		})
+		rowContainer.AddChild(exitButton)
+	}
+
+	var navTree *gameui.NavTree
+	{
+		buttons := []eui.Widget{
+			playButton,
+			profileButton,
+			leaderboardButton,
+			settingsButton,
+			creditsButton,
+		}
+		if exitButton != nil {
+			buttons = append(buttons, exitButton)
+		}
+		navTree = createSimpleNavTree(buttons)
 	}
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
@@ -107,7 +130,5 @@ func (c *MainMenuController) initUI() {
 	buildVersionLabel := eui.NewCenteredLabel(buildLabel, assets.BitmapFont1)
 	rowContainer.AddChild(buildVersionLabel)
 
-	uiObject := eui.NewSceneObject(root)
-	c.scene.AddGraphics(uiObject)
-	c.scene.AddObject(uiObject)
+	setupUI(c.scene, root, c.state.MenuInput, navTree)
 }

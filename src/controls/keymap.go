@@ -104,10 +104,10 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 		ActionPause:       {input.KeyGamepadStart, input.KeyGamepadHome},
 
 		ActionMenuConfirm:    {input.KeyGamepadA},
-		ActionMenuFocusRight: {input.KeyGamepadRight},
-		ActionMenuFocusDown:  {input.KeyGamepadDown},
-		ActionMenuFocusLeft:  {input.KeyGamepadLeft},
-		ActionMenuFocusUp:    {input.KeyGamepadUp},
+		ActionMenuFocusRight: {input.KeyGamepadRight, input.KeyGamepadLStickRight},
+		ActionMenuFocusDown:  {input.KeyGamepadDown, input.KeyGamepadLStickDown},
+		ActionMenuFocusLeft:  {input.KeyGamepadLeft, input.KeyGamepadLStickLeft},
+		ActionMenuFocusUp:    {input.KeyGamepadUp, input.KeyGamepadLStickUp},
 		ActionMenuTabRight:   {input.KeyGamepadR1},
 		ActionMenuTabLeft:    {input.KeyGamepadL1},
 

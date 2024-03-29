@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/quasilyte/ge"
+	"github.com/quasilyte/gmath"
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
@@ -47,41 +48,45 @@ func (c *CreditsMenuController) initUI() {
 
 	d := c.scene.Context().Dict
 
-	smallFont := assets.BitmapFont1
+	smallFont := assets.BitmapFont2
 
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.credits"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
-	panel := eui.NewTextPanel(uiResources, 0, 0)
+	panel := eui.NewTextPanel(uiResources, 640, 92*2)
 	rowContainer.AddChild(panel)
 
 	testers := []string{
 		"bontequero",
 		"yukki",
-		"NKMory",
 		"BaBuwkaPride",
 	}
 	sort.Strings(testers)
 
-	lines := []string{
-		"[" + d.Get("menu.credits.crew") + "]",
-		"    quasilyte (Iskander senpai) - game maker",
-		"    shooQrow (Oleg) - graphics, co-game design, testing",
-		"    " + strings.Join(testers, ", ") + " - testing",
-		"",
-		"[" + d.Get("menu.credits.assets") + "]",
-		"    DROZERiX - Crush, War Path and Sexxxy Bit 3 music tracks",
-		"    JAM - Deadly Windmills music track",
-		"    unTied Games - super pixel effects packs (1, 2 & 3)",
-		"",
-		"[" + d.Get("menu.credits.special_thanks") + "]",
-		"    Hajime Hoshi - Ebitengine creator and maintainer (@hajimehoshi)",
-		"    Mark Carpenter - ebitenui maintainer (@mcarpenter622)",
-		"",
-		d.Get("menu.credits.thank_player"),
+	pages := []string{
+		strings.Join([]string{
+			"[" + d.Get("menu.credits.crew") + "]",
+			"  quasilyte (Iskander senpai) - game maker",
+			"  shooQrow (Oleg) - graphics, co-game design",
+			"  " + strings.Join(testers, ", ") + " - testing",
+		}, "\n"),
+		strings.Join([]string{
+			"[" + d.Get("menu.credits.assets") + "]",
+			"  DROZERiX - Crush, War Path, Sexy Bit 3 tracks",
+			"  JAM - Deadly Windmills track",
+			"  unTied Games - pixel effects packs 1-3",
+		}, "\n"),
+		strings.Join([]string{
+			"[" + d.Get("menu.credits.special_thanks") + "]",
+			"  Hajime Hoshi - Ebitengine creator",
+			"  Mark Carpenter - ebitenui",
+		}, "\n"),
+		strings.Join([]string{
+			d.Get("menu.credits.thank_player"),
+		}, "\n"),
 	}
 
-	label := eui.NewLabel(strings.Join(lines, "\n"), smallFont)
+	label := eui.NewLabel(pages[0], smallFont)
 	panel.AddChild(label)
 
 	secretScreen := eui.NewButton(uiResources, c.scene, "???", func() {
@@ -91,6 +96,15 @@ func (c *CreditsMenuController) initUI() {
 	buttons = append(buttons, secretScreen)
 	secretTime := time.Duration(7*time.Hour + 7*time.Minute + 7*time.Second)
 	secretScreen.GetWidget().Disabled = c.state.Persistent.PlayerStats.TotalPlayTime < secretTime
+
+	var pageSlider gmath.Slider
+	pageSlider.SetBounds(0, len(pages)-1)
+	nextButton := eui.NewButton(uiResources, c.scene, d.Get("menu.next"), func() {
+		pageSlider.Inc()
+		label.Label = pages[pageSlider.Value()]
+	})
+	rowContainer.AddChild(nextButton)
+	buttons = append(buttons, nextButton)
 
 	backButton := eui.NewButton(uiResources, c.scene, d.Get("menu.back"), func() {
 		c.back()

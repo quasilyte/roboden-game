@@ -118,6 +118,7 @@
 
 ##menu.tier : тир
 ##menu.back : Назад
+##menu.next : Далее
 ##menu.lobby_back : Назад в Меню
 
 ##menu.options.gameplay : Геймплей

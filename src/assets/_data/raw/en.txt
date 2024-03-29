@@ -118,6 +118,7 @@ Schemas can be used to save and load your favorite drone build.
 
 ##menu.tier : tier
 ##menu.back : Back
+##menu.next : Next
 ##menu.lobby_back : Done
 
 ##menu.options.gameplay : Gameplay

@@ -567,6 +567,7 @@ const SeasonNumber = 1
 // - Make miss-hit check take the target's size into account
 // - Add gamepad navigation to the menu
 // - Make text panels have dark background
+// - Credits is now a multi-page screen with a larger font
 const (
 	BuildNumber      int = 25
 	BuildMinorNumber int = 0

@@ -177,20 +177,25 @@ func (c *OptionsGraphicsMenuController) initUI() {
 	}
 
 	if runtime.GOARCH != "wasm" {
+		values := []string{
+			gamedata.SupportedDisplayRatios[0].Name,
+			gamedata.SupportedDisplayRatios[1].Name,
+			gamedata.SupportedDisplayRatios[2].Name,
+			gamedata.SupportedDisplayRatios[3].Name,
+			gamedata.SupportedDisplayRatios[4].Name,
+			gamedata.SupportedDisplayRatios[5].Name,
+		}
+		if c.state.Device.IsSteamDeck() {
+			// Steam Deck Native display.
+			values = append(values, gamedata.SupportedDisplayRatios[6].Name)
+		}
 		b := eui.NewSelectButton(eui.SelectButtonConfig{
-			PlaySound: true,
-			Resources: uiResources,
-			Input:     c.state.MenuInput,
-			Value:     &options.Graphics.AspectRatio,
-			Label:     d.Get("menu.options.graphics.aspect_ratio"),
-			ValueNames: []string{
-				gamedata.SupportedDisplayRatios[0].Name,
-				gamedata.SupportedDisplayRatios[1].Name,
-				gamedata.SupportedDisplayRatios[2].Name,
-				gamedata.SupportedDisplayRatios[3].Name,
-				gamedata.SupportedDisplayRatios[4].Name,
-				gamedata.SupportedDisplayRatios[5].Name,
-			},
+			PlaySound:  true,
+			Resources:  uiResources,
+			Input:      c.state.MenuInput,
+			Value:      &options.Graphics.AspectRatio,
+			Label:      d.Get("menu.options.graphics.aspect_ratio"),
+			ValueNames: values,
 			OnPressed: func() {
 				displayRatio := gamedata.SupportedDisplayRatios[options.Graphics.AspectRatio]
 				ctx := c.scene.Context()

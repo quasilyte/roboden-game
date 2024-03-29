@@ -45,11 +45,6 @@ func (c *ProfileProgressMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	tinyFont := assets.BitmapFont1
-
-	helpLabel := eui.NewLabel("", tinyFont)
-	helpLabel.MaxWidth = 340
-
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.progress"), assets.BitmapFont3)
 	rowContainer.AddChild(titleLabel)
 
@@ -60,7 +55,7 @@ func (c *ProfileProgressMenuController) initUI() {
 
 	stats := c.state.Persistent.PlayerStats
 
-	smallFont := assets.BitmapFont1
+	smallFont := assets.BitmapFont2
 
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),
 		widget.GridLayoutOpts.Stretch([]bool{true, false}, nil))

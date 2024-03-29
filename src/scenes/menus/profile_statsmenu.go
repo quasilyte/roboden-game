@@ -53,7 +53,7 @@ func (c *ProfileStatsMenuController) initUI() {
 	panel := eui.NewTextPanel(uiResources, 0, 0)
 	rowContainer.AddChild(panel)
 
-	smallFont := assets.BitmapFont1
+	smallFont := assets.BitmapFont2
 	stats := c.state.Persistent.PlayerStats
 
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),

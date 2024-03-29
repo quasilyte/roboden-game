@@ -568,6 +568,7 @@ const SeasonNumber = 1
 // - Add gamepad navigation to the menu
 // - Make text panels have dark background
 // - Credits is now a multi-page screen with a larger font
+// - Stats & Progress screens now use a larger font
 const (
 	BuildNumber      int = 25
 	BuildMinorNumber int = 0

@@ -23,8 +23,8 @@ func main() {
 	invalid := 0
 
 	ctx := ge.NewContext(ge.ContextConfig{
-		Mute:       true,
-		FixedDelta: true,
+		Mute:          true,
+		TimeDeltaMode: ge.TimeDeltaFixed60,
 	})
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, "")
 	assets.RegisterRawResources(ctx)

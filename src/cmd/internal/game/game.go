@@ -110,7 +110,7 @@ func Main() {
 	}
 
 	ctx := ge.NewContext(ge.ContextConfig{
-		FixedDelta: true,
+		TimeDeltaMode: ge.TimeDeltaFixed60,
 	})
 	ctx.Rand.SetSeed(time.Now().Unix())
 	ctx.GameName = "roboden"

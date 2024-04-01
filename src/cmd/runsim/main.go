@@ -38,8 +38,8 @@ func main() {
 
 	config := gamedata.MakeLevelConfig(gamedata.ExecuteSimulation, replayData.Config)
 	ctx := ge.NewContext(ge.ContextConfig{
-		Mute:       true,
-		FixedDelta: true,
+		Mute:          true,
+		TimeDeltaMode: ge.TimeDeltaFixed60,
 	})
 	ctx.Loader.OpenAssetFunc = assets.MakeOpenAssetFunc(ctx, "")
 	ctx.Dict = langs.NewDictionary("en", 2)

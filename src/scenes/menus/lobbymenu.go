@@ -274,6 +274,11 @@ func (c *LobbyMenuController) bindNavTree() {
 		backButtonElem.Edges[gameui.NavLeft] = goButtonElem
 		randSchemaButtonElem.Edges[gameui.NavLeft] = schemaButtonElem
 		randSchemaButtonElem.Edges[gameui.NavUp] = backButtonElem
+
+		seedElem := c.rightNavBlock.NewElem(c.seedInput)
+		seedElem.Edges[gameui.NavDown] = goButtonElem
+		goButtonElem.Edges[gameui.NavUp] = seedElem
+		backButtonElem.Edges[gameui.NavUp] = seedElem
 	}
 
 	{

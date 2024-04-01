@@ -185,10 +185,6 @@ func (c *OptionsGraphicsMenuController) initUI() {
 			gamedata.SupportedDisplayRatios[4].Name,
 			gamedata.SupportedDisplayRatios[5].Name,
 		}
-		if c.state.Device.IsSteamDeck() {
-			// Steam Deck Native display.
-			values = append(values, gamedata.SupportedDisplayRatios[6].Name)
-		}
 		b := eui.NewSelectButton(eui.SelectButtonConfig{
 			PlaySound:  true,
 			Resources:  uiResources,

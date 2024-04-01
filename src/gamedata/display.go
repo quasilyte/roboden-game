@@ -13,7 +13,6 @@ var SupportedDisplayRatios = []DisplayRatio{
 	{Name: "19:9", Width: 1140, Height: 540},
 	{Name: "20:9", Width: 1200, Height: 540},
 	{Name: "21:9", Width: 1260, Height: 540},
-	{Name: "Steam Deck", Width: 1280, Height: 800},
 }
 
 func FindDisplayRatio(name string) int {

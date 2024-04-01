@@ -34,9 +34,11 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 
 	d := c.scene.Dict()
 
-	{
+	if c.state.Persistent.Settings.DebugLogs {
 		scaleFactor := ebiten.DeviceScaleFactor()
-		c.state.Logf("device scale factor is %.2f", scaleFactor)
+		c.state.Logf("device scale factor: %.2f", scaleFactor)
+		layoutWidth, layoutHeight := scene.Context().LayoutSize()
+		c.state.Logf("device layout sizes: %vx%v", layoutWidth, layoutHeight)
 	}
 
 	smallFont := assets.BitmapFont1

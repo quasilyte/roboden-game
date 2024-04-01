@@ -34,6 +34,11 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 
 	d := c.scene.Dict()
 
+	{
+		scaleFactor := ebiten.DeviceScaleFactor()
+		c.state.Logf("device scale factor is %.2f", scaleFactor)
+	}
+
 	smallFont := assets.BitmapFont1
 	normalFont := assets.BitmapFont2
 

@@ -122,7 +122,7 @@ func (c *MainMenuController) initUI() {
 		buildVersion += "." + strconv.Itoa(gamedata.BuildMinorNumber)
 	}
 
-	buildLabel := fmt.Sprintf("%s %s", d.Get("menu.main.build"), buildVersion)
+	buildLabel := fmt.Sprintf("%s %s (C) quasilyte tech", d.Get("menu.main.build"), buildVersion)
 	if buildinfo.Distribution != buildinfo.TagUnknown {
 		buildLabel += " [" + buildinfo.Distribution + "]"
 	}

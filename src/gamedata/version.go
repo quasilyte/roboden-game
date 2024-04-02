@@ -570,6 +570,7 @@ const SeasonNumber = 1
 // - Credits is now a multi-page screen with a larger font
 // - Stats & Progress screens now use a larger font
 // - Add rand drones build button to the lobby
+// - Add a copyright text to the main menu
 const (
 	BuildNumber      int = 25
 	BuildMinorNumber int = 0

@@ -13,6 +13,7 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/langs"
 	"github.com/quasilyte/ge/xslices"
+	"golang.org/x/image/font"
 
 	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -192,6 +193,10 @@ type Achievement struct {
 
 type Resources struct {
 	UI *eui.Resources
+
+	Font1 font.Face
+	Font2 font.Face
+	Font3 font.Face
 }
 
 type GamepadSettings struct {
@@ -212,6 +217,7 @@ type GameSettings struct {
 	ShowFPS            bool
 	ShowTimer          bool
 	LargeDiodes        bool
+	LargerFont         bool
 	DebugLogs          bool
 	DebugDroneLabels   bool
 	Demo               bool
@@ -276,6 +282,16 @@ func (state *State) AdjustVolumeLevels() {
 		assets.VolumeMultiplier(state.Persistent.Settings.MusicVolumeLevel))
 	state.Context.Audio.SetGroupVolume(assets.SoundGroupEffect,
 		assets.VolumeMultiplier(state.Persistent.Settings.EffectsVolumeLevel))
+}
+
+func (state *State) AdjustTextSize(larger bool) {
+	if larger {
+		state.Resources.Font1 = assets.Font1_3
+	} else {
+		state.Resources.Font1 = assets.Font1
+	}
+	state.Resources.Font2 = assets.Font2
+	state.Resources.Font3 = assets.Font3
 }
 
 func (state *State) ReloadInputs() {
@@ -361,10 +377,10 @@ func (state *State) CacheCommonGlyphs() {
 		return
 	}
 
-	alphabet := "0123456789 <>.,=+-:()[]&@'\"%!?●◌|\\"
-	text.CacheGlyphs(assets.BitmapFont1, alphabet)
-	text.CacheGlyphs(assets.BitmapFont2, alphabet)
-	text.CacheGlyphs(assets.BitmapFont3, alphabet)
+	alphabet := "0123456789<>.,=+-:()[]&@'\"%!?●◌|\\ ~"
+	text.CacheGlyphs(state.Resources.Font1, alphabet)
+	text.CacheGlyphs(state.Resources.Font2, alphabet)
+	text.CacheGlyphs(state.Resources.Font3, alphabet)
 }
 
 func (state *State) CacheGlyphs() {
@@ -376,9 +392,9 @@ func (state *State) CacheGlyphs() {
 	if state.Persistent.Settings.Lang == "ru" {
 		alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯabxyABXYRL"
 	}
-	text.CacheGlyphs(assets.BitmapFont1, alphabet)
-	text.CacheGlyphs(assets.BitmapFont2, alphabet)
-	text.CacheGlyphs(assets.BitmapFont3, alphabet)
+	text.CacheGlyphs(state.Resources.Font1, alphabet)
+	text.CacheGlyphs(state.Resources.Font2, alphabet)
+	text.CacheGlyphs(state.Resources.Font3, alphabet)
 }
 
 func (state *State) FindNextReplayIndex() int {

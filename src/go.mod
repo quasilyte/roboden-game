@@ -7,7 +7,6 @@ replace github.com/ebitenui/ebitenui => github.com/quasilyte/ebitenui v0.0.0-202
 require (
 	github.com/cespare/subcmd v1.1.0
 	github.com/ebitenui/ebitenui v0.5.6
-	github.com/hajimehoshi/bitmapfont/v3 v3.0.0
 	github.com/hajimehoshi/ebiten/v2 v2.6.7
 	github.com/hajimehoshi/go-steamworks v0.0.0-20231029064622-d8bdd4105652
 	github.com/mattn/go-sqlite3 v1.14.22

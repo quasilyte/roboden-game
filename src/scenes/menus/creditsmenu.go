@@ -7,7 +7,6 @@ import (
 
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
@@ -48,9 +47,9 @@ func (c *CreditsMenuController) initUI() {
 
 	d := c.scene.Context().Dict
 
-	smallFont := assets.BitmapFont2
+	smallFont := c.state.Resources.Font2
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.credits"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.credits"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	panel := eui.NewTextPanel(uiResources, 640, 92*2)

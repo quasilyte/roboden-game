@@ -57,13 +57,13 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	tinyFont := assets.BitmapFont1
+	tinyFont := c.state.Resources.Font1
 
 	helpLabel := eui.NewLabel("", tinyFont)
 	helpLabel.MaxWidth = 340
 	c.helpLabel = helpLabel
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.dronebook"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.dronebook"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	stats := &c.state.Persistent.PlayerStats
@@ -118,7 +118,6 @@ func (c *ProfileDroneCollectionMenuController) initUI() {
 	for i := range drones {
 		drone := drones[i]
 		available := droneIsUnlocked(drone)
-		available = true
 		frame := droneImage(drone, available)
 		b := eui.NewItemButton(uiResources, frame, tinyFont, "", 0, func() {})
 		b.Button.CursorEnteredEvent.AddHandler(func(args interface{}) {

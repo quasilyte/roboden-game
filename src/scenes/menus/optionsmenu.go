@@ -4,7 +4,6 @@ import (
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
 
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
@@ -42,7 +41,7 @@ func (c *OptionsMenuController) initUI() {
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	var buttons []eui.Widget
@@ -76,6 +75,14 @@ func (c *OptionsMenuController) initUI() {
 	})
 	rowContainer.AddChild(controlsButton)
 	buttons = append(buttons, controlsButton)
+
+	if !c.state.Device.IsMobile() {
+		accessibilityButton := eui.NewButton(uiResources, c.scene, d.Get("menu.options.accessibility"), func() {
+			c.scene.Context().ChangeScene(NewOptionsAccessibilityMenuController(c.state))
+		})
+		rowContainer.AddChild(accessibilityButton)
+		buttons = append(buttons, accessibilityButton)
+	}
 
 	extraButton := eui.NewButton(uiResources, c.scene, d.Get("menu.options.extra"), func() {
 		c.scene.Context().ChangeScene(NewOptionsExtraMenuController(c.state))

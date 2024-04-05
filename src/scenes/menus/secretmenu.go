@@ -44,9 +44,9 @@ func (c *SecretMenuController) initUI() {
 
 	d := c.scene.Context().Dict
 
-	smallFont := assets.BitmapFont1
+	smallFont := assets.Font1
 
-	titleLabel := eui.NewCenteredLabel("???", assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel("???", c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	panel := eui.NewTextPanel(uiResources, 0, 0)

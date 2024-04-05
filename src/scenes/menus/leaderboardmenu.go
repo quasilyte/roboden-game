@@ -2,7 +2,6 @@ package menus
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
@@ -42,7 +41,7 @@ func (c *LeaderboardMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	var buttons = []eui.Widget{

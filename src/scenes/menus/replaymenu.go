@@ -51,7 +51,7 @@ func (c *ReplayMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	smallFont := assets.BitmapFont1
+	smallFont := assets.Font1
 
 	helpLabel := eui.NewLabel("", smallFont)
 	helpLabel.MaxWidth = 268
@@ -70,7 +70,7 @@ func (c *ReplayMenuController) initUI() {
 
 	bottomNavBlock.NewElem(backButton)
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.watch_replay"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.watch_replay"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	rootGrid := widget.NewContainer(

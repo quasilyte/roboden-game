@@ -261,7 +261,7 @@ func (m *arenaManager) spawnGrenadiers() {
 
 func (m *arenaManager) createWaveInfoMessageNode() *messageNode {
 	s := m.createWaveInfoText()
-	message := newScreenTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s)
+	message := newScreenTutorialHintNode(m.world.cameras[0], gmath.Vec{X: 16, Y: 70}, gmath.Vec{}, s, m.world.textFontFace)
 	message.xpadding = 20
 	return message
 }

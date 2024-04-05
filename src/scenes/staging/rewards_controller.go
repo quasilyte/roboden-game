@@ -86,7 +86,7 @@ func (c *rewardsController) Update(delta float64) {
 	explosionSound := resource.AudioID(int(assets.AudioExplosion1) + explosionSoundIndex)
 	c.scene.Audio().PlaySound(explosionSound)
 
-	smallFont := assets.BitmapFont2
+	smallFont := c.state.Resources.Font2
 	pair := c.lines[0]
 	c.lines = c.lines[1:]
 	c.grid.AddChild(eui.NewLabel(pair[0], smallFont))
@@ -116,7 +116,7 @@ func (c *rewardsController) initUI() {
 
 	d := c.scene.Dict()
 
-	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.results.rewards"), assets.BitmapFont3))
+	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.results.rewards"), c.state.Resources.Font3))
 
 	panel := eui.NewTextPanel(uiResources, 580, 0)
 	c.panel = panel

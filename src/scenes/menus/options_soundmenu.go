@@ -43,7 +43,7 @@ func (c *OptionsSoundMenuController) initUI() {
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.sound"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.sound"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings

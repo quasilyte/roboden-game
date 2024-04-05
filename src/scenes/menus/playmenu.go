@@ -70,7 +70,7 @@ func (c *PlayMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.play"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.play"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	rootGrid := widget.NewContainer(
@@ -100,7 +100,7 @@ func (c *PlayMenuController) initUI() {
 	leftPanel.AddChild(buttonsContainer)
 	rootGrid.AddChild(leftPanel)
 
-	helpLabel := eui.NewLabel(d.Get("menu.overview.intro_mission"), assets.BitmapFont1)
+	helpLabel := eui.NewLabel(d.Get("menu.overview.intro_mission"), c.state.Resources.Font1)
 	helpLabel.MaxWidth = 320
 	c.helpLabel = helpLabel
 

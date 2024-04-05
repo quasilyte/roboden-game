@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/descriptions"
 	"github.com/quasilyte/roboden-game/gamedata"
@@ -84,13 +83,13 @@ func (c *SchemaMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	smallFont := assets.BitmapFont1
+	smallFont := c.state.Resources.Font1
 
 	helpLabel := eui.NewLabel("", smallFont)
 	helpLabel.MaxWidth = 268
 	c.helpLabel = helpLabel
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.schema"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.schema"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	numSlots := 10

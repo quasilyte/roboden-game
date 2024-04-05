@@ -571,6 +571,8 @@ const SeasonNumber = 1
 // - Stats & Progress screens now use a larger font
 // - Add rand drones build button to the lobby
 // - Add a copyright text to the main menu
+// - Large diodes go into a new accessibility options category
+// - Added a larger font accessibility option
 const (
 	BuildNumber      int = 25
 	BuildMinorNumber int = 0

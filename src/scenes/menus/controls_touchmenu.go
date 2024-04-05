@@ -44,9 +44,10 @@ func (c *ControlsTouchMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	smallFont := assets.BitmapFont1
+	// TODO: use an adaptive font here as well? (e.g. state.Resources.Font1)
+	smallFont := assets.Font1
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	panel := eui.NewTextPanel(uiResources, 0, 0)

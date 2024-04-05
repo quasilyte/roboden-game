@@ -5,7 +5,6 @@ import (
 
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
@@ -47,13 +46,13 @@ func (c *ProfileStatsMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.stats"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.stats"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	panel := eui.NewTextPanel(uiResources, 0, 0)
 	rowContainer.AddChild(panel)
 
-	smallFont := assets.BitmapFont2
+	smallFont := c.state.Resources.Font2
 	stats := c.state.Persistent.PlayerStats
 
 	grid := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(24, 4),

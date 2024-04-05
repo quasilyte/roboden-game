@@ -3,7 +3,6 @@ package menus
 import (
 	"github.com/quasilyte/ge"
 
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
@@ -43,7 +42,7 @@ func (c *OptionsGameplayMenuController) initUI() {
 	var buttons []eui.Widget
 
 	d := c.scene.Dict()
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.gameplay"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.gameplay"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings

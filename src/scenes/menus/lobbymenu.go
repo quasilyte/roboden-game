@@ -360,7 +360,7 @@ func (c *LobbyMenuController) createButtonsPanel(uiResources *eui.Resources) *wi
 
 	d := c.scene.Dict()
 
-	tinyFont := assets.BitmapFont1
+	tinyFont := assets.Font1
 
 	c.difficultyLabel = eui.NewCenteredLabel("Difficulty: 1000%", tinyFont)
 	panel.AddChild(c.difficultyLabel)
@@ -470,7 +470,7 @@ func (c *LobbyMenuController) createTabs(uiResources *eui.Resources) *widget.Tab
 		}),
 		widget.TabBookOpts.Tabs(tabs...),
 		widget.TabBookOpts.TabButtonImage(uiResources.TabButton.Image),
-		widget.TabBookOpts.TabButtonText(uiResources.TabButton.FontFace, uiResources.TabButton.TextColors),
+		widget.TabBookOpts.TabButtonText(c.state.Resources.Font2, uiResources.TabButton.TextColors),
 		widget.TabBookOpts.TabButtonOpts(
 			widget.ButtonOpts.TextPadding(uiResources.Button.Padding),
 			widget.ButtonOpts.WidgetOpts(
@@ -1042,7 +1042,7 @@ func (c *LobbyMenuController) createColonyTab(uiResources *eui.Resources) *widge
 		)),
 	)
 
-	tinyFont := assets.BitmapFont1
+	tinyFont := assets.Font1
 
 	tab.AddChild(c.createBasesPanel(uiResources))
 	tab.AddChild(c.createTurretsPanel(uiResources))
@@ -1110,10 +1110,10 @@ func (c *LobbyMenuController) createHelpPanel(uiResources *eui.Resources) *widge
 	panel := eui.NewTextPanel(uiResources, 0, 0)
 	c.helpPanel = panel
 
-	tinyFont := assets.BitmapFont1
+	tinyFont := c.state.Resources.Font1
 
 	label := eui.NewLabel("", tinyFont)
-	label.MaxWidth = 305
+	label.MaxWidth = 300
 	c.helpLabel = label
 	panel.AddChild(label)
 
@@ -1135,7 +1135,7 @@ func (c *LobbyMenuController) randomSeed() int64 {
 func (c *LobbyMenuController) createSeedPanel(uiResources *eui.Resources) *widget.Container {
 	worldSettingsPanel := eui.NewPanel(uiResources, 340, 0)
 
-	tinyFont := assets.BitmapFont1
+	tinyFont := assets.Font1
 
 	d := c.scene.Dict()
 
@@ -1328,7 +1328,7 @@ func (c *LobbyMenuController) createTurretsPanel(uiResources *eui.Resources) *wi
 func (c *LobbyMenuController) createDronesPanel(uiResources *eui.Resources) *widget.Container {
 	dronesPanel := eui.NewPanel(uiResources, 0, 0)
 
-	smallFont := assets.BitmapFont1
+	smallFont := assets.Font1
 
 	grid := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

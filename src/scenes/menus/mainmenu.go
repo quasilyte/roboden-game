@@ -127,7 +127,7 @@ func (c *MainMenuController) initUI() {
 		buildLabel += " [" + buildinfo.Distribution + "]"
 	}
 
-	buildVersionLabel := eui.NewCenteredLabel(buildLabel, assets.BitmapFont1)
+	buildVersionLabel := eui.NewCenteredLabel(buildLabel, c.state.Resources.Font1)
 	rowContainer.AddChild(buildVersionLabel)
 
 	setupUI(c.scene, root, c.state.MenuInput, navTree)

@@ -408,7 +408,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 23:
 		var creeps []arenaWaveUnit
-		for i := 0; i < 6; i++ {
+		for i := 0; i < 7; i++ {
 			super := i == 0
 			creeps = append(creeps, arenaWaveUnit{stats: gamedata.WandererCreepStats, super: super})
 		}

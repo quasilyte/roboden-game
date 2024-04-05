@@ -34,6 +34,8 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 
 	d := c.scene.Dict()
 
+	c.state.AdjustTextSize(c.state.Persistent.Settings.LargerFont)
+
 	if c.state.Persistent.Settings.DebugLogs {
 		scaleFactor := ebiten.DeviceScaleFactor()
 		c.state.Logf("device scale factor: %.2f", scaleFactor)
@@ -41,8 +43,8 @@ func (c *BootloadController) Init(scene *ge.Scene) {
 		c.state.Logf("device layout sizes: %vx%v", layoutWidth, layoutHeight)
 	}
 
-	smallFont := assets.BitmapFont1
-	normalFont := assets.BitmapFont2
+	smallFont := c.state.Resources.Font1
+	normalFont := c.state.Resources.Font2
 
 	root := eui.NewAnchorContainer()
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
@@ -153,6 +155,8 @@ func (c *BootloadController) onFirstLaunch() bool {
 
 		// If it's a Steam Deck, set appropriate defaults.
 		if c.state.Device.IsSteamDeck() {
+			c.state.Persistent.Settings.LargeDiodes = true
+			c.state.Persistent.Settings.LargerFont = true
 			c.state.Persistent.Settings.GamepadSettings[0].Layout = int(gameinput.GamepadLayoutSteamDeck)
 			c.state.CombinedInput.SetGamepadLayout(gameinput.GamepadLayoutSteamDeck)
 			c.state.FirstGamepadInput.SetGamepadLayout(gameinput.GamepadLayoutSteamDeck)
@@ -229,7 +233,13 @@ func (c *BootloadController) steamSync(ctx *ge.Context, config *assets.Config, p
 
 func (c *BootloadController) loadUIResources(ctx *ge.Context, config *assets.Config, progress *float64) {
 	*progress = 0.1
-	c.state.Resources.UI = eui.LoadResources(c.state.Device, c.scene.Context().Loader)
+	uiResources := &eui.Resources{
+		Font1: &c.state.Resources.Font1,
+		Font2: &c.state.Resources.Font2,
+		Font3: &c.state.Resources.Font3,
+	}
+	eui.LoadResources(uiResources, c.state.Device, c.scene.Context().Loader)
+	c.state.Resources.UI = uiResources
 }
 
 func (c *BootloadController) loadExtra(ctx *ge.Context, config *assets.Config, progress *float64) {

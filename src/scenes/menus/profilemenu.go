@@ -2,7 +2,6 @@ package menus
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
@@ -41,7 +40,7 @@ func (c *ProfileMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	buttons := []eui.Widget{

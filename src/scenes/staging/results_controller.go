@@ -10,7 +10,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/buildinfo"
 	"github.com/quasilyte/roboden-game/contentlock"
 	"github.com/quasilyte/roboden-game/controls"
@@ -414,7 +413,7 @@ func (c *resultsController) initUI() {
 	rowContainer := eui.NewRowLayoutContainerWithMinWidth(320, 10, nil)
 	root.AddChild(rowContainer)
 
-	smallFont := assets.BitmapFont1
+	smallFont := c.state.Resources.Font1
 
 	d := c.scene.Dict()
 
@@ -425,7 +424,7 @@ func (c *resultsController) initUI() {
 		titleString += "!"
 	}
 
-	titleLabel := eui.NewCenteredLabel(titleString, assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(titleString, c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	panel := eui.NewTextPanel(uiResources, 0, 0)

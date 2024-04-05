@@ -4,7 +4,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gsignal"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/clientkit"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/gtask"
@@ -67,9 +66,9 @@ func (c *LeaderboardLoadingController) initUI() {
 
 	d := c.scene.Dict()
 
-	tinyFont := assets.BitmapFont1
+	tinyFont := c.state.Resources.Font1
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	c.placeholder = eui.NewCenteredLabel(d.Get("menu.leaderboard.placeholder"), tinyFont)

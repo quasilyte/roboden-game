@@ -83,7 +83,7 @@ func (c *SchemaNameMenu) initUI() {
 		return
 	}
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.schema_name"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.schema_name"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	textinput := eui.NewTextInput(uiResources, eui.TextInputConfig{SteamDeck: c.state.Device.IsSteamDeck()},

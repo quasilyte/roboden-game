@@ -50,7 +50,7 @@ func (c *OptionsGraphicsMenuController) initUI() {
 	rowContainer := eui.NewRowLayoutContainerWithMinWidth(520, 10, nil)
 	root.AddChild(rowContainer)
 
-	normalFont := assets.BitmapFont3
+	normalFont := c.state.Resources.Font3
 
 	d := c.scene.Dict()
 	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.graphics"), normalFont)

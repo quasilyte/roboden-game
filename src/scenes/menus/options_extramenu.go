@@ -3,7 +3,6 @@ package menus
 import (
 	"github.com/quasilyte/ge"
 
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
@@ -41,7 +40,7 @@ func (c *OptionsExtraMenuController) initUI() {
 	root.AddChild(rowContainer)
 
 	d := c.scene.Dict()
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	options := &c.state.Persistent.Settings
@@ -98,21 +97,6 @@ func (c *OptionsExtraMenuController) initUI() {
 		rowContainer.AddChild(b.Widget)
 		buttons = append(buttons, b.Widget)
 	}
-
-	largeDiodesSelect := eui.NewSelectButton(eui.SelectButtonConfig{
-		PlaySound: true,
-		Resources: uiResources,
-		Input:     c.state.MenuInput,
-		BoolValue: &options.LargeDiodes,
-		Label:     d.Get("menu.options.large_diodes"),
-		ValueNames: []string{
-			d.Get("menu.option.off"),
-			d.Get("menu.option.on"),
-		},
-	})
-	c.scene.AddObject(largeDiodesSelect)
-	rowContainer.AddChild(largeDiodesSelect.Widget)
-	buttons = append(buttons, largeDiodesSelect.Widget)
 
 	rowContainer.AddChild(eui.NewTransparentSeparator())
 

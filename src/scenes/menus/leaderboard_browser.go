@@ -61,7 +61,7 @@ func (c *LeaderboardBrowserController) initUI() {
 
 	d := c.scene.Dict()
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.leaderboard")+" -> "+d.Get("menu.leaderboard", c.gameMode), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	eui.AddBackground(c.state.BackgroundImage, c.scene)
@@ -72,8 +72,8 @@ func (c *LeaderboardBrowserController) initUI() {
 		fetchErr := c.fetchErr
 
 		d := c.scene.Dict()
-		smallFont := assets.BitmapFont1
-		tinyFont := assets.BitmapFont1
+		smallFont := assets.Font1
+		tinyFont := assets.Font1
 
 		{
 			numSeasons := c.selectedSeason + 1

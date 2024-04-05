@@ -4,7 +4,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gsignal"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/clientkit"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui/eui"
@@ -73,9 +72,9 @@ func (c *submitScreenController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
-	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.submit.title"), assets.BitmapFont3))
+	rowContainer.AddChild(eui.NewCenteredLabel(d.Get("menu.submit.title"), c.state.Resources.Font3))
 
-	c.spinner = eui.NewCenteredLabel("--", assets.BitmapFont2)
+	c.spinner = eui.NewCenteredLabel("--", c.state.Resources.Font2)
 	rowContainer.AddChild(c.spinner)
 
 	uiObject := eui.NewSceneObject(root)

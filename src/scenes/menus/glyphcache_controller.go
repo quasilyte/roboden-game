@@ -6,7 +6,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gsignal"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/gtask"
 	"github.com/quasilyte/roboden-game/session"
@@ -56,7 +55,7 @@ func (c *GlyphCacheController) initUI() {
 	rowContainer := eui.NewRowLayoutContainer(10, nil)
 	root.AddChild(rowContainer)
 
-	c.spinner = eui.NewCenteredLabel("--", assets.BitmapFont2)
+	c.spinner = eui.NewCenteredLabel("--", c.state.Resources.Font2)
 	rowContainer.AddChild(c.spinner)
 
 	uiObject := eui.NewSceneObject(root)

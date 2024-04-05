@@ -9,7 +9,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/ge/xslices"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/controls"
 	"github.com/quasilyte/roboden-game/gamedata"
 	"github.com/quasilyte/roboden-game/gameui"
@@ -62,7 +61,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 
 	d := c.scene.Dict()
 
-	smallFont := assets.BitmapFont1
+	smallFont := c.state.Resources.Font1
 
 	helpLabel := eui.NewLabel("", smallFont)
 	helpLabel.MaxWidth = 320
@@ -80,7 +79,7 @@ func (c *ProfileAchievementsMenuController) initUI() {
 
 	var gridButtonElems []*gameui.NavElem
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.achievements"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.profile")+" -> "+d.Get("menu.profile.achievements"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	rootGrid := widget.NewContainer(

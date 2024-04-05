@@ -46,11 +46,12 @@ func (c *ControlsKeyboardMenuController) initUI() {
 
 	var buttons []eui.Widget
 
-	smallFont := assets.BitmapFont1
+	// TODO: use an adaptive font here as well? (e.g. state.Resources.Font1)
+	smallFont := assets.Font1
 
 	options := &c.state.Persistent.Settings
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.keyboard"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.keyboard"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	panel := eui.NewTextPanel(uiResources, 0, 0)

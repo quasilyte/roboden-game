@@ -2,7 +2,6 @@ package menus
 
 import (
 	"github.com/quasilyte/ge"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/gameinput"
 	"github.com/quasilyte/roboden-game/gameui/eui"
 	"github.com/quasilyte/roboden-game/session"
@@ -37,10 +36,10 @@ func (c *ControlsPromptController) initUI() {
 
 	d := c.scene.Dict()
 
-	titleLabel := eui.NewCenteredLabel(d.Get("game.onboard.welcome"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("game.onboard.welcome"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
-	promptText := eui.NewCenteredLabel(d.Get("game.onboard.select_input_method"), assets.BitmapFont1)
+	promptText := eui.NewCenteredLabel(d.Get("game.onboard.select_input_method"), c.state.Resources.Font1)
 	rowContainer.AddChild(promptText)
 
 	rowContainer.AddChild(eui.NewButton(uiResources, c.scene, d.Get("menu.controls.keyboard"), func() {

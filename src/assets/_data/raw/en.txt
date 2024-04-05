@@ -128,6 +128,7 @@ Schemas can be used to save and load your favorite drone build.
 ##menu.options.sound : Sound
 ##menu.options.graphics : Graphics
 ##menu.options.extra : Extra
+##menu.options.accessibility : Accessibility
 ##menu.options.controls : Controls
 
 ##menu.options.music_player : Music player
@@ -179,6 +180,7 @@ Schemas can be used to save and load your favorite drone build.
 ##menu.options.scroll_speed : Scroll speed
 ##menu.options.edge_scroll_range : Edge scroll range
 ##menu.options.large_diodes : Large diodes
+##menu.options.larger_font : Larger font
 ##menu.options.show_fps : Show FPS
 ##menu.options.show_timer : Show timer
 ##menu.options.splash_screen : Splash screen
@@ -536,7 +538,7 @@ Win by surviving for 20 waves.
 Split-screen multiplayer: cooperative.
 
 ##menu.overview.inf_arena
-Infinite arena mode (est. time: 90 minutes)
+Inf arena mode (est. time: 90 minutes)
 
 Stand the ground for as long as possible.
 

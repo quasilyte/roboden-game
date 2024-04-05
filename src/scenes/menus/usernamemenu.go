@@ -61,9 +61,9 @@ func (c *UserNameMenu) initUI() {
 
 	d := c.scene.Dict()
 
-	smallFont := assets.BitmapFont1
+	smallFont := assets.Font1
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.user_name"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.user_name"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	var widgets []eui.Widget

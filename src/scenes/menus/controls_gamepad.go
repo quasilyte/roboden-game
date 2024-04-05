@@ -124,11 +124,12 @@ func (c *ControlsGamepadMenuController) initUI() {
 
 	var buttons []eui.Widget
 
-	smallFont := assets.BitmapFont1
+	// TODO: use an adaptive font here as well? (e.g. state.Resources.Font1)
+	smallFont := assets.Font1
 
 	options := &c.state.Persistent.Settings
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.gamepad")+fmt.Sprintf(" %d", c.id+1), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.controls")+" -> "+d.Get("menu.controls.gamepad")+fmt.Sprintf(" %d", c.id+1), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	panelsPairContainer := eui.NewGridContainer(2, widget.GridLayoutOpts.Spacing(8, 4),

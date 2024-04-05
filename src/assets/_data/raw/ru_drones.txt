@@ -10,21 +10,21 @@
 ##core.tank : Бастион
 ##core.hive : Улий
 
-##core.mobility_rating : Рейтинг мобильности
-##core.unit_limit_rating : Рейтинг количества дронов
-##core.capacity_rating : Рейтинг вместимости ресурсов
+##core.mobility_rating : Мобильность
+##core.unit_limit_rating : Количество дронов
+##core.capacity_rating : Вместимость
 
-##core.ability.crush : Может разрушать наземных юнитов при посадке
-##core.ability.build_discount : Тратит на 50% меньше ресурсов на строительство
+##core.ability.crush : Посадка разрушает наземных юнитов
+##core.ability.build_discount : Строительство на 50% дешевле
 ##core.ability.flying : Воздушная колония
 ##core.ability.no_teleporters : Не может использовать телепортеры
 ##core.ability.cant_fly : Не может летать
 ##core.ability.cant_move : Не может перемещаться
-##core.ability.drone_control : Может устанавливать точки сбора дронов
+##core.ability.drone_control : Задаёт точки сбора дронов
 ##core.ability.weapons : Атакует воздушные цели
 ##core.ability.ground_weapons : Атакует наземные цели
 ##core.ability.robust : Блокирует часть наносимого урона
-##core.ability.cheap_drones : Производство дронов требует меньше ресурсов
+##core.ability.cheap_drones : Дешёвое производство дронов
 
 ##drone.kind.worker : рабочий
 ##drone.kind.military : военный
@@ -71,46 +71,46 @@
 
 ##drone.attack_rating_multi : на 1 цель
 ##drone.ability.num_targets_f : Атакует до %d целей
-##drone.ability.num_targets_alt_f : До %d дополнительных целей вокруг основной
+##drone.ability.num_targets_alt_f : До %d доп целей вокруг основной
 
-##drone.dps_rating : Рейтинг урона в секунду
-##drone.attack_range_rating : Рейтинг дальности атаки
-##drone.defense_rating : Рейтинг защиты
-##drone.attack_rating : Рейтинг вооружения
+##drone.dps_rating : Атака
+##drone.attack_range_rating : Дальности атаки
+##drone.defense_rating : Защита
+##drone.attack_rating : Вооружение
 ##drone.upkeep_cost : Цена обслуживания
 
 ##drone.ability.self_repair : Имеет функцию саморемонта
 ##drone.ability.extra_payload : Увеличенный трюм
-##drone.ability.aggro : Заставляет целей атаковать этого дрона
+##drone.ability.aggro : Заставляет целей атаковать себя
 ##drone.ability.disarm : Может отключать оружие своих целей
 ##drone.ability.slow : Замедляет цели
-##drone.ability.cloak_hide : Уходит в невидимость при высокой опасности
+##drone.ability.cloak_hide : Защитная невидимость
 ##drone.ability.cloak_scavenge : Добывает ресурсы в невидимости
 
-##drone.ability.energy_regen : Высокая скорость восстановления энергии
-##drone.ability.cloning : Клонирует других дронов (кроме элитных)
+##drone.ability.energy_regen : Почти бесконечная энергия
+##drone.ability.cloning : Клонирует других дронов
 ##drone.ability.repair : Чинит повреждённых дронов
-##drone.ability.recharge : Восстанавливает энергию ближайшим дронам
+##drone.ability.recharge : Восстанавливает энергию дронам
 ##drone.ability.red_oil_scavenge : Может добывать алую нефть
 ##drone.ability.colony_speed : Ускоряет колонию
-##drone.ability.colony_jump : Увеличивает дальность прыжка колонии
-##drone.ability.discharged_speed : Быстро перемещается даже при низком заряде
+##drone.ability.colony_jump : Увеличивает радиус прыжка колонии
+##drone.ability.discharged_speed : Не замедляется от разрядки
 ##drone.ability.scrap_scavenge : Может собирать обломки
-##drone.ability.courier : Перераспределяет ресурсы между колониями
+##drone.ability.courier : Распределяет ресурсы между базами
 ##drone.ability.zero_upkeep : Нулевая цена обслужевания
-##drone.ability.upkeep_decrease : Снижает расходы на обслуживание дронов колонии
+##drone.ability.upkeep_decrease : Понижает расходы колонии
 ##drone.ability.ground : Единственный наземный дрон
 ##drone.ability.map_patrol : Патрулирует карту, охраняет турели
-##drone.ability.discharged_after_attack : Разряжается после использования оружия
-##drone.ability.group_command : Берёт под контроль несколько боевых дронов
-##drone.ability.group_buff : Улучшает меткость стрельбы своей группы
-##drone.ability.group_buff_def : Увеличивает прочность дронов группы
-##drone.ability.target_marking : Размеченные им цели можно атаковать издалека
-##drone.ability.kamikaze : Перед смертью бросается в последний рывок
-##drone.ability.prism_reflect : Атаки близкостоящих призм объединяются
-##drone.ability.scarab_potential : Имеет потенциал стать чем-то более сильным
-##drone.ability.consume_for_heal : Поглощает рабочих 1 тира для саморемонта
-##drone.ability.consume_for_power : Получает постоянные бонусы при таком поглощении
+##drone.ability.discharged_after_attack : Разряжается после выстрела
+##drone.ability.group_command : Управляет группой дронов
+##drone.ability.group_buff : Улучшает меткость стрельбы группы
+##drone.ability.group_buff_def : Увеличивает прочность группы
+##drone.ability.target_marking : Размечает цели для дальней атаки
+##drone.ability.kamikaze : Умирая, выполняет финальную атаку
+##drone.ability.prism_reflect : Атаки призм объединяются
+##drone.ability.scarab_potential : Усиливается со временем
+##drone.ability.consume_for_heal : Поглощает т1 рабочих для ремонта
+##drone.ability.consume_for_power : Получает бонусы при поглощении
 ##drone.ability.bomb_attack : Атакует только по приказу
 ##drone.ability.bomb_aoe : Бомбы наносят высокий урон по области
 ##drone.ability.more_building_damage_f : На %d%% больше урона по зданиям

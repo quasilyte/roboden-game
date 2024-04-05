@@ -421,7 +421,7 @@ var TruckerAgentStats = InitDroneStats(&AgentStats{
 		ImpactArea:                15,
 		ProjectileSpeed:           170,
 		Damage:                    DamageValue{Health: 2, Slow: 1, Morale: 0.2},
-		MaxTargets:                5,
+		MaxTargets:                6,
 		TargetMaxDist:             40,
 		BurstSize:                 1,
 		ProjectileRotateSpeed:     24,

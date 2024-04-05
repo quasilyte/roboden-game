@@ -97,7 +97,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	d := scene.Dict()
 	input := c.state.MenuInput
 
-	presskeyLabelShade := ge.NewLabel(assets.BitmapFont2)
+	presskeyLabelShade := ge.NewLabel(c.state.Resources.Font2)
 	presskeyLabelShade.Width = scene.Context().WindowWidth
 	presskeyLabelShade.AlignHorizontal = ge.AlignHorizontalCenter
 	presskeyLabelShade.Text = input.ReplaceKeyNames(d.Get("game.splash.presskey", input.DetectInputMode()))
@@ -106,7 +106,7 @@ func (c *SplashScreenController) Init(scene *ge.Scene) {
 	scene.AddGraphics(presskeyLabelShade)
 
 	{
-		presskeyLabel := ge.NewLabel(assets.BitmapFont2)
+		presskeyLabel := ge.NewLabel(c.state.Resources.Font2)
 		presskeyLabel.Width = presskeyLabelShade.Width
 		presskeyLabel.AlignHorizontal = presskeyLabelShade.AlignHorizontal
 		presskeyLabel.Text = presskeyLabelShade.Text

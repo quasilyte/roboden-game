@@ -73,9 +73,9 @@ func (m *messageManager) SetMainMessage(info queuedMessageInfo) {
 	messagePos := gmath.Vec{X: 16, Y: 70}
 	worldPos := info.forceWorldPos || info.targetPos.Base != nil
 	if worldPos {
-		m.mainMessage = newWorldTutorialHintNode(m.cam, messagePos, info.targetPos, info.text)
+		m.mainMessage = newWorldTutorialHintNode(m.cam, messagePos, info.targetPos, info.text, m.world.textFontFace)
 	} else {
-		m.mainMessage = newScreenTutorialHintNode(m.cam, messagePos, info.targetPos.Offset, info.text)
+		m.mainMessage = newScreenTutorialHintNode(m.cam, messagePos, info.targetPos.Offset, info.text, m.world.textFontFace)
 	}
 	m.world.rootScene.AddObject(m.mainMessage)
 }
@@ -106,11 +106,14 @@ func (m *messageManager) nextMessage() {
 	m.messageTimer = 0
 	m.messageTimeLimit = info.timer
 	messagePos := gmath.Vec{X: 16, Y: 202}
+	if m.world.largerFont {
+		messagePos.Y += 12
+	}
 	worldPos := info.forceWorldPos || info.targetPos.Base != nil
 	if worldPos {
-		m.message = newWorldTutorialHintNode(m.cam, messagePos, info.targetPos, info.text)
+		m.message = newWorldTutorialHintNode(m.cam, messagePos, info.targetPos, info.text, m.world.textFontFace)
 	} else {
-		m.message = newScreenTutorialHintNode(m.cam, messagePos, info.targetPos.Offset, info.text)
+		m.message = newScreenTutorialHintNode(m.cam, messagePos, info.targetPos.Offset, info.text, m.world.textFontFace)
 	}
 	m.message.trackedObject = info.trackedObject
 	m.world.rootScene.AddObject(m.message)

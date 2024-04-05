@@ -16,11 +16,15 @@ import (
 	"github.com/quasilyte/roboden-game/session"
 	"github.com/quasilyte/roboden-game/userdevice"
 	"github.com/quasilyte/roboden-game/viewport"
+	"golang.org/x/image/font"
 )
 
 type worldState struct {
 	rand      *gmath.Rand
 	localRand *gmath.Rand
+
+	textFontFace font.Face
+	largerFont   bool
 
 	sessionState *session.State
 

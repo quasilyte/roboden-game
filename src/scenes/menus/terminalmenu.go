@@ -89,9 +89,9 @@ func (c *TerminalMenu) initUI() {
 
 	var widgets []eui.Widget
 
-	tinyFont := assets.BitmapFont1
+	tinyFont := assets.Font1
 
-	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra")+" -> "+d.Get("menu.terminal"), assets.BitmapFont3)
+	titleLabel := eui.NewCenteredLabel(d.Get("menu.main.settings")+" -> "+d.Get("menu.options.extra")+" -> "+d.Get("menu.terminal"), c.state.Resources.Font3)
 	rowContainer.AddChild(titleLabel)
 
 	outputPanel := eui.NewTextPanel(uiResources, 520, 200)

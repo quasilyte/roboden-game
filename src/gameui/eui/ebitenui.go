@@ -37,6 +37,10 @@ type Resources struct {
 	Panel          *PanelResource
 	DarkPanel      *PanelResource
 
+	Font1 *font.Face
+	Font2 *font.Face
+	Font3 *font.Face
+
 	mobile bool
 }
 
@@ -44,7 +48,6 @@ type TextInputResource struct {
 	Image      *widget.TextInputImage
 	Padding    widget.Insets
 	TextColors *widget.TextInputColor
-	FontFace   font.Face
 }
 
 type PanelResource struct {
@@ -56,7 +59,6 @@ type ButtonResource struct {
 	Image      *widget.ButtonImage
 	Padding    widget.Insets
 	TextColors *widget.ButtonTextColor
-	FontFace   font.Face
 }
 
 type ToggleButtonResource struct {
@@ -65,7 +67,6 @@ type ToggleButtonResource struct {
 	Padding  widget.Insets
 	Color    color.Color
 	AltColor color.Color
-	FontFace font.Face
 }
 
 type OptionButtonResource struct {
@@ -334,7 +335,7 @@ func NewRecipeView(res *Resources) *RecipeView {
 	iconsContainer.AddChild(icon1)
 
 	separator := widget.NewText(
-		widget.TextOpts.Text("", assets.BitmapFont2, res.Button.TextColors.Idle),
+		widget.TextOpts.Text("", *res.Font2, res.Button.TextColors.Idle),
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 	)
 	iconsContainer.AddChild(separator)
@@ -469,7 +470,7 @@ type ButtonConfig struct {
 
 func NewSmallButton(res *Resources, scene *ge.Scene, text string, onclick func()) *widget.Button {
 	return NewButtonWithConfig(res, ButtonConfig{
-		Font:      assets.BitmapFont1,
+		Font:      *res.Font1,
 		Scene:     scene,
 		Text:      text,
 		OnPressed: onclick,
@@ -478,7 +479,7 @@ func NewSmallButton(res *Resources, scene *ge.Scene, text string, onclick func()
 
 func NewButton(res *Resources, scene *ge.Scene, text string, onclick func()) *widget.Button {
 	return NewButtonWithConfig(res, ButtonConfig{
-		Font:      res.Button.FontFace,
+		Font:      *res.Font2,
 		Scene:     scene,
 		Text:      text,
 		OnPressed: onclick,
@@ -488,7 +489,7 @@ func NewButton(res *Resources, scene *ge.Scene, text string, onclick func()) *wi
 func NewButtonWithConfig(res *Resources, config ButtonConfig) *widget.Button {
 	ff := config.Font
 	if ff == nil {
-		ff = res.Button.FontFace
+		ff = *res.Font2
 	}
 
 	options := []widget.ButtonOpt{
@@ -674,7 +675,7 @@ func newButtonSelected(res *Resources, text string, opts ...widget.ButtonOpt) *w
 			Stretch: true,
 		})),
 		widget.ButtonOpts.Image(res.ButtonSelected.Image),
-		widget.ButtonOpts.Text(text, res.ButtonSelected.FontFace, res.ButtonSelected.TextColors),
+		widget.ButtonOpts.Text(text, *res.Font2, res.ButtonSelected.TextColors),
 		widget.ButtonOpts.TextPadding(res.ButtonSelected.Padding),
 	}
 	options = append(options, opts...)
@@ -742,9 +743,9 @@ func NewTextInput(res *Resources, config TextInputConfig, opts ...widget.TextInp
 		widget.TextInputOpts.Image(res.TextInput.Image),
 		widget.TextInputOpts.Color(res.TextInput.TextColors),
 		widget.TextInputOpts.Padding(res.TextInput.Padding),
-		widget.TextInputOpts.Face(res.TextInput.FontFace),
+		widget.TextInputOpts.Face(*res.Font1),
 		widget.TextInputOpts.CaretOpts(
-			widget.CaretOpts.Size(res.TextInput.FontFace, 2),
+			widget.CaretOpts.Size(*res.Font1, 2),
 		),
 		widget.TextInputOpts.AllowDuplicateSubmit(true),
 	}
@@ -772,10 +773,9 @@ func WidgetRect(w *widget.Widget) gmath.Rect {
 	}
 }
 
-func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
-	result := &Resources{
-		mobile: device.IsMobile(),
-	}
+func LoadResources(dst *Resources, device userdevice.Info, loader *resource.Loader) *Resources {
+	dst.mobile = device.IsMobile()
+	result := dst
 
 	{
 		idle := loader.LoadImage(assets.ImageUITextInputIdle).Data
@@ -791,7 +791,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 				Top:    14,
 				Bottom: 10,
 			},
-			FontFace: assets.BitmapFont1,
 			TextColors: &widget.TextInputColor{
 				Idle:          NormalTextColor,
 				Disabled:      NormalTextColor,
@@ -856,7 +855,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			Padding:  buttonPadding,
 			Color:    NormalTextColor,
 			AltColor: ge.RGB(0x000000),
-			FontFace: assets.BitmapFont2,
 		}
 	}
 
@@ -889,7 +887,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			Padding:  buttonPadding,
 			Color:    NormalTextColor,
 			AltColor: ge.RGB(0x000000),
-			FontFace: assets.BitmapFont2,
 		}
 	}
 
@@ -923,7 +920,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			},
 			Padding:    buttonPadding,
 			TextColors: buttonColors,
-			FontFace:   assets.BitmapFont2,
 		}
 		result.ButtonSelected = &ButtonResource{
 			Image: &widget.ButtonImage{
@@ -934,7 +930,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			},
 			Padding:    buttonPadding,
 			TextColors: buttonColors,
-			FontFace:   assets.BitmapFont2,
 		}
 		result.TabButton = &ButtonResource{
 			Image: &widget.ButtonImage{
@@ -945,7 +940,6 @@ func LoadResources(device userdevice.Info, loader *resource.Loader) *Resources {
 			},
 			Padding:    buttonPadding,
 			TextColors: buttonColors,
-			FontFace:   assets.BitmapFont2,
 		}
 	}
 

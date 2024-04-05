@@ -313,7 +313,7 @@ func (m *tooltipManager) createTooltip(pos gmath.Vec, s string) {
 	camera := m.player.state.camera.Camera
 
 	messagePos := pos.Sub(camera.ScreenPos)
-	w, h := estimateMessageBounds(s, 0)
+	w, h := estimateMessageBounds(s, 0, m.world.textFontFace)
 	if w+messagePos.X+16 > camera.Rect.Max.X {
 		messagePos.X -= w
 	}
@@ -323,6 +323,6 @@ func (m *tooltipManager) createTooltip(pos gmath.Vec, s string) {
 		messagePos.Y += 16
 	}
 
-	m.message = newScreenTutorialHintNode(camera, messagePos, gmath.Vec{}, s)
+	m.message = newScreenTutorialHintNode(camera, messagePos, gmath.Vec{}, s, m.world.textFontFace)
 	m.scene.AddObject(m.message)
 }

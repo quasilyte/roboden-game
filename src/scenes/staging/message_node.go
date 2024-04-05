@@ -4,8 +4,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/quasilyte/ge"
 	"github.com/quasilyte/gmath"
-	"github.com/quasilyte/roboden-game/assets"
 	"github.com/quasilyte/roboden-game/viewport"
+	"golang.org/x/image/font"
 )
 
 type messageNode struct {
@@ -14,6 +14,8 @@ type messageNode struct {
 	targetLine  *ge.Line
 	targetLine2 *ge.Line
 	camera      *viewport.Camera
+
+	ff font.Face
 
 	highlightRect  *ge.Rect
 	highlightStep  float64
@@ -32,29 +34,31 @@ type messageNode struct {
 	xpadding float64
 }
 
-func estimateMessageBounds(s string, xpadding float64) (width, height float64) {
-	bounds := text.BoundString(assets.BitmapFont1, s)
+func estimateMessageBounds(s string, xpadding float64, ff font.Face) (width, height float64) {
+	bounds := text.BoundString(ff, s)
 	width = (float64(bounds.Dx()) + 16) + xpadding
 	height = (float64(bounds.Dy()) + 16)
 	return width, height
 }
 
-func newScreenTutorialHintNode(camera *viewport.Camera, pos, targetPos gmath.Vec, text string) *messageNode {
+func newScreenTutorialHintNode(camera *viewport.Camera, pos, targetPos gmath.Vec, text string, ff font.Face) *messageNode {
 	return &messageNode{
 		pos:       pos,
 		targetPos: ge.Pos{Offset: targetPos},
 		text:      text,
 		camera:    camera,
 		screenPos: true,
+		ff:        ff,
 	}
 }
 
-func newWorldTutorialHintNode(camera *viewport.Camera, pos gmath.Vec, targetPos ge.Pos, text string) *messageNode {
+func newWorldTutorialHintNode(camera *viewport.Camera, pos gmath.Vec, targetPos ge.Pos, text string, ff font.Face) *messageNode {
 	return &messageNode{
 		pos:       pos,
 		targetPos: targetPos,
 		text:      text,
 		camera:    camera,
+		ff:        ff,
 	}
 }
 
@@ -73,7 +77,7 @@ func (m *messageNode) ContainsPos(pos gmath.Vec) bool {
 }
 
 func (m *messageNode) Init(scene *ge.Scene) {
-	m.width, m.height = estimateMessageBounds(m.text, m.xpadding)
+	m.width, m.height = estimateMessageBounds(m.text, m.xpadding, m.ff)
 
 	m.rect = ge.NewRect(scene.Context(), m.width, m.height)
 	m.rect.OutlineColorScale.SetColor(ge.RGB(0x5e5a5d))
@@ -90,7 +94,7 @@ func (m *messageNode) Init(scene *ge.Scene) {
 	m.highlightRect.Pos.Offset = m.pos.Sub(gmath.Vec{X: 1, Y: 1})
 	m.highlightRect.Visible = false
 
-	m.label = ge.NewLabel(assets.BitmapFont1)
+	m.label = ge.NewLabel(m.ff)
 	m.label.AlignHorizontal = ge.AlignHorizontalCenter
 	m.label.AlignVertical = ge.AlignVerticalCenter
 	m.label.Width = m.width

@@ -433,6 +433,8 @@ func (c *Controller) doInit(scene *ge.Scene) {
 	world.inputMode = c.state.GetInput(0).DetectInputMode()
 	world.creepCoordinator = newCreepCoordinator(world)
 	world.bfs = pathing.NewGreedyBFS(world.pathgrid.Size())
+	world.textFontFace = c.state.Resources.Font1
+	world.largerFont = c.state.Persistent.Settings.LargerFont
 	c.world = world
 	world.Init()
 
@@ -610,7 +612,7 @@ func (c *Controller) doInit(scene *ge.Scene) {
 
 	if c.state.Persistent.Settings.ShowFPS || c.state.Persistent.Settings.ShowTimer {
 		if len(c.world.cameras) != 0 {
-			c.debugInfo = ge.NewLabel(assets.BitmapFont1)
+			c.debugInfo = ge.NewLabel(assets.Font1)
 			c.debugInfo.SetColorScaleRGBA(0x9d, 0xd7, 0x93, 0xff)
 			c.debugInfo.Pos.Offset = gmath.Vec{X: 10, Y: 20}
 			c.world.cameras[0].UI.AddGraphics(c.debugInfo)
@@ -957,7 +959,7 @@ func (c *Controller) onExitButtonClicked() {
 		cam.UI.Visible = true
 		c.nodeRunner.SetPaused(true)
 		msg := cam.input.ReplaceKeyNames(d.Get("game.exit.notice", input.DetectInputMode()))
-		exitNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg)
+		exitNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg, c.world.textFontFace)
 		c.exitNotices = append(c.exitNotices, exitNotice)
 		c.nodeRunner.exitPrompt = true
 		c.scene.AddObject(exitNotice)
@@ -1750,7 +1752,7 @@ func (c *Controller) onPausePressed() {
 		d := c.scene.Dict()
 		cam.UI.Visible = true
 		msg := cam.input.ReplaceKeyNames(d.Get("game.pause.notice", input.DetectInputMode()))
-		pauseNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg)
+		pauseNotice := newScreenTutorialHintNode(cam.Camera, gmath.Vec{}, gmath.Vec{}, msg, c.world.textFontFace)
 		c.pauseNotices = append(c.pauseNotices, pauseNotice)
 		c.scene.AddObject(pauseNotice)
 		noticeSize := gmath.Vec{X: pauseNotice.width, Y: pauseNotice.height}

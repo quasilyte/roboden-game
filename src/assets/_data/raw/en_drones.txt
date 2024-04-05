@@ -23,7 +23,7 @@
 ##core.ability.weapons : Can attack flying targets
 ##core.ability.ground_weapons : Can attack ground targets
 ##core.ability.robust : Highly resistant to damage
-##core.ability.cheap_drones : Drone production takes less resources
+##core.ability.cheap_drones : Cheaper drone production
 
 ##drone.kind.worker : worker
 ##drone.kind.military : combat
@@ -80,38 +80,38 @@
 
 ##drone.ability.self_repair : Repairs itself over time
 ##drone.ability.extra_payload : Increased max payload
-##drone.ability.aggro : Forces the target to attack this drone
+##drone.ability.aggro : Attracts the target's aggro
 ##drone.ability.disarm : May disable the target's weapon
 ##drone.ability.slow : Slows targets down
 ##drone.ability.cloak_hide : Cloaks itself when heavily damaged
 ##drone.ability.cloak_scavenge : Cloaks itself when harvesting scraps
 
 ##drone.ability.energy_regen : Very high energy regen rate
-##drone.ability.cloning : Performs cloning of non-elite drones
+##drone.ability.cloning : Performs drone cloning
 ##drone.ability.repair : Repairs damaged drones
-##drone.ability.recharge : Recovers the energy of the nearby drones
+##drone.ability.recharge : Recovers the energy of drones
 ##drone.ability.red_oil_scavenge : Can harvest a red oil resource
 ##drone.ability.colony_speed : Makes the colony move faster
 ##drone.ability.colony_jump : Increases colony max jump distance
 ##drone.ability.discharged_speed : Moves fast even when low on energy
 ##drone.ability.scrap_scavenge : Can harvest scraps
-##drone.ability.courier : Distributes the resources between colonies
+##drone.ability.courier : Redistributes colony resources
 ##drone.ability.zero_upkeep : Zero upkeep cost
 ##drone.ability.upkeep_decrease : Decreases the total upkeep costs
 ##drone.ability.ground : The only ground drone
 ##drone.ability.map_patrol : Patrols the map and guards turrets
-##drone.ability.discharged_after_attack : Completely discharges after firing its weapon
-##drone.ability.group_command : Takes command of several combat drones
-##drone.ability.group_buff : Improves the firing accuracy of its group
-##drone.ability.group_buff_def : Improves the durability of its group
-##drone.ability.target_marking : Makes targets attackable from a longer distance
-##drone.ability.kamikaze : Becomes a kamikaze drone if heavily damaged
-##drone.ability.prism_reflect : Combines attacks with nearby prisms
-##drone.ability.scarab_potential : Has the potential to become something more
-##drone.ability.consume_for_heal : Consumes tier 1 workers to repair itself
-##drone.ability.consume_for_power : Gets permanent power when consuming a drone
+##drone.ability.discharged_after_attack : Discharges after firing once
+##drone.ability.group_command : Followed by other drones
+##drone.ability.group_buff : Improves the group's accuracy
+##drone.ability.group_buff_def : Improves the group's durability
+##drone.ability.target_marking : Increases range by marking targets
+##drone.ability.kamikaze : Can perform a kamikaze attack
+##drone.ability.prism_reflect : Prisms combine their attacks
+##drone.ability.scarab_potential : Greatly evolves over time
+##drone.ability.consume_for_heal : Consumes t1 workers to repair itself
+##drone.ability.consume_for_power : Gets power when consuming a drone
 ##drone.ability.bomb_attack : Attacks only when ordered
-##drone.ability.bomb_aoe : The bombs deal massive area of effect damage
+##drone.ability.bomb_aoe : The bombs deal area of effect damage
 ##drone.ability.more_building_damage_f : %d%% more damage against buildings
 ##drone.ability.less_building_damage_f : %d%% less damage against buildings
 

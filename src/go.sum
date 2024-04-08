@@ -25,6 +25,8 @@ github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8/go.mod h1:HKlIX3XHQyzL
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/quasilyte/bitsweetfont v0.0.0-20240408095040-c6f562515891 h1:n9tKq1x42UTrQLozEPltesRI2L416+EitTqYr3KIVcU=
 github.com/quasilyte/bitsweetfont v0.0.0-20240408095040-c6f562515891/go.mod h1:aWEGW3eW79W/s4F8bxiMtLT9fVkUH3K0wOxBbZJkC5w=
+github.com/quasilyte/bitsweetfont v0.0.0-20240408111459-e7e022e7950d h1:psjaEvHGRYJ7QtioCJ2uifYTzRvCi2BUFTwQjg1r4Ns=
+github.com/quasilyte/bitsweetfont v0.0.0-20240408111459-e7e022e7950d/go.mod h1:aWEGW3eW79W/s4F8bxiMtLT9fVkUH3K0wOxBbZJkC5w=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20231101125830-f1fc00a87be0 h1:WeuhhT4z8gWxoCmeHVvIITcWmAwDpKPc9I4J/rkzbR4=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20231101125830-f1fc00a87be0/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
 github.com/quasilyte/ebitenui v0.0.0-20240328111513-e06549c63653 h1:Wsk/sfEgD8KXu/iRjRXIaKmSDqL5kP9cUcsu35O3OxE=

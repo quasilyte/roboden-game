@@ -73,7 +73,7 @@ func (c *LeaderboardBrowserController) initUI() {
 
 		d := c.scene.Dict()
 		smallFont := assets.Font1
-		tinyFont := assets.Font1
+		tinyFont := c.state.Resources.Font1
 
 		{
 			numSeasons := c.selectedSeason + 1

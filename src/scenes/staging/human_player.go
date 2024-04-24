@@ -496,6 +496,13 @@ func (p *humanPlayer) handleInput() {
 		return
 	}
 
+	// Screen buttons (toggle view, exit, fast forward) are OK during the pause.
+	if p.screenButtons != nil && p.state.camera.UI.Visible {
+		if p.screenButtons.HandleInput(clickPos.Sub(p.state.camera.ScreenPos)) {
+			return
+		}
+	}
+
 	handledClick := false
 	// Selecting a colony by clicking on it is OK during the pause.
 	if !p.spectator && len(p.state.colonies) > 1 {
@@ -535,13 +542,6 @@ func (p *humanPlayer) handleInput() {
 		requestedCameraPos, ok := p.radar.ResolveClick(clickPos)
 		if ok {
 			p.state.camera.CenterOn(requestedCameraPos)
-			return
-		}
-	}
-
-	// Screen buttons (toggle view, exit, fast forward) are OK during the pause.
-	if p.screenButtons != nil && p.state.camera.UI.Visible {
-		if p.screenButtons.HandleInput(clickPos.Sub(p.state.camera.ScreenPos)) {
 			return
 		}
 	}

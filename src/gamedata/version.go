@@ -578,6 +578,7 @@ const SeasonNumber = 1
 // - Use atomic status for gtasks
 // - Use updated bitsweetfont version (fixes "_" character rendering)
 // - Make Den colony skill description fit the line at x1.3 font scaling
+// - Make on-screen buttons take priority over colony selection click "through it"
 const (
 	BuildNumber      int = 25
 	BuildMinorNumber int = 1

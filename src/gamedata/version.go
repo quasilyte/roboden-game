@@ -576,6 +576,7 @@ const SeasonNumber = 1
 //
 // # Version 25.1
 // - Use atomic status for gtasks
+// - Use updated bitsweetfont version (fixes "_" character rendering)
 const (
 	BuildNumber      int = 25
 	BuildMinorNumber int = 1

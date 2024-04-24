@@ -27,6 +27,8 @@ github.com/quasilyte/bitsweetfont v0.0.0-20240408095040-c6f562515891 h1:n9tKq1x4
 github.com/quasilyte/bitsweetfont v0.0.0-20240408095040-c6f562515891/go.mod h1:aWEGW3eW79W/s4F8bxiMtLT9fVkUH3K0wOxBbZJkC5w=
 github.com/quasilyte/bitsweetfont v0.0.0-20240408111459-e7e022e7950d h1:psjaEvHGRYJ7QtioCJ2uifYTzRvCi2BUFTwQjg1r4Ns=
 github.com/quasilyte/bitsweetfont v0.0.0-20240408111459-e7e022e7950d/go.mod h1:aWEGW3eW79W/s4F8bxiMtLT9fVkUH3K0wOxBbZJkC5w=
+github.com/quasilyte/bitsweetfont v0.0.0-20240424114113-2e6ac9bf3724 h1:aCtDDqVQMIgMR+WkqhtoAtmA+Dznh6PzTmSKQ6Dr08s=
+github.com/quasilyte/bitsweetfont v0.0.0-20240424114113-2e6ac9bf3724/go.mod h1:aWEGW3eW79W/s4F8bxiMtLT9fVkUH3K0wOxBbZJkC5w=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20231101125830-f1fc00a87be0 h1:WeuhhT4z8gWxoCmeHVvIITcWmAwDpKPc9I4J/rkzbR4=
 github.com/quasilyte/ebitengine-resource v0.5.1-0.20231101125830-f1fc00a87be0/go.mod h1:PEj32KsbbcgeSzAYQY5KspbImb/ucvJXoBgRMUrtBAQ=
 github.com/quasilyte/ebitenui v0.0.0-20240328111513-e06549c63653 h1:Wsk/sfEgD8KXu/iRjRXIaKmSDqL5kP9cUcsu35O3OxE=

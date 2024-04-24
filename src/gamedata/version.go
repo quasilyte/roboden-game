@@ -573,7 +573,10 @@ const SeasonNumber = 1
 // - Add a copyright text to the main menu
 // - Large diodes go into a new accessibility options category
 // - Added a larger font accessibility option
+//
+// # Version 25.1
+// - Use atomic status for gtasks
 const (
 	BuildNumber      int = 25
-	BuildMinorNumber int = 0
+	BuildMinorNumber int = 1
 )

@@ -14,7 +14,7 @@ type Task struct {
 
 	f func(ctx *TaskContext)
 
-	completed    bool
+	completed    int32
 	lastProgress float64
 
 	EventProgress  gsignal.Event[TaskProgress]
@@ -48,7 +48,7 @@ func (task *Task) Init(scene *ge.Scene) {
 	go func() {
 		task.f(task.ctx)
 		task.EventCompleted.Emit(gsignal.Void{})
-		task.completed = true
+		atomic.StoreInt32(&task.completed, 1)
 	}()
 }
 
@@ -63,7 +63,7 @@ func (task *Task) Update(delta float64) {
 }
 
 func (task *Task) IsDisposed() bool {
-	return task.completed
+	return task.completed != 0
 }
 
 func atomicLoadFloat64(x *float64) float64 {

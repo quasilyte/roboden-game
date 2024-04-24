@@ -574,12 +574,12 @@ const SeasonNumber = 1
 // - Large diodes go into a new accessibility options category
 // - Added a larger font accessibility option
 //
-// # Version 25.1
+// # Version 26
 // - Use atomic status for gtasks
 // - Use updated bitsweetfont version (fixes "_" character rendering)
 // - Make Den colony skill description fit the line at x1.3 font scaling
 // - Make on-screen buttons take priority over colony selection click "through it"
 const (
-	BuildNumber      int = 25
-	BuildMinorNumber int = 1
+	BuildNumber      int = 26
+	BuildMinorNumber int = 0
 )

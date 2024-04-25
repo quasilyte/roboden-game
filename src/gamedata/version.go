@@ -581,6 +581,7 @@ const SeasonNumber = 1
 // - Make on-screen buttons take priority over colony selection click "through it"
 // - Make intro mission (tutorial) much more lightweight (less messages)
 // - Make tooltips much more informative
+// - Add visial cue to the faction selection
 const (
 	BuildNumber      int = 26
 	BuildMinorNumber int = 0

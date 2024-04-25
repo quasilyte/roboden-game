@@ -242,6 +242,11 @@ func (panel *rpanelNode) SetBase(colony *colonyCoreNode) {
 	}
 }
 
+func (panel *rpanelNode) FactionSize(faction gamedata.FactionTag) gmath.Rect {
+	rect := panel.factionRects[faction-1]
+	return rect.BoundsRect()
+}
+
 func (panel *rpanelNode) UpdateMetrics() {
 	if panel.creepsState != nil {
 		panel.updateMetricsForCreeps()

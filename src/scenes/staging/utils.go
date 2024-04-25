@@ -437,16 +437,20 @@ func createEffect(world *worldState, config effectConfig) {
 	}
 }
 
+func rectCenter(rect gmath.Rect) gmath.Vec {
+	// FIXME: Rect.Center() does not work properly in gmath.
+	return gmath.Vec{
+		X: rect.Max.X - rect.Width()*0.5,
+		Y: rect.Max.Y - rect.Height()*0.5,
+	}
+}
+
 func createAreaExplosion(world *worldState, rect gmath.Rect, layer effectLayer) {
 	if world.simulation {
 		return
 	}
 
-	// FIXME: Rect.Center() does not work properly in gmath.
-	center := gmath.Vec{
-		X: rect.Max.X - rect.Width()*0.5,
-		Y: rect.Max.Y - rect.Height()*0.5,
-	}
+	center := rectCenter(rect)
 
 	if world.cameraShakingEnabled {
 		// TODO: use max() here.

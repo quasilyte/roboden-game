@@ -130,6 +130,9 @@ func (p *humanPlayer) CreateChoiceWindow(disableSpecial bool) {
 		if p.rpanel != nil {
 			p.rpanel.UpdateMetrics()
 		}
+		if choice.Option.special == specialChoiceNone {
+			choice.Colony.EventFactionsChanged.Emit(choice.Faction)
+		}
 	})
 
 	if disableSpecial {
@@ -625,6 +628,11 @@ func (p *humanPlayer) selectColony(colony *colonyCoreNode) {
 		p.state.camera.ToggleCamera(colony.pos)
 	})
 	if p.rpanel != nil {
+		p.state.selectedColony.EventFactionsChanged.Connect(p, func(faction gamedata.FactionTag) {
+			geom := p.rpanel.FactionSize(faction)
+			flash := newRectFlashNode(p.state.camera.Camera, gamedata.FactionByTag(faction).Color, geom)
+			p.world.nodeRunner.AddObject(flash)
+		})
 		p.state.selectedColony.EventPrioritiesChanged.Connect(p, func(_ *colonyCoreNode) {
 			p.rpanel.UpdateMetrics()
 		})

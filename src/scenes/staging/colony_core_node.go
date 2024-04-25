@@ -129,6 +129,7 @@ type colonyCoreNode struct {
 	EventOnDamage          gsignal.Event[targetable]
 	EventDestroyed         gsignal.Event[*colonyCoreNode]
 	EventPrioritiesChanged gsignal.Event[*colonyCoreNode]
+	EventFactionsChanged   gsignal.Event[gamedata.FactionTag]
 }
 
 type colonyConfig struct {

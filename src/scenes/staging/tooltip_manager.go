@@ -138,7 +138,10 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 				d.Get("game.hint.rpanel.priority_security"), int(math.Round(v*100)),
 				d.Get("game.hint.rpanel.priority_security.description"))
 		case rpanelItemFactionDistribution:
-			hint = d.Get("game.hint.rpanel.factions")
+			t = 12.0
+			hint = fmt.Sprintf("%s\n\n%s",
+				d.Get("game.hint.rpanel.factions"),
+				d.Get("game.hint.rpanel.factions.description"))
 		case rpanelItemTechProgress:
 			hint = fmt.Sprintf(d.Get("game.hint.rpanel.tech_progress_f"), int(math.Round(v*100)))
 		case rpanelItemGarrison:

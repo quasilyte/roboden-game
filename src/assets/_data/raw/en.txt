@@ -583,6 +583,10 @@ evo points allow tier 1 drones to merge into tier 2
 Affects the  worker-to-combat drone proportion,
 higher security => more military drones
 ##game.hint.rpanel.factions : Faction distribution
+##game.hint.rpanel.factions.description
+Affects newly produced drones color,
+20% green faction mean
+20% to get a green drone
 ##game.hint.action.priorities1_f : Increase %s priority
 ##game.hint.action.priorities2_f : Increase %s+%s priorities
 ##game.hint.action.garrison_f : Add units to %s garrison

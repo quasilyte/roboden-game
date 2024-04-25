@@ -592,10 +592,10 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.hint.action.garrison_f : Добавить в гарнизон (%s)
 ##game.hint.action.increaseradius : Увеличить радиус колонии
 ##game.hint.action.increaseradius.description
-Колония будет производить больше дронов.
+Колония будет производить больше дронов
 ##game.hint.action.decreaseradius : Уменьшить радиус колонии
 ##game.hint.action.decreaseradius.description
-Колония будет производить меньше дронов.
+Колония будет производить меньше дронов
 Зачастую малый радиус - хорошая боевая формация.
 ##game.hint.action.buildgunpoint : Построить турель
 ##game.hint.action.buildgunpoint.description

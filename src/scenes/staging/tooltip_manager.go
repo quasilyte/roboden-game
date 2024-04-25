@@ -165,9 +165,13 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 					hint = fmt.Sprintf(d.Get("game.hint.action.garrison_f"), side) + "\n" +
 						fmt.Sprintf("x%d %s", numCreepsPerCard(m.player.creepsState, info), d.Get("creep", info.stats.NameTag))
 				} else {
-					t = 10.0
 					key := strings.ToLower(choice.option.special.String())
-					hint = fmt.Sprintf("%s\n\n%s", d.Get("game.hint.action", key), d.Get("game.hint.action", key, "description"))
+					if m.player.creepsState == nil {
+						t = 10.0
+						hint = fmt.Sprintf("%s\n\n%s", d.Get("game.hint.action", key), d.Get("game.hint.action", key, "description"))
+					} else {
+						hint = d.Get("game.hint.action", key)
+					}
 				}
 			} else {
 				if len(choice.option.effects) == 1 {

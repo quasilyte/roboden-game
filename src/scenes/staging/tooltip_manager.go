@@ -113,17 +113,30 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 	}
 
 	if m.player.rpanel != nil {
+		t := 5.0
 		item, v := m.player.rpanel.GetItemUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
 		var hint string
 		switch item {
 		case rpanelItemResourcesPriority:
-			hint = fmt.Sprintf("%s: %d%%", d.Get("game.hint.rpanel.priority_resources"), int(math.Round(v*100)))
+			t = 10.0
+			hint = fmt.Sprintf("%s: %d%%\n\n%s",
+				d.Get("game.hint.rpanel.priority_resources"), int(math.Round(v*100)),
+				d.Get("game.hint.rpanel.priority_resources.description"))
 		case rpanelItemGrowthPriority:
-			hint = fmt.Sprintf("%s: %d%%", d.Get("game.hint.rpanel.priority_growth"), int(math.Round(v*100)))
+			t = 10.0
+			hint = fmt.Sprintf("%s: %d%%\n\n%s",
+				d.Get("game.hint.rpanel.priority_growth"), int(math.Round(v*100)),
+				d.Get("game.hint.rpanel.priority_growth.description"))
 		case rpanelItemEvolutionPriority:
-			hint = fmt.Sprintf("%s: %d%%", d.Get("game.hint.rpanel.priority_evolution"), int(math.Round(v*100)))
+			t = 10.0
+			hint = fmt.Sprintf("%s: %d%%\n\n%s",
+				d.Get("game.hint.rpanel.priority_evolution"), int(math.Round(v*100)),
+				d.Get("game.hint.rpanel.priority_evolution.description"))
 		case rpanelItemSecurityPriority:
-			hint = fmt.Sprintf("%s: %d%%", d.Get("game.hint.rpanel.priority_security"), int(math.Round(v*100)))
+			t = 10.0
+			hint = fmt.Sprintf("%s: %d%%\n\n%s",
+				d.Get("game.hint.rpanel.priority_security"), int(math.Round(v*100)),
+				d.Get("game.hint.rpanel.priority_security.description"))
 		case rpanelItemFactionDistribution:
 			hint = d.Get("game.hint.rpanel.factions")
 		case rpanelItemTechProgress:
@@ -132,7 +145,7 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 			hint = d.Get("game.hint.rpanel.garrison")
 		}
 		if hint != "" {
-			m.createTooltip(pos, hint)
+			m.createTooltipWithTime(pos, t, hint)
 			return
 		}
 	}
@@ -141,6 +154,7 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 		choice := m.player.choiceWindow.GetChoiceUnderCursor(pos.Sub(m.player.state.camera.ScreenPos))
 		if choice != nil {
 			var hint string
+			t := 5.0
 			if choice.option.special != specialChoiceNone {
 				if choice.option.special > _creepCardFirst && choice.option.special < _creepCardLast {
 					side := d.Get(sideName(choice.option.direction))
@@ -148,8 +162,9 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 					hint = fmt.Sprintf(d.Get("game.hint.action.garrison_f"), side) + "\n" +
 						fmt.Sprintf("x%d %s", numCreepsPerCard(m.player.creepsState, info), d.Get("creep", info.stats.NameTag))
 				} else {
+					t = 10.0
 					key := strings.ToLower(choice.option.special.String())
-					hint = d.Get("game.hint.action", key)
+					hint = fmt.Sprintf("%s\n\n%s", d.Get("game.hint.action", key), d.Get("game.hint.action", key, "description"))
 				}
 			} else {
 				if len(choice.option.effects) == 1 {
@@ -161,7 +176,7 @@ func (m *tooltipManager) OnHover(pos gmath.Vec) {
 				}
 			}
 			if hint != "" {
-				m.createTooltip(pos, hint)
+				m.createTooltipWithTime(pos, t, hint)
 				return
 			}
 		}
@@ -305,11 +320,15 @@ func (m *tooltipManager) removeTooltip() {
 }
 
 func (m *tooltipManager) createTooltip(pos gmath.Vec, s string) {
+	m.createTooltipWithTime(pos, 5.0, s)
+}
+
+func (m *tooltipManager) createTooltipWithTime(pos gmath.Vec, t float64, s string) {
 	if m.message != nil {
 		m.removeTooltip()
 	}
 
-	m.tooltipTime = 5
+	m.tooltipTime = t
 	camera := m.player.state.camera.Camera
 
 	messagePos := pos.Sub(camera.ScreenPos)

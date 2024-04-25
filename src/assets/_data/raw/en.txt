@@ -567,18 +567,42 @@ Split-screen multiplayer: competitive (PvP).
 ##game.hint.rpanel.garrison : Units in garrison
 ##game.hint.rpanel.tech_progress_f : Tech progress: %d%%
 ##game.hint.rpanel.priority_resources : Resources priority
+##game.hint.rpanel.priority_resources.description
+Makes workers gather minerals around
+the colony more actively
 ##game.hint.rpanel.priority_growth : Growth priority
+##game.hint.rpanel.priority_growth.description
+Increases max drone count, drone production
+rate, buildings construction rate
 ##game.hint.rpanel.priority_evolution : Evolution priority
+##game.hint.rpanel.priority_evolution.description
+Increases evolution points generation speed,
+evo points allow tier 1 drones to merge into tier 2
 ##game.hint.rpanel.priority_security : Security priority
+##game.hint.rpanel.priority_security.description
+Affects the  worker-to-combat drone proportion,
+higher security => more military drones
 ##game.hint.rpanel.factions : Faction distribution
 ##game.hint.action.priorities1_f : Increase %s priority
 ##game.hint.action.priorities2_f : Increase %s+%s priorities
 ##game.hint.action.garrison_f : Add units to %s garrison
 ##game.hint.action.increaseradius : Increase colony radius
+##game.hint.action.increaseradius.description
+Makes colony produce more drones
 ##game.hint.action.decreaseradius : Decrease colony radius
+##game.hint.action.decreaseradius.description
+Makes colony produce less drones
+Lower radius can be a good battle formation.
 ##game.hint.action.buildgunpoint : Build turret
+##game.hint.action.buildgunpoint.description
+Order a ground turret construction
 ##game.hint.action.buildcolony : Build colony
+##game.hint.action.buildcolony.description
+Order a new colony construction
 ##game.hint.action.attack : Attack
+##game.hint.action.attack.description
+Order combat drones to seek out targets
+around the colony
 ##game.hint.action.sendcreeps : Release units from garrisons
 ##game.hint.action.rally : Rally nearby units
 ##game.hint.action.spawncrawlers : Dispatch units from Dreadnought

@@ -567,18 +567,42 @@ x1.5 означает, что игра будет работать на 50% бы
 ##game.hint.rpanel.garrison : Юниты в гарнизонах
 ##game.hint.rpanel.tech_progress_f : Технологический прогресс: %d%%
 ##game.hint.rpanel.priority_resources : Приоритет ресурсов
+##game.hint.rpanel.priority_resources.description
+Чем выше приоритет, тем активнее рабочие
+дроны собирают ресурсы
 ##game.hint.rpanel.priority_growth : Приоритет роста
+##game.hint.rpanel.priority_growth.description
+Увеличивает лимит производимых дронов и
+интенсивность производства
 ##game.hint.rpanel.priority_evolution : Приоритет эволюции
+##game.hint.rpanel.priority_evolution.description
+Увеличивает скорость получения очков эволюции,
+которые нужны для слияния дронов первого уровня
 ##game.hint.rpanel.priority_security : Приоритет войск
+##game.hint.rpanel.priority_security.description
+Меняет соотношение рабочих дронов к боевым,
+выше приоритет => больше боевых дронов
 ##game.hint.rpanel.factions : Распределение фракций
 ##game.hint.action.priorities1_f : Увеличить приоритет: %s
 ##game.hint.action.priorities2_f : Увеличить приоритеты: %s+%s
 ##game.hint.action.garrison_f : Добавить в гарнизон (%s)
 ##game.hint.action.increaseradius : Увеличить радиус колонии
+##game.hint.action.increaseradius.description
+Колония будет производить больше дронов.
 ##game.hint.action.decreaseradius : Уменьшить радиус колонии
+##game.hint.action.decreaseradius.description
+Колония будет производить меньше дронов.
+Зачастую малый радиус - хорошая боевая формация.
 ##game.hint.action.buildgunpoint : Построить турель
+##game.hint.action.buildgunpoint.description
+Приказать строить наземную турель
 ##game.hint.action.buildcolony : Построить колонию
+##game.hint.action.buildcolony.description
+Приказать строить новую колонию
 ##game.hint.action.attack : Послать дронов в атаку
+##game.hint.action.attack.description
+Приказать дронам искать цели для атаки
+вокруг их колонии
 ##game.hint.action.sendcreeps : Выпустить юнитов из гарнизонов
 ##game.hint.action.rally : Запустить в атаку ближайших юнитов
 ##game.hint.action.spawncrawlers : Высадить юнитов из Дредноута

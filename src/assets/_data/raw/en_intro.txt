@@ -59,31 +59,25 @@ associated priority, like any other automated action.
 
 [click here or press ENTER to continue]
 
-##tutorial.resources_priority
+##tutorial.priorities.keyboard
 There are four priorities that govern the colony.
 
-The resources priority makes workers more eager
-to gather various minerals around the base.
+Hover over the icons to learn more about them.
 
 [click here or press ENTER to continue]
 
-##tutorial.growth_priority
-The growth priority affects drone production
-and building construction rate. It also increases
-the number of drones the colony will have.
+##tutorial.priorities.gamepad
+There are four priorities that govern the colony.
+
+Move virtual cursor over icons to learn
+more about them (right joystick).
 
 [click here or press ENTER to continue]
 
-##tutorial.evolution_priority
-The evolution priority is needed to make
-tier 1 drones combine into something more powerful.
+##tutorial.priorities.touch
+There are four priorities that govern the colony.
 
-[click here or press ENTER to continue]
-
-##tutorial.security_priority
-The security priority changes the worker-to-combat
-drone proportion. The higher security priority
-means more military units.
+Long tap the icon to learn more about them.
 
 [click here or press ENTER to continue]
 
@@ -174,21 +168,6 @@ Enemy ground units detected!
 ##tutorial.builders_attack
 Enemy builder units detected!
 
-##tutorial.increase_radius
-To further improve the colony's unit cap,
-the influence radius should be increased.
-
-Select the radius increase disk whether it
-appears on the selection.
-
-##tutorial.base_leveling
-Increasing the radius and evolving the drones
-are the two main ways to create a stronger colony.
-To get more drones and territory - increase the radius,
-to get better units - increase the evolution priority.
-
-[click here or press ENTER to continue]
-
 ##tutorial.final_attack_warning
 The final attack will be much more serious.
 
@@ -217,15 +196,6 @@ and combine the right drones via evolution.
 ##tutorial.context.resource_bar
 This bar indicator in the middle of the colony
 is its resource pool.
-
-##tutorial.context.attack_action
-The attack action makes most colony combat
-drones seek for the targets nearby.
-
-##tutorial.context.decrease_radius
-Decreasing the colony's influence radius is
-useful after it reached the desired drone count.
-Closer ranks serve as a better battle formation.
 
 ##tutorial.context.colony_construction
 A new base construction is scheduled!

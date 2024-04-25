@@ -92,7 +92,9 @@ func (panel *rpanelNode) GetItemUnderCursor(pos gmath.Vec) (rpanelItemKind, floa
 
 	for i, priorityIcon := range panel.priorityIcons {
 		rect := priorityIcon.BoundsRect()
-		rect.Max.Y += 16
+		rect.Min = rect.Min.Sub(gmath.Vec{X: 4, Y: 4})
+		rect.Max = rect.Max.Add(gmath.Vec{X: 4, Y: 4})
+		rect.Max.Y += 20
 		if rect.Contains(pos) {
 			v := panel.colony.priorities.Elems[i].Weight
 			return rpanelItemResourcesPriority + rpanelItemKind(i), v

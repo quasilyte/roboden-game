@@ -488,7 +488,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 				break
 			}
 		}
-		m.stepTicks = 160
+		m.stepTicks = 220
 		return true
 
 	case 34:

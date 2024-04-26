@@ -582,6 +582,8 @@ const SeasonNumber = 1
 // - Make intro mission (tutorial) much more lightweight (less messages)
 // - Make tooltips much more informative
 // - Add visial cue to the faction selection
+// - Add fast-forward hint to tutorial
+// - Increase the number of servobots in tutorial to 5 (was 3)
 const (
 	BuildNumber      int = 26
 	BuildMinorNumber int = 0

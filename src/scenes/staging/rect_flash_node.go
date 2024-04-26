@@ -43,8 +43,8 @@ func (n *rectFlashNode) Dispose() {
 }
 
 func (n *rectFlashNode) Update(delta float64) {
-	n.rect.OutlineColorScale.A -= float32(delta * 0.5)
-	if n.rect.OutlineColorScale.A < 0.1 {
+	n.rect.OutlineColorScale.A -= float32(delta * 0.4)
+	if n.rect.OutlineColorScale.A < 0.05 {
 		n.Dispose()
 		return
 	}

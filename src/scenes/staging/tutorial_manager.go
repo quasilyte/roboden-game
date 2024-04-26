@@ -43,6 +43,10 @@ type tutorialManager struct {
 	explainedSecondBase       bool
 	explainedFighter          bool
 	explainedDestroyer        bool
+	explainedFastForward      bool
+
+	playTime   float64
+	noHintTime float64
 
 	attackCountdown float64
 	attackNum       int
@@ -108,6 +112,11 @@ func (m *tutorialManager) Update(delta float64) {
 	}
 
 	m.enterKeyTimer += delta
+
+	m.playTime += delta
+	if m.messageManager.mainMessage == nil && len(m.messageManager.queue) == 0 {
+		m.noHintTime += delta
+	}
 
 	m.attackCountdown = gmath.ClampMin(m.attackCountdown-delta, 0)
 	if m.attackCountdown == 0 {
@@ -225,6 +234,16 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 				}
 			}
 		}
+	}
+
+	if !m.explainedFastForward && m.world.result.NumFastForwards == 0 && m.noHintTime >= 25 && m.playTime >= (7*60) {
+		m.explainedFastForward = true
+		screenPos := gmath.Vec{X: 96, Y: m.scene.Context().ScreenHeight - 72}
+		m.messageManager.AddMessage(queuedMessageInfo{
+			targetPos: ge.Pos{Offset: screenPos},
+			text:      m.scene.Dict().Get("tutorial.context.fast_forward", m.world.inputMode),
+			timer:     25,
+		})
 	}
 
 	if !m.explainedResourcePool && m.world.allColonies[0].resources > 120 {
@@ -347,7 +366,8 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return m.stepTicks == 0
 
 	case 11:
-		m.addScreenHintNode(gmath.Vec{X: (m.scene.Context().ScreenWidth - 148) + (36 * 0), Y: 516}, d.Get("tutorial.priorities", m.world.inputMode))
+		screenPos := gmath.Vec{X: (m.scene.Context().ScreenWidth - 148) + (36 * 0), Y: 516}
+		m.addScreenHintNode(screenPos, d.Get("tutorial.priorities", m.world.inputMode))
 		m.waitForEnter()
 		return true
 	case 12:
@@ -488,7 +508,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 				break
 			}
 		}
-		m.stepTicks = 40
+		m.stepTicks = 15
 		return true
 
 	case 34:
@@ -582,6 +602,7 @@ func (m *tutorialManager) processMessageText(s string) string {
 }
 
 func (m *tutorialManager) addScreenHintNode(targetPos gmath.Vec, msg string) {
+	m.noHintTime = 0
 	m.messageManager.SetMainMessage(queuedMessageInfo{
 		text:      m.processMessageText(msg),
 		targetPos: ge.Pos{Offset: targetPos},
@@ -589,6 +610,7 @@ func (m *tutorialManager) addScreenHintNode(targetPos gmath.Vec, msg string) {
 }
 
 func (m *tutorialManager) addHintNode(targetPos ge.Pos, msg string) {
+	m.noHintTime = 0
 	m.messageManager.SetMainMessage(queuedMessageInfo{
 		text:          m.processMessageText(msg),
 		targetPos:     targetPos,

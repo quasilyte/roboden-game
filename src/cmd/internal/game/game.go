@@ -376,7 +376,7 @@ func getDefaultSessionState() *session.State {
 		config.Environment = int(gamedata.EnvInferno)
 
 		config.ExtraDrones = []*gamedata.AgentStats{}
-		for i := 0; i < 3; i++ {
+		for i := 0; i < 5; i++ {
 			config.ExtraDrones = append(config.ExtraDrones, gamedata.ServoAgentStats)
 		}
 		for i := 0; i < 5; i++ {

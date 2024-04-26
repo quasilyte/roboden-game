@@ -236,7 +236,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		}
 	}
 
-	if !m.explainedFastForward && m.world.result.NumFastForwards == 0 && m.noHintTime >= 25 && m.playTime >= (7*60) {
+	if !m.explainedFastForward && m.world.result.NumFastForwards == 0 && m.noHintTime >= 15 && m.playTime >= (6*60) {
 		m.explainedFastForward = true
 		screenPos := gmath.Vec{X: 96, Y: m.scene.Context().ScreenHeight - 72}
 		m.messageManager.AddMessage(queuedMessageInfo{
@@ -502,31 +502,31 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 		return m.stepTicks == 0
 
 	case 33:
+		m.stepTicks = 10
+		return true
+
+	case 34:
+		return m.stepTicks == 0
+
+	case 35:
+		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_attack_warning"))
+		m.stepTicks = 35
+		return true
+	case 36:
+		return m.stepTicks == 0
+
+	case 37:
 		for _, creep := range m.world.creeps {
 			if creep.super && creep.stats.Kind == gamedata.CreepBuilder {
 				m.creep = creep
 				break
 			}
 		}
-		m.stepTicks = 15
-		return true
-
-	case 34:
-		return m.stepTicks == 0 || m.creep == nil
-
-	case 35:
-		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_attack_warning"))
-		m.stepTicks = 40
-		return true
-	case 36:
-		return m.stepTicks == 0
-
-	case 37:
-		m.stepTicks = 280
+		m.stepTicks = 250
 		return true
 
 	case 38:
-		return m.stepTicks == 0
+		return m.stepTicks == 0 || m.creep == nil
 
 	case 39:
 		var creeps []arenaWaveUnit

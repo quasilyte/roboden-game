@@ -194,17 +194,16 @@ and combine the right drones via evolution.
 [click here or press ENTER to continue]
 
 ##tutorial.context.fast_forward.keyboard
-You can turn on the fast-forward mode.
-Press F key to toggle it.
+To toggle the fast-forward mode,
+press F key or click this on-screen button.
 
 ##tutorial.context.fast_forward.gamepad
-You can turn on the fast-forward mode.
-To toggle it, right stick click the
-double arrow button in the bottom left corner.
+To toggle the fast-forward mode,
+right stick click on this button.
 
 ##tutorial.context.fast_forward.touch
-You can turn on the fast-forward mode.
-Tap the double arrow button below to toggle it.
+To toggle the fast-forward mode,
+tap this button.
 
 ##tutorial.context.resource_bar
 This bar indicator in the middle of the colony

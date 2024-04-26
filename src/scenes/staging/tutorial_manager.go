@@ -488,7 +488,7 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 				break
 			}
 		}
-		m.stepTicks = 220
+		m.stepTicks = 40
 		return true
 
 	case 34:
@@ -496,13 +496,13 @@ func (m *tutorialManager) maybeCompleteStep() bool {
 
 	case 35:
 		m.addHintNode(ge.Pos{}, d.Get("tutorial.final_attack_warning"))
-		m.stepTicks = 30
+		m.stepTicks = 40
 		return true
 	case 36:
 		return m.stepTicks == 0
 
 	case 37:
-		m.stepTicks = 80
+		m.stepTicks = 280
 		return true
 
 	case 38:

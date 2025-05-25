@@ -121,6 +121,7 @@ type colonyAgentNode struct {
 	colonyCore *colonyCoreNode
 
 	flashComponent damageFlashComponent
+	healthBar      *healthBarComponent
 
 	scene *ge.Scene
 
@@ -396,6 +397,18 @@ func (a *colonyAgentNode) Init(scene *ge.Scene) {
 	}
 
 	a.initExtra()
+
+	if (!a.IsTurret() || a.stats.IsNeutral) && !a.world().simulation {
+		offset := gmath.Vec{Y: -16}
+		if a.stats.Size == gamedata.SizeLarge {
+			offset.Y = -20
+		}
+		a.healthBar = newHealthBarComponent(a.world(), scene, &a.pos, offset, &a.health, a.maxHealth, 24)
+		a.healthBar.Init()
+		a.EventDestroyed.Connect(nil, func(*colonyAgentNode) {
+			a.healthBar.Dispose()
+		})
+	}
 
 	a.SetHeight(agentFlightHeight)
 }
@@ -824,6 +837,9 @@ func (a *colonyAgentNode) Update(delta float64) {
 		a.anim.Tick(delta)
 	}
 	a.flashComponent.Update(delta)
+	if a.healthBar != nil {
+		a.healthBar.Update()
+	}
 
 	if a.stats.Tier == 1 {
 		a.lifetime -= delta

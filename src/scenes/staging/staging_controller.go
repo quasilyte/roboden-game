@@ -1614,6 +1614,11 @@ func (c *Controller) handleInput() bool {
 		}
 	}
 
+	if c.sharedActionIsJustPressed(controls.ActionToggleHealthbars) {
+		c.world.showHealthbars = !c.world.showHealthbars
+		return true
+	}
+
 	if c.sharedActionIsJustPressed(controls.ActionPause) {
 		c.onPausePressed()
 		return true

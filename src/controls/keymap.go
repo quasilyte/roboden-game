@@ -31,6 +31,7 @@ const (
 	ActionToggleInterface
 	ActionToggleFastForward
 	ActionToggleFastForwardAlt
+	ActionToggleHealthbars
 
 	ActionClick
 
@@ -145,6 +146,8 @@ func BindKeymap(ctx *ge.Context) KeymapSet {
 		ActionShowRecipes: {input.KeyAlt},
 
 		ActionToggleInterface: {input.KeyF11},
+
+		ActionToggleHealthbars: {input.KeyZ},
 
 		ActionDebug: {input.KeyBackquote},
 

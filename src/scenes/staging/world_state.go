@@ -83,6 +83,7 @@ type worldState struct {
 	cameraShakingEnabled bool
 	screenButtonsEnabled bool
 	gameStarted          bool
+	showHealthbars       bool
 
 	hintsMode int
 

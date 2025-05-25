@@ -29,6 +29,7 @@ type creepNode struct {
 
 	shadowComponent shadowComponent
 	flashComponent  damageFlashComponent
+	healthBar       *healthBarComponent
 
 	world *worldState
 	stats *gamedata.CreepStats
@@ -216,6 +217,22 @@ func (c *creepNode) Init(scene *ge.Scene) {
 
 	c.health = c.maxHealth
 
+	if !c.world.simulation {
+		offset := gmath.Vec{Y: -16}
+		if c.stats.ShadowImage != assets.ImageNone {
+			// Flying creeps
+			offset.Y = -20
+		}
+		if c.stats.Kind == gamedata.CreepUberBoss {
+			offset.Y = -32
+		}
+		c.healthBar = newHealthBarComponent(c.world, scene, &c.pos, offset, &c.health, c.maxHealth, 24)
+		c.healthBar.Init()
+		c.EventDestroyed.Connect(nil, func(*creepNode) {
+			c.healthBar.Dispose()
+		})
+	}
+
 	switch c.stats.Kind {
 	case gamedata.CreepCrawler, gamedata.CreepHowitzer:
 		c.handleForestTransition(c.pos)
@@ -257,6 +274,9 @@ func (c *creepNode) IsDisposed() bool { return c.disposed }
 
 func (c *creepNode) Update(delta float64) {
 	c.flashComponent.Update(delta)
+	if c.healthBar != nil {
+		c.healthBar.Update()
+	}
 
 	c.shield = gmath.ClampMin(c.shield-delta, 0)
 	c.marked = gmath.ClampMin(c.marked-delta, 0)
